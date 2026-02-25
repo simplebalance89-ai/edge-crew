@@ -294,6 +294,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     <div class="sport-tab" onclick="switchSport('props')">Props <span class="tab-count">30</span></div>
     <div class="sport-tab" onclick="switchSport('combined')">Combined <span class="tab-count">14</span></div>
     <div class="sport-tab" onclick="switchSport('submit')" style="color:#10B981;">SUBMIT PICK</div>
+    <div class="sport-tab" onclick="refreshSlate()" style="color:#EF4444;margin-left:auto;">REFRESH SLATE</div>
 </div>
 
 <!-- CONTENT -->
@@ -1031,13 +1032,43 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 
     <div class="form-group">
         <label>Your Pick</label>
-        <input type="text" id="pickSelection" placeholder="e.g. MIL +9.5, Over 227.5, Donovan Mitchell 25+ pts">
+        <select id="pickSelection">
+            <option value="">Select a game first...</option>
+        </select>
+        <input type="text" id="pickSelectionCustom" placeholder="Type your pick (props, parlays, etc.)" style="display:none;margin-top:6px;">
     </div>
 
     <div class="form-row">
         <div class="form-group">
             <label>Odds</label>
-            <input type="text" id="pickOdds" placeholder="e.g. -110, +150">
+            <select id="pickOdds">
+                <option value="">Select...</option>
+                <option value="-110">-110 (standard)</option>
+                <option value="-115">-115</option>
+                <option value="-120">-120</option>
+                <option value="-130">-130</option>
+                <option value="-140">-140</option>
+                <option value="-150">-150</option>
+                <option value="-160">-160</option>
+                <option value="-170">-170</option>
+                <option value="-180">-180</option>
+                <option value="-200">-200</option>
+                <option value="-250">-250</option>
+                <option value="+100">+100 (even)</option>
+                <option value="+110">+110</option>
+                <option value="+120">+120</option>
+                <option value="+130">+130</option>
+                <option value="+140">+140</option>
+                <option value="+150">+150</option>
+                <option value="+175">+175</option>
+                <option value="+200">+200</option>
+                <option value="+250">+250</option>
+                <option value="+300">+300</option>
+                <option value="+400">+400</option>
+                <option value="+500">+500</option>
+                <option value="__other__">Other (type odds)</option>
+            </select>
+            <input type="text" id="pickOddsCustom" placeholder="e.g. -135, +225" style="display:none;margin-top:6px;">
         </div>
         <div class="form-group">
             <label>Units</label>
@@ -1107,6 +1138,45 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 <script>
 // State tracking
 var picks = {}; // { gameName: { checked: bool, side: string } }
+
+function refreshSlate() {
+    // Reset all game row checks and side picks
+    picks = {};
+    document.querySelectorAll('.pick-check').forEach(function(el) { el.classList.remove('on'); });
+    document.querySelectorAll('.game-row').forEach(function(el) { el.classList.remove('checked', 'expanded'); });
+    document.querySelectorAll('.side-btn').forEach(function(el) { el.classList.remove('picked'); });
+
+    // Reset submit form
+    document.getElementById('pickName').value = '';
+    document.getElementById('pickSport').value = '';
+    document.getElementById('pickType').value = '';
+    document.getElementById('pickMatchup').value = '';
+    document.getElementById('pickMatchupCustom').value = '';
+    document.getElementById('pickMatchupCustom').style.display = 'none';
+    document.getElementById('pickSelection').value = '';
+    document.getElementById('pickSelectionCustom').value = '';
+    document.getElementById('pickSelectionCustom').style.display = 'none';
+    document.getElementById('pickOdds').value = '';
+    document.getElementById('pickOddsCustom').value = '';
+    document.getElementById('pickOddsCustom').style.display = 'none';
+    document.getElementById('pickNotes').value = '';
+    document.getElementById('pickUnits').value = '1';
+    document.querySelectorAll('.conf-btn').forEach(function(b) { b.classList.remove('active'); });
+    selectedConf = '';
+
+    // Re-populate dropdowns
+    populateGameDropdown();
+    populatePickDropdown();
+
+    // Update submit bar
+    updateSubmitBar();
+
+    // Toast
+    var toast = document.getElementById('toast');
+    toast.textContent = 'Slate refreshed!';
+    toast.classList.add('show');
+    setTimeout(function() { toast.classList.remove('show'); }, 2000);
+}
 
 function togglePick(event, el, gameName) {
     event.stopPropagation();
@@ -1244,9 +1314,82 @@ function populateGameDropdown() {
     select.appendChild(other);
 }
 
-document.getElementById('pickSport').addEventListener('change', populateGameDropdown);
+document.getElementById('pickSport').addEventListener('change', function() {
+    populateGameDropdown();
+    populatePickDropdown();
+});
 document.getElementById('pickMatchup').addEventListener('change', function() {
     var custom = document.getElementById('pickMatchupCustom');
+    if (this.value === '__other__') {
+        custom.style.display = 'block';
+        custom.focus();
+    } else {
+        custom.style.display = 'none';
+        custom.value = '';
+    }
+    populatePickDropdown();
+});
+
+function populatePickDropdown() {
+    var select = document.getElementById('pickSelection');
+    var matchup = document.getElementById('pickMatchup').value;
+    var pickType = document.getElementById('pickType').value;
+    select.innerHTML = '<option value="">Select pick...</option>';
+
+    if (matchup && matchup !== '__other__') {
+        // Find the game row and pull side buttons
+        var gameRow = document.querySelector('.game-row[data-game="' + matchup + '"]');
+        if (gameRow) {
+            var sides = gameRow.querySelectorAll('.side-btn');
+            sides.forEach(function(btn) {
+                var sideText = btn.getAttribute('onclick');
+                var match = sideText ? sideText.match(/'([^']+)'\)$/) : null;
+                var val = match ? match[1] : btn.textContent.trim();
+                var opt = document.createElement('option');
+                opt.value = val;
+                opt.textContent = val;
+                select.appendChild(opt);
+            });
+        }
+        // Also check table rows for NHL games
+        document.querySelectorAll('table tr').forEach(function(tr) {
+            var cells = tr.querySelectorAll('td');
+            if (cells.length >= 3) {
+                var rowMatchup = cells[2] ? cells[2].textContent.trim() : '';
+                if (rowMatchup === matchup && cells[3]) {
+                    var spread = cells[3].textContent.trim();
+                    if (spread && spread !== 'TBD') {
+                        var opt = document.createElement('option');
+                        opt.value = rowMatchup.split(' @ ')[0] + ' ' + spread;
+                        opt.textContent = rowMatchup.split(' @ ')[0] + ' ' + spread;
+                        select.appendChild(opt);
+                    }
+                }
+            }
+        });
+    }
+
+    var other = document.createElement('option');
+    other.value = '__other__';
+    other.textContent = 'Other (type manually)';
+    select.appendChild(other);
+}
+
+document.getElementById('pickSelection').addEventListener('change', function() {
+    var custom = document.getElementById('pickSelectionCustom');
+    if (this.value === '__other__') {
+        custom.style.display = 'block';
+        custom.focus();
+    } else {
+        custom.style.display = 'none';
+        custom.value = '';
+    }
+});
+
+document.getElementById('pickType').addEventListener('change', populatePickDropdown);
+
+document.getElementById('pickOdds').addEventListener('change', function() {
+    var custom = document.getElementById('pickOddsCustom');
     if (this.value === '__other__') {
         custom.style.display = 'block';
         custom.focus();
@@ -1271,8 +1414,10 @@ function submitPick() {
     var type = document.getElementById('pickType').value;
     var matchupVal = document.getElementById('pickMatchup').value;
     var matchup = matchupVal === '__other__' ? document.getElementById('pickMatchupCustom').value : matchupVal;
-    var selection = document.getElementById('pickSelection').value;
-    var odds = document.getElementById('pickOdds').value;
+    var selVal = document.getElementById('pickSelection').value;
+    var selection = selVal === '__other__' ? document.getElementById('pickSelectionCustom').value : selVal;
+    var oddsVal = document.getElementById('pickOdds').value;
+    var odds = oddsVal === '__other__' ? document.getElementById('pickOddsCustom').value : oddsVal;
     var units = document.getElementById('pickUnits').value;
     var notes = document.getElementById('pickNotes').value;
 
@@ -1325,8 +1470,13 @@ function submitPick() {
     document.getElementById('pickMatchupCustom').value = '';
     document.getElementById('pickMatchupCustom').style.display = 'none';
     document.getElementById('pickSelection').value = '';
+    document.getElementById('pickSelectionCustom').value = '';
+    document.getElementById('pickSelectionCustom').style.display = 'none';
     document.getElementById('pickOdds').value = '';
+    document.getElementById('pickOddsCustom').value = '';
+    document.getElementById('pickOddsCustom').style.display = 'none';
     document.getElementById('pickNotes').value = '';
+    populatePickDropdown();
     document.querySelectorAll('.conf-btn').forEach(function(b) { b.classList.remove('active'); });
     selectedConf = '';
 
