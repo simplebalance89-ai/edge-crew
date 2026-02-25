@@ -1023,7 +1023,10 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 
     <div class="form-group">
         <label>Matchup</label>
-        <input type="text" id="pickMatchup" placeholder="e.g. CLE @ MIL">
+        <select id="pickMatchup">
+            <option value="">Select game...</option>
+        </select>
+        <input type="text" id="pickMatchupCustom" placeholder="Type matchup if not listed" style="display:none;margin-top:6px;">
     </div>
 
     <div class="form-group">
@@ -1192,6 +1195,70 @@ function switchSport(sport) {
 // ===== SUBMIT PICK FORM =====
 var selectedConf = '';
 
+function populateGameDropdown() {
+    var select = document.getElementById('pickMatchup');
+    var sport = document.getElementById('pickSport').value;
+    select.innerHTML = '<option value="">Select game...</option>';
+
+    var games = document.querySelectorAll('.game-row[data-game]');
+    var added = [];
+
+    games.forEach(function(row) {
+        var game = row.getAttribute('data-game');
+        if (!game || added.indexOf(game) !== -1) return;
+
+        var sportTag = row.querySelector('.tag');
+        var gameSport = sportTag ? sportTag.textContent.trim() : '';
+
+        if (!sport || gameSport === sport) {
+            var opt = document.createElement('option');
+            opt.value = game;
+            opt.textContent = (gameSport && sport !== gameSport ? gameSport + ' — ' : '') + game;
+            select.appendChild(opt);
+            added.push(game);
+        }
+    });
+
+    // Also pull from table rows (NHL etc)
+    document.querySelectorAll('table tr').forEach(function(tr) {
+        var cells = tr.querySelectorAll('td');
+        if (cells.length >= 3) {
+            var tagEl = cells[1] ? cells[1].querySelector('.tag') : null;
+            var rowSport = tagEl ? tagEl.textContent.trim() : '';
+            var matchup = cells[2] ? cells[2].textContent.trim() : '';
+            if (matchup && matchup.indexOf('@') !== -1 && added.indexOf(matchup) === -1) {
+                if (!sport || rowSport === sport) {
+                    var opt = document.createElement('option');
+                    opt.value = matchup;
+                    opt.textContent = (rowSport && sport !== rowSport ? rowSport + ' — ' : '') + matchup;
+                    select.appendChild(opt);
+                    added.push(matchup);
+                }
+            }
+        }
+    });
+
+    var other = document.createElement('option');
+    other.value = '__other__';
+    other.textContent = 'Other (type manually)';
+    select.appendChild(other);
+}
+
+document.getElementById('pickSport').addEventListener('change', populateGameDropdown);
+document.getElementById('pickMatchup').addEventListener('change', function() {
+    var custom = document.getElementById('pickMatchupCustom');
+    if (this.value === '__other__') {
+        custom.style.display = 'block';
+        custom.focus();
+    } else {
+        custom.style.display = 'none';
+        custom.value = '';
+    }
+});
+
+// Populate on load
+populateGameDropdown();
+
 function setConf(el, level) {
     document.querySelectorAll('.conf-btn').forEach(function(b) { b.classList.remove('active'); });
     el.classList.add('active');
@@ -1202,7 +1269,8 @@ function submitPick() {
     var name = document.getElementById('pickName').value;
     var sport = document.getElementById('pickSport').value;
     var type = document.getElementById('pickType').value;
-    var matchup = document.getElementById('pickMatchup').value;
+    var matchupVal = document.getElementById('pickMatchup').value;
+    var matchup = matchupVal === '__other__' ? document.getElementById('pickMatchupCustom').value : matchupVal;
     var selection = document.getElementById('pickSelection').value;
     var odds = document.getElementById('pickOdds').value;
     var units = document.getElementById('pickUnits').value;
@@ -1254,6 +1322,8 @@ function submitPick() {
 
     // Reset form
     document.getElementById('pickMatchup').value = '';
+    document.getElementById('pickMatchupCustom').value = '';
+    document.getElementById('pickMatchupCustom').style.display = 'none';
     document.getElementById('pickSelection').value = '';
     document.getElementById('pickOdds').value = '';
     document.getElementById('pickNotes').value = '';
