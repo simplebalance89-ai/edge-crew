@@ -1095,7 +1095,22 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
         <textarea id="pickNotes" placeholder="Why this pick? Edge? Gut?"></textarea>
     </div>
 
-    <button class="submit-pick-btn" onclick="submitPick()">Lock This Pick</button>
+    <div style="display:flex;gap:8px;">
+        <button class="submit-pick-btn" onclick="submitPick()" style="flex:1;">Lock This Pick</button>
+        <button class="submit-pick-btn" onclick="addParlayLeg()" style="flex:1;background:#1a1a3a !important;border:1px solid #D4A017 !important;color:#D4A017 !important;">+ Add Leg</button>
+    </div>
+
+    <div id="parlayBuilder" style="display:none;margin-top:16px;background:#1a1a2a;border:1px solid #D4A017;border-radius:10px;padding:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <h3 style="color:#D4A017;margin:0;font-size:16px;">Parlay Builder</h3>
+            <span id="parlayOdds" style="color:#D4A017;font-weight:800;font-size:18px;"></span>
+        </div>
+        <div id="parlayLegs"></div>
+        <div style="display:flex;gap:8px;margin-top:12px;">
+            <button class="submit-pick-btn" onclick="submitParlay()" style="flex:1;background:#D4A017 !important;color:#0D0D1A !important;font-weight:800;">Lock Parlay</button>
+            <button class="submit-pick-btn" onclick="clearParlay()" style="flex:0 0 auto;background:transparent !important;border:1px solid #EF4444 !important;color:#EF4444 !important;padding:8px 16px;">Clear</button>
+        </div>
+    </div>
 
     <div class="pick-history" id="pickHistory">
         <h3>Today's Submitted Picks</h3>
@@ -1532,6 +1547,194 @@ function submitPick() {
     document.getElementById('pickOddsCustom').style.display = 'none';
     document.getElementById('pickNotes').value = '';
     populatePickDropdown();
+    document.querySelectorAll('.conf-btn').forEach(function(b) { b.classList.remove('active'); });
+    selectedConf = '';
+
+    renderPicks();
+}
+
+// ===== PARLAY BUILDER =====
+var parlayLegs = [];
+
+function addParlayLeg() {
+    var sport = document.getElementById('pickSport').value;
+    var type = document.getElementById('pickType').value;
+    var matchupVal = document.getElementById('pickMatchup').value;
+    var matchup = matchupVal === '__other__' ? document.getElementById('pickMatchupCustom').value : matchupVal;
+    var selVal = document.getElementById('pickSelection').value;
+    var selection = selVal === '__other__' ? document.getElementById('pickSelectionCustom').value : selVal;
+    var oddsVal = document.getElementById('pickOdds').value;
+    var odds = oddsVal === '__other__' ? document.getElementById('pickOddsCustom').value : oddsVal;
+
+    if (!matchup || !selection) {
+        alert('Pick a game and a side first.');
+        return;
+    }
+
+    parlayLegs.push({
+        sport: sport || '?',
+        type: type || 'Spread',
+        matchup: matchup,
+        selection: selection,
+        odds: odds || '-110',
+    });
+
+    renderParlayLegs();
+
+    // Reset pick fields but keep name and sport
+    document.getElementById('pickMatchup').value = '';
+    document.getElementById('pickMatchupCustom').value = '';
+    document.getElementById('pickMatchupCustom').style.display = 'none';
+    document.getElementById('pickSelection').innerHTML = '<option value="">Select pick...</option>';
+    document.getElementById('pickSelectionCustom').value = '';
+    document.getElementById('pickSelectionCustom').style.display = 'none';
+    document.getElementById('pickOdds').value = '';
+    document.getElementById('pickOddsCustom').value = '';
+    document.getElementById('pickOddsCustom').style.display = 'none';
+
+    // Toast
+    var toast = document.getElementById('toast');
+    toast.textContent = 'Leg ' + parlayLegs.length + ' added: ' + selection;
+    toast.classList.add('show');
+    setTimeout(function() { toast.classList.remove('show'); }, 2000);
+}
+
+function renderParlayLegs() {
+    var builder = document.getElementById('parlayBuilder');
+    var container = document.getElementById('parlayLegs');
+
+    if (parlayLegs.length === 0) {
+        builder.style.display = 'none';
+        return;
+    }
+
+    builder.style.display = 'block';
+    container.innerHTML = '';
+
+    parlayLegs.forEach(function(leg, i) {
+        var div = document.createElement('div');
+        div.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.1);';
+        div.innerHTML = '<div style="flex:1;">' +
+            '<span style="color:#D4A017;font-weight:700;">Leg ' + (i+1) + '</span> ' +
+            '<span style="color:rgba(255,255,255,0.5);font-size:12px;">' + leg.sport + ' — ' + leg.matchup + '</span><br>' +
+            '<span style="color:#fff;font-weight:600;">' + leg.selection + '</span> ' +
+            '<span style="color:rgba(255,255,255,0.4);">(' + leg.odds + ')</span>' +
+            '</div>' +
+            '<div style="cursor:pointer;color:#EF4444;padding:4px 8px;font-size:18px;" onclick="removeParlayLeg(' + i + ')">×</div>';
+        container.appendChild(div);
+    });
+
+    // Calculate combined odds
+    var combinedDecimal = 1;
+    parlayLegs.forEach(function(leg) {
+        var o = parseInt(leg.odds);
+        if (!o) return;
+        var decimal;
+        if (o > 0) {
+            decimal = (o / 100) + 1;
+        } else {
+            decimal = (100 / Math.abs(o)) + 1;
+        }
+        combinedDecimal *= decimal;
+    });
+
+    var combinedAmerican;
+    if (combinedDecimal >= 2) {
+        combinedAmerican = '+' + Math.round((combinedDecimal - 1) * 100);
+    } else {
+        combinedAmerican = '-' + Math.round(100 / (combinedDecimal - 1));
+    }
+
+    document.getElementById('parlayOdds').textContent = parlayLegs.length + ' legs — ' + combinedAmerican;
+}
+
+function removeParlayLeg(index) {
+    parlayLegs.splice(index, 1);
+    renderParlayLegs();
+}
+
+function clearParlay() {
+    parlayLegs = [];
+    renderParlayLegs();
+}
+
+function submitParlay() {
+    if (parlayLegs.length < 2) {
+        alert('Need at least 2 legs for a parlay.');
+        return;
+    }
+
+    var name = document.getElementById('pickName').value;
+    var units = document.getElementById('pickUnits').value;
+    var notes = document.getElementById('pickNotes').value;
+
+    if (!name) {
+        alert('Pick your name first.');
+        return;
+    }
+
+    // Calculate combined odds
+    var combinedDecimal = 1;
+    parlayLegs.forEach(function(leg) {
+        var o = parseInt(leg.odds);
+        if (!o) return;
+        if (o > 0) combinedDecimal *= (o / 100) + 1;
+        else combinedDecimal *= (100 / Math.abs(o)) + 1;
+    });
+    var combinedAmerican;
+    if (combinedDecimal >= 2) combinedAmerican = '+' + Math.round((combinedDecimal - 1) * 100);
+    else combinedAmerican = '-' + Math.round(100 / (combinedDecimal - 1));
+
+    var legSummary = parlayLegs.map(function(l, i) {
+        return 'Leg ' + (i+1) + ': ' + l.matchup + ' — ' + l.selection + ' (' + l.odds + ')';
+    }).join('%0A');
+
+    var pick = {
+        name: name,
+        sport: 'PARLAY',
+        type: 'Parlay (' + parlayLegs.length + ' legs)',
+        matchup: parlayLegs.map(function(l) { return l.matchup; }).join(' + '),
+        selection: parlayLegs.map(function(l) { return l.selection; }).join(' / '),
+        odds: combinedAmerican,
+        units: units,
+        confidence: selectedConf || 'Lean',
+        notes: notes,
+        date: new Date().toLocaleDateString(),
+        time: new Date().toLocaleTimeString(),
+        legs: parlayLegs.slice(),
+    };
+
+    // Save to localStorage
+    var stored = JSON.parse(localStorage.getItem('edgePicks') || '[]');
+    stored.unshift(pick);
+    localStorage.setItem('edgePicks', JSON.stringify(stored));
+
+    // Email
+    var body = 'Name: ' + pick.name + '%0A' +
+        'Type: PARLAY (' + parlayLegs.length + ' legs)%0A' +
+        'Combined Odds: ' + combinedAmerican + '%0A' +
+        'Units: ' + pick.units + '%0A' +
+        'Confidence: ' + pick.confidence + '%0A' +
+        '———————————%0A' +
+        legSummary + '%0A' +
+        '———————————%0A' +
+        'Notes: ' + (pick.notes || 'None') + '%0A' +
+        'Submitted: ' + pick.date + ' ' + pick.time;
+    var subject = 'Edge Crew PARLAY | ' + pick.name + ' | ' + parlayLegs.length + ' legs | ' + combinedAmerican;
+    window.open('mailto:gcesintonia@gmail.com?subject=' + encodeURIComponent(subject) + '&body=' + body);
+
+    // Toast
+    var toast = document.getElementById('toast');
+    toast.textContent = name + "'s " + parlayLegs.length + '-leg parlay locked! ' + combinedAmerican;
+    toast.classList.add('show');
+    setTimeout(function() { toast.classList.remove('show'); }, 3000);
+
+    // Clear parlay
+    parlayLegs = [];
+    renderParlayLegs();
+
+    // Reset form
+    document.getElementById('pickNotes').value = '';
     document.querySelectorAll('.conf-btn').forEach(function(b) { b.classList.remove('active'); });
     selectedConf = '';
 
