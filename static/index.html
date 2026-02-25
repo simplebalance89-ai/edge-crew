@@ -2091,9 +2091,16 @@ function buildGameRowHTML(g) {
     var spreadStr = (spread > 0 ? '+' : '') + spread;
     var awaySpreadStr = (g.away_spread > 0 ? '+' : '') + (g.away_spread || 0);
     var total = g.total || 0;
+    var gameDate = new Date(g.time);
     var time = formatGameTime(g.time);
+    var dateStr = gameDate.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'});
     var awayML = g.away_ml || '';
     var homeML = g.home_ml || '';
+
+    // Check if game is today
+    var now = new Date();
+    var isToday = gameDate.toDateString() === now.toDateString();
+    var todayStyle = isToday ? 'border-left:3px solid #D4A017;background:rgba(212,160,23,0.04);' : 'border-left:3px solid transparent;opacity:0.75;';
 
     // Store odds in liveOddsMap for auto-select in form
     liveOddsMap[matchup] = {};
@@ -2108,10 +2115,10 @@ function buildGameRowHTML(g) {
     if (spread < 0) fav = homeAbbr;
     else if (spread > 0) fav = awayAbbr;
 
-    return '<div class="game-row" data-game="' + matchup + '" onclick="this.classList.toggle(\'expanded\')">' +
+    return '<div class="game-row" data-game="' + matchup + '" style="' + todayStyle + '" onclick="this.classList.toggle(\'expanded\')">' +
         '<div class="game-header">' +
             '<div class="pick-check" onclick="togglePick(event, this, \'' + matchup + '\')"></div>' +
-            '<div class="game-time">' + time + '</div>' +
+            '<div class="game-time">' + dateStr + '<br>' + time + '</div>' +
             '<div class="game-matchup"><span class="away">' + awayAbbr + '</span> @ <span class="home">' + homeAbbr + '</span>' +
                 '<div class="side-select">' +
                     '<div class="side-btn" onclick="pickSide(event,this,\'' + awayAbbr + ' ' + awaySpreadStr + '\')">' + awayAbbr + ' ' + awaySpreadStr + ' (' + (g.away_spread_odds||'-110') + ')</div>' +
