@@ -203,6 +203,54 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 .combined-stat{display:flex;gap:16px;}
 .stat-pill{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.5);}
 
+/* ===== SUBMIT PICK FORM ===== */
+.pick-form{max-width:600px;margin:0 auto;}
+.pick-form h2{font-family:'Playfair Display',serif;font-size:22px;margin-bottom:4px;
+    background:linear-gradient(135deg,#D4A017,#FFE082);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.pick-form .form-sub{font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:24px;}
+.form-group{margin-bottom:16px;}
+.form-group label{display:block;font-size:12px;font-weight:700;color:rgba(255,255,255,0.5);
+    text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.form-group input,.form-group select,.form-group textarea{
+    width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);
+    background:rgba(255,255,255,0.04);color:#fff;font-family:'Nunito',sans-serif;font-size:14px;
+    transition:border-color 0.2s;
+}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{
+    outline:none;border-color:rgba(212,160,23,0.5);
+}
+.form-group select{appearance:none;cursor:pointer;}
+.form-group select option{background:#0D0D1A;color:#fff;}
+.form-group textarea{resize:vertical;min-height:60px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.confidence-btns{display:flex;gap:8px;}
+.conf-btn{padding:8px 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);
+    background:transparent;color:rgba(255,255,255,0.4);font-family:'Nunito',sans-serif;
+    font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;flex:1;text-align:center;}
+.conf-btn:hover{border-color:rgba(212,160,23,0.4);color:rgba(255,255,255,0.7);}
+.conf-btn.active{background:rgba(212,160,23,0.2);border-color:#D4A017;color:#D4A017;}
+.submit-pick-btn{
+    width:100%;padding:14px;border-radius:12px;border:none;margin-top:8px;
+    background:linear-gradient(135deg,#D4A017,#B8860B);color:#0D0D1A;
+    font-family:'Nunito',sans-serif;font-size:16px;font-weight:800;
+    cursor:pointer;transition:all 0.2s;letter-spacing:0.5px;
+}
+.submit-pick-btn:hover{transform:scale(1.02);box-shadow:0 4px 20px rgba(212,160,23,0.4);}
+.pick-history{margin-top:32px;}
+.pick-history h3{font-family:'Playfair Display',serif;font-size:16px;color:#D4A017;margin-bottom:12px;}
+.pick-card{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);
+    border-radius:10px;padding:14px 18px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;}
+.pick-card .pick-main{font-size:14px;font-weight:700;}
+.pick-card .pick-meta{font-size:12px;color:rgba(255,255,255,0.4);}
+.pick-card .pick-conf{font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;}
+.pick-conf.fire{background:rgba(239,68,68,0.15);color:#EF4444;}
+.pick-conf.strong{background:rgba(212,160,23,0.15);color:#D4A017;}
+.pick-conf.lean{background:rgba(96,165,250,0.15);color:#60A5FA;}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-100px);
+    background:#10B981;color:#000;font-weight:800;font-size:14px;padding:12px 28px;
+    border-radius:12px;z-index:999;transition:transform 0.3s ease;pointer-events:none;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
 /* ===== FOOTER ===== */
 .footer{
     text-align:center;padding:32px 24px;margin-top:32px;
@@ -245,6 +293,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     <div class="sport-tab" onclick="switchSport('nhl')">NHL <span class="tab-count">8</span></div>
     <div class="sport-tab" onclick="switchSport('props')">Props <span class="tab-count">30</span></div>
     <div class="sport-tab" onclick="switchSport('combined')">Combined <span class="tab-count">14</span></div>
+    <div class="sport-tab" onclick="switchSport('submit')" style="color:#10B981;">SUBMIT PICK</div>
 </div>
 
 <!-- CONTENT -->
@@ -928,7 +977,102 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 
 </div>
 
+<!-- ===== SUBMIT PICK PANEL ===== -->
+<div class="sport-panel" id="panel-submit">
+<div class="pick-form">
+    <h2>Submit Your Pick</h2>
+    <div class="form-sub">Drop your pick. It saves locally and emails the crew.</div>
+
+    <div class="form-group">
+        <label>Your Name</label>
+        <select id="pickName">
+            <option value="">Select...</option>
+            <option value="Peter">Peter</option>
+            <option value="Chinny">Chinny</option>
+            <option value="Jimmy">Jimmy</option>
+        </select>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group">
+            <label>Sport</label>
+            <select id="pickSport">
+                <option value="">Select...</option>
+                <option value="NBA">NBA</option>
+                <option value="NHL">NHL</option>
+                <option value="NFL">NFL</option>
+                <option value="MLB">MLB</option>
+                <option value="Soccer">Soccer</option>
+                <option value="UFC">UFC</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Pick Type</label>
+            <select id="pickType">
+                <option value="">Select...</option>
+                <option value="Spread">Spread</option>
+                <option value="Moneyline">Moneyline</option>
+                <option value="Over/Under">Over/Under</option>
+                <option value="Prop">Prop</option>
+                <option value="Parlay">Parlay</option>
+                <option value="Futures">Futures</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>Matchup</label>
+        <input type="text" id="pickMatchup" placeholder="e.g. CLE @ MIL">
+    </div>
+
+    <div class="form-group">
+        <label>Your Pick</label>
+        <input type="text" id="pickSelection" placeholder="e.g. MIL +9.5, Over 227.5, Donovan Mitchell 25+ pts">
+    </div>
+
+    <div class="form-row">
+        <div class="form-group">
+            <label>Odds</label>
+            <input type="text" id="pickOdds" placeholder="e.g. -110, +150">
+        </div>
+        <div class="form-group">
+            <label>Units</label>
+            <select id="pickUnits">
+                <option value="1">1 unit</option>
+                <option value="2">2 units</option>
+                <option value="3">3 units</option>
+                <option value="5">5 units (max)</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>Confidence</label>
+        <div class="confidence-btns">
+            <div class="conf-btn" onclick="setConf(this,'Lean')">Lean</div>
+            <div class="conf-btn" onclick="setConf(this,'Strong')">Strong</div>
+            <div class="conf-btn" onclick="setConf(this,'Fire')">Fire</div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>Notes (optional)</label>
+        <textarea id="pickNotes" placeholder="Why this pick? Edge? Gut?"></textarea>
+    </div>
+
+    <button class="submit-pick-btn" onclick="submitPick()">Lock This Pick</button>
+
+    <div class="pick-history" id="pickHistory">
+        <h3>Today's Submitted Picks</h3>
+        <div id="pickList"></div>
+    </div>
 </div>
+</div>
+
+</div>
+
+<div class="toast" id="toast">Pick locked!</div>
 
 <div class="footer">
     Edge Finder by Sinton.ia | Crew Dashboard | No edge = no bet<br>
@@ -1044,6 +1188,110 @@ function switchSport(sport) {
     document.getElementById('panel-' + sport).classList.add('active');
     event.target.closest('.sport-tab').classList.add('active');
 }
+
+// ===== SUBMIT PICK FORM =====
+var selectedConf = '';
+
+function setConf(el, level) {
+    document.querySelectorAll('.conf-btn').forEach(function(b) { b.classList.remove('active'); });
+    el.classList.add('active');
+    selectedConf = level;
+}
+
+function submitPick() {
+    var name = document.getElementById('pickName').value;
+    var sport = document.getElementById('pickSport').value;
+    var type = document.getElementById('pickType').value;
+    var matchup = document.getElementById('pickMatchup').value;
+    var selection = document.getElementById('pickSelection').value;
+    var odds = document.getElementById('pickOdds').value;
+    var units = document.getElementById('pickUnits').value;
+    var notes = document.getElementById('pickNotes').value;
+
+    if (!name || !sport || !matchup || !selection) {
+        alert('Fill in name, sport, matchup, and your pick.');
+        return;
+    }
+
+    var pick = {
+        name: name,
+        sport: sport,
+        type: type || 'Spread',
+        matchup: matchup,
+        selection: selection,
+        odds: odds || 'N/A',
+        units: units,
+        confidence: selectedConf || 'Lean',
+        notes: notes,
+        date: new Date().toLocaleDateString(),
+        time: new Date().toLocaleTimeString()
+    };
+
+    // Save to localStorage
+    var stored = JSON.parse(localStorage.getItem('edgePicks') || '[]');
+    stored.unshift(pick);
+    localStorage.setItem('edgePicks', JSON.stringify(stored));
+
+    // Build email body
+    var body = 'Name: ' + pick.name + '%0A' +
+        'Sport: ' + pick.sport + '%0A' +
+        'Type: ' + pick.type + '%0A' +
+        'Matchup: ' + pick.matchup + '%0A' +
+        'Pick: ' + pick.selection + '%0A' +
+        'Odds: ' + pick.odds + '%0A' +
+        'Units: ' + pick.units + '%0A' +
+        'Confidence: ' + pick.confidence + '%0A' +
+        'Notes: ' + (pick.notes || 'None') + '%0A' +
+        'Submitted: ' + pick.date + ' ' + pick.time;
+    var subject = 'Edge Crew Pick | ' + pick.name + ' | ' + pick.sport + ' | ' + pick.matchup;
+    window.open('mailto:gcesintonia@gmail.com?subject=' + encodeURIComponent(subject) + '&body=' + body);
+
+    // Show toast
+    var toast = document.getElementById('toast');
+    toast.textContent = pick.name + "'s pick locked!";
+    toast.classList.add('show');
+    setTimeout(function() { toast.classList.remove('show'); }, 2500);
+
+    // Reset form
+    document.getElementById('pickMatchup').value = '';
+    document.getElementById('pickSelection').value = '';
+    document.getElementById('pickOdds').value = '';
+    document.getElementById('pickNotes').value = '';
+    document.querySelectorAll('.conf-btn').forEach(function(b) { b.classList.remove('active'); });
+    selectedConf = '';
+
+    renderPicks();
+}
+
+function renderPicks() {
+    var stored = JSON.parse(localStorage.getItem('edgePicks') || '[]');
+    var today = new Date().toLocaleDateString();
+    var todayPicks = stored.filter(function(p) { return p.date === today; });
+    var list = document.getElementById('pickList');
+    if (!todayPicks.length) {
+        list.innerHTML = '<div style="color:rgba(255,255,255,0.3);font-size:13px;padding:12px;">No picks submitted today yet.</div>';
+        return;
+    }
+    list.innerHTML = '';
+    todayPicks.forEach(function(p) {
+        var confClass = p.confidence === 'Fire' ? 'fire' : p.confidence === 'Strong' ? 'strong' : 'lean';
+        var card = document.createElement('div');
+        card.className = 'pick-card';
+        card.innerHTML = '<div><div class="pick-main">' + p.selection + '</div>' +
+            '<div class="pick-meta">' + p.name + ' | ' + p.sport + ' | ' + p.matchup + ' | ' + p.odds + ' | ' + p.units + 'u</div></div>' +
+            '<div class="pick-conf ' + confClass + '">' + p.confidence + '</div>';
+        list.appendChild(card);
+    });
+}
+
+// Load picks on page load
+renderPicks();
+// Remember last name selection
+var lastName = localStorage.getItem('edgeCrewName');
+if (lastName) document.getElementById('pickName').value = lastName;
+document.getElementById('pickName').addEventListener('change', function() {
+    localStorage.setItem('edgeCrewName', this.value);
+});
 </script>
 
 </body>
