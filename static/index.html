@@ -289,15 +289,15 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 
 <!-- SPORT TABS -->
 <div class="sport-tabs">
-    <div class="sport-tab active" onclick="switchSport('nba')">NBA <span class="tab-count">6</span></div>
+    <div class="sport-tab active" onclick="switchSport('bankroll')" style="color:#D4A017;">BANKROLL</div>
+    <div class="sport-tab" onclick="switchSport('submit')" style="color:#10B981;">SUBMIT PICK</div>
+    <div class="sport-tab" onclick="switchSport('nba')">NBA <span class="tab-count">6</span></div>
     <div class="sport-tab" onclick="switchSport('nhl')">NHL <span class="tab-count">8</span></div>
     <div class="sport-tab" onclick="switchSport('soccer')">Soccer <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('mma')">MMA <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('boxing')">Boxing <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('props')">Props <span class="tab-count">30</span></div>
     <div class="sport-tab" onclick="switchSport('combined')">Combined <span class="tab-count">14</span></div>
-    <div class="sport-tab" onclick="switchSport('bankroll')" style="color:#D4A017;">BANKROLL</div>
-    <div class="sport-tab" onclick="switchSport('submit')" style="color:#10B981;">SUBMIT PICK</div>
     <div class="sport-tab" onclick="refreshSlate()" style="color:#EF4444;margin-left:auto;">REFRESH SLATE</div>
 </div>
 
@@ -305,7 +305,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 <div class="content">
 
 <!-- ===== NBA PANEL ===== -->
-<div class="sport-panel active" id="panel-nba">
+<div class="sport-panel" id="panel-nba">
 
 <div class="gotcha-banner" id="gotchaCard">
     <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -1017,7 +1017,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 
 <!-- ===== SUBMIT PICK PANEL ===== -->
 <!-- ===== BANKROLL PANEL ===== -->
-<div class="sport-panel" id="panel-bankroll">
+<div class="sport-panel active" id="panel-bankroll">
 <div class="pick-form">
     <h2 style="color:#D4A017;">Bankroll Tracker</h2>
     <div class="form-sub">Track every pick. Know where you stand.</div>
@@ -2237,12 +2237,18 @@ refreshSlate = function() {
     fetchLiveOdds('boxing');
 };
 
-// Auto-fetch on load
-fetchLiveOdds('nba');
-fetchLiveOdds('nhl');
-fetchLiveOdds('soccer');
-fetchLiveOdds('mma');
-fetchLiveOdds('boxing');
+// Fetch on demand only — click a sport tab or hit Refresh Slate
+// No auto-fetch on load to save API credits and load time
+var fetchedSports = {};
+var _originalSwitchSport = switchSport;
+switchSport = function(sport) {
+    _originalSwitchSport(sport);
+    // Auto-fetch when switching to a sport tab for the first time
+    if (['nba','nhl','soccer','mma','boxing'].indexOf(sport) !== -1 && !fetchedSports[sport]) {
+        fetchLiveOdds(sport);
+        fetchedSports[sport] = true;
+    }
+};
 
 // Remember last name selection
 var lastName = localStorage.getItem('edgeCrewName');
