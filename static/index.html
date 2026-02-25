@@ -1506,6 +1506,176 @@ function renderPicks() {
 
 // Load picks on page load
 renderPicks();
+
+// ===== LIVE ODDS FETCH =====
+var teamAbbr = {
+    "Atlanta Hawks":"ATL","Boston Celtics":"BOS","Brooklyn Nets":"BKN","Charlotte Hornets":"CHA",
+    "Chicago Bulls":"CHI","Cleveland Cavaliers":"CLE","Dallas Mavericks":"DAL","Denver Nuggets":"DEN",
+    "Detroit Pistons":"DET","Golden State Warriors":"GS","Houston Rockets":"HOU","Indiana Pacers":"IND",
+    "Los Angeles Clippers":"LAC","Los Angeles Lakers":"LAL","Memphis Grizzlies":"MEM","Miami Heat":"MIA",
+    "Milwaukee Bucks":"MIL","Minnesota Timberwolves":"MIN","New Orleans Pelicans":"NOP","New York Knicks":"NYK",
+    "Oklahoma City Thunder":"OKC","Orlando Magic":"ORL","Philadelphia 76ers":"PHI","Phoenix Suns":"PHX",
+    "Portland Trail Blazers":"POR","Sacramento Kings":"SAC","San Antonio Spurs":"SA","Toronto Raptors":"TOR",
+    "Utah Jazz":"UTA","Washington Wizards":"WAS",
+    "Anaheim Ducks":"ANA","Arizona Coyotes":"ARI","Boston Bruins":"BOS","Buffalo Sabres":"BUF",
+    "Calgary Flames":"CGY","Carolina Hurricanes":"CAR","Chicago Blackhawks":"CHI","Colorado Avalanche":"COL",
+    "Columbus Blue Jackets":"CBJ","Dallas Stars":"DAL","Detroit Red Wings":"DET","Edmonton Oilers":"EDM",
+    "Florida Panthers":"FLA","Los Angeles Kings":"LAK","Minnesota Wild":"MIN","Montreal Canadiens":"MTL",
+    "Nashville Predators":"NSH","New Jersey Devils":"NJD","New York Islanders":"NYI","New York Rangers":"NYR",
+    "Ottawa Senators":"OTT","Philadelphia Flyers":"PHI","Pittsburgh Penguins":"PIT","San Jose Sharks":"SJS",
+    "Seattle Kraken":"SEA","St. Louis Blues":"STL","Tampa Bay Lightning":"TBL","Toronto Maple Leafs":"TOR",
+    "Utah Mammoth":"UTA","Vancouver Canucks":"VAN","Vegas Golden Knights":"VGK","Washington Capitals":"WSH",
+    "Winnipeg Jets":"WPG"
+};
+
+function abbr(name) { return teamAbbr[name] || name.split(' ').pop().substring(0,3).toUpperCase(); }
+
+function formatGameTime(isoTime) {
+    var d = new Date(isoTime);
+    var h = d.getHours();
+    var m = d.getMinutes();
+    var ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    return h + ':' + (m < 10 ? '0' : '') + m + ' ' + ampm;
+}
+
+function buildGameRowHTML(g) {
+    var awayAbbr = abbr(g.away);
+    var homeAbbr = abbr(g.home);
+    var matchup = awayAbbr + ' @ ' + homeAbbr;
+    var spread = g.home_spread || 0;
+    var spreadStr = (spread > 0 ? '+' : '') + spread;
+    var awaySpreadStr = (g.away_spread > 0 ? '+' : '') + (g.away_spread || 0);
+    var total = g.total || 0;
+    var time = formatGameTime(g.time);
+    var awayML = g.away_ml || '';
+    var homeML = g.home_ml || '';
+
+    var fav = '';
+    if (spread < 0) fav = homeAbbr;
+    else if (spread > 0) fav = awayAbbr;
+
+    return '<div class="game-row" data-game="' + matchup + '" onclick="this.classList.toggle(\'expanded\')">' +
+        '<div class="game-header">' +
+            '<div class="pick-check" onclick="togglePick(event, this, \'' + matchup + '\')"></div>' +
+            '<div class="game-time">' + time + '</div>' +
+            '<div class="game-matchup"><span class="away">' + awayAbbr + '</span> @ <span class="home">' + homeAbbr + '</span>' +
+                '<div class="side-select">' +
+                    '<div class="side-btn" onclick="pickSide(event,this,\'' + awayAbbr + ' ' + awaySpreadStr + '\')">' + awayAbbr + ' ' + awaySpreadStr + '</div>' +
+                    '<div class="side-btn" onclick="pickSide(event,this,\'' + homeAbbr + ' ' + spreadStr + '\')">' + homeAbbr + ' ' + spreadStr + '</div>' +
+                    '<div class="side-btn" onclick="pickSide(event,this,\'OVER ' + total + '\')">OVER ' + total + '</div>' +
+                    '<div class="side-btn" onclick="pickSide(event,this,\'UNDER ' + total + '\')">UNDER ' + total + '</div>' +
+                '</div>' +
+            '</div>' +
+            '<div class="game-spread">' + (fav || homeAbbr) + ' ' + (spread < 0 ? spreadStr : awaySpreadStr) + '</div>' +
+            '<div class="game-total">O/U ' + total + '</div>' +
+            '<div class="game-grade"><span class="grade gbp">--</span></div>' +
+            '<div class="game-edge">' +
+                '<span class="tag" style="background:rgba(212,160,23,0.15);color:#D4A017;">HR BET</span> ' +
+                'ML: ' + awayAbbr + ' (' + awayML + ') / ' + homeAbbr + ' (' + homeML + ')' +
+            '</div>' +
+        '</div>' +
+        '<div class="game-detail">' +
+            '<div class="detail-grid">' +
+                '<div class="detail-box peter"><h4>Lines (Hard Rock)</h4>' +
+                    '<p>Spread: ' + awayAbbr + ' ' + awaySpreadStr + ' (' + (g.away_spread_odds||'-110') + ') / ' + homeAbbr + ' ' + spreadStr + ' (' + (g.home_spread_odds||'-110') + ')<br>' +
+                    'Total: O ' + total + ' (' + (g.over_odds||'-110') + ') / U ' + total + ' (' + (g.under_odds||'-110') + ')<br>' +
+                    'ML: ' + awayAbbr + ' ' + awayML + ' / ' + homeAbbr + ' ' + homeML + '</p>' +
+                '</div>' +
+                '<div class="detail-box trends"><h4>Notes</h4><p>Live Hard Rock lines. Add your edge notes after analysis.</p></div>' +
+            '</div>' +
+        '</div>' +
+    '</div>';
+}
+
+function fetchLiveOdds(sport) {
+    var panel = document.getElementById('panel-' + sport);
+    if (!panel) return;
+
+    // Show loading
+    var existingRows = panel.querySelectorAll('.game-row');
+    var gotcha = panel.querySelector('.gotcha-banner');
+
+    fetch('/api/odds/' + sport)
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.error) {
+                console.error('API error:', data.error);
+                return;
+            }
+
+            // Remove old game rows (keep gotcha banner if exists)
+            existingRows.forEach(function(row) { row.remove(); });
+
+            // Remove old "no games" message if any
+            var noGames = panel.querySelector('.no-games');
+            if (noGames) noGames.remove();
+
+            if (!data.games || data.games.length === 0) {
+                var msg = document.createElement('div');
+                msg.className = 'no-games';
+                msg.style.cssText = 'text-align:center;padding:40px;color:rgba(255,255,255,0.4);';
+                msg.textContent = 'No ' + sport.toUpperCase() + ' games on the slate right now.';
+                panel.appendChild(msg);
+                return;
+            }
+
+            // Build new rows
+            var html = '';
+            data.games.forEach(function(g) {
+                html += buildGameRowHTML(g);
+            });
+
+            // Insert after gotcha banner or at top
+            var temp = document.createElement('div');
+            temp.innerHTML = html;
+            while (temp.firstChild) {
+                panel.appendChild(temp.firstChild);
+            }
+
+            // Update tab count
+            var tabs = document.querySelectorAll('.sport-tab');
+            tabs.forEach(function(tab) {
+                if (tab.textContent.indexOf(sport.toUpperCase()) === 0) {
+                    var count = tab.querySelector('.tab-count');
+                    if (count) count.textContent = data.games.length;
+                }
+            });
+
+            // Re-populate form dropdowns
+            populateGameDropdown();
+            populatePickDropdown();
+
+            // Update sweep time
+            var sweepEl = document.querySelector('.sweep-time');
+            if (sweepEl) {
+                var now = new Date();
+                sweepEl.innerHTML = 'Last sweep: ' + now.toLocaleTimeString() + '<br>Source: Hard Rock Bet (live)';
+            }
+
+            // Toast
+            var toast = document.getElementById('toast');
+            toast.textContent = sport.toUpperCase() + ' slate loaded — ' + data.games.length + ' games (Hard Rock Bet)';
+            toast.classList.add('show');
+            setTimeout(function() { toast.classList.remove('show'); }, 3000);
+        })
+        .catch(function(err) {
+            console.error('Fetch error:', err);
+        });
+}
+
+// Override refreshSlate to also fetch live data
+var _originalRefreshSlate = refreshSlate;
+refreshSlate = function() {
+    _originalRefreshSlate();
+    fetchLiveOdds('nba');
+    fetchLiveOdds('nhl');
+};
+
+// Auto-fetch on load
+fetchLiveOdds('nba');
+fetchLiveOdds('nhl');
+
 // Remember last name selection
 var lastName = localStorage.getItem('edgeCrewName');
 if (lastName) document.getElementById('pickName').value = lastName;
