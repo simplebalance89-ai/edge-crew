@@ -296,6 +296,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     <div class="sport-tab" onclick="switchSport('boxing')">Boxing <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('props')">Props <span class="tab-count">30</span></div>
     <div class="sport-tab" onclick="switchSport('combined')">Combined <span class="tab-count">14</span></div>
+    <div class="sport-tab" onclick="switchSport('bankroll')" style="color:#D4A017;">BANKROLL</div>
     <div class="sport-tab" onclick="switchSport('submit')" style="color:#10B981;">SUBMIT PICK</div>
     <div class="sport-tab" onclick="refreshSlate()" style="color:#EF4444;margin-left:auto;">REFRESH SLATE</div>
 </div>
@@ -306,16 +307,25 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 <!-- ===== NBA PANEL ===== -->
 <div class="sport-panel active" id="panel-nba">
 
-<div class="gotcha-banner">
-    <h3>Gotcha Card</h3>
-    <ul>
-        <li><strong>ALL 6 road teams on B2B.</strong> Home ice/court advantage night. Lean home unless something overrides.</li>
-        <li><strong>Giannis</strong> OUT 13th straight (calf). MIL is not the Bucks without him.</li>
-        <li><strong>SGA + Jalen Williams</strong> still OUT for OKC. Shell team on a B2B.</li>
-        <li><strong>Curry + Porzingis</strong> both OUT for GS. On a B2B. GS favored at -3.5? <span class="tag tag-trap">VERIFY LINE</span></li>
-        <li><strong>Tatum</strong> season (Achilles). <strong>Brown</strong> questionable. BOS at altitude on B2B.</li>
-        <li><strong>Harden (37)</strong> B2B watch. CLE may rest him. Confirm at noon.</li>
-    </ul>
+<div class="gotcha-banner" id="gotchaCard">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h3>Gotcha Card</h3>
+        <div style="display:flex;gap:6px;">
+            <div style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(212,160,23,0.15);color:#D4A017;font-size:11px;font-weight:700;" onclick="toggleGotchaEdit()">EDIT</div>
+            <div style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(16,185,129,0.15);color:#10B981;font-size:11px;font-weight:700;" onclick="saveGotcha()">SAVE</div>
+        </div>
+    </div>
+    <div id="gotchaDisplay">
+        <ul>
+            <li><strong>ALL 6 road teams on B2B.</strong> Home ice/court advantage night. Lean home unless something overrides.</li>
+            <li><strong>Giannis</strong> OUT 13th straight (calf). MIL is not the Bucks without him.</li>
+            <li><strong>SGA + Jalen Williams</strong> still OUT for OKC. Shell team on a B2B.</li>
+            <li><strong>Curry + Porzingis</strong> both OUT for GS. On a B2B. GS favored at -3.5? VERIFY LINE</li>
+            <li><strong>Tatum</strong> season (Achilles). <strong>Brown</strong> questionable. BOS at altitude on B2B.</li>
+            <li><strong>Harden (37)</strong> B2B watch. CLE may rest him. Confirm at noon.</li>
+        </ul>
+    </div>
+    <textarea id="gotchaEditor" style="display:none;width:100%;min-height:150px;background:#0D0D1A;color:#fff;border:1px solid #D4A017;border-radius:6px;padding:10px;font-family:'Nunito',sans-serif;font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line. Use for injuries, traps, edges, B2B flags..."></textarea>
 </div>
 
 <!-- CLE @ MIL -->
@@ -1006,6 +1016,71 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 </div>
 
 <!-- ===== SUBMIT PICK PANEL ===== -->
+<!-- ===== BANKROLL PANEL ===== -->
+<div class="sport-panel" id="panel-bankroll">
+<div class="pick-form">
+    <h2 style="color:#D4A017;">Bankroll Tracker</h2>
+    <div class="form-sub">Track every pick. Know where you stand.</div>
+
+    <!-- Bankroll settings -->
+    <div style="display:flex;gap:12px;margin:16px 0;">
+        <div class="form-group" style="flex:1;">
+            <label>Starting Bankroll ($)</label>
+            <input type="number" id="bankrollStart" placeholder="1000" value="">
+        </div>
+        <div class="form-group" style="flex:1;">
+            <label>Unit Size ($)</label>
+            <input type="number" id="unitSize" placeholder="25" value="">
+        </div>
+        <div style="flex:0 0 auto;display:flex;align-items:flex-end;">
+            <button class="submit-pick-btn" onclick="saveBankrollSettings()" style="padding:10px 20px;">Save</button>
+        </div>
+    </div>
+
+    <!-- Summary cards -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0;">
+        <div style="background:#141428;border:1px solid #1e1e40;border-radius:8px;padding:14px;text-align:center;">
+            <div style="color:rgba(255,255,255,0.5);font-size:11px;text-transform:uppercase;">Current Balance</div>
+            <div id="brBalance" style="color:#D4A017;font-size:24px;font-weight:800;">$0</div>
+        </div>
+        <div style="background:#141428;border:1px solid #1e1e40;border-radius:8px;padding:14px;text-align:center;">
+            <div style="color:rgba(255,255,255,0.5);font-size:11px;text-transform:uppercase;">Record (W-L-P)</div>
+            <div id="brRecord" style="color:#fff;font-size:24px;font-weight:800;">0-0-0</div>
+        </div>
+        <div style="background:#141428;border:1px solid #1e1e40;border-radius:8px;padding:14px;text-align:center;">
+            <div style="color:rgba(255,255,255,0.5);font-size:11px;text-transform:uppercase;">Net Units</div>
+            <div id="brUnits" style="color:#fff;font-size:24px;font-weight:800;">0</div>
+        </div>
+        <div style="background:#141428;border:1px solid #1e1e40;border-radius:8px;padding:14px;text-align:center;">
+            <div style="color:rgba(255,255,255,0.5);font-size:11px;text-transform:uppercase;">ROI</div>
+            <div id="brROI" style="color:#fff;font-size:24px;font-weight:800;">0%</div>
+        </div>
+    </div>
+
+    <!-- Per-person breakdown -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0;">
+        <div style="background:#141428;border:1px solid #2a2a5a;border-radius:8px;padding:12px;text-align:center;">
+            <div style="color:#D4A017;font-weight:700;margin-bottom:4px;">Peter</div>
+            <div id="brPeter" style="color:#fff;font-size:14px;">0-0-0 | 0u</div>
+        </div>
+        <div style="background:#141428;border:1px solid #2a2a5a;border-radius:8px;padding:12px;text-align:center;">
+            <div style="color:#10B981;font-weight:700;margin-bottom:4px;">Chinny</div>
+            <div id="brChinny" style="color:#fff;font-size:14px;">0-0-0 | 0u</div>
+        </div>
+        <div style="background:#141428;border:1px solid #2a2a5a;border-radius:8px;padding:12px;text-align:center;">
+            <div style="color:#5588EE;font-weight:700;margin-bottom:4px;">Jimmy</div>
+            <div id="brJimmy" style="color:#fff;font-size:14px;">0-0-0 | 0u</div>
+        </div>
+    </div>
+
+    <!-- Pick results list -->
+    <h3 style="margin-top:20px;color:#D4A017;">Pick Results</h3>
+    <div style="color:rgba(255,255,255,0.4);font-size:12px;margin-bottom:8px;">Click W / L / P to grade each pick. Results save automatically.</div>
+    <div id="bankrollPicks"></div>
+</div>
+</div>
+
+<!-- ===== SUBMIT PICK PANEL ===== -->
 <div class="sport-panel" id="panel-submit">
 <div class="pick-form">
     <h2>Submit Your Pick</h2>
@@ -1580,6 +1655,189 @@ function submitPick() {
 
     renderPicks();
 }
+
+// ===== BANKROLL TRACKER =====
+function saveBankrollSettings() {
+    var start = document.getElementById('bankrollStart').value || 1000;
+    var unit = document.getElementById('unitSize').value || 25;
+    localStorage.setItem('edgeBankrollStart', start);
+    localStorage.setItem('edgeUnitSize', unit);
+    renderBankroll();
+    var toast = document.getElementById('toast');
+    toast.textContent = 'Bankroll set: $' + start + ' / $' + unit + ' per unit';
+    toast.classList.add('show');
+    setTimeout(function() { toast.classList.remove('show'); }, 2000);
+}
+
+function gradePick(index, result) {
+    var stored = JSON.parse(localStorage.getItem('edgePicks') || '[]');
+    if (stored[index]) {
+        stored[index].result = result;
+        localStorage.setItem('edgePicks', JSON.stringify(stored));
+        renderBankroll();
+    }
+}
+
+function calcPayout(odds, units) {
+    var o = parseInt(odds);
+    var u = parseFloat(units) || 1;
+    if (!o) return 0;
+    if (o > 0) return (o / 100) * u;
+    else return (100 / Math.abs(o)) * u;
+}
+
+function renderBankroll() {
+    var stored = JSON.parse(localStorage.getItem('edgePicks') || '[]');
+    var startBR = parseFloat(localStorage.getItem('edgeBankrollStart') || '1000');
+    var unitSize = parseFloat(localStorage.getItem('edgeUnitSize') || '25');
+
+    document.getElementById('bankrollStart').value = startBR;
+    document.getElementById('unitSize').value = unitSize;
+
+    var wins = 0, losses = 0, pushes = 0, netUnits = 0;
+    var personStats = {Peter:{w:0,l:0,p:0,u:0},Chinny:{w:0,l:0,p:0,u:0},Jimmy:{w:0,l:0,p:0,u:0}};
+
+    stored.forEach(function(pick) {
+        if (!pick.result) return;
+        var units = parseFloat(pick.units) || 1;
+        var person = personStats[pick.name] || {w:0,l:0,p:0,u:0};
+
+        if (pick.result === 'W') {
+            wins++;
+            var payout = calcPayout(pick.odds, units);
+            netUnits += payout;
+            person.w++;
+            person.u += payout;
+        } else if (pick.result === 'L') {
+            losses++;
+            netUnits -= units;
+            person.l++;
+            person.u -= units;
+        } else if (pick.result === 'P') {
+            pushes++;
+            person.p++;
+        }
+
+        if (personStats[pick.name]) personStats[pick.name] = person;
+    });
+
+    var balance = startBR + (netUnits * unitSize);
+    var totalRisked = stored.filter(function(p) { return p.result === 'W' || p.result === 'L'; }).reduce(function(sum, p) { return sum + (parseFloat(p.units) || 1); }, 0);
+    var roi = totalRisked > 0 ? ((netUnits / totalRisked) * 100).toFixed(1) : 0;
+
+    document.getElementById('brBalance').textContent = '$' + balance.toFixed(0);
+    document.getElementById('brBalance').style.color = balance >= startBR ? '#10B981' : '#EF4444';
+    document.getElementById('brRecord').textContent = wins + '-' + losses + '-' + pushes;
+    document.getElementById('brUnits').textContent = (netUnits >= 0 ? '+' : '') + netUnits.toFixed(1) + 'u';
+    document.getElementById('brUnits').style.color = netUnits >= 0 ? '#10B981' : '#EF4444';
+    document.getElementById('brROI').textContent = (roi >= 0 ? '+' : '') + roi + '%';
+    document.getElementById('brROI').style.color = roi >= 0 ? '#10B981' : '#EF4444';
+
+    for (var name in personStats) {
+        var s = personStats[name];
+        var el = document.getElementById('br' + name);
+        if (el) {
+            el.textContent = s.w + '-' + s.l + '-' + s.p + ' | ' + (s.u >= 0 ? '+' : '') + s.u.toFixed(1) + 'u';
+            el.style.color = s.u >= 0 ? '#10B981' : '#EF4444';
+        }
+    }
+
+    // Render grading list
+    var container = document.getElementById('bankrollPicks');
+    container.innerHTML = '';
+    stored.forEach(function(pick, i) {
+        var div = document.createElement('div');
+        div.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.08);';
+
+        var graded = pick.result || '';
+        var wClass = graded === 'W' ? 'background:#10B981;color:#fff;' : 'background:transparent;border:1px solid #10B981;color:#10B981;';
+        var lClass = graded === 'L' ? 'background:#EF4444;color:#fff;' : 'background:transparent;border:1px solid #EF4444;color:#EF4444;';
+        var pClass = graded === 'P' ? 'background:#D4A017;color:#fff;' : 'background:transparent;border:1px solid #D4A017;color:#D4A017;';
+        var btnStyle = 'cursor:pointer;padding:4px 10px;border-radius:4px;font-weight:700;font-size:12px;';
+
+        div.innerHTML =
+            '<div style="flex:1;">' +
+                '<div style="color:#fff;font-weight:600;">' + (pick.selection || pick.matchup) + '</div>' +
+                '<div style="color:rgba(255,255,255,0.4);font-size:12px;">' +
+                    pick.name + ' | ' + (pick.sport || '?') + ' | ' + (pick.matchup || '') + ' | ' + (pick.odds || '') + ' | ' + (pick.units || 1) + 'u' +
+                    (pick.type === 'Parlay' || (pick.legs && pick.legs.length) ? ' | PARLAY' : '') +
+                '</div>' +
+                '<div style="color:rgba(255,255,255,0.3);font-size:11px;">' + (pick.date || '') + ' ' + (pick.time || '') + '</div>' +
+            '</div>' +
+            '<div style="display:flex;gap:4px;">' +
+                '<div style="' + btnStyle + wClass + '" onclick="gradePick(' + i + ',\'W\')">W</div>' +
+                '<div style="' + btnStyle + lClass + '" onclick="gradePick(' + i + ',\'L\')">L</div>' +
+                '<div style="' + btnStyle + pClass + '" onclick="gradePick(' + i + ',\'P\')">P</div>' +
+            '</div>';
+
+        container.appendChild(div);
+    });
+
+    if (stored.length === 0) {
+        container.innerHTML = '<div style="color:rgba(255,255,255,0.3);text-align:center;padding:20px;">No picks yet. Submit picks and grade them here.</div>';
+    }
+}
+
+// Load bankroll on page load
+renderBankroll();
+
+// ===== GOTCHA CARD =====
+function toggleGotchaEdit() {
+    var display = document.getElementById('gotchaDisplay');
+    var editor = document.getElementById('gotchaEditor');
+    if (editor.style.display === 'none') {
+        // Switch to edit mode — pull current notes into textarea
+        var items = display.querySelectorAll('li');
+        var lines = [];
+        items.forEach(function(li) { lines.push(li.textContent.trim()); });
+        editor.value = lines.join('\n');
+        editor.style.display = 'block';
+        display.style.display = 'none';
+        editor.focus();
+    } else {
+        editor.style.display = 'none';
+        display.style.display = 'block';
+    }
+}
+
+function saveGotcha() {
+    var editor = document.getElementById('gotchaEditor');
+    var display = document.getElementById('gotchaDisplay');
+    var text = editor.value.trim();
+    if (!text) return;
+
+    var lines = text.split('\n').filter(function(l) { return l.trim(); });
+    var html = '<ul>';
+    lines.forEach(function(line) {
+        html += '<li>' + line.trim() + '</li>';
+    });
+    html += '</ul>';
+    display.innerHTML = html;
+
+    // Save to localStorage
+    localStorage.setItem('edgeGotchaNBA', text);
+
+    editor.style.display = 'none';
+    display.style.display = 'block';
+
+    var toast = document.getElementById('toast');
+    toast.textContent = 'Gotcha card updated!';
+    toast.classList.add('show');
+    setTimeout(function() { toast.classList.remove('show'); }, 2000);
+}
+
+// Load saved gotcha on page load
+(function() {
+    var saved = localStorage.getItem('edgeGotchaNBA');
+    if (saved) {
+        var display = document.getElementById('gotchaDisplay');
+        var lines = saved.split('\n').filter(function(l) { return l.trim(); });
+        var html = '<ul>';
+        lines.forEach(function(line) { html += '<li>' + line.trim() + '</li>'; });
+        html += '</ul>';
+        display.innerHTML = html;
+    }
+})();
 
 // ===== PARLAY BUILDER =====
 var parlayLegs = [];
