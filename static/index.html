@@ -1330,14 +1330,29 @@ document.getElementById('pickMatchup').addEventListener('change', function() {
     populatePickDropdown();
 });
 
+// Store live odds keyed by matchup -> pick -> odds
+var liveOddsMap = {};
+
 function populatePickDropdown() {
     var select = document.getElementById('pickSelection');
     var matchup = document.getElementById('pickMatchup').value;
     var pickType = document.getElementById('pickType').value;
     select.innerHTML = '<option value="">Select pick...</option>';
 
+    var isProp = (pickType === 'Prop');
+    var customInput = document.getElementById('pickSelectionCustom');
+
+    if (isProp) {
+        // Props are player-specific — show text input, hide dropdown options
+        select.innerHTML = '<option value="__other__">Type your prop below</option>';
+        customInput.style.display = 'block';
+        customInput.placeholder = 'e.g. Donovan Mitchell O 24.5 pts, Jokic O 10.5 reb';
+        return;
+    } else {
+        customInput.style.display = 'none';
+    }
+
     if (matchup && matchup !== '__other__') {
-        // Find the game row and pull side buttons
         var gameRow = document.querySelector('.game-row[data-game="' + matchup + '"]');
         if (gameRow) {
             var sides = gameRow.querySelectorAll('.side-btn');
@@ -1345,13 +1360,28 @@ function populatePickDropdown() {
                 var sideText = btn.getAttribute('onclick');
                 var match = sideText ? sideText.match(/'([^']+)'\)$/) : null;
                 var val = match ? match[1] : btn.textContent.trim();
+
+                // Filter by pick type
+                var isSpread = val.indexOf('+') !== -1 || val.indexOf('-') !== -1;
+                var isOU = val.indexOf('OVER') !== -1 || val.indexOf('UNDER') !== -1;
+                var isML = val.indexOf('ML') !== -1;
+
+                if (pickType === 'Spread' && !isSpread) return;
+                if (pickType === 'Over/Under' && !isOU) return;
+                if (pickType === 'Moneyline' && !isML) return;
+                // No filter for Parlay, Futures, or empty — show all
+
                 var opt = document.createElement('option');
                 opt.value = val;
                 opt.textContent = val;
+                var oddsVal = (liveOddsMap[matchup] && liveOddsMap[matchup][val]) ? liveOddsMap[matchup][val] : '';
+                if (oddsVal) {
+                    opt.setAttribute('data-odds', oddsVal);
+                    opt.textContent = val + ' (' + (oddsVal > 0 ? '+' : '') + oddsVal + ')';
+                }
                 select.appendChild(opt);
             });
         }
-        // Also check table rows for NHL games
         document.querySelectorAll('table tr').forEach(function(tr) {
             var cells = tr.querySelectorAll('td');
             if (cells.length >= 3) {
@@ -1360,8 +1390,9 @@ function populatePickDropdown() {
                     var spread = cells[3].textContent.trim();
                     if (spread && spread !== 'TBD') {
                         var opt = document.createElement('option');
-                        opt.value = rowMatchup.split(' @ ')[0] + ' ' + spread;
-                        opt.textContent = rowMatchup.split(' @ ')[0] + ' ' + spread;
+                        var val = rowMatchup.split(' @ ')[0] + ' ' + spread;
+                        opt.value = val;
+                        opt.textContent = val;
                         select.appendChild(opt);
                     }
                 }
@@ -1383,6 +1414,30 @@ document.getElementById('pickSelection').addEventListener('change', function() {
     } else {
         custom.style.display = 'none';
         custom.value = '';
+        // Auto-select odds from the pick's data-odds attribute
+        var selectedOption = this.options[this.selectedIndex];
+        var oddsVal = selectedOption ? selectedOption.getAttribute('data-odds') : null;
+        if (oddsVal) {
+            var oddsSelect = document.getElementById('pickOdds');
+            var found = false;
+            for (var i = 0; i < oddsSelect.options.length; i++) {
+                if (oddsSelect.options[i].value === oddsVal || oddsSelect.options[i].value === '+' + oddsVal) {
+                    oddsSelect.value = oddsSelect.options[i].value;
+                    found = true;
+                    break;
+                }
+            }
+            // If exact match not in dropdown, set to Other and fill custom
+            if (!found) {
+                oddsSelect.value = '__other__';
+                var oddsCustom = document.getElementById('pickOddsCustom');
+                oddsCustom.style.display = 'block';
+                oddsCustom.value = (oddsVal > 0 ? '+' : '') + oddsVal;
+            } else {
+                document.getElementById('pickOddsCustom').style.display = 'none';
+                document.getElementById('pickOddsCustom').value = '';
+            }
+        }
     }
 });
 
@@ -1551,6 +1606,15 @@ function buildGameRowHTML(g) {
     var awayML = g.away_ml || '';
     var homeML = g.home_ml || '';
 
+    // Store odds in liveOddsMap for auto-select in form
+    liveOddsMap[matchup] = {};
+    liveOddsMap[matchup][awayAbbr + ' ' + awaySpreadStr] = g.away_spread_odds || -110;
+    liveOddsMap[matchup][homeAbbr + ' ' + spreadStr] = g.home_spread_odds || -110;
+    liveOddsMap[matchup]['OVER ' + total] = g.over_odds || -110;
+    liveOddsMap[matchup]['UNDER ' + total] = g.under_odds || -110;
+    liveOddsMap[matchup][awayAbbr + ' ML'] = awayML;
+    liveOddsMap[matchup][homeAbbr + ' ML'] = homeML;
+
     var fav = '';
     if (spread < 0) fav = homeAbbr;
     else if (spread > 0) fav = awayAbbr;
@@ -1561,10 +1625,12 @@ function buildGameRowHTML(g) {
             '<div class="game-time">' + time + '</div>' +
             '<div class="game-matchup"><span class="away">' + awayAbbr + '</span> @ <span class="home">' + homeAbbr + '</span>' +
                 '<div class="side-select">' +
-                    '<div class="side-btn" onclick="pickSide(event,this,\'' + awayAbbr + ' ' + awaySpreadStr + '\')">' + awayAbbr + ' ' + awaySpreadStr + '</div>' +
-                    '<div class="side-btn" onclick="pickSide(event,this,\'' + homeAbbr + ' ' + spreadStr + '\')">' + homeAbbr + ' ' + spreadStr + '</div>' +
-                    '<div class="side-btn" onclick="pickSide(event,this,\'OVER ' + total + '\')">OVER ' + total + '</div>' +
-                    '<div class="side-btn" onclick="pickSide(event,this,\'UNDER ' + total + '\')">UNDER ' + total + '</div>' +
+                    '<div class="side-btn" onclick="pickSide(event,this,\'' + awayAbbr + ' ' + awaySpreadStr + '\')">' + awayAbbr + ' ' + awaySpreadStr + ' (' + (g.away_spread_odds||'-110') + ')</div>' +
+                    '<div class="side-btn" onclick="pickSide(event,this,\'' + homeAbbr + ' ' + spreadStr + '\')">' + homeAbbr + ' ' + spreadStr + ' (' + (g.home_spread_odds||'-110') + ')</div>' +
+                    '<div class="side-btn" onclick="pickSide(event,this,\'OVER ' + total + '\')">O ' + total + ' (' + (g.over_odds||'-110') + ')</div>' +
+                    '<div class="side-btn" onclick="pickSide(event,this,\'UNDER ' + total + '\')">U ' + total + ' (' + (g.under_odds||'-110') + ')</div>' +
+                    '<div class="side-btn" onclick="pickSide(event,this,\'' + awayAbbr + ' ML\')">' + awayAbbr + ' ML (' + awayML + ')</div>' +
+                    '<div class="side-btn" onclick="pickSide(event,this,\'' + homeAbbr + ' ML\')">' + homeAbbr + ' ML (' + homeML + ')</div>' +
                 '</div>' +
             '</div>' +
             '<div class="game-spread">' + (fav || homeAbbr) + ' ' + (spread < 0 ? spreadStr : awaySpreadStr) + '</div>' +
