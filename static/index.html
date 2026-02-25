@@ -289,8 +289,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 
 <!-- SPORT TABS -->
 <div class="sport-tabs">
-    <div class="sport-tab active" onclick="switchSport('bankroll')" style="color:#D4A017;">BANKROLL</div>
-    <div class="sport-tab" onclick="switchSport('submit')" style="color:#10B981;">SUBMIT PICK</div>
+    <div class="sport-tab active" onclick="switchSport('submit')" style="color:#10B981;">SUBMIT PICK</div>
     <div class="sport-tab" onclick="switchSport('nba')">NBA <span class="tab-count">6</span></div>
     <div class="sport-tab" onclick="switchSport('nhl')">NHL <span class="tab-count">8</span></div>
     <div class="sport-tab" onclick="switchSport('soccer')">Soccer <span class="tab-count">0</span></div>
@@ -1017,7 +1016,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 
 <!-- ===== SUBMIT PICK PANEL ===== -->
 <!-- ===== BANKROLL PANEL ===== -->
-<div class="sport-panel active" id="panel-bankroll">
+<div class="sport-panel" id="panel-bankroll">
 <div class="pick-form">
     <h2 style="color:#D4A017;">Bankroll Tracker</h2>
     <div class="form-sub">Track every pick. Know where you stand.</div>
@@ -1081,7 +1080,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 </div>
 
 <!-- ===== SUBMIT PICK PANEL ===== -->
-<div class="sport-panel" id="panel-submit">
+<div class="sport-panel active" id="panel-submit">
 <div class="pick-form">
     <h2>Submit Your Pick</h2>
     <div class="form-sub">Drop your pick. It saves locally and emails the crew.</div>
