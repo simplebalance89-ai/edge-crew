@@ -8,3 +8,9 @@ services:
     envVars:
       - key: ODDS_API_KEY
         sync: false
+      - key: AZURE_OPENAI_ENDPOINT
+        sync: false
+      - key: AZURE_OPENAI_KEY
+        sync: false
+      - key: AZURE_OPENAI_MODEL
+        sync: false

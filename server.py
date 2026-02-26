@@ -1,6 +1,8 @@
 import os
 import time
+import json
 import httpx
+from openai import AzureOpenAI
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
@@ -12,9 +14,15 @@ ODDS_API_BASE = "https://api.the-odds-api.com/v4/sports"
 BOOKMAKER = "hardrockbet"
 REGIONS = "us,us2"
 
+# Azure OpenAI config
+AZURE_ENDPOINT = os.environ.get("AZURE_OPENAI_ENDPOINT", "")
+AZURE_KEY = os.environ.get("AZURE_OPENAI_KEY", "")
+AZURE_MODEL = os.environ.get("AZURE_OPENAI_MODEL", "gpt-4o")
+
 # Simple in-memory cache to save API credits
 _cache = {}
 CACHE_TTL = 300  # 5 minutes
+ANALYSIS_CACHE_TTL = 900  # 15 minutes for analysis
 
 
 def _get_cached(key):
@@ -187,6 +195,129 @@ async def get_credits():
             })
     except Exception as e:
         return JSONResponse({"error": str(e)})
+
+
+@app.get("/api/analysis/{sport}")
+async def get_analysis(sport: str):
+    """Generate AI analysis for a sport based on current live odds."""
+    if not AZURE_ENDPOINT or not AZURE_KEY:
+        return JSONResponse({"error": "Azure OpenAI not configured"}, status_code=500)
+
+    sport_lower = sport.lower()
+    cache_key = f"analysis:{sport_lower}"
+    cached = _get_cached(cache_key)
+    if cached and (time.time() - _cache[cache_key][1]) < ANALYSIS_CACHE_TTL:
+        return JSONResponse(cached)
+
+    # Get current odds for context
+    odds_cache_key = f"{sport_lower}:h2h,spreads,totals"
+    odds_data = _get_cached(odds_cache_key)
+    if not odds_data:
+        # Fetch fresh odds
+        odds_resp = await get_odds(sport)
+        if hasattr(odds_resp, 'body'):
+            odds_data = json.loads(odds_resp.body)
+        else:
+            odds_data = {"games": [], "count": 0}
+
+    if not odds_data.get("games"):
+        return JSONResponse({
+            "sport": sport.upper(),
+            "gotcha": "No games on the slate right now.",
+            "games": [],
+            "generated_at": time.strftime("%I:%M %p %Z"),
+        })
+
+    # Build game summaries for the prompt
+    game_lines = []
+    for g in odds_data["games"]:
+        away = g.get("away", "?")
+        home = g.get("home", "?")
+        spread = g.get("home_spread", "?")
+        total = g.get("total", "?")
+        away_ml = g.get("away_ml", "?")
+        home_ml = g.get("home_ml", "?")
+        game_lines.append(
+            f"{away} @ {home} | Spread: {home} {spread} | Total: {total} | ML: {away} ({away_ml}) / {home} ({home_ml})"
+        )
+
+    games_text = "\n".join(game_lines)
+    today = time.strftime("%B %d, %Y")
+
+    prompt = f"""You are Edge Finder, a sharp sports betting analyst for a crew of 3 bettors: Peter (heavy/value/sharp), Chinny (props/NHL/soccer), and Jimmy (new, learning).
+
+Today's {sport.upper()} slate — {today}:
+{games_text}
+
+Generate analysis in this exact JSON format:
+{{
+  "gotcha": "3-6 bullet points as an HTML unordered list (<ul><li>...</li></ul>). Key injuries, situational edges, traps, B2B flags, line moves, weather (outdoor sports). Bold the important parts with <strong>.",
+  "games": [
+    {{
+      "matchup": "AWAY @ HOME",
+      "grade": "A/A-/B+/B/B-/C+/C",
+      "tags": ["B2B", "SHARP", "TRAP", "UPSET", "PASS", "BEST BET"],
+      "edge_summary": "One line edge summary",
+      "peter_zone": "2-3 sentences. Peter's perspective — value, sharps, line moves, conviction level.",
+      "trends": ["trend 1", "trend 2", "trend 3"],
+      "flags": ["injury/flag 1", "flag 2"],
+      "chinny_props": ["player PROP over/under LINE — reason", "..."]
+    }}
+  ]
+}}
+
+Rules:
+- Grade honestly. C means skip. A means best bet.
+- Flag PASS games explicitly.
+- Chinny's props: top 3-5 per game. Player props only. Grade B or higher.
+- Be specific about injury impacts on lines.
+- If a line looks suspicious or moved significantly, flag it.
+- Keep it sharp. No filler. Every word earns its spot.
+
+Return ONLY valid JSON. No markdown fences. No explanation."""
+
+    try:
+        client = AzureOpenAI(
+            azure_endpoint=AZURE_ENDPOINT,
+            api_key=AZURE_KEY,
+            api_version="2024-10-21",
+        )
+        response = client.chat.completions.create(
+            model=AZURE_MODEL,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.7,
+            max_tokens=4000,
+        )
+        raw = response.choices[0].message.content.strip()
+        # Clean markdown fences if present
+        if raw.startswith("```"):
+            raw = raw.split("\n", 1)[1] if "\n" in raw else raw[3:]
+        if raw.endswith("```"):
+            raw = raw[:-3].strip()
+        if raw.startswith("json"):
+            raw = raw[4:].strip()
+
+        analysis = json.loads(raw)
+        analysis["sport"] = sport.upper()
+        analysis["generated_at"] = time.strftime("%I:%M %p %Z")
+        analysis["source"] = "Azure OpenAI (Edge Finder)"
+
+        _set_cache(cache_key, analysis)
+        return JSONResponse(analysis)
+
+    except json.JSONDecodeError:
+        return JSONResponse({
+            "sport": sport.upper(),
+            "gotcha": "Analysis generation returned invalid format. Refresh to retry.",
+            "games": [],
+            "generated_at": time.strftime("%I:%M %p %Z"),
+            "raw": raw[:500] if 'raw' in dir() else "",
+        })
+    except Exception as e:
+        return JSONResponse(
+            {"error": f"Analysis generation failed: {str(e)}"},
+            status_code=500,
+        )
 
 
 app.mount("/static", StaticFiles(directory="static"), name="static")

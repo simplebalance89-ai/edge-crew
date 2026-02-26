@@ -2386,7 +2386,146 @@ function fetchLiveOdds(sport) {
         });
 }
 
-// Override refreshSlate to also fetch live data
+// ===== ANALYSIS FETCH =====
+function fetchAnalysis(sport) {
+    var panel = document.getElementById('panel-' + sport);
+    if (!panel) return;
+
+    fetch('/api/analysis/' + sport)
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.error) {
+                console.error('Analysis error:', data.error);
+                return;
+            }
+
+            // Update gotcha banner
+            var gotcha = panel.querySelector('.gotcha-banner');
+            if (gotcha && data.gotcha) {
+                var title = gotcha.querySelector('h3');
+                var titleText = title ? title.textContent : '';
+                var editBtn = gotcha.querySelector('[onclick*="toggleGotchaEdit"]');
+                var saveBtn = gotcha.querySelector('[onclick*="saveGotcha"]');
+                var editor = gotcha.querySelector('#gotchaEditor');
+
+                // Rebuild gotcha content
+                var display = gotcha.querySelector('#gotchaDisplay') || gotcha;
+                if (gotcha.querySelector('#gotchaDisplay')) {
+                    display.innerHTML = data.gotcha;
+                } else {
+                    // For non-NBA panels, replace the inner content after h3
+                    var h3 = gotcha.querySelector('h3');
+                    var existingUl = gotcha.querySelector('ul');
+                    var existingP = gotcha.querySelector('p');
+                    if (existingUl) existingUl.outerHTML = data.gotcha;
+                    else if (existingP) existingP.outerHTML = data.gotcha;
+                }
+
+                // Update timestamp
+                if (title && data.generated_at) {
+                    var sportName = sport.toUpperCase();
+                    var today = new Date().toLocaleDateString('en-US', {month:'short', day:'numeric'});
+                    title.textContent = 'Gotcha Card — ' + sportName + ' ' + today + ' (updated ' + data.generated_at + ')';
+                }
+            }
+
+            // Update game-level analysis
+            if (data.games && data.games.length) {
+                data.games.forEach(function(game) {
+                    // Find matching game row by matchup text
+                    var rows = panel.querySelectorAll('.game-row');
+                    rows.forEach(function(row) {
+                        var matchup = row.getAttribute('data-game') || '';
+                        var gameMatchup = game.matchup || '';
+                        // Normalize for comparison
+                        if (matchup.replace(/\s/g,'').toUpperCase() === gameMatchup.replace(/\s/g,'').toUpperCase()) {
+                            // Update grade
+                            var gradeEl = row.querySelector('.game-grade .grade');
+                            if (gradeEl && game.grade) {
+                                var gradeClass = 'grade g' + game.grade.toLowerCase().replace(/[^a-z]/g,'');
+                                gradeEl.className = 'grade ' + gradeClass;
+                                gradeEl.textContent = game.grade;
+                            }
+
+                            // Update edge summary
+                            var edgeEl = row.querySelector('.game-edge');
+                            if (edgeEl && game.edge_summary) {
+                                var tags = '';
+                                if (game.tags) {
+                                    game.tags.forEach(function(t) {
+                                        var tagClass = 'tag';
+                                        if (t === 'B2B') tagClass += ' tag-b2b';
+                                        else if (t === 'PASS' || t === 'TRAP') tagClass += ' tag-trap';
+                                        else if (t === 'UPSET' || t === 'SHARP') tagClass += ' tag-upset';
+                                        else if (t === 'BEST BET') tagClass += ' tag-home';
+                                        tags += '<span class="' + tagClass + '">' + t + '</span> ';
+                                    });
+                                }
+                                edgeEl.innerHTML = tags + game.edge_summary;
+                            }
+
+                            // Update detail boxes
+                            var detail = row.querySelector('.detail-grid');
+                            if (detail) {
+                                // Peter's Zone
+                                var peterBox = detail.querySelector('.detail-box.peter');
+                                if (peterBox && game.peter_zone) {
+                                    peterBox.innerHTML = '<h4>Peter\'s Zone</h4><p>' + game.peter_zone + '</p>';
+                                }
+
+                                // Trends
+                                var trendsBox = detail.querySelector('.detail-box.trends');
+                                if (trendsBox && game.trends && game.trends.length) {
+                                    var trendsHtml = '<h4>Trends</h4><ul>';
+                                    game.trends.forEach(function(t) { trendsHtml += '<li>' + t + '</li>'; });
+                                    trendsHtml += '</ul>';
+                                    trendsBox.innerHTML = trendsHtml;
+                                }
+
+                                // Flags
+                                var flagsBox = detail.querySelector('.detail-box.flags');
+                                if (flagsBox && game.flags && game.flags.length) {
+                                    var flagsHtml = '<h4>Flags</h4><ul>';
+                                    game.flags.forEach(function(f) { flagsHtml += '<li>' + f + '</li>'; });
+                                    flagsHtml += '</ul>';
+                                    flagsBox.innerHTML = flagsHtml;
+                                }
+
+                                // Chinny's Props
+                                var chinnyBox = detail.querySelector('.detail-box.chinny');
+                                if (chinnyBox && game.chinny_props && game.chinny_props.length) {
+                                    var chinnyHtml = '<h4>Chinny\'s Props Zone</h4><ul>';
+                                    game.chinny_props.forEach(function(p) { chinnyHtml += '<li>' + p + '</li>'; });
+                                    chinnyHtml += '</ul>';
+                                    chinnyBox.innerHTML = chinnyHtml;
+                                } else if (!chinnyBox && game.chinny_props && game.chinny_props.length) {
+                                    // Add Chinny box if it doesn't exist
+                                    var newChinny = document.createElement('div');
+                                    newChinny.className = 'detail-box chinny';
+                                    var chinnyHtml2 = '<h4>Chinny\'s Props Zone</h4><ul>';
+                                    game.chinny_props.forEach(function(p) { chinnyHtml2 += '<li>' + p + '</li>'; });
+                                    chinnyHtml2 += '</ul>';
+                                    newChinny.innerHTML = chinnyHtml2;
+                                    detail.appendChild(newChinny);
+                                }
+                            }
+                        }
+                    });
+                });
+            }
+
+            // Toast
+            var toast = document.getElementById('toast');
+            toast.textContent = sport.toUpperCase() + ' analysis updated — ' + (data.generated_at || 'just now');
+            toast.classList.add('show');
+            setTimeout(function() { toast.classList.remove('show'); }, 3000);
+        })
+        .catch(function(err) {
+            console.error('Analysis fetch error:', err);
+        });
+}
+
+// Override refreshSlate to also fetch live data AND analysis
 var _originalRefreshSlate = refreshSlate;
 refreshSlate = function() {
     _originalRefreshSlate();
@@ -2395,18 +2534,33 @@ refreshSlate = function() {
     fetchLiveOdds('soccer');
     fetchLiveOdds('mma');
     fetchLiveOdds('boxing');
+    // Fetch analysis after a short delay so odds are cached first
+    setTimeout(function() {
+        fetchAnalysis('nba');
+        fetchAnalysis('nhl');
+    }, 2000);
 };
 
 // Fetch on demand only — click a sport tab or hit Refresh Slate
 // No auto-fetch on load to save API credits and load time
 var fetchedSports = {};
+var fetchedAnalysis = {};
 var _originalSwitchSport = switchSport;
 switchSport = function(sport) {
     _originalSwitchSport(sport);
     // Auto-fetch when switching to a sport tab for the first time
-    if (['nba','nhl','soccer','mma','boxing'].indexOf(sport) !== -1 && !fetchedSports[sport]) {
-        fetchLiveOdds(sport);
-        fetchedSports[sport] = true;
+    if (['nba','nhl','soccer','mma','boxing'].indexOf(sport) !== -1) {
+        if (!fetchedSports[sport]) {
+            fetchLiveOdds(sport);
+            fetchedSports[sport] = true;
+        }
+        // Fetch analysis after odds (slight delay)
+        if (!fetchedAnalysis[sport]) {
+            setTimeout(function() {
+                fetchAnalysis(sport);
+                fetchedAnalysis[sport] = true;
+            }, 1500);
+        }
     }
 };
 
