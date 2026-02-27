@@ -69,6 +69,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 .game-row.expanded{border-color:rgba(212,160,23,0.4);}
 .game-row.pass{opacity:0.4;}
 .game-row.pass:hover{opacity:0.7;}
+.game-row[data-complete="false"]{border-left:3px solid rgba(251,191,36,0.4) !important;}
 .game-row.checked{border-color:rgba(16,185,129,0.5);background:rgba(16,185,129,0.04);}
 
 /* ===== CHECKBOXES ===== */
@@ -284,7 +285,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
         <span class="crew-badge crew-jimmy">Jimmy</span>
         <span class="crew-badge crew-sintonia">Sinton.ia</span>
     </div>
-    <div class="sweep-time">Last sweep: 11:45 PM PST<br>Next: Noon PST</div>
+    <div class="sweep-time" id="sweepTime">Last sweep: --<br>Waiting for refresh</div>
 </div>
 
 <!-- SPORT TABS -->
@@ -2275,7 +2276,28 @@ function buildGameRowHTML(g) {
     if (spread < 0) fav = homeAbbr;
     else if (spread > 0) fav = awayAbbr;
 
-    return '<div class="game-row" data-game="' + matchup + '" style="' + todayStyle + '" onclick="this.classList.toggle(\'expanded\')">' +
+    // Data completeness check
+    var isComplete = g.lines_complete;
+    var isAvailable = g.lines_available;
+    var bookSource = g.bookmaker || 'unknown';
+    var fetchedAt = g.fetched_at || 'unknown';
+    var dataTag = '';
+    var gradeDisplay = '--';
+    var gradeClass = 'gbp';
+
+    if (!isAvailable) {
+        dataTag = '<span class="tag" style="background:rgba(239,68,68,0.2);color:#EF4444;">NO LINES</span> ';
+        gradeDisplay = 'N/A';
+        gradeClass = 'gc';
+    } else if (!isComplete) {
+        dataTag = '<span class="tag" style="background:rgba(251,191,36,0.2);color:#FBB024;">INCOMPLETE</span> ';
+        gradeDisplay = 'INC';
+        gradeClass = 'gc';
+    }
+
+    var bookTag = '<span class="tag" style="background:rgba(212,160,23,0.15);color:#D4A017;">' + bookSource.toUpperCase() + '</span> ';
+
+    return '<div class="game-row" data-game="' + matchup + '" data-book="' + bookSource + '" data-fetched="' + fetchedAt + '" data-complete="' + (isComplete ? 'true' : 'false') + '" style="' + todayStyle + '" onclick="this.classList.toggle(\'expanded\')">' +
         '<div class="game-header">' +
             '<div class="pick-check" onclick="togglePick(event, this, \'' + matchup + '\')"></div>' +
             '<div class="game-time">' + dateStr + '<br>' + time + '</div>' +
@@ -2291,20 +2313,20 @@ function buildGameRowHTML(g) {
             '</div>' +
             '<div class="game-spread">' + (fav || homeAbbr) + ' ' + (spread < 0 ? spreadStr : awaySpreadStr) + '</div>' +
             '<div class="game-total">O/U ' + total + '</div>' +
-            '<div class="game-grade"><span class="grade gbp">--</span></div>' +
-            '<div class="game-edge">' +
-                '<span class="tag" style="background:rgba(212,160,23,0.15);color:#D4A017;">HR BET</span> ' +
+            '<div class="game-grade"><span class="grade ' + gradeClass + '">' + gradeDisplay + '</span></div>' +
+            '<div class="game-edge">' + dataTag + bookTag +
                 'ML: ' + awayAbbr + ' (' + awayML + ') / ' + homeAbbr + ' (' + homeML + ')' +
             '</div>' +
         '</div>' +
         '<div class="game-detail">' +
             '<div class="detail-grid">' +
-                '<div class="detail-box peter"><h4>Lines (Hard Rock)</h4>' +
-                    '<p>Spread: ' + awayAbbr + ' ' + awaySpreadStr + ' (' + (g.away_spread_odds||'-110') + ') / ' + homeAbbr + ' ' + spreadStr + ' (' + (g.home_spread_odds||'-110') + ')<br>' +
-                    'Total: O ' + total + ' (' + (g.over_odds||'-110') + ') / U ' + total + ' (' + (g.under_odds||'-110') + ')<br>' +
+                '<div class="detail-box peter"><h4>Lines (' + bookSource + ')</h4>' +
+                    '<p>Spread: ' + awayAbbr + ' ' + awaySpreadStr + ' (' + (g.away_spread_odds||'--') + ') / ' + homeAbbr + ' ' + spreadStr + ' (' + (g.home_spread_odds||'--') + ')<br>' +
+                    'Total: O ' + total + ' (' + (g.over_odds||'--') + ') / U ' + total + ' (' + (g.under_odds||'--') + ')<br>' +
                     'ML: ' + awayAbbr + ' ' + awayML + ' / ' + homeAbbr + ' ' + homeML + '</p>' +
+                    '<p style="font-size:10px;color:rgba(255,255,255,0.25);margin-top:6px;">Fetched: ' + fetchedAt + ' | Book: ' + bookSource + '</p>' +
                 '</div>' +
-                '<div class="detail-box trends"><h4>Notes</h4><p>Live Hard Rock lines. Add your edge notes after analysis.</p></div>' +
+                '<div class="detail-box trends"><h4>Notes</h4><p>' + (isComplete ? 'Lines complete. Ready for analysis.' : 'INCOMPLETE — missing data. Do not grade.') + '</p></div>' +
             '</div>' +
         '</div>' +
     '</div>';
@@ -2368,16 +2390,25 @@ function fetchLiveOdds(sport) {
             populateGameDropdown();
             populatePickDropdown();
 
-            // Update sweep time
-            var sweepEl = document.querySelector('.sweep-time');
+            // Update sweep time with server timestamp
+            var sweepEl = document.getElementById('sweepTime');
             if (sweepEl) {
-                var now = new Date();
-                sweepEl.innerHTML = 'Last sweep: ' + now.toLocaleTimeString() + '<br>Source: Hard Rock Bet (live)';
+                var serverTime = data.fetched_at || new Date().toLocaleTimeString();
+                var booksUsed = (data.books_used && data.books_used.length) ? data.books_used.join(', ') : 'unknown';
+                var completeCount = data.lines_complete || 0;
+                var incompleteCount = data.lines_incomplete || 0;
+                var noLines = data.no_lines || 0;
+                var statusLine = completeCount + ' complete';
+                if (incompleteCount > 0) statusLine += ', ' + incompleteCount + ' incomplete';
+                if (noLines > 0) statusLine += ', ' + noLines + ' no lines';
+                sweepEl.innerHTML = 'Last sweep: ' + serverTime + '<br>Books: ' + booksUsed + '<br>' + statusLine;
             }
 
             // Toast
             var toast = document.getElementById('toast');
-            toast.textContent = sport.toUpperCase() + ' slate loaded — ' + data.games.length + ' games (Hard Rock Bet)';
+            var completeN = data.lines_complete || 0;
+            var incN = data.lines_incomplete || 0;
+            toast.textContent = sport.toUpperCase() + ' slate loaded — ' + data.games.length + ' games (' + completeN + ' complete, ' + incN + ' incomplete)';
             toast.classList.add('show');
             setTimeout(function() { toast.classList.remove('show'); }, 3000);
         })
@@ -2439,12 +2470,20 @@ function fetchAnalysis(sport) {
                         var gameMatchup = game.matchup || '';
                         // Normalize for comparison
                         if (matchup.replace(/\s/g,'').toUpperCase() === gameMatchup.replace(/\s/g,'').toUpperCase()) {
-                            // Update grade
+                            // Update grade — respect INCOMPLETE
                             var gradeEl = row.querySelector('.game-grade .grade');
                             if (gradeEl && game.grade) {
-                                var gradeClass = 'grade g' + game.grade.toLowerCase().replace(/[^a-z]/g,'');
-                                gradeEl.className = 'grade ' + gradeClass;
-                                gradeEl.textContent = game.grade;
+                                var isIncomplete = game.grade === 'INCOMPLETE' || game.data_status === 'INCOMPLETE' || (game.data_status && game.data_status.indexOf('MISSING') !== -1);
+                                var gradeClass;
+                                if (isIncomplete) {
+                                    gradeClass = 'grade gc';
+                                    gradeEl.textContent = 'INC';
+                                    row.style.borderLeftColor = 'rgba(251,191,36,0.5)';
+                                } else {
+                                    gradeClass = 'grade g' + game.grade.toLowerCase().replace(/[^a-z]/g,'');
+                                    gradeEl.textContent = game.grade;
+                                }
+                                gradeEl.className = gradeClass;
                             }
 
                             // Update edge summary
@@ -2516,7 +2555,9 @@ function fetchAnalysis(sport) {
 
             // Toast
             var toast = document.getElementById('toast');
-            toast.textContent = sport.toUpperCase() + ' analysis updated — ' + (data.generated_at || 'just now');
+            var completeGames = data.games_complete || 0;
+            var incompleteGames = data.games_incomplete || 0;
+            toast.textContent = sport.toUpperCase() + ' analysis updated — ' + (data.generated_at || 'just now') + ' (' + completeGames + ' graded, ' + incompleteGames + ' incomplete)';
             toast.classList.add('show');
             setTimeout(function() { toast.classList.remove('show'); }, 3000);
         })
