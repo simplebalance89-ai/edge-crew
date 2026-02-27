@@ -9,6 +9,17 @@ from fastapi.responses import FileResponse, JSONResponse
 
 app = FastAPI()
 
+
+@app.middleware("http")
+async def no_cache_headers(request, call_next):
+    response = await call_next(request)
+    if request.url.path.endswith((".html", ".js", ".css")) or request.url.path == "/":
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+    return response
+
+
 ODDS_API_KEY = os.environ.get("ODDS_API_KEY", "")
 ODDS_API_BASE = "https://api.the-odds-api.com/v4/sports"
 PREFERRED_BOOK = "hardrockbet"
