@@ -297,7 +297,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     <div class="sport-tab" onclick="switchSport('mma')">MMA <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('boxing')">Boxing <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('props')">Props <span class="tab-count">30</span></div>
-    <div class="sport-tab" onclick="switchSport('combined')">Combined <span class="tab-count">14</span></div>
+    <div class="sport-tab" onclick="switchSport('combined'); if(typeof fetchCombinedSlate==='function') fetchCombinedSlate();">Combined <span class="tab-count">14</span></div>
     <div class="sport-tab" onclick="refreshSlate()" style="color:#EF4444;margin-left:auto;">REFRESH SLATE</div>
 </div>
 
@@ -1031,6 +1031,10 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 <!-- ===== PROPS PANEL (Chinny's Card) ===== -->
 <div class="sport-panel" id="panel-props">
 
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+    <div style="font-size:11px;color:rgba(255,255,255,0.25);" id="propsTimestamp">Last updated: Feb 27, 2026 — 2:30 PM ET</div>
+</div>
+
 <div class="gotcha-banner" style="border-color:rgba(16,185,129,0.2);background:rgba(16,185,129,0.06);">
     <h3 style="color:#10B981;">Chinny's Props Card</h3>
     <ul>
@@ -1137,6 +1141,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 </div>
 
 <p class="note" style="margin-top:16px;">NHL props locked after goalie confirmations at noon. Chinny reviews all props before lock.</p>
+<div style="text-align:right;font-size:10px;color:rgba(255,255,255,0.2);margin-top:12px;">Props card generated: Feb 27, 2026 — 2:30 PM ET | Next update: before tip-off</div>
 
 </div>
 
