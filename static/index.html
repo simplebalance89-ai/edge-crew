@@ -277,7 +277,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 <div class="topbar">
     <div class="topbar-left">
         <div class="topbar-title">Edge Finder</div>
-        <div class="topbar-date">Wed, Feb 25, 2026 | FINAL SLATE</div>
+        <div class="topbar-date" id="topbarDate"></div>
     </div>
     <div class="crew">
         <span class="crew-badge crew-peter">Peter</span>
@@ -648,17 +648,13 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     </div>
 </div>
 
-<!-- NBA PETER GUT PICKS -->
-<div class="input-section">
-    <h3>Peter's Gut Picks &mdash; NBA</h3>
-    <p>
-        1. <strong>SA -5.5 at TOR</strong> &mdash; Best bet on the board. 9-game streak vs tired B2B team. Barnes questionable.<br>
-        2. <strong>DET -10.5 vs OKC</strong> &mdash; Shell OKC on B2B. Cade showcase. Smash if Chet sits.<br>
-        3. <strong>BOS +3.5 at DEN</strong> &mdash; Sharp play. BOS elite ATS on road as dog. Denver bad ATS at home.<br>
-        4. <strong>HOU/SAC UNDER 222.5</strong> &mdash; Blowout + HOU defense. Starters sit Q4.<br>
-        5. <strong>MIL +3 vs CLE</strong> &mdash; If Harden sits. Confirm at game time.<br>
-        6. <strong>GS @ MEM &mdash; PASS</strong> &mdash; Both teams gutted. No conviction. Skip.
-    </p>
+<!-- NBA PETER GUT PICKS (DYNAMIC) -->
+<div class="input-section" id="peterGutNBA">
+    <h3 id="peterGutNBATitle">Peter's Gut Picks &mdash; NBA</h3>
+    <div id="peterGutNBAContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
+        <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate or click NBA tab to load live gut picks from analysis...</p>
+    </div>
+    <div id="peterGutNBATimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
 </div>
 
 </div>
@@ -1148,31 +1144,16 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 <div class="sport-panel" id="panel-combined">
 
 <div class="combined-header">
-    <h2>Full Slate — Feb 25</h2>
-    <div class="combined-stat">
-        <div class="stat-pill">6 NBA</div>
-        <div class="stat-pill">8 NHL</div>
-        <div class="stat-pill">14 Total</div>
+    <h2 id="combinedTitle">Full Slate</h2>
+    <div class="combined-stat" id="combinedStats">
+        <div class="stat-pill">Loading...</div>
     </div>
 </div>
+<div style="font-size:11px;color:rgba(255,255,255,0.25);margin-bottom:12px;" id="combinedTimestamp">Waiting for data...</div>
 
-<table style="width:100%;border-collapse:collapse;">
-<tr><th style="background:rgba(255,255,255,0.06);text-align:left;padding:10px 12px;font-size:11px;color:#D4A017;text-transform:uppercase;letter-spacing:1px;">Time</th><th style="background:rgba(255,255,255,0.06);text-align:left;padding:10px;font-size:11px;color:#D4A017;text-transform:uppercase;">Sport</th><th style="background:rgba(255,255,255,0.06);text-align:left;padding:10px;font-size:11px;color:#D4A017;text-transform:uppercase;">Game</th><th style="background:rgba(255,255,255,0.06);text-align:left;padding:10px;font-size:11px;color:#D4A017;text-transform:uppercase;">Spread</th><th style="background:rgba(255,255,255,0.06);text-align:center;padding:10px;font-size:11px;color:#D4A017;text-transform:uppercase;">Grade</th><th style="background:rgba(255,255,255,0.06);text-align:left;padding:10px;font-size:11px;color:#D4A017;text-transform:uppercase;">Flag</th></tr>
-<tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:10px 12px;font-size:13px;color:rgba(255,255,255,0.5);">7:00</td><td><span class="tag" style="background:rgba(50,100,200,0.2);color:#5588EE;">NHL</span></td><td style="padding:10px;font-size:14px;">BUF @ NJD</td><td style="padding:10px;font-size:13px;color:rgba(255,255,255,0.5);">TBD</td><td style="text-align:center;"><span class="grade gb">B</span></td><td><span class="tag tag-rust">RUST</span></td></tr>
-<tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:10px 12px;font-size:13px;color:rgba(255,255,255,0.5);">7:00</td><td><span class="tag" style="background:rgba(50,100,200,0.2);color:#5588EE;">NHL</span></td><td style="padding:10px;font-size:14px;">PHI @ WSH</td><td style="padding:10px;font-size:13px;color:rgba(255,255,255,0.5);">TBD</td><td style="text-align:center;"><span class="grade gb">B</span></td><td><span class="tag tag-rust">RUST</span></td></tr>
-<tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:10px 12px;font-size:13px;color:rgba(255,255,255,0.5);">7:30</td><td><span class="tag" style="background:rgba(200,50,50,0.2);color:#E25555;">NBA</span></td><td style="padding:10px;font-size:14px;"><strong>OKC @ DET</strong></td><td style="padding:10px;font-size:13px;color:#D4A017;">DET -7.5</td><td style="text-align:center;"><span class="grade gbp">B+</span></td><td><span class="tag tag-b2b">B2B</span></td></tr>
-<tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:10px 12px;font-size:13px;color:rgba(255,255,255,0.5);">7:30</td><td><span class="tag" style="background:rgba(200,50,50,0.2);color:#E25555;">NBA</span></td><td style="padding:10px;font-size:14px;">SA @ TOR</td><td style="padding:10px;font-size:13px;color:#D4A017;">SA -6.5</td><td style="text-align:center;"><span class="grade gb">B</span></td><td><span class="tag tag-b2b">B2B</span></td></tr>
-<tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:10px 12px;font-size:13px;color:rgba(255,255,255,0.5);">7:30</td><td><span class="tag" style="background:rgba(200,50,50,0.2);color:#E25555;">NBA</span></td><td style="padding:10px;font-size:14px;">GS @ MEM</td><td style="padding:10px;font-size:13px;color:#D4A017;">GS -3.5</td><td style="text-align:center;"><span class="grade gc">C</span></td><td><span class="tag tag-b2b">B2B</span> <span class="tag tag-trap">LINE?</span></td></tr>
-<tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:10px 12px;font-size:13px;color:rgba(255,255,255,0.5);">7:30</td><td><span class="tag" style="background:rgba(50,100,200,0.2);color:#5588EE;">NHL</span></td><td style="padding:10px;font-size:14px;"><strong>TOR @ TBL</strong></td><td style="padding:10px;font-size:13px;color:rgba(255,255,255,0.5);">TBD</td><td style="text-align:center;"><span class="grade gbp">B+</span></td><td><span class="tag tag-rust">RUST</span></td></tr>
-<tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:10px 12px;font-size:13px;color:rgba(255,255,255,0.5);">8:00</td><td><span class="tag" style="background:rgba(200,50,50,0.2);color:#E25555;">NBA</span></td><td style="padding:10px;font-size:14px;"><strong>CLE @ MIL</strong></td><td style="padding:10px;font-size:13px;color:#D4A017;">CLE -9.5</td><td style="text-align:center;"><span class="grade gam">A-</span></td><td><span class="tag tag-b2b">B2B</span></td></tr>
-<tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:10px 12px;font-size:13px;color:rgba(255,255,255,0.5);">8:00</td><td><span class="tag" style="background:rgba(200,50,50,0.2);color:#E25555;">NBA</span></td><td style="padding:10px;font-size:14px;">SAC @ HOU</td><td style="padding:10px;font-size:13px;color:#D4A017;">HOU -14.5</td><td style="text-align:center;"><span class="grade gbp">B+</span></td><td><span class="tag tag-b2b">B2B</span> <span class="tag tag-trap">14.5!</span></td></tr>
-<tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:10px 12px;font-size:13px;color:rgba(255,255,255,0.5);">8:00</td><td><span class="tag" style="background:rgba(50,100,200,0.2);color:#5588EE;">NHL</span></td><td style="padding:10px;font-size:14px;">SEA @ DAL</td><td style="padding:10px;font-size:13px;color:rgba(255,255,255,0.5);">TBD</td><td style="text-align:center;"><span class="grade gb">B</span></td><td><span class="tag tag-rust">RUST</span></td></tr>
-<tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:10px 12px;font-size:13px;color:rgba(255,255,255,0.5);">9:00</td><td><span class="tag" style="background:rgba(50,100,200,0.2);color:#5588EE;">NHL</span></td><td style="padding:10px;font-size:14px;">COL @ UTA</td><td style="padding:10px;font-size:13px;color:rgba(255,255,255,0.5);">TBD</td><td style="text-align:center;"><span class="grade gbp">B+</span></td><td><span class="tag tag-rust">RUST</span></td></tr>
-<tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:10px 12px;font-size:13px;color:rgba(255,255,255,0.5);">10:00</td><td><span class="tag" style="background:rgba(200,50,50,0.2);color:#E25555;">NBA</span></td><td style="padding:10px;font-size:14px;">BOS @ DEN</td><td style="padding:10px;font-size:13px;color:#D4A017;">DEN -3.5</td><td style="text-align:center;"><span class="grade gb">B</span></td><td><span class="tag tag-b2b">B2B</span></td></tr>
-<tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:10px 12px;font-size:13px;color:rgba(255,255,255,0.5);">10:00</td><td><span class="tag" style="background:rgba(50,100,200,0.2);color:#5588EE;">NHL</span></td><td style="padding:10px;font-size:14px;">WPG @ VAN</td><td style="padding:10px;font-size:13px;color:rgba(255,255,255,0.5);">TBD</td><td style="text-align:center;"><span class="grade gb">B</span></td><td><span class="tag tag-rust">RUST</span></td></tr>
-<tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:10px 12px;font-size:13px;color:rgba(255,255,255,0.5);">10:00</td><td><span class="tag" style="background:rgba(50,100,200,0.2);color:#5588EE;">NHL</span></td><td style="padding:10px;font-size:14px;">VGK @ LAK</td><td style="padding:10px;font-size:13px;color:rgba(255,255,255,0.5);">TBD</td><td style="text-align:center;"><span class="grade gb">B</span></td><td><span class="tag tag-rust">RUST</span></td></tr>
-<tr><td style="padding:10px 12px;font-size:13px;color:rgba(255,255,255,0.5);">10:30</td><td><span class="tag" style="background:rgba(50,100,200,0.2);color:#5588EE;">NHL</span></td><td style="padding:10px;font-size:14px;">EDM @ ANA</td><td style="padding:10px;font-size:13px;color:rgba(255,255,255,0.5);">TBD</td><td style="text-align:center;"><span class="grade gbp">B+</span></td><td><span class="tag tag-rust">RUST</span></td></tr>
-</table>
+<div id="combinedTableContainer">
+    <div style="text-align:center;padding:40px;color:rgba(255,255,255,0.4);">Click to load or hit REFRESH SLATE</div>
+</div>
 
 </div>
 
@@ -1403,7 +1384,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
     <div class="modal">
         <h2>Locked Card</h2>
-        <div class="modal-sub">Feb 25, 2026 — Edge Finder Crew</div>
+        <div class="modal-sub" id="modalDate">Edge Finder Crew</div>
         <table id="modalTable">
             <thead>
                 <tr><th>#</th><th>Game</th><th>Side</th></tr>
@@ -2611,6 +2592,280 @@ if (lastName) document.getElementById('pickName').value = lastName;
 document.getElementById('pickName').addEventListener('change', function() {
     localStorage.setItem('edgeCrewName', this.value);
 });
+
+// ===== DYNAMIC DATE IN TOPBAR =====
+(function() {
+    var now = new Date();
+    var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var dateStr = days[now.getDay()] + ', ' + months[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear();
+    document.getElementById('topbarDate').textContent = dateStr + ' | LIVE SLATE';
+})();
+
+// ===== DYNAMIC COMBINED TAB =====
+var combinedData = {};
+function fetchCombinedSlate() {
+    fetch('/api/slate')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.error) { console.error('Slate error:', data.error); return; }
+            combinedData = data;
+            renderCombinedTable(data);
+        })
+        .catch(function(err) { console.error('Combined fetch error:', err); });
+}
+
+function renderCombinedTable(data) {
+    var container = document.getElementById('combinedTableContainer');
+    var games = data.games || [];
+
+    // Sort by game time
+    games.sort(function(a, b) { return new Date(a.time) - new Date(b.time); });
+
+    // Count by sport
+    var sportCounts = {};
+    games.forEach(function(g) {
+        var s = g.sport || 'OTHER';
+        sportCounts[s] = (sportCounts[s] || 0) + 1;
+    });
+
+    // Update header
+    var today = new Date();
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    document.getElementById('combinedTitle').textContent = 'Full Slate \u2014 ' + months[today.getMonth()] + ' ' + today.getDate();
+
+    var statsHtml = '';
+    for (var sport in sportCounts) {
+        statsHtml += '<div class="stat-pill">' + sportCounts[sport] + ' ' + sport + '</div>';
+    }
+    statsHtml += '<div class="stat-pill" style="color:#D4A017;">' + games.length + ' Total</div>';
+    document.getElementById('combinedStats').innerHTML = statsHtml;
+    document.getElementById('combinedTimestamp').textContent = 'Updated: ' + (data.fetched_at || new Date().toLocaleTimeString()) + ' | Source: ' + (data.source || 'The Odds API');
+
+    // Update tab count
+    var tabs = document.querySelectorAll('.sport-tab');
+    tabs.forEach(function(tab) {
+        if (tab.textContent.indexOf('Combined') !== -1) {
+            var count = tab.querySelector('.tab-count');
+            if (count) count.textContent = games.length;
+        }
+    });
+
+    if (games.length === 0) {
+        container.innerHTML = '<div style="text-align:center;padding:40px;color:rgba(255,255,255,0.4);">No games on the slate right now.</div>';
+        return;
+    }
+
+    var sportColors = {
+        'NBA': 'background:rgba(200,50,50,0.2);color:#E25555;',
+        'NHL': 'background:rgba(50,100,200,0.2);color:#5588EE;',
+        'SOCCER': 'background:rgba(16,185,129,0.2);color:#10B981;',
+        'MMA': 'background:rgba(167,139,250,0.2);color:#A78BFA;',
+        'BOXING': 'background:rgba(245,158,11,0.2);color:#F59E0B;'
+    };
+
+    var html = '<table style="width:100%;border-collapse:collapse;">';
+    html += '<tr><th style="background:rgba(255,255,255,0.06);text-align:left;padding:10px 12px;font-size:11px;color:#D4A017;text-transform:uppercase;letter-spacing:1px;">Time</th>';
+    html += '<th style="background:rgba(255,255,255,0.06);text-align:left;padding:10px;font-size:11px;color:#D4A017;text-transform:uppercase;">Sport</th>';
+    html += '<th style="background:rgba(255,255,255,0.06);text-align:left;padding:10px;font-size:11px;color:#D4A017;text-transform:uppercase;">Game</th>';
+    html += '<th style="background:rgba(255,255,255,0.06);text-align:left;padding:10px;font-size:11px;color:#D4A017;text-transform:uppercase;">Spread</th>';
+    html += '<th style="background:rgba(255,255,255,0.06);text-align:center;padding:10px;font-size:11px;color:#D4A017;text-transform:uppercase;">O/U</th>';
+    html += '<th style="background:rgba(255,255,255,0.06);text-align:center;padding:10px;font-size:11px;color:#D4A017;text-transform:uppercase;">ML</th>';
+    html += '<th style="background:rgba(255,255,255,0.06);text-align:center;padding:10px;font-size:11px;color:#D4A017;text-transform:uppercase;">Book</th>';
+    html += '<th style="background:rgba(255,255,255,0.06);text-align:center;padding:10px;font-size:11px;color:#D4A017;text-transform:uppercase;">Status</th></tr>';
+
+    games.forEach(function(g) {
+        var awayAbbr = abbr(g.away);
+        var homeAbbr = abbr(g.home);
+        var spread = g.home_spread || 0;
+        var spreadStr = (spread > 0 ? '+' : '') + spread;
+        var total = g.total || 0;
+        var awayML = g.away_ml || '--';
+        var homeML = g.home_ml || '--';
+        var book = g.bookmaker || '--';
+        var time = formatGameTime(g.time);
+        var gameDate = new Date(g.time);
+        var isToday = gameDate.toDateString() === new Date().toDateString();
+        var dateLabel = isToday ? time : gameDate.toLocaleDateString('en-US', {month:'short', day:'numeric'}) + ' ' + time;
+        var sportStyle = sportColors[g.sport] || 'background:rgba(255,255,255,0.1);color:#fff;';
+        var statusTag = '';
+        if (!g.lines_available) statusTag = '<span class="tag" style="background:rgba(239,68,68,0.2);color:#EF4444;">NO LINES</span>';
+        else if (!g.lines_complete) statusTag = '<span class="tag" style="background:rgba(251,191,36,0.2);color:#FBB024;">PARTIAL</span>';
+        else statusTag = '<span class="tag" style="background:rgba(16,185,129,0.2);color:#10B981;">FULL</span>';
+        var rowBg = isToday ? 'background:rgba(212,160,23,0.03);' : '';
+
+        html += '<tr style="border-bottom:1px solid rgba(255,255,255,0.04);' + rowBg + '">';
+        html += '<td style="padding:10px 12px;font-size:13px;color:rgba(255,255,255,0.5);">' + dateLabel + '</td>';
+        html += '<td><span class="tag" style="' + sportStyle + '">' + g.sport + '</span></td>';
+        html += '<td style="padding:10px;font-size:14px;font-weight:' + (g.lines_complete ? '700' : '400') + ';">' + awayAbbr + ' @ ' + homeAbbr + '</td>';
+        html += '<td style="padding:10px;font-size:13px;color:' + (g.lines_available ? '#D4A017' : 'rgba(255,255,255,0.3)') + ';">' + (g.lines_available ? homeAbbr + ' ' + spreadStr : '--') + '</td>';
+        html += '<td style="padding:10px;font-size:13px;color:rgba(255,255,255,0.5);text-align:center;">' + (total ? total : '--') + '</td>';
+        html += '<td style="padding:10px;font-size:12px;color:rgba(255,255,255,0.4);text-align:center;">' + awayAbbr + ' ' + awayML + '<br>' + homeAbbr + ' ' + homeML + '</td>';
+        html += '<td style="padding:10px;text-align:center;"><span class="tag" style="background:rgba(212,160,23,0.15);color:#D4A017;font-size:9px;">' + book.toUpperCase() + '</span></td>';
+        html += '<td style="padding:10px;text-align:center;">' + statusTag + '</td>';
+        html += '</tr>';
+    });
+
+    html += '</table>';
+    container.innerHTML = html;
+}
+
+// ===== DYNAMIC PETER'S GUT PICKS =====
+function updatePeterGut(sport, analysisData) {
+    var gutContent = document.getElementById('peterGut' + sport.toUpperCase() + 'Content');
+    var gutTitle = document.getElementById('peterGut' + sport.toUpperCase() + 'Title');
+    var gutTimestamp = document.getElementById('peterGut' + sport.toUpperCase() + 'Timestamp');
+    if (!gutContent || !analysisData.games) return;
+
+    var gradeOrder = {'A':1,'A-':2,'B+':3,'B':4,'B-':5,'C+':6,'C':7,'INCOMPLETE':8};
+    var sorted = analysisData.games.slice().sort(function(a,b) {
+        return (gradeOrder[a.grade]||9) - (gradeOrder[b.grade]||9);
+    });
+
+    var html = '';
+    var n = 0;
+    sorted.forEach(function(game) {
+        n++;
+        var gradeColor = '#D4A017';
+        if (game.grade === 'A' || game.grade === 'A-') gradeColor = '#10B981';
+        else if (game.grade === 'INCOMPLETE') gradeColor = '#F59E0B';
+        else if (game.grade === 'C' || game.grade === 'C+') gradeColor = '#EF4444';
+
+        var tagStr = '';
+        if (game.tags && game.tags.length) {
+            game.tags.forEach(function(t) {
+                if (t === 'BEST BET') tagStr += '<span class="tag tag-home">' + t + '</span> ';
+                else if (t === 'SHARP') tagStr += '<span class="tag tag-upset">' + t + '</span> ';
+                else if (t === 'PASS' || t === 'TRAP') tagStr += '<span class="tag tag-trap">' + t + '</span> ';
+                else if (t === 'B2B') tagStr += '<span class="tag tag-b2b">' + t + '</span> ';
+            });
+        }
+
+        html += '<div style="margin-bottom:6px;">' +
+            n + '. <strong style="color:' + gradeColor + ';">[' + game.grade + ']</strong> ' +
+            '<strong>' + game.matchup + '</strong> ' + tagStr + '<br>' +
+            '<span style="color:rgba(255,255,255,0.5);font-size:12px;padding-left:16px;">' + (game.peter_zone || game.edge_summary || '') + '</span>' +
+            '</div>';
+    });
+
+    if (!html) html = '<p style="color:rgba(255,255,255,0.3);font-style:italic;">No analysis data yet. Hit REFRESH SLATE.</p>';
+
+    gutContent.innerHTML = html;
+
+    var today = new Date();
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    if (gutTitle) gutTitle.textContent = "Peter's Gut Picks \u2014 " + sport.toUpperCase() + ' ' + months[today.getMonth()] + ' ' + today.getDate();
+    if (gutTimestamp) gutTimestamp.textContent = 'Generated: ' + (analysisData.generated_at || 'just now') + ' | Source: ' + (analysisData.source || 'Azure OpenAI');
+}
+
+// ===== HOOK INTO EXISTING ANALYSIS FETCH =====
+var _origFetchAnalysis = fetchAnalysis;
+fetchAnalysis = function(sport) {
+    var panel = document.getElementById('panel-' + sport);
+    if (!panel) return;
+
+    fetch('/api/analysis/' + sport)
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.error) { console.error('Analysis error:', data.error); return; }
+
+            // Update Peter's Gut Picks dynamically
+            updatePeterGut(sport, data);
+
+            // Update gotcha banner
+            var gotcha = panel.querySelector('.gotcha-banner');
+            if (gotcha && data.gotcha) {
+                var title = gotcha.querySelector('h3');
+                var display = gotcha.querySelector('#gotchaDisplay') || gotcha;
+                if (gotcha.querySelector('#gotchaDisplay')) {
+                    display.innerHTML = data.gotcha;
+                } else {
+                    var existingUl = gotcha.querySelector('ul');
+                    var existingP = gotcha.querySelector('p');
+                    if (existingUl) existingUl.outerHTML = data.gotcha;
+                    else if (existingP) existingP.outerHTML = data.gotcha;
+                }
+                if (title && data.generated_at) {
+                    var sportName = sport.toUpperCase();
+                    var today2 = new Date().toLocaleDateString('en-US', {month:'short', day:'numeric'});
+                    title.textContent = 'Gotcha Card \u2014 ' + sportName + ' ' + today2 + ' (updated ' + data.generated_at + ')';
+                }
+            }
+
+            // Update game-level analysis
+            if (data.games && data.games.length) {
+                data.games.forEach(function(game) {
+                    var rows = panel.querySelectorAll('.game-row');
+                    rows.forEach(function(row) {
+                        var matchup = row.getAttribute('data-game') || '';
+                        var gameMatchup = game.matchup || '';
+                        if (matchup.replace(/\s/g,'').toUpperCase() === gameMatchup.replace(/\s/g,'').toUpperCase()) {
+                            var gradeEl = row.querySelector('.game-grade .grade');
+                            if (gradeEl && game.grade) {
+                                var isIncomplete = game.grade === 'INCOMPLETE' || (game.data_status && game.data_status.indexOf('MISSING') !== -1);
+                                if (isIncomplete) { gradeEl.className = 'grade gc'; gradeEl.textContent = 'INC'; }
+                                else { gradeEl.className = 'grade g' + game.grade.toLowerCase().replace(/[^a-z]/g,''); gradeEl.textContent = game.grade; }
+                            }
+                            var edgeEl = row.querySelector('.game-edge');
+                            if (edgeEl && game.edge_summary) {
+                                var tags = '';
+                                if (game.tags) { game.tags.forEach(function(t) {
+                                    var tc = 'tag';
+                                    if (t==='B2B') tc+=' tag-b2b'; else if (t==='PASS'||t==='TRAP') tc+=' tag-trap'; else if (t==='UPSET'||t==='SHARP') tc+=' tag-upset'; else if (t==='BEST BET') tc+=' tag-home';
+                                    tags += '<span class="'+tc+'">'+t+'</span> ';
+                                }); }
+                                edgeEl.innerHTML = tags + game.edge_summary;
+                            }
+                            var detail = row.querySelector('.detail-grid');
+                            if (detail) {
+                                var peterBox = detail.querySelector('.detail-box.peter');
+                                if (peterBox && game.peter_zone) peterBox.innerHTML = '<h4>Peter\'s Zone</h4><p>' + game.peter_zone + '</p>';
+                                var trendsBox = detail.querySelector('.detail-box.trends');
+                                if (trendsBox && game.trends && game.trends.length) {
+                                    var th = '<h4>Trends</h4><ul>'; game.trends.forEach(function(t){th+='<li>'+t+'</li>';}); th+='</ul>'; trendsBox.innerHTML = th;
+                                }
+                                var flagsBox = detail.querySelector('.detail-box.flags');
+                                if (flagsBox && game.flags && game.flags.length) {
+                                    var fh = '<h4>Flags</h4><ul>'; game.flags.forEach(function(f){fh+='<li>'+f+'</li>';}); fh+='</ul>'; flagsBox.innerHTML = fh;
+                                }
+                                var chinnyBox = detail.querySelector('.detail-box.chinny');
+                                if (chinnyBox && game.chinny_props && game.chinny_props.length) {
+                                    var ch = '<h4>Chinny\'s Props Zone</h4><ul>'; game.chinny_props.forEach(function(p){ch+='<li>'+p+'</li>';}); ch+='</ul>'; chinnyBox.innerHTML = ch;
+                                } else if (!chinnyBox && game.chinny_props && game.chinny_props.length) {
+                                    var nc = document.createElement('div'); nc.className = 'detail-box chinny';
+                                    var ch2 = '<h4>Chinny\'s Props Zone</h4><ul>'; game.chinny_props.forEach(function(p){ch2+='<li>'+p+'</li>';}); ch2+='</ul>'; nc.innerHTML = ch2; detail.appendChild(nc);
+                                }
+                            }
+                        }
+                    });
+                });
+            }
+
+            // Toast
+            var toast = document.getElementById('toast');
+            toast.textContent = sport.toUpperCase() + ' analysis updated \u2014 ' + (data.generated_at || 'just now');
+            toast.classList.add('show');
+            setTimeout(function() { toast.classList.remove('show'); }, 3000);
+        })
+        .catch(function(err) { console.error('Analysis fetch error:', err); });
+};
+
+// ===== HOOK COMBINED INTO switchSport =====
+var _origSwitchSport2 = switchSport;
+switchSport = function(sport) {
+    _origSwitchSport2(sport);
+    if (sport === 'combined') {
+        fetchCombinedSlate();
+    }
+};
+
+// ===== HOOK COMBINED INTO refreshSlate =====
+var _origRefreshSlate2 = refreshSlate;
+refreshSlate = function() {
+    _origRefreshSlate2();
+    // Also refresh combined data
+    setTimeout(function() { fetchCombinedSlate(); }, 3000);
+};
 </script>
 
 </body>
