@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edge Crew — Today's Bets</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:100vh;padding:0 0 80px;}
+
+.topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.06);
+    background:rgba(0,0,0,0.3);position:sticky;top:0;z-index:100;
+    backdrop-filter:blur(12px);
+}
+.topbar-title{font-family:'Playfair Display',serif;font-size:18px;
+    background:linear-gradient(135deg,#D4A017,#FFE082);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.topbar-date{font-size:12px;color:rgba(255,255,255,0.4);margin-top:2px;}
+.topbar-link{font-size:12px;color:rgba(212,160,23,0.6);text-decoration:none;}
+.topbar-link:hover{color:#D4A017;}
+
+.content{max-width:520px;margin:0 auto;padding:20px 16px;}
+
+.progress-bar{
+    text-align:center;padding:12px;margin-bottom:20px;
+    font-size:13px;color:rgba(255,255,255,0.4);
+    border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.progress-bar strong{color:#D4A017;}
+
+.pick-card{
+    background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);
+    border-radius:14px;padding:18px 20px;margin-bottom:12px;
+    transition:all 0.2s;
+}
+.pick-card.placed{border-color:rgba(16,185,129,0.3);background:rgba(16,185,129,0.04);opacity:0.7;}
+
+.pick-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
+.pick-selection{font-size:20px;font-weight:800;color:#fff;}
+.pick-odds-units{text-align:right;}
+.pick-odds{font-size:16px;font-weight:800;color:#D4A017;}
+.pick-units{font-size:13px;color:rgba(255,255,255,0.5);font-weight:700;}
+
+.pick-detail{font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:4px;}
+.pick-who{font-size:12px;color:rgba(255,255,255,0.3);}
+.pick-note{font-size:12px;color:rgba(212,160,23,0.5);font-style:italic;margin-top:4px;}
+
+.place-btn{
+    width:100%;padding:12px;border-radius:10px;border:none;margin-top:12px;
+    font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;
+    cursor:pointer;transition:all 0.2s;letter-spacing:0.5px;
+}
+.place-btn.unplaced{
+    background:linear-gradient(135deg,#D4A017,#B8860B);color:#0D0D1A;
+}
+.place-btn.unplaced:hover{transform:scale(1.02);box-shadow:0 4px 20px rgba(212,160,23,0.4);}
+.place-btn.done{
+    background:rgba(16,185,129,0.15);color:#10B981;border:1px solid rgba(16,185,129,0.3);
+    cursor:default;
+}
+
+.empty-state{
+    text-align:center;padding:60px 20px;color:rgba(255,255,255,0.3);
+}
+.empty-state h3{font-family:'Playfair Display',serif;color:rgba(255,255,255,0.2);margin-bottom:8px;}
+
+.refresh-note{
+    text-align:center;font-size:11px;color:rgba(255,255,255,0.15);margin-top:24px;
+}
+
+.loading{text-align:center;padding:40px;color:rgba(255,255,255,0.3);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+    <div>
+        <div class="topbar-title">EDGE CREW — TODAY'S BETS</div>
+        <div class="topbar-date" id="todayDate"></div>
+    </div>
+    <a href="/" class="topbar-link">Dashboard</a>
+</div>
+
+<div class="content">
+    <div class="progress-bar" id="progressBar">Loading picks...</div>
+    <div id="picksList"><div class="loading">Loading...</div></div>
+    <div class="refresh-note">Auto-refreshes every 30 seconds</div>
+</div>
+
+<script>
+var allPicks = [];
+
+function formatDate() {
+    var d = new Date();
+    var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    return months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+}
+
+document.getElementById('todayDate').textContent = formatDate();
+
+function fetchPicks() {
+    fetch('/api/picks?date=today')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            allPicks = data.picks || [];
+            renderPicks();
+        })
+        .catch(function(err) {
+            console.error('Fetch error:', err);
+            document.getElementById('picksList').innerHTML = '<div class="empty-state"><h3>Cannot reach server</h3><p>Check your connection and refresh.</p></div>';
+        });
+}
+
+function renderPicks() {
+    var container = document.getElementById('picksList');
+    var progressBar = document.getElementById('progressBar');
+
+    if (allPicks.length === 0) {
+        container.innerHTML = '<div class="empty-state"><h3>No picks yet today</h3><p>Picks will appear here when Peter locks them in.</p></div>';
+        progressBar.innerHTML = 'No picks today';
+        return;
+    }
+
+    // Sort: unplaced first, then placed
+    var sorted = allPicks.slice().sort(function(a, b) {
+        if (a.placed && !b.placed) return 1;
+        if (!a.placed && b.placed) return -1;
+        return 0;
+    });
+
+    var placedCount = allPicks.filter(function(p) { return p.placed; }).length;
+    var total = allPicks.length;
+    progressBar.innerHTML = '<strong>' + placedCount + '</strong> of <strong>' + total + '</strong> placed';
+
+    var html = '';
+    sorted.forEach(function(pick) {
+        var isPlaced = pick.placed;
+        html += '<div class="pick-card' + (isPlaced ? ' placed' : '') + '">';
+        html += '<div class="pick-top">';
+        html += '<div class="pick-selection">' + escHtml(pick.selection || pick.matchup) + '</div>';
+        html += '<div class="pick-odds-units">';
+        html += '<div class="pick-odds">' + escHtml(pick.odds || '-110') + '</div>';
+        html += '<div class="pick-units">' + escHtml(pick.units || '1') + 'u</div>';
+        html += '</div></div>';
+        html += '<div class="pick-detail">' + escHtml(pick.matchup || '') + ' &middot; ' + escHtml(pick.sport || '?') + ' &middot; ' + escHtml(pick.type || 'Spread') + '</div>';
+        html += '<div class="pick-who">' + escHtml(pick.name || '?') + ' &middot; ' + escHtml(pick.confidence || 'Lean') + '</div>';
+        if (pick.notes) {
+            html += '<div class="pick-note">' + escHtml(pick.notes) + '</div>';
+        }
+        if (isPlaced) {
+            html += '<button class="place-btn done" disabled>&#10003; PLACED</button>';
+        } else {
+            html += '<button class="place-btn unplaced" onclick="placePick(\'' + escHtml(pick.id) + '\', this)">PLACE</button>';
+        }
+        html += '</div>';
+    });
+
+    container.innerHTML = html;
+}
+
+function escHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function placePick(pickId, btnEl) {
+    btnEl.disabled = true;
+    btnEl.textContent = 'PLACING...';
+
+    fetch('/api/picks/place', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: pickId, placed: true })
+    }).then(function(r) {
+        return r.json();
+    }).then(function(data) {
+        if (data.status === 'ok') {
+            // Update local state
+            for (var i = 0; i < allPicks.length; i++) {
+                if (allPicks[i].id === pickId) {
+                    allPicks[i].placed = true;
+                    allPicks[i].placed_at = data.pick.placed_at;
+                    break;
+                }
+            }
+            renderPicks();
+        } else {
+            btnEl.disabled = false;
+            btnEl.textContent = 'PLACE';
+            alert('Error: ' + (data.error || 'Unknown'));
+        }
+    }).catch(function(err) {
+        btnEl.disabled = false;
+        btnEl.textContent = 'PLACE';
+        alert('Network error. Try again.');
+    });
+}
+
+// Initial fetch
+fetchPicks();
+
+// Auto-refresh every 30 seconds
+setInterval(fetchPicks, 30000);
+</script>
+
+</body>
+</html>

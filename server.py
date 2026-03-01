@@ -1,6 +1,7 @@
 import os
 import time
 import json
+import uuid
 import httpx
 from openai import AzureOpenAI
 from datetime import datetime
@@ -27,6 +28,7 @@ PREFERRED_BOOK = "hardrockbet"
 FALLBACK_BOOKS = ["draftkings", "fanduel", "betmgm", "bovada"]
 REGIONS = "us,us2"
 UPSETS_FILE = os.path.join(os.path.dirname(__file__), "data", "upsets.json")
+PICKS_FILE = os.path.join(os.path.dirname(__file__), "data", "picks.json")
 
 # Azure OpenAI config
 AZURE_ENDPOINT = os.environ.get("AZURE_OPENAI_ENDPOINT", "")
@@ -422,6 +424,119 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
         )
 
 
+def _read_picks():
+    """Read picks from data/picks.json."""
+    try:
+        with open(PICKS_FILE, "r") as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {"picks": [], "updated_at": None}
+
+
+def _write_picks(data):
+    """Write picks to data/picks.json."""
+    os.makedirs(os.path.dirname(PICKS_FILE), exist_ok=True)
+    with open(PICKS_FILE, "w") as f:
+        json.dump(data, f, indent=2)
+
+
+@app.get("/api/picks")
+async def get_picks(date: str = ""):
+    """Return picks, optionally filtered by date (YYYY-MM-DD or 'today')."""
+    data = _read_picks()
+    picks = data.get("picks", [])
+
+    if date:
+        if date == "today":
+            date = datetime.now().strftime("%Y-%m-%d")
+        picks = [p for p in picks if p.get("date", "").startswith(date)]
+
+    return JSONResponse({"picks": picks, "count": len(picks)})
+
+
+@app.post("/api/picks")
+async def save_pick(request: Request):
+    """Save a new pick from the bet slip popup."""
+    body = await request.json()
+    name = body.get("name", "")
+    matchup = body.get("matchup", "")
+    selection = body.get("selection", "")
+
+    if not name or not matchup or not selection:
+        return JSONResponse({"error": "name, matchup, and selection are required"}, status_code=400)
+
+    pick = {
+        "id": str(uuid.uuid4())[:8],
+        "name": name,
+        "sport": body.get("sport", ""),
+        "type": body.get("type", "Spread"),
+        "matchup": matchup,
+        "selection": selection,
+        "odds": body.get("odds", "-110"),
+        "units": body.get("units", "1"),
+        "confidence": body.get("confidence", "Lean"),
+        "notes": body.get("notes", ""),
+        "date": datetime.now().strftime("%Y-%m-%d"),
+        "time": datetime.now().strftime("%H:%M:%S"),
+        "placed": False,
+        "placed_at": None,
+        "result": None,
+        "graded_at": None,
+        "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+    }
+
+    data = _read_picks()
+    data["picks"].insert(0, pick)
+    data["updated_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    _write_picks(data)
+
+    return JSONResponse({"status": "ok", "pick": pick})
+
+
+@app.post("/api/picks/place")
+async def place_pick(request: Request):
+    """Mark a pick as placed on Hard Rock Bet."""
+    body = await request.json()
+    pick_id = body.get("id", "")
+    placed = body.get("placed", True)
+
+    if not pick_id:
+        return JSONResponse({"error": "id is required"}, status_code=400)
+
+    data = _read_picks()
+    for pick in data["picks"]:
+        if pick["id"] == pick_id:
+            pick["placed"] = placed
+            pick["placed_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S") if placed else None
+            data["updated_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            _write_picks(data)
+            return JSONResponse({"status": "ok", "pick": pick})
+
+    return JSONResponse({"error": "Pick not found"}, status_code=404)
+
+
+@app.post("/api/picks/grade")
+async def grade_pick(request: Request):
+    """Grade a pick W/L/P."""
+    body = await request.json()
+    pick_id = body.get("id", "")
+    result = body.get("result", "")
+
+    if not pick_id or result not in ("W", "L", "P"):
+        return JSONResponse({"error": "id and result (W/L/P) required"}, status_code=400)
+
+    data = _read_picks()
+    for pick in data["picks"]:
+        if pick["id"] == pick_id:
+            pick["result"] = result
+            pick["graded_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            data["updated_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            _write_picks(data)
+            return JSONResponse({"status": "ok", "pick": pick})
+
+    return JSONResponse({"error": "Pick not found"}, status_code=404)
+
+
 @app.get("/api/upsets")
 async def get_upsets():
     """Return current upset specials from data/upsets.json."""
@@ -461,6 +576,11 @@ async def save_upsets(request: Request):
 
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+
+@app.get("/bets")
+async def bets_page():
+    return FileResponse("static/bets.html")
 
 
 @app.get("/")

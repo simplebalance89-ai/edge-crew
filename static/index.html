@@ -252,6 +252,68 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     border-radius:12px;z-index:999;transition:transform 0.3s ease;pointer-events:none;}
 .toast.show{transform:translateX(-50%) translateY(0);}
 
+/* ===== BET SLIP POPUP ===== */
+.betslip-overlay{
+    position:fixed;top:0;left:0;right:0;bottom:0;
+    background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);
+    display:none;align-items:flex-end;justify-content:center;z-index:400;
+    padding:0;
+}
+.betslip-overlay.show{display:flex;}
+.betslip-card{
+    background:#0D0D1A;border:1px solid rgba(212,160,23,0.4);
+    border-radius:20px 20px 0 0;padding:24px 20px 28px;
+    width:100%;max-width:480px;
+    transform:translateY(100%);transition:transform 0.3s ease;
+    max-height:85vh;overflow-y:auto;
+}
+.betslip-overlay.show .betslip-card{transform:translateY(0);}
+.slip-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.slip-title{font-family:'Playfair Display',serif;font-size:18px;color:#D4A017;font-weight:900;letter-spacing:1px;}
+.slip-close{background:none;border:none;color:rgba(255,255,255,0.4);font-size:24px;cursor:pointer;padding:4px 8px;}
+.slip-close:hover{color:#fff;}
+.slip-pick{font-size:20px;font-weight:800;color:#fff;margin-bottom:4px;}
+.slip-meta{font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:16px;}
+.slip-label{font-size:11px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;margin-top:14px;}
+.slip-btn-group{display:flex;gap:6px;flex-wrap:wrap;}
+.slip-btn{
+    padding:8px 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);
+    background:transparent;color:rgba(255,255,255,0.4);font-family:'Nunito',sans-serif;
+    font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;flex:1;text-align:center;
+    min-width:60px;
+}
+.slip-btn:hover{border-color:rgba(212,160,23,0.4);color:rgba(255,255,255,0.7);}
+.slip-btn.active{background:rgba(212,160,23,0.2);border-color:#D4A017;color:#D4A017;}
+.slip-odds-input{
+    width:100px;padding:8px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);
+    background:rgba(255,255,255,0.04);color:#fff;font-family:'Nunito',sans-serif;
+    font-size:14px;font-weight:700;text-align:center;
+}
+.slip-odds-input:focus{outline:none;border-color:rgba(212,160,23,0.5);}
+.slip-note-toggle{
+    background:none;border:none;color:rgba(212,160,23,0.6);font-size:13px;
+    cursor:pointer;padding:0;margin-top:12px;font-family:'Nunito',sans-serif;
+}
+.slip-note-toggle:hover{color:#D4A017;}
+.slip-note-area{
+    width:100%;padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);
+    background:rgba(255,255,255,0.04);color:#fff;font-family:'Nunito',sans-serif;
+    font-size:13px;resize:vertical;min-height:50px;margin-top:6px;display:none;
+}
+.slip-note-area:focus{outline:none;border-color:rgba(212,160,23,0.5);}
+.betslip-submit{
+    width:100%;padding:14px;border-radius:12px;border:none;margin-top:16px;
+    background:linear-gradient(135deg,#D4A017,#B8860B);color:#0D0D1A;
+    font-family:'Nunito',sans-serif;font-size:16px;font-weight:800;
+    cursor:pointer;transition:all 0.2s;letter-spacing:0.5px;
+}
+.betslip-submit:hover{transform:scale(1.02);box-shadow:0 4px 20px rgba(212,160,23,0.4);}
+.betslip-submit:disabled{opacity:0.5;cursor:not-allowed;transform:none;box-shadow:none;}
+@media(min-width:769px){
+    .betslip-overlay{align-items:center;}
+    .betslip-card{border-radius:20px;max-height:80vh;}
+}
+
 /* ===== FOOTER ===== */
 .footer{
     text-align:center;padding:32px 24px;margin-top:32px;
@@ -1371,6 +1433,48 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 
 </div>
 
+<!-- BET SLIP POPUP -->
+<div class="betslip-overlay" id="betslipOverlay" onclick="if(event.target===this)closeBetSlip()">
+    <div class="betslip-card">
+        <div class="slip-header">
+            <div class="slip-title">QUICK SLIP</div>
+            <button class="slip-close" onclick="closeBetSlip()">&times;</button>
+        </div>
+        <div class="slip-pick" id="slipPick">MIL +3.0</div>
+        <div class="slip-meta" id="slipMeta">CLE @ MIL &middot; NBA &middot; Spread</div>
+
+        <div class="slip-label">ODDS</div>
+        <input type="text" class="slip-odds-input" id="slipOdds" value="-110">
+
+        <div class="slip-label">WHO</div>
+        <div class="slip-btn-group" id="slipWhoGroup">
+            <div class="slip-btn" onclick="selectSlipOption('who','Peter',this)">Peter</div>
+            <div class="slip-btn" onclick="selectSlipOption('who','Chinny',this)">Chinny</div>
+            <div class="slip-btn" onclick="selectSlipOption('who','Jimmy',this)">Jimmy</div>
+        </div>
+
+        <div class="slip-label">UNITS</div>
+        <div class="slip-btn-group" id="slipUnitsGroup">
+            <div class="slip-btn active" onclick="selectSlipOption('units','1',this)">1</div>
+            <div class="slip-btn" onclick="selectSlipOption('units','2',this)">2</div>
+            <div class="slip-btn" onclick="selectSlipOption('units','3',this)">3</div>
+            <div class="slip-btn" onclick="selectSlipOption('units','5',this)">5</div>
+        </div>
+
+        <div class="slip-label">CONFIDENCE</div>
+        <div class="slip-btn-group" id="slipConfGroup">
+            <div class="slip-btn active" onclick="selectSlipOption('conf','Lean',this)">Lean</div>
+            <div class="slip-btn" onclick="selectSlipOption('conf','Strong',this)">Strong</div>
+            <div class="slip-btn" onclick="selectSlipOption('conf','Fire',this)">Fire</div>
+        </div>
+
+        <button class="slip-note-toggle" id="slipNoteToggle" onclick="toggleSlipNote()">+ Add Note</button>
+        <textarea class="slip-note-area" id="slipNoteArea" placeholder="Optional note..."></textarea>
+
+        <button class="betslip-submit" id="slipSubmitBtn" onclick="submitBetSlip()">LOCK THIS PICK</button>
+    </div>
+</div>
+
 <div class="toast" id="toast">Pick locked!</div>
 
 <div class="footer">
@@ -1464,9 +1568,17 @@ function pickSide(event, el, side) {
     event.stopPropagation();
     var row = el.closest('.game-row');
     var gameName = row.getAttribute('data-game');
+    // Check if this side is already picked (toggle off)
+    var wasAlreadyPicked = el.classList.contains('picked');
     // Clear other side buttons in same game
     var btns = row.querySelectorAll('.side-btn');
     btns.forEach(function(b) { b.classList.remove('picked'); });
+    if (wasAlreadyPicked) {
+        // Toggled off — don't open slip
+        if (picks[gameName]) picks[gameName].side = '';
+        localStorage.setItem('edgeLockedPicks', JSON.stringify(picks));
+        return;
+    }
     el.classList.add('picked');
     if (!picks[gameName]) picks[gameName] = {};
     picks[gameName].side = side;
@@ -1479,6 +1591,201 @@ function pickSide(event, el, side) {
         updateSubmitBar();
     }
     localStorage.setItem('edgeLockedPicks', JSON.stringify(picks));
+    // Detect sport from panel
+    var panel = row.closest('.sport-panel');
+    var sport = '';
+    if (panel) {
+        var panelId = panel.id || '';
+        sport = panelId.replace('panel-', '').toUpperCase();
+    }
+    openBetSlip(gameName, side, sport);
+}
+
+// ===== BET SLIP POPUP =====
+var slipState = {
+    matchup: '', side: '', sport: '', type: '', who: '', units: '1', conf: 'Lean', odds: '-110', note: ''
+};
+
+function openBetSlip(matchup, side, sport) {
+    slipState.matchup = matchup;
+    slipState.side = side;
+    slipState.sport = sport || '';
+
+    // Auto-detect pick type
+    var sideUpper = side.toUpperCase();
+    if (sideUpper.indexOf('OVER') !== -1 || sideUpper.indexOf('UNDER') !== -1) {
+        slipState.type = 'O/U';
+    } else if (sideUpper.indexOf('ML') !== -1) {
+        slipState.type = 'Moneyline';
+    } else {
+        slipState.type = 'Spread';
+    }
+
+    // Extract odds from side text if present, e.g. "MIL +3.0 (-110)" or "VAN ML +110"
+    var oddsMatch = side.match(/\(([+-]\d+)\)/);
+    var defaultOdds = '-110';
+    if (oddsMatch) {
+        defaultOdds = oddsMatch[1];
+    } else if (slipState.type === 'Moneyline') {
+        // For ML buttons the odds are often in the text like "VAN ML +110"
+        var mlMatch = side.match(/ML\s*([+-]\d+)/);
+        if (mlMatch) defaultOdds = mlMatch[1];
+    }
+    // Also check liveOddsMap
+    if (typeof liveOddsMap !== 'undefined' && liveOddsMap[matchup]) {
+        // Try exact side match
+        var cleanSide = side.replace(/\s*\([^)]*\)/, '');
+        if (liveOddsMap[matchup][cleanSide]) {
+            defaultOdds = String(liveOddsMap[matchup][cleanSide]);
+        }
+    }
+    slipState.odds = defaultOdds;
+
+    // Populate UI
+    document.getElementById('slipPick').textContent = side.replace(/\s*\([^)]*\)/, '');
+    document.getElementById('slipMeta').textContent = matchup + ' \u00B7 ' + (sport || '?') + ' \u00B7 ' + slipState.type;
+    document.getElementById('slipOdds').value = defaultOdds;
+
+    // Restore "who" from localStorage
+    var savedWho = localStorage.getItem('edgeSlipWho') || '';
+    slipState.who = savedWho;
+    var whoBtns = document.querySelectorAll('#slipWhoGroup .slip-btn');
+    whoBtns.forEach(function(b) {
+        b.classList.remove('active');
+        if (savedWho && b.textContent.trim() === savedWho) b.classList.add('active');
+    });
+
+    // Reset units to 1
+    slipState.units = '1';
+    var unitBtns = document.querySelectorAll('#slipUnitsGroup .slip-btn');
+    unitBtns.forEach(function(b) {
+        b.classList.remove('active');
+        if (b.textContent.trim() === '1') b.classList.add('active');
+    });
+
+    // Reset confidence to Lean
+    slipState.conf = 'Lean';
+    var confBtns = document.querySelectorAll('#slipConfGroup .slip-btn');
+    confBtns.forEach(function(b) {
+        b.classList.remove('active');
+        if (b.textContent.trim() === 'Lean') b.classList.add('active');
+    });
+
+    // Reset note
+    slipState.note = '';
+    document.getElementById('slipNoteArea').value = '';
+    document.getElementById('slipNoteArea').style.display = 'none';
+    document.getElementById('slipNoteToggle').textContent = '+ Add Note';
+
+    // Re-enable submit
+    var btn = document.getElementById('slipSubmitBtn');
+    btn.disabled = false;
+    btn.textContent = 'LOCK THIS PICK';
+
+    // Show overlay
+    var overlay = document.getElementById('betslipOverlay');
+    overlay.style.display = 'flex';
+    requestAnimationFrame(function() {
+        overlay.classList.add('show');
+    });
+}
+
+function closeBetSlip() {
+    var overlay = document.getElementById('betslipOverlay');
+    overlay.classList.remove('show');
+    setTimeout(function() { overlay.style.display = 'none'; }, 300);
+}
+
+function selectSlipOption(group, value, el) {
+    var parentGroup = el.parentElement;
+    parentGroup.querySelectorAll('.slip-btn').forEach(function(b) { b.classList.remove('active'); });
+    el.classList.add('active');
+    if (group === 'who') {
+        slipState.who = value;
+        localStorage.setItem('edgeSlipWho', value);
+    } else if (group === 'units') {
+        slipState.units = value;
+    } else if (group === 'conf') {
+        slipState.conf = value;
+    }
+}
+
+function toggleSlipNote() {
+    var area = document.getElementById('slipNoteArea');
+    var toggle = document.getElementById('slipNoteToggle');
+    if (area.style.display === 'none' || !area.style.display) {
+        area.style.display = 'block';
+        area.focus();
+        toggle.textContent = '- Hide Note';
+    } else {
+        area.style.display = 'none';
+        toggle.textContent = '+ Add Note';
+    }
+}
+
+function submitBetSlip() {
+    if (!slipState.who) {
+        var toast = document.getElementById('toast');
+        toast.textContent = 'Pick WHO first!';
+        toast.style.background = '#EF4444';
+        toast.classList.add('show');
+        setTimeout(function() { toast.classList.remove('show'); toast.style.background = '#10B981'; }, 2000);
+        return;
+    }
+
+    var btn = document.getElementById('slipSubmitBtn');
+    btn.disabled = true;
+    btn.textContent = 'LOCKING...';
+
+    var odds = document.getElementById('slipOdds').value || '-110';
+    var note = document.getElementById('slipNoteArea').value || '';
+
+    var pick = {
+        name: slipState.who,
+        sport: slipState.sport,
+        type: slipState.type,
+        matchup: slipState.matchup,
+        selection: slipState.side.replace(/\s*\([^)]*\)/, ''),
+        odds: odds,
+        units: slipState.units,
+        confidence: slipState.conf,
+        notes: note,
+        date: new Date().toLocaleDateString(),
+        time: new Date().toLocaleTimeString()
+    };
+
+    // Save to localStorage for bankroll tracker compatibility
+    var stored = JSON.parse(localStorage.getItem('edgePicks') || '[]');
+    stored.unshift(pick);
+    localStorage.setItem('edgePicks', JSON.stringify(stored));
+
+    // POST to server
+    fetch('/api/picks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(pick)
+    }).then(function(r) {
+        return r.json();
+    }).then(function(data) {
+        closeBetSlip();
+        var toast = document.getElementById('toast');
+        toast.textContent = pick.selection + ' locked!';
+        toast.style.background = '#10B981';
+        toast.classList.add('show');
+        setTimeout(function() { toast.classList.remove('show'); }, 2500);
+        renderPicks();
+        renderBankroll();
+    }).catch(function(err) {
+        // Fallback: already saved locally
+        closeBetSlip();
+        var toast = document.getElementById('toast');
+        toast.textContent = pick.selection + ' locked (offline)!';
+        toast.style.background = '#F59E0B';
+        toast.classList.add('show');
+        setTimeout(function() { toast.classList.remove('show'); toast.style.background = '#10B981'; }, 2500);
+        renderPicks();
+        renderBankroll();
+    });
 }
 
 function updateSubmitBar() {
