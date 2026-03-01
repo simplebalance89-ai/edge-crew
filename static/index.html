@@ -298,6 +298,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     <div class="sport-tab" onclick="switchSport('boxing')">Boxing <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('props')">Props <span class="tab-count">30</span></div>
     <div class="sport-tab" onclick="switchSport('combined'); if(typeof fetchCombinedSlate==='function') fetchCombinedSlate();">Combined <span class="tab-count">14</span></div>
+    <div class="sport-tab" onclick="switchSport('bankroll')">RESULTS <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="refreshSlate()" style="color:#EF4444;margin-left:auto;">REFRESH SLATE</div>
 </div>
 
@@ -309,7 +310,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 
 <div class="gotcha-banner" id="gotchaCard">
     <div style="display:flex;justify-content:space-between;align-items:center;">
-        <h3>Gotcha Card &mdash; NBA Feb 25</h3>
+        <h3 id="gotchaNBATitle">Gotcha Card &mdash; NBA Feb 25</h3>
         <div style="display:flex;gap:6px;">
             <div style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(212,160,23,0.15);color:#D4A017;font-size:11px;font-weight:700;" onclick="toggleGotchaEdit()">EDIT</div>
             <div style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(16,185,129,0.15);color:#10B981;font-size:11px;font-weight:700;" onclick="saveGotcha()">SAVE</div>
@@ -638,14 +639,23 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 </div>
 
 <!-- NBA UPSET SPECIALS -->
-<div class="upset-section">
-    <h3>Upset Specials (Peter's Territory)</h3>
-    <div class="upset-row">
-        <div class="upset-dog">MIL +3 vs CLE</div>
-        <div class="upset-ml">+3</div>
-        <div class="upset-thesis">Line crashed from -8.5. Mitchell + Mobley out. Harden questionable. Bucks 7-2 lately.</div>
-        <div class="game-grade"><span class="grade gb">B</span></div>
+<div class="upset-section" id="upsetNBA">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h3>Upset Specials (Peter's Territory)</h3>
+        <div style="display:flex;gap:6px;">
+            <div style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(212,160,23,0.15);color:#D4A017;font-size:11px;font-weight:700;" onclick="toggleUpsetEdit('NBA')">EDIT</div>
+            <div style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(16,185,129,0.15);color:#10B981;font-size:11px;font-weight:700;" onclick="saveUpset('NBA')">SAVE</div>
+        </div>
     </div>
+    <div id="upsetNBADisplay">
+        <div class="upset-row">
+            <div class="upset-dog">MIL +3 vs CLE</div>
+            <div class="upset-ml">+3</div>
+            <div class="upset-thesis">Line crashed from -8.5. Mitchell + Mobley out. Harden questionable. Bucks 7-2 lately.</div>
+            <div class="game-grade"><span class="grade gb">B</span></div>
+        </div>
+    </div>
+    <textarea id="upsetNBAEditor" style="display:none;width:100%;min-height:120px;background:#0D0D1A;color:#fff;border:1px solid #D4A017;border-radius:6px;padding:10px;font-family:'Nunito',sans-serif;font-size:13px;resize:vertical;margin-top:8px;" placeholder="One upset per line. Format: TEAM +SPREAD vs OPP | thesis"></textarea>
 </div>
 
 <!-- NBA PETER GUT PICKS (DYNAMIC) -->
@@ -663,7 +673,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 <div class="sport-panel" id="panel-nhl">
 
 <div class="gotcha-banner">
-    <h3>Gotcha Card &mdash; NHL Feb 25 (First Night Back from Olympics)</h3>
+    <h3 id="gotchaNHLTitle">Gotcha Card &mdash; NHL Feb 25 (First Night Back from Olympics)</h3>
     <ul>
         <li><span class="tag tag-rust">20-DAY BREAK</span> <strong>First games back from Olympics. Rust is the #1 variable for ALL 8 games.</strong></li>
         <li><strong>VGK missing FIVE key players</strong> &mdash; Eichel, Hanifin, Marner, Stone, Theodore all resting post-Olympics. Shell lineup vs LA. Biggest edge on the slate.</li>
@@ -972,20 +982,29 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 </div>
 
 <!-- NHL UPSET SPECIALS -->
-<div class="upset-section">
-    <h3>Upset Specials (Peter + Chinny)</h3>
-    <div class="upset-row">
-        <div class="upset-dog">VAN ML vs WPG</div>
-        <div class="upset-ml">+110</div>
-        <div class="upset-thesis">WPG defense gutted (Morrissey/Pionk/Fleury out). VAN gets 4 players back at home.</div>
-        <div class="game-grade"><span class="grade gbp">B+</span></div>
+<div class="upset-section" id="upsetNHL">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h3>Upset Specials (Peter + Chinny)</h3>
+        <div style="display:flex;gap:6px;">
+            <div style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(212,160,23,0.15);color:#D4A017;font-size:11px;font-weight:700;" onclick="toggleUpsetEdit('NHL')">EDIT</div>
+            <div style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(16,185,129,0.15);color:#10B981;font-size:11px;font-weight:700;" onclick="saveUpset('NHL')">SAVE</div>
+        </div>
     </div>
-    <div class="upset-row">
-        <div class="upset-dog">PHI ML vs WSH</div>
-        <div class="upset-ml">+115</div>
-        <div class="upset-thesis">WSH missing Wilson + Carlson. Rust game. First game back from Olympics.</div>
-        <div class="game-grade"><span class="grade gb">B</span></div>
+    <div id="upsetNHLDisplay">
+        <div class="upset-row">
+            <div class="upset-dog">VAN ML vs WPG</div>
+            <div class="upset-ml">+110</div>
+            <div class="upset-thesis">WPG defense gutted (Morrissey/Pionk/Fleury out). VAN gets 4 players back at home.</div>
+            <div class="game-grade"><span class="grade gbp">B+</span></div>
+        </div>
+        <div class="upset-row">
+            <div class="upset-dog">PHI ML vs WSH</div>
+            <div class="upset-ml">+115</div>
+            <div class="upset-thesis">WSH missing Wilson + Carlson. Rust game. First game back from Olympics.</div>
+            <div class="game-grade"><span class="grade gb">B</span></div>
+        </div>
     </div>
+    <textarea id="upsetNHLEditor" style="display:none;width:100%;min-height:120px;background:#0D0D1A;color:#fff;border:1px solid #D4A017;border-radius:6px;padding:10px;font-family:'Nunito',sans-serif;font-size:13px;resize:vertical;margin-top:8px;" placeholder="One upset per line. Format: TEAM +SPREAD vs OPP | thesis"></textarea>
 </div>
 
 <!-- NHL PETER + CHINNY INPUT -->
@@ -1407,6 +1426,7 @@ var picks = {}; // { gameName: { checked: bool, side: string } }
 function refreshSlate() {
     // Reset all game row checks and side picks
     picks = {};
+    localStorage.removeItem('edgeLockedPicks');
     document.querySelectorAll('.pick-check').forEach(function(el) { el.classList.remove('on'); });
     document.querySelectorAll('.game-row').forEach(function(el) { el.classList.remove('checked', 'expanded'); });
     document.querySelectorAll('.side-btn').forEach(function(el) { el.classList.remove('picked'); });
@@ -1455,6 +1475,7 @@ function togglePick(event, el, gameName) {
         row.classList.remove('checked');
         if (picks[gameName]) picks[gameName].checked = false;
     }
+    localStorage.setItem('edgeLockedPicks', JSON.stringify(picks));
     updateSubmitBar();
 }
 
@@ -1476,6 +1497,7 @@ function pickSide(event, el, side) {
         picks[gameName].checked = true;
         updateSubmitBar();
     }
+    localStorage.setItem('edgeLockedPicks', JSON.stringify(picks));
 }
 
 function updateSubmitBar() {
@@ -2216,7 +2238,37 @@ var teamAbbr = {
     "Ottawa Senators":"OTT","Philadelphia Flyers":"PHI","Pittsburgh Penguins":"PIT","San Jose Sharks":"SJS",
     "Seattle Kraken":"SEA","St. Louis Blues":"STL","Tampa Bay Lightning":"TBL","Toronto Maple Leafs":"TOR",
     "Utah Mammoth":"UTA","Vancouver Canucks":"VAN","Vegas Golden Knights":"VGK","Washington Capitals":"WSH",
-    "Winnipeg Jets":"WPG"
+    "Winnipeg Jets":"WPG",
+    // MLS
+    "Atlanta United FC":"ATL","Austin FC":"AUS","Charlotte FC":"CLT","Chicago Fire FC":"CHI",
+    "Colorado Rapids":"COL","Columbus Crew":"CLB","D.C. United":"DC","FC Cincinnati":"CIN",
+    "FC Dallas":"DAL","Houston Dynamo FC":"HOU","Inter Miami CF":"MIA","LA Galaxy":"LAG",
+    "Los Angeles FC":"LAFC","Minnesota United FC":"MIN","CF Montréal":"MTL",
+    "Nashville SC":"NSH","New England Revolution":"NE","New York City FC":"NYC",
+    "New York Red Bulls":"NYRB","Orlando City SC":"ORL","Philadelphia Union":"PHI",
+    "Portland Timbers":"POR","Real Salt Lake":"RSL","San Jose Earthquakes":"SJ",
+    "Seattle Sounders FC":"SEA","Sporting Kansas City":"SKC","St. Louis City SC":"STL",
+    "Toronto FC":"TFC","Vancouver Whitecaps FC":"VAN",
+    // EPL
+    "Arsenal":"ARS","Aston Villa":"AVL","AFC Bournemouth":"BOU","Brentford":"BRE",
+    "Brighton & Hove Albion":"BHA","Chelsea":"CHE","Crystal Palace":"CRY","Everton":"EVE",
+    "Fulham":"FUL","Ipswich Town":"IPS","Leicester City":"LEI","Liverpool":"LIV",
+    "Manchester City":"MCI","Manchester United":"MUN","Newcastle United":"NEW",
+    "Nottingham Forest":"NFO","Southampton":"SOU","Tottenham Hotspur":"TOT",
+    "West Ham United":"WHU","Wolverhampton Wanderers":"WOL",
+    // La Liga
+    "Real Madrid":"RMA","Barcelona":"BAR","Atletico Madrid":"ATM","Athletic Bilbao":"BIL",
+    "Real Sociedad":"RSO","Real Betis":"BET","Villarreal":"VIL","Sevilla":"SEV",
+    "Valencia":"VAL","Girona":"GIR","Celta Vigo":"CEL","Mallorca":"MLL",
+    "Getafe":"GET","Osasuna":"OSA","Las Palmas":"LPA","Rayo Vallecano":"RAY",
+    "Cadiz":"CAD","Alaves":"ALA","Granada":"GRA","Almeria":"ALM",
+    // Champions League extras
+    "Bayern Munich":"BAY","Borussia Dortmund":"BVB","RB Leipzig":"RBL",
+    "Paris Saint-Germain":"PSG","Juventus":"JUV","AC Milan":"MIL","Inter Milan":"INT",
+    "Napoli":"NAP","AS Roma":"ROM","Benfica":"BEN","Porto":"POR","Sporting CP":"SCP",
+    "Ajax":"AJA","PSV Eindhoven":"PSV","Feyenoord":"FEY","Celtic":"CEL",
+    "Rangers":"RAN","Club Brugge":"BRU","Red Bull Salzburg":"SAL","Shakhtar Donetsk":"SHA",
+    "Galatasaray":"GAL","Fenerbahce":"FEN","Besiktas":"BES"
 };
 
 function abbr(name) { return teamAbbr[name] || name.split(' ').pop().substring(0,3).toUpperCase(); }
@@ -2275,6 +2327,10 @@ function buildGameRowHTML(g) {
         dataTag = '<span class="tag" style="background:rgba(239,68,68,0.2);color:#EF4444;">NO LINES</span> ';
         gradeDisplay = 'N/A';
         gradeClass = 'gc';
+    } else if (!isComplete && g.sport === 'SOCCER' && (g.away_ml || g.home_ml)) {
+        dataTag = '<span class="tag" style="background:rgba(16,185,129,0.2);color:#10B981;">ML ONLY</span> ';
+        gradeDisplay = 'ML';
+        gradeClass = 'gb';
     } else if (!isComplete) {
         dataTag = '<span class="tag" style="background:rgba(251,191,36,0.2);color:#FBB024;">INCOMPLETE</span> ';
         gradeDisplay = 'INC';
@@ -2695,6 +2751,7 @@ function renderCombinedTable(data) {
         var sportStyle = sportColors[g.sport] || 'background:rgba(255,255,255,0.1);color:#fff;';
         var statusTag = '';
         if (!g.lines_available) statusTag = '<span class="tag" style="background:rgba(239,68,68,0.2);color:#EF4444;">NO LINES</span>';
+        else if (!g.lines_complete && g.sport === 'SOCCER' && (g.away_ml || g.home_ml)) statusTag = '<span class="tag" style="background:rgba(16,185,129,0.2);color:#10B981;">ML ONLY</span>';
         else if (!g.lines_complete) statusTag = '<span class="tag" style="background:rgba(251,191,36,0.2);color:#FBB024;">PARTIAL</span>';
         else statusTag = '<span class="tag" style="background:rgba(16,185,129,0.2);color:#10B981;">FULL</span>';
         var rowBg = isToday ? 'background:rgba(212,160,23,0.03);' : '';
@@ -2870,6 +2927,141 @@ refreshSlate = function() {
     _origRefreshSlate2();
     // Also refresh combined data
     setTimeout(function() { fetchCombinedSlate(); }, 3000);
+};
+
+// ===== FIX 1: DYNAMIC GOTCHA CARD DATES =====
+(function() {
+    var today = new Date().toLocaleDateString('en-US', {month:'short', day:'numeric'});
+    var nbaH3 = document.getElementById('gotchaNBATitle');
+    if (nbaH3) nbaH3.textContent = 'Gotcha Card \u2014 NBA ' + today;
+    var nhlH3 = document.getElementById('gotchaNHLTitle');
+    if (nhlH3) nhlH3.textContent = 'Gotcha Card \u2014 NHL ' + today;
+})();
+
+// ===== FIX 2: DYNAMIC PROPS TIMESTAMPS =====
+(function() {
+    var now = new Date();
+    var ts = now.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}) + ' \u2014 ' + now.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit', timeZoneName:'short'});
+    var propsTs = document.getElementById('propsTimestamp');
+    if (propsTs) propsTs.textContent = 'Last updated: ' + ts;
+    var bottomEls = document.querySelectorAll('#panel-props > div');
+    for (var i = 0; i < bottomEls.length; i++) {
+        if (bottomEls[i].textContent.indexOf('Props card generated') !== -1) {
+            bottomEls[i].textContent = 'Props card generated: ' + ts + ' | Next update: before tip-off';
+            break;
+        }
+    }
+})();
+
+// ===== FIX 3: UPSET SPECIALS EDIT/SAVE/LOAD =====
+function toggleUpsetEdit(sport) {
+    var display = document.getElementById('upset' + sport + 'Display');
+    var editor = document.getElementById('upset' + sport + 'Editor');
+    if (!display || !editor) return;
+    if (editor.style.display === 'none') {
+        // Extract current text from display rows
+        var rows = display.querySelectorAll('.upset-row');
+        var lines = [];
+        rows.forEach(function(r) {
+            var dog = r.querySelector('.upset-dog');
+            var ml = r.querySelector('.upset-ml');
+            var thesis = r.querySelector('.upset-thesis');
+            if (dog) lines.push((dog.textContent || '') + ' | ' + (ml ? ml.textContent : '') + ' | ' + (thesis ? thesis.textContent : ''));
+        });
+        editor.value = lines.join('\n');
+        editor.style.display = 'block';
+        display.style.display = 'none';
+        editor.focus();
+    } else {
+        editor.style.display = 'none';
+        display.style.display = 'block';
+    }
+}
+
+function saveUpset(sport) {
+    var editor = document.getElementById('upset' + sport + 'Editor');
+    var display = document.getElementById('upset' + sport + 'Display');
+    if (!editor || !display) return;
+    var text = editor.value.trim();
+    localStorage.setItem('edgeUpset' + sport, text);
+    renderUpset(sport, text);
+    editor.style.display = 'none';
+    display.style.display = 'block';
+    var toast = document.getElementById('toast');
+    toast.textContent = sport + ' Upset Specials saved!';
+    toast.classList.add('show');
+    setTimeout(function() { toast.classList.remove('show'); }, 2000);
+}
+
+function renderUpset(sport, text) {
+    var display = document.getElementById('upset' + sport + 'Display');
+    if (!display) return;
+    if (!text) { return; }
+    var lines = text.split('\n').filter(function(l) { return l.trim(); });
+    var html = '';
+    lines.forEach(function(line) {
+        var parts = line.split('|');
+        var dog = (parts[0] || '').trim();
+        var ml = (parts[1] || '').trim();
+        var thesis = (parts[2] || '').trim();
+        html += '<div class="upset-row">' +
+            '<div class="upset-dog">' + dog + '</div>' +
+            '<div class="upset-ml">' + ml + '</div>' +
+            '<div class="upset-thesis">' + thesis + '</div>' +
+            '<div class="game-grade"><span class="grade gb">B</span></div>' +
+            '</div>';
+    });
+    display.innerHTML = html;
+}
+
+// Load saved upsets from localStorage
+(function() {
+    var nbaSaved = localStorage.getItem('edgeUpsetNBA');
+    if (nbaSaved) renderUpset('NBA', nbaSaved);
+    var nhlSaved = localStorage.getItem('edgeUpsetNHL');
+    if (nhlSaved) renderUpset('NHL', nhlSaved);
+})();
+
+// ===== FIX 8: RESTORE LOCKED PICKS FROM LOCALSTORAGE =====
+(function() {
+    var saved = localStorage.getItem('edgeLockedPicks');
+    if (saved) {
+        try {
+            picks = JSON.parse(saved);
+            for (var game in picks) {
+                if (!picks[game].checked) continue;
+                var row = document.querySelector('.game-row[data-game="' + game + '"]');
+                if (!row) continue;
+                var check = row.querySelector('.pick-check');
+                if (check) check.classList.add('on');
+                row.classList.add('checked');
+                if (picks[game].side) {
+                    var btns = row.querySelectorAll('.side-btn');
+                    btns.forEach(function(b) {
+                        var onclick = b.getAttribute('onclick');
+                        var match = onclick ? onclick.match(/'([^']+)'\)$/) : null;
+                        if (match && match[1] === picks[game].side) b.classList.add('picked');
+                    });
+                }
+            }
+            updateSubmitBar();
+        } catch(e) { console.error('Failed to restore picks:', e); }
+    }
+})();
+
+// ===== FIX 9: STALE GUT PICKS WARNING =====
+var _origUpdatePeterGut = updatePeterGut;
+updatePeterGut = function(sport, analysisData) {
+    _origUpdatePeterGut(sport, analysisData);
+    var gutTimestamp = document.getElementById('peterGut' + sport.toUpperCase() + 'Timestamp');
+    if (gutTimestamp) {
+        var genDate = analysisData.generated_at || '';
+        var todayStr = new Date().toLocaleDateString('en-US', {month:'short', day:'numeric'});
+        var isStale = genDate && genDate.indexOf(todayStr) === -1;
+        if (isStale) {
+            gutTimestamp.innerHTML += ' <span style="color:#EF4444;font-weight:700;"> \u2014 STALE DATA (not today). Refresh slate for current picks.</span>';
+        }
+    }
 };
 </script>
 
