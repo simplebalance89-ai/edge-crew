@@ -286,6 +286,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
         <span class="crew-badge crew-sintonia">Sinton.ia</span>
     </div>
     <div class="sweep-time" id="sweepTime">Last sweep: --<br>Waiting for refresh</div>
+    <div onclick="clearAllCache()" style="cursor:pointer;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;background:rgba(239,68,68,0.15);color:#EF4444;border:1px solid rgba(239,68,68,0.3);letter-spacing:0.5px;">CLEAR CACHE</div>
 </div>
 
 <!-- SPORT TABS -->
@@ -3063,6 +3064,20 @@ updatePeterGut = function(sport, analysisData) {
         }
     }
 };
+
+// ===== CLEAR CACHE =====
+async function clearAllCache() {
+    if ('serviceWorker' in navigator) {
+        var regs = await navigator.serviceWorker.getRegistrations();
+        for (var r of regs) await r.unregister();
+    }
+    if ('caches' in window) {
+        var names = await caches.keys();
+        for (var n of names) await caches.delete(n);
+    }
+    localStorage.clear();
+    window.location.href = window.location.pathname + '?v=' + Date.now();
+}
 </script>
 
 </body>
