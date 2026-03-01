@@ -3,7 +3,8 @@ import time
 import json
 import httpx
 from openai import AzureOpenAI
-from fastapi import FastAPI
+from datetime import datetime
+from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 
@@ -25,6 +26,7 @@ ODDS_API_BASE = "https://api.the-odds-api.com/v4/sports"
 PREFERRED_BOOK = "hardrockbet"
 FALLBACK_BOOKS = ["draftkings", "fanduel", "betmgm", "bovada"]
 REGIONS = "us,us2"
+UPSETS_FILE = os.path.join(os.path.dirname(__file__), "data", "upsets.json")
 
 # Azure OpenAI config
 AZURE_ENDPOINT = os.environ.get("AZURE_OPENAI_ENDPOINT", "")
@@ -418,6 +420,44 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
             {"error": f"Analysis generation failed: {str(e)}"},
             status_code=500,
         )
+
+
+@app.get("/api/upsets")
+async def get_upsets():
+    """Return current upset specials from data/upsets.json."""
+    try:
+        with open(UPSETS_FILE, "r") as f:
+            data = json.load(f)
+        return JSONResponse(data)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return JSONResponse({"NBA": "", "NHL": ""})
+
+
+@app.post("/api/upsets")
+async def save_upsets(request: Request):
+    """Save an upset special for a sport to data/upsets.json."""
+    body = await request.json()
+    sport = body.get("sport", "").upper()
+    text = body.get("text", "")
+
+    if sport not in ("NBA", "NHL"):
+        return JSONResponse({"error": "Invalid sport"}, status_code=400)
+
+    # Read existing data
+    try:
+        with open(UPSETS_FILE, "r") as f:
+            data = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        data = {"NBA": "", "NHL": ""}
+
+    data[sport] = text
+    data["updated_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    os.makedirs(os.path.dirname(UPSETS_FILE), exist_ok=True)
+    with open(UPSETS_FILE, "w") as f:
+        json.dump(data, f, indent=2)
+
+    return JSONResponse({"status": "ok", "sport": sport, "updated_at": data["updated_at"]})
 
 
 app.mount("/static", StaticFiles(directory="static"), name="static")

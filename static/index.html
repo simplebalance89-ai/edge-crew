@@ -648,14 +648,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
             <div style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(16,185,129,0.15);color:#10B981;font-size:11px;font-weight:700;" onclick="saveUpset('NBA')">SAVE</div>
         </div>
     </div>
-    <div id="upsetNBADisplay">
-        <div class="upset-row">
-            <div class="upset-dog">MIL +3 vs CLE</div>
-            <div class="upset-ml">+3</div>
-            <div class="upset-thesis">Line crashed from -8.5. Mitchell + Mobley out. Harden questionable. Bucks 7-2 lately.</div>
-            <div class="game-grade"><span class="grade gb">B</span></div>
-        </div>
-    </div>
+    <div id="upsetNBADisplay"></div>
     <textarea id="upsetNBAEditor" style="display:none;width:100%;min-height:120px;background:#0D0D1A;color:#fff;border:1px solid #D4A017;border-radius:6px;padding:10px;font-family:'Nunito',sans-serif;font-size:13px;resize:vertical;margin-top:8px;" placeholder="One upset per line. Format: TEAM +SPREAD vs OPP | thesis"></textarea>
 </div>
 
@@ -991,20 +984,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
             <div style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(16,185,129,0.15);color:#10B981;font-size:11px;font-weight:700;" onclick="saveUpset('NHL')">SAVE</div>
         </div>
     </div>
-    <div id="upsetNHLDisplay">
-        <div class="upset-row">
-            <div class="upset-dog">VAN ML vs WPG</div>
-            <div class="upset-ml">+110</div>
-            <div class="upset-thesis">WPG defense gutted (Morrissey/Pionk/Fleury out). VAN gets 4 players back at home.</div>
-            <div class="game-grade"><span class="grade gbp">B+</span></div>
-        </div>
-        <div class="upset-row">
-            <div class="upset-dog">PHI ML vs WSH</div>
-            <div class="upset-ml">+115</div>
-            <div class="upset-thesis">WSH missing Wilson + Carlson. Rust game. First game back from Olympics.</div>
-            <div class="game-grade"><span class="grade gb">B</span></div>
-        </div>
-    </div>
+    <div id="upsetNHLDisplay"></div>
     <textarea id="upsetNHLEditor" style="display:none;width:100%;min-height:120px;background:#0D0D1A;color:#fff;border:1px solid #D4A017;border-radius:6px;padding:10px;font-family:'Nunito',sans-serif;font-size:13px;resize:vertical;margin-top:8px;" placeholder="One upset per line. Format: TEAM +SPREAD vs OPP | thesis"></textarea>
 </div>
 
@@ -2989,9 +2969,24 @@ function saveUpset(sport) {
     editor.style.display = 'none';
     display.style.display = 'block';
     var toast = document.getElementById('toast');
-    toast.textContent = sport + ' Upset Specials saved!';
-    toast.classList.add('show');
-    setTimeout(function() { toast.classList.remove('show'); }, 2000);
+    // POST to server
+    fetch('/api/upsets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sport: sport, text: text })
+    }).then(function(r) {
+        if (r.ok) {
+            toast.textContent = sport + ' Upset Specials saved to server!';
+        } else {
+            toast.textContent = sport + ' Upset Specials saved locally only.';
+        }
+        toast.classList.add('show');
+        setTimeout(function() { toast.classList.remove('show'); }, 2000);
+    }).catch(function() {
+        toast.textContent = sport + ' Upset Specials saved locally only.';
+        toast.classList.add('show');
+        setTimeout(function() { toast.classList.remove('show'); }, 2000);
+    });
 }
 
 function renderUpset(sport, text) {
@@ -3015,12 +3010,22 @@ function renderUpset(sport, text) {
     display.innerHTML = html;
 }
 
-// Load saved upsets from localStorage
+// Load upsets from server, fall back to localStorage
 (function() {
-    var nbaSaved = localStorage.getItem('edgeUpsetNBA');
-    if (nbaSaved) renderUpset('NBA', nbaSaved);
-    var nhlSaved = localStorage.getItem('edgeUpsetNHL');
-    if (nhlSaved) renderUpset('NHL', nhlSaved);
+    fetch('/api/upsets').then(function(r) { return r.json(); }).then(function(data) {
+        ['NBA', 'NHL'].forEach(function(sport) {
+            if (data[sport]) {
+                renderUpset(sport, data[sport]);
+                localStorage.setItem('edgeUpset' + sport, data[sport]);
+            }
+        });
+    }).catch(function() {
+        // Server unavailable — fall back to localStorage
+        var nbaSaved = localStorage.getItem('edgeUpsetNBA');
+        if (nbaSaved) renderUpset('NBA', nbaSaved);
+        var nhlSaved = localStorage.getItem('edgeUpsetNHL');
+        if (nhlSaved) renderUpset('NHL', nhlSaved);
+    });
 })();
 
 // ===== FIX 8: RESTORE LOCKED PICKS FROM LOCALSTORAGE =====
