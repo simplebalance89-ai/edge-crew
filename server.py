@@ -30,6 +30,25 @@ REGIONS = "us,us2"
 UPSETS_FILE = os.path.join(os.path.dirname(__file__), "data", "upsets.json")
 PICKS_FILE = os.path.join(os.path.dirname(__file__), "data", "picks.json")
 
+# SharpAPI config (primary odds source)
+SHARPAPI_KEY = os.environ.get("SHARPAPI_KEY", "")
+SHARPAPI_BASE = "https://api.sharpapi.io/api/v1"
+SHARPAPI_LEAGUES = {
+    "nba": "nba",
+    "nhl": "nhl",
+    "soccer": "soccer",
+    "mma": "ufc",
+    "boxing": "boxing",
+}
+# SharpAPI uses different totals market names per sport
+SHARPAPI_MARKETS = {
+    "nba": "moneyline,point_spread,total_points",
+    "nhl": "moneyline,point_spread,total_goals",
+    "soccer": "moneyline,point_spread,total_goals",
+    "mma": "moneyline",
+    "boxing": "moneyline,total_rounds",
+}
+
 # Azure OpenAI config
 AZURE_ENDPOINT = os.environ.get("AZURE_OPENAI_ENDPOINT", "")
 AZURE_KEY = os.environ.get("AZURE_OPENAI_KEY", "")
@@ -56,6 +75,117 @@ def _get_cached(key):
 
 def _set_cache(key, data):
     _cache[key] = (data, time.time())
+
+
+def _parse_sharpapi_events(rows, sport_label):
+    """Aggregate SharpAPI flat rows into game dicts matching frontend format.
+
+    SharpAPI returns one row per selection per book per event. We group by
+    event_id, prefer DraftKings, and build the same structure _parse_event
+    produces for The Odds API.
+    """
+    # Group rows by event_id, only keep home/away/over/under (skip alt-lines)
+    events = {}
+    for r in rows:
+        sel = r.get("selection_type", "")
+        if sel not in ("home", "away", "over", "under"):
+            continue
+        eid = r["event_id"]
+        if eid not in events:
+            events[eid] = {
+                "home_team": r["home_team"],
+                "away_team": r["away_team"],
+                "event_start_time": r["event_start_time"],
+                "sportsbook": r.get("sportsbook", "unknown"),
+                "rows": [],
+            }
+        events[eid]["rows"].append(r)
+
+    games = []
+    for eid, ev in events.items():
+        game = {
+            "id": eid,
+            "sport": sport_label,
+            "away": ev["away_team"],
+            "home": ev["home_team"],
+            "time": ev["event_start_time"],
+            "bookmaker": ev["sportsbook"],
+            "markets": {},
+            "lines_available": False,
+            "fetched_at": _now_ts(),
+        }
+
+        has_spread = False
+        has_total = False
+        has_ml = False
+
+        for r in ev["rows"]:
+            mkt = r["market_type"]
+            sel = r["selection_type"]
+            odds = r.get("odds_american", 0)
+            line = r.get("line")
+
+            if mkt == "moneyline":
+                has_ml = True
+                if sel == "away":
+                    game["away_ml"] = odds
+                elif sel == "home":
+                    game["home_ml"] = odds
+
+            elif mkt == "point_spread":
+                has_spread = True
+                if sel == "away":
+                    game["away_spread"] = line or 0
+                    game["away_spread_odds"] = odds
+                elif sel == "home":
+                    game["home_spread"] = line or 0
+                    game["home_spread_odds"] = odds
+
+            elif mkt in ("total_points", "total_goals", "total_rounds"):
+                has_total = True
+                if line is not None:
+                    game["total"] = line
+                if sel == "over":
+                    game["over_odds"] = odds
+                elif sel == "under":
+                    game["under_odds"] = odds
+
+        game["lines_available"] = has_spread or has_total or has_ml
+        game["lines_complete"] = has_spread and has_total and has_ml
+        # MMA/boxing: no spreads or totals expected — ML-only is "complete"
+        if sport_label in ("MMA", "BOXING") and has_ml:
+            game["lines_complete"] = True
+        games.append(game)
+
+    return games
+
+
+async def _fetch_sharpapi_odds(sport_lower, sport_label):
+    """Fetch odds from SharpAPI for a given sport."""
+    league = SHARPAPI_LEAGUES.get(sport_lower)
+    if not league:
+        return []
+
+    markets = SHARPAPI_MARKETS.get(sport_lower, "moneyline")
+    url = f"{SHARPAPI_BASE}/odds"
+    params = {
+        "league": league,
+        "market": markets,
+        "sportsbook": "draftkings",
+        "limit": 500,
+    }
+    headers = {"X-API-Key": SHARPAPI_KEY}
+
+    try:
+        async with httpx.AsyncClient(timeout=15) as client:
+            resp = await client.get(url, params=params, headers=headers)
+            if resp.status_code == 200:
+                body = resp.json()
+                rows = body.get("data", [])
+                return _parse_sharpapi_events(rows, sport_label)
+    except Exception:
+        pass
+    return []
 
 
 def _parse_event(event, sport_label):
@@ -177,23 +307,34 @@ async def _fetch_sport_odds(sport_key, markets, sport_label):
 
 @app.get("/api/odds/{sport}")
 async def get_odds(sport: str, markets: str = "h2h,spreads,totals"):
-    """Fetch live odds from The Odds API for a given sport."""
-    if not ODDS_API_KEY:
-        return JSONResponse({"error": "ODDS_API_KEY not configured"}, status_code=500)
-
+    """Fetch live odds — SharpAPI primary, The Odds API fallback."""
     sport_lower = sport.lower()
     cache_key = f"{sport_lower}:{markets}"
     cached = _get_cached(cache_key)
     if cached:
         return JSONResponse(cached)
 
-    keys = SPORT_KEYS.get(sport_lower, [sport_lower])
     label = sport.upper()
-
     all_games = []
-    for key in keys:
-        games = await _fetch_sport_odds(key, markets, label)
-        all_games.extend(games)
+    source_name = ""
+
+    # --- PRIMARY: SharpAPI ---
+    if SHARPAPI_KEY and sport_lower in SHARPAPI_LEAGUES:
+        all_games = await _fetch_sharpapi_odds(sport_lower, label)
+        if all_games:
+            source_name = "SharpAPI (DraftKings)"
+
+    # --- FALLBACK: The Odds API ---
+    if not all_games and ODDS_API_KEY:
+        keys = SPORT_KEYS.get(sport_lower, [sport_lower])
+        for key in keys:
+            games = await _fetch_sport_odds(key, markets, label)
+            all_games.extend(games)
+        if all_games:
+            source_name = "The Odds API"
+
+    if not all_games and not SHARPAPI_KEY and not ODDS_API_KEY:
+        return JSONResponse({"error": "No odds API configured (set SHARPAPI_KEY or ODDS_API_KEY)"}, status_code=500)
 
     # Count games with complete vs incomplete lines
     complete = sum(1 for g in all_games if g.get("lines_complete"))
@@ -211,7 +352,7 @@ async def get_odds(sport: str, markets: str = "h2h,spreads,totals"):
         "lines_incomplete": incomplete,
         "no_lines": no_lines,
         "books_used": books_used,
-        "source": f"Preferred: Hard Rock Bet | Active: {', '.join(books_used) if books_used else 'none'}",
+        "source": f"{source_name} | Active: {', '.join(books_used) if books_used else 'none'}",
         "fetched_at": _now_ts(),
         "cached": False,
     }
@@ -237,29 +378,41 @@ async def get_slate():
     return JSONResponse({
         "games": all_games,
         "count": len(all_games),
-        "source": "The Odds API (multi-book)",
+        "source": "SharpAPI + The Odds API (multi-source)",
         "fetched_at": _now_ts(),
     })
 
 
 @app.get("/api/credits")
 async def get_credits():
-    """Check remaining API credits."""
-    if not ODDS_API_KEY:
-        return JSONResponse({"error": "ODDS_API_KEY not configured"})
+    """Check remaining API credits for both odds sources."""
+    result = {"checked_at": _now_ts()}
 
-    url = f"{ODDS_API_BASE}/"
-    params = {"apiKey": ODDS_API_KEY}
-    try:
-        async with httpx.AsyncClient(timeout=10) as client:
-            resp = await client.get(url, params=params)
-            return JSONResponse({
-                "remaining": resp.headers.get("x-requests-remaining", "?"),
-                "used": resp.headers.get("x-requests-used", "?"),
-                "checked_at": _now_ts(),
-            })
-    except Exception as e:
-        return JSONResponse({"error": str(e)})
+    # SharpAPI status
+    if SHARPAPI_KEY:
+        result["sharpapi"] = {"status": "configured", "tier": "free", "rate_limit": "12 req/min"}
+    else:
+        result["sharpapi"] = {"status": "not configured"}
+
+    # The Odds API credits
+    if ODDS_API_KEY:
+        url = f"{ODDS_API_BASE}/"
+        params = {"apiKey": ODDS_API_KEY}
+        try:
+            async with httpx.AsyncClient(timeout=10) as client:
+                resp = await client.get(url, params=params)
+                result["odds_api"] = {
+                    "status": "configured",
+                    "remaining": resp.headers.get("x-requests-remaining", "?"),
+                    "used": resp.headers.get("x-requests-used", "?"),
+                }
+        except Exception as e:
+            result["odds_api"] = {"status": "error", "error": str(e)}
+    else:
+        result["odds_api"] = {"status": "not configured"}
+
+    result["primary"] = "SharpAPI" if SHARPAPI_KEY else "The Odds API"
+    return JSONResponse(result)
 
 
 @app.get("/api/analysis/{sport}")
