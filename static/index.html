@@ -1357,6 +1357,12 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     <div style="text-align:center;padding:40px;color:rgba(255,255,255,0.4);">Click to load or hit REFRESH SLATE</div>
 </div>
 
+<!-- FULL SLATE UPSET SPECIALS (all sports combined) -->
+<div class="upset-section" id="upsetCOMBINED">
+    <h3>Daily Upset Specials — All Sports</h3>
+    <div class="upset-cards" id="upsetCardsCOMBINED"></div>
+</div>
+
 </div>
 
 <!-- ===== SUBMIT PICK PANEL ===== -->
@@ -3256,6 +3262,7 @@ function submitUpset(sport) {
         if (data.status === 'ok') {
             team.value = ''; odds.value = ''; if (thesis) thesis.value = '';
             loadUpsets(sport);
+            loadCombinedUpsets();
             showToast(sport + ' upset submitted!');
         } else {
             showToast(data.error || 'Failed to submit', 'error');
@@ -3265,7 +3272,7 @@ function submitUpset(sport) {
 
 function deleteUpset(pickId, sport) {
     fetch('/api/upsets/' + pickId, {method: 'DELETE'}).then(function(r) {
-        if (r.ok) { loadUpsets(sport); showToast('Pick deleted'); }
+        if (r.ok) { if (sport) loadUpsets(sport); loadCombinedUpsets(); showToast('Pick deleted'); }
         else showToast('Delete failed', 'error');
     }).catch(function() { showToast('Server error', 'error'); });
 }
@@ -3310,8 +3317,50 @@ function loadUpsets(sport) {
     });
 }
 
+function renderCombinedUpsetCards(picks) {
+    var container = document.getElementById('upsetCardsCOMBINED');
+    if (!container) return;
+    if (!picks || picks.length === 0) {
+        container.innerHTML = '<div style="font-size:12px;color:rgba(255,255,255,0.2);padding:8px 0;">No upset picks today.</div>';
+        return;
+    }
+    var myName = getUpsetName().toLowerCase();
+    var html = '';
+    picks.forEach(function(p) {
+        var nameClass = NAME_COLORS[p.name.toLowerCase()] || '';
+        var timeStr = '';
+        if (p.created_at) {
+            var parts = p.created_at.split(' ');
+            if (parts[1]) timeStr = parts[1].substring(0, 5);
+        }
+        var deleteBtn = '';
+        if (p.name.toLowerCase() === myName) {
+            deleteBtn = '<button class="upset-card-delete" onclick="deleteUpset(\'' + p.id + '\',\'' + (p.sport || '') + '\')" title="Delete">&times;</button>';
+        }
+        html += '<div class="upset-card">' +
+            '<span class="upset-card-name ' + nameClass + '">' + p.name + '</span>' +
+            '<span style="font-size:10px;color:rgba(255,255,255,0.3);font-weight:700;min-width:50px;">' + (p.sport || '') + '</span>' +
+            '<span class="upset-card-team">' + (p.team || '') + '</span>' +
+            '<span class="upset-card-odds">' + (p.odds || '') + '</span>' +
+            '<span class="upset-card-thesis">' + (p.thesis || '') + '</span>' +
+            '<span class="upset-card-time">' + timeStr + '</span>' +
+            deleteBtn +
+            '</div>';
+    });
+    container.innerHTML = html;
+}
+
+function loadCombinedUpsets() {
+    fetch('/api/upsets?date=today').then(function(r) { return r.json(); }).then(function(data) {
+        renderCombinedUpsetCards(data.picks || []);
+    }).catch(function() {
+        renderCombinedUpsetCards([]);
+    });
+}
+
 function loadAllUpsets() {
     UPSET_SPORTS.forEach(function(s) { loadUpsets(s); });
+    loadCombinedUpsets();
 }
 
 // Load upsets on page load
