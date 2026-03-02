@@ -321,15 +321,91 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     color:rgba(255,255,255,0.2);font-size:11px;
 }
 
+/* ===== LOADING OVERLAY ===== */
+.panel-loading{position:relative;min-height:120px;}
+.panel-loading::after{
+    content:'Loading...';position:absolute;top:0;left:0;right:0;bottom:0;
+    background:rgba(13,13,26,0.85);display:flex;align-items:center;justify-content:center;
+    font-size:14px;color:rgba(255,255,255,0.5);font-weight:700;letter-spacing:1px;
+    border-radius:12px;z-index:10;
+}
+.panel-error{
+    text-align:center;padding:20px;color:#EF4444;font-size:13px;font-weight:700;
+    background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);
+    border-radius:12px;margin:12px 0;
+}
+
+/* ===== EMPTY STATE ===== */
+.empty-state{
+    text-align:center;padding:40px 20px;color:rgba(255,255,255,0.35);font-size:14px;line-height:1.6;
+}
+.empty-state strong{color:rgba(255,255,255,0.5);}
+
+/* ===== TAB SCROLL AFFORDANCE ===== */
+.tabs-wrapper{position:relative;}
+.tabs-wrapper::after{
+    content:'';position:absolute;right:0;top:0;bottom:0;width:40px;
+    background:linear-gradient(to right,transparent,rgba(0,0,0,0.8));
+    pointer-events:none;z-index:2;
+}
+.sport-tabs{scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;}
+.sport-tab{scroll-snap-align:start;}
+
+/* ===== TOPBAR REFRESH BTN ===== */
+.topbar-refresh{
+    cursor:pointer;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;
+    background:rgba(239,68,68,0.15);color:#EF4444;border:1px solid rgba(239,68,68,0.3);
+    letter-spacing:0.5px;font-family:'Nunito',sans-serif;white-space:nowrap;
+}
+.topbar-refresh:hover{background:rgba(239,68,68,0.25);}
+
+/* ===== COMBINED MOBILE CARDS ===== */
+.combined-card{
+    background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);
+    border-radius:10px;padding:12px 16px;margin-bottom:8px;
+}
+.combined-card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.combined-card-matchup{font-size:15px;font-weight:700;color:#fff;}
+.combined-card-sport{font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;display:inline-block;}
+.combined-card-lines{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:rgba(255,255,255,0.5);}
+.combined-card-lines span{white-space:nowrap;}
+.combined-card-status{margin-top:6px;}
+
 /* ===== RESPONSIVE ===== */
 @media(max-width:768px){
-    .game-header{grid-template-columns:26px 50px 1fr 70px 60px;gap:8px;}
-    .game-total,.game-edge{display:none;}
+    /* Game header → stacked card */
+    .game-header{
+        display:flex !important;flex-wrap:wrap;gap:8px;padding:12px 16px;
+        grid-template-columns:none !important;
+    }
+    .game-header .pick-check{order:0;}
+    .game-header .game-time{order:1;flex:1;font-size:11px;}
+    .game-header .game-grade{order:2;}
+    .game-header .game-matchup{order:3;width:100%;font-size:15px;}
+    .game-header .game-spread{order:4;font-size:13px;text-align:left;}
+    .game-header .game-total{order:5;font-size:12px;text-align:left;display:block !important;}
+    .game-header .game-edge{order:6;width:100%;display:block !important;font-size:11px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.06);}
+
+    /* Touch targets: 44px minimum */
+    .side-btn{min-height:44px;padding:10px 12px;font-size:12px;display:flex;align-items:center;justify-content:center;}
+    .side-select{display:grid !important;grid-template-columns:1fr 1fr;gap:6px;width:100%;margin-left:0;margin-top:8px;}
+    .pick-check{width:36px !important;height:36px !important;min-width:36px;}
+    .slip-btn{min-height:44px;display:flex;align-items:center;justify-content:center;}
+    .conf-btn{min-height:44px;display:flex;align-items:center;justify-content:center;}
+    .sport-tab{padding:12px 20px;min-height:44px;display:flex;align-items:center;}
+
     .detail-grid{grid-template-columns:1fr;}
     .topbar{flex-wrap:wrap;gap:8px;}
     .crew{flex-wrap:wrap;}
     .upset-row{grid-template-columns:1fr 60px 1fr 50px;}
-    .side-select{flex-wrap:wrap;}
+
+    /* Combined table → cards */
+    #combinedTableContainer table{display:none !important;}
+    .combined-cards-mobile{display:block !important;}
+}
+@media(min-width:769px){
+    .combined-cards-mobile{display:none !important;}
+    .tabs-wrapper::after{display:none;}
 }
 </style>
 </head>
@@ -348,28 +424,32 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
         <span class="crew-badge crew-sintonia">Sinton.ia</span>
     </div>
     <div class="sweep-time" id="sweepTime">Last sweep: --<br>Waiting for refresh</div>
-    <button onclick="clearAllCache()" style="cursor:pointer;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;background:rgba(239,68,68,0.15);color:#EF4444;border:1px solid rgba(239,68,68,0.3);letter-spacing:0.5px;font-family:'Nunito',sans-serif;">CLEAR CACHE</button>
+    <div style="display:flex;gap:6px;align-items:center;">
+        <button class="topbar-refresh" onclick="refreshSlate()">REFRESH SLATE</button>
+        <button onclick="clearAllCache()" style="cursor:pointer;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;background:rgba(239,68,68,0.15);color:#EF4444;border:1px solid rgba(239,68,68,0.3);letter-spacing:0.5px;font-family:'Nunito',sans-serif;">CLEAR CACHE</button>
+    </div>
 </div>
 
 <!-- SPORT TABS -->
+<div class="tabs-wrapper">
 <div class="sport-tabs">
-    <div class="sport-tab active" onclick="switchSport('submit')" style="color:#10B981;">SUBMIT PICK</div>
-    <div class="sport-tab" onclick="switchSport('nba')">NBA <span class="tab-count">6</span></div>
-    <div class="sport-tab" onclick="switchSport('nhl')">NHL <span class="tab-count">8</span></div>
-    <div class="sport-tab" onclick="switchSport('soccer')">Soccer <span class="tab-count">0</span></div>
-    <div class="sport-tab" onclick="switchSport('mma')">MMA <span class="tab-count">0</span></div>
-    <div class="sport-tab" onclick="switchSport('boxing')">Boxing <span class="tab-count">0</span></div>
-    <div class="sport-tab" onclick="switchSport('props')">Props <span class="tab-count">30</span></div>
-    <div class="sport-tab" onclick="switchSport('combined'); if(typeof fetchCombinedSlate==='function') fetchCombinedSlate();">Combined <span class="tab-count">14</span></div>
-    <div class="sport-tab" onclick="switchSport('bankroll')">RESULTS <span class="tab-count">0</span></div>
-    <div class="sport-tab" onclick="refreshSlate()" style="color:#EF4444;margin-left:auto;">REFRESH SLATE</div>
+    <div class="sport-tab active" onclick="switchSport('nba', event)">NBA <span class="tab-count">6</span></div>
+    <div class="sport-tab" onclick="switchSport('nhl', event)">NHL <span class="tab-count">8</span></div>
+    <div class="sport-tab" onclick="switchSport('soccer', event)">Soccer <span class="tab-count">0</span></div>
+    <div class="sport-tab" onclick="switchSport('mma', event)">MMA <span class="tab-count">0</span></div>
+    <div class="sport-tab" onclick="switchSport('boxing', event)">Boxing <span class="tab-count">0</span></div>
+    <div class="sport-tab" onclick="switchSport('props', event)">Props <span class="tab-count">30</span></div>
+    <div class="sport-tab" onclick="switchSport('combined', event)">Combined <span class="tab-count">14</span></div>
+    <div class="sport-tab" onclick="switchSport('bankroll', event)">RESULTS <span class="tab-count">0</span></div>
+    <div class="sport-tab" onclick="switchSport('submit', event)" style="color:#10B981;">SUBMIT PICK</div>
+</div>
 </div>
 
 <!-- CONTENT -->
 <div class="content">
 
 <!-- ===== NBA PANEL ===== -->
-<div class="sport-panel" id="panel-nba">
+<div class="sport-panel active" id="panel-nba">
 
 <div class="gotcha-banner" id="gotchaCard">
     <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -1081,6 +1161,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     <h3 style="color:#10B981;">Soccer — Live Lines (Hard Rock Bet)</h3>
     <p style="color:rgba(255,255,255,0.5);font-size:13px;">MLS, EPL, Champions League, La Liga. Moneylines + totals. No player props.</p>
 </div>
+<div class="empty-state">No games on the slate.<br><strong>Hit REFRESH SLATE</strong> to check for live lines.</div>
 </div>
 
 <!-- ===== MMA PANEL ===== -->
@@ -1089,6 +1170,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     <h3 style="color:#EF4444;">MMA / UFC — Live Lines (Hard Rock Bet)</h3>
     <p style="color:rgba(255,255,255,0.5);font-size:13px;">Moneylines + totals (rounds). Fight night data.</p>
 </div>
+<div class="empty-state">No fights on the slate.<br><strong>Hit REFRESH SLATE</strong> to check for live lines.</div>
 </div>
 
 <!-- ===== BOXING PANEL ===== -->
@@ -1097,6 +1179,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     <h3 style="color:#A855F7;">Boxing — Live Lines (Hard Rock Bet)</h3>
     <p style="color:rgba(255,255,255,0.5);font-size:13px;">Moneylines + totals (rounds).</p>
 </div>
+<div class="empty-state">No fights on the slate.<br><strong>Hit REFRESH SLATE</strong> to check for live lines.</div>
 </div>
 
 <!-- ===== PROPS PANEL (Chinny's Card) ===== -->
@@ -1299,7 +1382,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 </div>
 
 <!-- ===== SUBMIT PICK PANEL ===== -->
-<div class="sport-panel active" id="panel-submit">
+<div class="sport-panel" id="panel-submit">
 <div class="pick-form">
     <h2>Submit Your Pick</h2>
     <div class="form-sub">Drop your pick. It saves locally and emails the crew.</div>
@@ -1522,6 +1605,31 @@ function safeSave(key, value) {
 function safeLoad(key) {
     try { return localStorage.getItem(key); }
     catch(e) { console.warn('localStorage read failed for "' + key + '":', e); return null; }
+}
+
+// ===== TOAST QUEUE SYSTEM =====
+var toastQueue = [];
+var toastShowing = false;
+
+function showToast(message, isError) {
+    toastQueue.push({message: message, isError: !!isError});
+    processToastQueue();
+}
+
+function processToastQueue() {
+    if (toastShowing || toastQueue.length === 0) return;
+    toastShowing = true;
+    var item = toastQueue.shift();
+    var toast = document.getElementById('toast');
+    toast.textContent = item.message;
+    toast.style.background = item.isError ? '#EF4444' : '#10B981';
+    toast.classList.add('show');
+    setTimeout(function() {
+        toast.classList.remove('show');
+        toast.style.background = '#10B981';
+        toastShowing = false;
+        setTimeout(processToastQueue, 300);
+    }, 2500);
 }
 
 // State tracking
@@ -1849,11 +1957,16 @@ function closeModal() {
     document.getElementById('modalOverlay').classList.remove('show');
 }
 
-function switchSport(sport) {
+function switchSport(sport, e) {
     document.querySelectorAll('.sport-tab').forEach(function(t) { t.classList.remove('active'); });
     document.querySelectorAll('.sport-panel').forEach(function(p) { p.classList.remove('active'); });
     document.getElementById('panel-' + sport).classList.add('active');
-    event.target.closest('.sport-tab').classList.add('active');
+    var ev = e || window.event;
+    if (ev && ev.target) {
+        var tab = ev.target.closest('.sport-tab');
+        if (tab) tab.classList.add('active');
+    }
+    window.scrollTo(0, 0);
 }
 
 // ===== SUBMIT PICK FORM =====
@@ -2071,7 +2184,7 @@ function submitPick() {
     var notes = document.getElementById('pickNotes').value;
 
     if (!name || !sport || !matchup || !selection) {
-        alert('Fill in name, sport, matchup, and your pick.');
+        showToast('Fill in name, sport, matchup, and your pick.', true);
         return;
     }
 
@@ -2094,19 +2207,12 @@ function submitPick() {
     stored.unshift(pick);
     safeSave('edgePicks', JSON.stringify(stored));
 
-    // Build email body
-    var body = 'Name: ' + pick.name + '%0A' +
-        'Sport: ' + pick.sport + '%0A' +
-        'Type: ' + pick.type + '%0A' +
-        'Matchup: ' + pick.matchup + '%0A' +
-        'Pick: ' + pick.selection + '%0A' +
-        'Odds: ' + pick.odds + '%0A' +
-        'Units: ' + pick.units + '%0A' +
-        'Confidence: ' + pick.confidence + '%0A' +
-        'Notes: ' + (pick.notes || 'None') + '%0A' +
-        'Submitted: ' + pick.date + ' ' + pick.time;
-    var subject = 'Edge Crew Pick | ' + pick.name + ' | ' + pick.sport + ' | ' + pick.matchup;
-    window.open('mailto:gcesintonia@gmail.com?subject=' + encodeURIComponent(subject) + '&body=' + body);
+    // POST to server
+    fetch('/api/picks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(pick)
+    }).then(function(r) { return r.json(); }).catch(function() {});
 
     // Show toast
     var toast = document.getElementById('toast');
@@ -2338,7 +2444,7 @@ function addParlayLeg() {
     var odds = oddsVal === '__other__' ? document.getElementById('pickOddsCustom').value : oddsVal;
 
     if (!matchup || !selection) {
-        alert('Pick a game and a side first.');
+        showToast('Pick a game and a side first.', true);
         return;
     }
 
@@ -2431,7 +2537,7 @@ function clearParlay() {
 
 function submitParlay() {
     if (parlayLegs.length < 2) {
-        alert('Need at least 2 legs for a parlay.');
+        showToast('Need at least 2 legs for a parlay.', true);
         return;
     }
 
@@ -2440,7 +2546,7 @@ function submitParlay() {
     var notes = document.getElementById('pickNotes').value;
 
     if (!name) {
-        alert('Pick your name first.');
+        showToast('Pick your name first.', true);
         return;
     }
 
@@ -2480,19 +2586,12 @@ function submitParlay() {
     stored.unshift(pick);
     safeSave('edgePicks', JSON.stringify(stored));
 
-    // Email
-    var body = 'Name: ' + pick.name + '%0A' +
-        'Type: PARLAY (' + parlayLegs.length + ' legs)%0A' +
-        'Combined Odds: ' + combinedAmerican + '%0A' +
-        'Units: ' + pick.units + '%0A' +
-        'Confidence: ' + pick.confidence + '%0A' +
-        '———————————%0A' +
-        legSummary + '%0A' +
-        '———————————%0A' +
-        'Notes: ' + (pick.notes || 'None') + '%0A' +
-        'Submitted: ' + pick.date + ' ' + pick.time;
-    var subject = 'Edge Crew PARLAY | ' + pick.name + ' | ' + parlayLegs.length + ' legs | ' + combinedAmerican;
-    window.open('mailto:gcesintonia@gmail.com?subject=' + encodeURIComponent(subject) + '&body=' + body);
+    // POST to server
+    fetch('/api/picks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(pick)
+    }).then(function(r) { return r.json(); }).catch(function() {});
 
     // Toast
     var toast = document.getElementById('toast');
@@ -2694,15 +2793,23 @@ function fetchLiveOdds(sport) {
     var panel = document.getElementById('panel-' + sport);
     if (!panel) return;
 
-    // Show loading
+    // Show loading overlay
+    panel.classList.add('panel-loading');
+    var oldErr = panel.querySelector('.panel-error');
+    if (oldErr) oldErr.remove();
+
     var existingRows = panel.querySelectorAll('.game-row');
     var gotcha = panel.querySelector('.gotcha-banner');
 
     fetch('/api/odds/' + sport)
         .then(function(r) { return r.json(); })
         .then(function(data) {
+            panel.classList.remove('panel-loading');
             if (data.error) {
-                console.error('API error:', data.error);
+                var errMsg = document.createElement('div');
+                errMsg.className = 'panel-error';
+                errMsg.textContent = sport.toUpperCase() + ' API error: ' + data.error;
+                panel.appendChild(errMsg);
                 return;
             }
 
@@ -2774,7 +2881,11 @@ function fetchLiveOdds(sport) {
             if (typeof restoreLockedPicks === 'function') restoreLockedPicks();
         })
         .catch(function(err) {
-            console.error('Fetch error:', err);
+            panel.classList.remove('panel-loading');
+            var errMsg = document.createElement('div');
+            errMsg.className = 'panel-error';
+            errMsg.textContent = 'Failed to load ' + sport.toUpperCase() + ' odds. Check connection and try again.';
+            panel.appendChild(errMsg);
         });
 }
 
@@ -2799,8 +2910,8 @@ refreshSlate = function() {
 var fetchedSports = {};
 var fetchedAnalysis = {};
 var _originalSwitchSport = switchSport;
-switchSport = function(sport) {
-    _originalSwitchSport(sport);
+switchSport = function(sport, e) {
+    _originalSwitchSport(sport, e);
     // Auto-fetch when switching to a sport tab for the first time
     if (['nba','nhl','soccer','mma','boxing'].indexOf(sport) !== -1) {
         if (!fetchedSports[sport]) {
@@ -2939,7 +3050,44 @@ function renderCombinedTable(data) {
     });
 
     html += '</table>';
-    container.innerHTML = html;
+
+    // Mobile cards view
+    var cardsHtml = '<div class="combined-cards-mobile" style="display:none;">';
+    games.forEach(function(g) {
+        var awayA = abbr(g.away);
+        var homeA = abbr(g.home);
+        var sp = g.home_spread || 0;
+        var spStr = (sp > 0 ? '+' : '') + sp;
+        var tot = g.total || 0;
+        var aML = g.away_ml || '--';
+        var hML = g.home_ml || '--';
+        var bk = g.bookmaker || '--';
+        var tm = formatGameTime(g.time);
+        var gd = new Date(g.time);
+        var isTd = gd.toDateString() === new Date().toDateString();
+        var dl = isTd ? tm : gd.toLocaleDateString('en-US', {month:'short', day:'numeric'}) + ' ' + tm;
+        var sStyle = sportColors[g.sport] || 'background:rgba(255,255,255,0.1);color:#fff;';
+        var st = '';
+        if (!g.lines_available) st = '<span class="tag" style="background:rgba(239,68,68,0.2);color:#EF4444;">NO LINES</span>';
+        else if (!g.lines_complete && g.sport === 'SOCCER' && (g.away_ml || g.home_ml)) st = '<span class="tag" style="background:rgba(16,185,129,0.2);color:#10B981;">ML ONLY</span>';
+        else if (!g.lines_complete) st = '<span class="tag" style="background:rgba(251,191,36,0.2);color:#FBB024;">PARTIAL</span>';
+        else st = '<span class="tag" style="background:rgba(16,185,129,0.2);color:#10B981;">FULL</span>';
+
+        cardsHtml += '<div class="combined-card"' + (isTd ? ' style="border-left:3px solid #D4A017;"' : '') + '>';
+        cardsHtml += '<div class="combined-card-top"><span class="combined-card-matchup">' + awayA + ' @ ' + homeA + '</span>';
+        cardsHtml += '<span class="combined-card-sport" style="' + sStyle + '">' + g.sport + '</span></div>';
+        cardsHtml += '<div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:4px;">' + dl + '</div>';
+        cardsHtml += '<div class="combined-card-lines">';
+        if (g.lines_available) cardsHtml += '<span style="color:#D4A017;font-weight:700;">' + homeA + ' ' + spStr + '</span>';
+        if (tot) cardsHtml += '<span>O/U ' + tot + '</span>';
+        cardsHtml += '<span>ML: ' + awayA + ' ' + aML + ' / ' + homeA + ' ' + hML + '</span>';
+        cardsHtml += '</div>';
+        cardsHtml += '<div class="combined-card-status">' + st + '</div>';
+        cardsHtml += '</div>';
+    });
+    cardsHtml += '</div>';
+
+    container.innerHTML = html + cardsHtml;
 }
 
 // ===== DYNAMIC PETER'S GUT PICKS =====
@@ -3083,8 +3231,8 @@ function fetchAnalysis(sport) {
 
 // ===== HOOK COMBINED INTO switchSport =====
 var _origSwitchSport2 = switchSport;
-switchSport = function(sport) {
-    _origSwitchSport2(sport);
+switchSport = function(sport, e) {
+    _origSwitchSport2(sport, e);
     if (sport === 'combined') {
         fetchCombinedSlate();
     }
@@ -3261,6 +3409,7 @@ updatePeterGut = function(sport, analysisData) {
 
 // ===== CLEAR CACHE =====
 async function clearAllCache() {
+    if (!confirm('Clear all data? Picks, bankroll, gotcha edits \u2014 everything.')) return;
     if ('serviceWorker' in navigator) {
         var regs = await navigator.serviceWorker.getRegistrations();
         for (var r of regs) await r.unregister();
