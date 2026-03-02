@@ -184,11 +184,23 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     border-radius:12px;padding:20px;
 }
 .upset-section h3{font-family:'Playfair Display',serif;color:#D4A017;font-size:16px;margin-bottom:12px;}
-.upset-row{display:grid;grid-template-columns:1fr 80px 2fr 60px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
-.upset-row:last-child{border-bottom:none;}
-.upset-dog{font-weight:700;font-size:14px;}
-.upset-ml{color:#10B981;font-weight:800;font-size:14px;text-align:center;}
-.upset-thesis{font-size:13px;color:rgba(255,255,255,0.5);}
+.upset-submit-form{display:grid;grid-template-columns:1fr 100px 2fr auto;gap:8px;align-items:center;margin-bottom:16px;}
+.upset-submit-form input{background:#0D0D1A;color:#fff;border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:8px 10px;font-family:'Nunito',sans-serif;font-size:13px;}
+.upset-submit-form input:focus{border-color:#D4A017;outline:none;}
+.upset-submit-form button{background:rgba(212,160,23,0.15);color:#D4A017;border:none;border-radius:6px;padding:8px 16px;font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap;}
+.upset-submit-form button:hover{background:rgba(212,160,23,0.3);}
+.upset-cards{display:flex;flex-direction:column;gap:8px;}
+.upset-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:12px 14px;display:flex;align-items:center;gap:12px;}
+.upset-card-name{font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;min-width:60px;}
+.upset-card-name.peter{color:#D4A017;}
+.upset-card-name.chinny{color:#10B981;}
+.upset-card-name.jimmy{color:#A855F7;}
+.upset-card-team{font-weight:700;font-size:14px;min-width:80px;}
+.upset-card-odds{color:#10B981;font-weight:800;font-size:14px;min-width:60px;}
+.upset-card-thesis{font-size:13px;color:rgba(255,255,255,0.5);flex:1;}
+.upset-card-time{font-size:10px;color:rgba(255,255,255,0.2);min-width:50px;text-align:right;}
+.upset-card-delete{background:none;border:none;color:rgba(255,255,255,0.15);cursor:pointer;font-size:16px;padding:4px 6px;border-radius:4px;line-height:1;}
+.upset-card-delete:hover{color:#EF4444;background:rgba(239,68,68,0.1);}
 
 /* ===== PETER INPUT ===== */
 .input-section{
@@ -397,7 +409,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     .detail-grid{grid-template-columns:1fr;}
     .topbar{flex-wrap:wrap;gap:8px;}
     .crew{flex-wrap:wrap;}
-    .upset-row{grid-template-columns:1fr 60px 1fr 50px;}
+    .upset-submit-form{grid-template-columns:1fr;}.upset-card{flex-wrap:wrap;gap:6px;}
 
     /* Combined table → cards */
     #combinedTableContainer table{display:none !important;}
@@ -783,15 +795,14 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 
 <!-- NBA UPSET SPECIALS -->
 <div class="upset-section" id="upsetNBA">
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-        <h3>Upset Specials (Peter's Territory)</h3>
-        <div style="display:flex;gap:6px;">
-            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(212,160,23,0.15);color:#D4A017;font-size:11px;font-weight:700;border:none;" onclick="toggleUpsetEdit('NBA')">EDIT</button>
-            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(16,185,129,0.15);color:#10B981;font-size:11px;font-weight:700;border:none;" onclick="saveUpset('NBA')">SAVE</button>
-        </div>
-    </div>
-    <div id="upsetNBADisplay"></div>
-    <textarea id="upsetNBAEditor" style="display:none;width:100%;min-height:120px;background:#0D0D1A;color:#fff;border:1px solid #D4A017;border-radius:6px;padding:10px;font-family:'Nunito',sans-serif;font-size:13px;resize:vertical;margin-top:8px;" placeholder="One upset per line. Format: TEAM +SPREAD vs OPP | thesis"></textarea>
+    <h3>Daily Upset Specials</h3>
+    <form class="upset-submit-form" onsubmit="submitUpset('NBA');return false;">
+        <input type="text" id="upsetTeamNBA" placeholder="Team (e.g. MIL +3)" required>
+        <input type="text" id="upsetOddsNBA" placeholder="Odds" required>
+        <input type="text" id="upsetThesisNBA" placeholder="Thesis / reasoning">
+        <button type="submit">SUBMIT</button>
+    </form>
+    <div class="upset-cards" id="upsetCardsNBA"></div>
 </div>
 
 <!-- NBA PETER GUT PICKS (DYNAMIC) -->
@@ -1119,15 +1130,14 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 
 <!-- NHL UPSET SPECIALS -->
 <div class="upset-section" id="upsetNHL">
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-        <h3>Upset Specials (Peter + Chinny)</h3>
-        <div style="display:flex;gap:6px;">
-            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(212,160,23,0.15);color:#D4A017;font-size:11px;font-weight:700;border:none;" onclick="toggleUpsetEdit('NHL')">EDIT</button>
-            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(16,185,129,0.15);color:#10B981;font-size:11px;font-weight:700;border:none;" onclick="saveUpset('NHL')">SAVE</button>
-        </div>
-    </div>
-    <div id="upsetNHLDisplay"></div>
-    <textarea id="upsetNHLEditor" style="display:none;width:100%;min-height:120px;background:#0D0D1A;color:#fff;border:1px solid #D4A017;border-radius:6px;padding:10px;font-family:'Nunito',sans-serif;font-size:13px;resize:vertical;margin-top:8px;" placeholder="One upset per line. Format: TEAM +SPREAD vs OPP | thesis"></textarea>
+    <h3>Daily Upset Specials</h3>
+    <form class="upset-submit-form" onsubmit="submitUpset('NHL');return false;">
+        <input type="text" id="upsetTeamNHL" placeholder="Team (e.g. VAN ML)" required>
+        <input type="text" id="upsetOddsNHL" placeholder="Odds" required>
+        <input type="text" id="upsetThesisNHL" placeholder="Thesis / reasoning">
+        <button type="submit">SUBMIT</button>
+    </form>
+    <div class="upset-cards" id="upsetCardsNHL"></div>
 </div>
 
 <!-- NHL PETER + CHINNY INPUT -->
@@ -1162,6 +1172,17 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     <p style="color:rgba(255,255,255,0.5);font-size:13px;">MLS, EPL, Champions League, La Liga. Moneylines + totals. No player props.</p>
 </div>
 <div class="empty-state">No games on the slate.<br><strong>Hit REFRESH SLATE</strong> to check for live lines.</div>
+<!-- SOCCER UPSET SPECIALS -->
+<div class="upset-section" id="upsetSOCCER">
+    <h3>Daily Upset Specials</h3>
+    <form class="upset-submit-form" onsubmit="submitUpset('SOCCER');return false;">
+        <input type="text" id="upsetTeamSOCCER" placeholder="Team (e.g. Brighton ML)" required>
+        <input type="text" id="upsetOddsSOCCER" placeholder="Odds" required>
+        <input type="text" id="upsetThesisSOCCER" placeholder="Thesis / reasoning">
+        <button type="submit">SUBMIT</button>
+    </form>
+    <div class="upset-cards" id="upsetCardsSOCCER"></div>
+</div>
 </div>
 
 <!-- ===== MMA PANEL ===== -->
@@ -1171,6 +1192,17 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     <p style="color:rgba(255,255,255,0.5);font-size:13px;">Moneylines + totals (rounds). Fight night data.</p>
 </div>
 <div class="empty-state">No fights on the slate.<br><strong>Hit REFRESH SLATE</strong> to check for live lines.</div>
+<!-- MMA UPSET SPECIALS -->
+<div class="upset-section" id="upsetMMA">
+    <h3>Daily Upset Specials</h3>
+    <form class="upset-submit-form" onsubmit="submitUpset('MMA');return false;">
+        <input type="text" id="upsetTeamMMA" placeholder="Fighter (e.g. Underdog ML)" required>
+        <input type="text" id="upsetOddsMMA" placeholder="Odds" required>
+        <input type="text" id="upsetThesisMMA" placeholder="Thesis / reasoning">
+        <button type="submit">SUBMIT</button>
+    </form>
+    <div class="upset-cards" id="upsetCardsMMA"></div>
+</div>
 </div>
 
 <!-- ===== BOXING PANEL ===== -->
@@ -1180,6 +1212,17 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     <p style="color:rgba(255,255,255,0.5);font-size:13px;">Moneylines + totals (rounds).</p>
 </div>
 <div class="empty-state">No fights on the slate.<br><strong>Hit REFRESH SLATE</strong> to check for live lines.</div>
+<!-- BOXING UPSET SPECIALS -->
+<div class="upset-section" id="upsetBOXING">
+    <h3>Daily Upset Specials</h3>
+    <form class="upset-submit-form" onsubmit="submitUpset('BOXING');return false;">
+        <input type="text" id="upsetTeamBOXING" placeholder="Fighter (e.g. Underdog ML)" required>
+        <input type="text" id="upsetOddsBOXING" placeholder="Odds" required>
+        <input type="text" id="upsetThesisBOXING" placeholder="Thesis / reasoning">
+        <button type="submit">SUBMIT</button>
+    </form>
+    <div class="upset-cards" id="upsetCardsBOXING"></div>
+</div>
 </div>
 
 <!-- ===== PROPS PANEL (Chinny's Card) ===== -->
@@ -1571,7 +1614,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 
 <div class="footer">
     Edge Finder by Sinton.ia | Crew Dashboard | No edge = no bet<br>
-    Peter (games + upsets) | Chinny (props + NHL + soccer) | Jimmy (places on Hard Rock)<br>
+    Peter + Chinny + Jimmy | Crew picks + upsets in every panel<br>
     Sweep → Gotcha → Trends → Card → Peter picks → Chinny picks → Lock
 </div>
 
@@ -1687,6 +1730,9 @@ function refreshSlate() {
 
     // Fetch combined slate
     setTimeout(function() { fetchCombinedSlate(); }, 3000);
+
+    // Reload all upset picks
+    loadAllUpsets();
 }
 
 function togglePick(event, el, gameName) {
@@ -3188,91 +3234,88 @@ function fetchAnalysis(sport) {
     if (bottomTs) bottomTs.textContent = 'Props card generated: ' + ts + ' | Next update: before tip-off';
 })();
 
-// ===== FIX 3: UPSET SPECIALS EDIT/SAVE/LOAD =====
-function toggleUpsetEdit(sport) {
-    var display = document.getElementById('upset' + sport + 'Display');
-    var editor = document.getElementById('upset' + sport + 'Editor');
-    if (!display || !editor) return;
-    if (editor.style.display === 'none') {
-        // Extract current text from display rows
-        var rows = display.querySelectorAll('.upset-row');
-        var lines = [];
-        rows.forEach(function(r) {
-            var dog = r.querySelector('.upset-dog');
-            var ml = r.querySelector('.upset-ml');
-            var thesis = r.querySelector('.upset-thesis');
-            if (dog) lines.push((dog.textContent || '') + ' | ' + (ml ? ml.textContent : '') + ' | ' + (thesis ? thesis.textContent : ''));
-        });
-        editor.value = lines.join('\n');
-        editor.style.display = 'block';
-        display.style.display = 'none';
-        editor.focus();
-    } else {
-        editor.style.display = 'none';
-        display.style.display = 'block';
-    }
+// ===== UPSET SPECIALS — CREW PICKS =====
+var UPSET_SPORTS = ['NBA', 'NHL', 'SOCCER', 'MMA', 'BOXING'];
+var NAME_COLORS = {peter: 'peter', chinny: 'chinny', jimmy: 'jimmy'};
+
+function getUpsetName() {
+    return safeLoad('edgeSlipWho') || 'Peter';
 }
 
-function saveUpset(sport) {
-    var editor = document.getElementById('upset' + sport + 'Editor');
-    var display = document.getElementById('upset' + sport + 'Display');
-    if (!editor || !display) return;
-    var text = editor.value.trim();
-    safeSave('edgeUpset' + sport, text);
-    renderUpset(sport, text);
-    editor.style.display = 'none';
-    display.style.display = 'block';
+function submitUpset(sport) {
+    var team = document.getElementById('upsetTeam' + sport);
+    var odds = document.getElementById('upsetOdds' + sport);
+    var thesis = document.getElementById('upsetThesis' + sport);
+    if (!team || !odds) return;
+    var name = getUpsetName();
     fetch('/api/upsets', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sport: sport, text: text })
-    }).then(function(r) {
-        showToast(sport + ' Upset Specials saved ' + (r.ok ? 'to server!' : 'locally only.'), r.ok ? 'success' : 'warning');
-    }).catch(function() {
-        showToast(sport + ' Upset Specials saved locally only.', 'warning');
-    });
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({name: name, sport: sport, team: team.value.trim(), odds: odds.value.trim(), thesis: thesis ? thesis.value.trim() : ''})
+    }).then(function(r) { return r.json(); }).then(function(data) {
+        if (data.status === 'ok') {
+            team.value = ''; odds.value = ''; if (thesis) thesis.value = '';
+            loadUpsets(sport);
+            showToast(sport + ' upset submitted!');
+        } else {
+            showToast(data.error || 'Failed to submit', 'error');
+        }
+    }).catch(function() { showToast('Server error — try again', 'error'); });
 }
 
-function renderUpset(sport, text) {
-    var display = document.getElementById('upset' + sport + 'Display');
-    if (!display) return;
-    if (!text) { return; }
-    var lines = text.split('\n').filter(function(l) { return l.trim(); });
+function deleteUpset(pickId, sport) {
+    fetch('/api/upsets/' + pickId, {method: 'DELETE'}).then(function(r) {
+        if (r.ok) { loadUpsets(sport); showToast('Pick deleted'); }
+        else showToast('Delete failed', 'error');
+    }).catch(function() { showToast('Server error', 'error'); });
+}
+
+function renderUpsetCards(sport, picks) {
+    var container = document.getElementById('upsetCards' + sport);
+    if (!container) return;
+    if (!picks || picks.length === 0) {
+        container.innerHTML = '<div style="font-size:12px;color:rgba(255,255,255,0.2);padding:8px 0;">No upset picks yet. Be the first.</div>';
+        return;
+    }
+    var myName = getUpsetName().toLowerCase();
     var html = '';
-    lines.forEach(function(line) {
-        var parts = line.split('|');
-        var dog = (parts[0] || '').trim();
-        var ml = (parts[1] || '').trim();
-        var thesis = (parts[2] || '').trim();
-        var grade = (parts[3] || '').trim() || 'B';
-        var gradeClass = 'g' + grade.toLowerCase().replace(/[^a-z]/g,'');
-        html += '<div class="upset-row">' +
-            '<div class="upset-dog">' + dog + '</div>' +
-            '<div class="upset-ml">' + ml + '</div>' +
-            '<div class="upset-thesis">' + thesis + '</div>' +
-            '<div class="game-grade"><span class="grade ' + gradeClass + '">' + grade + '</span></div>' +
+    picks.forEach(function(p) {
+        var nameClass = NAME_COLORS[p.name.toLowerCase()] || '';
+        var timeStr = '';
+        if (p.created_at) {
+            var parts = p.created_at.split(' ');
+            if (parts[1]) timeStr = parts[1].substring(0, 5);
+        }
+        var deleteBtn = '';
+        if (p.name.toLowerCase() === myName) {
+            deleteBtn = '<button class="upset-card-delete" onclick="deleteUpset(\'' + p.id + '\',\'' + sport + '\')" title="Delete">&times;</button>';
+        }
+        html += '<div class="upset-card">' +
+            '<span class="upset-card-name ' + nameClass + '">' + p.name + '</span>' +
+            '<span class="upset-card-team">' + (p.team || '') + '</span>' +
+            '<span class="upset-card-odds">' + (p.odds || '') + '</span>' +
+            '<span class="upset-card-thesis">' + (p.thesis || '') + '</span>' +
+            '<span class="upset-card-time">' + timeStr + '</span>' +
+            deleteBtn +
             '</div>';
     });
-    display.innerHTML = html;
+    container.innerHTML = html;
 }
 
-// Load upsets from server, fall back to localStorage
-(function() {
-    fetch('/api/upsets').then(function(r) { return r.json(); }).then(function(data) {
-        ['NBA', 'NHL'].forEach(function(sport) {
-            if (data[sport]) {
-                renderUpset(sport, data[sport]);
-                safeSave('edgeUpset' + sport, data[sport]);
-            }
-        });
+function loadUpsets(sport) {
+    fetch('/api/upsets?sport=' + sport + '&date=today').then(function(r) { return r.json(); }).then(function(data) {
+        renderUpsetCards(sport, data.picks || []);
     }).catch(function() {
-        // Server unavailable — fall back to localStorage
-        var nbaSaved = safeLoad('edgeUpsetNBA');
-        if (nbaSaved) renderUpset('NBA', nbaSaved);
-        var nhlSaved = safeLoad('edgeUpsetNHL');
-        if (nhlSaved) renderUpset('NHL', nhlSaved);
+        renderUpsetCards(sport, []);
     });
-})();
+}
+
+function loadAllUpsets() {
+    UPSET_SPORTS.forEach(function(s) { loadUpsets(s); });
+}
+
+// Load upsets on page load
+loadAllUpsets();
 
 // ===== RESTORE LOCKED PICKS FROM LOCALSTORAGE =====
 function restoreLockedPicks() {

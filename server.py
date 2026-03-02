@@ -537,42 +537,114 @@ async def grade_pick(request: Request):
     return JSONResponse({"error": "Pick not found"}, status_code=404)
 
 
-@app.get("/api/upsets")
-async def get_upsets():
-    """Return current upset specials from data/upsets.json."""
-    try:
-        with open(UPSETS_FILE, "r") as f:
-            data = json.load(f)
-        return JSONResponse(data)
-    except (FileNotFoundError, json.JSONDecodeError):
-        return JSONResponse({"NBA": "", "NHL": ""})
-
-
-@app.post("/api/upsets")
-async def save_upsets(request: Request):
-    """Save an upset special for a sport to data/upsets.json."""
-    body = await request.json()
-    sport = body.get("sport", "").upper()
-    text = body.get("text", "")
-
-    if sport not in ("NBA", "NHL"):
-        return JSONResponse({"error": "Invalid sport"}, status_code=400)
-
-    # Read existing data
+def _read_upsets():
+    """Read upsets from data/upsets.json. Auto-migrates old format."""
     try:
         with open(UPSETS_FILE, "r") as f:
             data = json.load(f)
     except (FileNotFoundError, json.JSONDecodeError):
-        data = {"NBA": "", "NHL": ""}
+        data = {"picks": []}
 
-    data[sport] = text
-    data["updated_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    # Detect old format (has sport keys like "NBA": "text") and migrate
+    if "picks" not in data:
+        data = _migrate_upsets(data)
+        _write_upsets(data)
 
+    return data
+
+
+def _write_upsets(data):
+    """Write upsets to data/upsets.json."""
     os.makedirs(os.path.dirname(UPSETS_FILE), exist_ok=True)
     with open(UPSETS_FILE, "w") as f:
         json.dump(data, f, indent=2)
 
-    return JSONResponse({"status": "ok", "sport": sport, "updated_at": data["updated_at"]})
+
+def _migrate_upsets(old_data):
+    """Convert old {NBA: 'text', NHL: 'text'} → {picks: [...]}."""
+    picks = []
+    for sport in ["NBA", "NHL"]:
+        text = old_data.get(sport, "")
+        if not text:
+            continue
+        for line in text.strip().split("\n"):
+            line = line.strip()
+            if not line:
+                continue
+            parts = [p.strip() for p in line.split("|")]
+            team = parts[0] if len(parts) > 0 else ""
+            odds = parts[1] if len(parts) > 1 else ""
+            thesis = parts[2] if len(parts) > 2 else ""
+            picks.append({
+                "id": str(uuid.uuid4())[:8],
+                "name": "Peter",
+                "sport": sport,
+                "team": team,
+                "odds": odds,
+                "thesis": thesis,
+                "date": old_data.get("updated_at", datetime.now().strftime("%Y-%m-%d"))[:10],
+                "created_at": old_data.get("updated_at", datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
+            })
+    return {"picks": picks}
+
+
+@app.get("/api/upsets")
+async def get_upsets(sport: str = "", date: str = ""):
+    """Return upset picks, optionally filtered by sport and date."""
+    data = _read_upsets()
+    picks = data.get("picks", [])
+
+    # Default to today
+    filter_date = date if date and date != "today" else datetime.now().strftime("%Y-%m-%d")
+    picks = [p for p in picks if p.get("date", "") == filter_date]
+
+    if sport:
+        picks = [p for p in picks if p.get("sport", "").upper() == sport.upper()]
+
+    return JSONResponse({"picks": picks, "count": len(picks)})
+
+
+@app.post("/api/upsets")
+async def save_upset(request: Request):
+    """Save a new upset pick from any crew member."""
+    body = await request.json()
+    name = body.get("name", "")
+    team = body.get("team", "")
+    odds = body.get("odds", "")
+
+    if not name or not team or not odds:
+        return JSONResponse({"error": "name, team, and odds are required"}, status_code=400)
+
+    pick = {
+        "id": str(uuid.uuid4())[:8],
+        "name": name,
+        "sport": body.get("sport", "").upper(),
+        "team": team,
+        "odds": odds,
+        "thesis": body.get("thesis", ""),
+        "date": datetime.now().strftime("%Y-%m-%d"),
+        "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+    }
+
+    data = _read_upsets()
+    data["picks"].insert(0, pick)
+    _write_upsets(data)
+
+    return JSONResponse({"status": "ok", "pick": pick})
+
+
+@app.delete("/api/upsets/{pick_id}")
+async def delete_upset(pick_id: str):
+    """Delete an upset pick by ID."""
+    data = _read_upsets()
+    original_len = len(data["picks"])
+    data["picks"] = [p for p in data["picks"] if p.get("id") != pick_id]
+
+    if len(data["picks"]) == original_len:
+        return JSONResponse({"error": "Pick not found"}, status_code=404)
+
+    _write_upsets(data)
+    return JSONResponse({"status": "ok"})
 
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
