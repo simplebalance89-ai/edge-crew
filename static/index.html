@@ -1611,8 +1611,9 @@ function safeLoad(key) {
 var toastQueue = [];
 var toastShowing = false;
 
-function showToast(message, isError) {
-    toastQueue.push({message: message, isError: !!isError});
+function showToast(message, type) {
+    if (type === true) type = 'error';
+    toastQueue.push({message: message, type: type || 'success'});
     processToastQueue();
 }
 
@@ -1622,7 +1623,8 @@ function processToastQueue() {
     var item = toastQueue.shift();
     var toast = document.getElementById('toast');
     toast.textContent = item.message;
-    toast.style.background = item.isError ? '#EF4444' : '#10B981';
+    var colors = {success: '#10B981', error: '#EF4444', warning: '#F59E0B'};
+    toast.style.background = colors[item.type] || '#10B981';
     toast.classList.add('show');
     setTimeout(function() {
         toast.classList.remove('show');
@@ -1668,11 +1670,23 @@ function refreshSlate() {
     // Update submit bar
     updateSubmitBar();
 
-    // Toast
-    var toast = document.getElementById('toast');
-    toast.textContent = 'Slate refreshed!';
-    toast.classList.add('show');
-    setTimeout(function() { toast.classList.remove('show'); }, 2000);
+    showToast('Slate refreshed!');
+
+    // Fetch live odds for all sports
+    fetchLiveOdds('nba');
+    fetchLiveOdds('nhl');
+    fetchLiveOdds('soccer');
+    fetchLiveOdds('mma');
+    fetchLiveOdds('boxing');
+
+    // Fetch analysis after a short delay so odds are cached first
+    setTimeout(function() {
+        fetchAnalysis('nba');
+        fetchAnalysis('nhl');
+    }, 2000);
+
+    // Fetch combined slate
+    setTimeout(function() { fetchCombinedSlate(); }, 3000);
 }
 
 function togglePick(event, el, gameName) {
@@ -1852,11 +1866,7 @@ function toggleSlipNote() {
 
 function submitBetSlip() {
     if (!slipState.who) {
-        var toast = document.getElementById('toast');
-        toast.textContent = 'Pick WHO first!';
-        toast.style.background = '#EF4444';
-        toast.classList.add('show');
-        setTimeout(function() { toast.classList.remove('show'); toast.style.background = '#10B981'; }, 2000);
+        showToast('Pick WHO first!', 'error');
         return;
     }
 
@@ -1895,21 +1905,12 @@ function submitBetSlip() {
         return r.json();
     }).then(function(data) {
         closeBetSlip();
-        var toast = document.getElementById('toast');
-        toast.textContent = pick.selection + ' locked!';
-        toast.style.background = '#10B981';
-        toast.classList.add('show');
-        setTimeout(function() { toast.classList.remove('show'); }, 2500);
+        showToast(pick.selection + ' locked!');
         renderPicks();
         renderBankroll();
     }).catch(function(err) {
-        // Fallback: already saved locally
         closeBetSlip();
-        var toast = document.getElementById('toast');
-        toast.textContent = pick.selection + ' locked (offline)!';
-        toast.style.background = '#F59E0B';
-        toast.classList.add('show');
-        setTimeout(function() { toast.classList.remove('show'); toast.style.background = '#10B981'; }, 2500);
+        showToast(pick.selection + ' locked (offline)!', 'warning');
         renderPicks();
         renderBankroll();
     });
@@ -1966,6 +1967,7 @@ function switchSport(sport, e) {
         var tab = ev.target.closest('.sport-tab');
         if (tab) tab.classList.add('active');
     }
+    if (sport === 'combined') fetchCombinedSlate();
     window.scrollTo(0, 0);
 }
 
@@ -2214,11 +2216,7 @@ function submitPick() {
         body: JSON.stringify(pick)
     }).then(function(r) { return r.json(); }).catch(function() {});
 
-    // Show toast
-    var toast = document.getElementById('toast');
-    toast.textContent = pick.name + "'s pick locked!";
-    toast.classList.add('show');
-    setTimeout(function() { toast.classList.remove('show'); }, 2500);
+    showToast(pick.name + "'s pick locked!");
 
     // Reset form
     document.getElementById('pickMatchup').value = '';
@@ -2245,10 +2243,7 @@ function saveBankrollSettings() {
     safeSave('edgeBankrollStart', start);
     safeSave('edgeUnitSize', unit);
     renderBankroll();
-    var toast = document.getElementById('toast');
-    toast.textContent = 'Bankroll set: $' + start + ' / $' + unit + ' per unit';
-    toast.classList.add('show');
-    setTimeout(function() { toast.classList.remove('show'); }, 2000);
+    showToast('Bankroll set: $' + start + ' / $' + unit + ' per unit');
 }
 
 function gradePick(index, result) {
@@ -2410,11 +2405,7 @@ function saveGotcha() {
 
     editor.style.display = 'none';
     display.style.display = 'block';
-
-    var toast = document.getElementById('toast');
-    toast.textContent = 'Gotcha card updated!';
-    toast.classList.add('show');
-    setTimeout(function() { toast.classList.remove('show'); }, 2000);
+    showToast('Gotcha card updated!');
 }
 
 // Load saved gotcha on page load
@@ -2469,11 +2460,7 @@ function addParlayLeg() {
     document.getElementById('pickOddsCustom').value = '';
     document.getElementById('pickOddsCustom').style.display = 'none';
 
-    // Toast
-    var toast = document.getElementById('toast');
-    toast.textContent = 'Leg ' + parlayLegs.length + ' added: ' + selection;
-    toast.classList.add('show');
-    setTimeout(function() { toast.classList.remove('show'); }, 2000);
+    showToast('Leg ' + parlayLegs.length + ' added: ' + selection);
 }
 
 function renderParlayLegs() {
@@ -2562,10 +2549,6 @@ function submitParlay() {
     if (combinedDecimal >= 2) combinedAmerican = '+' + Math.round((combinedDecimal - 1) * 100);
     else combinedAmerican = '-' + Math.round(100 / (combinedDecimal - 1));
 
-    var legSummary = parlayLegs.map(function(l, i) {
-        return 'Leg ' + (i+1) + ': ' + l.matchup + ' — ' + l.selection + ' (' + l.odds + ')';
-    }).join('%0A');
-
     var pick = {
         name: name,
         sport: 'PARLAY',
@@ -2593,11 +2576,7 @@ function submitParlay() {
         body: JSON.stringify(pick)
     }).then(function(r) { return r.json(); }).catch(function() {});
 
-    // Toast
-    var toast = document.getElementById('toast');
-    toast.textContent = name + "'s " + parlayLegs.length + '-leg parlay locked! ' + combinedAmerican;
-    toast.classList.add('show');
-    setTimeout(function() { toast.classList.remove('show'); }, 3000);
+    showToast(name + "'s " + parlayLegs.length + '-leg parlay locked! ' + combinedAmerican);
 
     // Clear parlay
     parlayLegs = [];
@@ -2816,9 +2795,11 @@ function fetchLiveOdds(sport) {
             // Remove old game rows (keep gotcha banner if exists)
             existingRows.forEach(function(row) { row.remove(); });
 
-            // Remove old "no games" message if any
+            // Remove old "no games" / empty state messages
             var noGames = panel.querySelector('.no-games');
             if (noGames) noGames.remove();
+            var emptyState = panel.querySelector('.empty-state');
+            if (emptyState) emptyState.remove();
 
             if (!data.games || data.games.length === 0) {
                 var msg = document.createElement('div');
@@ -2869,13 +2850,7 @@ function fetchLiveOdds(sport) {
                 sweepEl.innerHTML = 'Last sweep: ' + serverTime + '<br>Books: ' + booksUsed + '<br>' + statusLine;
             }
 
-            // Toast
-            var toast = document.getElementById('toast');
-            var completeN = data.lines_complete || 0;
-            var incN = data.lines_incomplete || 0;
-            toast.textContent = sport.toUpperCase() + ' slate loaded — ' + data.games.length + ' games (' + completeN + ' complete, ' + incN + ' incomplete)';
-            toast.classList.add('show');
-            setTimeout(function() { toast.classList.remove('show'); }, 3000);
+            showToast(sport.toUpperCase() + ' slate loaded — ' + data.games.length + ' games (' + (data.lines_complete || 0) + ' complete, ' + (data.lines_incomplete || 0) + ' incomplete)');
 
             // Re-apply saved picks after DOM rebuild
             if (typeof restoreLockedPicks === 'function') restoreLockedPicks();
@@ -2888,29 +2863,6 @@ function fetchLiveOdds(sport) {
             panel.appendChild(errMsg);
         });
 }
-
-// Override refreshSlate to also fetch live data AND analysis
-var _originalRefreshSlate = refreshSlate;
-refreshSlate = function() {
-    _originalRefreshSlate();
-    fetchLiveOdds('nba');
-    fetchLiveOdds('nhl');
-    fetchLiveOdds('soccer');
-    fetchLiveOdds('mma');
-    fetchLiveOdds('boxing');
-    // Fetch analysis after a short delay so odds are cached first
-    setTimeout(function() {
-        fetchAnalysis('nba');
-        fetchAnalysis('nhl');
-    }, 2000);
-};
-
-// Tab switching is view-only — no auto-fetch.
-// All data loading goes through REFRESH SLATE.
-var _originalSwitchSport = switchSport;
-switchSport = function(sport, e) {
-    _originalSwitchSport(sport, e);
-};
 
 // Remember last name selection
 var lastName = safeLoad('edgeCrewName');
@@ -3119,7 +3071,15 @@ function updatePeterGut(sport, analysisData) {
     var today = new Date();
     var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     if (gutTitle) gutTitle.textContent = "Peter's Gut Picks \u2014 " + sport.toUpperCase() + ' ' + months[today.getMonth()] + ' ' + today.getDate();
-    if (gutTimestamp) gutTimestamp.textContent = 'Generated: ' + (analysisData.generated_at || 'just now') + ' | Source: ' + (analysisData.source || 'Azure OpenAI');
+    if (gutTimestamp) {
+        gutTimestamp.textContent = 'Generated: ' + (analysisData.generated_at || 'just now') + ' | Source: ' + (analysisData.source || 'Azure OpenAI');
+        var genDate = analysisData.generated_at || '';
+        var todayStr = months[today.getMonth()] + ' ' + String(today.getDate()).padStart(2,'0');
+        var todayStrAlt = months[today.getMonth()] + ' ' + today.getDate();
+        if (genDate && genDate.indexOf(todayStr) === -1 && genDate.indexOf(todayStrAlt) === -1) {
+            gutTimestamp.innerHTML += ' <span style="color:#EF4444;font-weight:700;"> \u2014 STALE DATA (not today). Refresh slate for current picks.</span>';
+        }
+    }
 }
 
 // ===== ANALYSIS FETCH =====
@@ -3204,31 +3164,10 @@ function fetchAnalysis(sport) {
                 });
             }
 
-            // Toast
-            var toast = document.getElementById('toast');
-            toast.textContent = sport.toUpperCase() + ' analysis updated \u2014 ' + (data.generated_at || 'just now');
-            toast.classList.add('show');
-            setTimeout(function() { toast.classList.remove('show'); }, 3000);
+            showToast(sport.toUpperCase() + ' analysis updated \u2014 ' + (data.generated_at || 'just now'));
         })
         .catch(function(err) { console.error('Analysis fetch error:', err); });
 }
-
-// ===== HOOK COMBINED INTO switchSport =====
-var _origSwitchSport2 = switchSport;
-switchSport = function(sport, e) {
-    _origSwitchSport2(sport, e);
-    if (sport === 'combined') {
-        fetchCombinedSlate();
-    }
-};
-
-// ===== HOOK COMBINED INTO refreshSlate =====
-var _origRefreshSlate2 = refreshSlate;
-refreshSlate = function() {
-    _origRefreshSlate2();
-    // Also refresh combined data
-    setTimeout(function() { fetchCombinedSlate(); }, 3000);
-};
 
 // ===== FIX 1: DYNAMIC GOTCHA CARD DATES =====
 (function() {
@@ -3283,24 +3222,14 @@ function saveUpset(sport) {
     renderUpset(sport, text);
     editor.style.display = 'none';
     display.style.display = 'block';
-    var toast = document.getElementById('toast');
-    // POST to server
     fetch('/api/upsets', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sport: sport, text: text })
     }).then(function(r) {
-        if (r.ok) {
-            toast.textContent = sport + ' Upset Specials saved to server!';
-        } else {
-            toast.textContent = sport + ' Upset Specials saved locally only.';
-        }
-        toast.classList.add('show');
-        setTimeout(function() { toast.classList.remove('show'); }, 2000);
+        showToast(sport + ' Upset Specials saved ' + (r.ok ? 'to server!' : 'locally only.'), r.ok ? 'success' : 'warning');
     }).catch(function() {
-        toast.textContent = sport + ' Upset Specials saved locally only.';
-        toast.classList.add('show');
-        setTimeout(function() { toast.classList.remove('show'); }, 2000);
+        showToast(sport + ' Upset Specials saved locally only.', 'warning');
     });
 }
 
@@ -3372,24 +3301,6 @@ function restoreLockedPicks() {
     }
 }
 restoreLockedPicks();
-
-// ===== FIX 9: STALE GUT PICKS WARNING =====
-var _origUpdatePeterGut = updatePeterGut;
-updatePeterGut = function(sport, analysisData) {
-    _origUpdatePeterGut(sport, analysisData);
-    var gutTimestamp = document.getElementById('peterGut' + sport.toUpperCase() + 'Timestamp');
-    if (gutTimestamp) {
-        var genDate = analysisData.generated_at || '';
-        var _now = new Date();
-        var _months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-        var todayStr = _months[_now.getMonth()] + ' ' + String(_now.getDate()).padStart(2,'0');
-        var todayStrAlt = _months[_now.getMonth()] + ' ' + _now.getDate();
-        var isStale = genDate && genDate.indexOf(todayStr) === -1 && genDate.indexOf(todayStrAlt) === -1;
-        if (isStale) {
-            gutTimestamp.innerHTML += ' <span style="color:#EF4444;font-weight:700;"> \u2014 STALE DATA (not today). Refresh slate for current picks.</span>';
-        }
-    }
-};
 
 // ===== CLEAR CACHE =====
 async function clearAllCache() {
