@@ -445,13 +445,13 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 <!-- SPORT TABS -->
 <div class="tabs-wrapper">
 <div class="sport-tabs">
-    <div class="sport-tab active" onclick="switchSport('nba', event)">NBA <span class="tab-count">6</span></div>
-    <div class="sport-tab" onclick="switchSport('nhl', event)">NHL <span class="tab-count">8</span></div>
+    <div class="sport-tab active" onclick="switchSport('nba', event)">NBA <span class="tab-count">0</span></div>
+    <div class="sport-tab" onclick="switchSport('nhl', event)">NHL <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('soccer', event)">Soccer <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('mma', event)">MMA <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('boxing', event)">Boxing <span class="tab-count">0</span></div>
-    <div class="sport-tab" onclick="switchSport('props', event)">Props <span class="tab-count">30</span></div>
-    <div class="sport-tab" onclick="switchSport('combined', event)">Combined <span class="tab-count">14</span></div>
+    <div class="sport-tab" onclick="switchSport('props', event)">Props <span class="tab-count">0</span></div>
+    <div class="sport-tab" onclick="switchSport('combined', event)">Combined <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('bankroll', event)">RESULTS <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('submit', event)" style="color:#10B981;">SUBMIT PICK</div>
 </div>
@@ -465,333 +465,19 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 
 <div class="gotcha-banner" id="gotchaCard">
     <div style="display:flex;justify-content:space-between;align-items:center;">
-        <h3 id="gotchaNBATitle">Gotcha Card &mdash; NBA Feb 25</h3>
+        <h3 id="gotchaNBATitle">Gotcha Card &mdash; NBA</h3>
         <div style="display:flex;gap:6px;">
             <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(212,160,23,0.15);color:#D4A017;font-size:11px;font-weight:700;border:none;" onclick="toggleGotchaEdit()">EDIT</button>
             <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(16,185,129,0.15);color:#10B981;font-size:11px;font-weight:700;border:none;" onclick="saveGotcha()">SAVE</button>
         </div>
     </div>
     <div id="gotchaDisplay">
-        <ul>
-            <li><strong>OKC is a G-League team tonight.</strong> SGA OUT, Jalen Williams OUT, Chet DOUBTFUL, Ajay Mitchell OUT, Caruso QUESTIONABLE. On B2B &mdash; played Toronto Tuesday.</li>
-            <li><strong>SA on a 9-game win streak.</strong> 8-1 ATS during streak. Facing TOR on B2B with Barnes QUESTIONABLE. Best bet on the board.</li>
-            <li><strong>CLE line crashed from -8.5 to -3.</strong> Mitchell OUT + Mobley OUT + Harden QUESTIONABLE. Lean MIL +3 if Harden sits. Confirm at game time.</li>
-            <li><strong>SAC is decimated.</strong> Sabonis OUT for season, LaVine OUT for season. 12-44 record. HOU -14 is season-high &mdash; UNDER 222.5 is the sharper play.</li>
-            <li><strong>BOS +3.5 at DEN is the sharp play.</strong> BOS 20-9-1 ATS on road, covers 8 of last 9 as dogs. DEN 1-of-5 last 5 covering at home. Brown QUESTIONABLE.</li>
-            <li><strong>GS @ MEM &mdash; PASS GAME.</strong> Both teams gutted. Curry OUT, Butler OUT (season), Seth Curry OUT / Ja OUT, Edey OUT, Aldama OUT. Skip.</li>
-        </ul>
+        <p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load today's gotcha card...</p>
     </div>
     <textarea id="gotchaEditor" style="display:none;width:100%;min-height:150px;background:#0D0D1A;color:#fff;border:1px solid #D4A017;border-radius:6px;padding:10px;font-family:'Nunito',sans-serif;font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line. Use for injuries, traps, edges, B2B flags..."></textarea>
 </div>
 
-<!-- OKC @ DET -->
-<div class="game-row" data-game="OKC @ DET" onclick="this.classList.toggle('expanded')">
-    <div class="game-header">
-        <div class="pick-check" onclick="togglePick(event, this, 'OKC @ DET')"></div>
-        <div class="game-time">7:30 ET</div>
-        <div class="game-matchup"><span class="away">OKC</span> @ <span class="home">DET</span>
-            <div class="side-select">
-                <div class="side-btn" onclick="pickSide(event,this,'OKC +10.5')">OKC +10.5</div>
-                <div class="side-btn" onclick="pickSide(event,this,'DET -10.5')">DET -10.5</div>
-                <div class="side-btn" onclick="pickSide(event,this,'OVER 220.5')">OVER</div>
-                <div class="side-btn" onclick="pickSide(event,this,'UNDER 220.5')">UNDER</div>
-            </div>
-        </div>
-        <div class="game-spread">DET -10.5</div>
-        <div class="game-total">O/U 220.5</div>
-        <div class="game-grade"><span class="grade gam">A-</span></div>
-        <div class="game-edge"><span class="tag tag-b2b">B2B</span> OKC shell squad. SGA+JW+Chet all out. Cade showcase.</div>
-    </div>
-    <div class="game-detail">
-        <div class="detail-grid">
-            <div class="detail-box peter">
-                <h4>Peter's Zone</h4>
-                <p>DET is the smash. OKC without 4 starters on a B2B is a G-League team. Cade goes off. DET ML parlay leg. 10.5 is wide but they cover. If Chet sits, it's a lock. Cason Wallace went for 27 last night &mdash; tired legs tonight.</p>
-            </div>
-            <div class="detail-box trends">
-                <h4>Trends</h4>
-                <ul>
-                    <li>OKC 0-4 ATS without SGA this season</li>
-                    <li>DET 21-7 at home this season</li>
-                    <li>DET 12-3 UNDER last 15 home games</li>
-                    <li>Cason Wallace 27 pts last night &mdash; tired legs</li>
-                </ul>
-            </div>
-            <div class="detail-box flags">
-                <h4>Flags</h4>
-                <ul>
-                    <li>Chet DOUBTFUL (back) &mdash; if he sits it's a lock</li>
-                    <li>Caruso QUESTIONABLE (ankle)</li>
-                    <li>Isaiah Stewart OUT (suspension) for DET</li>
-                    <li>Ajay Mitchell OUT, SGA OUT, JW OUT for OKC</li>
-                </ul>
-            </div>
-            <div class="detail-box chinny">
-                <h4>Chinny's Props Zone</h4>
-                <ul>
-                    <li>Cade pts O 26.5 &mdash; OKC shell, showcase game</li>
-                    <li>Cade ast O 8.5 &mdash; OKC can't guard PnR</li>
-                    <li>OKC team total U 105.5 &mdash; who scores?</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- GS @ MEM -->
-<div class="game-row pass" data-game="GS @ MEM" onclick="this.classList.toggle('expanded')">
-    <div class="game-header">
-        <div class="pick-check" onclick="togglePick(event, this, 'GS @ MEM')"></div>
-        <div class="game-time">7:30 ET</div>
-        <div class="game-matchup"><span class="away">GS</span> @ <span class="home">MEM</span>
-            <div class="side-select">
-                <div class="side-btn" onclick="pickSide(event,this,'GS -4.5')">GS -4.5</div>
-                <div class="side-btn" onclick="pickSide(event,this,'MEM +4.5')">MEM +4.5</div>
-                <div class="side-btn" onclick="pickSide(event,this,'OVER 225.5')">OVER</div>
-                <div class="side-btn" onclick="pickSide(event,this,'UNDER 225.5')">UNDER</div>
-            </div>
-        </div>
-        <div class="game-spread">GS -4.5</div>
-        <div class="game-total">O/U 225.5</div>
-        <div class="game-grade"><span class="grade gcm">C+</span></div>
-        <div class="game-edge"><span class="tag tag-trap">PASS</span> Both teams gutted. Curry OUT. Ja OUT. Coin flip.</div>
-    </div>
-    <div class="game-detail">
-        <div class="detail-grid">
-            <div class="detail-box peter">
-                <h4>Peter's Zone</h4>
-                <p>Two skeleton teams. Neither has their guy. Low conviction. PASS unless line moves. If forced, MEM +4.5 at home &mdash; they cover as dogs. GS 3-7 ATS last 10.</p>
-            </div>
-            <div class="detail-box trends">
-                <h4>Trends</h4>
-                <ul>
-                    <li>GS 3-7 ATS last 10 games</li>
-                    <li>MEM 6-4 ATS last 10 despite 3-7 SU</li>
-                    <li>Both teams combined 232 PPG last 10</li>
-                </ul>
-            </div>
-            <div class="detail-box flags">
-                <h4>Flags</h4>
-                <ul>
-                    <li>GS: Curry OUT (knee), Butler OUT (season), Seth Curry OUT (back)</li>
-                    <li>MEM: Ja OUT (UCL sprain), Edey OUT (ankle), Aldama OUT</li>
-                    <li>Both teams decimated &mdash; inflated lines. PASS.</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- SA @ TOR -->
-<div class="game-row" data-game="SA @ TOR" onclick="this.classList.toggle('expanded')">
-    <div class="game-header">
-        <div class="pick-check" onclick="togglePick(event, this, 'SA @ TOR')"></div>
-        <div class="game-time">7:30 ET</div>
-        <div class="game-matchup"><span class="away">SA</span> @ <span class="home">TOR</span>
-            <div class="side-select">
-                <div class="side-btn" onclick="pickSide(event,this,'SA -5.5')">SA -5.5</div>
-                <div class="side-btn" onclick="pickSide(event,this,'TOR +5.5')">TOR +5.5</div>
-                <div class="side-btn" onclick="pickSide(event,this,'OVER 229.5')">OVER</div>
-                <div class="side-btn" onclick="pickSide(event,this,'UNDER 229.5')">UNDER</div>
-            </div>
-        </div>
-        <div class="game-spread">SA -5.5</div>
-        <div class="game-total">O/U 229.5</div>
-        <div class="game-grade"><span class="grade ga">A</span></div>
-        <div class="game-edge"><span class="tag tag-home">BEST BET</span> 9-game win streak. TOR B2B. Barnes questionable.</div>
-    </div>
-    <div class="game-detail">
-        <div class="detail-grid">
-            <div class="detail-box peter">
-                <h4>Peter's Zone</h4>
-                <p>SA is the best bet on the board. 9-game win streak, 8-1 ATS during streak, 6-1 ATS last 7 road. Facing a tired TOR on B2B with Barnes questionable. SA -5.5 is the play. Wemby dominates. If Barnes sits, SA covers by 15+.</p>
-            </div>
-            <div class="detail-box trends">
-                <h4>Trends</h4>
-                <ul>
-                    <li>SA 9-game win streak &mdash; hottest team in the league</li>
-                    <li>SA 8-1 ATS during win streak</li>
-                    <li>SA 6-1 ATS last 7 road games</li>
-                    <li>SA won first meeting 121-103</li>
-                    <li>TOR on B2B (played Tuesday, got run by Thunder)</li>
-                </ul>
-            </div>
-            <div class="detail-box flags">
-                <h4>Flags</h4>
-                <ul>
-                    <li>Barnes QUESTIONABLE (quad contusion, left Q4 last night) &mdash; CRITICAL</li>
-                    <li>Plumlee OUT for SA (only SA injury)</li>
-                    <li>If Barnes sits, SA covers by 15+ easily</li>
-                </ul>
-            </div>
-            <div class="detail-box chinny">
-                <h4>Chinny's Props Zone</h4>
-                <ul>
-                    <li>Wemby pts+reb O 35.5 &mdash; TOR has no answer</li>
-                    <li>SA team total O 118.5 &mdash; TOR B2B defense cooked</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- CLE @ MIL -->
-<div class="game-row" data-game="CLE @ MIL" onclick="this.classList.toggle('expanded')">
-    <div class="game-header">
-        <div class="pick-check" onclick="togglePick(event, this, 'CLE @ MIL')"></div>
-        <div class="game-time">8:00 ET</div>
-        <div class="game-matchup"><span class="away">CLE</span> @ <span class="home">MIL</span>
-            <div class="side-select">
-                <div class="side-btn" onclick="pickSide(event,this,'CLE -3.0')">CLE -3.0</div>
-                <div class="side-btn" onclick="pickSide(event,this,'MIL +3.0')">MIL +3.0</div>
-                <div class="side-btn" onclick="pickSide(event,this,'OVER 220.5')">OVER</div>
-                <div class="side-btn" onclick="pickSide(event,this,'UNDER 220.5')">UNDER</div>
-            </div>
-        </div>
-        <div class="game-spread">CLE -3.0</div>
-        <div class="game-total">O/U 220.5</div>
-        <div class="game-grade"><span class="grade gb">B</span></div>
-        <div class="game-edge"><span class="tag tag-trap">LINE CRASH</span> -8.5 to -3. Mitchell+Mobley OUT. Harden Q.</div>
-    </div>
-    <div class="game-detail">
-        <div class="detail-grid">
-            <div class="detail-box peter">
-                <h4>Peter's Zone</h4>
-                <p>Line crash from -8.5 to -3 screams value. CLE without Mitchell AND Mobley AND maybe Harden? MIL +3 is alive. Bucks 7-2 SU last 9 &mdash; Cam Thomas + Bobby Portis carrying. Lean MIL. Confirm Harden at game time.</p>
-            </div>
-            <div class="detail-box trends">
-                <h4>Trends</h4>
-                <ul>
-                    <li>CLE 7-0 SU last 7 vs MIL (pre-injury news)</li>
-                    <li>Line moved from -8.5 to -3 on injury news</li>
-                    <li>MIL 7-2 SU last 9 without Giannis</li>
-                    <li>Giannis OUT since Jan 23 (calf)</li>
-                </ul>
-            </div>
-            <div class="detail-box flags">
-                <h4>Flags</h4>
-                <ul>
-                    <li>Harden QUESTIONABLE (thumb fracture) &mdash; CONFIRM AT GAME TIME</li>
-                    <li>Donovan Mitchell OUT (groin)</li>
-                    <li>Evan Mobley OUT (calf)</li>
-                    <li>If Harden sits, MIL +3 is the play</li>
-                </ul>
-            </div>
-            <div class="detail-box chinny">
-                <h4>Chinny's Props Zone</h4>
-                <ul>
-                    <li>Cam Thomas pts O 24.5 &mdash; carrying MIL</li>
-                    <li>Bobby Portis pts+reb O 22.5</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- SAC @ HOU -->
-<div class="game-row" data-game="SAC @ HOU" onclick="this.classList.toggle('expanded')">
-    <div class="game-header">
-        <div class="pick-check" onclick="togglePick(event, this, 'SAC @ HOU')"></div>
-        <div class="game-time">8:00 ET</div>
-        <div class="game-matchup"><span class="away">SAC</span> @ <span class="home">HOU</span>
-            <div class="side-select">
-                <div class="side-btn" onclick="pickSide(event,this,'SAC +14.0')">SAC +14.0</div>
-                <div class="side-btn" onclick="pickSide(event,this,'HOU -14.0')">HOU -14.0</div>
-                <div class="side-btn" onclick="pickSide(event,this,'OVER 222.5')">OVER</div>
-                <div class="side-btn" onclick="pickSide(event,this,'UNDER 222.5')">UNDER</div>
-            </div>
-        </div>
-        <div class="game-spread">HOU -14.0</div>
-        <div class="game-total">O/U 222.5</div>
-        <div class="game-grade"><span class="grade gbp">B+</span></div>
-        <div class="game-edge"><span class="tag tag-trap">14!</span> UNDER 222.5 is the sharp play. Blowout = bench Q4.</div>
-    </div>
-    <div class="game-detail">
-        <div class="detail-grid">
-            <div class="detail-box peter">
-                <h4>Peter's Zone</h4>
-                <p>14 is massive but SAC literally has nobody. UNDER 222.5 is the sharper play &mdash; HOU defense + blowout = bench minutes Q4. Don't lay 14. SAC is 12-44. HOU UNDER 11 of last 12 home games.</p>
-            </div>
-            <div class="detail-box trends">
-                <h4>Trends</h4>
-                <ul>
-                    <li>HOU UNDER 11 of last 12 home games</li>
-                    <li>HOU defense elite &mdash; 109.4 PPG allowed</li>
-                    <li>SAC 12-44. Sabonis + LaVine OUT for season</li>
-                    <li>14 is season-high spread &mdash; blowouts often go UNDER</li>
-                </ul>
-            </div>
-            <div class="detail-box flags">
-                <h4>Flags</h4>
-                <ul>
-                    <li>14 is season-high spread &mdash; starters sit Q4</li>
-                    <li>Blowout scenario = HOU holds back offense late</li>
-                    <li>SAC: Sabonis OUT (meniscus), LaVine OUT (hand), Cardwell OUT</li>
-                </ul>
-            </div>
-            <div class="detail-box chinny">
-                <h4>Chinny's Props Zone</h4>
-                <ul>
-                    <li>Sengun pts+reb O 28.5 &mdash; HOU big advantage</li>
-                    <li>HOU team total O 116.5 &mdash; SAC D is cooked</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- BOS @ DEN -->
-<div class="game-row" data-game="BOS @ DEN" onclick="this.classList.toggle('expanded')">
-    <div class="game-header">
-        <div class="pick-check" onclick="togglePick(event, this, 'BOS @ DEN')"></div>
-        <div class="game-time">10:00 ET</div>
-        <div class="game-matchup"><span class="away">BOS</span> @ <span class="home">DEN</span>
-            <div class="side-select">
-                <div class="side-btn" onclick="pickSide(event,this,'BOS +3.5')">BOS +3.5</div>
-                <div class="side-btn" onclick="pickSide(event,this,'DEN -3.5')">DEN -3.5</div>
-                <div class="side-btn" onclick="pickSide(event,this,'OVER 228.5')">OVER</div>
-                <div class="side-btn" onclick="pickSide(event,this,'UNDER 228.5')">UNDER</div>
-            </div>
-        </div>
-        <div class="game-spread">DEN -3.5</div>
-        <div class="game-total">O/U 228.5</div>
-        <div class="game-grade"><span class="grade gbp">B+</span></div>
-        <div class="game-edge"><span class="tag tag-upset">SHARP</span> BOS elite ATS on road as dog. DEN only 1-of-5 at home.</div>
-    </div>
-    <div class="game-detail">
-        <div class="detail-grid">
-            <div class="detail-box peter">
-                <h4>Peter's Zone</h4>
-                <p>BOS +3.5 is the sharp play. Boston's road ATS is elite &mdash; 8-2 last 10, 20-9-1 ATS on road, covered 8 of last 9 as underdogs. DEN only covering 1 of last 5 at Ball Arena (12-14 ATS at home). B2B + altitude is the only concern. BOS defense (107.6 PPG, 1st in league) neutralizes DEN offense. Take the points.</p>
-            </div>
-            <div class="detail-box trends">
-                <h4>Trends</h4>
-                <ul>
-                    <li>BOS 8-2 ATS last 10 games</li>
-                    <li>BOS 20-9-1 ATS on the road this season</li>
-                    <li>BOS covered 8 of last 9 as underdogs</li>
-                    <li>DEN 12-14 ATS at home &mdash; only 1-of-5 last 5</li>
-                    <li>BOS #1 defense in NBA (107.6 PPG allowed)</li>
-                </ul>
-            </div>
-            <div class="detail-box flags">
-                <h4>Flags</h4>
-                <ul>
-                    <li>Brown QUESTIONABLE (knee) &mdash; expected to play</li>
-                    <li>BOS on B2B at altitude &mdash; real concern</li>
-                    <li>BOS covers as dogs at absurd rate this season</li>
-                </ul>
-            </div>
-            <div class="detail-box chinny">
-                <h4>Chinny's Props Zone</h4>
-                <ul>
-                    <li>Jokic pts+reb+ast O 45.5 &mdash; triple-double machine at home</li>
-                    <li>Brown pts O 24.5 &mdash; if he plays</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
+<div class="empty-state">No NBA games loaded.<br><strong>Hit REFRESH SLATE</strong> to load live lines.</div>
 
 <!-- NBA UPSET SPECIALS -->
 <div class="upset-section" id="upsetNBA">
@@ -820,313 +506,11 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 <div class="sport-panel" id="panel-nhl">
 
 <div class="gotcha-banner">
-    <h3 id="gotchaNHLTitle">Gotcha Card &mdash; NHL Feb 25 (First Night Back from Olympics)</h3>
-    <ul>
-        <li><span class="tag tag-rust">20-DAY BREAK</span> <strong>First games back from Olympics. Rust is the #1 variable for ALL 8 games.</strong></li>
-        <li><strong>VGK missing FIVE key players</strong> &mdash; Eichel, Hanifin, Marner, Stone, Theodore all resting post-Olympics. Shell lineup vs LA. Biggest edge on the slate.</li>
-        <li><strong>TBL 13-1-1 since Jan 1.</strong> Vasilevskiy 27-7-3, 2.11 GAA. Point + Hedman returning from Olympics. Hottest team in hockey.</li>
-        <li><strong>WPG blue line decimated.</strong> Morrissey (IR), Pionk (week-to-week), Fleury (DTD) all out. Thin blue line at VAN.</li>
-        <li><strong>VAN getting 4 players back tonight</strong> &mdash; Rossi, Boeser, Hoglander, Buium all returning. Major depth boost. VAN +110 has value.</li>
-        <li><strong>COL best record in NHL (37-9-9).</strong> MacKinnon at 93 pts in 55 games. Kulak Avalanche debut tonight.</li>
-        <li><strong>Trade deadline March 6</strong> &mdash; 9 days away. Bubble teams playing with extra urgency.</li>
-        <li>WSH: Tom Wilson OUT (illness), John Carlson OUT (lower body). PHI +115 has value as small dog.</li>
-    </ul>
+    <h3 id="gotchaNHLTitle">Gotcha Card &mdash; NHL</h3>
+    <p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load today's gotcha card...</p>
 </div>
 
-<!-- PHI @ WSH -->
-<div class="game-row" data-game="PHI @ WSH" onclick="this.classList.toggle('expanded')">
-    <div class="game-header">
-        <div class="pick-check" onclick="togglePick(event, this, 'PHI @ WSH')"></div>
-        <div class="game-time">7:00 ET</div>
-        <div class="game-matchup"><span class="away">PHI</span> @ <span class="home">WSH</span>
-            <div class="side-select">
-                <div class="side-btn" onclick="pickSide(event,this,'PHI ML +115')">PHI ML +115</div>
-                <div class="side-btn" onclick="pickSide(event,this,'WSH ML -150')">WSH ML -150</div>
-                <div class="side-btn" onclick="pickSide(event,this,'PHI +1.5')">PHI +1.5</div>
-                <div class="side-btn" onclick="pickSide(event,this,'WSH -1.5')">WSH -1.5</div>
-            </div>
-        </div>
-        <div class="game-spread">WSH -150 ML</div>
-        <div class="game-total">TBD</div>
-        <div class="game-grade"><span class="grade gb">B</span></div>
-        <div class="game-edge"><span class="tag tag-upset">UPSET</span> <span class="tag tag-rust">RUST</span> WSH missing Wilson + Carlson. PHI +115 value.</div>
-    </div>
-    <div class="game-detail">
-        <div class="detail-grid">
-            <div class="detail-box peter">
-                <h4>Peter's Zone</h4>
-                <p>WSH at home but missing Wilson + Carlson hurts. PHI +115 has value. First game back, rust everywhere. Lean PHI ML as small dog. Connor McMichael activated for WSH.</p>
-            </div>
-            <div class="detail-box flags">
-                <h4>Flags</h4>
-                <ul>
-                    <li>Tom Wilson OUT (illness)</li>
-                    <li>John Carlson OUT (lower body)</li>
-                    <li>Connor McMichael activated for WSH</li>
-                    <li>First game back &mdash; rust applies both ways</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- BUF @ NJD -->
-<div class="game-row" data-game="BUF @ NJD" onclick="this.classList.toggle('expanded')">
-    <div class="game-header">
-        <div class="pick-check" onclick="togglePick(event, this, 'BUF @ NJD')"></div>
-        <div class="game-time">7:00 ET</div>
-        <div class="game-matchup"><span class="away">BUF</span> @ <span class="home">NJD</span>
-            <div class="side-select">
-                <div class="side-btn" onclick="pickSide(event,this,'BUF ML -110')">BUF ML -110</div>
-                <div class="side-btn" onclick="pickSide(event,this,'NJD ML -120')">NJD ML -120</div>
-                <div class="side-btn" onclick="pickSide(event,this,'BUF +1.5')">BUF +1.5</div>
-                <div class="side-btn" onclick="pickSide(event,this,'NJD -1.5')">NJD -1.5</div>
-            </div>
-        </div>
-        <div class="game-spread">NJD -120 ML</div>
-        <div class="game-total">TBD</div>
-        <div class="game-grade"><span class="grade gbm">B-</span></div>
-        <div class="game-edge"><span class="tag tag-rust">RUST</span> NJD 1-4-0 last 5 pre-break (1.6 GPG). BUF gets Luukkonen back.</div>
-    </div>
-    <div class="game-detail">
-        <div class="detail-grid">
-            <div class="detail-box peter">
-                <h4>Peter's Zone</h4>
-                <p>NJD offense was ice cold before the break &mdash; 1.6 GPG last 5 games. BUF getting Luukkonen back from IR is big. BUF ML lean. UNDER. Anton Wahlberg may make his NHL debut for BUF.</p>
-            </div>
-            <div class="detail-box flags">
-                <h4>Flags</h4>
-                <ul>
-                    <li>BUF: Luukkonen activated off IR (big return)</li>
-                    <li>BUF: Anton Wahlberg possible NHL debut</li>
-                    <li>NJD 1-4-0 last 5 pre-break, averaging 1.6 GPG</li>
-                    <li>UNDER lean &mdash; both teams rusty post-break</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- TOR @ TBL -->
-<div class="game-row" data-game="TOR @ TBL" onclick="this.classList.toggle('expanded')">
-    <div class="game-header">
-        <div class="pick-check" onclick="togglePick(event, this, 'TOR @ TBL')"></div>
-        <div class="game-time">7:30 ET</div>
-        <div class="game-matchup"><span class="away">TOR</span> @ <span class="home">TBL</span>
-            <div class="side-select">
-                <div class="side-btn" onclick="pickSide(event,this,'TOR ML +180')">TOR ML +180</div>
-                <div class="side-btn" onclick="pickSide(event,this,'TBL ML -230')">TBL ML -230</div>
-                <div class="side-btn" onclick="pickSide(event,this,'TOR +1.5')">TOR +1.5</div>
-                <div class="side-btn" onclick="pickSide(event,this,'TBL -1.5')">TBL -1.5</div>
-            </div>
-        </div>
-        <div class="game-spread">TBL -230 ML</div>
-        <div class="game-total">TBD</div>
-        <div class="game-grade"><span class="grade gam">A-</span></div>
-        <div class="game-edge"><span class="tag tag-home">TBL</span> 13-1-1 since Jan 1. Vasi 27-7-3. Point + Hedman back.</div>
-    </div>
-    <div class="game-detail">
-        <div class="detail-grid">
-            <div class="detail-box peter">
-                <h4>Peter's Zone</h4>
-                <p>Tampa is the best team in hockey right now. Vasilevskiy is a wall (27-7-3, 2.11 GAA). TBL ML is expensive (-230) but safe. TBL puck line -1.5 for value. Point + Hedman back from Olympics. Hedman has an assist in each of his last 8 Wednesday home games.</p>
-            </div>
-            <div class="detail-box trends">
-                <h4>Trends</h4>
-                <ul>
-                    <li>TBL 13-1-1 since Jan 1 &mdash; hottest team in hockey</li>
-                    <li>Vasilevskiy 27-7-3, 2.11 GAA, .922 SV%</li>
-                    <li>Point + Hedman returning from Olympics</li>
-                    <li>Hedman assist in last 8 Wednesday home games</li>
-                </ul>
-            </div>
-            <div class="detail-box flags">
-                <h4>Flags</h4>
-                <ul>
-                    <li>-230 is steep juice &mdash; puck line -1.5 is better value</li>
-                    <li>TOR: Matthews in lineup, Dakota Joshua expected back</li>
-                    <li>Confirm TOR starting goalie at game time</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- SEA @ DAL -->
-<div class="game-row" data-game="SEA @ DAL" onclick="this.classList.toggle('expanded')">
-    <div class="game-header">
-        <div class="pick-check" onclick="togglePick(event, this, 'SEA @ DAL')"></div>
-        <div class="game-time">8:00 ET</div>
-        <div class="game-matchup"><span class="away">SEA</span> @ <span class="home">DAL</span>
-            <div class="side-select">
-                <div class="side-btn" onclick="pickSide(event,this,'SEA ML +140')">SEA ML +140</div>
-                <div class="side-btn" onclick="pickSide(event,this,'DAL ML -170')">DAL ML -170</div>
-                <div class="side-btn" onclick="pickSide(event,this,'SEA +1.5')">SEA +1.5</div>
-                <div class="side-btn" onclick="pickSide(event,this,'DAL -1.5')">DAL -1.5</div>
-            </div>
-        </div>
-        <div class="game-spread">DAL -170 ML</div>
-        <div class="game-total">TBD</div>
-        <div class="game-grade"><span class="grade gb">B</span></div>
-        <div class="game-edge"><span class="tag tag-rust">RUST</span> DAL at home, better team. Standard home lean post-break.</div>
-    </div>
-    <div class="game-detail">
-        <div class="detail-grid">
-            <div class="detail-box peter">
-                <h4>Peter's Zone</h4>
-                <p>DAL at home, better team. Standard home lean post-break. No strong edge. Rust factor applies equally. No bet unless line moves.</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- COL @ UTA -->
-<div class="game-row" data-game="COL @ UTA" onclick="this.classList.toggle('expanded')">
-    <div class="game-header">
-        <div class="pick-check" onclick="togglePick(event, this, 'COL @ UTA')"></div>
-        <div class="game-time">9:00 ET</div>
-        <div class="game-matchup"><span class="away">COL</span> @ <span class="home">UTA</span>
-            <div class="side-select">
-                <div class="side-btn" onclick="pickSide(event,this,'COL ML -125')">COL ML -125</div>
-                <div class="side-btn" onclick="pickSide(event,this,'UTA ML +105')">UTA ML +105</div>
-                <div class="side-btn" onclick="pickSide(event,this,'COL +1.5')">COL +1.5</div>
-                <div class="side-btn" onclick="pickSide(event,this,'UTA -1.5')">UTA -1.5</div>
-            </div>
-        </div>
-        <div class="game-spread">COL -125 ML</div>
-        <div class="game-total">TBD</div>
-        <div class="game-grade"><span class="grade gbp">B+</span></div>
-        <div class="game-edge"><span class="tag tag-rust">RUST</span> COL best record in NHL. UTA 7-of-10 pre-break. Cooley possible return.</div>
-    </div>
-    <div class="game-detail">
-        <div class="detail-grid">
-            <div class="detail-box peter">
-                <h4>Peter's Zone</h4>
-                <p>COL is the class of the league (37-9-9) but UTA has been good &mdash; won 7 of 10 pre-break. COL ML lean but UTA +105 has value if Logan Cooley returns (missed 28 games). Brett Kulak makes Avalanche debut. MacKinnon at 93 pts in 55 games.</p>
-            </div>
-            <div class="detail-box flags">
-                <h4>Flags</h4>
-                <ul>
-                    <li>Logan Cooley possible return (missed 28 games) &mdash; UTA boost</li>
-                    <li>Brett Kulak Avalanche debut (acquired from PIT)</li>
-                    <li>UTA: Won 7 of 10 pre-break. Home crowd will be electric</li>
-                    <li>COL: Best record in NHL &mdash; 37-9-9, MacKinnon 93 pts</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- VGK @ LAK -->
-<div class="game-row" data-game="VGK @ LAK" onclick="this.classList.toggle('expanded')">
-    <div class="game-header">
-        <div class="pick-check" onclick="togglePick(event, this, 'VGK @ LAK')"></div>
-        <div class="game-time">10:00 ET</div>
-        <div class="game-matchup"><span class="away">VGK</span> @ <span class="home">LAK</span>
-            <div class="side-select">
-                <div class="side-btn" onclick="pickSide(event,this,'VGK ML +135')">VGK ML +135</div>
-                <div class="side-btn" onclick="pickSide(event,this,'LAK ML -160')">LAK ML -160</div>
-                <div class="side-btn" onclick="pickSide(event,this,'VGK +1.5')">VGK +1.5</div>
-                <div class="side-btn" onclick="pickSide(event,this,'LAK -1.5')">LAK -1.5</div>
-            </div>
-        </div>
-        <div class="game-spread">LAK -160 ML</div>
-        <div class="game-total">TBD</div>
-        <div class="game-grade"><span class="grade ga">A</span></div>
-        <div class="game-edge"><span class="tag tag-home">SMASH</span> VGK missing 5 starters. LAK at home. Biggest NHL edge.</div>
-    </div>
-    <div class="game-detail">
-        <div class="detail-grid">
-            <div class="detail-box peter">
-                <h4>Peter's Zone</h4>
-                <p>This is the biggest edge on the NHL slate. VGK is a shell team tonight &mdash; missing Eichel, Hanifin, Marner, Stone, AND Theodore. All held out post-Olympics. LAK at home vs a depleted VGK. LAK ML is the smash. LAK puck line -1.5 for value.</p>
-            </div>
-            <div class="detail-box flags">
-                <h4>Flags</h4>
-                <ul>
-                    <li>VGK OUT: Eichel, Hanifin, Marner, Stone, Theodore &mdash; all 5 resting</li>
-                    <li>VGK shell lineup &mdash; not a real Vegas team tonight</li>
-                    <li>LAK at home, full healthy roster</li>
-                    <li>Grade A &mdash; highest confidence NHL play on the slate</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- WPG @ VAN -->
-<div class="game-row" data-game="WPG @ VAN" onclick="this.classList.toggle('expanded')">
-    <div class="game-header">
-        <div class="pick-check" onclick="togglePick(event, this, 'WPG @ VAN')"></div>
-        <div class="game-time">10:00 ET</div>
-        <div class="game-matchup"><span class="away">WPG</span> @ <span class="home">VAN</span>
-            <div class="side-select">
-                <div class="side-btn" onclick="pickSide(event,this,'WPG ML -130')">WPG ML -130</div>
-                <div class="side-btn" onclick="pickSide(event,this,'VAN ML +110')">VAN ML +110</div>
-                <div class="side-btn" onclick="pickSide(event,this,'WPG +1.5')">WPG +1.5</div>
-                <div class="side-btn" onclick="pickSide(event,this,'VAN -1.5')">VAN -1.5</div>
-            </div>
-        </div>
-        <div class="game-spread">WPG -130 ML</div>
-        <div class="game-total">TBD</div>
-        <div class="game-grade"><span class="grade gbp">B+</span></div>
-        <div class="game-edge"><span class="tag tag-upset">UPSET</span> WPG blue line gutted. VAN gets 4 players back at home.</div>
-    </div>
-    <div class="game-detail">
-        <div class="detail-grid">
-            <div class="detail-box peter">
-                <h4>Peter's Zone</h4>
-                <p>WPG is favored but their blue line is gutted &mdash; Morrissey (IR), Pionk (week-to-week), Fleury (DTD). VAN getting back Rossi, Boeser, Hoglander, AND Buium tonight. VAN +110 is the play. Matchup swings hard to VAN at home.</p>
-            </div>
-            <div class="detail-box flags">
-                <h4>Flags</h4>
-                <ul>
-                    <li>WPG OUT: Morrissey (IR), Pionk (W2W), Fleury (DTD) &mdash; decimated D</li>
-                    <li>VAN returning: Rossi, Boeser, Hoglander, Buium &mdash; 4 players back</li>
-                    <li>VAN at home &mdash; crowd factor</li>
-                    <li>Matchup advantage shifts heavily to VAN tonight</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- EDM @ ANA -->
-<div class="game-row" data-game="EDM @ ANA" onclick="this.classList.toggle('expanded')">
-    <div class="game-header">
-        <div class="pick-check" onclick="togglePick(event, this, 'EDM @ ANA')"></div>
-        <div class="game-time">10:30 ET</div>
-        <div class="game-matchup"><span class="away">EDM</span> @ <span class="home">ANA</span>
-            <div class="side-select">
-                <div class="side-btn" onclick="pickSide(event,this,'EDM ML -125')">EDM ML -125</div>
-                <div class="side-btn" onclick="pickSide(event,this,'ANA ML +105')">ANA ML +105</div>
-                <div class="side-btn" onclick="pickSide(event,this,'EDM +1.5')">EDM +1.5</div>
-                <div class="side-btn" onclick="pickSide(event,this,'ANA -1.5')">ANA -1.5</div>
-            </div>
-        </div>
-        <div class="game-spread">EDM -125 ML</div>
-        <div class="game-total">TBD</div>
-        <div class="game-grade"><span class="grade gb">B</span></div>
-        <div class="game-edge"><span class="tag tag-rust">RUST</span> EDM 3-game losing streak pre-break. McDavid back as Olympic MVP.</div>
-    </div>
-    <div class="game-detail">
-        <div class="detail-grid">
-            <div class="detail-box peter">
-                <h4>Peter's Zone</h4>
-                <p>McDavid motivated after winning Olympic MVP but Oilers were cold pre-break (3-game losing streak). EDM ML lean but ANA +105 is interesting with Leo Carlsson returning (missed 5 weeks). Sennecke having a great season.</p>
-            </div>
-            <div class="detail-box flags">
-                <h4>Flags</h4>
-                <ul>
-                    <li>EDM: 3-game losing streak pre-break</li>
-                    <li>McDavid returning as Olympic MVP &mdash; motivated</li>
-                    <li>ANA: Leo Carlsson returning (missed 5 weeks)</li>
-                    <li>ANA: Sennecke having strong season</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
+<div class="empty-state">No NHL games loaded.<br><strong>Hit REFRESH SLATE</strong> to load live lines.</div>
 
 <!-- NHL UPSET SPECIALS -->
 <div class="upset-section" id="upsetNHL">
@@ -1138,20 +522,6 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
         <button type="submit">SUBMIT</button>
     </form>
     <div class="upset-cards" id="upsetCardsNHL"></div>
-</div>
-
-<!-- NHL PETER + CHINNY INPUT -->
-<div class="input-section" style="border-color:rgba(16,185,129,0.25);background:rgba(16,185,129,0.04);">
-    <h3 style="color:#10B981;">Chinny's NHL Call</h3>
-    <p>
-        NHL is Chinny's card. Peter's top NHL picks:<br>
-        1. <strong>LAK ML vs VGK</strong> &mdash; VGK missing 5 starters. Biggest NHL edge. Grade A.<br>
-        2. <strong>VAN +110 vs WPG</strong> &mdash; WPG blue line decimated. VAN 4 players back at home. Grade B+.<br>
-        3. <strong>TBL puck line -1.5 vs TOR</strong> &mdash; Hottest team in hockey. Vasi is a wall. Better value than ML.<br>
-        4. Goalie confirmations needed for ALL 8 games before lock.<br>
-        5. Olympic break rust applies across the board &mdash; favor home ice.<br>
-        6. UNDER lean for first night back &mdash; lower pace, both teams rusty.
-    </p>
 </div>
 
 <!-- NHL PETER GUT PICKS (DYNAMIC) -->
@@ -1183,6 +553,16 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     </form>
     <div class="upset-cards" id="upsetCardsSOCCER"></div>
 </div>
+
+<!-- SOCCER PETER GUT PICKS (DYNAMIC) -->
+<div class="input-section" id="peterGutSOCCER">
+    <h3 id="peterGutSOCCERTitle">Peter's Gut Picks &mdash; Soccer</h3>
+    <div id="peterGutSOCCERContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
+        <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load live gut picks from analysis...</p>
+    </div>
+    <div id="peterGutSOCCERTimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
+</div>
+
 </div>
 
 <!-- ===== MMA PANEL ===== -->
@@ -1203,6 +583,16 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     </form>
     <div class="upset-cards" id="upsetCardsMMA"></div>
 </div>
+
+<!-- MMA PETER GUT PICKS (DYNAMIC) -->
+<div class="input-section" id="peterGutMMA">
+    <h3 id="peterGutMMATitle">Peter's Gut Picks &mdash; MMA</h3>
+    <div id="peterGutMMAContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
+        <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load live gut picks from analysis...</p>
+    </div>
+    <div id="peterGutMMATimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
+</div>
+
 </div>
 
 <!-- ===== BOXING PANEL ===== -->
@@ -1223,13 +613,23 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     </form>
     <div class="upset-cards" id="upsetCardsBOXING"></div>
 </div>
+
+<!-- BOXING PETER GUT PICKS (DYNAMIC) -->
+<div class="input-section" id="peterGutBOXING">
+    <h3 id="peterGutBOXINGTitle">Peter's Gut Picks &mdash; Boxing</h3>
+    <div id="peterGutBOXINGContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
+        <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load live gut picks from analysis...</p>
+    </div>
+    <div id="peterGutBOXINGTimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
+</div>
+
 </div>
 
 <!-- ===== PROPS PANEL (Chinny's Card) ===== -->
 <div class="sport-panel" id="panel-props">
 
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-    <div style="font-size:11px;color:rgba(255,255,255,0.25);" id="propsTimestamp">Last updated: Feb 27, 2026 — 2:30 PM ET</div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.25);" id="propsTimestamp">Loading props...</div>
 </div>
 
 <div class="gotcha-banner" style="border-color:rgba(16,185,129,0.2);background:rgba(16,185,129,0.06);">
@@ -1238,107 +638,14 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
         <li><strong>Props are Chinny's territory.</strong> Top 5 per game. B or higher only.</li>
         <li>Blowout filter: if the game is projected 15+ margin, prop volume drops (starters sit).</li>
         <li>Streak data must be verified for CURRENT TEAM context (learned from Harden mistake).</li>
-        <li>NHL props TBD until goalie confirmations at noon.</li>
     </ul>
 </div>
 
-<!-- CLE @ MIL Props -->
-<div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px 20px;margin-bottom:12px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <div><span class="tag" style="background:rgba(200,50,50,0.2);color:#E25555;">NBA</span> <strong style="font-family:'Playfair Display',serif;">CLE @ MIL</strong> <span style="font-size:12px;color:rgba(255,255,255,0.3);">8:00 ET</span></div>
-        <span class="grade gam">A-</span>
-    </div>
-    <table style="width:100%;border-collapse:collapse;">
-    <tr><th style="text-align:left;padding:6px 8px;font-size:10px;color:#10B981;text-transform:uppercase;letter-spacing:1px;">Player</th><th style="text-align:left;padding:6px 8px;font-size:10px;color:#10B981;">Prop</th><th style="text-align:left;padding:6px 8px;font-size:10px;color:#10B981;">Line</th><th style="text-align:center;padding:6px 8px;font-size:10px;color:#10B981;">Grade</th><th style="text-align:left;padding:6px 8px;font-size:10px;color:#10B981;">Why</th></tr>
-    <tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:8px;font-size:13px;">Mitchell</td><td style="padding:8px;font-size:13px;">Pts</td><td style="padding:8px;font-size:13px;color:#D4A017;font-weight:700;">O 24.5</td><td style="text-align:center;"><span class="grade ga">A</span></td><td style="padding:8px;font-size:12px;color:rgba(255,255,255,0.5);">25+ in 8 straight vs MIL defense</td></tr>
-    <tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:8px;font-size:13px;">Harden</td><td style="padding:8px;font-size:13px;">Ast</td><td style="padding:8px;font-size:13px;color:#D4A017;font-weight:700;">O 7.5</td><td style="text-align:center;"><span class="grade gb">B</span></td><td style="padding:8px;font-size:12px;color:rgba(255,255,255,0.5);">IF he plays (B2B). CLE system feeds assists.</td></tr>
-    <tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:8px;font-size:13px;">Allen</td><td style="padding:8px;font-size:13px;">Reb</td><td style="padding:8px;font-size:13px;color:#D4A017;font-weight:700;">O 10.5</td><td style="text-align:center;"><span class="grade gb">B</span></td><td style="padding:8px;font-size:12px;color:rgba(255,255,255,0.5);">No Giannis = weak MIL boards</td></tr>
-    <tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:8px;font-size:13px;">Dame</td><td style="padding:8px;font-size:13px;">Pts</td><td style="padding:8px;font-size:13px;color:#D4A017;font-weight:700;">O 26.5</td><td style="text-align:center;"><span class="grade gb">B</span></td><td style="padding:8px;font-size:12px;color:rgba(255,255,255,0.5);">Has to carry MIL alone. 20+ shots.</td></tr>
-    <tr><td style="padding:8px;font-size:13px;">Mobley</td><td style="padding:8px;font-size:13px;">Pts+Reb</td><td style="padding:8px;font-size:13px;color:#D4A017;font-weight:700;">O 22.5</td><td style="text-align:center;"><span class="grade gb">B</span></td><td style="padding:8px;font-size:12px;color:rgba(255,255,255,0.5);">Matchup advantage in paint vs MIL.</td></tr>
-    </table>
+<div id="propsContainer">
+    <div class="empty-state">No props loaded yet.<br><strong>Hit REFRESH SLATE</strong> to load analysis data.</div>
 </div>
 
-<!-- OKC @ DET Props -->
-<div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px 20px;margin-bottom:12px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <div><span class="tag" style="background:rgba(200,50,50,0.2);color:#E25555;">NBA</span> <strong style="font-family:'Playfair Display',serif;">OKC @ DET</strong> <span style="font-size:12px;color:rgba(255,255,255,0.3);">7:30 ET</span></div>
-        <span class="grade gbp">B+</span>
-    </div>
-    <table style="width:100%;border-collapse:collapse;">
-    <tr><th style="text-align:left;padding:6px 8px;font-size:10px;color:#10B981;text-transform:uppercase;letter-spacing:1px;">Player</th><th style="text-align:left;padding:6px 8px;font-size:10px;color:#10B981;">Prop</th><th style="text-align:left;padding:6px 8px;font-size:10px;color:#10B981;">Line</th><th style="text-align:center;padding:6px 8px;font-size:10px;color:#10B981;">Grade</th><th style="text-align:left;padding:6px 8px;font-size:10px;color:#10B981;">Why</th></tr>
-    <tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:8px;font-size:13px;">Cade</td><td style="padding:8px;font-size:13px;">Pts</td><td style="padding:8px;font-size:13px;color:#D4A017;font-weight:700;">O 26.5</td><td style="text-align:center;"><span class="grade ga">A</span></td><td style="padding:8px;font-size:12px;color:rgba(255,255,255,0.5);">OKC shell. Cade showcase at home.</td></tr>
-    <tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:8px;font-size:13px;">Cade</td><td style="padding:8px;font-size:13px;">Ast</td><td style="padding:8px;font-size:13px;color:#D4A017;font-weight:700;">O 8.5</td><td style="text-align:center;"><span class="grade gb">B</span></td><td style="padding:8px;font-size:12px;color:rgba(255,255,255,0.5);">OKC can't guard PnR without SGA/Williams.</td></tr>
-    <tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:8px;font-size:13px;">Ivey</td><td style="padding:8px;font-size:13px;">Pts</td><td style="padding:8px;font-size:13px;color:#D4A017;font-weight:700;">O 18.5</td><td style="text-align:center;"><span class="grade gb">B</span></td><td style="padding:8px;font-size:12px;color:rgba(255,255,255,0.5);">DET rolling. Ivey eats vs depleted backcourt.</td></tr>
-    <tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:8px;font-size:13px;">Duren</td><td style="padding:8px;font-size:13px;">Reb</td><td style="padding:8px;font-size:13px;color:#D4A017;font-weight:700;">O 10.5</td><td style="text-align:center;"><span class="grade gb">B</span></td><td style="padding:8px;font-size:12px;color:rgba(255,255,255,0.5);">OKC without Chet = no rim presence.</td></tr>
-    <tr><td style="padding:8px;font-size:13px;">OKC TT</td><td style="padding:8px;font-size:13px;">Under</td><td style="padding:8px;font-size:13px;color:#D4A017;font-weight:700;">U 105.5</td><td style="text-align:center;"><span class="grade gb">B</span></td><td style="padding:8px;font-size:12px;color:rgba(255,255,255,0.5);">Who scores for OKC? Nobody.</td></tr>
-    </table>
-</div>
-
-<!-- SA @ TOR Props -->
-<div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px 20px;margin-bottom:12px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <div><span class="tag" style="background:rgba(200,50,50,0.2);color:#E25555;">NBA</span> <strong style="font-family:'Playfair Display',serif;">SA @ TOR</strong> <span style="font-size:12px;color:rgba(255,255,255,0.3);">7:30 ET</span></div>
-        <span class="grade gb">B</span>
-    </div>
-    <table style="width:100%;border-collapse:collapse;">
-    <tr><th style="text-align:left;padding:6px 8px;font-size:10px;color:#10B981;text-transform:uppercase;letter-spacing:1px;">Player</th><th style="text-align:left;padding:6px 8px;font-size:10px;color:#10B981;">Prop</th><th style="text-align:left;padding:6px 8px;font-size:10px;color:#10B981;">Line</th><th style="text-align:center;padding:6px 8px;font-size:10px;color:#10B981;">Grade</th><th style="text-align:left;padding:6px 8px;font-size:10px;color:#10B981;">Why</th></tr>
-    <tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:8px;font-size:13px;">Wemby</td><td style="padding:8px;font-size:13px;">Pts</td><td style="padding:8px;font-size:13px;color:#D4A017;font-weight:700;">O 24.5</td><td style="text-align:center;"><span class="grade ga">A</span></td><td style="padding:8px;font-size:12px;color:rgba(255,255,255,0.5);">IF he plays. TOR has no answer for him.</td></tr>
-    <tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:8px;font-size:13px;">Wemby</td><td style="padding:8px;font-size:13px;">Blk</td><td style="padding:8px;font-size:13px;color:#D4A017;font-weight:700;">O 2.5</td><td style="text-align:center;"><span class="grade gb">B</span></td><td style="padding:8px;font-size:12px;color:rgba(255,255,255,0.5);">TOR attacks rim. Wemby is the wall.</td></tr>
-    <tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:8px;font-size:13px;">Barnes</td><td style="padding:8px;font-size:13px;">Pts</td><td style="padding:8px;font-size:13px;color:#D4A017;font-weight:700;">O 22.5</td><td style="text-align:center;"><span class="grade gb">B</span></td><td style="padding:8px;font-size:12px;color:rgba(255,255,255,0.5);">Scottie competes. Home game energy.</td></tr>
-    <tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:8px;font-size:13px;">Barnes</td><td style="padding:8px;font-size:13px;">Reb</td><td style="padding:8px;font-size:13px;color:#D4A017;font-weight:700;">O 7.5</td><td style="text-align:center;"><span class="grade gb">B</span></td><td style="padding:8px;font-size:12px;color:rgba(255,255,255,0.5);">SA doesn't box out well on wings.</td></tr>
-    <tr><td style="padding:8px;font-size:13px;">Vassell</td><td style="padding:8px;font-size:13px;">Pts</td><td style="padding:8px;font-size:13px;color:#D4A017;font-weight:700;">O 17.5</td><td style="text-align:center;"><span class="grade gbm">B-</span></td><td style="padding:8px;font-size:12px;color:rgba(255,255,255,0.5);">Secondary scorer if Wemby draws doubles.</td></tr>
-    </table>
-</div>
-
-<!-- SAC @ HOU Props -->
-<div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px 20px;margin-bottom:12px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <div><span class="tag" style="background:rgba(200,50,50,0.2);color:#E25555;">NBA</span> <strong style="font-family:'Playfair Display',serif;">SAC @ HOU</strong> <span style="font-size:12px;color:rgba(255,255,255,0.3);">8:00 ET</span></div>
-        <span class="grade gbp">B+</span>
-    </div>
-    <table style="width:100%;border-collapse:collapse;">
-    <tr><th style="text-align:left;padding:6px 8px;font-size:10px;color:#10B981;text-transform:uppercase;letter-spacing:1px;">Player</th><th style="text-align:left;padding:6px 8px;font-size:10px;color:#10B981;">Prop</th><th style="text-align:left;padding:6px 8px;font-size:10px;color:#10B981;">Line</th><th style="text-align:center;padding:6px 8px;font-size:10px;color:#10B981;">Grade</th><th style="text-align:left;padding:6px 8px;font-size:10px;color:#10B981;">Why</th></tr>
-    <tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:8px;font-size:13px;">Sengun</td><td style="padding:8px;font-size:13px;">Pts+Reb</td><td style="padding:8px;font-size:13px;color:#D4A017;font-weight:700;">O 28.5</td><td style="text-align:center;"><span class="grade gb">B</span></td><td style="padding:8px;font-size:12px;color:rgba(255,255,255,0.5);">HOU big advantage. SAC tired bigs.</td></tr>
-    <tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:8px;font-size:13px;">Fox</td><td style="padding:8px;font-size:13px;">Pts</td><td style="padding:8px;font-size:13px;color:#D4A017;font-weight:700;">U 24.5</td><td style="text-align:center;"><span class="grade gb">B</span></td><td style="padding:8px;font-size:12px;color:rgba(255,255,255,0.5);">B2B legs. HOU elite perimeter D.</td></tr>
-    <tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:8px;font-size:13px;">Jalen Green</td><td style="padding:8px;font-size:13px;">Pts</td><td style="padding:8px;font-size:13px;color:#D4A017;font-weight:700;">O 20.5</td><td style="text-align:center;"><span class="grade gb">B</span></td><td style="padding:8px;font-size:12px;color:rgba(255,255,255,0.5);">SAC D is cooked on B2B. Green eats.</td></tr>
-    <tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:8px;font-size:13px;">Sabonis</td><td style="padding:8px;font-size:13px;">Reb</td><td style="padding:8px;font-size:13px;color:#D4A017;font-weight:700;">O 11.5</td><td style="text-align:center;"><span class="grade gbm">B-</span></td><td style="padding:8px;font-size:12px;color:rgba(255,255,255,0.5);">Sabonis always boards. But tired legs risk.</td></tr>
-    <tr><td style="padding:8px;font-size:13px;">HOU TT</td><td style="padding:8px;font-size:13px;">Over</td><td style="padding:8px;font-size:13px;color:#D4A017;font-weight:700;">O 118.5</td><td style="text-align:center;"><span class="grade gb">B</span></td><td style="padding:8px;font-size:12px;color:rgba(255,255,255,0.5);">SAC defense on B2B = layup line.</td></tr>
-    </table>
-</div>
-
-<!-- BOS @ DEN Props -->
-<div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px 20px;margin-bottom:12px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <div><span class="tag" style="background:rgba(200,50,50,0.2);color:#E25555;">NBA</span> <strong style="font-family:'Playfair Display',serif;">BOS @ DEN</strong> <span style="font-size:12px;color:rgba(255,255,255,0.3);">10:00 ET</span></div>
-        <span class="grade gb">B</span>
-    </div>
-    <table style="width:100%;border-collapse:collapse;">
-    <tr><th style="text-align:left;padding:6px 8px;font-size:10px;color:#10B981;text-transform:uppercase;letter-spacing:1px;">Player</th><th style="text-align:left;padding:6px 8px;font-size:10px;color:#10B981;">Prop</th><th style="text-align:left;padding:6px 8px;font-size:10px;color:#10B981;">Line</th><th style="text-align:center;padding:6px 8px;font-size:10px;color:#10B981;">Grade</th><th style="text-align:left;padding:6px 8px;font-size:10px;color:#10B981;">Why</th></tr>
-    <tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:8px;font-size:13px;">Jokic</td><td style="padding:8px;font-size:13px;">Pts+Reb+Ast</td><td style="padding:8px;font-size:13px;color:#D4A017;font-weight:700;">O 45.5</td><td style="text-align:center;"><span class="grade ga">A</span></td><td style="padding:8px;font-size:12px;color:rgba(255,255,255,0.5);">Triple-double machine at home. BOS no bigs.</td></tr>
-    <tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:8px;font-size:13px;">Jokic</td><td style="padding:8px;font-size:13px;">Reb</td><td style="padding:8px;font-size:13px;color:#D4A017;font-weight:700;">O 12.5</td><td style="text-align:center;"><span class="grade ga">A</span></td><td style="padding:8px;font-size:12px;color:rgba(255,255,255,0.5);">BOS has zero rim protection without KP/Tatum.</td></tr>
-    <tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:8px;font-size:13px;">Murray</td><td style="padding:8px;font-size:13px;">Pts</td><td style="padding:8px;font-size:13px;color:#D4A017;font-weight:700;">O 21.5</td><td style="text-align:center;"><span class="grade gb">B</span></td><td style="padding:8px;font-size:12px;color:rgba(255,255,255,0.5);">BOS B2B backcourt defense = slower rotations.</td></tr>
-    <tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:8px;font-size:13px;">BOS TT</td><td style="padding:8px;font-size:13px;">Under</td><td style="padding:8px;font-size:13px;color:#D4A017;font-weight:700;">U 108.5</td><td style="text-align:center;"><span class="grade gb">B</span></td><td style="padding:8px;font-size:12px;color:rgba(255,255,255,0.5);">No Tatum, Brown questionable. Who scores?</td></tr>
-    <tr><td style="padding:8px;font-size:13px;">MPJ</td><td style="padding:8px;font-size:13px;">Pts</td><td style="padding:8px;font-size:13px;color:#D4A017;font-weight:700;">O 17.5</td><td style="text-align:center;"><span class="grade gbm">B-</span></td><td style="padding:8px;font-size:12px;color:rgba(255,255,255,0.5);">BOS can't rotate on B2B. MPJ open looks.</td></tr>
-    </table>
-</div>
-
-<!-- GS @ MEM Props -->
-<div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px 20px;margin-bottom:12px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <div><span class="tag" style="background:rgba(200,50,50,0.2);color:#E25555;">NBA</span> <strong style="font-family:'Playfair Display',serif;">GS @ MEM</strong> <span style="font-size:12px;color:rgba(255,255,255,0.3);">7:30 ET</span></div>
-        <span class="grade gc">C</span>
-    </div>
-    <table style="width:100%;border-collapse:collapse;">
-    <tr><th style="text-align:left;padding:6px 8px;font-size:10px;color:#10B981;text-transform:uppercase;letter-spacing:1px;">Player</th><th style="text-align:left;padding:6px 8px;font-size:10px;color:#10B981;">Prop</th><th style="text-align:left;padding:6px 8px;font-size:10px;color:#10B981;">Line</th><th style="text-align:center;padding:6px 8px;font-size:10px;color:#10B981;">Grade</th><th style="text-align:left;padding:6px 8px;font-size:10px;color:#10B981;">Why</th></tr>
-    <tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:8px;font-size:13px;">Ja</td><td style="padding:8px;font-size:13px;">Pts</td><td style="padding:8px;font-size:13px;color:#D4A017;font-weight:700;">O 24.5</td><td style="text-align:center;"><span class="grade gb">B</span></td><td style="padding:8px;font-size:12px;color:rgba(255,255,255,0.5);">If Ja plays. GS no perimeter D without Curry.</td></tr>
-    <tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:8px;font-size:13px;">Ja</td><td style="padding:8px;font-size:13px;">Ast</td><td style="padding:8px;font-size:13px;color:#D4A017;font-weight:700;">O 7.5</td><td style="text-align:center;"><span class="grade gb">B</span></td><td style="padding:8px;font-size:12px;color:rgba(255,255,255,0.5);">GS depleted = easy lanes to kick out.</td></tr>
-    <tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:8px;font-size:13px;">JJJ</td><td style="padding:8px;font-size:13px;">Reb</td><td style="padding:8px;font-size:13px;color:#D4A017;font-weight:700;">O 6.5</td><td style="text-align:center;"><span class="grade gbm">B-</span></td><td style="padding:8px;font-size:12px;color:rgba(255,255,255,0.5);">GS thin frontcourt. JJJ cleans glass.</td></tr>
-    <tr><td style="padding:8px;font-size:13px;" colspan="5" style="color:rgba(255,255,255,0.3);font-style:italic;font-size:12px;padding:8px;">Line suspicious. Verify before props lock. Game grade C = limited props confidence.</td></tr>
-    </table>
-</div>
-
-<p class="note" style="margin-top:16px;">NHL props locked after goalie confirmations at noon. Chinny reviews all props before lock.</p>
-<div id="propsBottomTimestamp" style="text-align:right;font-size:10px;color:rgba(255,255,255,0.2);margin-top:12px;">Props card generated: Feb 27, 2026 — 2:30 PM ET | Next update: before tip-off</div>
+<div id="propsBottomTimestamp" style="text-align:right;font-size:10px;color:rgba(255,255,255,0.2);margin-top:12px;"></div>
 
 </div>
 
@@ -1729,10 +1036,18 @@ function refreshSlate() {
     fetchLiveOdds('boxing');
 
     // Fetch analysis after a short delay so odds are cached first
+    // Only call analysis for sports that have games on the slate (saves Azure credits)
     setTimeout(function() {
-        fetchAnalysis('nba');
-        fetchAnalysis('nhl');
+        ['nba','nhl','soccer','mma','boxing'].forEach(function(s) {
+            var panel = document.getElementById('panel-' + s);
+            if (panel && panel.querySelectorAll('.game-row').length > 0) {
+                fetchAnalysis(s);
+            }
+        });
     }, 2000);
+
+    // Load props from analysis cache after analysis calls complete
+    setTimeout(function() { loadProps(); }, 6000);
 
     // Fetch combined slate
     setTimeout(function() { fetchCombinedSlate(); }, 3000);
@@ -3134,6 +2449,9 @@ function updatePeterGut(sport, analysisData) {
     }
 }
 
+// ===== ANALYSIS CACHE =====
+var _analysisCache = {};
+
 // ===== ANALYSIS FETCH =====
 function fetchAnalysis(sport) {
     var panel = document.getElementById('panel-' + sport);
@@ -3143,6 +2461,9 @@ function fetchAnalysis(sport) {
         .then(function(r) { return r.json(); })
         .then(function(data) {
             if (data.error) { console.error('Analysis error:', data.error); return; }
+
+            // Cache analysis data for props
+            _analysisCache[sport.toUpperCase()] = data;
 
             // Update Peter's Gut Picks dynamically
             updatePeterGut(sport, data);
@@ -3239,6 +2560,79 @@ function fetchAnalysis(sport) {
     var bottomTs = document.getElementById('propsBottomTimestamp');
     if (bottomTs) bottomTs.textContent = 'Props card generated: ' + ts + ' | Next update: before tip-off';
 })();
+
+// ===== LOAD PROPS FROM ANALYSIS CACHE =====
+function loadProps() {
+    var container = document.getElementById('propsContainer');
+    if (!container) return;
+
+    var allProps = [];
+    var sportColors = {
+        'NBA': 'background:rgba(200,50,50,0.2);color:#E25555;',
+        'NHL': 'background:rgba(50,100,200,0.2);color:#5588EE;',
+        'SOCCER': 'background:rgba(16,185,129,0.2);color:#10B981;',
+        'MMA': 'background:rgba(167,139,250,0.2);color:#A78BFA;',
+        'BOXING': 'background:rgba(245,158,11,0.2);color:#F59E0B;'
+    };
+
+    ['NBA','NHL','SOCCER','MMA','BOXING'].forEach(function(sport) {
+        var cached = _analysisCache[sport];
+        if (!cached || !cached.games) return;
+        cached.games.forEach(function(game) {
+            if (game.chinny_props && game.chinny_props.length) {
+                allProps.push({
+                    sport: sport,
+                    matchup: game.matchup || 'Unknown',
+                    grade: game.grade || '--',
+                    props: game.chinny_props
+                });
+            }
+        });
+    });
+
+    if (allProps.length === 0) {
+        container.innerHTML = '<div class="empty-state">No props loaded yet.<br><strong>Hit REFRESH SLATE</strong> to load analysis data.</div>';
+        return;
+    }
+
+    var html = '';
+    var totalProps = 0;
+    allProps.forEach(function(entry) {
+        var sportStyle = sportColors[entry.sport] || 'background:rgba(255,255,255,0.1);color:#fff;';
+        var gradeClass = 'g' + entry.grade.toLowerCase().replace(/[^a-z]/g,'');
+        html += '<div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px 20px;margin-bottom:12px;">';
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">';
+        html += '<div><span class="tag" style="' + sportStyle + '">' + entry.sport + '</span> ';
+        html += '<strong style="font-family:\'Playfair Display\',serif;">' + entry.matchup + '</strong></div>';
+        html += '<span class="grade ' + gradeClass + '">' + entry.grade + '</span>';
+        html += '</div>';
+        html += '<ul style="list-style:none;padding:0;margin:0;">';
+        entry.props.forEach(function(prop) {
+            totalProps++;
+            html += '<li style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:13px;color:rgba(255,255,255,0.6);">' + prop + '</li>';
+        });
+        html += '</ul></div>';
+    });
+
+    container.innerHTML = html;
+
+    // Update Props tab count
+    var tabs = document.querySelectorAll('.sport-tab');
+    tabs.forEach(function(tab) {
+        if (tab.textContent.indexOf('Props') !== -1) {
+            var count = tab.querySelector('.tab-count');
+            if (count) count.textContent = totalProps;
+        }
+    });
+
+    // Update timestamps
+    var now = new Date();
+    var ts = now.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}) + ' \u2014 ' + now.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit', timeZoneName:'short'});
+    var propsTs = document.getElementById('propsTimestamp');
+    if (propsTs) propsTs.textContent = 'Props loaded: ' + ts;
+    var bottomTs = document.getElementById('propsBottomTimestamp');
+    if (bottomTs) bottomTs.textContent = 'Props generated from analysis: ' + ts + ' | ' + totalProps + ' props across ' + allProps.length + ' games';
+}
 
 // ===== UPSET SPECIALS — CREW PICKS =====
 var UPSET_SPORTS = ['NBA', 'NHL', 'SOCCER', 'MMA', 'BOXING'];
