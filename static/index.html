@@ -184,9 +184,10 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     border-radius:12px;padding:20px;
 }
 .upset-section h3{font-family:'Playfair Display',serif;color:#D4A017;font-size:16px;margin-bottom:12px;}
-.upset-submit-form{display:grid;grid-template-columns:1fr 100px 2fr auto;gap:8px;align-items:center;margin-bottom:16px;}
-.upset-submit-form input{background:#0D0D1A;color:#fff;border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:8px 10px;font-family:'Nunito',sans-serif;font-size:13px;}
-.upset-submit-form input:focus{border-color:#D4A017;outline:none;}
+.upset-submit-form{display:grid;grid-template-columns:minmax(180px,2fr) 80px 2fr auto;gap:8px;align-items:center;margin-bottom:16px;}
+.upset-submit-form input,.upset-submit-form select{background:#0D0D1A;color:#fff;border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:8px 10px;font-family:'Nunito',sans-serif;font-size:13px;}
+.upset-submit-form input:focus,.upset-submit-form select:focus{border-color:#D4A017;outline:none;}
+.upset-submit-form select option{background:#0D0D1A;color:#fff;}
 .upset-submit-form button{background:rgba(212,160,23,0.15);color:#D4A017;border:none;border-radius:6px;padding:8px 16px;font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap;}
 .upset-submit-form button:hover{background:rgba(212,160,23,0.3);}
 .upset-cards{display:flex;flex-direction:column;gap:8px;}
@@ -483,7 +484,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 <div class="upset-section" id="upsetNBA">
     <h3>Daily Upset Specials</h3>
     <form class="upset-submit-form" onsubmit="submitUpset('NBA');return false;">
-        <input type="text" id="upsetTeamNBA" placeholder="Team (e.g. MIL +3)" required>
+        <select id="upsetTeamNBA" required><option value="">-- Load slate first --</option></select>
         <input type="text" id="upsetOddsNBA" placeholder="Odds" required>
         <input type="text" id="upsetThesisNBA" placeholder="Thesis / reasoning">
         <button type="submit">SUBMIT</button>
@@ -516,7 +517,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 <div class="upset-section" id="upsetNHL">
     <h3>Daily Upset Specials</h3>
     <form class="upset-submit-form" onsubmit="submitUpset('NHL');return false;">
-        <input type="text" id="upsetTeamNHL" placeholder="Team (e.g. VAN ML)" required>
+        <select id="upsetTeamNHL" required><option value="">-- Load slate first --</option></select>
         <input type="text" id="upsetOddsNHL" placeholder="Odds" required>
         <input type="text" id="upsetThesisNHL" placeholder="Thesis / reasoning">
         <button type="submit">SUBMIT</button>
@@ -546,7 +547,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 <div class="upset-section" id="upsetSOCCER">
     <h3>Daily Upset Specials</h3>
     <form class="upset-submit-form" onsubmit="submitUpset('SOCCER');return false;">
-        <input type="text" id="upsetTeamSOCCER" placeholder="Team (e.g. Brighton ML)" required>
+        <select id="upsetTeamSOCCER" required><option value="">-- Load slate first --</option></select>
         <input type="text" id="upsetOddsSOCCER" placeholder="Odds" required>
         <input type="text" id="upsetThesisSOCCER" placeholder="Thesis / reasoning">
         <button type="submit">SUBMIT</button>
@@ -576,7 +577,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 <div class="upset-section" id="upsetMMA">
     <h3>Daily Upset Specials</h3>
     <form class="upset-submit-form" onsubmit="submitUpset('MMA');return false;">
-        <input type="text" id="upsetTeamMMA" placeholder="Fighter (e.g. Underdog ML)" required>
+        <select id="upsetTeamMMA" required><option value="">-- Load slate first --</option></select>
         <input type="text" id="upsetOddsMMA" placeholder="Odds" required>
         <input type="text" id="upsetThesisMMA" placeholder="Thesis / reasoning">
         <button type="submit">SUBMIT</button>
@@ -606,7 +607,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 <div class="upset-section" id="upsetBOXING">
     <h3>Daily Upset Specials</h3>
     <form class="upset-submit-form" onsubmit="submitUpset('BOXING');return false;">
-        <input type="text" id="upsetTeamBOXING" placeholder="Fighter (e.g. Underdog ML)" required>
+        <select id="upsetTeamBOXING" required><option value="">-- Load slate first --</option></select>
         <input type="text" id="upsetOddsBOXING" placeholder="Odds" required>
         <input type="text" id="upsetThesisBOXING" placeholder="Thesis / reasoning">
         <button type="submit">SUBMIT</button>
@@ -2202,6 +2203,7 @@ function fetchLiveOdds(sport) {
             // Re-populate form dropdowns
             populateGameDropdown();
             populatePickDropdown();
+            populateUpsetDropdowns(sport);
 
             // Update sweep time with server timestamp
             var sweepEl = document.getElementById('sweepTime');
@@ -2643,18 +2645,21 @@ function getUpsetName() {
 }
 
 function submitUpset(sport) {
-    var team = document.getElementById('upsetTeam' + sport);
+    var teamEl = document.getElementById('upsetTeam' + sport);
     var odds = document.getElementById('upsetOdds' + sport);
     var thesis = document.getElementById('upsetThesis' + sport);
-    if (!team || !odds) return;
+    if (!teamEl || !odds) return;
+    // Strip trailing odds from dropdown value, e.g. "HOU -14.5 (-110)" → "HOU -14.5"
+    var teamVal = teamEl.value.trim().replace(/\s*\([+-]?\d+\)\s*$/, '');
+    if (!teamVal) { showToast('Pick a side first', 'error'); return; }
     var name = getUpsetName();
     fetch('/api/upsets', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({name: name, sport: sport, team: team.value.trim(), odds: odds.value.trim(), thesis: thesis ? thesis.value.trim() : ''})
+        body: JSON.stringify({name: name, sport: sport, team: teamVal, odds: odds.value.trim(), thesis: thesis ? thesis.value.trim() : ''})
     }).then(function(r) { return r.json(); }).then(function(data) {
         if (data.status === 'ok') {
-            team.value = ''; odds.value = ''; if (thesis) thesis.value = '';
+            teamEl.value = ''; odds.value = ''; if (thesis) thesis.value = '';
             loadUpsets(sport);
             loadCombinedUpsets();
             showToast(sport + ' upset submitted!');
@@ -2662,6 +2667,47 @@ function submitUpset(sport) {
             showToast(data.error || 'Failed to submit', 'error');
         }
     }).catch(function() { showToast('Server error — try again', 'error'); });
+}
+
+function populateUpsetDropdowns(sport) {
+    var sportUpper = sport.toUpperCase();
+    var select = document.getElementById('upsetTeam' + sportUpper);
+    if (!select) return;
+    var panel = document.getElementById('panel-' + sport);
+    if (!panel) return;
+
+    var prev = select.value;
+    select.innerHTML = '<option value="">-- Pick a side --</option>';
+
+    var rows = panel.querySelectorAll('.game-row[data-game]');
+    var rowArr = Array.prototype.slice.call(rows);
+    rowArr.forEach(function(row, idx) {
+        var matchup = row.getAttribute('data-game');
+        // Add game header as disabled option
+        var hdr = document.createElement('option');
+        hdr.disabled = true;
+        hdr.textContent = '── ' + matchup + ' ──';
+        hdr.style.color = '#D4A017';
+        select.appendChild(hdr);
+        // Read side-btn elements for full pick strings with lines
+        var btns = row.querySelectorAll('.side-btn');
+        btns.forEach(function(btn) {
+            select.appendChild(new Option(btn.textContent, btn.textContent));
+        });
+    });
+
+    // Auto-fill odds when a side is selected
+    select.onchange = function() {
+        var val = select.value;
+        if (!val) return;
+        var oddsField = document.getElementById('upsetOdds' + sportUpper);
+        if (!oddsField) return;
+        // Extract odds from parens, e.g. "HOU -14.5 (-110)" → "-110"
+        var m = val.match(/\(([+-]?\d+)\)\s*$/);
+        if (m) oddsField.value = m[1];
+    };
+
+    if (prev) select.value = prev;
 }
 
 function deleteUpset(pickId, sport) {
