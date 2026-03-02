@@ -2905,27 +2905,11 @@ refreshSlate = function() {
     }, 2000);
 };
 
-// Fetch on demand only — click a sport tab or hit Refresh Slate
-// No auto-fetch on load to save API credits and load time
-var fetchedSports = {};
-var fetchedAnalysis = {};
+// Tab switching is view-only — no auto-fetch.
+// All data loading goes through REFRESH SLATE.
 var _originalSwitchSport = switchSport;
 switchSport = function(sport, e) {
     _originalSwitchSport(sport, e);
-    // Auto-fetch when switching to a sport tab for the first time
-    if (['nba','nhl','soccer','mma','boxing'].indexOf(sport) !== -1) {
-        if (!fetchedSports[sport]) {
-            fetchLiveOdds(sport);
-            fetchedSports[sport] = true;
-        }
-        // Fetch analysis after odds (slight delay)
-        if (!fetchedAnalysis[sport]) {
-            setTimeout(function() {
-                fetchAnalysis(sport);
-                fetchedAnalysis[sport] = true;
-            }, 1500);
-        }
-    }
 };
 
 // Remember last name selection
