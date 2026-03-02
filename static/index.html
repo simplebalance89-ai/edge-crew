@@ -348,7 +348,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
         <span class="crew-badge crew-sintonia">Sinton.ia</span>
     </div>
     <div class="sweep-time" id="sweepTime">Last sweep: --<br>Waiting for refresh</div>
-    <div onclick="clearAllCache()" style="cursor:pointer;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;background:rgba(239,68,68,0.15);color:#EF4444;border:1px solid rgba(239,68,68,0.3);letter-spacing:0.5px;">CLEAR CACHE</div>
+    <button onclick="clearAllCache()" style="cursor:pointer;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;background:rgba(239,68,68,0.15);color:#EF4444;border:1px solid rgba(239,68,68,0.3);letter-spacing:0.5px;font-family:'Nunito',sans-serif;">CLEAR CACHE</button>
 </div>
 
 <!-- SPORT TABS -->
@@ -375,8 +375,8 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     <div style="display:flex;justify-content:space-between;align-items:center;">
         <h3 id="gotchaNBATitle">Gotcha Card &mdash; NBA Feb 25</h3>
         <div style="display:flex;gap:6px;">
-            <div style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(212,160,23,0.15);color:#D4A017;font-size:11px;font-weight:700;" onclick="toggleGotchaEdit()">EDIT</div>
-            <div style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(16,185,129,0.15);color:#10B981;font-size:11px;font-weight:700;" onclick="saveGotcha()">SAVE</div>
+            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(212,160,23,0.15);color:#D4A017;font-size:11px;font-weight:700;border:none;" onclick="toggleGotchaEdit()">EDIT</button>
+            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(16,185,129,0.15);color:#10B981;font-size:11px;font-weight:700;border:none;" onclick="saveGotcha()">SAVE</button>
         </div>
     </div>
     <div id="gotchaDisplay">
@@ -706,8 +706,8 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     <div style="display:flex;justify-content:space-between;align-items:center;">
         <h3>Upset Specials (Peter's Territory)</h3>
         <div style="display:flex;gap:6px;">
-            <div style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(212,160,23,0.15);color:#D4A017;font-size:11px;font-weight:700;" onclick="toggleUpsetEdit('NBA')">EDIT</div>
-            <div style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(16,185,129,0.15);color:#10B981;font-size:11px;font-weight:700;" onclick="saveUpset('NBA')">SAVE</div>
+            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(212,160,23,0.15);color:#D4A017;font-size:11px;font-weight:700;border:none;" onclick="toggleUpsetEdit('NBA')">EDIT</button>
+            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(16,185,129,0.15);color:#10B981;font-size:11px;font-weight:700;border:none;" onclick="saveUpset('NBA')">SAVE</button>
         </div>
     </div>
     <div id="upsetNBADisplay"></div>
@@ -1042,8 +1042,8 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     <div style="display:flex;justify-content:space-between;align-items:center;">
         <h3>Upset Specials (Peter + Chinny)</h3>
         <div style="display:flex;gap:6px;">
-            <div style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(212,160,23,0.15);color:#D4A017;font-size:11px;font-weight:700;" onclick="toggleUpsetEdit('NHL')">EDIT</div>
-            <div style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(16,185,129,0.15);color:#10B981;font-size:11px;font-weight:700;" onclick="saveUpset('NHL')">SAVE</div>
+            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(212,160,23,0.15);color:#D4A017;font-size:11px;font-weight:700;border:none;" onclick="toggleUpsetEdit('NHL')">EDIT</button>
+            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(16,185,129,0.15);color:#10B981;font-size:11px;font-weight:700;border:none;" onclick="saveUpset('NHL')">SAVE</button>
         </div>
     </div>
     <div id="upsetNHLDisplay"></div>
@@ -1062,6 +1062,15 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
         5. Olympic break rust applies across the board &mdash; favor home ice.<br>
         6. UNDER lean for first night back &mdash; lower pace, both teams rusty.
     </p>
+</div>
+
+<!-- NHL PETER GUT PICKS (DYNAMIC) -->
+<div class="input-section" id="peterGutNHL">
+    <h3 id="peterGutNHLTitle">Peter's Gut Picks &mdash; NHL</h3>
+    <div id="peterGutNHLContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
+        <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate or click NHL tab to load live gut picks from analysis...</p>
+    </div>
+    <div id="peterGutNHLTimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
 </div>
 
 </div>
@@ -1203,7 +1212,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 </div>
 
 <p class="note" style="margin-top:16px;">NHL props locked after goalie confirmations at noon. Chinny reviews all props before lock.</p>
-<div style="text-align:right;font-size:10px;color:rgba(255,255,255,0.2);margin-top:12px;">Props card generated: Feb 27, 2026 — 2:30 PM ET | Next update: before tip-off</div>
+<div id="propsBottomTimestamp" style="text-align:right;font-size:10px;color:rgba(255,255,255,0.2);margin-top:12px;">Props card generated: Feb 27, 2026 — 2:30 PM ET | Next update: before tip-off</div>
 
 </div>
 
@@ -1505,6 +1514,16 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 </div>
 
 <script>
+// Safe localStorage wrapper
+function safeSave(key, value) {
+    try { localStorage.setItem(key, value); }
+    catch(e) { console.warn('localStorage write failed for "' + key + '":', e); }
+}
+function safeLoad(key) {
+    try { return localStorage.getItem(key); }
+    catch(e) { console.warn('localStorage read failed for "' + key + '":', e); return null; }
+}
+
 // State tracking
 var picks = {}; // { gameName: { checked: bool, side: string } }
 
@@ -1560,7 +1579,7 @@ function togglePick(event, el, gameName) {
         row.classList.remove('checked');
         if (picks[gameName]) picks[gameName].checked = false;
     }
-    localStorage.setItem('edgeLockedPicks', JSON.stringify(picks));
+    safeSave('edgeLockedPicks', JSON.stringify(picks));
     updateSubmitBar();
 }
 
@@ -1576,7 +1595,7 @@ function pickSide(event, el, side) {
     if (wasAlreadyPicked) {
         // Toggled off — don't open slip
         if (picks[gameName]) picks[gameName].side = '';
-        localStorage.setItem('edgeLockedPicks', JSON.stringify(picks));
+        safeSave('edgeLockedPicks', JSON.stringify(picks));
         return;
     }
     el.classList.add('picked');
@@ -1590,7 +1609,7 @@ function pickSide(event, el, side) {
         picks[gameName].checked = true;
         updateSubmitBar();
     }
-    localStorage.setItem('edgeLockedPicks', JSON.stringify(picks));
+    safeSave('edgeLockedPicks', JSON.stringify(picks));
     // Detect sport from panel
     var panel = row.closest('.sport-panel');
     var sport = '';
@@ -1647,7 +1666,7 @@ function openBetSlip(matchup, side, sport) {
     document.getElementById('slipOdds').value = defaultOdds;
 
     // Restore "who" from localStorage
-    var savedWho = localStorage.getItem('edgeSlipWho') || '';
+    var savedWho = safeLoad('edgeSlipWho') || '';
     slipState.who = savedWho;
     var whoBtns = document.querySelectorAll('#slipWhoGroup .slip-btn');
     whoBtns.forEach(function(b) {
@@ -1702,7 +1721,7 @@ function selectSlipOption(group, value, el) {
     el.classList.add('active');
     if (group === 'who') {
         slipState.who = value;
-        localStorage.setItem('edgeSlipWho', value);
+        safeSave('edgeSlipWho', value);
     } else if (group === 'units') {
         slipState.units = value;
     } else if (group === 'conf') {
@@ -1755,9 +1774,9 @@ function submitBetSlip() {
     };
 
     // Save to localStorage for bankroll tracker compatibility
-    var stored = JSON.parse(localStorage.getItem('edgePicks') || '[]');
+    var stored = JSON.parse(safeLoad('edgePicks') || '[]');
     stored.unshift(pick);
-    localStorage.setItem('edgePicks', JSON.stringify(stored));
+    safeSave('edgePicks', JSON.stringify(stored));
 
     // POST to server
     fetch('/api/picks', {
@@ -2071,9 +2090,9 @@ function submitPick() {
     };
 
     // Save to localStorage
-    var stored = JSON.parse(localStorage.getItem('edgePicks') || '[]');
+    var stored = JSON.parse(safeLoad('edgePicks') || '[]');
     stored.unshift(pick);
-    localStorage.setItem('edgePicks', JSON.stringify(stored));
+    safeSave('edgePicks', JSON.stringify(stored));
 
     // Build email body
     var body = 'Name: ' + pick.name + '%0A' +
@@ -2117,8 +2136,8 @@ function submitPick() {
 function saveBankrollSettings() {
     var start = document.getElementById('bankrollStart').value || 1000;
     var unit = document.getElementById('unitSize').value || 25;
-    localStorage.setItem('edgeBankrollStart', start);
-    localStorage.setItem('edgeUnitSize', unit);
+    safeSave('edgeBankrollStart', start);
+    safeSave('edgeUnitSize', unit);
     renderBankroll();
     var toast = document.getElementById('toast');
     toast.textContent = 'Bankroll set: $' + start + ' / $' + unit + ' per unit';
@@ -2127,10 +2146,10 @@ function saveBankrollSettings() {
 }
 
 function gradePick(index, result) {
-    var stored = JSON.parse(localStorage.getItem('edgePicks') || '[]');
+    var stored = JSON.parse(safeLoad('edgePicks') || '[]');
     if (stored[index]) {
         stored[index].result = result;
-        localStorage.setItem('edgePicks', JSON.stringify(stored));
+        safeSave('edgePicks', JSON.stringify(stored));
         renderBankroll();
     }
 }
@@ -2144,9 +2163,9 @@ function calcPayout(odds, units) {
 }
 
 function renderBankroll() {
-    var stored = JSON.parse(localStorage.getItem('edgePicks') || '[]');
-    var startBR = parseFloat(localStorage.getItem('edgeBankrollStart') || '1000');
-    var unitSize = parseFloat(localStorage.getItem('edgeUnitSize') || '25');
+    var stored = JSON.parse(safeLoad('edgePicks') || '[]');
+    var startBR = parseFloat(safeLoad('edgeBankrollStart') || '1000');
+    var unitSize = parseFloat(safeLoad('edgeUnitSize') || '25');
 
     document.getElementById('bankrollStart').value = startBR;
     document.getElementById('unitSize').value = unitSize;
@@ -2233,6 +2252,15 @@ function renderBankroll() {
     if (stored.length === 0) {
         container.innerHTML = '<div style="color:rgba(255,255,255,0.3);text-align:center;padding:20px;">No picks yet. Submit picks and grade them here.</div>';
     }
+
+    // Update RESULTS tab count
+    var resultsTabs = document.querySelectorAll('.sport-tab');
+    resultsTabs.forEach(function(tab) {
+        if (tab.textContent.indexOf('RESULTS') !== -1) {
+            var count = tab.querySelector('.tab-count');
+            if (count) count.textContent = stored.length;
+        }
+    });
 }
 
 // Load bankroll on page load
@@ -2272,7 +2300,7 @@ function saveGotcha() {
     display.innerHTML = html;
 
     // Save to localStorage
-    localStorage.setItem('edgeGotchaNBA', text);
+    safeSave('edgeGotchaNBA', text);
 
     editor.style.display = 'none';
     display.style.display = 'block';
@@ -2285,7 +2313,7 @@ function saveGotcha() {
 
 // Load saved gotcha on page load
 (function() {
-    var saved = localStorage.getItem('edgeGotchaNBA');
+    var saved = safeLoad('edgeGotchaNBA');
     if (saved) {
         var display = document.getElementById('gotchaDisplay');
         var lines = saved.split('\n').filter(function(l) { return l.trim(); });
@@ -2448,9 +2476,9 @@ function submitParlay() {
     };
 
     // Save to localStorage
-    var stored = JSON.parse(localStorage.getItem('edgePicks') || '[]');
+    var stored = JSON.parse(safeLoad('edgePicks') || '[]');
     stored.unshift(pick);
-    localStorage.setItem('edgePicks', JSON.stringify(stored));
+    safeSave('edgePicks', JSON.stringify(stored));
 
     // Email
     var body = 'Name: ' + pick.name + '%0A' +
@@ -2485,7 +2513,7 @@ function submitParlay() {
 }
 
 function renderPicks() {
-    var stored = JSON.parse(localStorage.getItem('edgePicks') || '[]');
+    var stored = JSON.parse(safeLoad('edgePicks') || '[]');
     var today = new Date().toLocaleDateString();
     var todayPicks = stored.filter(function(p) { return p.date === today; });
     var list = document.getElementById('pickList');
@@ -2741,158 +2769,12 @@ function fetchLiveOdds(sport) {
             toast.textContent = sport.toUpperCase() + ' slate loaded — ' + data.games.length + ' games (' + completeN + ' complete, ' + incN + ' incomplete)';
             toast.classList.add('show');
             setTimeout(function() { toast.classList.remove('show'); }, 3000);
+
+            // Re-apply saved picks after DOM rebuild
+            if (typeof restoreLockedPicks === 'function') restoreLockedPicks();
         })
         .catch(function(err) {
             console.error('Fetch error:', err);
-        });
-}
-
-// ===== ANALYSIS FETCH =====
-function fetchAnalysis(sport) {
-    var panel = document.getElementById('panel-' + sport);
-    if (!panel) return;
-
-    fetch('/api/analysis/' + sport)
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-            if (data.error) {
-                console.error('Analysis error:', data.error);
-                return;
-            }
-
-            // Update gotcha banner
-            var gotcha = panel.querySelector('.gotcha-banner');
-            if (gotcha && data.gotcha) {
-                var title = gotcha.querySelector('h3');
-                var titleText = title ? title.textContent : '';
-                var editBtn = gotcha.querySelector('[onclick*="toggleGotchaEdit"]');
-                var saveBtn = gotcha.querySelector('[onclick*="saveGotcha"]');
-                var editor = gotcha.querySelector('#gotchaEditor');
-
-                // Rebuild gotcha content
-                var display = gotcha.querySelector('#gotchaDisplay') || gotcha;
-                if (gotcha.querySelector('#gotchaDisplay')) {
-                    display.innerHTML = data.gotcha;
-                } else {
-                    // For non-NBA panels, replace the inner content after h3
-                    var h3 = gotcha.querySelector('h3');
-                    var existingUl = gotcha.querySelector('ul');
-                    var existingP = gotcha.querySelector('p');
-                    if (existingUl) existingUl.outerHTML = data.gotcha;
-                    else if (existingP) existingP.outerHTML = data.gotcha;
-                }
-
-                // Update timestamp
-                if (title && data.generated_at) {
-                    var sportName = sport.toUpperCase();
-                    var today = new Date().toLocaleDateString('en-US', {month:'short', day:'numeric'});
-                    title.textContent = 'Gotcha Card — ' + sportName + ' ' + today + ' (updated ' + data.generated_at + ')';
-                }
-            }
-
-            // Update game-level analysis
-            if (data.games && data.games.length) {
-                data.games.forEach(function(game) {
-                    // Find matching game row by matchup text
-                    var rows = panel.querySelectorAll('.game-row');
-                    rows.forEach(function(row) {
-                        var matchup = row.getAttribute('data-game') || '';
-                        var gameMatchup = game.matchup || '';
-                        // Normalize for comparison
-                        if (matchup.replace(/\s/g,'').toUpperCase() === gameMatchup.replace(/\s/g,'').toUpperCase()) {
-                            // Update grade — respect INCOMPLETE
-                            var gradeEl = row.querySelector('.game-grade .grade');
-                            if (gradeEl && game.grade) {
-                                var isIncomplete = game.grade === 'INCOMPLETE' || game.data_status === 'INCOMPLETE' || (game.data_status && game.data_status.indexOf('MISSING') !== -1);
-                                var gradeClass;
-                                if (isIncomplete) {
-                                    gradeClass = 'grade gc';
-                                    gradeEl.textContent = 'INC';
-                                    row.style.borderLeftColor = 'rgba(251,191,36,0.5)';
-                                } else {
-                                    gradeClass = 'grade g' + game.grade.toLowerCase().replace(/[^a-z]/g,'');
-                                    gradeEl.textContent = game.grade;
-                                }
-                                gradeEl.className = gradeClass;
-                            }
-
-                            // Update edge summary
-                            var edgeEl = row.querySelector('.game-edge');
-                            if (edgeEl && game.edge_summary) {
-                                var tags = '';
-                                if (game.tags) {
-                                    game.tags.forEach(function(t) {
-                                        var tagClass = 'tag';
-                                        if (t === 'B2B') tagClass += ' tag-b2b';
-                                        else if (t === 'PASS' || t === 'TRAP') tagClass += ' tag-trap';
-                                        else if (t === 'UPSET' || t === 'SHARP') tagClass += ' tag-upset';
-                                        else if (t === 'BEST BET') tagClass += ' tag-home';
-                                        tags += '<span class="' + tagClass + '">' + t + '</span> ';
-                                    });
-                                }
-                                edgeEl.innerHTML = tags + game.edge_summary;
-                            }
-
-                            // Update detail boxes
-                            var detail = row.querySelector('.detail-grid');
-                            if (detail) {
-                                // Peter's Zone
-                                var peterBox = detail.querySelector('.detail-box.peter');
-                                if (peterBox && game.peter_zone) {
-                                    peterBox.innerHTML = '<h4>Peter\'s Zone</h4><p>' + game.peter_zone + '</p>';
-                                }
-
-                                // Trends
-                                var trendsBox = detail.querySelector('.detail-box.trends');
-                                if (trendsBox && game.trends && game.trends.length) {
-                                    var trendsHtml = '<h4>Trends</h4><ul>';
-                                    game.trends.forEach(function(t) { trendsHtml += '<li>' + t + '</li>'; });
-                                    trendsHtml += '</ul>';
-                                    trendsBox.innerHTML = trendsHtml;
-                                }
-
-                                // Flags
-                                var flagsBox = detail.querySelector('.detail-box.flags');
-                                if (flagsBox && game.flags && game.flags.length) {
-                                    var flagsHtml = '<h4>Flags</h4><ul>';
-                                    game.flags.forEach(function(f) { flagsHtml += '<li>' + f + '</li>'; });
-                                    flagsHtml += '</ul>';
-                                    flagsBox.innerHTML = flagsHtml;
-                                }
-
-                                // Chinny's Props
-                                var chinnyBox = detail.querySelector('.detail-box.chinny');
-                                if (chinnyBox && game.chinny_props && game.chinny_props.length) {
-                                    var chinnyHtml = '<h4>Chinny\'s Props Zone</h4><ul>';
-                                    game.chinny_props.forEach(function(p) { chinnyHtml += '<li>' + p + '</li>'; });
-                                    chinnyHtml += '</ul>';
-                                    chinnyBox.innerHTML = chinnyHtml;
-                                } else if (!chinnyBox && game.chinny_props && game.chinny_props.length) {
-                                    // Add Chinny box if it doesn't exist
-                                    var newChinny = document.createElement('div');
-                                    newChinny.className = 'detail-box chinny';
-                                    var chinnyHtml2 = '<h4>Chinny\'s Props Zone</h4><ul>';
-                                    game.chinny_props.forEach(function(p) { chinnyHtml2 += '<li>' + p + '</li>'; });
-                                    chinnyHtml2 += '</ul>';
-                                    newChinny.innerHTML = chinnyHtml2;
-                                    detail.appendChild(newChinny);
-                                }
-                            }
-                        }
-                    });
-                });
-            }
-
-            // Toast
-            var toast = document.getElementById('toast');
-            var completeGames = data.games_complete || 0;
-            var incompleteGames = data.games_incomplete || 0;
-            toast.textContent = sport.toUpperCase() + ' analysis updated — ' + (data.generated_at || 'just now') + ' (' + completeGames + ' graded, ' + incompleteGames + ' incomplete)';
-            toast.classList.add('show');
-            setTimeout(function() { toast.classList.remove('show'); }, 3000);
-        })
-        .catch(function(err) {
-            console.error('Analysis fetch error:', err);
         });
 }
 
@@ -2936,10 +2818,10 @@ switchSport = function(sport) {
 };
 
 // Remember last name selection
-var lastName = localStorage.getItem('edgeCrewName');
+var lastName = safeLoad('edgeCrewName');
 if (lastName) document.getElementById('pickName').value = lastName;
 document.getElementById('pickName').addEventListener('change', function() {
-    localStorage.setItem('edgeCrewName', this.value);
+    safeSave('edgeCrewName', this.value);
 });
 
 // ===== DYNAMIC DATE IN TOPBAR =====
@@ -3108,9 +2990,8 @@ function updatePeterGut(sport, analysisData) {
     if (gutTimestamp) gutTimestamp.textContent = 'Generated: ' + (analysisData.generated_at || 'just now') + ' | Source: ' + (analysisData.source || 'Azure OpenAI');
 }
 
-// ===== HOOK INTO EXISTING ANALYSIS FETCH =====
-var _origFetchAnalysis = fetchAnalysis;
-fetchAnalysis = function(sport) {
+// ===== ANALYSIS FETCH =====
+function fetchAnalysis(sport) {
     var panel = document.getElementById('panel-' + sport);
     if (!panel) return;
 
@@ -3198,7 +3079,7 @@ fetchAnalysis = function(sport) {
             setTimeout(function() { toast.classList.remove('show'); }, 3000);
         })
         .catch(function(err) { console.error('Analysis fetch error:', err); });
-};
+}
 
 // ===== HOOK COMBINED INTO switchSport =====
 var _origSwitchSport2 = switchSport;
@@ -3232,13 +3113,8 @@ refreshSlate = function() {
     var ts = now.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}) + ' \u2014 ' + now.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit', timeZoneName:'short'});
     var propsTs = document.getElementById('propsTimestamp');
     if (propsTs) propsTs.textContent = 'Last updated: ' + ts;
-    var bottomEls = document.querySelectorAll('#panel-props > div');
-    for (var i = 0; i < bottomEls.length; i++) {
-        if (bottomEls[i].textContent.indexOf('Props card generated') !== -1) {
-            bottomEls[i].textContent = 'Props card generated: ' + ts + ' | Next update: before tip-off';
-            break;
-        }
-    }
+    var bottomTs = document.getElementById('propsBottomTimestamp');
+    if (bottomTs) bottomTs.textContent = 'Props card generated: ' + ts + ' | Next update: before tip-off';
 })();
 
 // ===== FIX 3: UPSET SPECIALS EDIT/SAVE/LOAD =====
@@ -3271,7 +3147,7 @@ function saveUpset(sport) {
     var display = document.getElementById('upset' + sport + 'Display');
     if (!editor || !display) return;
     var text = editor.value.trim();
-    localStorage.setItem('edgeUpset' + sport, text);
+    safeSave('edgeUpset' + sport, text);
     renderUpset(sport, text);
     editor.style.display = 'none';
     display.style.display = 'block';
@@ -3307,11 +3183,13 @@ function renderUpset(sport, text) {
         var dog = (parts[0] || '').trim();
         var ml = (parts[1] || '').trim();
         var thesis = (parts[2] || '').trim();
+        var grade = (parts[3] || '').trim() || 'B';
+        var gradeClass = 'g' + grade.toLowerCase().replace(/[^a-z]/g,'');
         html += '<div class="upset-row">' +
             '<div class="upset-dog">' + dog + '</div>' +
             '<div class="upset-ml">' + ml + '</div>' +
             '<div class="upset-thesis">' + thesis + '</div>' +
-            '<div class="game-grade"><span class="grade gb">B</span></div>' +
+            '<div class="game-grade"><span class="grade ' + gradeClass + '">' + grade + '</span></div>' +
             '</div>';
     });
     display.innerHTML = html;
@@ -3323,21 +3201,21 @@ function renderUpset(sport, text) {
         ['NBA', 'NHL'].forEach(function(sport) {
             if (data[sport]) {
                 renderUpset(sport, data[sport]);
-                localStorage.setItem('edgeUpset' + sport, data[sport]);
+                safeSave('edgeUpset' + sport, data[sport]);
             }
         });
     }).catch(function() {
         // Server unavailable — fall back to localStorage
-        var nbaSaved = localStorage.getItem('edgeUpsetNBA');
+        var nbaSaved = safeLoad('edgeUpsetNBA');
         if (nbaSaved) renderUpset('NBA', nbaSaved);
-        var nhlSaved = localStorage.getItem('edgeUpsetNHL');
+        var nhlSaved = safeLoad('edgeUpsetNHL');
         if (nhlSaved) renderUpset('NHL', nhlSaved);
     });
 })();
 
-// ===== FIX 8: RESTORE LOCKED PICKS FROM LOCALSTORAGE =====
-(function() {
-    var saved = localStorage.getItem('edgeLockedPicks');
+// ===== RESTORE LOCKED PICKS FROM LOCALSTORAGE =====
+function restoreLockedPicks() {
+    var saved = safeLoad('edgeLockedPicks');
     if (saved) {
         try {
             picks = JSON.parse(saved);
@@ -3360,7 +3238,8 @@ function renderUpset(sport, text) {
             updateSubmitBar();
         } catch(e) { console.error('Failed to restore picks:', e); }
     }
-})();
+}
+restoreLockedPicks();
 
 // ===== FIX 9: STALE GUT PICKS WARNING =====
 var _origUpdatePeterGut = updatePeterGut;
@@ -3369,8 +3248,11 @@ updatePeterGut = function(sport, analysisData) {
     var gutTimestamp = document.getElementById('peterGut' + sport.toUpperCase() + 'Timestamp');
     if (gutTimestamp) {
         var genDate = analysisData.generated_at || '';
-        var todayStr = new Date().toLocaleDateString('en-US', {month:'short', day:'numeric'});
-        var isStale = genDate && genDate.indexOf(todayStr) === -1;
+        var _now = new Date();
+        var _months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        var todayStr = _months[_now.getMonth()] + ' ' + String(_now.getDate()).padStart(2,'0');
+        var todayStrAlt = _months[_now.getMonth()] + ' ' + _now.getDate();
+        var isStale = genDate && genDate.indexOf(todayStr) === -1 && genDate.indexOf(todayStrAlt) === -1;
         if (isStale) {
             gutTimestamp.innerHTML += ' <span style="color:#EF4444;font-weight:700;"> \u2014 STALE DATA (not today). Refresh slate for current picks.</span>';
         }
