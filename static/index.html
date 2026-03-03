@@ -2697,10 +2697,14 @@ function populateUpsetDropdowns(sport) {
         hdr.textContent = '── ' + matchup + ' ──';
         hdr.style.color = '#D4A017';
         select.appendChild(hdr);
-        // Read side-btn elements for full pick strings with lines
+        // Only show + odds lines (underdogs = upset specials)
         var btns = row.querySelectorAll('.side-btn');
         btns.forEach(function(btn) {
-            select.appendChild(new Option(btn.textContent, btn.textContent));
+            var txt = btn.textContent;
+            var m = txt.match(/\(([+-]?\d+)\)\s*$/);
+            if (m && parseInt(m[1], 10) > 0) {
+                select.appendChild(new Option(txt, txt));
+            }
         });
     });
 
