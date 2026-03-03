@@ -742,7 +742,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 <div class="sport-panel" id="panel-submit">
 <div class="pick-form">
     <h2>Submit Your Pick</h2>
-    <div class="form-sub">Drop your pick. It saves locally and emails the crew.</div>
+    <div class="form-sub">Drop your pick. It saves locally and syncs to the crew board.</div>
 
     <div class="form-group">
         <label>Your Name</label>
@@ -2109,7 +2109,7 @@ function buildGameRowHTML(g) {
 
     var bookTag = '<span class="tag" style="background:rgba(212,160,23,0.15);color:#D4A017;">' + bookSource.toUpperCase() + '</span> ';
 
-    return '<div class="game-row" data-game="' + matchup + '" data-book="' + bookSource + '" data-fetched="' + fetchedAt + '" data-complete="' + (isComplete ? 'true' : 'false') + '" style="' + todayStyle + '" onclick="this.classList.toggle(\'expanded\')">' +
+    return '<div class="game-row" data-game="' + matchup + '" data-away="' + g.away + '" data-home="' + g.home + '" data-book="' + bookSource + '" data-fetched="' + fetchedAt + '" data-complete="' + (isComplete ? 'true' : 'false') + '" style="' + todayStyle + '" onclick="this.classList.toggle(\'expanded\')">' +
         '<div class="game-header">' +
             '<div class="pick-check" onclick="togglePick(event, this, \'' + matchup + '\')"></div>' +
             '<div class="game-time">' + dateStr + '<br>' + time + '</div>' +
@@ -2192,11 +2192,16 @@ function fetchLiveOdds(sport) {
                 html += buildGameRowHTML(g);
             });
 
-            // Insert after gotcha banner or at top
+            // Insert after gotcha banner, before upset/gut sections
             var temp = document.createElement('div');
             temp.innerHTML = html;
+            var insertBefore = panel.querySelector('.upset-section') || panel.querySelector('.gut-section');
             while (temp.firstChild) {
-                panel.appendChild(temp.firstChild);
+                if (insertBefore) {
+                    panel.insertBefore(temp.firstChild, insertBefore);
+                } else {
+                    panel.appendChild(temp.firstChild);
+                }
             }
 
             // Update tab count
@@ -2319,13 +2324,32 @@ function renderCombinedTable(data) {
         'BOXING': 'background:rgba(245,158,11,0.2);color:#F59E0B;'
     };
 
+    // Helper: find analysis data for a game from _analysisCache
+    function findAnalysis(sport, away, home) {
+        var cached = _analysisCache[sport];
+        if (!cached || !cached.games) return null;
+        var awayUp = (away || '').replace(/\s/g,'').toUpperCase();
+        var homeUp = (home || '').replace(/\s/g,'').toUpperCase();
+        for (var i = 0; i < cached.games.length; i++) {
+            var gm = cached.games[i];
+            var m = (gm.matchup || '').replace(/\s/g,'').toUpperCase();
+            if (m === awayUp + '@' + homeUp) return gm;
+            // Also try abbreviated
+            var abbrM = abbr(away).toUpperCase() + '@' + abbr(home).toUpperCase();
+            if (m === abbrM) return gm;
+        }
+        return null;
+    }
+
     var html = '<table style="width:100%;border-collapse:collapse;">';
     html += '<tr><th style="background:rgba(255,255,255,0.06);text-align:left;padding:10px 12px;font-size:11px;color:#D4A017;text-transform:uppercase;letter-spacing:1px;">Time</th>';
     html += '<th style="background:rgba(255,255,255,0.06);text-align:left;padding:10px;font-size:11px;color:#D4A017;text-transform:uppercase;">Sport</th>';
     html += '<th style="background:rgba(255,255,255,0.06);text-align:left;padding:10px;font-size:11px;color:#D4A017;text-transform:uppercase;">Game</th>';
+    html += '<th style="background:rgba(255,255,255,0.06);text-align:center;padding:10px;font-size:11px;color:#D4A017;text-transform:uppercase;">Grade</th>';
     html += '<th style="background:rgba(255,255,255,0.06);text-align:left;padding:10px;font-size:11px;color:#D4A017;text-transform:uppercase;">Spread</th>';
     html += '<th style="background:rgba(255,255,255,0.06);text-align:center;padding:10px;font-size:11px;color:#D4A017;text-transform:uppercase;">O/U</th>';
     html += '<th style="background:rgba(255,255,255,0.06);text-align:center;padding:10px;font-size:11px;color:#D4A017;text-transform:uppercase;">ML</th>';
+    html += '<th style="background:rgba(255,255,255,0.06);text-align:center;padding:10px;font-size:11px;color:#D4A017;text-transform:uppercase;">Props</th>';
     html += '<th style="background:rgba(255,255,255,0.06);text-align:center;padding:10px;font-size:11px;color:#D4A017;text-transform:uppercase;">Book</th>';
     html += '<th style="background:rgba(255,255,255,0.06);text-align:center;padding:10px;font-size:11px;color:#D4A017;text-transform:uppercase;">Status</th></tr>';
 
@@ -2350,13 +2374,28 @@ function renderCombinedTable(data) {
         else statusTag = '<span class="tag" style="background:rgba(16,185,129,0.2);color:#10B981;">FULL</span>';
         var rowBg = isToday ? 'background:rgba(212,160,23,0.03);' : '';
 
+        // Look up analysis data for this game
+        var analysis = findAnalysis(g.sport, g.away, g.home);
+        var gradeHtml = '--';
+        var propsHtml = '';
+        if (analysis) {
+            var gc = 'g' + (analysis.grade || '').toLowerCase().replace(/[^a-z]/g,'');
+            if (analysis.grade === 'INCOMPLETE') gc = 'gc';
+            gradeHtml = '<span class="grade ' + gc + '">' + (analysis.grade || '--') + '</span>';
+            if (analysis.chinny_props && analysis.chinny_props.length) {
+                propsHtml = '<span class="tag" style="background:rgba(16,185,129,0.15);color:#10B981;cursor:help;" title="' + analysis.chinny_props.join(' | ').replace(/"/g,'&quot;') + '">' + analysis.chinny_props.length + ' props</span>';
+            }
+        }
+
         html += '<tr style="border-bottom:1px solid rgba(255,255,255,0.04);' + rowBg + '">';
         html += '<td style="padding:10px 12px;font-size:13px;color:rgba(255,255,255,0.5);">' + dateLabel + '</td>';
         html += '<td><span class="tag" style="' + sportStyle + '">' + g.sport + '</span></td>';
         html += '<td style="padding:10px;font-size:14px;font-weight:' + (g.lines_complete ? '700' : '400') + ';">' + awayAbbr + ' @ ' + homeAbbr + '</td>';
+        html += '<td style="padding:10px;text-align:center;">' + gradeHtml + '</td>';
         html += '<td style="padding:10px;font-size:13px;color:' + (g.lines_available ? '#D4A017' : 'rgba(255,255,255,0.3)') + ';">' + (g.lines_available ? homeAbbr + ' ' + spreadStr : '--') + '</td>';
         html += '<td style="padding:10px;font-size:13px;color:rgba(255,255,255,0.5);text-align:center;">' + (total ? total : '--') + '</td>';
         html += '<td style="padding:10px;font-size:12px;color:rgba(255,255,255,0.4);text-align:center;">' + awayAbbr + ' ' + awayML + '<br>' + homeAbbr + ' ' + homeML + '</td>';
+        html += '<td style="padding:10px;text-align:center;">' + (propsHtml || '<span style="color:rgba(255,255,255,0.2);">--</span>') + '</td>';
         html += '<td style="padding:10px;text-align:center;"><span class="tag" style="background:rgba(212,160,23,0.15);color:#D4A017;font-size:9px;">' + book.toUpperCase() + '</span></td>';
         html += '<td style="padding:10px;text-align:center;">' + statusTag + '</td>';
         html += '</tr>';
@@ -2386,9 +2425,27 @@ function renderCombinedTable(data) {
         else if (!g.lines_complete) st = '<span class="tag" style="background:rgba(251,191,36,0.2);color:#FBB024;">PARTIAL</span>';
         else st = '<span class="tag" style="background:rgba(16,185,129,0.2);color:#10B981;">FULL</span>';
 
+        // Mobile card analysis lookup
+        var mAnalysis = findAnalysis(g.sport, g.away, g.home);
+        var mGrade = '';
+        var mProps = '';
+        if (mAnalysis) {
+            var mgc = 'g' + (mAnalysis.grade || '').toLowerCase().replace(/[^a-z]/g,'');
+            if (mAnalysis.grade === 'INCOMPLETE') mgc = 'gc';
+            mGrade = '<span class="grade ' + mgc + '" style="font-size:12px;">' + (mAnalysis.grade || '') + '</span>';
+            if (mAnalysis.chinny_props && mAnalysis.chinny_props.length) {
+                mProps = '<div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.06);">';
+                mProps += '<div style="font-size:10px;color:#10B981;font-weight:700;margin-bottom:4px;">PROPS</div>';
+                mAnalysis.chinny_props.forEach(function(p) {
+                    mProps += '<div style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:2px;">' + p + '</div>';
+                });
+                mProps += '</div>';
+            }
+        }
+
         cardsHtml += '<div class="combined-card"' + (isTd ? ' style="border-left:3px solid #D4A017;"' : '') + '>';
         cardsHtml += '<div class="combined-card-top"><span class="combined-card-matchup">' + awayA + ' @ ' + homeA + '</span>';
-        cardsHtml += '<span class="combined-card-sport" style="' + sStyle + '">' + g.sport + '</span></div>';
+        cardsHtml += '<span style="display:flex;gap:6px;align-items:center;">' + mGrade + '<span class="combined-card-sport" style="' + sStyle + '">' + g.sport + '</span></span></div>';
         cardsHtml += '<div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:4px;">' + dl + '</div>';
         cardsHtml += '<div class="combined-card-lines">';
         if (g.lines_available) cardsHtml += '<span style="color:#D4A017;font-weight:700;">' + homeA + ' ' + spStr + '</span>';
@@ -2396,6 +2453,7 @@ function renderCombinedTable(data) {
         cardsHtml += '<span>ML: ' + awayA + ' ' + aML + ' / ' + homeA + ' ' + hML + '</span>';
         cardsHtml += '</div>';
         cardsHtml += '<div class="combined-card-status">' + st + '</div>';
+        cardsHtml += mProps;
         cardsHtml += '</div>';
     });
     cardsHtml += '</div>';
@@ -2503,14 +2561,27 @@ function fetchAnalysis(sport) {
                 data.games.forEach(function(game) {
                     var rows = panel.querySelectorAll('.game-row');
                     rows.forEach(function(row) {
-                        var matchup = row.getAttribute('data-game') || '';
-                        var gameMatchup = game.matchup || '';
-                        if (matchup.replace(/\s/g,'').toUpperCase() === gameMatchup.replace(/\s/g,'').toUpperCase()) {
+                        var abbrMatchup = (row.getAttribute('data-game') || '').replace(/\s/g,'').toUpperCase();
+                        var fullMatchup = ((row.getAttribute('data-away') || '') + '@' + (row.getAttribute('data-home') || '')).replace(/\s/g,'').toUpperCase();
+                        var gameMatchup = (game.matchup || '').replace(/\s/g,'').toUpperCase();
+                        if (abbrMatchup === gameMatchup || fullMatchup === gameMatchup) {
                             var gradeEl = row.querySelector('.game-grade .grade');
                             if (gradeEl && game.grade) {
                                 var isIncomplete = game.grade === 'INCOMPLETE' || (game.data_status && game.data_status.indexOf('MISSING') !== -1);
                                 if (isIncomplete) { gradeEl.className = 'grade gc'; gradeEl.textContent = 'INC'; }
                                 else { gradeEl.className = 'grade g' + game.grade.toLowerCase().replace(/[^a-z]/g,''); gradeEl.textContent = game.grade; }
+                            }
+                            // Add props count badge next to grade
+                            var gradeContainer = row.querySelector('.game-grade');
+                            if (gradeContainer && game.chinny_props && game.chinny_props.length) {
+                                var existingBadge = gradeContainer.querySelector('.props-badge');
+                                if (!existingBadge) {
+                                    var badge = document.createElement('span');
+                                    badge.className = 'props-badge';
+                                    badge.style.cssText = 'display:inline-block;font-size:9px;color:#10B981;background:rgba(16,185,129,0.15);padding:2px 5px;border-radius:4px;margin-left:4px;';
+                                    badge.textContent = game.chinny_props.length + 'P';
+                                    gradeContainer.appendChild(badge);
+                                }
                             }
                             var edgeEl = row.querySelector('.game-edge');
                             if (edgeEl && game.edge_summary) {
@@ -2533,6 +2604,9 @@ function fetchAnalysis(sport) {
                                 var flagsBox = detail.querySelector('.detail-box.flags');
                                 if (flagsBox && game.flags && game.flags.length) {
                                     var fh = '<h4>Flags</h4><ul>'; game.flags.forEach(function(f){fh+='<li>'+f+'</li>';}); fh+='</ul>'; flagsBox.innerHTML = fh;
+                                } else if (!flagsBox && game.flags && game.flags.length) {
+                                    var nf = document.createElement('div'); nf.className = 'detail-box flags';
+                                    var fh2 = '<h4>Flags</h4><ul>'; game.flags.forEach(function(f){fh2+='<li>'+f+'</li>';}); fh2+='</ul>'; nf.innerHTML = fh2; detail.appendChild(nf);
                                 }
                                 var chinnyBox = detail.querySelector('.detail-box.chinny');
                                 if (chinnyBox && game.chinny_props && game.chinny_props.length) {

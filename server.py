@@ -65,10 +65,10 @@ def _now_ts():
     return time.strftime("%I:%M %p %Z — %b %d, %Y")
 
 
-def _get_cached(key):
+def _get_cached(key, ttl=None):
     if key in _cache:
         data, ts = _cache[key]
-        if time.time() - ts < CACHE_TTL:
+        if time.time() - ts < (ttl or CACHE_TTL):
             return data
     return None
 
@@ -364,8 +364,8 @@ async def get_odds(sport: str, markets: str = "h2h,spreads,totals"):
 @app.get("/api/slate")
 async def get_slate():
     """Fetch full slate — all sports combined."""
-    if not ODDS_API_KEY:
-        return JSONResponse({"error": "ODDS_API_KEY not configured"}, status_code=500)
+    if not ODDS_API_KEY and not SHARPAPI_KEY:
+        return JSONResponse({"error": "No odds API configured"}, status_code=500)
 
     all_games = []
     for sport in ["nba", "nhl", "soccer", "mma", "boxing"]:
@@ -427,8 +427,8 @@ async def get_analysis(sport: str):
 
     sport_lower = sport.lower()
     cache_key = f"analysis:{sport_lower}"
-    cached = _get_cached(cache_key)
-    if cached and (time.time() - _cache[cache_key][1]) < ANALYSIS_CACHE_TTL:
+    cached = _get_cached(cache_key, ttl=ANALYSIS_CACHE_TTL)
+    if cached:
         return JSONResponse(cached)
 
     # Get current odds for context

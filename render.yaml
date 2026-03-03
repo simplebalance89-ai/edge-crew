@@ -4,8 +4,10 @@ services:
     runtime: python
     buildCommand: pip install -r requirements.txt
     startCommand: python server.py
-    plan: free
+    plan: starter
     envVars:
+      - key: SHARPAPI_KEY
+        sync: false
       - key: ODDS_API_KEY
         sync: false
       - key: AZURE_OPENAI_ENDPOINT
