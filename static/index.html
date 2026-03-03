@@ -963,6 +963,14 @@ function safeLoad(key) {
     try { return localStorage.getItem(key); }
     catch(e) { console.warn('localStorage read failed for "' + key + '":', e); return null; }
 }
+function safeRemove(key) {
+    try { localStorage.removeItem(key); }
+    catch(e) { console.warn('localStorage remove failed for "' + key + '":', e); }
+}
+function safeClear() {
+    try { localStorage.clear(); }
+    catch(e) { console.warn('localStorage clear failed:', e); }
+}
 
 // ===== TOAST QUEUE SYSTEM =====
 var toastQueue = [];
@@ -997,7 +1005,7 @@ var picks = {}; // { gameName: { checked: bool, side: string } }
 function refreshSlate() {
     // Reset all game row checks and side picks
     picks = {};
-    localStorage.removeItem('edgeLockedPicks');
+    safeRemove('edgeLockedPicks');
     document.querySelectorAll('.pick-check').forEach(function(el) { el.classList.remove('on'); });
     document.querySelectorAll('.game-row').forEach(function(el) { el.classList.remove('checked', 'expanded'); });
     document.querySelectorAll('.side-btn').forEach(function(el) { el.classList.remove('picked'); });
@@ -2845,7 +2853,7 @@ async function clearAllCache() {
         var names = await caches.keys();
         for (var n of names) await caches.delete(n);
     }
-    localStorage.clear();
+    safeClear();
     window.location.href = window.location.pathname + '?v=' + Date.now();
 }
 </script>
