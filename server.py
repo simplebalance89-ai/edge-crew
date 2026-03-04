@@ -77,29 +77,36 @@ def _set_cache(key, data):
     _cache[key] = (data, time.time())
 
 
+PREFERRED_SHARP_BOOK = "draftkings"
+FALLBACK_SHARP_BOOKS = ["fanduel", "betmgm", "caesars", "pointsbet"]
+
+
 def _parse_sharpapi_events(rows, sport_label):
     """Aggregate SharpAPI flat rows into game dicts matching frontend format.
 
-    SharpAPI returns one row per selection per book per event. We group by
-    event_id, prefer DraftKings, and build the same structure _parse_event
-    produces for The Odds API.
+    SharpAPI returns one row per selection per book per event. We fetch from
+    ALL sportsbooks, prefer DraftKings lines, and fill in missing markets
+    from FanDuel/others. This handles cases like NHL where DraftKings only
+    has totals but FanDuel has moneylines.
     """
-    # Group rows by event_id, only keep home/away/over/under (skip alt-lines)
+    # Group rows by event_id AND sportsbook
     events = {}
     for r in rows:
         sel = r.get("selection_type", "")
         if sel not in ("home", "away", "over", "under"):
             continue
         eid = r["event_id"]
+        book = r.get("sportsbook", "unknown")
         if eid not in events:
             events[eid] = {
                 "home_team": r["home_team"],
                 "away_team": r["away_team"],
                 "event_start_time": r["event_start_time"],
-                "sportsbook": r.get("sportsbook", "unknown"),
-                "rows": [],
+                "books": {},
             }
-        events[eid]["rows"].append(r)
+        if book not in events[eid]["books"]:
+            events[eid]["books"][book] = []
+        events[eid]["books"][book].append(r)
 
     games = []
     for eid, ev in events.items():
@@ -109,54 +116,86 @@ def _parse_sharpapi_events(rows, sport_label):
             "away": ev["away_team"],
             "home": ev["home_team"],
             "time": ev["event_start_time"],
-            "bookmaker": ev["sportsbook"],
+            "bookmaker": None,
             "markets": {},
             "lines_available": False,
             "fetched_at": _now_ts(),
         }
 
-        has_spread = False
-        has_total = False
-        has_ml = False
+        # Track which book provided each market type
+        ml_book = None
+        spread_book = None
+        total_book = None
+        books_used = set()
 
-        for r in ev["rows"]:
-            mkt = r["market_type"]
-            sel = r["selection_type"]
-            odds = r.get("odds_american", 0)
-            line = r.get("line")
+        # Process books in priority order: preferred first, then fallbacks
+        book_order = [PREFERRED_SHARP_BOOK] + FALLBACK_SHARP_BOOKS
+        for b in ev["books"]:
+            if b not in book_order:
+                book_order.append(b)
 
-            if mkt == "moneyline":
-                has_ml = True
-                if sel == "away":
-                    game["away_ml"] = odds
-                elif sel == "home":
-                    game["home_ml"] = odds
+        for book in book_order:
+            if book not in ev["books"]:
+                continue
+            for r in ev["books"][book]:
+                mkt = r["market_type"]
+                sel = r["selection_type"]
+                odds = r.get("odds_american", 0)
+                line = r.get("line")
 
-            elif mkt == "point_spread":
-                has_spread = True
-                if sel == "away":
-                    game["away_spread"] = line or 0
-                    game["away_spread_odds"] = odds
-                elif sel == "home":
-                    game["home_spread"] = line or 0
-                    game["home_spread_odds"] = odds
+                if mkt == "moneyline":
+                    # Only take ML from first book that has it
+                    if ml_book is not None and ml_book != book:
+                        continue
+                    ml_book = book
+                    books_used.add(book)
+                    if sel == "away":
+                        game["away_ml"] = odds
+                    elif sel == "home":
+                        game["home_ml"] = odds
 
-            elif mkt in ("total_points", "total_goals", "total_rounds"):
-                has_total = True
-                if line is not None:
-                    game["total"] = line
-                if sel == "over":
-                    game["over_odds"] = odds
-                elif sel == "under":
-                    game["under_odds"] = odds
+                elif mkt == "point_spread":
+                    if spread_book is not None and spread_book != book:
+                        continue
+                    spread_book = book
+                    books_used.add(book)
+                    if sel == "away":
+                        game["away_spread"] = line or 0
+                        game["away_spread_odds"] = odds
+                    elif sel == "home":
+                        game["home_spread"] = line or 0
+                        game["home_spread_odds"] = odds
+
+                elif mkt in ("total_points", "total_goals", "total_rounds"):
+                    if total_book is not None and total_book != book:
+                        continue
+                    total_book = book
+                    books_used.add(book)
+                    if line is not None:
+                        game["total"] = line
+                    if sel == "over":
+                        game["over_odds"] = odds
+                    elif sel == "under":
+                        game["under_odds"] = odds
+
+        has_ml = ml_book is not None
+        has_spread = spread_book is not None
+        has_total = total_book is not None
+
+        # Show which books contributed
+        if len(books_used) > 1:
+            game["bookmaker"] = " + ".join(sorted(books_used))
+        elif books_used:
+            game["bookmaker"] = next(iter(books_used))
+        else:
+            game["bookmaker"] = "unknown"
 
         game["lines_available"] = has_spread or has_total or has_ml
         game["lines_complete"] = has_spread and has_total and has_ml
-        # NHL: ML-only OR totals-only is gradeable (SharpAPI often returns
-        # only totals for NHL with no ML/spreads from DraftKings)
-        if sport_label == "NHL" and (has_ml or has_total):
+        # NHL: ML + totals is complete (no spreads expected)
+        if sport_label == "NHL" and has_ml and has_total:
             game["lines_complete"] = True
-        # MMA/Boxing: ML-only is complete (no spreads/totals expected)
+        # MMA/Boxing: ML-only is complete
         elif sport_label in ("MMA", "BOXING") and has_ml:
             game["lines_complete"] = True
         games.append(game)
@@ -165,7 +204,12 @@ def _parse_sharpapi_events(rows, sport_label):
 
 
 async def _fetch_sharpapi_odds(sport_lower, sport_label):
-    """Fetch odds from SharpAPI for a given sport."""
+    """Fetch odds from SharpAPI for a given sport.
+
+    Fetches from ALL sportsbooks so we get the best available data.
+    The parser prefers DraftKings but will use FanDuel/others for
+    markets DK doesn't carry (e.g. NHL moneylines).
+    """
     league = SHARPAPI_LEAGUES.get(sport_lower)
     if not league:
         return []
@@ -175,7 +219,6 @@ async def _fetch_sharpapi_odds(sport_lower, sport_label):
     params = {
         "league": league,
         "market": markets,
-        "sportsbook": "draftkings",
         "limit": 500,
     }
     headers = {"X-API-Key": SHARPAPI_KEY}
