@@ -214,6 +214,20 @@ SHARPAPI_MARKETS = {
     "boxing": "moneyline,total_rounds",
 }
 
+# API-Sports config (lineups + injuries across all sports)
+API_SPORTS_KEY = os.environ.get("API_SPORTS_KEY", "")
+API_SPORTS_HOSTS = {
+    "nba": "v2.nba.api-sports.io",
+    "nhl": "v1.hockey.api-sports.io",
+    "soccer": "v3.football.api-sports.io",
+    "mlb": "v1.baseball.api-sports.io",
+}
+API_SPORTS_LEAGUES = {
+    "nhl": 57,
+    "mlb": 1,
+    "soccer": [39, 140, 253, 2, 262],  # EPL, La Liga, MLS, UCL, Liga MX
+}
+
 # Azure OpenAI config
 AZURE_ENDPOINT = os.environ.get("AZURE_OPENAI_ENDPOINT", "")
 AZURE_KEY = os.environ.get("AZURE_OPENAI_KEY", "")
@@ -312,6 +326,191 @@ SOCCER_MATRIX = [
 ]
 
 SPORT_MATRICES = {"nba": NBA_MATRIX, "nhl": NHL_MATRIX, "soccer": SOCCER_MATRIX}
+
+
+async def _fetch_api_sports(sport_lower):
+    """Fetch today's games + lineups from API-Sports. Returns structured text for AI prompt."""
+    if not API_SPORTS_KEY:
+        return ""
+    host = API_SPORTS_HOSTS.get(sport_lower)
+    if not host:
+        return ""
+
+    today = time.strftime("%Y-%m-%d")
+    headers = {"x-apisports-key": API_SPORTS_KEY}
+    cache_key = f"apisports:{sport_lower}:{today}"
+    cached = _get_cached(cache_key, ttl=1800)
+    if cached:
+        return cached
+
+    parts = []
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            if sport_lower == "soccer":
+                # Football: get fixtures for today across our leagues
+                leagues = API_SPORTS_LEAGUES.get("soccer", [])
+                all_fixtures = []
+                for league_id in leagues:
+                    resp = await client.get(
+                        f"https://{host}/fixtures",
+                        params={"date": today, "league": league_id, "season": 2025},
+                        headers=headers,
+                    )
+                    if resp.status_code == 200:
+                        data = resp.json()
+                        all_fixtures.extend(data.get("response", []))
+
+                if all_fixtures:
+                    parts.append(f"API-SPORTS SOCCER FIXTURES ({len(all_fixtures)} games today):")
+                    for fix in all_fixtures[:20]:
+                        fid = fix["fixture"]["id"]
+                        home = fix["teams"]["home"]["name"]
+                        away = fix["teams"]["away"]["name"]
+                        status = fix["fixture"]["status"]["long"]
+                        league_name = fix.get("league", {}).get("name", "?")
+                        parts.append(f"  {away} @ {home} ({league_name}) | {status}")
+
+                        # Fetch lineups for each fixture (only if started/finished or close to start)
+                        if status in ("Not Started", "First Half", "Second Half", "Halftime"):
+                            try:
+                                lr = await client.get(
+                                    f"https://{host}/fixtures/lineups",
+                                    params={"fixture": fid},
+                                    headers=headers,
+                                )
+                                if lr.status_code == 200:
+                                    lineup_data = lr.json().get("response", [])
+                                    for team_lu in lineup_data:
+                                        tname = team_lu.get("team", {}).get("name", "?")
+                                        formation = team_lu.get("formation", "?")
+                                        starters = [p["player"]["name"] for p in team_lu.get("startXI", [])]
+                                        if starters:
+                                            parts.append(f"    {tname} ({formation}): {', '.join(starters)}")
+                            except Exception:
+                                pass
+
+            elif sport_lower == "nba":
+                resp = await client.get(
+                    f"https://{host}/games",
+                    params={"date": today},
+                    headers=headers,
+                )
+                if resp.status_code == 200:
+                    games = resp.json().get("response", [])
+                    if games:
+                        parts.append(f"API-SPORTS NBA GAMES ({len(games)} today):")
+                        for g in games:
+                            away = g["teams"]["visitors"]["name"]
+                            home = g["teams"]["home"]["name"]
+                            status = g["status"]["long"]
+                            arena = g.get("arena", {}).get("name", "?")
+                            parts.append(f"  {away} @ {home} | {status} | {arena}")
+
+            elif sport_lower == "nhl":
+                league_id = API_SPORTS_LEAGUES.get("nhl", 57)
+                resp = await client.get(
+                    f"https://{host}/games",
+                    params={"date": today, "league": league_id, "season": 2025},
+                    headers=headers,
+                )
+                if resp.status_code == 200:
+                    games = resp.json().get("response", [])
+                    if games:
+                        parts.append(f"API-SPORTS NHL GAMES ({len(games)} today):")
+                        for g in games:
+                            away = g["teams"]["away"]["name"]
+                            home = g["teams"]["home"]["name"]
+                            status = g["status"]["long"]
+                            parts.append(f"  {away} @ {home} | {status}")
+
+            elif sport_lower == "mlb":
+                league_id = API_SPORTS_LEAGUES.get("mlb", 1)
+                resp = await client.get(
+                    f"https://{host}/games",
+                    params={"date": today, "league": league_id, "season": 2026},
+                    headers=headers,
+                )
+                if resp.status_code == 200:
+                    games = resp.json().get("response", [])
+                    if games:
+                        parts.append(f"API-SPORTS MLB GAMES ({len(games)} today):")
+                        for g in games:
+                            away = g["teams"]["away"]["name"]
+                            home = g["teams"]["home"]["name"]
+                            status = g["status"]["long"]
+                            parts.append(f"  {away} @ {home} | {status}")
+
+    except Exception as e:
+        print(f"API-Sports fetch error ({sport_lower}): {e}")
+        parts.append(f"API-Sports fetch failed: {e}")
+
+    result = "\n".join(parts)
+    if result:
+        _set_cache(cache_key, result)
+    return result
+
+
+async def _fetch_api_sports_lineups(sport_lower):
+    """Fetch per-game lineups from API-Sports. Returns dict of matchup -> lineup data for frontend."""
+    if not API_SPORTS_KEY:
+        return {}
+    host = API_SPORTS_HOSTS.get(sport_lower)
+    if not host:
+        return {}
+
+    today = time.strftime("%Y-%m-%d")
+    headers = {"x-apisports-key": API_SPORTS_KEY}
+    cache_key = f"apisports_lineups:{sport_lower}:{today}"
+    cached = _get_cached(cache_key, ttl=1800)
+    if cached:
+        return cached
+
+    lineups = {}
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            if sport_lower == "soccer":
+                leagues = API_SPORTS_LEAGUES.get("soccer", [])
+                for league_id in leagues:
+                    resp = await client.get(
+                        f"https://{host}/fixtures",
+                        params={"date": today, "league": league_id, "season": 2025},
+                        headers=headers,
+                    )
+                    if resp.status_code == 200:
+                        for fix in resp.json().get("response", []):
+                            fid = fix["fixture"]["id"]
+                            home = fix["teams"]["home"]["name"]
+                            away = fix["teams"]["away"]["name"]
+                            key = f"{away} @ {home}"
+                            try:
+                                lr = await client.get(
+                                    f"https://{host}/fixtures/lineups",
+                                    params={"fixture": fid},
+                                    headers=headers,
+                                )
+                                if lr.status_code == 200:
+                                    lu_data = lr.json().get("response", [])
+                                    if lu_data:
+                                        match_lineups = {}
+                                        for tlu in lu_data:
+                                            tname = tlu.get("team", {}).get("name", "?")
+                                            formation = tlu.get("formation", "?")
+                                            starters = [p["player"]["name"] for p in tlu.get("startXI", [])]
+                                            subs = [p["player"]["name"] for p in tlu.get("substitutes", [])[:5]]
+                                            match_lineups[tname] = {
+                                                "formation": formation,
+                                                "starters": starters,
+                                                "subs": subs,
+                                            }
+                                        lineups[key] = match_lineups
+                            except Exception:
+                                pass
+    except Exception as e:
+        print(f"API-Sports lineups fetch error ({sport_lower}): {e}")
+
+    if lineups:
+        _set_cache(cache_key, lineups)
+    return lineups
 
 
 async def _fetch_rotowire_page(url, cache_key, ttl=1800):
@@ -432,6 +631,14 @@ async def _get_lineup_and_injury_context(sport):
                 parts.append("\nLINEUP PAGE FLAGS (RotoWire):")
                 for item in inj_flags[:20]:
                     parts.append(f"  - {item.strip()}")
+
+    # --- API-SPORTS (game data + lineups where available) ---
+    try:
+        api_sports_data = await _fetch_api_sports(sport_lower)
+        if api_sports_data:
+            parts.append(f"\n{api_sports_data}")
+    except Exception as e:
+        print(f"API-Sports context fetch error: {e}")
 
     if not parts:
         parts.append("INJURY/LINEUP: No data sources returned results. Grade conservatively.")
@@ -951,7 +1158,7 @@ Today's {sport.upper()} slate - {today} (pulled at {now_time}):
 {games_text}
 {incomplete_note}
 
-=== INJURY & LINEUP INTELLIGENCE (CBS Sports + RotoWire) ===
+=== INJURY & LINEUP INTELLIGENCE (CBS Sports + RotoWire + API-Sports) ===
 {injury_context}
 
 {matrix_section}
@@ -961,7 +1168,7 @@ Before grading: "Why is the market wrong here?" If you cannot answer, grade D or
 
 Generate analysis in this EXACT JSON format:
 {{
-  "gotcha": "HTML unordered list (<ul><li>...</li></ul>). 4-8 bullet points covering: KEY INJURIES affecting tonight's lines (star players OUT/GTD), B2B/rest flags, line movement alerts, traps to avoid, weather (outdoor), sharp money indicators. Bold critical items with <strong>. End with: <li><em>Analysis generated {now_time} | Data: RotoWire + SharpAPI</em></li>",
+  "gotcha": "HTML unordered list (<ul><li>...</li></ul>). 4-8 bullet points covering: KEY INJURIES affecting tonight's lines (star players OUT/GTD), B2B/rest flags, line movement alerts, traps to avoid, weather (outdoor), sharp money indicators. Bold critical items with <strong>. End with: <li><em>Analysis generated {now_time} | Data: API-Sports + RotoWire + SharpAPI</em></li>",
   "games": [
     {{
       "matchup": "AWAY @ HOME",
@@ -1030,7 +1237,7 @@ Return ONLY valid JSON. No markdown. No explanation."""
         analysis["books_used"] = odds_data.get("books_used", [])
         analysis["games_complete"] = len(complete_games)
         analysis["games_incomplete"] = len(incomplete_games)
-        analysis["injury_source"] = "CBS Sports + RotoWire" if injury_context else "none"
+        analysis["injury_source"] = "CBS Sports + RotoWire + API-Sports" if injury_context else "none"
         analysis["injury_data_length"] = len(injury_context)
         analysis["matrix"] = sport_lower in SPORT_MATRICES
 
@@ -1404,6 +1611,19 @@ async def serve_manifest():
     return FileResponse("static/manifest.json", media_type="application/json", headers={"Cache-Control": "no-cache"})
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+
+@app.get("/api/lineups/{sport}")
+async def get_lineups(sport: str):
+    """Fetch per-game lineups from API-Sports for the frontend."""
+    sport_lower = sport.lower()
+    lineups = await _fetch_api_sports_lineups(sport_lower)
+    return JSONResponse({
+        "sport": sport.upper(),
+        "lineups": lineups,
+        "source": "API-Sports" if lineups else "none",
+        "fetched_at": _now_ts(),
+    })
 
 
 @app.post("/api/cache/clear")

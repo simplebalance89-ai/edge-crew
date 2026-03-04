@@ -666,9 +666,9 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 
 <!-- NBA PETER GUT PICKS (DYNAMIC) -->
 <div class="input-section" id="peterGutNBA">
-    <h3 id="peterGutNBATitle">Peter's Gut Picks &mdash; NBA</h3>
+    <h3 id="peterGutNBATitle">Sinton.ia's Card &mdash; NBA</h3>
     <div id="peterGutNBAContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
-        <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate or click NBA tab to load live gut picks from analysis...</p>
+        <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate or click NBA tab to load Sinton.ia's analysis card...</p>
     </div>
     <div id="peterGutNBATimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
 </div>
@@ -704,9 +704,9 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 
 <!-- NHL PETER GUT PICKS (DYNAMIC) -->
 <div class="input-section" id="peterGutNHL">
-    <h3 id="peterGutNHLTitle">Peter's Gut Picks &mdash; NHL</h3>
+    <h3 id="peterGutNHLTitle">Sinton.ia's Card &mdash; NHL</h3>
     <div id="peterGutNHLContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
-        <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate or click NHL tab to load live gut picks from analysis...</p>
+        <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate or click NHL tab to load Sinton.ia's analysis card...</p>
     </div>
     <div id="peterGutNHLTimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
 </div>
@@ -734,9 +734,9 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 
 <!-- SOCCER PETER GUT PICKS (DYNAMIC) -->
 <div class="input-section" id="peterGutSOCCER">
-    <h3 id="peterGutSOCCERTitle">Peter's Gut Picks &mdash; Soccer</h3>
+    <h3 id="peterGutSOCCERTitle">Sinton.ia's Card &mdash; Soccer</h3>
     <div id="peterGutSOCCERContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
-        <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load live gut picks from analysis...</p>
+        <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load Sinton.ia's analysis card...</p>
     </div>
     <div id="peterGutSOCCERTimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
 </div>
@@ -764,9 +764,9 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 
 <!-- MMA PETER GUT PICKS (DYNAMIC) -->
 <div class="input-section" id="peterGutMMA">
-    <h3 id="peterGutMMATitle">Peter's Gut Picks &mdash; MMA</h3>
+    <h3 id="peterGutMMATitle">Sinton.ia's Card &mdash; MMA</h3>
     <div id="peterGutMMAContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
-        <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load live gut picks from analysis...</p>
+        <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load Sinton.ia's analysis card...</p>
     </div>
     <div id="peterGutMMATimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
 </div>
@@ -794,9 +794,9 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 
 <!-- BOXING PETER GUT PICKS (DYNAMIC) -->
 <div class="input-section" id="peterGutBOXING">
-    <h3 id="peterGutBOXINGTitle">Peter's Gut Picks &mdash; Boxing</h3>
+    <h3 id="peterGutBOXINGTitle">Sinton.ia's Card &mdash; Boxing</h3>
     <div id="peterGutBOXINGContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
-        <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load live gut picks from analysis...</p>
+        <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load Sinton.ia's analysis card...</p>
     </div>
     <div id="peterGutBOXINGTimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
 </div>
@@ -3009,7 +3009,7 @@ function updatePeterGut(sport, analysisData) {
 
     var today = new Date();
     var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    if (gutTitle) gutTitle.textContent = "Peter's Gut Picks \u2014 " + sport.toUpperCase() + ' ' + months[today.getMonth()] + ' ' + today.getDate();
+    if (gutTitle) gutTitle.textContent = "Sinton.ia's Card \u2014 " + sport.toUpperCase() + ' ' + months[today.getMonth()] + ' ' + today.getDate();
     if (gutTimestamp) {
         gutTimestamp.textContent = 'Generated: ' + (analysisData.generated_at || 'just now') + ' | Source: ' + (analysisData.source || 'Azure OpenAI');
         var genDate = analysisData.generated_at || '';

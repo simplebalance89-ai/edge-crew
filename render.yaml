@@ -20,3 +20,5 @@ services:
         sync: false
       - key: CREW_PIN_SALT
         sync: false
+      - key: API_SPORTS_KEY
+        sync: false
