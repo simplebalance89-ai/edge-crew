@@ -98,6 +98,170 @@ def _set_cache(key, data):
     _cache[key] = (data, time.time())
 
 
+# ============================================================
+# ANALYSIS ENGINE v2 - Lineup, Injury, REST, Weighted Matrix
+# ============================================================
+
+ROTOWIRE_URLS = {
+    "nba": {
+        "lineups": "https://www.rotowire.com/basketball/nba-lineups.php",
+        "injuries": "https://www.rotowire.com/basketball/injury-report.php",
+    },
+    "nhl": {
+        "lineups": "https://www.rotowire.com/hockey/nhl-lineups.php",
+        "injuries": "https://www.rotowire.com/hockey/injury-report.php",
+    },
+    "soccer": {
+        "lineups": "https://www.rotowire.com/soccer/lineups.php",
+        "injuries": "https://www.rotowire.com/soccer/injury-report.php",
+    },
+}
+
+NBA_MATRIX = [
+    ("injuries_lineup", 10, "Injuries / lineup changes"),
+    ("rest_advantage", 9, "Rest advantage (B2B, 3-in-5)"),
+    ("sharp_vs_public", 8, "Where the money is (sharp vs public)"),
+    ("def_ranking", 8, "Defensive ranking vs position"),
+    ("pace_matchup", 7, "Pace matchup"),
+    ("travel", 7, "Travel (road trip length)"),
+    ("ats_trend", 6, "ATS trend (last 7/14 days)"),
+    ("home_away", 5, "Home/away record"),
+    ("coach", 4, "Coach tendencies"),
+    ("revenge_rivalry", 3, "Revenge / rivalry"),
+]
+
+NHL_MATRIX = [
+    ("goalie_confirmed", 10, "Goalie confirmed starter"),
+    ("injuries_lineup", 9, "Injuries / lineup changes"),
+    ("b2b_fatigue", 8, "Back-to-back / schedule fatigue"),
+    ("home_away", 7, "Home/away record"),
+    ("sharp_vs_public", 7, "Where the money is"),
+    ("pp_pk", 7, "Power play / penalty kill rankings"),
+    ("save_pct_trend", 6, "Save percentage trend (last 5)"),
+    ("division_rivalry", 5, "Division / rivalry"),
+    ("corsi_xg", 5, "Corsi / expected goals"),
+    ("travel_tz", 4, "Travel / time zone"),
+]
+
+SOCCER_MATRIX = [
+    ("btts_trend", 10, "Both Teams to Score trend"),
+    ("injuries_lineup", 9, "Injuries / lineup changes"),
+    ("home_away_form", 8, "Home/away form (last 5)"),
+    ("goals_avg", 8, "Goals scored/conceded avg"),
+    ("h2h", 7, "Head-to-head record"),
+    ("league_position", 7, "League position / motivation"),
+    ("xg_trend", 6, "xG (expected goals) trend"),
+    ("sharp_vs_public", 6, "Where the money is"),
+    ("clean_sheet", 5, "Clean sheet pct"),
+    ("travel_congestion", 4, "Travel / fixture congestion"),
+]
+
+SPORT_MATRICES = {"nba": NBA_MATRIX, "nhl": NHL_MATRIX, "soccer": SOCCER_MATRIX}
+
+
+async def _fetch_rotowire_page(url, cache_key, ttl=1800):
+    """Fetch a RotoWire page, return raw HTML. Cached 30 min."""
+    cached = _get_cached(cache_key, ttl=ttl)
+    if cached:
+        return cached
+    try:
+        async with httpx.AsyncClient(timeout=15.0, follow_redirects=True) as client:
+            resp = await client.get(url, headers={
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                "Accept": "text/html,application/xhtml+xml",
+            })
+            if resp.status_code == 200:
+                _set_cache(cache_key, resp.text)
+                return resp.text
+    except Exception as e:
+        print(f"RotoWire fetch failed ({url}): {e}")
+    return ""
+
+
+async def _get_lineup_and_injury_context(sport):
+    """Fetch RotoWire lineups + injuries, parse into context string for AI."""
+    import re
+    sport_lower = sport.lower()
+    urls = ROTOWIRE_URLS.get(sport_lower, {})
+    parts = []
+
+    # --- LINEUPS ---
+    lineup_url = urls.get("lineups")
+    if lineup_url:
+        html = await _fetch_rotowire_page(lineup_url, f"rw_lineups:{sport_lower}")
+        if html:
+            text = re.sub(r'<[^>]+>', ' ', html)
+            text = re.sub(r'\s+', ' ', text)
+            # Find lineup-related sections
+            inj_in_lineup = re.findall(r'(\w[\w\s\.\'-]+(?:OUT|GTD|QUESTIONABLE|DOUBTFUL|PROBABLE|DNP))', text)
+            if inj_in_lineup:
+                parts.append("LINEUP PAGE INJURY FLAGS:")
+                for item in inj_in_lineup[:30]:
+                    parts.append(f"  - {item.strip()}")
+
+    # --- INJURY REPORT ---
+    injury_url = urls.get("injuries")
+    if injury_url:
+        html = await _fetch_rotowire_page(injury_url, f"rw_injuries:{sport_lower}")
+        if html:
+            text = re.sub(r'<[^>]+>', ' ', html)
+            text = re.sub(r'\s+', ' ', text)
+            # Extract injury entries by finding name + status patterns
+            entries = re.findall(
+                r'([A-Z][a-z]+\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s+'
+                r'(?:[A-Z]{2,4}\s+)?'
+                r'(Out|GTD|Questionable|Doubtful|Probable|Day-To-Day|Out For Season|Expected|Injured Reserve)',
+                text, re.IGNORECASE
+            )
+            if entries:
+                parts.append(f"\nINJURY REPORT ({sport.upper()} via RotoWire):")
+                seen = set()
+                for player, status in entries[:60]:
+                    key = player.strip().lower()
+                    if key not in seen:
+                        seen.add(key)
+                        parts.append(f"  - {player.strip()}: {status.strip()}")
+            else:
+                # Fallback: find chunks around OUT/GTD keywords
+                for kw in ["Out ", "GTD", "Questionable", "Doubtful"]:
+                    for m in re.finditer(kw, text, re.IGNORECASE):
+                        start = max(0, m.start() - 60)
+                        end = min(len(text), m.end() + 30)
+                        snippet = text[start:end].strip()
+                        if len(snippet) > 15:
+                            parts.append(f"  [raw] ...{snippet}...")
+                    if len(parts) > 25:
+                        break
+
+    if not parts:
+        parts.append(f"INJURY/LINEUP: RotoWire data not available. Flag this limitation in analysis.")
+
+    return "\n".join(parts)
+
+
+def _build_matrix_section(sport):
+    """Return weighted variable matrix instructions for AI prompt."""
+    matrix = SPORT_MATRICES.get(sport.lower(), [])
+    if not matrix:
+        return ""
+    total_weight = sum(w for _, w, _ in matrix)
+    max_score = total_weight * 10
+    lines = []
+    lines.append(f"\n=== {sport.upper()} SCORING MATRIX (10 Variables, Weighted 1-10) ===")
+    lines.append(f"Score each variable 1-10 for EACH game. Weight x Score = Weighted.")
+    lines.append(f"Max possible: {max_score}. Composite = sum / {max_score} x 10.\n")
+    for i, (key, weight, label) in enumerate(matrix, 1):
+        lines.append(f"  {i}. {label} (weight: {weight})")
+    lines.append("\nCOMPOSITE THRESHOLDS:")
+    lines.append("  9.0-10.0 = BEST BET (load up, full unit)")
+    lines.append("  7.5-8.9  = STRONG PLAY (A-/B+)")
+    lines.append("  6.0-7.4  = MODERATE EDGE (B/B-)")
+    lines.append("  4.5-5.9  = LEAN (C, small or pass)")
+    lines.append("  Below 4.5 = NO EDGE (D/F, pass)")
+    return "\n".join(lines)
+
+
+
 PREFERRED_SHARP_BOOK = "draftkings"
 FALLBACK_SHARP_BOOKS = ["fanduel", "betmgm", "caesars", "pointsbet"]
 
@@ -564,45 +728,79 @@ async def get_analysis(sport: str):
         for ig in incomplete_games:
             incomplete_note += f"- {ig['matchup']} — MISSING: {', '.join(ig['missing'])}\n"
 
-    prompt = f"""You are Edge Finder, a sharp sports betting analyst for a crew of 3 bettors: Peter (heavy/value/sharp), Chinny (props/NHL/soccer), and Jimmy (new, learning).
+    # ===== FETCH REAL DATA: Lineups + Injuries from RotoWire =====
+    injury_context = ""
+    try:
+        injury_context = await _get_lineup_and_injury_context(sport_lower)
+    except Exception as e:
+        injury_context = f"INJURY DATA FETCH FAILED: {e}. Grade conservatively."
+        print(f"Injury context fetch error for {sport_lower}: {e}")
 
-Today's {sport.upper()} slate — {today} (pulled at {now_time}):
+    # ===== BUILD WEIGHTED MATRIX SECTION =====
+    matrix_section = _build_matrix_section(sport_lower)
+
+
+    prompt = f"""You are Edge Finder v2, a sharp sports betting analyst. You have access to REAL injury data and a weighted scoring matrix.
+
+CREW: Peter (heavy/value/sharp, sizes up on conviction), Chinny (props/NHL/soccer master), Jimmy (new, learning), Sinton.ia (card builder/grader).
+RULES: "Why is the market wrong?" = required for every grade. No answer = NO BET (grade D/F). Valid edges: news not priced in, public overreaction, rest/schedule, matchup-specific, sharp vs public, situational. Invalid: "better team", "should win", "volume play".
+
+Today's {sport.upper()} slate - {today} (pulled at {now_time}):
+
+=== ODDS DATA ===
 {games_text}
 {incomplete_note}
-Generate analysis in this exact JSON format:
+
+=== INJURY & LINEUP INTELLIGENCE (from RotoWire) ===
+{injury_context}
+
+{matrix_section}
+
+=== EDGE QUESTION (MANDATORY for every game) ===
+Before grading: "Why is the market wrong here?" If you cannot answer, grade D or F.
+
+Generate analysis in this EXACT JSON format:
 {{
-  "gotcha": "3-6 bullet points as an HTML unordered list (<ul><li>...</li></ul>). Key injuries, situational edges, traps, B2B flags, line moves, weather (outdoor sports). Bold the important parts with <strong>. Include a timestamp note at the end: <li><em>Analysis generated {now_time}</em></li>",
+  "gotcha": "HTML unordered list (<ul><li>...</li></ul>). 4-8 bullet points covering: KEY INJURIES affecting tonight's lines (star players OUT/GTD), B2B/rest flags, line movement alerts, traps to avoid, weather (outdoor), sharp money indicators. Bold critical items with <strong>. End with: <li><em>Analysis generated {now_time} | Data: RotoWire + SharpAPI</em></li>",
   "games": [
     {{
       "matchup": "AWAY @ HOME",
-      "grade": "A/A-/B+/B/B-/C+/C/INCOMPLETE",
-      "tags": ["B2B", "SHARP", "TRAP", "UPSET", "PASS", "BEST BET", "INCOMPLETE"],
-      "edge_summary": "One line edge summary",
-      "peter_zone": "2-3 sentences. Peter's perspective — value, sharps, line moves, conviction level.",
-      "trends": ["trend 1", "trend 2", "trend 3"],
-      "flags": ["injury/flag 1", "flag 2"],
-      "chinny_props": ["player PROP over/under LINE — reason", "..."],
-      "data_status": "COMPLETE or INCOMPLETE — state what's missing if incomplete",
-      "book_source": "which bookmaker provided these lines"
+      "composite_score": 7.2,
+      "grade": "A+/A/A-/B+/B/B-/C+/C/D/F/INCOMPLETE",
+      "edge_question": "Why is the market wrong? 1-2 sentences. If no answer: 'No clear edge identified.'",
+      "tags": ["B2B", "SHARP", "TRAP", "UPSET", "PASS", "BEST BET", "REST-EDGE", "INJURY-IMPACT", "INCOMPLETE"],
+      "matrix_scores": {{
+        "var1_name": {{"score": 7, "weight": 10, "weighted": 70, "note": "why this score"}},
+        "var2_name": {{"score": 5, "weight": 9, "weighted": 45, "note": "why this score"}}
+      }},
+      "injury_impact": "Which key players are OUT/GTD and how it changes the line. Be specific.",
+      "rest_schedule": "B2B? Days rest for each team? Travel? 3-in-5?",
+      "edge_summary": "One line: the edge in plain English",
+      "peter_zone": "2-3 sentences. Peter's play: conviction level, sizing suggestion (full unit / half / small / pass), line value assessment.",
+      "trends": ["ATS trend", "O/U trend", "H2H trend"],
+      "flags": ["injury flag 1", "schedule flag", "sharp money flag"],
+      "chinny_props": ["player PROP over/under LINE - matchup reason", "..."],
+      "data_status": "COMPLETE or INCOMPLETE - state exactly what is missing",
+      "book_source": "which sportsbook"
     }}
   ]
 }}
 
-CRITICAL RULES:
-- For NHL: games with totals-only (over/under) OR moneyline-only ARE gradeable. SharpAPI/DraftKings often only provides totals for NHL. Grade based on available data — total value, matchup quality, trends, situational factors. Only mark INCOMPLETE if NO data at all.
-- For MMA/Boxing: moneyline-only games ARE gradeable. Grade based on ML value and matchup.
-- For NBA/NFL/MLB/Soccer: if a game is missing spread, total, OR moneyline — grade it "INCOMPLETE" with tag "INCOMPLETE".
-- In data_status, state exactly what's missing: "MISSING: spread" or "MISSING: ML, total" etc.
-- Do NOT assign a real grade (A through C) to any NBA/NFL/MLB game with incomplete lines.
-- INCOMPLETE games still get listed — show the matchup but make it clear you can't grade without full data.
-- For complete games: grade honestly. C means skip. A means best bet.
-- Flag PASS games explicitly.
-- Chinny's props: top 3-5 per game. Player props only. Grade B or higher. Skip for INCOMPLETE games.
-- Be specific about injury impacts on lines.
-- If a line looks suspicious or moved significantly, flag it.
-- Keep it sharp. No filler. Every word earns its spot.
+GRADING RULES:
+- Use the SCORING MATRIX above. Fill in matrix_scores for each game with ALL variables scored 1-10.
+- composite_score = (sum of all weighted scores) / max_possible * 10. Round to 1 decimal.
+- Map composite to grade using the thresholds above.
+- For NHL: totals-only or ML-only ARE gradeable. Only INCOMPLETE if NO data at all.
+- For MMA/Boxing: ML-only IS gradeable.
+- For NBA/Soccer: missing spread, total, OR ML = INCOMPLETE.
+- injury_impact is MANDATORY. Check the RotoWire data above. Name specific players.
+- If RotoWire data is unavailable, flag it: "Injury data not confirmed - grade with caution."
+- rest_schedule is MANDATORY. Check game times for B2B detection.
+- Chinny props: top 3-5 per game, B+ grade minimum. Skip for INCOMPLETE.
+- PASS games get grade D or F with explicit reason.
+- Be brutally honest. C means marginal. D means no edge. F means trap.
 
-Return ONLY valid JSON. No markdown fences. No explanation."""
+Return ONLY valid JSON. No markdown. No explanation."""
 
     try:
         client = AzureOpenAI(
@@ -614,7 +812,7 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
             model=AZURE_MODEL,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.7,
-            max_tokens=4000,
+            max_tokens=6000,
         )
         raw = response.choices[0].message.content.strip()
         # Clean markdown fences if present
@@ -632,6 +830,8 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
         analysis["books_used"] = odds_data.get("books_used", [])
         analysis["games_complete"] = len(complete_games)
         analysis["games_incomplete"] = len(incomplete_games)
+        analysis["injury_source"] = "RotoWire" if injury_context else "none"
+        analysis["matrix"] = sport_lower in SPORT_MATRICES
 
         _set_cache(cache_key, analysis)
         return JSONResponse(analysis)
