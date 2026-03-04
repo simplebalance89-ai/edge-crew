@@ -179,62 +179,87 @@ async def _fetch_rotowire_page(url, cache_key, ttl=1800):
 
 
 async def _get_lineup_and_injury_context(sport):
-    """Fetch RotoWire lineups + injuries, parse into context string for AI."""
+    """Fetch injury data from CBS Sports (server-rendered) + RotoWire lineups."""
     import re
     sport_lower = sport.lower()
-    urls = ROTOWIRE_URLS.get(sport_lower, {})
     parts = []
 
-    # --- LINEUPS ---
+    CBS_INJURY_URLS = {
+        "nba": "https://www.cbssports.com/nba/injuries/",
+        "nhl": "https://www.cbssports.com/nhl/injuries/",
+        "soccer": None,
+    }
+
+    # --- CBS SPORTS INJURY REPORT (primary - server-rendered, reliable) ---
+    cbs_url = CBS_INJURY_URLS.get(sport_lower)
+    if cbs_url:
+        cache_key = f"cbs_injuries:{sport_lower}"
+        cached = _get_cached(cache_key, ttl=1800)
+        if cached:
+            parts.append(cached)
+        else:
+            try:
+                async with httpx.AsyncClient(timeout=15.0, follow_redirects=True) as client:
+                    resp = await client.get(cbs_url, headers={
+                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                    })
+                    if resp.status_code == 200:
+                        html = resp.text
+                        rows = re.findall(r'<tr[^>]*>(.*?)</tr>', html, re.DOTALL)
+                        player_rows = [r for r in rows if 'CellPlayerName' in r]
+
+                        if player_rows:
+                            injury_lines = []
+                            injury_lines.append(
+                                f"INJURY REPORT ({sport.upper()} via CBS Sports"
+                                f" - {len(player_rows)} players):"
+                            )
+
+                            for row in player_rows:
+                                name_match = re.findall(r'>([^<]+)</a>', row)
+                                tds = re.findall(r'<td[^>]*>(.*?)</td>', row, re.DOTALL)
+                                cells = []
+                                for td in tds:
+                                    text = re.sub(r'<[^>]+>', '', td).strip()
+                                    if text:
+                                        cells.append(text)
+
+                                if name_match and len(cells) >= 4:
+                                    full_name = name_match[-1] if len(name_match) > 1 else name_match[0]
+                                    pos = cells[1] if len(cells) > 1 else "?"
+                                    injury_type = cells[3] if len(cells) > 3 else "?"
+                                    status = cells[4] if len(cells) > 4 else cells[-1]
+                                    injury_lines.append(
+                                        f"  - {full_name.strip()} ({pos})"
+                                        f" | {injury_type} | {status}"
+                                    )
+
+                            injury_text = "\n".join(injury_lines)
+                            _set_cache(cache_key, injury_text)
+                            parts.append(injury_text)
+            except Exception as e:
+                print(f"CBS injury fetch failed for {sport}: {e}")
+                parts.append(f"CBS Sports injury fetch failed: {e}")
+
+    # --- ROTOWIRE LINEUPS (secondary - best effort for lineup confirmations) ---
+    urls = ROTOWIRE_URLS.get(sport_lower, {})
     lineup_url = urls.get("lineups")
     if lineup_url:
         html = await _fetch_rotowire_page(lineup_url, f"rw_lineups:{sport_lower}")
         if html:
             text = re.sub(r'<[^>]+>', ' ', html)
             text = re.sub(r'\s+', ' ', text)
-            # Find lineup-related sections
-            inj_in_lineup = re.findall(r'(\w[\w\s\.\'-]+(?:OUT|GTD|QUESTIONABLE|DOUBTFUL|PROBABLE|DNP))', text)
-            if inj_in_lineup:
-                parts.append("LINEUP PAGE INJURY FLAGS:")
-                for item in inj_in_lineup[:30]:
+            inj_flags = re.findall(
+                r'(\w[\w\s\.\'-]+(?:OUT|GTD|QUESTIONABLE|DOUBTFUL|PROBABLE|DNP))',
+                text
+            )
+            if inj_flags:
+                parts.append("\nLINEUP PAGE FLAGS (RotoWire):")
+                for item in inj_flags[:20]:
                     parts.append(f"  - {item.strip()}")
 
-    # --- INJURY REPORT ---
-    injury_url = urls.get("injuries")
-    if injury_url:
-        html = await _fetch_rotowire_page(injury_url, f"rw_injuries:{sport_lower}")
-        if html:
-            text = re.sub(r'<[^>]+>', ' ', html)
-            text = re.sub(r'\s+', ' ', text)
-            # Extract injury entries by finding name + status patterns
-            entries = re.findall(
-                r'([A-Z][a-z]+\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s+'
-                r'(?:[A-Z]{2,4}\s+)?'
-                r'(Out|GTD|Questionable|Doubtful|Probable|Day-To-Day|Out For Season|Expected|Injured Reserve)',
-                text, re.IGNORECASE
-            )
-            if entries:
-                parts.append(f"\nINJURY REPORT ({sport.upper()} via RotoWire):")
-                seen = set()
-                for player, status in entries[:60]:
-                    key = player.strip().lower()
-                    if key not in seen:
-                        seen.add(key)
-                        parts.append(f"  - {player.strip()}: {status.strip()}")
-            else:
-                # Fallback: find chunks around OUT/GTD keywords
-                for kw in ["Out ", "GTD", "Questionable", "Doubtful"]:
-                    for m in re.finditer(kw, text, re.IGNORECASE):
-                        start = max(0, m.start() - 60)
-                        end = min(len(text), m.end() + 30)
-                        snippet = text[start:end].strip()
-                        if len(snippet) > 15:
-                            parts.append(f"  [raw] ...{snippet}...")
-                    if len(parts) > 25:
-                        break
-
     if not parts:
-        parts.append(f"INJURY/LINEUP: RotoWire data not available. Flag this limitation in analysis.")
+        parts.append("INJURY/LINEUP: No data sources returned results. Grade conservatively.")
 
     return "\n".join(parts)
 
