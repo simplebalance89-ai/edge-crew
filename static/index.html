@@ -2732,24 +2732,74 @@ function loadProps() {
         return;
     }
 
+    // Split props into HAMMER (A-/A/A+/BEST BET) vs regular
+    var hammerProps = [];
+    var regularProps = [];
+    allProps.forEach(function(entry) {
+        var g = (entry.grade || '').toUpperCase();
+        if (g === 'A+' || g === 'A' || g === 'A-') {
+            hammerProps.push(entry);
+        } else {
+            regularProps.push(entry);
+        }
+    });
+
     var html = '';
     var totalProps = 0;
-    allProps.forEach(function(entry) {
-        var sportStyle = sportColors[entry.sport] || 'background:rgba(255,255,255,0.1);color:#fff;';
-        var gradeClass = 'g' + entry.grade.toLowerCase().replace(/[^a-z]/g,'');
-        html += '<div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px 20px;margin-bottom:12px;">';
-        html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">';
-        html += '<div><span class="tag" style="' + sportStyle + '">' + entry.sport + '</span> ';
-        html += '<strong style="font-family:\'Playfair Display\',serif;">' + entry.matchup + '</strong></div>';
-        html += '<span class="grade ' + gradeClass + '">' + entry.grade + '</span>';
+
+    // === HAMMER SECTION — top-grade props front and center ===
+    if (hammerProps.length > 0) {
+        html += '<div style="margin-bottom:24px;">';
+        html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid rgba(212,160,23,0.3);">';
+        html += '<span style="font-size:24px;">&#x1F528;</span>';
+        html += '<span style="font-family:\'Playfair Display\',serif;font-size:18px;font-weight:700;color:#D4A017;">HAMMER PROPS</span>';
+        html += '<span style="font-size:11px;color:rgba(212,160,23,0.7);font-weight:600;letter-spacing:1px;">A-GRADE GAMES ONLY</span>';
         html += '</div>';
-        html += '<ul style="list-style:none;padding:0;margin:0;">';
-        entry.props.forEach(function(prop) {
-            totalProps++;
-            html += '<li style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:13px;color:rgba(255,255,255,0.6);">' + prop + '</li>';
+        hammerProps.forEach(function(entry) {
+            var sportStyle = sportColors[entry.sport] || 'background:rgba(255,255,255,0.1);color:#fff;';
+            var gradeClass = 'g' + entry.grade.toLowerCase().replace(/[^a-z]/g,'');
+            html += '<div style="background:rgba(212,160,23,0.06);border:2px solid rgba(212,160,23,0.35);border-radius:12px;padding:18px 22px;margin-bottom:14px;position:relative;">';
+            html += '<div style="position:absolute;top:-10px;right:16px;background:#D4A017;color:#0D0D0D;font-size:10px;font-weight:800;padding:3px 10px;border-radius:6px;letter-spacing:1px;">HAMMER</div>';
+            html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">';
+            html += '<div><span class="tag" style="' + sportStyle + '">' + entry.sport + '</span> ';
+            html += '<strong style="font-family:\'Playfair Display\',serif;font-size:15px;">' + entry.matchup + '</strong></div>';
+            html += '<span class="grade ' + gradeClass + '" style="font-size:18px;font-weight:800;">' + entry.grade + '</span>';
+            html += '</div>';
+            html += '<ul style="list-style:none;padding:0;margin:0;">';
+            entry.props.forEach(function(prop) {
+                totalProps++;
+                html += '<li style="padding:8px 0;border-bottom:1px solid rgba(212,160,23,0.12);font-size:14px;color:rgba(255,255,255,0.85);font-weight:600;">';
+                html += '<span style="color:#D4A017;margin-right:6px;">&#x25B6;</span>' + prop + '</li>';
+            });
+            html += '</ul></div>';
         });
-        html += '</ul></div>';
-    });
+        html += '</div>';
+    }
+
+    // === REGULAR PROPS — grouped by game ===
+    if (regularProps.length > 0) {
+        if (hammerProps.length > 0) {
+            html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.06);">';
+            html += '<span style="font-size:14px;color:rgba(255,255,255,0.4);font-weight:700;letter-spacing:1px;text-transform:uppercase;">Other Games</span>';
+            html += '</div>';
+        }
+        regularProps.forEach(function(entry) {
+            var sportStyle = sportColors[entry.sport] || 'background:rgba(255,255,255,0.1);color:#fff;';
+            var gradeClass = 'g' + entry.grade.toLowerCase().replace(/[^a-z]/g,'');
+            html += '<div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px 20px;margin-bottom:12px;">';
+            html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">';
+            html += '<div><span class="tag" style="' + sportStyle + '">' + entry.sport + '</span> ';
+            html += '<strong style="font-family:\'Playfair Display\',serif;">' + entry.matchup + '</strong></div>';
+            html += '<span class="grade ' + gradeClass + '">' + entry.grade + '</span>';
+            html += '</div>';
+            html += '<ul style="list-style:none;padding:0;margin:0;">';
+            entry.props.forEach(function(prop) {
+                totalProps++;
+                html += '<li style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:13px;color:rgba(255,255,255,0.6);">' + prop + '</li>';
+            });
+            html += '</ul></div>';
+        });
+    }
 
     container.innerHTML = html;
 
