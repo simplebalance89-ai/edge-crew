@@ -801,6 +801,10 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
             <div style="color:#5588EE;font-weight:700;margin-bottom:4px;">Jimmy</div>
             <div id="brJimmy" style="color:#fff;font-size:14px;">0-0-0 | 0u</div>
         </div>
+        <div style="background:#141428;border:1px solid #2a2a5a;border-radius:8px;padding:12px;text-align:center;">
+            <div style="color:#E879F9;font-weight:700;margin-bottom:4px;">Alyssa</div>
+            <div id="brAlyssa" style="color:#fff;font-size:14px;">0-0-0 | 0u</div>
+        </div>
     </div>
 
     <!-- Pick results list -->
@@ -823,6 +827,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
             <option value="Peter">Peter</option>
             <option value="Chinny">Chinny</option>
             <option value="Jimmy">Jimmy</option>
+            <option value="Alyssa">Alyssa</option>
         </select>
     </div>
 
@@ -972,6 +977,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
             <div class="slip-btn" onclick="selectSlipOption('who','Peter',this)">Peter</div>
             <div class="slip-btn" onclick="selectSlipOption('who','Chinny',this)">Chinny</div>
             <div class="slip-btn" onclick="selectSlipOption('who','Jimmy',this)">Jimmy</div>
+            <div class="slip-btn" onclick="selectSlipOption('who','Alyssa',this)">Alyssa</div>
         </div>
 
         <div class="slip-label">UNITS</div>
@@ -1732,7 +1738,7 @@ function renderBankroll() {
     document.getElementById('unitSize').value = unitSize;
 
     var wins = 0, losses = 0, pushes = 0, netUnits = 0;
-    var personStats = {Peter:{w:0,l:0,p:0,u:0},Chinny:{w:0,l:0,p:0,u:0},Jimmy:{w:0,l:0,p:0,u:0}};
+    var personStats = {Peter:{w:0,l:0,p:0,u:0},Chinny:{w:0,l:0,p:0,u:0},Jimmy:{w:0,l:0,p:0,u:0},Alyssa:{w:0,l:0,p:0,u:0}};
 
     stored.forEach(function(pick) {
         if (!pick.result) return;
