@@ -420,9 +420,104 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     .combined-cards-mobile{display:none !important;}
     .tabs-wrapper::after{display:none;}
 }
+
+/* ===== LOGIN OVERLAY ===== */
+.login-overlay{
+    position:fixed;top:0;left:0;right:0;bottom:0;
+    background:rgba(13,13,26,0.97);backdrop-filter:blur(16px);
+    display:flex;align-items:center;justify-content:center;z-index:500;
+    padding:24px;
+}
+.login-overlay.hidden{display:none;}
+.login-card{
+    background:#0D0D1A;border:1px solid rgba(212,160,23,0.4);border-radius:20px;
+    padding:32px 28px;max-width:380px;width:100%;text-align:center;
+}
+.login-card h1{font-family:'Playfair Display',serif;font-size:28px;
+    background:linear-gradient(135deg,#D4A017,#FFE082);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px;}
+.login-card .login-sub{font-size:13px;color:rgba(255,255,255,0.3);margin-bottom:24px;}
+.login-tabs{display:flex;gap:0;margin-bottom:20px;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);}
+.login-tab{flex:1;padding:10px;font-size:13px;font-weight:700;text-align:center;cursor:pointer;
+    background:transparent;color:rgba(255,255,255,0.4);border:none;font-family:'Nunito',sans-serif;transition:all 0.2s;}
+.login-tab.active{background:rgba(212,160,23,0.15);color:#D4A017;}
+.login-field{margin-bottom:14px;text-align:left;}
+.login-field label{display:block;font-size:11px;font-weight:700;color:rgba(255,255,255,0.5);
+    text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;}
+.login-field input,.login-field select{
+    width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);
+    background:rgba(255,255,255,0.04);color:#fff;font-family:'Nunito',sans-serif;font-size:16px;
+    transition:border-color 0.2s;
+}
+.login-field input:focus,.login-field select:focus{outline:none;border-color:rgba(212,160,23,0.5);}
+.login-field select option{background:#0D0D1A;color:#fff;}
+.color-swatches{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:4px;}
+.color-swatch{width:36px;height:36px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all 0.2s;}
+.color-swatch:hover{transform:scale(1.15);}
+.color-swatch.picked{border-color:#fff;box-shadow:0 0 12px rgba(255,255,255,0.3);}
+.login-submit{
+    width:100%;padding:14px;border-radius:12px;border:none;margin-top:16px;
+    background:linear-gradient(135deg,#D4A017,#B8860B);color:#0D0D1A;
+    font-family:'Nunito',sans-serif;font-size:16px;font-weight:800;
+    cursor:pointer;transition:all 0.2s;letter-spacing:0.5px;
+}
+.login-submit:hover{transform:scale(1.02);box-shadow:0 4px 20px rgba(212,160,23,0.4);}
+.login-submit:disabled{opacity:0.5;cursor:not-allowed;transform:none;box-shadow:none;}
+.login-error{color:#EF4444;font-size:13px;margin-top:10px;min-height:20px;}
+.crew-badge.active-user{box-shadow:0 0 8px currentColor;animation:glowPulse 2s infinite;}
+@keyframes glowPulse{0%,100%{box-shadow:0 0 6px currentColor;}50%{box-shadow:0 0 14px currentColor;}}
 </style>
 </head>
 <body>
+
+<!-- LOGIN OVERLAY -->
+<div class="login-overlay" id="loginOverlay">
+    <div class="login-card">
+        <h1>Edge Finder</h1>
+        <div class="login-sub">Crew Dashboard</div>
+        <div class="login-tabs">
+            <button class="login-tab active" onclick="switchLoginTab('signin')">Sign In</button>
+            <button class="login-tab" onclick="switchLoginTab('register')">Join Crew</button>
+        </div>
+        <div id="loginSignin">
+            <div class="login-field">
+                <label>Name</label>
+                <select id="loginName">
+                    <option value="">Loading crew...</option>
+                </select>
+            </div>
+            <div class="login-field">
+                <label>PIN (4 digits)</label>
+                <input type="tel" id="loginPin" maxlength="4" pattern="[0-9]{4}" inputmode="numeric" placeholder="Enter your 4-digit PIN" autocomplete="off">
+            </div>
+            <button class="login-submit" onclick="doLogin()">Sign In</button>
+        </div>
+        <div id="loginRegister" style="display:none;">
+            <div class="login-field">
+                <label>Your Name</label>
+                <input type="text" id="registerName" placeholder="Pick a crew name" maxlength="20" autocomplete="off">
+            </div>
+            <div class="login-field">
+                <label>PIN (4 digits)</label>
+                <input type="tel" id="registerPin" maxlength="4" pattern="[0-9]{4}" inputmode="numeric" placeholder="Choose a 4-digit PIN" autocomplete="off">
+            </div>
+            <div class="login-field">
+                <label>Pick Your Color</label>
+                <div class="color-swatches" id="colorSwatches">
+                    <div class="color-swatch picked" data-color="#D4A017" style="background:#D4A017;" onclick="pickColor(this)"></div>
+                    <div class="color-swatch" data-color="#10B981" style="background:#10B981;" onclick="pickColor(this)"></div>
+                    <div class="color-swatch" data-color="#60A5FA" style="background:#60A5FA;" onclick="pickColor(this)"></div>
+                    <div class="color-swatch" data-color="#A78BFA" style="background:#A78BFA;" onclick="pickColor(this)"></div>
+                    <div class="color-swatch" data-color="#EF4444" style="background:#EF4444;" onclick="pickColor(this)"></div>
+                    <div class="color-swatch" data-color="#F59E0B" style="background:#F59E0B;" onclick="pickColor(this)"></div>
+                    <div class="color-swatch" data-color="#EC4899" style="background:#EC4899;" onclick="pickColor(this)"></div>
+                    <div class="color-swatch" data-color="#14B8A6" style="background:#14B8A6;" onclick="pickColor(this)"></div>
+                </div>
+            </div>
+            <button class="login-submit" onclick="doRegister()">Join Crew</button>
+        </div>
+        <div class="login-error" id="loginError"></div>
+    </div>
+</div>
 
 <!-- TOP BAR -->
 <div class="topbar">
@@ -440,6 +535,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     <div style="display:flex;gap:6px;align-items:center;">
         <button class="topbar-refresh" onclick="refreshSlate()">REFRESH SLATE</button>
         <button onclick="clearAllCache()" style="cursor:pointer;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;background:rgba(239,68,68,0.15);color:#EF4444;border:1px solid rgba(239,68,68,0.3);letter-spacing:0.5px;font-family:'Nunito',sans-serif;">CLEAR CACHE</button>
+        <button onclick="doLogout()" id="logoutBtn" style="cursor:pointer;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.1);letter-spacing:0.5px;font-family:'Nunito',sans-serif;">LOGOUT</button>
     </div>
 </div>
 
@@ -726,7 +822,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     </div>
 
     <!-- Per-person breakdown -->
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0;">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0;">
         <div style="background:#141428;border:1px solid #2a2a5a;border-radius:8px;padding:12px;text-align:center;">
             <div style="color:#D4A017;font-weight:700;margin-bottom:4px;">Peter</div>
             <div id="brPeter" style="color:#fff;font-size:14px;">0-0-0 | 0u</div>
@@ -738,6 +834,10 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
         <div style="background:#141428;border:1px solid #2a2a5a;border-radius:8px;padding:12px;text-align:center;">
             <div style="color:#5588EE;font-weight:700;margin-bottom:4px;">Jimmy</div>
             <div id="brJimmy" style="color:#fff;font-size:14px;">0-0-0 | 0u</div>
+        </div>
+        <div style="background:#141428;border:1px solid #2a2a5a;border-radius:8px;padding:12px;text-align:center;">
+            <div style="color:#A78BFA;font-weight:700;margin-bottom:4px;">Sinton.ia</div>
+            <div id="brSinton.ia" style="color:#fff;font-size:14px;">0-0-0 | 0u</div>
         </div>
     </div>
 
@@ -755,13 +855,9 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     <div class="form-sub">Drop your pick. It saves locally and syncs to the crew board.</div>
 
     <div class="form-group">
-        <label>Your Name</label>
-        <select id="pickName">
-            <option value="">Select...</option>
-            <option value="Peter">Peter</option>
-            <option value="Chinny">Chinny</option>
-            <option value="Jimmy">Jimmy</option>
-        </select>
+        <label>Picking As</label>
+        <div id="pickNameDisplay" style="padding:12px 16px;border-radius:10px;border:1px solid rgba(212,160,23,0.3);background:rgba(212,160,23,0.06);color:#D4A017;font-weight:700;font-size:14px;">--</div>
+        <input type="hidden" id="pickName" value="">
     </div>
 
     <div class="form-row">
@@ -905,12 +1001,8 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
         <div class="slip-label">ODDS</div>
         <input type="text" class="slip-odds-input" id="slipOdds" value="-110">
 
-        <div class="slip-label">WHO</div>
-        <div class="slip-btn-group" id="slipWhoGroup">
-            <div class="slip-btn" onclick="selectSlipOption('who','Peter',this)">Peter</div>
-            <div class="slip-btn" onclick="selectSlipOption('who','Chinny',this)">Chinny</div>
-            <div class="slip-btn" onclick="selectSlipOption('who','Jimmy',this)">Jimmy</div>
-        </div>
+        <div class="slip-label">PICKING AS</div>
+        <div id="slipWhoDisplay" style="font-size:14px;font-weight:700;color:#D4A017;padding:8px 0;"></div>
 
         <div class="slip-label">UNITS</div>
         <div class="slip-btn-group" id="slipUnitsGroup">
@@ -938,7 +1030,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 
 <div class="footer">
     Edge Finder by Sinton.ia | Crew Dashboard | No edge = no bet<br>
-    Peter + Chinny + Jimmy | Crew picks + upsets in every panel<br>
+    Peter + Chinny + Jimmy + Sinton.ia | Crew picks + upsets in every panel<br>
     Sweep → Gotcha → Trends → Card → Peter picks → Chinny picks → Lock
 </div>
 
@@ -982,6 +1074,193 @@ function safeClear() {
     catch(e) { console.warn('localStorage clear failed:', e); }
 }
 
+// ===== CREW AUTH =====
+var crewToken = safeLoad('edgeCrewToken') || '';
+var crewProfile = null;  // {id, display_name, color, is_admin}
+
+function crewFetch(url, options) {
+    options = options || {};
+    options.headers = options.headers || {};
+    if (crewToken) {
+        options.headers['X-Crew-Token'] = crewToken;
+    }
+    return fetch(url, options);
+}
+
+function switchLoginTab(tab) {
+    var tabs = document.querySelectorAll('.login-tab');
+    tabs.forEach(function(t) { t.classList.remove('active'); });
+    if (tab === 'signin') {
+        tabs[0].classList.add('active');
+        document.getElementById('loginSignin').style.display = 'block';
+        document.getElementById('loginRegister').style.display = 'none';
+    } else {
+        tabs[1].classList.add('active');
+        document.getElementById('loginSignin').style.display = 'none';
+        document.getElementById('loginRegister').style.display = 'block';
+    }
+    document.getElementById('loginError').textContent = '';
+}
+
+function pickColor(el) {
+    document.querySelectorAll('.color-swatch').forEach(function(s) { s.classList.remove('picked'); });
+    el.classList.add('picked');
+}
+
+function getSelectedColor() {
+    var picked = document.querySelector('.color-swatch.picked');
+    return picked ? picked.getAttribute('data-color') : '#D4A017';
+}
+
+function doLogin() {
+    var nameEl = document.getElementById('loginName');
+    var pinEl = document.getElementById('loginPin');
+    var name = nameEl.value;
+    var pin = pinEl.value;
+    var errEl = document.getElementById('loginError');
+    errEl.textContent = '';
+    if (!name) { errEl.textContent = 'Pick your name'; return; }
+    if (!pin || pin.length !== 4) { errEl.textContent = 'PIN must be 4 digits'; return; }
+
+    fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({name: name, pin: pin})
+    }).then(function(r) { return r.json().then(function(d) { return {ok: r.ok, data: d}; }); })
+    .then(function(res) {
+        if (res.ok && res.data.token) {
+            crewToken = res.data.token;
+            crewProfile = res.data.profile;
+            safeSave('edgeCrewToken', crewToken);
+            onLoginSuccess();
+        } else {
+            errEl.textContent = res.data.error || 'Login failed';
+        }
+    }).catch(function() { errEl.textContent = 'Server error — try again'; });
+}
+
+function doRegister() {
+    var nameEl = document.getElementById('registerName');
+    var pinEl = document.getElementById('registerPin');
+    var name = nameEl.value.trim();
+    var pin = pinEl.value;
+    var color = getSelectedColor();
+    var errEl = document.getElementById('loginError');
+    errEl.textContent = '';
+    if (!name || name.length < 2) { errEl.textContent = 'Name must be at least 2 characters'; return; }
+    if (!pin || pin.length !== 4) { errEl.textContent = 'PIN must be 4 digits'; return; }
+
+    fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({name: name, pin: pin, color: color})
+    }).then(function(r) { return r.json().then(function(d) { return {ok: r.ok, data: d}; }); })
+    .then(function(res) {
+        if (res.ok && res.data.token) {
+            crewToken = res.data.token;
+            crewProfile = res.data.profile;
+            safeSave('edgeCrewToken', crewToken);
+            onLoginSuccess();
+        } else {
+            errEl.textContent = res.data.error || 'Registration failed';
+        }
+    }).catch(function() { errEl.textContent = 'Server error — try again'; });
+}
+
+function doLogout() {
+    crewFetch('/api/auth/logout', {method: 'POST'}).catch(function() {});
+    crewToken = '';
+    crewProfile = null;
+    safeRemove('edgeCrewToken');
+    showLoginOverlay();
+}
+
+function onLoginSuccess() {
+    document.getElementById('loginOverlay').classList.add('hidden');
+    updateCrewUI();
+}
+
+function showLoginOverlay() {
+    document.getElementById('loginOverlay').classList.remove('hidden');
+    document.getElementById('loginPin').value = '';
+    document.getElementById('registerPin').value = '';
+    document.getElementById('loginError').textContent = '';
+    loadLoginProfiles();
+}
+
+function updateCrewUI() {
+    if (!crewProfile) return;
+    var name = crewProfile.display_name;
+    var color = crewProfile.color;
+
+    // Update pickName hidden field
+    var pickNameInput = document.getElementById('pickName');
+    if (pickNameInput) pickNameInput.value = name;
+    var pickNameDisplay = document.getElementById('pickNameDisplay');
+    if (pickNameDisplay) {
+        pickNameDisplay.textContent = name;
+        pickNameDisplay.style.color = color;
+        pickNameDisplay.style.borderColor = color;
+    }
+
+    // Update bet slip WHO display
+    var slipWhoDisplay = document.getElementById('slipWhoDisplay');
+    if (slipWhoDisplay) {
+        slipWhoDisplay.textContent = name;
+        slipWhoDisplay.style.color = color;
+    }
+
+    // Also save for upset name compatibility
+    safeSave('edgeSlipWho', name);
+
+    // Topbar glow on active user badge
+    document.querySelectorAll('.crew-badge').forEach(function(badge) {
+        badge.classList.remove('active-user');
+        if (badge.textContent.trim().toLowerCase() === name.toLowerCase()) {
+            badge.classList.add('active-user');
+        }
+    });
+}
+
+function loadLoginProfiles() {
+    fetch('/api/auth/profiles').then(function(r) { return r.json(); }).then(function(data) {
+        var select = document.getElementById('loginName');
+        select.innerHTML = '<option value="">Select your name...</option>';
+        (data.profiles || []).forEach(function(p) {
+            var opt = document.createElement('option');
+            opt.value = p.display_name;
+            opt.textContent = p.display_name;
+            opt.style.color = p.color;
+            select.appendChild(opt);
+        });
+    }).catch(function() {
+        var select = document.getElementById('loginName');
+        select.innerHTML = '<option value="">Server offline</option>';
+    });
+}
+
+// Check session on page load
+function checkSession() {
+    if (!crewToken) {
+        showLoginOverlay();
+        return;
+    }
+    fetch('/api/auth/me', {
+        headers: {'X-Crew-Token': crewToken}
+    }).then(function(r) {
+        if (r.ok) return r.json();
+        throw new Error('expired');
+    }).then(function(data) {
+        crewProfile = data.profile;
+        onLoginSuccess();
+    }).catch(function() {
+        crewToken = '';
+        safeRemove('edgeCrewToken');
+        showLoginOverlay();
+    });
+}
+checkSession();
+
 // ===== TOAST QUEUE SYSTEM =====
 var toastQueue = [];
 var toastShowing = false;
@@ -1020,8 +1299,8 @@ function refreshSlate() {
     document.querySelectorAll('.game-row').forEach(function(el) { el.classList.remove('checked', 'expanded'); });
     document.querySelectorAll('.side-btn').forEach(function(el) { el.classList.remove('picked'); });
 
-    // Reset submit form
-    document.getElementById('pickName').value = '';
+    // Reset submit form (preserve name from profile)
+    document.getElementById('pickName').value = crewProfile ? crewProfile.display_name : '';
     document.getElementById('pickSport').value = '';
     document.getElementById('pickType').value = '';
     document.getElementById('pickMatchup').value = '';
@@ -1173,14 +1452,13 @@ function openBetSlip(matchup, side, sport) {
     document.getElementById('slipMeta').textContent = matchup + ' \u00B7 ' + (sport || '?') + ' \u00B7 ' + slipState.type;
     document.getElementById('slipOdds').value = defaultOdds;
 
-    // Restore "who" from localStorage
-    var savedWho = safeLoad('edgeSlipWho') || '';
-    slipState.who = savedWho;
-    var whoBtns = document.querySelectorAll('#slipWhoGroup .slip-btn');
-    whoBtns.forEach(function(b) {
-        b.classList.remove('active');
-        if (savedWho && b.textContent.trim() === savedWho) b.classList.add('active');
-    });
+    // Set WHO from logged-in profile
+    slipState.who = crewProfile ? crewProfile.display_name : (safeLoad('edgeSlipWho') || '');
+    var slipWhoDisplay = document.getElementById('slipWhoDisplay');
+    if (slipWhoDisplay) {
+        slipWhoDisplay.textContent = slipState.who;
+        if (crewProfile) slipWhoDisplay.style.color = crewProfile.color;
+    }
 
     // Reset units to 1
     slipState.units = '1';
@@ -1227,10 +1505,7 @@ function selectSlipOption(group, value, el) {
     var parentGroup = el.parentElement;
     parentGroup.querySelectorAll('.slip-btn').forEach(function(b) { b.classList.remove('active'); });
     el.classList.add('active');
-    if (group === 'who') {
-        slipState.who = value;
-        safeSave('edgeSlipWho', value);
-    } else if (group === 'units') {
+    if (group === 'units') {
         slipState.units = value;
     } else if (group === 'conf') {
         slipState.conf = value;
@@ -1251,8 +1526,9 @@ function toggleSlipNote() {
 }
 
 function submitBetSlip() {
-    if (!slipState.who) {
-        showToast('Pick WHO first!', 'error');
+    var who = crewProfile ? crewProfile.display_name : slipState.who;
+    if (!who) {
+        showToast('Not logged in!', 'error');
         return;
     }
 
@@ -1264,7 +1540,7 @@ function submitBetSlip() {
     var note = document.getElementById('slipNoteArea').value || '';
 
     var pick = {
-        name: slipState.who,
+        name: who,
         sport: slipState.sport,
         type: slipState.type,
         matchup: slipState.matchup,
@@ -1282,8 +1558,8 @@ function submitBetSlip() {
     stored.unshift(pick);
     safeSave('edgePicks', JSON.stringify(stored));
 
-    // POST to server
-    fetch('/api/picks', {
+    // POST to server with auth
+    crewFetch('/api/picks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(pick)
@@ -1559,7 +1835,7 @@ function setConf(el, level) {
 }
 
 function submitPick() {
-    var name = document.getElementById('pickName').value;
+    var name = crewProfile ? crewProfile.display_name : document.getElementById('pickName').value;
     var sport = document.getElementById('pickSport').value;
     var type = document.getElementById('pickType').value;
     var matchupVal = document.getElementById('pickMatchup').value;
@@ -1595,8 +1871,8 @@ function submitPick() {
     stored.unshift(pick);
     safeSave('edgePicks', JSON.stringify(stored));
 
-    // POST to server
-    fetch('/api/picks', {
+    // POST to server with auth
+    crewFetch('/api/picks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(pick)
@@ -1658,7 +1934,7 @@ function renderBankroll() {
     document.getElementById('unitSize').value = unitSize;
 
     var wins = 0, losses = 0, pushes = 0, netUnits = 0;
-    var personStats = {Peter:{w:0,l:0,p:0,u:0},Chinny:{w:0,l:0,p:0,u:0},Jimmy:{w:0,l:0,p:0,u:0}};
+    var personStats = {Peter:{w:0,l:0,p:0,u:0},Chinny:{w:0,l:0,p:0,u:0},Jimmy:{w:0,l:0,p:0,u:0},'Sinton.ia':{w:0,l:0,p:0,u:0}};
 
     stored.forEach(function(pick) {
         if (!pick.result) return;
@@ -1914,12 +2190,12 @@ function submitParlay() {
         return;
     }
 
-    var name = document.getElementById('pickName').value;
+    var name = crewProfile ? crewProfile.display_name : document.getElementById('pickName').value;
     var units = document.getElementById('pickUnits').value;
     var notes = document.getElementById('pickNotes').value;
 
     if (!name) {
-        showToast('Pick your name first.', true);
+        showToast('Not logged in!', true);
         return;
     }
 
@@ -1955,8 +2231,8 @@ function submitParlay() {
     stored.unshift(pick);
     safeSave('edgePicks', JSON.stringify(stored));
 
-    // POST to server
-    fetch('/api/picks', {
+    // POST to server with auth
+    crewFetch('/api/picks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(pick)
@@ -2823,10 +3099,10 @@ function loadProps() {
 
 // ===== UPSET SPECIALS — CREW PICKS =====
 var UPSET_SPORTS = ['NBA', 'NHL', 'SOCCER', 'MMA', 'BOXING'];
-var NAME_COLORS = {peter: 'peter', chinny: 'chinny', jimmy: 'jimmy'};
+var NAME_COLORS = {peter: 'peter', chinny: 'chinny', jimmy: 'jimmy', 'sinton.ia': 'sintonia'};
 
 function getUpsetName() {
-    return safeLoad('edgeSlipWho') || 'Peter';
+    return crewProfile ? crewProfile.display_name : (safeLoad('edgeSlipWho') || 'Peter');
 }
 
 function submitUpset(sport) {
@@ -2837,8 +3113,8 @@ function submitUpset(sport) {
     // Strip trailing odds from dropdown value, e.g. "HOU -14.5 (-110)" → "HOU -14.5"
     var teamVal = teamEl.value.trim().replace(/\s*\([+-]?\d+\)\s*$/, '');
     if (!teamVal) { showToast('Pick a side first', 'error'); return; }
-    var name = getUpsetName();
-    fetch('/api/upsets', {
+    var name = crewProfile ? crewProfile.display_name : getUpsetName();
+    crewFetch('/api/upsets', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({name: name, sport: sport, team: teamVal, odds: odds.value.trim(), thesis: thesis ? thesis.value.trim() : ''})
@@ -2900,7 +3176,7 @@ function populateUpsetDropdowns(sport) {
 }
 
 function deleteUpset(pickId, sport) {
-    fetch('/api/upsets/' + pickId, {method: 'DELETE'}).then(function(r) {
+    crewFetch('/api/upsets/' + pickId, {method: 'DELETE'}).then(function(r) {
         if (r.ok) { if (sport) loadUpsets(sport); loadCombinedUpsets(); showToast('Pick deleted'); }
         else showToast('Delete failed', 'error');
     }).catch(function() { showToast('Server error', 'error'); });
@@ -3036,8 +3312,10 @@ async function clearAllCache() {
         var names = await caches.keys();
         for (var n of names) await caches.delete(n);
     }
-    // 3. Kill localStorage
+    // 3. Kill localStorage (preserve crew token)
+    var savedToken = safeLoad('edgeCrewToken');
     safeClear();
+    if (savedToken) safeSave('edgeCrewToken', savedToken);
     // 4. Kill in-memory analysis cache
     if (typeof _analysisCache !== 'undefined') {
         for (var k in _analysisCache) delete _analysisCache[k];

@@ -16,3 +16,5 @@ services:
         sync: false
       - key: AZURE_OPENAI_MODEL
         sync: false
+      - key: CREW_PIN_SALT
+        sync: false

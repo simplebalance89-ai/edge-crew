@@ -2,6 +2,8 @@ import os
 import time
 import json
 import uuid
+import hashlib
+import secrets
 import httpx
 from openai import AzureOpenAI
 from datetime import datetime
@@ -10,6 +12,158 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 
 app = FastAPI()
+
+# ===== CREW AUTH =====
+CREW_PIN_SALT = os.environ.get("CREW_PIN_SALT", "edge-crew-default-salt-change-me")
+PROFILES_FILE = os.path.join(os.path.dirname(__file__), "data", "crew_profiles.json")
+_sessions = {}  # token -> {id, display_name, color, is_admin}
+
+DEFAULT_CREW = [
+    {"id": "peter", "display_name": "Peter", "color": "#D4A017", "is_admin": True},
+    {"id": "chinny", "display_name": "Chinny", "color": "#10B981", "is_admin": False},
+    {"id": "jimmy", "display_name": "Jimmy", "color": "#60A5FA", "is_admin": False},
+    {"id": "sintonia", "display_name": "Sinton.ia", "color": "#A78BFA", "is_admin": False},
+]
+
+
+def _hash_pin(pin: str) -> str:
+    return hashlib.sha256((CREW_PIN_SALT + pin).encode()).hexdigest()
+
+
+def _read_profiles():
+    try:
+        with open(PROFILES_FILE, "r") as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {"profiles": []}
+
+
+def _write_profiles(data):
+    os.makedirs(os.path.dirname(PROFILES_FILE), exist_ok=True)
+    with open(PROFILES_FILE, "w") as f:
+        json.dump(data, f, indent=2)
+
+
+def _seed_profiles():
+    """Pre-seed default crew if profiles file is empty. Default PIN: 0000."""
+    data = _read_profiles()
+    if data.get("profiles"):
+        return
+    default_pin_hash = _hash_pin("0000")
+    for member in DEFAULT_CREW:
+        data.setdefault("profiles", []).append({
+            "id": member["id"],
+            "display_name": member["display_name"],
+            "pin_hash": default_pin_hash,
+            "color": member["color"],
+            "is_admin": member["is_admin"],
+            "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "last_login": None,
+        })
+    _write_profiles(data)
+
+
+_seed_profiles()
+
+
+def _get_crew(request: Request):
+    """Read X-Crew-Token header, return profile dict or None."""
+    token = request.headers.get("x-crew-token", "")
+    return _sessions.get(token)
+
+
+@app.post("/api/auth/register")
+async def auth_register(request: Request):
+    body = await request.json()
+    name = (body.get("name") or "").strip()
+    pin = (body.get("pin") or "").strip()
+    color = (body.get("color") or "#D4A017").strip()
+
+    if not name or len(name) < 2:
+        return JSONResponse({"error": "Name must be at least 2 characters"}, status_code=400)
+    if not pin or len(pin) != 4 or not pin.isdigit():
+        return JSONResponse({"error": "PIN must be exactly 4 digits"}, status_code=400)
+
+    data = _read_profiles()
+    for p in data.get("profiles", []):
+        if p["display_name"].lower() == name.lower():
+            return JSONResponse({"error": "Name already taken"}, status_code=409)
+
+    profile = {
+        "id": str(uuid.uuid4())[:8],
+        "display_name": name,
+        "pin_hash": _hash_pin(pin),
+        "color": color,
+        "is_admin": False,
+        "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "last_login": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+    }
+    data.setdefault("profiles", []).append(profile)
+    _write_profiles(data)
+
+    token = secrets.token_urlsafe(32)
+    _sessions[token] = {
+        "id": profile["id"],
+        "display_name": profile["display_name"],
+        "color": profile["color"],
+        "is_admin": profile["is_admin"],
+    }
+    return JSONResponse({"status": "ok", "token": token, "profile": _sessions[token]})
+
+
+@app.post("/api/auth/login")
+async def auth_login(request: Request):
+    body = await request.json()
+    name = (body.get("name") or "").strip()
+    pin = (body.get("pin") or "").strip()
+
+    if not name or not pin:
+        return JSONResponse({"error": "Name and PIN required"}, status_code=400)
+
+    data = _read_profiles()
+    pin_hash = _hash_pin(pin)
+    for p in data.get("profiles", []):
+        if p["display_name"].lower() == name.lower() and p["pin_hash"] == pin_hash:
+            p["last_login"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            _write_profiles(data)
+
+            token = secrets.token_urlsafe(32)
+            _sessions[token] = {
+                "id": p["id"],
+                "display_name": p["display_name"],
+                "color": p["color"],
+                "is_admin": p.get("is_admin", False),
+            }
+            return JSONResponse({"status": "ok", "token": token, "profile": _sessions[token]})
+
+    return JSONResponse({"error": "Invalid name or PIN"}, status_code=401)
+
+
+@app.get("/api/auth/me")
+async def auth_me(request: Request):
+    crew = _get_crew(request)
+    if not crew:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    return JSONResponse({"status": "ok", "profile": crew})
+
+
+@app.post("/api/auth/logout")
+async def auth_logout(request: Request):
+    token = request.headers.get("x-crew-token", "")
+    _sessions.pop(token, None)
+    return JSONResponse({"status": "ok"})
+
+
+@app.get("/api/auth/profiles")
+async def auth_profiles():
+    """Return list of all crew names + colors (no PINs). For login dropdown."""
+    data = _read_profiles()
+    return JSONResponse({
+        "profiles": [
+            {"display_name": p["display_name"], "color": p["color"]}
+            for p in data.get("profiles", [])
+        ]
+    })
 
 
 @app.middleware("http")
@@ -543,7 +697,7 @@ async def get_analysis(sport: str):
         for ig in incomplete_games:
             incomplete_note += f"- {ig['matchup']} — MISSING: {', '.join(ig['missing'])}\n"
 
-    prompt = f"""You are Edge Finder, a sharp sports betting analyst for a crew of 3 bettors: Peter (heavy/value/sharp), Chinny (props/NHL/soccer), and Jimmy (new, learning).
+    prompt = f"""You are Edge Finder, a sharp sports betting analyst for a crew of 4 bettors: Peter (heavy/value/sharp), Chinny (props/NHL/soccer), Jimmy (new, learning), and Sinton.ia (card builder/grader).
 
 Today's {sport.upper()} slate — {today} (pulled at {now_time}):
 {games_text}
@@ -664,7 +818,8 @@ async def get_picks(date: str = ""):
 async def save_pick(request: Request):
     """Save a new pick from the bet slip popup."""
     body = await request.json()
-    name = body.get("name", "")
+    crew = _get_crew(request)
+    name = crew["display_name"] if crew else body.get("name", "")
     matchup = body.get("matchup", "")
     selection = body.get("selection", "")
 
@@ -814,7 +969,8 @@ async def get_upsets(sport: str = "", date: str = ""):
 async def save_upset(request: Request):
     """Save a new upset pick from any crew member."""
     body = await request.json()
-    name = body.get("name", "")
+    crew = _get_crew(request)
+    name = crew["display_name"] if crew else body.get("name", "")
     team = body.get("team", "")
     odds = body.get("odds", "")
 
