@@ -961,20 +961,20 @@ async def get_odds(sport: str, markets: str = "h2h,spreads,totals"):
     all_games = []
     source_name = ""
 
-    # --- PRIMARY: SharpAPI ---
-    if SHARPAPI_KEY and sport_lower in SHARPAPI_LEAGUES:
-        all_games = await _fetch_sharpapi_odds(sport_lower, label)
-        if all_games:
-            source_name = "SharpAPI (DraftKings)"
-
-    # --- FALLBACK: The Odds API ---
-    if not all_games and ODDS_API_KEY:
+    # --- PRIMARY: The Odds API ---
+    if ODDS_API_KEY:
         keys = SPORT_KEYS.get(sport_lower, [sport_lower])
         for key in keys:
             games = await _fetch_sport_odds(key, markets, label)
             all_games.extend(games)
         if all_games:
             source_name = "The Odds API"
+
+    # --- FALLBACK: SharpAPI ---
+    if not all_games and SHARPAPI_KEY and sport_lower in SHARPAPI_LEAGUES:
+        all_games = await _fetch_sharpapi_odds(sport_lower, label)
+        if all_games:
+            source_name = "SharpAPI (DraftKings)"
 
     if not all_games and not SHARPAPI_KEY and not ODDS_API_KEY:
         return JSONResponse({"error": "No odds API configured (set SHARPAPI_KEY or ODDS_API_KEY)"}, status_code=500)
@@ -1054,7 +1054,7 @@ async def get_credits():
     else:
         result["odds_api"] = {"status": "not configured"}
 
-    result["primary"] = "SharpAPI" if SHARPAPI_KEY else "The Odds API"
+    result["primary"] = "The Odds API" if ODDS_API_KEY else "SharpAPI"
     return JSONResponse(result)
 
 
