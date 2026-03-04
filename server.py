@@ -199,14 +199,18 @@ async def _get_lineup_and_injury_context(sport):
             parts.append(cached)
         else:
             try:
-                async with httpx.AsyncClient(timeout=15.0, follow_redirects=True) as client:
+                async with httpx.AsyncClient(timeout=20.0, follow_redirects=True) as client:
                     resp = await client.get(cbs_url, headers={
-                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+                        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                        "Accept-Language": "en-US,en;q=0.9",
                     })
+                    print(f"CBS Sports {sport} response: {resp.status_code}, size: {len(resp.text)}")
                     if resp.status_code == 200:
                         html = resp.text
                         rows = re.findall(r'<tr[^>]*>(.*?)</tr>', html, re.DOTALL)
                         player_rows = [r for r in rows if 'CellPlayerName' in r]
+                        print(f"CBS Sports {sport}: {len(rows)} rows, {len(player_rows)} player rows")
 
                         if player_rows:
                             injury_lines = []
@@ -237,6 +241,22 @@ async def _get_lineup_and_injury_context(sport):
                             injury_text = "\n".join(injury_lines)
                             _set_cache(cache_key, injury_text)
                             parts.append(injury_text)
+                        else:
+                            # Fallback: try broader pattern for any injury table
+                            all_names = re.findall(r'<a[^>]*href="/nba/players/[^"]*"[^>]*>([^<]+)</a>', html)
+                            statuses = re.findall(r'>(Out|Day-To-Day|Game Time Decision|Expected to be out[^<]*)<', html)
+                            print(f"CBS fallback: {len(all_names)} names, {len(statuses)} statuses")
+                            if all_names and statuses:
+                                injury_lines = [f"INJURY REPORT ({sport.upper()} via CBS Sports - fallback parser):"]
+                                for name, status in zip(all_names[:60], statuses[:60]):
+                                    injury_lines.append(f"  - {name.strip()} | {status.strip()}")
+                                injury_text = "\n".join(injury_lines)
+                                _set_cache(cache_key, injury_text)
+                                parts.append(injury_text)
+                            else:
+                                parts.append(f"CBS Sports returned {len(html)} bytes but no parseable injury data.")
+                    else:
+                        parts.append(f"CBS Sports returned HTTP {resp.status_code}.")
             except Exception as e:
                 print(f"CBS injury fetch failed for {sport}: {e}")
                 parts.append(f"CBS Sports injury fetch failed: {e}")
@@ -776,7 +796,7 @@ Today's {sport.upper()} slate - {today} (pulled at {now_time}):
 {games_text}
 {incomplete_note}
 
-=== INJURY & LINEUP INTELLIGENCE (from RotoWire) ===
+=== INJURY & LINEUP INTELLIGENCE (CBS Sports + RotoWire) ===
 {injury_context}
 
 {matrix_section}
@@ -855,7 +875,8 @@ Return ONLY valid JSON. No markdown. No explanation."""
         analysis["books_used"] = odds_data.get("books_used", [])
         analysis["games_complete"] = len(complete_games)
         analysis["games_incomplete"] = len(incomplete_games)
-        analysis["injury_source"] = "RotoWire" if injury_context else "none"
+        analysis["injury_source"] = "CBS Sports + RotoWire" if injury_context else "none"
+        analysis["injury_data_length"] = len(injury_context)
         analysis["matrix"] = sport_lower in SPORT_MATRICES
 
         _set_cache(cache_key, analysis)
@@ -1233,6 +1254,42 @@ async def clear_server_cache():
     """Clear all server-side cached odds and analysis data."""
     _cache.clear()
     return JSONResponse({"status": "cleared", "message": "Server cache flushed"})
+
+
+@app.get("/api/debug/injuries/{sport}")
+async def debug_injuries(sport: str):
+    """Debug endpoint: test CBS Sports injury fetch from this server."""
+    import re
+    sport_lower = sport.lower()
+    CBS_URLS = {"nba": "https://www.cbssports.com/nba/injuries/", "nhl": "https://www.cbssports.com/nhl/injuries/"}
+    url = CBS_URLS.get(sport_lower)
+    if not url:
+        return JSONResponse({"error": f"No CBS URL for {sport}"})
+    try:
+        async with httpx.AsyncClient(timeout=20.0, follow_redirects=True) as client:
+            resp = await client.get(url, headers={
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+                "Accept": "text/html,application/xhtml+xml",
+                "Accept-Language": "en-US,en;q=0.9",
+            })
+            html = resp.text
+            rows = re.findall(r'<tr[^>]*>(.*?)</tr>', html, re.DOTALL)
+            player_rows = [r for r in rows if 'CellPlayerName' in r]
+            sample = []
+            for row in player_rows[:5]:
+                names = re.findall(r'>([^<]+)</a>', row)
+                sample.append(names[-1] if names else "?")
+            return JSONResponse({
+                "status_code": resp.status_code,
+                "html_length": len(html),
+                "total_rows": len(rows),
+                "player_rows": len(player_rows),
+                "sample_players": sample,
+                "has_CellPlayerName": "CellPlayerName" in html,
+                "snippet": html[max(0, html.find("CellPlayerName")-100):html.find("CellPlayerName")+200][:300] if "CellPlayerName" in html else html[:500],
+            })
+    except Exception as e:
+        return JSONResponse({"error": str(e)})
 
 
 NO_CACHE_HEADERS = {
