@@ -384,11 +384,51 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 .combined-card-lines span{white-space:nowrap;}
 .combined-card-status{margin-top:6px;}
 
+/* ===== MOBILE QUICK BAR ===== */
+.mobile-quick-bar{
+    display:none;position:fixed;bottom:0;left:0;right:0;z-index:250;
+    background:rgba(13,13,26,0.97);backdrop-filter:blur(16px);
+    border-top:1px solid rgba(212,160,23,0.25);
+    padding:8px 12px;padding-bottom:max(8px,env(safe-area-inset-bottom));
+}
+.mobile-quick-bar-inner{
+    display:flex;justify-content:space-around;align-items:center;gap:4px;
+    max-width:480px;margin:0 auto;
+}
+.mqb-btn{
+    display:flex;flex-direction:column;align-items:center;gap:2px;
+    padding:6px 12px;border:none;background:transparent;
+    color:rgba(255,255,255,0.4);font-family:'Nunito',sans-serif;
+    font-size:0.55rem;font-weight:700;letter-spacing:0.5px;
+    text-transform:uppercase;cursor:pointer;transition:color 0.2s;
+    -webkit-tap-highlight-color:transparent;
+}
+.mqb-btn .mqb-icon{font-size:1.2rem;line-height:1;}
+.mqb-btn:active{color:#D4A017;}
+.mqb-btn.mqb-submit{color:#10B981;}
+.mqb-btn.mqb-results{color:#D4A017;}
+
 /* ===== RESPONSIVE ===== */
 @media(max-width:768px){
+    /* Show mobile quick bar */
+    .mobile-quick-bar{display:block;}
+    body{padding-bottom:80px;}
+
+    /* Slim topbar: hide crew badges + sweep time on mobile */
+    .crew{display:none !important;}
+    .sweep-time{display:none !important;}
+    .topbar{flex-wrap:nowrap;gap:8px;padding:8px 12px;}
+    .topbar-left{gap:8px;}
+    .topbar-title{font-size:16px;}
+    .topbar-date{font-size:10px;}
+
+    /* Sport tabs: slimmer on mobile */
+    .sport-tab{padding:10px 16px;min-height:44px;display:flex;align-items:center;font-size:12px;}
+    .sport-tab .tab-count{font-size:9px;padding:1px 5px;}
+
     /* Game header → stacked card */
     .game-header{
-        display:flex !important;flex-wrap:wrap;gap:8px;padding:12px 16px;
+        display:flex !important;flex-wrap:wrap;gap:8px;padding:12px 14px;
         grid-template-columns:none !important;
     }
     .game-header .pick-check{order:0;}
@@ -405,18 +445,40 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     .pick-check{width:36px !important;height:36px !important;min-width:36px;}
     .slip-btn{min-height:44px;display:flex;align-items:center;justify-content:center;}
     .conf-btn{min-height:44px;display:flex;align-items:center;justify-content:center;}
-    .sport-tab{padding:12px 20px;min-height:44px;display:flex;align-items:center;}
 
     .detail-grid{grid-template-columns:1fr;}
-    .topbar{flex-wrap:wrap;gap:8px;}
-    .crew{flex-wrap:wrap;}
     .upset-submit-form{grid-template-columns:1fr;}.upset-card{flex-wrap:wrap;gap:6px;}
+
+    /* Content tighter on mobile */
+    .content{padding:16px 12px;}
+
+    /* Bankroll: 4-col → 2x2, 3-col → stack */
+    .bankroll-stats-4{grid-template-columns:1fr 1fr !important;gap:8px !important;}
+    .bankroll-stats-3{grid-template-columns:1fr !important;gap:8px !important;}
+
+    /* Gotcha banner tighter */
+    .gotcha-banner{padding:12px 14px;margin-bottom:16px;}
+    .gotcha-banner h3{font-size:14px;}
+
+    /* Upset section tighter */
+    .upset-section{padding:14px;margin-top:16px;}
+
+    /* Submit bar sits above mobile quick bar */
+    .submit-bar{bottom:60px;}
 
     /* Combined table → cards */
     #combinedTableContainer table{display:none !important;}
     .combined-cards-mobile{display:block !important;}
+
+    /* Form improvements */
+    .form-row{grid-template-columns:1fr !important;}
+    .pick-form{padding:0;}
+
+    /* Footer less padding */
+    .footer{padding:20px 16px;margin-top:16px;}
 }
 @media(min-width:769px){
+    .mobile-quick-bar{display:none !important;}
     .combined-cards-mobile{display:none !important;}
     .tabs-wrapper::after{display:none;}
 }
@@ -706,7 +768,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     </div>
 
     <!-- Summary cards -->
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0;">
+    <div class="bankroll-stats-4" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0;">
         <div style="background:#141428;border:1px solid #1e1e40;border-radius:8px;padding:14px;text-align:center;">
             <div style="color:rgba(255,255,255,0.5);font-size:11px;text-transform:uppercase;">Current Balance</div>
             <div id="brBalance" style="color:#D4A017;font-size:24px;font-weight:800;">$0</div>
@@ -726,7 +788,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     </div>
 
     <!-- Per-person breakdown -->
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0;">
+    <div class="bankroll-stats-3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0;">
         <div style="background:#141428;border:1px solid #2a2a5a;border-radius:8px;padding:12px;text-align:center;">
             <div style="color:#D4A017;font-weight:700;margin-bottom:4px;">Peter</div>
             <div id="brPeter" style="color:#fff;font-size:14px;">0-0-0 | 0u</div>
@@ -3053,6 +3115,27 @@ async function clearAllCache() {
     window.location.replace(window.location.pathname + '?purge=' + Date.now());
 }
 </script>
+
+<!-- MOBILE QUICK BAR -->
+<div class="mobile-quick-bar">
+    <div class="mobile-quick-bar-inner">
+        <button class="mqb-btn" onclick="document.querySelector('.sport-tabs').scrollTo({left:0,behavior:'smooth'});window.scrollTo({top:0,behavior:'smooth'})">
+            <span class="mqb-icon">🏀</span>Games
+        </button>
+        <button class="mqb-btn mqb-submit" onclick="switchSport('submit',event)">
+            <span class="mqb-icon">📝</span>Submit
+        </button>
+        <button class="mqb-btn mqb-results" onclick="switchSport('bankroll',event)">
+            <span class="mqb-icon">📊</span>Results
+        </button>
+        <button class="mqb-btn" onclick="switchSport('combined',event)">
+            <span class="mqb-icon">📋</span>Full Slate
+        </button>
+        <button class="mqb-btn" onclick="refreshSlate()">
+            <span class="mqb-icon">🔄</span>Refresh
+        </button>
+    </div>
+</div>
 
 </body>
 </html>
