@@ -2495,9 +2495,10 @@ function buildGameRowHTML(g) {
     var awayAbbr = abbr(g.away);
     var homeAbbr = abbr(g.home);
     var matchup = awayAbbr + ' @ ' + homeAbbr;
+    var hasSpread = (g.home_spread !== undefined && g.home_spread !== null && g.home_spread !== 0) || (g.away_spread !== undefined && g.away_spread !== null && g.away_spread !== 0);
     var spread = g.home_spread || 0;
-    var spreadStr = (spread > 0 ? '+' : '') + spread;
-    var awaySpreadStr = (g.away_spread > 0 ? '+' : '') + (g.away_spread || 0);
+    var spreadStr = hasSpread ? ((spread > 0 ? '+' : '') + spread) : '--';
+    var awaySpreadStr = hasSpread ? ((g.away_spread > 0 ? '+' : '') + (g.away_spread || 0)) : '--';
     var total = g.total || 0;
     var gameDate = new Date(g.time);
     var time = formatGameTime(g.time);
@@ -2520,8 +2521,8 @@ function buildGameRowHTML(g) {
     liveOddsMap[matchup][homeAbbr + ' ML'] = homeML;
 
     var fav = '';
-    if (spread < 0) fav = homeAbbr;
-    else if (spread > 0) fav = awayAbbr;
+    if (hasSpread && spread < 0) fav = homeAbbr;
+    else if (hasSpread && spread > 0) fav = awayAbbr;
 
     // Data completeness check
     var isComplete = g.lines_complete;
@@ -2554,15 +2555,15 @@ function buildGameRowHTML(g) {
             '<div class="game-time">' + dateStr + '<br>' + time + '</div>' +
             '<div class="game-matchup"><span class="away">' + awayAbbr + '</span> @ <span class="home">' + homeAbbr + '</span>' +
                 '<div class="side-select">' +
-                    '<div class="side-btn" onclick="pickSide(event,this,\'' + awayAbbr + ' ' + awaySpreadStr + '\')">' + awayAbbr + ' ' + awaySpreadStr + ' (' + (g.away_spread_odds||'-110') + ')</div>' +
-                    '<div class="side-btn" onclick="pickSide(event,this,\'' + homeAbbr + ' ' + spreadStr + '\')">' + homeAbbr + ' ' + spreadStr + ' (' + (g.home_spread_odds||'-110') + ')</div>' +
+                    (hasSpread ? '<div class="side-btn" onclick="pickSide(event,this,\'' + awayAbbr + ' ' + awaySpreadStr + '\')">' + awayAbbr + ' ' + awaySpreadStr + ' (' + (g.away_spread_odds||'-110') + ')</div>' +
+                    '<div class="side-btn" onclick="pickSide(event,this,\'' + homeAbbr + ' ' + spreadStr + '\')">' + homeAbbr + ' ' + spreadStr + ' (' + (g.home_spread_odds||'-110') + ')</div>' : '') +
                     '<div class="side-btn" onclick="pickSide(event,this,\'OVER ' + total + '\')">O ' + total + ' (' + (g.over_odds||'-110') + ')</div>' +
                     '<div class="side-btn" onclick="pickSide(event,this,\'UNDER ' + total + '\')">U ' + total + ' (' + (g.under_odds||'-110') + ')</div>' +
                     '<div class="side-btn" onclick="pickSide(event,this,\'' + awayAbbr + ' ML\')">' + awayAbbr + ' ML (' + awayML + ')</div>' +
                     '<div class="side-btn" onclick="pickSide(event,this,\'' + homeAbbr + ' ML\')">' + homeAbbr + ' ML (' + homeML + ')</div>' +
                 '</div>' +
             '</div>' +
-            '<div class="game-spread">' + (fav || homeAbbr) + ' ' + (spread < 0 ? spreadStr : awaySpreadStr) + '</div>' +
+            '<div class="game-spread">' + (hasSpread ? ((fav || homeAbbr) + ' ' + (spread < 0 ? spreadStr : awaySpreadStr)) : 'ML') + '</div>' +
             '<div class="game-total">O/U ' + total + '</div>' +
             '<div class="game-grade"><span class="grade ' + gradeClass + '">' + gradeDisplay + '</span></div>' +
             '<div class="game-edge">' + dataTag + bookTag +
@@ -2572,7 +2573,7 @@ function buildGameRowHTML(g) {
         '<div class="game-detail">' +
             '<div class="detail-grid">' +
                 '<div class="detail-box peter"><h4>Lines (' + bookSource + ')</h4>' +
-                    '<p>Spread: ' + awayAbbr + ' ' + awaySpreadStr + ' (' + (g.away_spread_odds||'--') + ') / ' + homeAbbr + ' ' + spreadStr + ' (' + (g.home_spread_odds||'--') + ')<br>' +
+                    (hasSpread ? '<p>Spread: ' + awayAbbr + ' ' + awaySpreadStr + ' (' + (g.away_spread_odds||'--') + ') / ' + homeAbbr + ' ' + spreadStr + ' (' + (g.home_spread_odds||'--') + ')<br>' : '<p>Spread: N/A (ML game)<br>') +
                     'Total: O ' + total + ' (' + (g.over_odds||'--') + ') / U ' + total + ' (' + (g.under_odds||'--') + ')<br>' +
                     'ML: ' + awayAbbr + ' ' + awayML + ' / ' + homeAbbr + ' ' + homeML + '</p>' +
                     '<p style="font-size:10px;color:rgba(255,255,255,0.25);margin-top:6px;">Fetched: ' + fetchedAt + ' | Book: ' + bookSource + '</p>' +
