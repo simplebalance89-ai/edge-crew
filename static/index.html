@@ -3154,7 +3154,7 @@ restoreLockedPicks();
             local.forEach(function(p) { localIds[p.id] = true; });
             var added = 0;
             data.picks.forEach(function(p) {
-                if (\!localIds[p.id]) {
+                if (!localIds[p.id]) {
                     local.unshift(p);
                     added++;
                 }
