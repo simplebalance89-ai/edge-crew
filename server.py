@@ -22,9 +22,16 @@ def _sanitize(s):
 
 app = FastAPI()
 
+
+@app.get("/health")
+async def health_check():
+    """Health check for Render auto-restart."""
+    return JSONResponse({"status": "ok", "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ")})
+
+
 # ===== CREW AUTH =====
 CREW_PIN_SALT = os.environ.get("CREW_PIN_SALT", "edge-crew-default-salt-change-me")
-PROFILES_FILE = os.path.join(os.path.dirname(__file__), "data", "crew_profiles.json")
+PROFILES_FILE = os.path.join(os.path.dirname(__file__), "data", "crew_profiles.json")  # stays in app dir (not persistent — profiles are small + seeded)
 _sessions = {}  # token -> {id, display_name, color, is_admin}
 
 DEFAULT_CREW = [
@@ -192,8 +199,10 @@ ODDS_API_BASE = "https://api.the-odds-api.com/v4/sports"
 PREFERRED_BOOK = "hardrockbet"
 FALLBACK_BOOKS = ["draftkings", "fanduel", "betmgm", "bovada"]
 REGIONS = "us,us2"
-UPSETS_FILE = os.path.join(os.path.dirname(__file__), "data", "upsets.json")
-PICKS_FILE = os.path.join(os.path.dirname(__file__), "data", "picks.json")
+# Persistent data directory — uses /data mount on Render, falls back to local ./data
+DATA_DIR = "/data" if os.path.isdir("/data") else os.path.join(os.path.dirname(__file__), "data")
+UPSETS_FILE = os.path.join(DATA_DIR, "upsets.json")
+PICKS_FILE = os.path.join(DATA_DIR, "picks.json")
 
 # SharpAPI config (primary odds source)
 SHARPAPI_KEY = os.environ.get("SHARPAPI_KEY", "")

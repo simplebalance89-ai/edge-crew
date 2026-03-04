@@ -3,6 +3,11 @@ services:
     name: edge-crew
     runtime: docker
     plan: starter
+    healthCheckPath: /health
+    disk:
+      name: edge-crew-data
+      mountPath: /data
+      sizeGB: 1
     envVars:
       - key: SHARPAPI_KEY
         sync: false
