@@ -2480,7 +2480,17 @@ var teamAbbr = {
     "Galatasaray":"GAL","Fenerbahce":"FEN","Besiktas":"BES"
 };
 
-function abbr(name) { return teamAbbr[name] || name.split(' ').pop().substring(0,3).toUpperCase(); }
+function abbr(name) {
+    if (teamAbbr[name]) return teamAbbr[name];
+    // Strip bracketed suffixes like [W], [ECU], (W) etc.
+    var clean = name.replace(/\s*[\[\(][^\]\)]*[\]\)]\s*$/g, '').trim();
+    if (teamAbbr[clean]) return teamAbbr[clean];
+    // For soccer/unknown teams: use first word(s) up to 3-4 chars
+    var parts = clean.split(' ').filter(function(p) { return p.length > 0; });
+    if (parts.length === 1) return parts[0].substring(0,3).toUpperCase();
+    // Use first word abbreviated (e.g. "El Salvador" -> "ELS", "Paraguay" -> "PAR")
+    return parts[0].substring(0,3).toUpperCase();
+}
 
 function formatGameTime(isoTime) {
     var d = new Date(isoTime);
