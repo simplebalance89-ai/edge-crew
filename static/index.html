@@ -2614,7 +2614,6 @@ function fetchLiveOdds(sport) {
     var oldErr = panel.querySelector('.panel-error');
     if (oldErr) oldErr.remove();
 
-    var existingRows = panel.querySelectorAll('.game-row');
     var gotcha = panel.querySelector('.gotcha-banner');
 
     fetch('/api/odds/' + sport)
@@ -2629,8 +2628,8 @@ function fetchLiveOdds(sport) {
                 return;
             }
 
-            // Remove old game rows (keep gotcha banner if exists)
-            existingRows.forEach(function(row) { row.remove(); });
+            // Remove ALL current game rows at render time (not at fetch time) to prevent duplicates
+            panel.querySelectorAll('.game-row').forEach(function(row) { row.remove(); });
 
             // Remove old "no games" / empty state messages
             var noGames = panel.querySelector('.no-games');
