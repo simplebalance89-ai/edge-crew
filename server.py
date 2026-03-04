@@ -11,6 +11,15 @@ from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 
+
+import html as _html
+
+def _sanitize(s):
+    """Strip HTML/script tags from user input."""
+    if not isinstance(s, str):
+        return s
+    return _html.escape(s.strip())
+
 app = FastAPI()
 
 # ===== CREW AUTH =====
@@ -22,6 +31,7 @@ DEFAULT_CREW = [
     {"id": "peter", "display_name": "Peter", "color": "#D4A017", "is_admin": True},
     {"id": "chinny", "display_name": "Chinny", "color": "#10B981", "is_admin": False},
     {"id": "jimmy", "display_name": "Jimmy", "color": "#60A5FA", "is_admin": False},
+    {"id": "alyssa", "display_name": "Alyssa", "color": "#E879F9", "is_admin": False},
     {"id": "sintonia", "display_name": "Sinton.ia", "color": "#A78BFA", "is_admin": False},
 ]
 
@@ -166,6 +176,7 @@ async def auth_profiles():
     })
 
 
+
 @app.middleware("http")
 async def no_cache_headers(request, call_next):
     response = await call_next(request)
@@ -208,6 +219,17 @@ AZURE_ENDPOINT = os.environ.get("AZURE_OPENAI_ENDPOINT", "")
 AZURE_KEY = os.environ.get("AZURE_OPENAI_KEY", "")
 AZURE_MODEL = os.environ.get("AZURE_OPENAI_MODEL", "gpt-4.1-mini")
 
+# Supabase config (persistent storage — replaces file-based picks/upsets)
+SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
+SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "")
+sb = None
+if SUPABASE_URL and SUPABASE_KEY:
+    try:
+        from supabase import create_client
+        sb = create_client(SUPABASE_URL, SUPABASE_KEY)
+    except Exception:
+        sb = None
+
 # Simple in-memory cache to save API credits
 _cache = {}
 CACHE_TTL = 300  # 5 minutes
@@ -229,6 +251,215 @@ def _get_cached(key, ttl=None):
 
 def _set_cache(key, data):
     _cache[key] = (data, time.time())
+
+
+# ============================================================
+# ANALYSIS ENGINE v2 - Lineup, Injury, REST, Weighted Matrix
+# ============================================================
+
+ROTOWIRE_URLS = {
+    "nba": {
+        "lineups": "https://www.rotowire.com/basketball/nba-lineups.php",
+        "injuries": "https://www.rotowire.com/basketball/injury-report.php",
+    },
+    "nhl": {
+        "lineups": "https://www.rotowire.com/hockey/nhl-lineups.php",
+        "injuries": "https://www.rotowire.com/hockey/injury-report.php",
+    },
+    "soccer": {
+        "lineups": "https://www.rotowire.com/soccer/lineups.php",
+        "injuries": "https://www.rotowire.com/soccer/injury-report.php",
+    },
+}
+
+NBA_MATRIX = [
+    ("injuries_lineup", 10, "Injuries / lineup changes"),
+    ("rest_advantage", 9, "Rest advantage (B2B, 3-in-5)"),
+    ("sharp_vs_public", 8, "Where the money is (sharp vs public)"),
+    ("def_ranking", 8, "Defensive ranking vs position"),
+    ("pace_matchup", 7, "Pace matchup"),
+    ("travel", 7, "Travel (road trip length)"),
+    ("ats_trend", 6, "ATS trend (last 7/14 days)"),
+    ("home_away", 5, "Home/away record"),
+    ("coach", 4, "Coach tendencies"),
+    ("revenge_rivalry", 3, "Revenge / rivalry"),
+]
+
+NHL_MATRIX = [
+    ("goalie_confirmed", 10, "Goalie confirmed starter"),
+    ("injuries_lineup", 9, "Injuries / lineup changes"),
+    ("b2b_fatigue", 8, "Back-to-back / schedule fatigue"),
+    ("home_away", 7, "Home/away record"),
+    ("sharp_vs_public", 7, "Where the money is"),
+    ("pp_pk", 7, "Power play / penalty kill rankings"),
+    ("save_pct_trend", 6, "Save percentage trend (last 5)"),
+    ("division_rivalry", 5, "Division / rivalry"),
+    ("corsi_xg", 5, "Corsi / expected goals"),
+    ("travel_tz", 4, "Travel / time zone"),
+]
+
+SOCCER_MATRIX = [
+    ("btts_trend", 10, "Both Teams to Score trend"),
+    ("injuries_lineup", 9, "Injuries / lineup changes"),
+    ("home_away_form", 8, "Home/away form (last 5)"),
+    ("goals_avg", 8, "Goals scored/conceded avg"),
+    ("h2h", 7, "Head-to-head record"),
+    ("league_position", 7, "League position / motivation"),
+    ("xg_trend", 6, "xG (expected goals) trend"),
+    ("sharp_vs_public", 6, "Where the money is"),
+    ("clean_sheet", 5, "Clean sheet pct"),
+    ("travel_congestion", 4, "Travel / fixture congestion"),
+]
+
+SPORT_MATRICES = {"nba": NBA_MATRIX, "nhl": NHL_MATRIX, "soccer": SOCCER_MATRIX}
+
+
+async def _fetch_rotowire_page(url, cache_key, ttl=1800):
+    """Fetch a RotoWire page, return raw HTML. Cached 30 min."""
+    cached = _get_cached(cache_key, ttl=ttl)
+    if cached:
+        return cached
+    try:
+        async with httpx.AsyncClient(timeout=15.0, follow_redirects=True) as client:
+            resp = await client.get(url, headers={
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                "Accept": "text/html,application/xhtml+xml",
+            })
+            if resp.status_code == 200:
+                _set_cache(cache_key, resp.text)
+                return resp.text
+    except Exception as e:
+        print(f"RotoWire fetch failed ({url}): {e}")
+    return ""
+
+
+async def _get_lineup_and_injury_context(sport):
+    """Fetch injury data from CBS Sports (server-rendered) + RotoWire lineups."""
+    import re
+    sport_lower = sport.lower()
+    parts = []
+
+    CBS_INJURY_URLS = {
+        "nba": "https://www.cbssports.com/nba/injuries/",
+        "nhl": "https://www.cbssports.com/nhl/injuries/",
+        "soccer": None,
+    }
+
+    # --- CBS SPORTS INJURY REPORT (primary - server-rendered, reliable) ---
+    cbs_url = CBS_INJURY_URLS.get(sport_lower)
+    if cbs_url:
+        cache_key = f"cbs_injuries:{sport_lower}"
+        cached = _get_cached(cache_key, ttl=1800)
+        if cached:
+            parts.append(cached)
+        else:
+            try:
+                async with httpx.AsyncClient(timeout=20.0, follow_redirects=True) as client:
+                    resp = await client.get(cbs_url, headers={
+                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+                        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                        "Accept-Language": "en-US,en;q=0.9",
+                    })
+                    print(f"CBS Sports {sport} response: {resp.status_code}, size: {len(resp.text)}")
+                    if resp.status_code == 200:
+                        html = resp.text
+                        rows = re.findall(r'<tr[^>]*>(.*?)</tr>', html, re.DOTALL)
+                        player_rows = [r for r in rows if 'CellPlayerName' in r]
+                        print(f"CBS Sports {sport}: {len(rows)} rows, {len(player_rows)} player rows")
+
+                        if player_rows:
+                            injury_lines = []
+                            injury_lines.append(
+                                f"INJURY REPORT ({sport.upper()} via CBS Sports"
+                                f" - {len(player_rows)} players):"
+                            )
+
+                            for row in player_rows:
+                                name_match = re.findall(r'>([^<]+)</a>', row)
+                                tds = re.findall(r'<td[^>]*>(.*?)</td>', row, re.DOTALL)
+                                cells = []
+                                for td in tds:
+                                    text = re.sub(r'<[^>]+>', '', td).strip()
+                                    if text:
+                                        cells.append(text)
+
+                                if name_match and len(cells) >= 4:
+                                    full_name = name_match[-1] if len(name_match) > 1 else name_match[0]
+                                    pos = cells[1] if len(cells) > 1 else "?"
+                                    injury_type = cells[3] if len(cells) > 3 else "?"
+                                    status = cells[4] if len(cells) > 4 else cells[-1]
+                                    injury_lines.append(
+                                        f"  - {full_name.strip()} ({pos})"
+                                        f" | {injury_type} | {status}"
+                                    )
+
+                            injury_text = "\n".join(injury_lines)
+                            _set_cache(cache_key, injury_text)
+                            parts.append(injury_text)
+                        else:
+                            # Fallback: try broader pattern for any injury table
+                            all_names = re.findall(r'<a[^>]*href="/nba/players/[^"]*"[^>]*>([^<]+)</a>', html)
+                            statuses = re.findall(r'>(Out|Day-To-Day|Game Time Decision|Expected to be out[^<]*)<', html)
+                            print(f"CBS fallback: {len(all_names)} names, {len(statuses)} statuses")
+                            if all_names and statuses:
+                                injury_lines = [f"INJURY REPORT ({sport.upper()} via CBS Sports - fallback parser):"]
+                                for name, status in zip(all_names[:60], statuses[:60]):
+                                    injury_lines.append(f"  - {name.strip()} | {status.strip()}")
+                                injury_text = "\n".join(injury_lines)
+                                _set_cache(cache_key, injury_text)
+                                parts.append(injury_text)
+                            else:
+                                parts.append(f"CBS Sports returned {len(html)} bytes but no parseable injury data.")
+                    else:
+                        parts.append(f"CBS Sports returned HTTP {resp.status_code}.")
+            except Exception as e:
+                print(f"CBS injury fetch failed for {sport}: {e}")
+                parts.append(f"CBS Sports injury fetch failed: {e}")
+
+    # --- ROTOWIRE LINEUPS (secondary - best effort for lineup confirmations) ---
+    urls = ROTOWIRE_URLS.get(sport_lower, {})
+    lineup_url = urls.get("lineups")
+    if lineup_url:
+        html = await _fetch_rotowire_page(lineup_url, f"rw_lineups:{sport_lower}")
+        if html:
+            text = re.sub(r'<[^>]+>', ' ', html)
+            text = re.sub(r'\s+', ' ', text)
+            inj_flags = re.findall(
+                r'(\w[\w\s\.\'-]+(?:OUT|GTD|QUESTIONABLE|DOUBTFUL|PROBABLE|DNP))',
+                text
+            )
+            if inj_flags:
+                parts.append("\nLINEUP PAGE FLAGS (RotoWire):")
+                for item in inj_flags[:20]:
+                    parts.append(f"  - {item.strip()}")
+
+    if not parts:
+        parts.append("INJURY/LINEUP: No data sources returned results. Grade conservatively.")
+
+    return "\n".join(parts)
+
+
+def _build_matrix_section(sport):
+    """Return weighted variable matrix instructions for AI prompt."""
+    matrix = SPORT_MATRICES.get(sport.lower(), [])
+    if not matrix:
+        return ""
+    total_weight = sum(w for _, w, _ in matrix)
+    max_score = total_weight * 10
+    lines = []
+    lines.append(f"\n=== {sport.upper()} SCORING MATRIX (10 Variables, Weighted 1-10) ===")
+    lines.append(f"Score each variable 1-10 for EACH game. Weight x Score = Weighted.")
+    lines.append(f"Max possible: {max_score}. Composite = sum / {max_score} x 10.\n")
+    for i, (key, weight, label) in enumerate(matrix, 1):
+        lines.append(f"  {i}. {label} (weight: {weight})")
+    lines.append("\nCOMPOSITE THRESHOLDS:")
+    lines.append("  9.0-10.0 = BEST BET (load up, full unit)")
+    lines.append("  7.5-8.9  = STRONG PLAY (A-/B+)")
+    lines.append("  6.0-7.4  = MODERATE EDGE (B/B-)")
+    lines.append("  4.5-5.9  = LEAN (C, small or pass)")
+    lines.append("  Below 4.5 = NO EDGE (D/F, pass)")
+    return "\n".join(lines)
+
 
 
 PREFERRED_SHARP_BOOK = "draftkings"
@@ -697,45 +928,79 @@ async def get_analysis(sport: str):
         for ig in incomplete_games:
             incomplete_note += f"- {ig['matchup']} — MISSING: {', '.join(ig['missing'])}\n"
 
-    prompt = f"""You are Edge Finder, a sharp sports betting analyst for a crew of 4 bettors: Peter (heavy/value/sharp), Chinny (props/NHL/soccer), Jimmy (new, learning), and Sinton.ia (card builder/grader).
+    # ===== FETCH REAL DATA: Lineups + Injuries from RotoWire =====
+    injury_context = ""
+    try:
+        injury_context = await _get_lineup_and_injury_context(sport_lower)
+    except Exception as e:
+        injury_context = f"INJURY DATA FETCH FAILED: {e}. Grade conservatively."
+        print(f"Injury context fetch error for {sport_lower}: {e}")
 
-Today's {sport.upper()} slate — {today} (pulled at {now_time}):
+    # ===== BUILD WEIGHTED MATRIX SECTION =====
+    matrix_section = _build_matrix_section(sport_lower)
+
+
+    prompt = f"""You are Edge Finder v2, a sharp sports betting analyst. You have access to REAL injury data and a weighted scoring matrix.
+
+CREW: Peter (heavy/value/sharp, sizes up on conviction), Chinny (props/NHL/soccer master), Jimmy (new, learning), Sinton.ia (card builder/grader).
+RULES: "Why is the market wrong?" = required for every grade. No answer = NO BET (grade D/F). Valid edges: news not priced in, public overreaction, rest/schedule, matchup-specific, sharp vs public, situational. Invalid: "better team", "should win", "volume play".
+
+Today's {sport.upper()} slate - {today} (pulled at {now_time}):
+
+=== ODDS DATA ===
 {games_text}
 {incomplete_note}
-Generate analysis in this exact JSON format:
+
+=== INJURY & LINEUP INTELLIGENCE (CBS Sports + RotoWire) ===
+{injury_context}
+
+{matrix_section}
+
+=== EDGE QUESTION (MANDATORY for every game) ===
+Before grading: "Why is the market wrong here?" If you cannot answer, grade D or F.
+
+Generate analysis in this EXACT JSON format:
 {{
-  "gotcha": "3-6 bullet points as an HTML unordered list (<ul><li>...</li></ul>). Key injuries, situational edges, traps, B2B flags, line moves, weather (outdoor sports). Bold the important parts with <strong>. Include a timestamp note at the end: <li><em>Analysis generated {now_time}</em></li>",
+  "gotcha": "HTML unordered list (<ul><li>...</li></ul>). 4-8 bullet points covering: KEY INJURIES affecting tonight's lines (star players OUT/GTD), B2B/rest flags, line movement alerts, traps to avoid, weather (outdoor), sharp money indicators. Bold critical items with <strong>. End with: <li><em>Analysis generated {now_time} | Data: RotoWire + SharpAPI</em></li>",
   "games": [
     {{
       "matchup": "AWAY @ HOME",
-      "grade": "A/A-/B+/B/B-/C+/C/INCOMPLETE",
-      "tags": ["B2B", "SHARP", "TRAP", "UPSET", "PASS", "BEST BET", "INCOMPLETE"],
-      "edge_summary": "One line edge summary",
-      "peter_zone": "2-3 sentences. Peter's perspective — value, sharps, line moves, conviction level.",
-      "trends": ["trend 1", "trend 2", "trend 3"],
-      "flags": ["injury/flag 1", "flag 2"],
-      "chinny_props": ["player PROP over/under LINE — reason", "..."],
-      "data_status": "COMPLETE or INCOMPLETE — state what's missing if incomplete",
-      "book_source": "which bookmaker provided these lines"
+      "composite_score": 7.2,
+      "grade": "A+/A/A-/B+/B/B-/C+/C/D/F/INCOMPLETE",
+      "edge_question": "Why is the market wrong? 1-2 sentences. If no answer: 'No clear edge identified.'",
+      "tags": ["B2B", "SHARP", "TRAP", "UPSET", "PASS", "BEST BET", "REST-EDGE", "INJURY-IMPACT", "INCOMPLETE"],
+      "matrix_scores": {{
+        "var1_name": {{"score": 7, "weight": 10, "weighted": 70, "note": "why this score"}},
+        "var2_name": {{"score": 5, "weight": 9, "weighted": 45, "note": "why this score"}}
+      }},
+      "injury_impact": "Which key players are OUT/GTD and how it changes the line. Be specific.",
+      "rest_schedule": "B2B? Days rest for each team? Travel? 3-in-5?",
+      "edge_summary": "One line: the edge in plain English",
+      "peter_zone": "2-3 sentences. Peter's play: conviction level, sizing suggestion (full unit / half / small / pass), line value assessment.",
+      "trends": ["ATS trend", "O/U trend", "H2H trend"],
+      "flags": ["injury flag 1", "schedule flag", "sharp money flag"],
+      "chinny_props": ["player PROP over/under LINE - matchup reason", "..."],
+      "data_status": "COMPLETE or INCOMPLETE - state exactly what is missing",
+      "book_source": "which sportsbook"
     }}
   ]
 }}
 
-CRITICAL RULES:
-- For NHL: games with totals-only (over/under) OR moneyline-only ARE gradeable. SharpAPI/DraftKings often only provides totals for NHL. Grade based on available data — total value, matchup quality, trends, situational factors. Only mark INCOMPLETE if NO data at all.
-- For MMA/Boxing: moneyline-only games ARE gradeable. Grade based on ML value and matchup.
-- For NBA/NFL/MLB/Soccer: if a game is missing spread, total, OR moneyline — grade it "INCOMPLETE" with tag "INCOMPLETE".
-- In data_status, state exactly what's missing: "MISSING: spread" or "MISSING: ML, total" etc.
-- Do NOT assign a real grade (A through C) to any NBA/NFL/MLB game with incomplete lines.
-- INCOMPLETE games still get listed — show the matchup but make it clear you can't grade without full data.
-- For complete games: grade honestly. C means skip. A means best bet.
-- Flag PASS games explicitly.
-- Chinny's props: top 3-5 per game. Player props only. Grade B or higher. Skip for INCOMPLETE games.
-- Be specific about injury impacts on lines.
-- If a line looks suspicious or moved significantly, flag it.
-- Keep it sharp. No filler. Every word earns its spot.
+GRADING RULES:
+- Use the SCORING MATRIX above. Fill in matrix_scores for each game with ALL variables scored 1-10.
+- composite_score = (sum of all weighted scores) / max_possible * 10. Round to 1 decimal.
+- Map composite to grade using the thresholds above.
+- For NHL: totals-only or ML-only ARE gradeable. Only INCOMPLETE if NO data at all.
+- For MMA/Boxing: ML-only IS gradeable.
+- For NBA/Soccer: missing spread, total, OR ML = INCOMPLETE.
+- injury_impact is MANDATORY. Check the RotoWire data above. Name specific players.
+- If RotoWire data is unavailable, flag it: "Injury data not confirmed - grade with caution."
+- rest_schedule is MANDATORY. Check game times for B2B detection.
+- Chinny props: top 3-5 per game, B+ grade minimum. Skip for INCOMPLETE.
+- PASS games get grade D or F with explicit reason.
+- Be brutally honest. C means marginal. D means no edge. F means trap.
 
-Return ONLY valid JSON. No markdown fences. No explanation."""
+Return ONLY valid JSON. No markdown. No explanation."""
 
     try:
         client = AzureOpenAI(
@@ -747,7 +1012,7 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
             model=AZURE_MODEL,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.7,
-            max_tokens=4000,
+            max_tokens=6000,
         )
         raw = response.choices[0].message.content.strip()
         # Clean markdown fences if present
@@ -765,6 +1030,9 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
         analysis["books_used"] = odds_data.get("books_used", [])
         analysis["games_complete"] = len(complete_games)
         analysis["games_incomplete"] = len(incomplete_games)
+        analysis["injury_source"] = "CBS Sports + RotoWire" if injury_context else "none"
+        analysis["injury_data_length"] = len(injury_context)
+        analysis["matrix"] = sport_lower in SPORT_MATRICES
 
         _set_cache(cache_key, analysis)
         return JSONResponse(analysis)
@@ -803,14 +1071,21 @@ def _write_picks(data):
 @app.get("/api/picks")
 async def get_picks(date: str = ""):
     """Return picks, optionally filtered by date (YYYY-MM-DD or 'today')."""
+    if sb:
+        query = sb.table("picks").select("*").order("created_at", desc=True)
+        if date:
+            if date == "today":
+                date = datetime.now().strftime("%Y-%m-%d")
+            query = query.eq("date", date)
+        res = query.execute()
+        return JSONResponse({"picks": res.data, "count": len(res.data)})
+
     data = _read_picks()
     picks = data.get("picks", [])
-
     if date:
         if date == "today":
             date = datetime.now().strftime("%Y-%m-%d")
         picks = [p for p in picks if p.get("date", "").startswith(date)]
-
     return JSONResponse({"picks": picks, "count": len(picks)})
 
 
@@ -828,15 +1103,15 @@ async def save_pick(request: Request):
 
     pick = {
         "id": str(uuid.uuid4())[:8],
-        "name": name,
-        "sport": body.get("sport", ""),
-        "type": body.get("type", "Spread"),
-        "matchup": matchup,
-        "selection": selection,
-        "odds": body.get("odds", "-110"),
-        "units": body.get("units", "1"),
-        "confidence": body.get("confidence", "Lean"),
-        "notes": body.get("notes", ""),
+        "name": _sanitize(name),
+        "sport": _sanitize(body.get("sport", "")),
+        "type": _sanitize(body.get("type", "Spread")),
+        "matchup": _sanitize(matchup),
+        "selection": _sanitize(selection),
+        "odds": _sanitize(body.get("odds", "-110")),
+        "units": _sanitize(body.get("units", "1")),
+        "confidence": _sanitize(body.get("confidence", "Lean")),
+        "notes": _sanitize(body.get("notes", "")),
         "date": datetime.now().strftime("%Y-%m-%d"),
         "time": datetime.now().strftime("%H:%M:%S"),
         "placed": False,
@@ -846,10 +1121,13 @@ async def save_pick(request: Request):
         "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
     }
 
-    data = _read_picks()
-    data["picks"].insert(0, pick)
-    data["updated_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    _write_picks(data)
+    if sb:
+        sb.table("picks").insert(pick).execute()
+    else:
+        data = _read_picks()
+        data["picks"].insert(0, pick)
+        data["updated_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        _write_picks(data)
 
     return JSONResponse({"status": "ok", "pick": pick})
 
@@ -863,6 +1141,16 @@ async def place_pick(request: Request):
 
     if not pick_id:
         return JSONResponse({"error": "id is required"}, status_code=400)
+
+    if sb:
+        update_data = {
+            "placed": placed,
+            "placed_at": datetime.now().isoformat() if placed else None,
+        }
+        res = sb.table("picks").update(update_data).eq("id", pick_id).execute()
+        if not res.data:
+            return JSONResponse({"error": "Pick not found"}, status_code=404)
+        return JSONResponse({"status": "ok", "pick": res.data[0]})
 
     data = _read_picks()
     for pick in data["picks"]:
@@ -881,15 +1169,24 @@ async def grade_pick(request: Request):
     """Grade a pick W/L/P."""
     body = await request.json()
     pick_id = body.get("id", "")
-    result = body.get("result", "")
+    result_val = body.get("result", "")
 
-    if not pick_id or result not in ("W", "L", "P"):
+    if not pick_id or result_val not in ("W", "L", "P"):
         return JSONResponse({"error": "id and result (W/L/P) required"}, status_code=400)
+
+    if sb:
+        res = sb.table("picks").update({
+            "result": result_val,
+            "graded_at": datetime.now().isoformat(),
+        }).eq("id", pick_id).execute()
+        if not res.data:
+            return JSONResponse({"error": "Pick not found"}, status_code=404)
+        return JSONResponse({"status": "ok", "pick": res.data[0]})
 
     data = _read_picks()
     for pick in data["picks"]:
         if pick["id"] == pick_id:
-            pick["result"] = result
+            pick["result"] = result_val
             pick["graded_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             data["updated_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             _write_picks(data)
@@ -949,19 +1246,35 @@ def _migrate_upsets(old_data):
     return {"picks": picks}
 
 
+@app.delete("/api/picks/{pick_id}")
+async def delete_pick(pick_id: str):
+    """Delete a pick by ID."""
+    if sb:
+        sb.table("picks").delete().eq("id", pick_id).execute()
+    else:
+        data = _read_picks()
+        data["picks"] = [p for p in data["picks"] if p["id"] != pick_id]
+        _write_picks(data)
+    return JSONResponse({"status": "deleted", "id": pick_id})
+
+
 @app.get("/api/upsets")
 async def get_upsets(sport: str = "", date: str = ""):
     """Return upset picks, optionally filtered by sport and date."""
+    if sb:
+        filter_date = date if date and date != "today" else datetime.now().strftime("%Y-%m-%d")
+        query = sb.table("upsets").select("*").eq("date", filter_date).order("created_at", desc=True)
+        if sport:
+            query = query.ilike("sport", sport)
+        res = query.execute()
+        return JSONResponse({"picks": res.data, "count": len(res.data)})
+
     data = _read_upsets()
     picks = data.get("picks", [])
-
-    # Default to today
     filter_date = date if date and date != "today" else datetime.now().strftime("%Y-%m-%d")
     picks = [p for p in picks if p.get("date", "") == filter_date]
-
     if sport:
         picks = [p for p in picks if p.get("sport", "").upper() == sport.upper()]
-
     return JSONResponse({"picks": picks, "count": len(picks)})
 
 
@@ -988,9 +1301,12 @@ async def save_upset(request: Request):
         "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
     }
 
-    data = _read_upsets()
-    data["picks"].insert(0, pick)
-    _write_upsets(data)
+    if sb:
+        sb.table("upsets").insert(pick).execute()
+    else:
+        data = _read_upsets()
+        data["picks"].insert(0, pick)
+        _write_upsets(data)
 
     return JSONResponse({"status": "ok", "pick": pick})
 
@@ -998,16 +1314,94 @@ async def save_upset(request: Request):
 @app.delete("/api/upsets/{pick_id}")
 async def delete_upset(pick_id: str):
     """Delete an upset pick by ID."""
+    if sb:
+        res = sb.table("upsets").delete().eq("id", pick_id).execute()
+        if not res.data:
+            return JSONResponse({"error": "Pick not found"}, status_code=404)
+        return JSONResponse({"status": "ok"})
+
     data = _read_upsets()
     original_len = len(data["picks"])
     data["picks"] = [p for p in data["picks"] if p.get("id") != pick_id]
-
     if len(data["picks"]) == original_len:
         return JSONResponse({"error": "Pick not found"}, status_code=404)
-
     _write_upsets(data)
     return JSONResponse({"status": "ok"})
 
+
+@app.get("/api/bankroll")
+async def get_bankroll():
+    """Get shared bankroll settings."""
+    if sb:
+        res = sb.table("bankroll_settings").select("*").limit(1).execute()
+        if res.data:
+            row = res.data[0]
+            return JSONResponse({
+                "starting_balance": float(row.get("starting_balance", 1000)),
+                "unit_size": float(row.get("unit_size", 25)),
+                "updated_by": row.get("updated_by", ""),
+            })
+    return JSONResponse({"starting_balance": 1000, "unit_size": 25})
+
+
+@app.post("/api/bankroll")
+async def save_bankroll(request: Request):
+    """Save shared bankroll settings."""
+    body = await request.json()
+    if sb:
+        data = {
+            "id": 1,
+            "starting_balance": body.get("starting_balance", 1000),
+            "unit_size": body.get("unit_size", 25),
+            "updated_at": datetime.now().isoformat(),
+            "updated_by": body.get("updated_by", ""),
+        }
+        sb.table("bankroll_settings").upsert(data).execute()
+        return JSONResponse({"status": "ok", **data})
+    return JSONResponse({"status": "ok", "note": "no database configured"})
+
+
+@app.get("/api/gotcha")
+async def get_gotcha():
+    """Get gotcha notes (per sport)."""
+    if sb:
+        res = sb.table("gotcha_notes").select("*").execute()
+        notes = {}
+        for row in res.data:
+            notes[row["sport"]] = {
+                "notes": row.get("notes", ""),
+                "updated_by": row.get("updated_by", ""),
+            }
+        return JSONResponse({"notes": notes})
+    return JSONResponse({"notes": {}})
+
+
+@app.post("/api/gotcha")
+async def save_gotcha_notes(request: Request):
+    """Save gotcha notes for a sport."""
+    body = await request.json()
+    sport = body.get("sport", "NBA")
+    notes_text = body.get("notes", "")
+    if sb:
+        data = {
+            "sport": sport,
+            "notes": notes_text,
+            "updated_at": datetime.now().isoformat(),
+            "updated_by": body.get("updated_by", ""),
+        }
+        sb.table("gotcha_notes").upsert(data, on_conflict="sport").execute()
+        return JSONResponse({"status": "ok", **data})
+    return JSONResponse({"status": "ok", "note": "no database configured"})
+
+
+@app.get("/sw.js")
+async def serve_sw():
+    return FileResponse("static/sw.js", media_type="application/javascript",
+                        headers={"Service-Worker-Allowed": "/", "Cache-Control": "no-cache"})
+
+@app.get("/manifest.json")
+async def serve_manifest():
+    return FileResponse("static/manifest.json", media_type="application/json", headers={"Cache-Control": "no-cache"})
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
@@ -1017,6 +1411,42 @@ async def clear_server_cache():
     """Clear all server-side cached odds and analysis data."""
     _cache.clear()
     return JSONResponse({"status": "cleared", "message": "Server cache flushed"})
+
+
+@app.get("/api/debug/injuries/{sport}")
+async def debug_injuries(sport: str):
+    """Debug endpoint: test CBS Sports injury fetch from this server."""
+    import re
+    sport_lower = sport.lower()
+    CBS_URLS = {"nba": "https://www.cbssports.com/nba/injuries/", "nhl": "https://www.cbssports.com/nhl/injuries/"}
+    url = CBS_URLS.get(sport_lower)
+    if not url:
+        return JSONResponse({"error": f"No CBS URL for {sport}"})
+    try:
+        async with httpx.AsyncClient(timeout=20.0, follow_redirects=True) as client:
+            resp = await client.get(url, headers={
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+                "Accept": "text/html,application/xhtml+xml",
+                "Accept-Language": "en-US,en;q=0.9",
+            })
+            html = resp.text
+            rows = re.findall(r'<tr[^>]*>(.*?)</tr>', html, re.DOTALL)
+            player_rows = [r for r in rows if 'CellPlayerName' in r]
+            sample = []
+            for row in player_rows[:5]:
+                names = re.findall(r'>([^<]+)</a>', row)
+                sample.append(names[-1] if names else "?")
+            return JSONResponse({
+                "status_code": resp.status_code,
+                "html_length": len(html),
+                "total_rows": len(rows),
+                "player_rows": len(player_rows),
+                "sample_players": sample,
+                "has_CellPlayerName": "CellPlayerName" in html,
+                "snippet": html[max(0, html.find("CellPlayerName")-100):html.find("CellPlayerName")+200][:300] if "CellPlayerName" in html else html[:500],
+            })
+    except Exception as e:
+        return JSONResponse({"error": str(e)})
 
 
 NO_CACHE_HEADERS = {

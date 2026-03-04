@@ -3,6 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0a0a1a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Edge Crew">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/static/icons/icon-192.png">
 <title>Edge Finder — Crew Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -25,6 +31,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 .crew-peter{background:rgba(212,160,23,0.15);color:#D4A017;border:1px solid rgba(212,160,23,0.3);}
 .crew-chinny{background:rgba(16,185,129,0.15);color:#10B981;border:1px solid rgba(16,185,129,0.3);}
 .crew-jimmy{background:rgba(96,165,250,0.15);color:#60A5FA;border:1px solid rgba(96,165,250,0.3);}
+.crew-alyssa{background:rgba(232,121,249,0.15);color:#E879F9;border:1px solid rgba(232,121,249,0.3);}
 .crew-sintonia{background:rgba(167,139,250,0.15);color:#A78BFA;border:1px solid rgba(167,139,250,0.3);}
 .sweep-time{font-size:11px;color:rgba(255,255,255,0.25);text-align:right;}
 
@@ -384,11 +391,51 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 .combined-card-lines span{white-space:nowrap;}
 .combined-card-status{margin-top:6px;}
 
+/* ===== MOBILE QUICK BAR ===== */
+.mobile-quick-bar{
+    display:none;position:fixed;bottom:0;left:0;right:0;z-index:250;
+    background:rgba(13,13,26,0.97);backdrop-filter:blur(16px);
+    border-top:1px solid rgba(212,160,23,0.25);
+    padding:8px 12px;padding-bottom:max(8px,env(safe-area-inset-bottom));
+}
+.mobile-quick-bar-inner{
+    display:flex;justify-content:space-around;align-items:center;gap:4px;
+    max-width:480px;margin:0 auto;
+}
+.mqb-btn{
+    display:flex;flex-direction:column;align-items:center;gap:2px;
+    padding:6px 12px;border:none;background:transparent;
+    color:rgba(255,255,255,0.4);font-family:'Nunito',sans-serif;
+    font-size:0.55rem;font-weight:700;letter-spacing:0.5px;
+    text-transform:uppercase;cursor:pointer;transition:color 0.2s;
+    -webkit-tap-highlight-color:transparent;
+}
+.mqb-btn .mqb-icon{font-size:1.2rem;line-height:1;}
+.mqb-btn:active{color:#D4A017;}
+.mqb-btn.mqb-submit{color:#10B981;}
+.mqb-btn.mqb-results{color:#D4A017;}
+
 /* ===== RESPONSIVE ===== */
 @media(max-width:768px){
+    /* Show mobile quick bar */
+    .mobile-quick-bar{display:block;}
+    body{padding-bottom:80px;}
+
+    /* Slim topbar: hide crew badges + sweep time on mobile */
+    .crew{display:none !important;}
+    .sweep-time{display:none !important;}
+    .topbar{flex-wrap:nowrap;gap:8px;padding:8px 12px;}
+    .topbar-left{gap:8px;}
+    .topbar-title{font-size:16px;}
+    .topbar-date{font-size:10px;}
+
+    /* Sport tabs: slimmer on mobile */
+    .sport-tab{padding:10px 16px;min-height:44px;display:flex;align-items:center;font-size:12px;}
+    .sport-tab .tab-count{font-size:9px;padding:1px 5px;}
+
     /* Game header → stacked card */
     .game-header{
-        display:flex !important;flex-wrap:wrap;gap:8px;padding:12px 16px;
+        display:flex !important;flex-wrap:wrap;gap:8px;padding:12px 14px;
         grid-template-columns:none !important;
     }
     .game-header .pick-check{order:0;}
@@ -405,18 +452,40 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     .pick-check{width:36px !important;height:36px !important;min-width:36px;}
     .slip-btn{min-height:44px;display:flex;align-items:center;justify-content:center;}
     .conf-btn{min-height:44px;display:flex;align-items:center;justify-content:center;}
-    .sport-tab{padding:12px 20px;min-height:44px;display:flex;align-items:center;}
 
     .detail-grid{grid-template-columns:1fr;}
-    .topbar{flex-wrap:wrap;gap:8px;}
-    .crew{flex-wrap:wrap;}
     .upset-submit-form{grid-template-columns:1fr;}.upset-card{flex-wrap:wrap;gap:6px;}
+
+    /* Content tighter on mobile */
+    .content{padding:16px 12px;}
+
+    /* Bankroll: 4-col → 2x2, 3-col → stack */
+    .bankroll-stats-4{grid-template-columns:1fr 1fr !important;gap:8px !important;}
+    .bankroll-stats-3{grid-template-columns:1fr !important;gap:8px !important;}
+
+    /* Gotcha banner tighter */
+    .gotcha-banner{padding:12px 14px;margin-bottom:16px;}
+    .gotcha-banner h3{font-size:14px;}
+
+    /* Upset section tighter */
+    .upset-section{padding:14px;margin-top:16px;}
+
+    /* Submit bar sits above mobile quick bar */
+    .submit-bar{bottom:60px;}
 
     /* Combined table → cards */
     #combinedTableContainer table{display:none !important;}
     .combined-cards-mobile{display:block !important;}
+
+    /* Form improvements */
+    .form-row{grid-template-columns:1fr !important;}
+    .pick-form{padding:0;}
+
+    /* Footer less padding */
+    .footer{padding:20px 16px;margin-top:16px;}
 }
 @media(min-width:769px){
+    .mobile-quick-bar{display:none !important;}
     .combined-cards-mobile{display:none !important;}
     .tabs-wrapper::after{display:none;}
 }
@@ -529,10 +598,12 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
         <span class="crew-badge crew-peter">Peter</span>
         <span class="crew-badge crew-chinny">Chinny</span>
         <span class="crew-badge crew-jimmy">Jimmy</span>
+        <span class="crew-badge crew-alyssa">Alyssa</span>
         <span class="crew-badge crew-sintonia">Sinton.ia</span>
     </div>
     <div class="sweep-time" id="sweepTime">Last sweep: --<br>Waiting for refresh</div>
     <div style="display:flex;gap:6px;align-items:center;">
+        <a href="/bets" class="topbar-refresh" style="text-decoration:none;background:rgba(212,160,23,0.15);color:#D4A017;border-color:rgba(212,160,23,0.3);">TODAY'S BETS</a>
         <button class="topbar-refresh" onclick="refreshSlate()">REFRESH SLATE</button>
         <button onclick="clearAllCache()" style="cursor:pointer;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;background:rgba(239,68,68,0.15);color:#EF4444;border:1px solid rgba(239,68,68,0.3);letter-spacing:0.5px;font-family:'Nunito',sans-serif;">CLEAR CACHE</button>
         <button onclick="doLogout()" id="logoutBtn" style="cursor:pointer;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.1);letter-spacing:0.5px;font-family:'Nunito',sans-serif;">LOGOUT</button>
@@ -802,7 +873,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     </div>
 
     <!-- Summary cards -->
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0;">
+    <div class="bankroll-stats-4" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0;">
         <div style="background:#141428;border:1px solid #1e1e40;border-radius:8px;padding:14px;text-align:center;">
             <div style="color:rgba(255,255,255,0.5);font-size:11px;text-transform:uppercase;">Current Balance</div>
             <div id="brBalance" style="color:#D4A017;font-size:24px;font-weight:800;">$0</div>
@@ -822,7 +893,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     </div>
 
     <!-- Per-person breakdown -->
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0;">
+    <div class="bankroll-stats-3" style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:16px 0;">
         <div style="background:#141428;border:1px solid #2a2a5a;border-radius:8px;padding:12px;text-align:center;">
             <div style="color:#D4A017;font-weight:700;margin-bottom:4px;">Peter</div>
             <div id="brPeter" style="color:#fff;font-size:14px;">0-0-0 | 0u</div>
@@ -834,6 +905,10 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
         <div style="background:#141428;border:1px solid #2a2a5a;border-radius:8px;padding:12px;text-align:center;">
             <div style="color:#5588EE;font-weight:700;margin-bottom:4px;">Jimmy</div>
             <div id="brJimmy" style="color:#fff;font-size:14px;">0-0-0 | 0u</div>
+        </div>
+        <div style="background:#141428;border:1px solid #2a2a5a;border-radius:8px;padding:12px;text-align:center;">
+            <div style="color:#E879F9;font-weight:700;margin-bottom:4px;">Alyssa</div>
+            <div id="brAlyssa" style="color:#fff;font-size:14px;">0-0-0 | 0u</div>
         </div>
         <div style="background:#141428;border:1px solid #2a2a5a;border-radius:8px;padding:12px;text-align:center;">
             <div style="color:#A78BFA;font-weight:700;margin-bottom:4px;">Sinton.ia</div>
@@ -1904,6 +1979,11 @@ function saveBankrollSettings() {
     var unit = document.getElementById('unitSize').value || 25;
     safeSave('edgeBankrollStart', start);
     safeSave('edgeUnitSize', unit);
+    fetch('/api/bankroll', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ starting_balance: parseFloat(start), unit_size: parseFloat(unit), updated_by: safeLoad('edgeCrewName') || '' })
+    }).catch(function() {});
     renderBankroll();
     showToast('Bankroll set: $' + start + ' / $' + unit + ' per unit');
 }
@@ -1913,6 +1993,13 @@ function gradePick(index, result) {
     if (stored[index]) {
         stored[index].result = result;
         safeSave('edgePicks', JSON.stringify(stored));
+        if (stored[index].id) {
+            fetch('/api/picks/grade', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: stored[index].id, result: result })
+            }).catch(function() {});
+        }
         renderBankroll();
     }
 }
@@ -1934,7 +2021,7 @@ function renderBankroll() {
     document.getElementById('unitSize').value = unitSize;
 
     var wins = 0, losses = 0, pushes = 0, netUnits = 0;
-    var personStats = {Peter:{w:0,l:0,p:0,u:0},Chinny:{w:0,l:0,p:0,u:0},Jimmy:{w:0,l:0,p:0,u:0},'Sinton.ia':{w:0,l:0,p:0,u:0}};
+    var personStats = {Peter:{w:0,l:0,p:0,u:0},Chinny:{w:0,l:0,p:0,u:0},Jimmy:{w:0,l:0,p:0,u:0},Alyssa:{w:0,l:0,p:0,u:0},'Sinton.ia':{w:0,l:0,p:0,u:0}};
 
     stored.forEach(function(pick) {
         if (!pick.result) return;
@@ -2062,25 +2149,53 @@ function saveGotcha() {
     html += '</ul>';
     display.innerHTML = html;
 
-    // Save to localStorage
+    // Save to localStorage + server
     safeSave('edgeGotchaNBA', text);
+    fetch('/api/gotcha', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sport: 'NBA', notes: text, updated_by: safeLoad('edgeCrewName') || '' })
+    }).catch(function() {});
 
     editor.style.display = 'none';
     display.style.display = 'block';
     showToast('Gotcha card updated!');
 }
 
-// Load saved gotcha on page load
+// Load saved gotcha + bankroll from server (localStorage fallback)
 (function() {
-    var saved = safeLoad('edgeGotchaNBA');
-    if (saved) {
+    function applyGotcha(text) {
         var display = document.getElementById('gotchaDisplay');
-        var lines = saved.split('\n').filter(function(l) { return l.trim(); });
-        var html = '<ul>';
-        lines.forEach(function(line) { html += '<li>' + line.trim() + '</li>'; });
-        html += '</ul>';
-        display.innerHTML = html;
+        if (display && text) {
+            var lines = text.split('\n').filter(function(l) { return l.trim(); });
+            var html = '<ul>';
+            lines.forEach(function(line) { html += '<li>' + line.trim() + '</li>'; });
+            html += '</ul>';
+            display.innerHTML = html;
+        }
     }
+    fetch('/api/gotcha').then(function(r) { return r.json(); }).then(function(data) {
+        if (data.notes && data.notes.NBA && data.notes.NBA.notes) {
+            safeSave('edgeGotchaNBA', data.notes.NBA.notes);
+            applyGotcha(data.notes.NBA.notes);
+        } else {
+            applyGotcha(safeLoad('edgeGotchaNBA'));
+        }
+    }).catch(function() {
+        applyGotcha(safeLoad('edgeGotchaNBA'));
+    });
+    fetch('/api/bankroll').then(function(r) { return r.json(); }).then(function(data) {
+        if (data.starting_balance) {
+            safeSave('edgeBankrollStart', data.starting_balance);
+            var el = document.getElementById('bankrollStart');
+            if (el) el.value = data.starting_balance;
+        }
+        if (data.unit_size) {
+            safeSave('edgeUnitSize', data.unit_size);
+            var el2 = document.getElementById('unitSize');
+            if (el2) el2.value = data.unit_size;
+        }
+    }).catch(function() {});
 })();
 
 // ===== PARLAY BUILDER =====
@@ -3099,7 +3214,7 @@ function loadProps() {
 
 // ===== UPSET SPECIALS — CREW PICKS =====
 var UPSET_SPORTS = ['NBA', 'NHL', 'SOCCER', 'MMA', 'BOXING'];
-var NAME_COLORS = {peter: 'peter', chinny: 'chinny', jimmy: 'jimmy', 'sinton.ia': 'sintonia'};
+var NAME_COLORS = {peter: 'peter', chinny: 'chinny', jimmy: 'jimmy', alyssa: 'alyssa', 'sinton.ia': 'sintonia'};
 
 function getUpsetName() {
     return crewProfile ? crewProfile.display_name : (safeLoad('edgeSlipWho') || 'Peter');
@@ -3299,38 +3414,87 @@ function restoreLockedPicks() {
 }
 restoreLockedPicks();
 
+// ===== AUTO-FETCH ON PAGE LOAD =====
+(function() {
+    // Auto-refresh slate on load so user never sees stale data
+    setTimeout(function() { refreshSlate(); }, 500);
+    // Sync picks from server to localStorage
+    fetch('/api/picks').then(function(r) { return r.json(); }).then(function(data) {
+        if (data.picks && data.picks.length) {
+            var local = JSON.parse(safeLoad('edgePicks') || '[]');
+            var localIds = {};
+            local.forEach(function(p) { localIds[p.id] = true; });
+            var added = 0;
+            data.picks.forEach(function(p) {
+                if (!localIds[p.id]) {
+                    local.unshift(p);
+                    added++;
+                }
+            });
+            if (added > 0) {
+                safeSave('edgePicks', JSON.stringify(local));
+                renderPicks();
+                renderBankroll();
+            }
+        }
+    }).catch(function(e) { console.log('Pick sync skip:', e); });
+})();
+
 // ===== CLEAR CACHE =====
 async function clearAllCache() {
-    if (!confirm('Clear all data? Picks, bankroll, gotcha edits \u2014 everything resets.')) return;
-    // 1. Kill service workers
+    if (!confirm('Nuclear clear: kills all cached data, picks, settings. Reload fresh from server.')) return;
+    // 1. Unregister ALL service workers
     if ('serviceWorker' in navigator) {
-        var regs = await navigator.serviceWorker.getRegistrations();
-        for (var r of regs) await r.unregister();
+        try {
+            var regs = await navigator.serviceWorker.getRegistrations();
+            await Promise.all(regs.map(function(r) { return r.unregister(); }));
+        } catch(e) { console.log('SW unregister error:', e); }
     }
-    // 2. Kill Cache API
+    // 2. Delete ALL Cache API caches
     if ('caches' in window) {
-        var names = await caches.keys();
-        for (var n of names) await caches.delete(n);
+        try {
+            var names = await caches.keys();
+            await Promise.all(names.map(function(n) { return caches.delete(n); }));
+        } catch(e) { console.log('Cache delete error:', e); }
     }
-    // 3. Kill localStorage (preserve crew token)
+    // 3. Nuke localStorage (preserve crew token)
     var savedToken = safeLoad('edgeCrewToken');
-    safeClear();
+    try { localStorage.clear(); } catch(e) {}
     if (savedToken) safeSave('edgeCrewToken', savedToken);
-    // 4. Kill in-memory analysis cache
-    if (typeof _analysisCache !== 'undefined') {
-        for (var k in _analysisCache) delete _analysisCache[k];
-    }
-    // 5. Flush server-side cache too
-    try { await fetch('/api/cache/clear', { method: 'POST' }); } catch(e) {}
-    // 6. Force hard reload — bypass browser cache entirely
-    // location.reload(true) is deprecated but still works on most mobile browsers
-    // Fallback: fetch with cache:no-store then redirect
-    try {
-        await fetch(window.location.pathname, { cache: 'no-store' });
-    } catch(e) {}
-    window.location.replace(window.location.pathname + '?purge=' + Date.now());
+    // 4. Flush server cache
+    try { await fetch('/api/cache/clear', { method: 'POST', cache: 'no-store' }); } catch(e) {}
+    // 5. Pre-fetch fresh HTML to prime browser cache with new version
+    try { await fetch('/?_=' + Date.now(), { cache: 'no-store', headers: { 'Cache-Control': 'no-cache' } }); } catch(e) {}
+    // 6. Hard redirect with cache bust - bypasses everything
+    window.location.href = '/?purge=' + Date.now();
 }
 </script>
 
+<!-- MOBILE QUICK BAR -->
+<div class="mobile-quick-bar">
+    <div class="mobile-quick-bar-inner">
+        <button class="mqb-btn" onclick="document.querySelector('.sport-tabs').scrollTo({left:0,behavior:'smooth'});window.scrollTo({top:0,behavior:'smooth'})">
+            <span class="mqb-icon">🏀</span>Games
+        </button>
+        <button class="mqb-btn mqb-submit" onclick="switchSport('submit',event)">
+            <span class="mqb-icon">📝</span>Submit
+        </button>
+        <button class="mqb-btn mqb-results" onclick="switchSport('bankroll',event)">
+            <span class="mqb-icon">📊</span>Results
+        </button>
+        <button class="mqb-btn" onclick="switchSport('combined',event)">
+            <span class="mqb-icon">📋</span>Full Slate
+        </button>
+        <button class="mqb-btn" onclick="refreshSlate()">
+            <span class="mqb-icon">🔄</span>Refresh
+        </button>
+    </div>
+</div>
+
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
+</script>
 </body>
 </html>
