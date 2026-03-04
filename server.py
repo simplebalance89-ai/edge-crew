@@ -187,7 +187,7 @@ async def no_cache_headers(request, call_next):
     return response
 
 
-ODDS_API_KEY = os.environ.get("ODDS_API_KEY", "")
+ODDS_API_KEY = os.environ.get("ODDS_API_KEY_PAID", "") or os.environ.get("ODDS_API_KEY", "")
 ODDS_API_BASE = "https://api.the-odds-api.com/v4/sports"
 PREFERRED_BOOK = "hardrockbet"
 FALLBACK_BOOKS = ["draftkings", "fanduel", "betmgm", "bovada"]

@@ -10,6 +10,8 @@ services:
         sync: false
       - key: ODDS_API_KEY
         sync: false
+      - key: ODDS_API_KEY_PAID
+        sync: false
       - key: AZURE_OPENAI_ENDPOINT
         sync: false
       - key: AZURE_OPENAI_KEY
