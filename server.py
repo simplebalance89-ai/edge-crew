@@ -326,7 +326,15 @@ async def get_odds(sport: str, markets: str = "h2h,spreads,totals"):
     if SHARPAPI_KEY and sport_lower in SHARPAPI_LEAGUES:
         all_games = await _fetch_sharpapi_odds(sport_lower, label)
         if all_games:
-            source_name = "SharpAPI (DraftKings)"
+            # Check if SharpAPI returned useful data — if ALL games are
+            # lines_incomplete (e.g. NHL returning only totals, no ML/spreads),
+            # discard and fall through to Odds API for complete data.
+            complete_count = sum(1 for g in all_games if g.get("lines_complete"))
+            if complete_count > 0:
+                source_name = "SharpAPI (DraftKings)"
+            else:
+                logger.warning(f"SharpAPI returned {len(all_games)} {label} games but ALL lines incomplete — falling through to Odds API")
+                all_games = []
 
     # --- FALLBACK: The Odds API ---
     if not all_games and ODDS_API_KEY:
