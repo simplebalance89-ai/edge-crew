@@ -152,8 +152,12 @@ def _parse_sharpapi_events(rows, sport_label):
 
         game["lines_available"] = has_spread or has_total or has_ml
         game["lines_complete"] = has_spread and has_total and has_ml
-        # NHL/MMA/boxing: ML-only is considered "complete" for grading
-        if sport_label in ("NHL", "MMA", "BOXING") and has_ml:
+        # NHL: ML-only OR totals-only is gradeable (SharpAPI often returns
+        # only totals for NHL with no ML/spreads from DraftKings)
+        if sport_label == "NHL" and (has_ml or has_total):
+            game["lines_complete"] = True
+        # MMA/Boxing: ML-only is complete (no spreads/totals expected)
+        elif sport_label in ("MMA", "BOXING") and has_ml:
             game["lines_complete"] = True
         games.append(game)
 
@@ -326,15 +330,7 @@ async def get_odds(sport: str, markets: str = "h2h,spreads,totals"):
     if SHARPAPI_KEY and sport_lower in SHARPAPI_LEAGUES:
         all_games = await _fetch_sharpapi_odds(sport_lower, label)
         if all_games:
-            # Check if SharpAPI returned useful data — if ALL games are
-            # lines_incomplete (e.g. NHL returning only totals, no ML/spreads),
-            # discard and fall through to Odds API for complete data.
-            complete_count = sum(1 for g in all_games if g.get("lines_complete"))
-            if complete_count > 0:
-                source_name = "SharpAPI (DraftKings)"
-            else:
-                print(f"[WARN] SharpAPI returned {len(all_games)} {label} games but ALL lines incomplete — falling through to Odds API")
-                all_games = []
+            source_name = "SharpAPI (DraftKings)"
 
     # --- FALLBACK: The Odds API ---
     if not all_games and ODDS_API_KEY:
