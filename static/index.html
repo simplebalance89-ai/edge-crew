@@ -2480,6 +2480,12 @@ var teamAbbr = {
     "Galatasaray":"GAL","Fenerbahce":"FEN","Besiktas":"BES"
 };
 
+var rotowireUrls = {
+    NBA: {lineups:'https://www.rotowire.com/basketball/nba-lineups.php',injuries:'https://www.rotowire.com/basketball/injury-report.php'},
+    NHL: {lineups:'https://www.rotowire.com/hockey/nhl-lineups.php',injuries:'https://www.rotowire.com/hockey/injury-report.php'},
+    SOCCER: {lineups:'https://www.rotowire.com/soccer/lineups.php',injuries:'https://www.rotowire.com/soccer/injury-report.php'}
+};
+
 function abbr(name) {
     if (teamAbbr[name]) return teamAbbr[name];
     // Strip bracketed suffixes like [W], [ECU], (W) etc.
@@ -2588,7 +2594,12 @@ function buildGameRowHTML(g) {
                     'ML: ' + awayAbbr + ' ' + awayML + ' / ' + homeAbbr + ' ' + homeML + '</p>' +
                     '<p style="font-size:10px;color:rgba(255,255,255,0.25);margin-top:6px;">Fetched: ' + fetchedAt + ' | Book: ' + bookSource + '</p>' +
                 '</div>' +
-                '<div class="detail-box trends"><h4>Notes</h4><p>' + (isComplete ? 'Lines complete. Ready for analysis.' : 'INCOMPLETE — missing data. Do not grade.') + '</p></div>' +
+                '<div class="detail-box trends"><h4>Notes</h4><p>' + (isComplete ? 'Lines complete. Ready for analysis.' : 'INCOMPLETE — missing data. Do not grade.') + '</p>' +
+                    (rotowireUrls[g.sport] ? '<div style="margin-top:8px;display:flex;gap:6px;">' +
+                        '<a href="' + rotowireUrls[g.sport].lineups + '" target="_blank" onclick="event.stopPropagation()" style="display:inline-block;padding:4px 10px;background:rgba(212,160,23,0.15);color:#D4A017;border-radius:4px;text-decoration:none;font-size:11px;font-weight:600;">Lineups</a>' +
+                        '<a href="' + rotowireUrls[g.sport].injuries + '" target="_blank" onclick="event.stopPropagation()" style="display:inline-block;padding:4px 10px;background:rgba(239,68,68,0.15);color:#EF4444;border-radius:4px;text-decoration:none;font-size:11px;font-weight:600;">Injuries</a>' +
+                    '</div>' : '') +
+                '</div>' +
             '</div>' +
         '</div>' +
     '</div>';
