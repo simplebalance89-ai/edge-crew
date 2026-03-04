@@ -1,60 +1,42 @@
-const CACHE_NAME = 'edge-crew-v1';
-const SHELL_URLS = ['/'];
+const CACHE_VERSION = Date.now();
+const CACHE_NAME = 'edge-crew-' + CACHE_VERSION;
 
-// Install — cache the app shell and skip waiting
+// Install — skip waiting immediately (force activate new SW)
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(SHELL_URLS))
-  );
   self.skipWaiting();
 });
 
-// Activate — delete old caches and claim clients
+// Activate — delete ALL old caches, claim clients
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(
-        keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
-      )
+      Promise.all(keys.map((key) => caches.delete(key)))
     ).then(() => self.clients.claim())
   );
 });
 
-// Fetch — strategy depends on request type
+// Fetch — NETWORK FIRST for everything. Cache is ONLY offline fallback.
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // API calls: network only (odds data must be fresh, never cached)
+  // API calls: network only, never cache
   if (url.pathname.startsWith('/api/')) {
     event.respondWith(fetch(request));
     return;
   }
 
-  // HTML: network first, cache fallback
-  if (request.headers.get('accept')?.includes('text/html')) {
-    event.respondWith(
-      fetch(request)
-        .then((response) => {
+  // Everything else: network first, cache fallback (offline only)
+  event.respondWith(
+    fetch(request)
+      .then((response) => {
+        // Cache successful responses for offline use
+        if (response.ok) {
           const clone = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
-          return response;
-        })
-        .catch(() => caches.match(request))
-    );
-    return;
-  }
-
-  // Static assets: stale-while-revalidate
-  event.respondWith(
-    caches.open(CACHE_NAME).then((cache) =>
-      cache.match(request).then((cached) => {
-        const fetched = fetch(request).then((response) => {
-          cache.put(request, response.clone());
-          return response;
-        });
-        return cached || fetched;
+        }
+        return response;
       })
-    )
+      .catch(() => caches.match(request))
   );
 });

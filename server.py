@@ -9,6 +9,7 @@ from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 
+
 import html as _html
 
 def _sanitize(s):
@@ -18,6 +19,7 @@ def _sanitize(s):
     return _html.escape(s.strip())
 
 app = FastAPI()
+
 
 
 @app.middleware("http")
@@ -996,7 +998,7 @@ async def serve_sw():
 
 @app.get("/manifest.json")
 async def serve_manifest():
-    return FileResponse("static/manifest.json", media_type="application/json")
+    return FileResponse("static/manifest.json", media_type="application/json", headers={"Cache-Control": "no-cache"})
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
