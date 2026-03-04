@@ -1,7 +1,9 @@
 services:
   - type: web
     name: edge-crew
-    runtime: docker
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python server.py
     plan: starter
     healthCheckPath: /health
     disk:
