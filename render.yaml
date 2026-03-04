@@ -1,9 +1,7 @@
 services:
   - type: web
     name: edge-crew
-    runtime: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: python server.py
+    runtime: docker
     plan: starter
     envVars:
       - key: SHARPAPI_KEY
@@ -21,4 +19,8 @@ services:
       - key: CREW_PIN_SALT
         sync: false
       - key: API_SPORTS_KEY
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
         sync: false
