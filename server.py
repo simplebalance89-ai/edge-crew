@@ -856,14 +856,29 @@ async def delete_upset(pick_id: str):
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
+@app.post("/api/cache/clear")
+async def clear_server_cache():
+    """Clear all server-side cached odds and analysis data."""
+    _cache.clear()
+    return JSONResponse({"status": "cleared", "message": "Server cache flushed"})
+
+
+NO_CACHE_HEADERS = {
+    "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0",
+    "Pragma": "no-cache",
+    "Expires": "0",
+    "Surrogate-Control": "no-store",
+}
+
+
 @app.get("/bets")
 async def bets_page():
-    return FileResponse("static/bets.html")
+    return FileResponse("static/bets.html", headers=NO_CACHE_HEADERS)
 
 
 @app.get("/")
 async def root():
-    return FileResponse("static/index.html")
+    return FileResponse("static/index.html", headers=NO_CACHE_HEADERS)
 
 
 if __name__ == "__main__":

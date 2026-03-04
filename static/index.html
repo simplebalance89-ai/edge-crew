@@ -3025,17 +3025,32 @@ restoreLockedPicks();
 
 // ===== CLEAR CACHE =====
 async function clearAllCache() {
-    if (!confirm('Clear all data? Picks, bankroll, gotcha edits \u2014 everything.')) return;
+    if (!confirm('Clear all data? Picks, bankroll, gotcha edits \u2014 everything resets.')) return;
+    // 1. Kill service workers
     if ('serviceWorker' in navigator) {
         var regs = await navigator.serviceWorker.getRegistrations();
         for (var r of regs) await r.unregister();
     }
+    // 2. Kill Cache API
     if ('caches' in window) {
         var names = await caches.keys();
         for (var n of names) await caches.delete(n);
     }
+    // 3. Kill localStorage
     safeClear();
-    window.location.href = window.location.pathname + '?v=' + Date.now();
+    // 4. Kill in-memory analysis cache
+    if (typeof _analysisCache !== 'undefined') {
+        for (var k in _analysisCache) delete _analysisCache[k];
+    }
+    // 5. Flush server-side cache too
+    try { await fetch('/api/cache/clear', { method: 'POST' }); } catch(e) {}
+    // 6. Force hard reload — bypass browser cache entirely
+    // location.reload(true) is deprecated but still works on most mobile browsers
+    // Fallback: fetch with cache:no-store then redirect
+    try {
+        await fetch(window.location.pathname, { cache: 'no-store' });
+    } catch(e) {}
+    window.location.replace(window.location.pathname + '?purge=' + Date.now());
 }
 </script>
 
