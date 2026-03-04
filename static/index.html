@@ -2369,23 +2369,61 @@ function submitParlay() {
 
 function renderPicks() {
     var stored = JSON.parse(safeLoad('edgePicks') || '[]');
-    var today = new Date().toLocaleDateString();
-    var todayPicks = stored.filter(function(p) { return p.date === today; });
+    // Match today in both YYYY-MM-DD and locale format
+    var now = new Date();
+    var todayISO = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+    var todayLocale = now.toLocaleDateString();
+    var todayPicks = stored.filter(function(p) { return p.date === todayISO || p.date === todayLocale; });
     var list = document.getElementById('pickList');
     if (!todayPicks.length) {
         list.innerHTML = '<div style="color:rgba(255,255,255,0.3);font-size:13px;padding:12px;">No picks submitted today yet.</div>';
         return;
     }
-    list.innerHTML = '';
+    // Group by crew member
+    var crewOrder = ['Peter','Chinny','Jimmy','Alyssa','Sinton.ia'];
+    var crewColors = {Peter:'#D4A017',Chinny:'#10B981',Jimmy:'#60A5FA',Alyssa:'#E879F9','Sinton.ia':'#A78BFA'};
+    var grouped = {};
     todayPicks.forEach(function(p) {
-        var confClass = p.confidence === 'Fire' ? 'fire' : p.confidence === 'Strong' ? 'strong' : 'lean';
-        var card = document.createElement('div');
-        card.className = 'pick-card';
-        card.innerHTML = '<div><div class="pick-main">' + p.selection + '</div>' +
-            '<div class="pick-meta">' + p.name + ' | ' + p.sport + ' | ' + p.matchup + ' | ' + p.odds + ' | ' + p.units + 'u</div></div>' +
-            '<div class="pick-conf ' + confClass + '">' + p.confidence + '</div>';
-        list.appendChild(card);
+        var name = p.name || 'Unknown';
+        if (!grouped[name]) grouped[name] = [];
+        grouped[name].push(p);
     });
+    list.innerHTML = '';
+    // Render swim lanes in crew order, then any extras
+    var rendered = {};
+    crewOrder.forEach(function(name) { if (grouped[name]) { renderSwimLane(list, name, grouped[name], crewColors[name]); rendered[name] = true; } });
+    for (var name in grouped) { if (!rendered[name]) renderSwimLane(list, name, grouped[name], '#888'); }
+}
+
+function renderSwimLane(container, name, picks, color) {
+    var lane = document.createElement('div');
+    lane.style.cssText = 'margin-bottom:20px;border:1px solid ' + color + '33;border-radius:12px;overflow:hidden;';
+    // Header
+    var header = document.createElement('div');
+    header.style.cssText = 'background:' + color + '15;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid ' + color + '33;';
+    header.innerHTML = '<span style="font-family:Playfair Display,serif;font-size:15px;font-weight:700;color:' + color + ';">' + name + '</span>' +
+        '<span style="font-size:12px;color:rgba(255,255,255,0.4);">' + picks.length + ' pick' + (picks.length !== 1 ? 's' : '') + '</span>';
+    lane.appendChild(header);
+    // Pick cards
+    picks.forEach(function(p) {
+        var confClass = p.confidence === 'Fire' ? 'fire' : p.confidence === 'Strong' ? 'strong' : 'lean';
+        var typeTag = p.type === 'Parlay' ? '<span style="background:#D4A017;color:#0D0D1A;font-size:10px;font-weight:800;padding:2px 6px;border-radius:4px;margin-left:6px;">PARLAY</span>' :
+                      p.type === 'Prop' ? '<span style="background:#A78BFA;color:#0D0D1A;font-size:10px;font-weight:800;padding:2px 6px;border-radius:4px;margin-left:6px;">PROP</span>' : '';
+        var card = document.createElement('div');
+        card.style.cssText = 'padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;justify-content:space-between;align-items:center;';
+        card.innerHTML = '<div style="flex:1;">' +
+            '<div style="font-size:14px;font-weight:700;color:#fff;">' + p.selection + typeTag + '</div>' +
+            '<div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:2px;">' + (p.sport || '') + ' | ' + (p.matchup || '') + '</div>' +
+            (p.notes ? '<div style="font-size:11px;color:rgba(255,255,255,0.25);margin-top:2px;font-style:italic;">' + p.notes + '</div>' : '') +
+            '</div>' +
+            '<div style="text-align:right;min-width:70px;">' +
+            '<div style="font-size:14px;font-weight:700;color:' + (String(p.odds).charAt(0) === '+' ? '#10B981' : '#fff') + ';">' + (p.odds || '') + '</div>' +
+            '<div style="font-size:12px;color:rgba(255,255,255,0.4);">' + (p.units || 1) + 'u</div>' +
+            '<div class="pick-conf ' + confClass + '" style="margin-top:4px;display:inline-block;">' + (p.confidence || '') + '</div>' +
+            '</div>';
+        lane.appendChild(card);
+    });
+    container.appendChild(lane);
 }
 
 // Load picks on page load
