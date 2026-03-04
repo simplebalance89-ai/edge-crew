@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="Edge Crew">
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
-<title>Edge Finder — Crew Dashboard</title>
+<title>Edge Crew — Crew Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -35,11 +35,13 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 .crew-sintonia{background:rgba(167,139,250,0.15);color:#A78BFA;border:1px solid rgba(167,139,250,0.3);}
 .sweep-time{font-size:11px;color:rgba(255,255,255,0.25);text-align:right;}
 
-/* ===== SPORT TABS ===== */
+/* ===== SPORT TABS (2-Tier Nav) ===== */
 .sport-tabs{
     display:flex;gap:0;padding:0 24px;background:rgba(0,0,0,0.2);
     border-bottom:1px solid rgba(255,255,255,0.06);overflow-x:auto;
 }
+.sport-row{border-bottom:1px solid rgba(255,255,255,0.06);}
+.utility-row{border-bottom:1px solid rgba(255,255,255,0.04);}
 .sport-tab{
     padding:12px 28px;font-size:13px;font-weight:700;letter-spacing:1px;
     text-transform:uppercase;color:rgba(255,255,255,0.3);cursor:pointer;
@@ -52,6 +54,8 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     font-size:10px;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.4);
 }
 .sport-tab.active .tab-count{background:rgba(212,160,23,0.2);color:#D4A017;}
+.utility-tab{font-size:11px !important;letter-spacing:0.5px !important;padding:10px 24px !important;}
+.utility-tab.active{border-bottom-color:#D4A017 !important;color:#fff !important;}
 
 /* ===== CONTENT ===== */
 .content{max-width:1100px;margin:0 auto;padding:24px;}
@@ -334,6 +338,22 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     .betslip-card{border-radius:20px;max-height:80vh;}
 }
 
+/* ===== FAB (Floating Action Button) ===== */
+.fab{
+    position:fixed;bottom:24px;right:24px;z-index:260;
+    width:60px;height:60px;border-radius:50%;border:none;
+    background:linear-gradient(135deg,#10B981,#059669);
+    color:#fff;font-size:24px;font-weight:900;cursor:pointer;
+    box-shadow:0 4px 20px rgba(16,185,129,0.4);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    transition:all 0.2s;line-height:1;
+}
+.fab:hover{transform:scale(1.1);box-shadow:0 6px 28px rgba(16,185,129,0.5);}
+.fab-label{font-size:8px;font-weight:800;letter-spacing:1px;margin-top:2px;}
+@media(max-width:768px){
+    .fab{bottom:80px;}
+}
+
 /* ===== FOOTER ===== */
 .footer{
     text-align:center;padding:32px 24px;margin-top:32px;
@@ -432,6 +452,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     /* Sport tabs: slimmer on mobile */
     .sport-tab{padding:10px 16px;min-height:44px;display:flex;align-items:center;font-size:12px;}
     .sport-tab .tab-count{font-size:9px;padding:1px 5px;}
+    .utility-tab{min-height:36px !important;padding:8px 14px !important;font-size:10px !important;}
 
     /* Game header → stacked card */
     .game-header{
@@ -541,7 +562,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 <!-- LOGIN OVERLAY -->
 <div class="login-overlay" id="loginOverlay">
     <div class="login-card">
-        <h1>Edge Finder</h1>
+        <h1>Edge Crew</h1>
         <div class="login-sub">Crew Dashboard</div>
         <div class="login-tabs">
             <button class="login-tab active" onclick="switchLoginTab('signin')">Sign In</button>
@@ -591,7 +612,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 <!-- TOP BAR -->
 <div class="topbar">
     <div class="topbar-left">
-        <div class="topbar-title">Edge Finder</div>
+        <div class="topbar-title">Edge Crew</div>
         <div class="topbar-date" id="topbarDate"></div>
     </div>
     <div class="crew">
@@ -605,23 +626,30 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     <div style="display:flex;gap:6px;align-items:center;">
         <a href="/bets" class="topbar-refresh" style="text-decoration:none;background:rgba(212,160,23,0.15);color:#D4A017;border-color:rgba(212,160,23,0.3);">TODAY'S BETS</a>
         <button class="topbar-refresh" onclick="refreshSlate()">REFRESH SLATE</button>
-        <button onclick="clearAllCache()" style="cursor:pointer;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;background:rgba(239,68,68,0.15);color:#EF4444;border:1px solid rgba(239,68,68,0.3);letter-spacing:0.5px;font-family:'Nunito',sans-serif;">CLEAR CACHE</button>
-        <button onclick="doLogout()" id="logoutBtn" style="cursor:pointer;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.1);letter-spacing:0.5px;font-family:'Nunito',sans-serif;">LOGOUT</button>
+        <div style="position:relative;">
+            <button onclick="toggleGearMenu()" style="cursor:pointer;padding:4px 10px;border-radius:20px;font-size:16px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.1);font-family:'Nunito',sans-serif;line-height:1;">&#9881;</button>
+            <div id="gearMenu" style="display:none;position:absolute;right:0;top:110%;background:#141428;border:1px solid rgba(255,255,255,0.1);border-radius:10px;min-width:160px;z-index:150;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.5);">
+                <button onclick="clearAllCache()" style="display:block;width:100%;text-align:left;padding:12px 16px;background:transparent;border:none;color:#EF4444;font-size:12px;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.06);">Clear Cache</button>
+                <button onclick="doLogout()" style="display:block;width:100%;text-align:left;padding:12px 16px;background:transparent;border:none;color:rgba(255,255,255,0.5);font-size:12px;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;">Logout</button>
+            </div>
+        </div>
     </div>
 </div>
 
-<!-- SPORT TABS -->
+<!-- SPORT TABS (2-Tier Nav) -->
 <div class="tabs-wrapper">
-<div class="sport-tabs">
+<div class="sport-tabs sport-row">
     <div class="sport-tab active" onclick="switchSport('nba', event)">NBA <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('nhl', event)">NHL <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('soccer', event)">Soccer <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('mma', event)">MMA <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('boxing', event)">Boxing <span class="tab-count">0</span></div>
-    <div class="sport-tab" onclick="switchSport('props', event)">Props <span class="tab-count">0</span></div>
-    <div class="sport-tab" onclick="switchSport('combined', event)">Combined <span class="tab-count">0</span></div>
-    <div class="sport-tab" onclick="switchSport('bankroll', event)">RESULTS <span class="tab-count">0</span></div>
-    <div class="sport-tab" onclick="switchSport('submit', event)" style="color:#10B981;">SUBMIT PICK</div>
+</div>
+<div class="sport-tabs utility-row">
+    <div class="sport-tab utility-tab" onclick="switchSport('props', event)">Props <span class="tab-count">0</span></div>
+    <div class="sport-tab utility-tab" onclick="switchSport('combined', event)">Full Slate <span class="tab-count">0</span></div>
+    <div class="sport-tab utility-tab" onclick="switchSport('bankroll', event)">Bankroll</div>
+    <div class="sport-tab utility-tab" onclick="switchSport('results', event)">Results <span class="tab-count">0</span></div>
 </div>
 </div>
 
@@ -635,14 +663,14 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     <div style="display:flex;justify-content:space-between;align-items:center;">
         <h3 id="gotchaNBATitle">Gotcha Card &mdash; NBA</h3>
         <div style="display:flex;gap:6px;">
-            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(212,160,23,0.15);color:#D4A017;font-size:11px;font-weight:700;border:none;" onclick="toggleGotchaEdit()">EDIT</button>
-            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(16,185,129,0.15);color:#10B981;font-size:11px;font-weight:700;border:none;" onclick="saveGotcha()">SAVE</button>
+            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(212,160,23,0.15);color:#D4A017;font-size:11px;font-weight:700;border:none;" onclick="toggleGotchaEdit('NBA')">EDIT</button>
+            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(16,185,129,0.15);color:#10B981;font-size:11px;font-weight:700;border:none;" onclick="saveGotcha('NBA')">SAVE</button>
         </div>
     </div>
-    <div id="gotchaDisplay">
+    <div id="gotchaDisplay-NBA">
         <p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load today's gotcha card...</p>
     </div>
-    <textarea id="gotchaEditor" style="display:none;width:100%;min-height:150px;background:#0D0D1A;color:#fff;border:1px solid #D4A017;border-radius:6px;padding:10px;font-family:'Nunito',sans-serif;font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line. Use for injuries, traps, edges, B2B flags..."></textarea>
+    <textarea id="gotchaEditor-NBA" style="display:none;width:100%;min-height:150px;background:#0D0D1A;color:#fff;border:1px solid #D4A017;border-radius:6px;padding:10px;font-family:'Nunito',sans-serif;font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line. Use for injuries, traps, edges, B2B flags..."></textarea>
 </div>
 
 <div class="empty-state">No NBA games loaded.<br><strong>Hit REFRESH SLATE</strong> to load live lines.</div>
@@ -679,8 +707,17 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 <div class="sport-panel" id="panel-nhl">
 
 <div class="gotcha-banner">
-    <h3 id="gotchaNHLTitle">Gotcha Card &mdash; NHL</h3>
-    <p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load today's gotcha card...</p>
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h3 id="gotchaNHLTitle">Gotcha Card &mdash; NHL</h3>
+        <div style="display:flex;gap:6px;">
+            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(212,160,23,0.15);color:#D4A017;font-size:11px;font-weight:700;border:none;" onclick="toggleGotchaEdit('NHL')">EDIT</button>
+            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(16,185,129,0.15);color:#10B981;font-size:11px;font-weight:700;border:none;" onclick="saveGotcha('NHL')">SAVE</button>
+        </div>
+    </div>
+    <div id="gotchaDisplay-NHL">
+        <p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load today's gotcha card...</p>
+    </div>
+    <textarea id="gotchaEditor-NHL" style="display:none;width:100%;min-height:150px;background:#0D0D1A;color:#fff;border:1px solid #D4A017;border-radius:6px;padding:10px;font-family:'Nunito',sans-serif;font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line..."></textarea>
 </div>
 
 <div class="empty-state">No NHL games loaded.<br><strong>Hit REFRESH SLATE</strong> to load live lines.</div>
@@ -716,8 +753,17 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 <!-- ===== SOCCER PANEL ===== -->
 <div class="sport-panel" id="panel-soccer">
 <div class="gotcha-banner" style="border-color:rgba(16,185,129,0.2);background:rgba(16,185,129,0.06);">
-    <h3 style="color:#10B981;">Soccer — Live Lines (Hard Rock Bet)</h3>
-    <p style="color:rgba(255,255,255,0.5);font-size:13px;">MLS, EPL, Champions League, La Liga. Moneylines + totals. No player props.</p>
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h3 style="color:#10B981;">Soccer — Live Lines (Hard Rock Bet)</h3>
+        <div style="display:flex;gap:6px;">
+            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(212,160,23,0.15);color:#D4A017;font-size:11px;font-weight:700;border:none;" onclick="toggleGotchaEdit('SOCCER')">EDIT</button>
+            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(16,185,129,0.15);color:#10B981;font-size:11px;font-weight:700;border:none;" onclick="saveGotcha('SOCCER')">SAVE</button>
+        </div>
+    </div>
+    <div id="gotchaDisplay-SOCCER">
+        <p style="color:rgba(255,255,255,0.5);font-size:13px;">MLS, EPL, Champions League, La Liga. Moneylines + totals. No player props.</p>
+    </div>
+    <textarea id="gotchaEditor-SOCCER" style="display:none;width:100%;min-height:150px;background:#0D0D1A;color:#fff;border:1px solid #10B981;border-radius:6px;padding:10px;font-family:'Nunito',sans-serif;font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line..."></textarea>
 </div>
 <div class="empty-state">No games on the slate.<br><strong>Hit REFRESH SLATE</strong> to check for live lines.</div>
 <!-- SOCCER UPSET SPECIALS -->
@@ -746,8 +792,17 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 <!-- ===== MMA PANEL ===== -->
 <div class="sport-panel" id="panel-mma">
 <div class="gotcha-banner" style="border-color:rgba(239,68,68,0.2);background:rgba(239,68,68,0.06);">
-    <h3 style="color:#EF4444;">MMA / UFC — Live Lines (Hard Rock Bet)</h3>
-    <p style="color:rgba(255,255,255,0.5);font-size:13px;">Moneylines + totals (rounds). Fight night data.</p>
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h3 style="color:#EF4444;">MMA / UFC — Live Lines (Hard Rock Bet)</h3>
+        <div style="display:flex;gap:6px;">
+            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(212,160,23,0.15);color:#D4A017;font-size:11px;font-weight:700;border:none;" onclick="toggleGotchaEdit('MMA')">EDIT</button>
+            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(16,185,129,0.15);color:#10B981;font-size:11px;font-weight:700;border:none;" onclick="saveGotcha('MMA')">SAVE</button>
+        </div>
+    </div>
+    <div id="gotchaDisplay-MMA">
+        <p style="color:rgba(255,255,255,0.5);font-size:13px;">Moneylines + totals (rounds). Fight night data.</p>
+    </div>
+    <textarea id="gotchaEditor-MMA" style="display:none;width:100%;min-height:150px;background:#0D0D1A;color:#fff;border:1px solid #EF4444;border-radius:6px;padding:10px;font-family:'Nunito',sans-serif;font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line..."></textarea>
 </div>
 <div class="empty-state">No fights on the slate.<br><strong>Hit REFRESH SLATE</strong> to check for live lines.</div>
 <!-- MMA UPSET SPECIALS -->
@@ -776,8 +831,17 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 <!-- ===== BOXING PANEL ===== -->
 <div class="sport-panel" id="panel-boxing">
 <div class="gotcha-banner" style="border-color:rgba(168,85,247,0.2);background:rgba(168,85,247,0.06);">
-    <h3 style="color:#A855F7;">Boxing — Live Lines (Hard Rock Bet)</h3>
-    <p style="color:rgba(255,255,255,0.5);font-size:13px;">Moneylines + totals (rounds).</p>
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h3 style="color:#A855F7;">Boxing — Live Lines (Hard Rock Bet)</h3>
+        <div style="display:flex;gap:6px;">
+            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(212,160,23,0.15);color:#D4A017;font-size:11px;font-weight:700;border:none;" onclick="toggleGotchaEdit('BOXING')">EDIT</button>
+            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(16,185,129,0.15);color:#10B981;font-size:11px;font-weight:700;border:none;" onclick="saveGotcha('BOXING')">SAVE</button>
+        </div>
+    </div>
+    <div id="gotchaDisplay-BOXING">
+        <p style="color:rgba(255,255,255,0.5);font-size:13px;">Moneylines + totals (rounds).</p>
+    </div>
+    <textarea id="gotchaEditor-BOXING" style="display:none;width:100%;min-height:150px;background:#0D0D1A;color:#fff;border:1px solid #A855F7;border-radius:6px;padding:10px;font-family:'Nunito',sans-serif;font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line..."></textarea>
 </div>
 <div class="empty-state">No fights on the slate.<br><strong>Hit REFRESH SLATE</strong> to check for live lines.</div>
 <!-- BOXING UPSET SPECIALS -->
@@ -916,9 +980,15 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
         </div>
     </div>
 
-    <!-- Pick results list -->
-    <h3 style="margin-top:20px;color:#D4A017;">Pick Results</h3>
-    <div style="color:rgba(255,255,255,0.4);font-size:12px;margin-bottom:8px;">Click W / L / P to grade each pick. Results save automatically.</div>
+
+</div>
+</div>
+
+<!-- ===== RESULTS PANEL (Pick Grading) ===== -->
+<div class="sport-panel" id="panel-results">
+<div class="pick-form">
+    <h2 style="color:#D4A017;">Pick Results</h2>
+    <div class="form-sub">Click W / L / P to grade each pick. Results save automatically.</div>
     <div id="bankrollPicks"></div>
 </div>
 </div>
@@ -1101,10 +1171,13 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     </div>
 </div>
 
+<!-- FAB: Submit Pick -->
+<button class="fab" onclick="switchSport('submit', null)" title="Submit Pick">+<span class="fab-label">PICK</span></button>
+
 <div class="toast" id="toast">Pick locked!</div>
 
 <div class="footer">
-    Edge Finder by Sinton.ia | Crew Dashboard | No edge = no bet<br>
+    Edge Crew by Sinton.ia | Crew Dashboard | No edge = no bet<br>
     Peter + Chinny + Jimmy + Sinton.ia | Crew picks + upsets in every panel<br>
     Sweep → Gotcha → Trends → Card → Peter picks → Chinny picks → Lock
 </div>
@@ -1119,7 +1192,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
     <div class="modal">
         <h2>Locked Card</h2>
-        <div class="modal-sub" id="modalDate">Edge Finder Crew</div>
+        <div class="modal-sub" id="modalDate">Edge Crew</div>
         <table id="modalTable">
             <thead>
                 <tr><th>#</th><th>Game</th><th>Side</th></tr>
@@ -1700,9 +1773,20 @@ function switchSport(sport, e) {
     document.querySelectorAll('.sport-panel').forEach(function(p) { p.classList.remove('active'); });
     document.getElementById('panel-' + sport).classList.add('active');
     var ev = e || window.event;
+    var foundTab = false;
     if (ev && ev.target) {
         var tab = ev.target.closest('.sport-tab');
-        if (tab) tab.classList.add('active');
+        if (tab) { tab.classList.add('active'); foundTab = true; }
+    }
+    // Programmatic fallback: find tab by matching onclick attribute
+    if (!foundTab) {
+        var allTabs = document.querySelectorAll('.sport-tab');
+        allTabs.forEach(function(t) {
+            var oc = t.getAttribute('onclick') || '';
+            if (oc.indexOf("'" + sport + "'") !== -1) {
+                t.classList.add('active');
+            }
+        });
     }
     if (sport === 'combined') fetchCombinedSlate();
     window.scrollTo(0, 0);
@@ -2103,10 +2187,10 @@ function renderBankroll() {
         container.innerHTML = '<div style="color:rgba(255,255,255,0.3);text-align:center;padding:20px;">No picks yet. Submit picks and grade them here.</div>';
     }
 
-    // Update RESULTS tab count
+    // Update Results tab count
     var resultsTabs = document.querySelectorAll('.sport-tab');
     resultsTabs.forEach(function(tab) {
-        if (tab.textContent.indexOf('RESULTS') !== -1) {
+        if (tab.textContent.indexOf('Results') !== -1) {
             var count = tab.querySelector('.tab-count');
             if (count) count.textContent = stored.length;
         }
@@ -2116,15 +2200,20 @@ function renderBankroll() {
 // Load bankroll on page load
 renderBankroll();
 
-// ===== GOTCHA CARD =====
-function toggleGotchaEdit() {
-    var display = document.getElementById('gotchaDisplay');
-    var editor = document.getElementById('gotchaEditor');
+// ===== GOTCHA CARD (All Sports) =====
+function toggleGotchaEdit(sport) {
+    var display = document.getElementById('gotchaDisplay-' + sport);
+    var editor = document.getElementById('gotchaEditor-' + sport);
+    if (!display || !editor) return;
     if (editor.style.display === 'none') {
-        // Switch to edit mode — pull current notes into textarea
         var items = display.querySelectorAll('li');
         var lines = [];
         items.forEach(function(li) { lines.push(li.textContent.trim()); });
+        // If no list items, grab paragraph text
+        if (lines.length === 0) {
+            var ps = display.querySelectorAll('p');
+            ps.forEach(function(p) { if (p.textContent.trim()) lines.push(p.textContent.trim()); });
+        }
         editor.value = lines.join('\n');
         editor.style.display = 'block';
         display.style.display = 'none';
@@ -2135,9 +2224,10 @@ function toggleGotchaEdit() {
     }
 }
 
-function saveGotcha() {
-    var editor = document.getElementById('gotchaEditor');
-    var display = document.getElementById('gotchaDisplay');
+function saveGotcha(sport) {
+    var editor = document.getElementById('gotchaEditor-' + sport);
+    var display = document.getElementById('gotchaDisplay-' + sport);
+    if (!editor || !display) return;
     var text = editor.value.trim();
     if (!text) return;
 
@@ -2149,23 +2239,24 @@ function saveGotcha() {
     html += '</ul>';
     display.innerHTML = html;
 
-    // Save to localStorage + server
-    safeSave('edgeGotchaNBA', text);
+    safeSave('edgeGotcha' + sport, text);
     fetch('/api/gotcha', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sport: 'NBA', notes: text, updated_by: safeLoad('edgeCrewName') || '' })
+        body: JSON.stringify({ sport: sport, notes: text, updated_by: safeLoad('edgeCrewName') || '' })
     }).catch(function() {});
 
     editor.style.display = 'none';
     display.style.display = 'block';
-    showToast('Gotcha card updated!');
+    showToast(sport + ' gotcha card updated!');
 }
 
 // Load saved gotcha + bankroll from server (localStorage fallback)
 (function() {
-    function applyGotcha(text) {
-        var display = document.getElementById('gotchaDisplay');
+    var gotchaSports = ['NBA', 'NHL', 'SOCCER', 'MMA', 'BOXING'];
+
+    function applyGotcha(sport, text) {
+        var display = document.getElementById('gotchaDisplay-' + sport);
         if (display && text) {
             var lines = text.split('\n').filter(function(l) { return l.trim(); });
             var html = '<ul>';
@@ -2175,14 +2266,18 @@ function saveGotcha() {
         }
     }
     fetch('/api/gotcha').then(function(r) { return r.json(); }).then(function(data) {
-        if (data.notes && data.notes.NBA && data.notes.NBA.notes) {
-            safeSave('edgeGotchaNBA', data.notes.NBA.notes);
-            applyGotcha(data.notes.NBA.notes);
-        } else {
-            applyGotcha(safeLoad('edgeGotchaNBA'));
-        }
+        gotchaSports.forEach(function(sport) {
+            if (data.notes && data.notes[sport] && data.notes[sport].notes) {
+                safeSave('edgeGotcha' + sport, data.notes[sport].notes);
+                applyGotcha(sport, data.notes[sport].notes);
+            } else {
+                applyGotcha(sport, safeLoad('edgeGotcha' + sport));
+            }
+        });
     }).catch(function() {
-        applyGotcha(safeLoad('edgeGotchaNBA'));
+        gotchaSports.forEach(function(sport) {
+            applyGotcha(sport, safeLoad('edgeGotcha' + sport));
+        });
     });
     fetch('/api/bankroll').then(function(r) { return r.json(); }).then(function(data) {
         if (data.starting_balance) {
@@ -3043,8 +3138,9 @@ function fetchAnalysis(sport) {
             var gotcha = panel.querySelector('.gotcha-banner');
             if (gotcha && data.gotcha) {
                 var title = gotcha.querySelector('h3');
-                var display = gotcha.querySelector('#gotchaDisplay') || gotcha;
-                if (gotcha.querySelector('#gotchaDisplay')) {
+                var sportKey = sport.toUpperCase();
+                var display = document.getElementById('gotchaDisplay-' + sportKey) || gotcha.querySelector('[id^="gotchaDisplay-"]') || gotcha;
+                if (display.id && display.id.indexOf('gotchaDisplay-') === 0) {
                     display.innerHTML = data.gotcha;
                 } else {
                     var existingUl = gotcha.querySelector('ul');
@@ -3499,6 +3595,19 @@ restoreLockedPicks();
     }).catch(function(e) { console.log('Pick sync skip:', e); });
 })();
 
+// ===== GEAR MENU =====
+function toggleGearMenu() {
+    var menu = document.getElementById('gearMenu');
+    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+}
+document.addEventListener('click', function(e) {
+    var menu = document.getElementById('gearMenu');
+    if (menu && menu.style.display !== 'none') {
+        var gear = menu.parentElement;
+        if (!gear.contains(e.target)) menu.style.display = 'none';
+    }
+});
+
 // ===== CLEAR CACHE =====
 async function clearAllCache() {
     if (!confirm('Nuclear clear: kills all cached data, picks, settings. Reload fresh from server.')) return;
@@ -3535,11 +3644,11 @@ async function clearAllCache() {
         <button class="mqb-btn" onclick="document.querySelector('.sport-tabs').scrollTo({left:0,behavior:'smooth'});window.scrollTo({top:0,behavior:'smooth'})">
             <span class="mqb-icon">🏀</span>Games
         </button>
-        <button class="mqb-btn mqb-submit" onclick="switchSport('submit',event)">
-            <span class="mqb-icon">📝</span>Submit
-        </button>
-        <button class="mqb-btn mqb-results" onclick="switchSport('bankroll',event)">
+        <button class="mqb-btn mqb-results" onclick="switchSport('results',event)">
             <span class="mqb-icon">📊</span>Results
+        </button>
+        <button class="mqb-btn" onclick="switchSport('bankroll',event)">
+            <span class="mqb-icon">💰</span>Bankroll
         </button>
         <button class="mqb-btn" onclick="switchSport('combined',event)">
             <span class="mqb-icon">📋</span>Full Slate
