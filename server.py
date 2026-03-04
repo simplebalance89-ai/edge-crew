@@ -989,6 +989,15 @@ async def save_gotcha_notes(request: Request):
     return JSONResponse({"status": "ok", "note": "no database configured"})
 
 
+@app.get("/sw.js")
+async def serve_sw():
+    return FileResponse("static/sw.js", media_type="application/javascript",
+                        headers={"Service-Worker-Allowed": "/", "Cache-Control": "no-cache"})
+
+@app.get("/manifest.json")
+async def serve_manifest():
+    return FileResponse("static/manifest.json", media_type="application/json")
+
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
