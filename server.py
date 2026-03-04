@@ -525,7 +525,8 @@ Generate analysis in this exact JSON format:
 }}
 
 CRITICAL RULES:
-- For NHL/MMA/Boxing: moneyline-only games ARE gradeable. Grade them based on ML value, matchup, and situational factors. Only mark INCOMPLETE if ML is also missing.
+- For NHL: games with totals-only (over/under) OR moneyline-only ARE gradeable. SharpAPI/DraftKings often only provides totals for NHL. Grade based on available data — total value, matchup quality, trends, situational factors. Only mark INCOMPLETE if NO data at all.
+- For MMA/Boxing: moneyline-only games ARE gradeable. Grade based on ML value and matchup.
 - For NBA/NFL/MLB/Soccer: if a game is missing spread, total, OR moneyline — grade it "INCOMPLETE" with tag "INCOMPLETE".
 - In data_status, state exactly what's missing: "MISSING: spread" or "MISSING: ML, total" etc.
 - Do NOT assign a real grade (A through C) to any NBA/NFL/MLB game with incomplete lines.
