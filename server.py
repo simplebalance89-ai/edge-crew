@@ -333,7 +333,7 @@ async def get_odds(sport: str, markets: str = "h2h,spreads,totals"):
             if complete_count > 0:
                 source_name = "SharpAPI (DraftKings)"
             else:
-                logger.warning(f"SharpAPI returned {len(all_games)} {label} games but ALL lines incomplete — falling through to Odds API")
+                print(f"[WARN] SharpAPI returned {len(all_games)} {label} games but ALL lines incomplete — falling through to Odds API")
                 all_games = []
 
     # --- FALLBACK: The Odds API ---
