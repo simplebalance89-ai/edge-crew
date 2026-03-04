@@ -54,6 +54,17 @@ AZURE_ENDPOINT = os.environ.get("AZURE_OPENAI_ENDPOINT", "")
 AZURE_KEY = os.environ.get("AZURE_OPENAI_KEY", "")
 AZURE_MODEL = os.environ.get("AZURE_OPENAI_MODEL", "gpt-4.1-mini")
 
+# Supabase config (persistent storage — replaces file-based picks/upsets)
+SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
+SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "")
+sb = None
+if SUPABASE_URL and SUPABASE_KEY:
+    try:
+        from supabase import create_client
+        sb = create_client(SUPABASE_URL, SUPABASE_KEY)
+    except Exception:
+        sb = None
+
 # Simple in-memory cache to save API credits
 _cache = {}
 CACHE_TTL = 300  # 5 minutes
@@ -649,14 +660,21 @@ def _write_picks(data):
 @app.get("/api/picks")
 async def get_picks(date: str = ""):
     """Return picks, optionally filtered by date (YYYY-MM-DD or 'today')."""
+    if sb:
+        query = sb.table("picks").select("*").order("created_at", desc=True)
+        if date:
+            if date == "today":
+                date = datetime.now().strftime("%Y-%m-%d")
+            query = query.eq("date", date)
+        res = query.execute()
+        return JSONResponse({"picks": res.data, "count": len(res.data)})
+
     data = _read_picks()
     picks = data.get("picks", [])
-
     if date:
         if date == "today":
             date = datetime.now().strftime("%Y-%m-%d")
         picks = [p for p in picks if p.get("date", "").startswith(date)]
-
     return JSONResponse({"picks": picks, "count": len(picks)})
 
 
@@ -691,10 +709,13 @@ async def save_pick(request: Request):
         "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
     }
 
-    data = _read_picks()
-    data["picks"].insert(0, pick)
-    data["updated_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    _write_picks(data)
+    if sb:
+        sb.table("picks").insert(pick).execute()
+    else:
+        data = _read_picks()
+        data["picks"].insert(0, pick)
+        data["updated_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        _write_picks(data)
 
     return JSONResponse({"status": "ok", "pick": pick})
 
@@ -708,6 +729,16 @@ async def place_pick(request: Request):
 
     if not pick_id:
         return JSONResponse({"error": "id is required"}, status_code=400)
+
+    if sb:
+        update_data = {
+            "placed": placed,
+            "placed_at": datetime.now().isoformat() if placed else None,
+        }
+        res = sb.table("picks").update(update_data).eq("id", pick_id).execute()
+        if not res.data:
+            return JSONResponse({"error": "Pick not found"}, status_code=404)
+        return JSONResponse({"status": "ok", "pick": res.data[0]})
 
     data = _read_picks()
     for pick in data["picks"]:
@@ -726,15 +757,24 @@ async def grade_pick(request: Request):
     """Grade a pick W/L/P."""
     body = await request.json()
     pick_id = body.get("id", "")
-    result = body.get("result", "")
+    result_val = body.get("result", "")
 
-    if not pick_id or result not in ("W", "L", "P"):
+    if not pick_id or result_val not in ("W", "L", "P"):
         return JSONResponse({"error": "id and result (W/L/P) required"}, status_code=400)
+
+    if sb:
+        res = sb.table("picks").update({
+            "result": result_val,
+            "graded_at": datetime.now().isoformat(),
+        }).eq("id", pick_id).execute()
+        if not res.data:
+            return JSONResponse({"error": "Pick not found"}, status_code=404)
+        return JSONResponse({"status": "ok", "pick": res.data[0]})
 
     data = _read_picks()
     for pick in data["picks"]:
         if pick["id"] == pick_id:
-            pick["result"] = result
+            pick["result"] = result_val
             pick["graded_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             data["updated_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             _write_picks(data)
@@ -797,16 +837,20 @@ def _migrate_upsets(old_data):
 @app.get("/api/upsets")
 async def get_upsets(sport: str = "", date: str = ""):
     """Return upset picks, optionally filtered by sport and date."""
+    if sb:
+        filter_date = date if date and date != "today" else datetime.now().strftime("%Y-%m-%d")
+        query = sb.table("upsets").select("*").eq("date", filter_date).order("created_at", desc=True)
+        if sport:
+            query = query.ilike("sport", sport)
+        res = query.execute()
+        return JSONResponse({"picks": res.data, "count": len(res.data)})
+
     data = _read_upsets()
     picks = data.get("picks", [])
-
-    # Default to today
     filter_date = date if date and date != "today" else datetime.now().strftime("%Y-%m-%d")
     picks = [p for p in picks if p.get("date", "") == filter_date]
-
     if sport:
         picks = [p for p in picks if p.get("sport", "").upper() == sport.upper()]
-
     return JSONResponse({"picks": picks, "count": len(picks)})
 
 
@@ -832,9 +876,12 @@ async def save_upset(request: Request):
         "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
     }
 
-    data = _read_upsets()
-    data["picks"].insert(0, pick)
-    _write_upsets(data)
+    if sb:
+        sb.table("upsets").insert(pick).execute()
+    else:
+        data = _read_upsets()
+        data["picks"].insert(0, pick)
+        _write_upsets(data)
 
     return JSONResponse({"status": "ok", "pick": pick})
 
@@ -842,15 +889,84 @@ async def save_upset(request: Request):
 @app.delete("/api/upsets/{pick_id}")
 async def delete_upset(pick_id: str):
     """Delete an upset pick by ID."""
+    if sb:
+        res = sb.table("upsets").delete().eq("id", pick_id).execute()
+        if not res.data:
+            return JSONResponse({"error": "Pick not found"}, status_code=404)
+        return JSONResponse({"status": "ok"})
+
     data = _read_upsets()
     original_len = len(data["picks"])
     data["picks"] = [p for p in data["picks"] if p.get("id") != pick_id]
-
     if len(data["picks"]) == original_len:
         return JSONResponse({"error": "Pick not found"}, status_code=404)
-
     _write_upsets(data)
     return JSONResponse({"status": "ok"})
+
+
+@app.get("/api/bankroll")
+async def get_bankroll():
+    """Get shared bankroll settings."""
+    if sb:
+        res = sb.table("bankroll_settings").select("*").limit(1).execute()
+        if res.data:
+            row = res.data[0]
+            return JSONResponse({
+                "starting_balance": float(row.get("starting_balance", 1000)),
+                "unit_size": float(row.get("unit_size", 25)),
+                "updated_by": row.get("updated_by", ""),
+            })
+    return JSONResponse({"starting_balance": 1000, "unit_size": 25})
+
+
+@app.post("/api/bankroll")
+async def save_bankroll(request: Request):
+    """Save shared bankroll settings."""
+    body = await request.json()
+    if sb:
+        data = {
+            "id": 1,
+            "starting_balance": body.get("starting_balance", 1000),
+            "unit_size": body.get("unit_size", 25),
+            "updated_at": datetime.now().isoformat(),
+            "updated_by": body.get("updated_by", ""),
+        }
+        sb.table("bankroll_settings").upsert(data).execute()
+        return JSONResponse({"status": "ok", **data})
+    return JSONResponse({"status": "ok", "note": "no database configured"})
+
+
+@app.get("/api/gotcha")
+async def get_gotcha():
+    """Get gotcha notes (per sport)."""
+    if sb:
+        res = sb.table("gotcha_notes").select("*").execute()
+        notes = {}
+        for row in res.data:
+            notes[row["sport"]] = {
+                "notes": row.get("notes", ""),
+                "updated_by": row.get("updated_by", ""),
+            }
+        return JSONResponse({"notes": notes})
+    return JSONResponse({"notes": {}})
+
+
+@app.post("/api/gotcha")
+async def save_gotcha_notes(request: Request):
+    """Save gotcha notes for a sport."""
+    body = await request.json()
+    sport = body.get("sport", "NBA")
+    notes_text = body.get("notes", "")
+    if sb:
+        data = {
+            "sport": sport,
+            "notes": notes_text,
+            "updated_at": datetime.now().isoformat(),
+            "updated_by": body.get("updated_by", ""),
+        }
+        sb.table("gotcha_notes").upsert(data, on_conflict="sport").execute()
+        return JSONResponse({"status": "ok", **data})
+    return JSONResponse({"status": "ok", "note": "no database configured"})
 
 
 app.mount("/static", StaticFiles(directory="static"), name="static")

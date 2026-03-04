@@ -1690,6 +1690,11 @@ function saveBankrollSettings() {
     var unit = document.getElementById('unitSize').value || 25;
     safeSave('edgeBankrollStart', start);
     safeSave('edgeUnitSize', unit);
+    fetch('/api/bankroll', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ starting_balance: parseFloat(start), unit_size: parseFloat(unit), updated_by: safeLoad('edgeCrewName') || '' })
+    }).catch(function() {});
     renderBankroll();
     showToast('Bankroll set: $' + start + ' / $' + unit + ' per unit');
 }
@@ -1699,6 +1704,13 @@ function gradePick(index, result) {
     if (stored[index]) {
         stored[index].result = result;
         safeSave('edgePicks', JSON.stringify(stored));
+        if (stored[index].id) {
+            fetch('/api/picks/grade', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: stored[index].id, result: result })
+            }).catch(function() {});
+        }
         renderBankroll();
     }
 }
@@ -1848,25 +1860,53 @@ function saveGotcha() {
     html += '</ul>';
     display.innerHTML = html;
 
-    // Save to localStorage
+    // Save to localStorage + server
     safeSave('edgeGotchaNBA', text);
+    fetch('/api/gotcha', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sport: 'NBA', notes: text, updated_by: safeLoad('edgeCrewName') || '' })
+    }).catch(function() {});
 
     editor.style.display = 'none';
     display.style.display = 'block';
     showToast('Gotcha card updated!');
 }
 
-// Load saved gotcha on page load
+// Load saved gotcha + bankroll from server (localStorage fallback)
 (function() {
-    var saved = safeLoad('edgeGotchaNBA');
-    if (saved) {
+    function applyGotcha(text) {
         var display = document.getElementById('gotchaDisplay');
-        var lines = saved.split('\n').filter(function(l) { return l.trim(); });
-        var html = '<ul>';
-        lines.forEach(function(line) { html += '<li>' + line.trim() + '</li>'; });
-        html += '</ul>';
-        display.innerHTML = html;
+        if (display && text) {
+            var lines = text.split('\n').filter(function(l) { return l.trim(); });
+            var html = '<ul>';
+            lines.forEach(function(line) { html += '<li>' + line.trim() + '</li>'; });
+            html += '</ul>';
+            display.innerHTML = html;
+        }
     }
+    fetch('/api/gotcha').then(function(r) { return r.json(); }).then(function(data) {
+        if (data.notes && data.notes.NBA && data.notes.NBA.notes) {
+            safeSave('edgeGotchaNBA', data.notes.NBA.notes);
+            applyGotcha(data.notes.NBA.notes);
+        } else {
+            applyGotcha(safeLoad('edgeGotchaNBA'));
+        }
+    }).catch(function() {
+        applyGotcha(safeLoad('edgeGotchaNBA'));
+    });
+    fetch('/api/bankroll').then(function(r) { return r.json(); }).then(function(data) {
+        if (data.starting_balance) {
+            safeSave('edgeBankrollStart', data.starting_balance);
+            var el = document.getElementById('bankrollStart');
+            if (el) el.value = data.starting_balance;
+        }
+        if (data.unit_size) {
+            safeSave('edgeUnitSize', data.unit_size);
+            var el2 = document.getElementById('unitSize');
+            if (el2) el2.value = data.unit_size;
+        }
+    }).catch(function() {});
 })();
 
 // ===== PARLAY BUILDER =====
