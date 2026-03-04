@@ -1,13 +1,21 @@
 {
   "name": "Edge Crew",
   "short_name": "Edge Crew",
-  "description": "Sports betting dashboard — odds, picks, bankroll",
+  "description": "Sports betting dashboard \u2014 odds, picks, bankroll",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0D0D1A",
-  "theme_color": "#10B981",
+  "background_color": "#0a0a1a",
+  "theme_color": "#0a0a1a",
   "icons": [
-    { "src": "/static/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/static/icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+    {
+      "src": "/static/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
   ]
 }
