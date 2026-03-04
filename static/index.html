@@ -480,7 +480,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 
 <div class="empty-state">No NBA games loaded.<br><strong>Hit REFRESH SLATE</strong> to load live lines.</div>
 
-<!-- NBA UPSET SPECIALS -->
+<!-- NBA UPSET SPECIALS (top of panel — Peter's territory) -->
 <div class="upset-section" id="upsetNBA">
     <h3>Daily Upset Specials</h3>
     <form class="upset-submit-form" onsubmit="submitUpset('NBA');return false;">
@@ -490,6 +490,11 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
         <button type="submit">SUBMIT</button>
     </form>
     <div class="upset-cards" id="upsetCardsNBA"></div>
+</div>
+
+<!-- ML+ Filter -->
+<div class="ml-filter" style="display:flex;gap:8px;margin:10px 0;">
+    <div class="ml-filter-btn" onclick="toggleMLFilter('nba')" style="cursor:pointer;padding:6px 14px;border-radius:6px;background:rgba(212,160,23,0.1);border:1px solid rgba(212,160,23,0.3);color:#D4A017;font-size:12px;font-weight:700;transition:all 0.2s;">ML+ Only</div>
 </div>
 
 <!-- NBA PETER GUT PICKS (DYNAMIC) -->
@@ -523,6 +528,11 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
         <button type="submit">SUBMIT</button>
     </form>
     <div class="upset-cards" id="upsetCardsNHL"></div>
+</div>
+
+<!-- ML+ Filter -->
+<div class="ml-filter" style="display:flex;gap:8px;margin:10px 0;">
+    <div class="ml-filter-btn" onclick="toggleMLFilter('nhl')" style="cursor:pointer;padding:6px 14px;border-radius:6px;background:rgba(212,160,23,0.1);border:1px solid rgba(212,160,23,0.3);color:#D4A017;font-size:12px;font-weight:700;transition:all 0.2s;">ML+ Only</div>
 </div>
 
 <!-- NHL PETER GUT PICKS (DYNAMIC) -->
@@ -2192,10 +2202,20 @@ function fetchLiveOdds(sport) {
                 html += buildGameRowHTML(g);
             });
 
-            // Insert after gotcha banner, before upset/gut sections
+            // Insert after upset section (upsets stay at top), before gut picks
             var temp = document.createElement('div');
             temp.innerHTML = html;
-            var insertBefore = panel.querySelector('.upset-section') || panel.querySelector('.gut-section');
+            var upsetSection = panel.querySelector('.upset-section');
+            var gutSection = panel.querySelector('.input-section');
+            var insertBefore = gutSection || null;
+            // If no gut section, append after upset section
+            if (!insertBefore && upsetSection && upsetSection.nextElementSibling) {
+                insertBefore = upsetSection.nextElementSibling;
+                // Skip if next sibling is also an upset section or ML filter
+                while (insertBefore && (insertBefore.classList.contains('upset-section') || insertBefore.classList.contains('ml-filter'))) {
+                    insertBefore = insertBefore.nextElementSibling;
+                }
+            }
             while (temp.firstChild) {
                 if (insertBefore) {
                     panel.insertBefore(temp.firstChild, insertBefore);
@@ -2244,6 +2264,39 @@ function fetchLiveOdds(sport) {
             errMsg.textContent = 'Failed to load ' + sport.toUpperCase() + ' odds. Check connection and try again.';
             panel.appendChild(errMsg);
         });
+}
+
+// ===== ML+ FILTER =====
+var mlFilterActive = {};
+function toggleMLFilter(sport) {
+    mlFilterActive[sport] = !mlFilterActive[sport];
+    var panel = document.getElementById('panel-' + sport);
+    if (!panel) return;
+    var btn = panel.querySelector('.ml-filter-btn');
+    if (btn) {
+        if (mlFilterActive[sport]) {
+            btn.style.background = 'rgba(212,160,23,0.4)';
+            btn.style.borderColor = '#D4A017';
+        } else {
+            btn.style.background = 'rgba(212,160,23,0.1)';
+            btn.style.borderColor = 'rgba(212,160,23,0.3)';
+        }
+    }
+    var rows = panel.querySelectorAll('.game-row');
+    rows.forEach(function(row) {
+        if (!mlFilterActive[sport]) {
+            row.style.display = '';
+            return;
+        }
+        // Check if either team has plus money line via side buttons
+        var sideButtons = row.querySelectorAll('.side-btn');
+        var hasPlus = false;
+        sideButtons.forEach(function(b) {
+            var t = b.textContent;
+            if (t.indexOf('ML') !== -1 && t.match(/\+\d/)) hasPlus = true;
+        });
+        row.style.display = hasPlus ? '' : 'none';
+    });
 }
 
 // Remember last name selection

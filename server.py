@@ -152,8 +152,8 @@ def _parse_sharpapi_events(rows, sport_label):
 
         game["lines_available"] = has_spread or has_total or has_ml
         game["lines_complete"] = has_spread and has_total and has_ml
-        # MMA/boxing: no spreads or totals expected — ML-only is "complete"
-        if sport_label in ("MMA", "BOXING") and has_ml:
+        # NHL/MMA/boxing: ML-only is considered "complete" for grading
+        if sport_label in ("NHL", "MMA", "BOXING") and has_ml:
             game["lines_complete"] = True
         games.append(game)
 
@@ -258,7 +258,11 @@ def _parse_event(event, sport_label):
                 game["home_ml"] = h.get("price", 0)
 
     game["lines_available"] = has_spread or has_total or has_ml
-    game["lines_complete"] = has_spread and has_total and has_ml
+    # NHL/MMA/boxing: ML-only is considered "complete" for grading
+    if sport_label in ("NHL", "MMA", "BOXING") and has_ml:
+        game["lines_complete"] = True
+    else:
+        game["lines_complete"] = has_spread and has_total and has_ml
 
     return game
 
@@ -517,9 +521,10 @@ Generate analysis in this exact JSON format:
 }}
 
 CRITICAL RULES:
-- If a game is missing spread, total, OR moneyline — grade it "INCOMPLETE" with tag "INCOMPLETE".
+- For NHL/MMA/Boxing: moneyline-only games ARE gradeable. Grade them based on ML value, matchup, and situational factors. Only mark INCOMPLETE if ML is also missing.
+- For NBA/NFL/MLB/Soccer: if a game is missing spread, total, OR moneyline — grade it "INCOMPLETE" with tag "INCOMPLETE".
 - In data_status, state exactly what's missing: "MISSING: spread" or "MISSING: ML, total" etc.
-- Do NOT assign a real grade (A through C) to any game with incomplete lines.
+- Do NOT assign a real grade (A through C) to any NBA/NFL/MLB game with incomplete lines.
 - INCOMPLETE games still get listed — show the matchup but make it clear you can't grade without full data.
 - For complete games: grade honestly. C means skip. A means best bet.
 - Flag PASS games explicitly.
