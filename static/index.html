@@ -3136,6 +3136,32 @@ function restoreLockedPicks() {
 }
 restoreLockedPicks();
 
+// ===== AUTO-FETCH ON PAGE LOAD =====
+(function() {
+    // Auto-refresh slate on load so user never sees stale data
+    setTimeout(function() { refreshSlate(); }, 500);
+    // Sync picks from server to localStorage
+    fetch('/api/picks').then(function(r) { return r.json(); }).then(function(data) {
+        if (data.picks && data.picks.length) {
+            var local = JSON.parse(safeLoad('edgePicks') || '[]');
+            var localIds = {};
+            local.forEach(function(p) { localIds[p.id] = true; });
+            var added = 0;
+            data.picks.forEach(function(p) {
+                if (\!localIds[p.id]) {
+                    local.unshift(p);
+                    added++;
+                }
+            });
+            if (added > 0) {
+                safeSave('edgePicks', JSON.stringify(local));
+                renderPicks();
+                renderBankroll();
+            }
+        }
+    }).catch(function(e) { console.log('Pick sync skip:', e); });
+})();
+
 // ===== CLEAR CACHE =====
 async function clearAllCache() {
     if (!confirm('Clear all data? Picks, bankroll, gotcha edits \u2014 everything resets.')) return;

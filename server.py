@@ -9,6 +9,14 @@ from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 
+import html as _html
+
+def _sanitize(s):
+    """Strip HTML/script tags from user input."""
+    if not isinstance(s, str):
+        return s
+    return _html.escape(s.strip())
+
 app = FastAPI()
 
 
@@ -691,15 +699,15 @@ async def save_pick(request: Request):
 
     pick = {
         "id": str(uuid.uuid4())[:8],
-        "name": name,
-        "sport": body.get("sport", ""),
-        "type": body.get("type", "Spread"),
-        "matchup": matchup,
-        "selection": selection,
-        "odds": body.get("odds", "-110"),
-        "units": body.get("units", "1"),
-        "confidence": body.get("confidence", "Lean"),
-        "notes": body.get("notes", ""),
+        "name": _sanitize(name),
+        "sport": _sanitize(body.get("sport", "")),
+        "type": _sanitize(body.get("type", "Spread")),
+        "matchup": _sanitize(matchup),
+        "selection": _sanitize(selection),
+        "odds": _sanitize(body.get("odds", "-110")),
+        "units": _sanitize(body.get("units", "1")),
+        "confidence": _sanitize(body.get("confidence", "Lean")),
+        "notes": _sanitize(body.get("notes", "")),
         "date": datetime.now().strftime("%Y-%m-%d"),
         "time": datetime.now().strftime("%H:%M:%S"),
         "placed": False,
@@ -832,6 +840,18 @@ def _migrate_upsets(old_data):
                 "created_at": old_data.get("updated_at", datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
             })
     return {"picks": picks}
+
+
+@app.delete("/api/picks/{pick_id}")
+async def delete_pick(pick_id: str):
+    """Delete a pick by ID."""
+    if sb:
+        sb.table("picks").delete().eq("id", pick_id).execute()
+    else:
+        data = _read_picks()
+        data["picks"] = [p for p in data["picks"] if p["id"] != pick_id]
+        _write_picks(data)
+    return JSONResponse({"status": "deleted", "id": pick_id})
 
 
 @app.get("/api/upsets")
