@@ -3129,7 +3129,10 @@ var teamAbbr = {
 var rotowireUrls = {
     NBA: {lineups:'https://www.rotowire.com/basketball/nba-lineups.php',injuries:'https://www.rotowire.com/basketball/injury-report.php'},
     NHL: {lineups:'https://www.rotowire.com/hockey/nhl-lineups.php',injuries:'https://www.rotowire.com/hockey/injury-report.php'},
-    SOCCER: {lineups:'https://www.rotowire.com/soccer/lineups.php',injuries:'https://www.rotowire.com/soccer/injury-report.php'}
+    MLB: {lineups:'https://www.rotowire.com/baseball/daily-lineups.php',injuries:'https://www.rotowire.com/baseball/injury-report.php'},
+    SOCCER: {lineups:'https://www.rotowire.com/soccer/lineups.php',injuries:'https://www.rotowire.com/soccer/injury-report.php'},
+    MMA: {lineups:'https://www.rotowire.com/mma/fight-card.php',injuries:'https://www.rotowire.com/mma/news.php'},
+    BOXING: {lineups:'https://www.rotowire.com/boxing/schedule.php',injuries:'https://www.rotowire.com/boxing/news.php'}
 };
 
 function abbr(name) {
@@ -3890,7 +3893,16 @@ function fetchAnalysis(sport) {
                                 if (peterBox && game.peter_zone) peterBox.innerHTML = '<h4>Peter\'s Zone</h4><p>' + game.peter_zone + '</p>';
                                 var trendsBox = detail.querySelector('.detail-box.trends');
                                 if (trendsBox && game.trends && game.trends.length) {
-                                    var th = '<h4>Trends</h4><ul>'; game.trends.forEach(function(t){th+='<li>'+t+'</li>';}); th+='</ul>'; trendsBox.innerHTML = th;
+                                    var th = '<h4>Trends</h4><ul>'; game.trends.forEach(function(t){th+='<li>'+t+'</li>';}); th+='</ul>';
+                                    var gameSport = (row.closest('.sport-panel') || {}).id || '';
+                                    var sp = gameSport.replace('panel-','').toUpperCase();
+                                    if (rotowireUrls[sp]) {
+                                        th += '<div style="margin-top:8px;display:flex;gap:6px;">' +
+                                            '<a href="' + rotowireUrls[sp].lineups + '" target="_blank" onclick="event.stopPropagation()" style="display:inline-block;padding:4px 10px;background:rgba(212,160,23,0.15);color:#D4A017;border-radius:4px;text-decoration:none;font-size:11px;font-weight:600;">Lineups</a>' +
+                                            '<a href="' + rotowireUrls[sp].injuries + '" target="_blank" onclick="event.stopPropagation()" style="display:inline-block;padding:4px 10px;background:rgba(239,68,68,0.15);color:#EF4444;border-radius:4px;text-decoration:none;font-size:11px;font-weight:600;">Injuries</a>' +
+                                            '</div>';
+                                    }
+                                    trendsBox.innerHTML = th;
                                 }
                                 var flagsBox = detail.querySelector('.detail-box.flags');
                                 if (flagsBox && game.flags && game.flags.length) {
