@@ -1419,7 +1419,7 @@ async def _fetch_scores(sport_key: str) -> list:
     if not ODDS_API_KEY:
         return []
     url = f"{ODDS_API_BASE}/{sport_key}/scores/"
-    params = {"apiKey": ODDS_API_KEY, "daysFrom": 3}
+    params = {"apiKey": ODDS_API_KEY, "daysFrom": 7}
     try:
         async with httpx.AsyncClient(timeout=15) as client:
             r = await client.get(url, params=params)
@@ -1435,16 +1435,51 @@ def _normalize_team(name: str) -> str:
     return name.lower().strip().replace(".", "").replace("-", " ")
 
 
+# Common abbreviations → full team names for matching
+_TEAM_ABBREVS = {
+    "lal": "lakers", "lak": "lakers", "lac": "clippers", "clip": "clippers",
+    "gsw": "warriors", "gs": "warriors", "bos": "celtics", "cel": "celtics",
+    "nyk": "knicks", "ny": "knicks", "bkn": "nets", "phi": "76ers",
+    "mil": "bucks", "chi": "bulls", "cle": "cavaliers", "det": "pistons",
+    "ind": "pacers", "atl": "hawks", "mia": "heat", "orl": "magic",
+    "was": "wizards", "tor": "raptors", "cha": "hornets", "clt": "hornets",
+    "mem": "grizzlies", "no": "pelicans", "nop": "pelicans", "dal": "mavericks",
+    "hou": "rockets", "sa": "spurs", "sas": "spurs", "okc": "thunder",
+    "den": "nuggets", "min": "timberwolves", "por": "trail blazers",
+    "uta": "jazz", "sac": "kings", "phx": "suns",
+    # NHL
+    "bru": "bruins", "buf": "sabres", "car": "hurricanes", "cbj": "blue jackets",
+    "col": "avalanche", "dal": "stars", "edm": "oilers", "fla": "panthers",
+    "lak": "kings", "min": "wild", "mtl": "canadiens", "njd": "devils",
+    "nsh": "predators", "nyi": "islanders", "nyr": "rangers", "ott": "senators",
+    "pit": "penguins", "sea": "kraken", "stl": "blues", "tb": "lightning",
+    "tbl": "lightning", "van": "canucks", "vgk": "golden knights",
+    "wpg": "jets", "wsh": "capitals",
+}
+
+
+def _expand_abbrevs(text: str) -> str:
+    """Expand common team abbreviations in text."""
+    words = text.lower().split()
+    expanded = []
+    for w in words:
+        clean = w.strip("@().,-")
+        if clean in _TEAM_ABBREVS:
+            expanded.append(_TEAM_ABBREVS[clean])
+        expanded.append(clean)
+    return " ".join(expanded)
+
+
 def _teams_match(pick_text: str, home: str, away: str) -> bool:
     """Check if a pick's matchup references this game."""
-    pt = _normalize_team(pick_text)
+    pt = _expand_abbrevs(_normalize_team(pick_text))
     h = _normalize_team(home)
     a = _normalize_team(away)
     # Check if both team names (or significant parts) appear in the pick matchup
     h_parts = h.split()
     a_parts = a.split()
-    h_match = any(p in pt for p in h_parts if len(p) > 3) or h in pt
-    a_match = any(p in pt for p in a_parts if len(p) > 3) or a in pt
+    h_match = any(p in pt for p in h_parts if len(p) > 2) or h in pt
+    a_match = any(p in pt for p in a_parts if len(p) > 2) or a in pt
     return h_match and a_match
 
 
@@ -1592,6 +1627,106 @@ async def autograde_picks():
         "completed_games": len(completed),
         "results": results,
     })
+
+
+# ===== EDGE CREW AI AGENT (Chat) =====
+AGENT_SYSTEM_PROMPT = """You are the Edge Crew AI Agent — a sharp sports betting assistant for the Edge Crew team (Peter, Chinny, Jimmy, Alyssa, Sinton.ia).
+
+Your personality: Direct, confident, data-driven. You talk like a sharp bettor — no fluff, just edges.
+
+You can help with:
+1. **Lock picks** — When someone says "lock [team] [spread/ML/over/under] [odds] [units]", extract the pick details and return a JSON action.
+2. **Show today's slate** — Summarize what games are available.
+3. **Bankroll check** — Summarize the crew's record and stats.
+4. **Grade picks** — Trigger auto-grading.
+5. **Analysis** — Give quick takes on matchups, edges, and value.
+6. **Pregame** — Prep for a specific game or customer.
+
+IMPORTANT — When the user wants to lock a pick, respond with a JSON block:
+```json
+{"action":"lock_pick","sport":"nba","matchup":"Team A @ Team B","selection":"Team A -3.5","odds":"-110","units":"1","confidence":"Lean"}
+```
+
+When the user asks to grade picks, respond with:
+```json
+{"action":"autograde"}
+```
+
+For everything else, just respond conversationally. Keep responses under 150 words. Be the sharpest guy in the room."""
+
+
+@app.post("/api/chat")
+async def agent_chat(request: Request):
+    """Edge Crew AI Agent — conversational pick locking and analysis."""
+    if not AZURE_ENDPOINT or not AZURE_KEY:
+        return JSONResponse({"error": "Azure OpenAI not configured"}, status_code=500)
+
+    body = await request.json()
+    user_msg = body.get("message", "")
+    history = body.get("history", [])
+
+    if not user_msg:
+        return JSONResponse({"error": "message is required"}, status_code=400)
+
+    # Build context: include today's picks summary and current slate info
+    context_parts = []
+
+    # Add picks context
+    if sb:
+        today = datetime.now(PST).strftime("%Y-%m-%d")
+        res = sb.table("picks").select("*").order("created_at", desc=True).limit(30).execute()
+        picks_data = res.data or []
+    else:
+        data = _read_picks()
+        picks_data = data.get("picks", [])[:30]
+
+    if picks_data:
+        graded = [p for p in picks_data if p.get("result")]
+        ungraded = [p for p in picks_data if not p.get("result")]
+        w = sum(1 for p in graded if p["result"] == "W")
+        l = sum(1 for p in graded if p["result"] == "L")
+        push = sum(1 for p in graded if p["result"] == "P")
+        context_parts.append(f"CREW STATUS: {len(picks_data)} total picks, {w}-{l}-{push} record, {len(ungraded)} ungraded.")
+        recent = picks_data[:5]
+        picks_str = "\n".join([f"- {p.get('name','?')}: {p.get('selection','')} ({p.get('matchup','')}) {p.get('odds','')} {p.get('units','1')}u [{p.get('result','PENDING')}]" for p in recent])
+        context_parts.append(f"RECENT PICKS:\n{picks_str}")
+
+    # Add cached slate info if available
+    for sport in ["nba", "nhl", "soccer", "mma", "boxing"]:
+        cache_key = f"{sport}:h2h,spreads,totals"
+        cached = _get_cached(cache_key)
+        if cached and cached.get("games"):
+            game_count = len(cached["games"])
+            games_str = ", ".join([f"{g.get('away','')} @ {g.get('home','')}" for g in cached["games"][:5]])
+            context_parts.append(f"{sport.upper()} SLATE ({game_count} games): {games_str}")
+
+    context = "\n\n".join(context_parts) if context_parts else "No slate data loaded yet. Tell user to click a sport tab first to load odds."
+
+    messages = [
+        {"role": "system", "content": AGENT_SYSTEM_PROMPT + "\n\nCURRENT CONTEXT:\n" + context},
+    ]
+    # Add conversation history (last 10)
+    for msg in history[-10:]:
+        messages.append({"role": msg.get("role", "user"), "content": msg.get("content", "")})
+    messages.append({"role": "user", "content": user_msg})
+
+    url = f"{AZURE_ENDPOINT}/openai/deployments/{AZURE_MODEL}/chat/completions?api-version=2024-08-01-preview"
+    headers = {"api-key": AZURE_KEY, "Content-Type": "application/json"}
+
+    try:
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            resp = await client.post(url, json={
+                "messages": messages,
+                "max_tokens": 300,
+                "temperature": 0.7,
+            }, headers=headers)
+            resp.raise_for_status()
+            data = resp.json()
+            reply = data["choices"][0]["message"]["content"].strip()
+            return JSONResponse({"response": reply})
+    except Exception as e:
+        logger.error(f"Agent chat error: {e}")
+        return JSONResponse({"response": "Connection dropped. Try again."}, status_code=200)
 
 
 def _read_upsets():

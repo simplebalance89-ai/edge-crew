@@ -3920,6 +3920,230 @@ async function clearAllCache() {
     </div>
 </div>
 
+<!-- ===== AI AGENT CHAT ===== -->
+<style>
+.agent-fab{
+    position:fixed;bottom:80px;right:20px;z-index:200;
+    width:56px;height:56px;border-radius:50%;border:none;
+    background:linear-gradient(135deg,#D4A017,#B8860B);
+    color:#0D0D1A;font-size:24px;font-weight:900;
+    cursor:pointer;box-shadow:0 4px 20px rgba(212,160,23,0.4);
+    transition:all 0.3s;display:flex;align-items:center;justify-content:center;
+}
+.agent-fab:hover{transform:scale(1.1);box-shadow:0 6px 30px rgba(212,160,23,0.6);}
+.agent-fab.open{background:#EF4444;color:#fff;font-size:18px;}
+
+.agent-panel{
+    position:fixed;bottom:146px;right:20px;z-index:200;
+    width:360px;max-width:calc(100vw - 40px);
+    max-height:500px;
+    background:#0D0D1A;border:1px solid rgba(212,160,23,0.3);
+    border-radius:16px;overflow:hidden;
+    display:none;flex-direction:column;
+    box-shadow:0 8px 40px rgba(0,0,0,0.6);
+}
+.agent-panel.visible{display:flex;}
+.agent-header{
+    padding:12px 16px;background:rgba(212,160,23,0.1);
+    border-bottom:1px solid rgba(212,160,23,0.2);
+    display:flex;align-items:center;gap:8px;
+}
+.agent-header-dot{width:8px;height:8px;border-radius:50%;background:#10B981;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+.agent-header-title{color:#D4A017;font-weight:800;font-size:14px;flex:1;}
+.agent-header-clear{color:rgba(255,255,255,0.3);font-size:11px;cursor:pointer;border:none;background:none;font-family:'Nunito',sans-serif;}
+.agent-header-clear:hover{color:#fff;}
+
+.agent-messages{
+    flex:1;overflow-y:auto;padding:12px;min-height:200px;max-height:350px;
+    display:flex;flex-direction:column;gap:8px;
+}
+.agent-messages::-webkit-scrollbar{width:4px;}
+.agent-messages::-webkit-scrollbar-thumb{background:rgba(212,160,23,0.3);border-radius:2px;}
+.agent-msg{
+    max-width:85%;padding:8px 12px;border-radius:12px;font-size:13px;line-height:1.4;
+    word-wrap:break-word;
+}
+.agent-msg.user{
+    align-self:flex-end;background:rgba(212,160,23,0.15);color:#fff;
+    border-bottom-right-radius:4px;
+}
+.agent-msg.agent{
+    align-self:flex-start;background:rgba(255,255,255,0.06);color:#fff;
+    border-bottom-left-radius:4px;
+}
+.agent-msg.agent .pick-action{
+    margin-top:6px;padding:8px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);
+    border-radius:8px;font-size:12px;
+}
+.agent-msg.agent .pick-action button{
+    margin-top:6px;background:#10B981;color:#fff;border:none;border-radius:6px;
+    padding:6px 14px;font-weight:700;font-size:12px;cursor:pointer;font-family:'Nunito',sans-serif;
+}
+.agent-msg.thinking{color:rgba(255,255,255,0.3);font-style:italic;}
+
+.agent-input{
+    display:flex;gap:8px;padding:10px 12px;border-top:1px solid rgba(255,255,255,0.06);
+    background:rgba(0,0,0,0.2);
+}
+.agent-input input{
+    flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
+    border-radius:8px;padding:10px 12px;color:#fff;font-family:'Nunito',sans-serif;
+    font-size:13px;outline:none;
+}
+.agent-input input:focus{border-color:rgba(212,160,23,0.4);}
+.agent-input button{
+    background:linear-gradient(135deg,#D4A017,#B8860B);color:#0D0D1A;border:none;
+    border-radius:8px;padding:10px 16px;font-weight:800;font-size:13px;cursor:pointer;
+    font-family:'Nunito',sans-serif;
+}
+</style>
+
+<button class="agent-fab" id="agentFab" onclick="toggleAgentChat()">AI</button>
+
+<div class="agent-panel" id="agentPanel">
+    <div class="agent-header">
+        <div class="agent-header-dot"></div>
+        <div class="agent-header-title">Edge Crew Agent</div>
+        <button class="agent-header-clear" onclick="clearAgentChat()">Clear</button>
+    </div>
+    <div class="agent-messages" id="agentMessages">
+        <div class="agent-msg agent">What's good? I'm your Edge Crew agent. Ask me to lock picks, check the slate, grade results, or break down any matchup.</div>
+    </div>
+    <div class="agent-input">
+        <input type="text" id="agentInput" placeholder="Lock Lakers -3.5, 2u..." onkeydown="if(event.key==='Enter')sendAgentMsg()">
+        <button onclick="sendAgentMsg()">Send</button>
+    </div>
+</div>
+
+<script>
+var _agentHistory = [];
+var _agentOpen = false;
+
+function toggleAgentChat() {
+    _agentOpen = !_agentOpen;
+    var panel = document.getElementById('agentPanel');
+    var fab = document.getElementById('agentFab');
+    if (_agentOpen) {
+        panel.classList.add('visible');
+        fab.classList.add('open');
+        fab.textContent = 'X';
+        document.getElementById('agentInput').focus();
+    } else {
+        panel.classList.remove('visible');
+        fab.classList.remove('open');
+        fab.textContent = 'AI';
+    }
+}
+
+function clearAgentChat() {
+    _agentHistory = [];
+    var msgs = document.getElementById('agentMessages');
+    msgs.innerHTML = '<div class="agent-msg agent">Fresh start. What do you need?</div>';
+}
+
+function addAgentMsg(who, text) {
+    var msgs = document.getElementById('agentMessages');
+    var div = document.createElement('div');
+    div.className = 'agent-msg ' + who;
+    div.innerHTML = text;
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+    return div;
+}
+
+function sendAgentMsg() {
+    var input = document.getElementById('agentInput');
+    var text = input.value.trim();
+    if (!text) return;
+    input.value = '';
+
+    addAgentMsg('user', text);
+    _agentHistory.push({ role: 'user', content: text });
+
+    var thinking = addAgentMsg('agent thinking', 'Thinking...');
+
+    crewFetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text, history: _agentHistory })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        thinking.remove();
+        var reply = data.response || 'No response.';
+        _agentHistory.push({ role: 'assistant', content: reply });
+
+        // Check for action JSON in the response
+        var actionMatch = reply.match(/```json\s*(\{[\s\S]*?\})\s*```/);
+        if (actionMatch) {
+            try {
+                var action = JSON.parse(actionMatch[1]);
+                var cleanReply = reply.replace(/```json[\s\S]*?```/, '').trim();
+                if (cleanReply) addAgentMsg('agent', cleanReply);
+                handleAgentAction(action);
+                return;
+            } catch(e) {}
+        }
+
+        // Format the reply (handle line breaks)
+        reply = reply.replace(/\n/g, '<br>');
+        addAgentMsg('agent', reply);
+    })
+    .catch(function(err) {
+        thinking.remove();
+        addAgentMsg('agent', 'Connection dropped. Try again.');
+    });
+}
+
+function handleAgentAction(action) {
+    if (action.action === 'lock_pick') {
+        var pickHtml = '<div class="pick-action">' +
+            '<strong>' + (action.selection || '?') + '</strong><br>' +
+            (action.matchup || '') + ' | ' + (action.sport || '').toUpperCase() + '<br>' +
+            'Odds: ' + (action.odds || '-110') + ' | ' + (action.units || '1') + 'u | ' + (action.confidence || 'Lean') +
+            '<br><button onclick="agentLockPick(\'' + btoa(JSON.stringify(action)) + '\')">LOCK IT</button></div>';
+        addAgentMsg('agent', 'Ready to lock:' + pickHtml);
+    } else if (action.action === 'autograde') {
+        addAgentMsg('agent', 'Running auto-grade...');
+        autoGradePicks();
+    }
+}
+
+function agentLockPick(encodedAction) {
+    var action = JSON.parse(atob(encodedAction));
+    var who = crewProfile ? crewProfile.display_name : (safeLoad('edgeCrewName') || 'Peter');
+    var pick = {
+        name: who,
+        sport: action.sport || '',
+        type: action.selection && action.selection.match(/[+-]/) ? 'Spread' : (action.selection && action.selection.toLowerCase().includes('over') || action.selection && action.selection.toLowerCase().includes('under') ? 'Over/Under' : 'Moneyline'),
+        matchup: action.matchup || '',
+        selection: action.selection || '',
+        odds: action.odds || '-110',
+        units: action.units || '1',
+        confidence: action.confidence || 'Lean',
+        notes: 'Locked via AI Agent',
+        date: toPSTDate(),
+        time: toPSTShort(),
+        created_at: new Date().toISOString()
+    };
+
+    var stored = JSON.parse(safeLoad('edgePicks') || '[]');
+    stored.unshift(pick);
+    safeSave('edgePicks', JSON.stringify(stored));
+
+    crewFetch('/api/picks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(pick)
+    }).then(function(r) { return r.json(); }).catch(function() {});
+
+    addAgentMsg('agent', '&#10003; <strong>' + pick.selection + '</strong> locked! ' + pick.odds + ' ' + pick.units + 'u');
+    renderBankroll();
+    showToast(pick.selection + ' locked via Agent!');
+}
+</script>
+
 <script>
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js').catch(() => {});
