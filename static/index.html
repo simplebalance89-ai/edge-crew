@@ -364,10 +364,24 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 /* ===== LOADING OVERLAY ===== */
 .panel-loading{position:relative;min-height:120px;}
 .panel-loading::after{
-    content:'Loading...';position:absolute;top:0;left:0;right:0;bottom:0;
+    content:'';position:absolute;top:0;left:0;right:0;bottom:0;
     background:rgba(13,13,26,0.85);display:flex;align-items:center;justify-content:center;
-    font-size:14px;color:rgba(255,255,255,0.5);font-weight:700;letter-spacing:1px;
     border-radius:12px;z-index:10;
+}
+.panel-loading::before{
+    content:'';position:absolute;top:50%;left:50%;z-index:11;
+    width:36px;height:36px;margin:-18px 0 0 -18px;
+    border:3px solid rgba(212,160,23,0.2);border-top:3px solid #D4A017;
+    border-radius:50%;animation:edgeSpin 0.8s linear infinite;
+}
+@keyframes edgeSpin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
+
+/* Loading button state */
+.btn-loading{pointer-events:none;opacity:0.7;position:relative;}
+.btn-loading::after{
+    content:'';display:inline-block;width:14px;height:14px;margin-left:8px;vertical-align:middle;
+    border:2px solid rgba(0,0,0,0.2);border-top:2px solid currentColor;
+    border-radius:50%;animation:edgeSpin 0.8s linear infinite;
 }
 .panel-error{
     text-align:center;padding:20px;color:#EF4444;font-size:13px;font-weight:700;
@@ -1283,12 +1297,16 @@ function doLogin() {
     if (!name) { errEl.textContent = 'Pick your name'; return; }
     if (!pin || pin.length !== 4) { errEl.textContent = 'PIN must be 4 digits'; return; }
 
+    var loginBtn = document.querySelector('#signinForm button[onclick="doLogin()"]') || document.querySelector('#signinForm .submit-pick-btn');
+    if (loginBtn) { loginBtn.classList.add('btn-loading'); loginBtn.dataset.origText = loginBtn.textContent; loginBtn.textContent = 'Signing in'; }
+
     fetch('/api/auth/login', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({name: name, pin: pin})
     }).then(function(r) { return r.json().then(function(d) { return {ok: r.ok, data: d}; }); })
     .then(function(res) {
+        if (loginBtn) { loginBtn.classList.remove('btn-loading'); loginBtn.textContent = loginBtn.dataset.origText || 'Sign In'; }
         if (res.ok && res.data.token) {
             crewToken = res.data.token;
             crewProfile = res.data.profile;
@@ -1297,7 +1315,10 @@ function doLogin() {
         } else {
             errEl.textContent = res.data.error || 'Login failed';
         }
-    }).catch(function() { errEl.textContent = 'Server error — try again'; });
+    }).catch(function() {
+        if (loginBtn) { loginBtn.classList.remove('btn-loading'); loginBtn.textContent = loginBtn.dataset.origText || 'Sign In'; }
+        errEl.textContent = 'Server error — try again';
+    });
 }
 
 function doRegister() {
@@ -3923,18 +3944,20 @@ async function clearAllCache() {
 <!-- ===== AI AGENT CHAT ===== -->
 <style>
 .agent-fab{
-    position:fixed;bottom:80px;right:20px;z-index:200;
-    width:56px;height:56px;border-radius:50%;border:none;
+    position:fixed;bottom:16px;left:20px;z-index:200;
+    width:52px;height:52px;border-radius:50%;border:none;
     background:linear-gradient(135deg,#D4A017,#B8860B);
-    color:#0D0D1A;font-size:24px;font-weight:900;
+    color:#0D0D1A;font-size:22px;
     cursor:pointer;box-shadow:0 4px 20px rgba(212,160,23,0.4);
     transition:all 0.3s;display:flex;align-items:center;justify-content:center;
 }
 .agent-fab:hover{transform:scale(1.1);box-shadow:0 6px 30px rgba(212,160,23,0.6);}
-.agent-fab.open{background:#EF4444;color:#fff;font-size:18px;}
+.agent-fab.open{background:#EF4444;}
+.agent-fab.listening{background:#10B981;animation:pulse-mic 1.5s ease infinite;}
+@keyframes pulse-mic{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,0.4);}50%{box-shadow:0 0 0 12px rgba(16,185,129,0);}}
 
 .agent-panel{
-    position:fixed;bottom:146px;right:20px;z-index:200;
+    position:fixed;bottom:80px;left:20px;z-index:200;
     width:360px;max-width:calc(100vw - 40px);
     max-height:500px;
     background:#0D0D1A;border:1px solid rgba(212,160,23,0.3);
@@ -3999,7 +4022,7 @@ async function clearAllCache() {
 }
 </style>
 
-<button class="agent-fab" id="agentFab" onclick="toggleAgentChat()">AI</button>
+<button class="agent-fab" id="agentFab" onclick="toggleAgentChat()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button>
 
 <div class="agent-panel" id="agentPanel">
     <div class="agent-header">
@@ -4011,7 +4034,8 @@ async function clearAllCache() {
         <div class="agent-msg agent">What's good? I'm your Edge Crew agent. Ask me to lock picks, check the slate, grade results, or break down any matchup.</div>
     </div>
     <div class="agent-input">
-        <input type="text" id="agentInput" placeholder="Lock Lakers -3.5, 2u..." onkeydown="if(event.key==='Enter')sendAgentMsg()">
+        <button onclick="toggleAgentVoice()" id="agentMicBtn" style="background:transparent;border:1px solid rgba(212,160,23,0.3);border-radius:8px;padding:10px;cursor:pointer;color:#D4A017;flex:0 0 auto;" title="Voice input"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button>
+        <input type="text" id="agentInput" placeholder="Talk or type..." onkeydown="if(event.key==='Enter')sendAgentMsg()">
         <button onclick="sendAgentMsg()">Send</button>
     </div>
 </div>
@@ -4019,21 +4043,111 @@ async function clearAllCache() {
 <script>
 var _agentHistory = [];
 var _agentOpen = false;
+var _agentRecognition = null;
+var _agentListening = false;
 
 function toggleAgentChat() {
     _agentOpen = !_agentOpen;
     var panel = document.getElementById('agentPanel');
     var fab = document.getElementById('agentFab');
+    var micSvg = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>';
     if (_agentOpen) {
         panel.classList.add('visible');
         fab.classList.add('open');
-        fab.textContent = 'X';
+        fab.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
         document.getElementById('agentInput').focus();
+        if (_agentListening) stopAgentVoice();
     } else {
         panel.classList.remove('visible');
         fab.classList.remove('open');
-        fab.textContent = 'AI';
+        fab.innerHTML = micSvg;
     }
+}
+
+function toggleAgentVoice() {
+    if (_agentListening) {
+        stopAgentVoice();
+        return;
+    }
+    var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+        addAgentMsg('agent', 'Voice not supported in this browser. Use Chrome or Safari.');
+        return;
+    }
+    // Open chat panel if closed
+    if (!_agentOpen) toggleAgentChat();
+
+    _agentRecognition = new SpeechRecognition();
+    _agentRecognition.continuous = false;
+    _agentRecognition.interimResults = true;
+    _agentRecognition.lang = 'en-US';
+
+    _agentListening = true;
+    var fab = document.getElementById('agentFab');
+    var micBtn = document.getElementById('agentMicBtn');
+    fab.classList.add('listening');
+    micBtn.style.background = 'rgba(16,185,129,0.2)';
+    micBtn.style.borderColor = '#10B981';
+    micBtn.style.color = '#10B981';
+    addAgentMsg('agent', '<em>Listening...</em>');
+
+    var finalTranscript = '';
+    _agentRecognition.onresult = function(event) {
+        var interim = '';
+        for (var i = event.resultIndex; i < event.results.length; i++) {
+            if (event.results[i].isFinal) {
+                finalTranscript += event.results[i][0].transcript;
+            } else {
+                interim += event.results[i][0].transcript;
+            }
+        }
+        document.getElementById('agentInput').value = finalTranscript + interim;
+    };
+
+    _agentRecognition.onend = function() {
+        _agentListening = false;
+        fab.classList.remove('listening');
+        micBtn.style.background = 'transparent';
+        micBtn.style.borderColor = 'rgba(212,160,23,0.3)';
+        micBtn.style.color = '#D4A017';
+        // Remove "Listening..." message
+        var msgs = document.getElementById('agentMessages');
+        var lastMsg = msgs.lastElementChild;
+        if (lastMsg && lastMsg.innerHTML.indexOf('Listening') !== -1) lastMsg.remove();
+
+        var text = document.getElementById('agentInput').value.trim();
+        if (text) {
+            sendAgentMsg();
+        }
+    };
+
+    _agentRecognition.onerror = function(event) {
+        _agentListening = false;
+        fab.classList.remove('listening');
+        micBtn.style.background = 'transparent';
+        micBtn.style.borderColor = 'rgba(212,160,23,0.3)';
+        micBtn.style.color = '#D4A017';
+        var msgs = document.getElementById('agentMessages');
+        var lastMsg = msgs.lastElementChild;
+        if (lastMsg && lastMsg.innerHTML.indexOf('Listening') !== -1) lastMsg.remove();
+        if (event.error !== 'no-speech') {
+            addAgentMsg('agent', 'Mic error: ' + event.error + '. Try again.');
+        }
+    };
+
+    _agentRecognition.start();
+}
+
+function stopAgentVoice() {
+    if (_agentRecognition) {
+        _agentRecognition.stop();
+    }
+    _agentListening = false;
+    document.getElementById('agentFab').classList.remove('listening');
+    var micBtn = document.getElementById('agentMicBtn');
+    micBtn.style.background = 'transparent';
+    micBtn.style.borderColor = 'rgba(212,160,23,0.3)';
+    micBtn.style.color = '#D4A017';
 }
 
 function clearAgentChat() {
