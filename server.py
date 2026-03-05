@@ -1479,16 +1479,27 @@ async def get_analysis(sport: str):
     matrix_section = _build_matrix_section(sport_lower)
 
 
-    prompt = f"""You are Edge Finder v2, a sharp sports betting analyst. You have access to REAL injury data and a weighted scoring matrix.
+    # ===== BATCH ANALYSIS — split games into groups of 4 for parallel Azure calls =====
+    BATCH_SIZE = 4
+
+    def _build_batch_prompt(batch_games_text, batch_incomplete_note, is_first_batch):
+        """Build the Azure prompt for a batch of games."""
+        gotcha_instruction = ""
+        if is_first_batch:
+            gotcha_instruction = f'"gotcha": "HTML unordered list (<ul><li>...</li></ul>). 4-8 bullet points covering: KEY INJURIES affecting tonight\'s lines (star players OUT/GTD), B2B/rest flags, line movement alerts, traps to avoid, weather (outdoor), sharp money indicators. Bold critical items with <strong>. End with: <li><em>Analysis generated {now_time} | Data: API-Sports + RotoWire + SharpAPI</em></li>",'
+        else:
+            gotcha_instruction = '"gotcha": "",'
+
+        return f"""You are Edge Finder v2, a sharp sports betting analyst. You have access to REAL injury data and a weighted scoring matrix.
 
 CREW: Peter (heavy/value/sharp, sizes up on conviction), Chinny (props/NHL/soccer master), Jimmy (new, learning), Sinton.ia (card builder/grader).
 RULES: "Why is the market wrong?" = required for every grade. No answer = NO BET (grade D/F). Valid edges: news not priced in, public overreaction, rest/schedule, matchup-specific, sharp vs public, situational. Invalid: "better team", "should win", "volume play".
 
 Today's {sport.upper()} slate - {today} (pulled at {now_time}):
 
-=== ODDS DATA ===
-{games_text}
-{incomplete_note}
+=== ODDS DATA (THIS BATCH) ===
+{batch_games_text}
+{batch_incomplete_note}
 
 === INJURY & LINEUP INTELLIGENCE (CBS Sports + RotoWire + API-Sports) ===
 {injury_context}
@@ -1500,7 +1511,7 @@ Before grading: "Why is the market wrong here?" If you cannot answer, grade D or
 
 Generate analysis in this EXACT JSON format:
 {{
-  "gotcha": "HTML unordered list (<ul><li>...</li></ul>). 4-8 bullet points covering: KEY INJURIES affecting tonight's lines (star players OUT/GTD), B2B/rest flags, line movement alerts, traps to avoid, weather (outdoor), sharp money indicators. Bold critical items with <strong>. End with: <li><em>Analysis generated {now_time} | Data: API-Sports + RotoWire + SharpAPI</em></li>",
+  {gotcha_instruction}
   "games": [
     {{
       "matchup": "AWAY @ HOME",
@@ -1541,7 +1552,8 @@ GRADING RULES:
 
 Return ONLY valid JSON. No markdown. No explanation."""
 
-    try:
+    def _call_azure_batch(prompt_text):
+        """Synchronous Azure call for one batch. Runs in thread via asyncio."""
         client = AzureOpenAI(
             azure_endpoint=AZURE_ENDPOINT,
             api_key=AZURE_KEY,
@@ -1549,29 +1561,70 @@ Return ONLY valid JSON. No markdown. No explanation."""
         )
         response = client.chat.completions.create(
             model=AZURE_MODEL,
-            messages=[{"role": "user", "content": prompt}],
+            messages=[{"role": "user", "content": prompt_text}],
             temperature=0.7,
             max_tokens=6000,
         )
         raw = response.choices[0].message.content.strip()
-        # Clean markdown fences if present
         if raw.startswith("```"):
             raw = raw.split("\n", 1)[1] if "\n" in raw else raw[3:]
         if raw.endswith("```"):
             raw = raw[:-3].strip()
         if raw.startswith("json"):
             raw = raw[4:].strip()
+        return json.loads(raw)
 
-        analysis = json.loads(raw)
-        analysis["sport"] = sport.upper()
-        analysis["generated_at"] = _now_ts()
-        analysis["source"] = "Azure OpenAI (Edge Finder)"
-        analysis["books_used"] = odds_data.get("books_used", [])
-        analysis["games_complete"] = len(complete_games)
-        analysis["games_incomplete"] = len(incomplete_games)
-        analysis["injury_source"] = "CBS Sports + RotoWire + API-Sports" if injury_context else "none"
-        analysis["injury_data_length"] = len(injury_context)
-        analysis["matrix"] = sport_lower in SPORT_MATRICES
+    try:
+        # Split complete games into batches of BATCH_SIZE
+        game_batches = []
+        for i in range(0, len(complete_games), BATCH_SIZE):
+            game_batches.append(complete_games[i:i + BATCH_SIZE])
+
+        if not game_batches:
+            game_batches = [[]]  # still need gotcha even with 0 complete games
+
+        logger.info(f"Analysis {sport}: {len(complete_games)} games -> {len(game_batches)} batches of {BATCH_SIZE}")
+
+        # Build prompts for each batch
+        batch_prompts = []
+        for idx, batch in enumerate(game_batches):
+            batch_text = "\n".join(batch) if batch else "(no complete games in this batch)"
+            # Only include incomplete note in first batch
+            batch_inc = incomplete_note if idx == 0 else ""
+            batch_prompts.append(_build_batch_prompt(batch_text, batch_inc, is_first_batch=(idx == 0)))
+
+        # Run all batches in parallel via asyncio threads
+        loop = asyncio.get_event_loop()
+        tasks = [loop.run_in_executor(None, _call_azure_batch, p) for p in batch_prompts]
+        batch_results = await asyncio.gather(*tasks, return_exceptions=True)
+
+        # Merge results: first batch provides gotcha, all provide games
+        all_analyzed_games = []
+        gotcha_html = ""
+        for idx, result in enumerate(batch_results):
+            if isinstance(result, Exception):
+                logger.error(f"Analysis batch {idx} failed: {result}")
+                continue
+            if idx == 0 and result.get("gotcha"):
+                gotcha_html = result["gotcha"]
+            if result.get("games"):
+                all_analyzed_games.extend(result["games"])
+
+        analysis = {
+            "gotcha": gotcha_html or "Analysis partially generated. Some batches may have failed.",
+            "games": all_analyzed_games,
+            "sport": sport.upper(),
+            "generated_at": _now_ts(),
+            "source": "Azure OpenAI (Edge Finder)",
+            "books_used": odds_data.get("books_used", []),
+            "games_complete": len(complete_games),
+            "games_incomplete": len(incomplete_games),
+            "games_analyzed": len(all_analyzed_games),
+            "batches": len(game_batches),
+            "injury_source": "CBS Sports + RotoWire + API-Sports" if injury_context else "none",
+            "injury_data_length": len(injury_context),
+            "matrix": sport_lower in SPORT_MATRICES,
+        }
 
         _set_cache(cache_key, analysis)
         return JSONResponse(analysis)
@@ -1582,7 +1635,6 @@ Return ONLY valid JSON. No markdown. No explanation."""
             "gotcha": "Analysis generation returned invalid format. Refresh to retry.",
             "games": [],
             "generated_at": _now_ts(),
-            "raw": raw[:500] if 'raw' in dir() else "",
         })
     except Exception as e:
         return JSONResponse(
