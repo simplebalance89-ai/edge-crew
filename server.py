@@ -1564,11 +1564,13 @@ async def autograde_picks(request: Request):
     # Accept picks from client (localStorage) or fall back to server storage
     body = {}
     try:
-        body = await request.json()
-    except Exception:
-        pass
+        raw = await request.body()
+        if raw and raw.strip():
+            body = json.loads(raw)
+    except Exception as e:
+        logger.warning(f"Autograde body parse: {e}")
 
-    client_picks = body.get("picks", [])
+    client_picks = body.get("picks", []) if isinstance(body, dict) else []
 
     if client_picks:
         ungraded = [p for p in client_picks if not p.get("result")]
