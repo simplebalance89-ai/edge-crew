@@ -5087,14 +5087,64 @@ function evStopVoice() {
 }
 
 /* ---- TTS (speak EV responses) ---- */
+var _evVoice = null;
+var _evVoiceReady = false;
+
+// Pick the best available voice — prefer natural/premium voices
+function _pickBestVoice() {
+    var voices = window.speechSynthesis ? window.speechSynthesis.getVoices() : [];
+    if (!voices.length) return null;
+    // Priority list: natural-sounding male voices for a sports analyst vibe
+    var preferred = [
+        'Google UK English Male',
+        'Daniel',
+        'Microsoft Mark Online',
+        'Microsoft Guy Online',
+        'Microsoft Mark',
+        'Google US English',
+        'Alex',
+        'Samantha',
+        'Microsoft David',
+        'Microsoft Zira',
+    ];
+    for (var i = 0; i < preferred.length; i++) {
+        for (var j = 0; j < voices.length; j++) {
+            if (voices[j].name.indexOf(preferred[i]) !== -1 && voices[j].lang.indexOf('en') !== -1) {
+                return voices[j];
+            }
+        }
+    }
+    // Fallback: first English voice
+    for (var k = 0; k < voices.length; k++) {
+        if (voices[k].lang.indexOf('en') !== -1) return voices[k];
+    }
+    return voices[0];
+}
+
+// Voices load async in some browsers
+if (window.speechSynthesis) {
+    _evVoice = _pickBestVoice();
+    if (!_evVoice) {
+        window.speechSynthesis.onvoiceschanged = function() {
+            _evVoice = _pickBestVoice();
+            _evVoiceReady = true;
+        };
+    } else {
+        _evVoiceReady = true;
+    }
+}
+
 function evSpeak(text) {
     if (!window.speechSynthesis) return;
+    window.speechSynthesis.cancel(); // stop any current speech
     // Strip HTML
     var clean = text.replace(/<[^>]*>/g, '').replace(/&#\d+;/g, '');
-    if (clean.length > 300) clean = clean.substring(0, 300) + '...';
+    if (clean.length > 400) clean = clean.substring(0, 400) + '...';
     var utter = new SpeechSynthesisUtterance(clean);
-    utter.rate = 1.05;
-    utter.pitch = 0.95;
+    if (_evVoice) utter.voice = _evVoice;
+    utter.rate = 1.0;
+    utter.pitch = 0.9;
+    utter.volume = 1.0;
     _evSpeaking = true;
     document.getElementById('evAvatar').classList.add('speaking');
     utter.onend = function() {
