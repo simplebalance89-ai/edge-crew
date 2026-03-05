@@ -352,7 +352,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 .fab-label{font-size:8px;font-weight:800;letter-spacing:1px;margin-top:2px;}
 @media(max-width:768px){
     .fab{bottom:80px;}
-    .agent-fab{display:none;}
+    .agent-fab{bottom:75px;left:12px;width:46px;height:46px;z-index:250;}
     .agent-messages{max-height:none;flex:1;}
 }
 
@@ -4760,7 +4760,7 @@ async function clearAllCache() {
 }
 </style>
 
-<!-- EV FAB (desktop only — hidden on mobile via existing CSS) -->
+<!-- EV FAB (visible on all devices — mic icon bottom-left) -->
 <button class="agent-fab" id="agentFab" onclick="openEVAgent()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button>
 
 <!-- EV AGENT PANEL -->
