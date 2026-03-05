@@ -1049,6 +1049,9 @@ PROP_MARKETS = {
     "nhl": "player_points,player_assists,player_goals",
     "nfl": "player_pass_yds,player_rush_yds,player_reception_yds,player_pass_tds",
     "mlb": "pitcher_strikeouts,batter_total_bases,batter_hits",
+    "soccer": "player_goals,player_assists,player_shots",
+    "mma": "fighter_wins_by_ko,fighter_wins_by_submission",
+    "boxing": "fighter_wins_by_ko,fighter_wins_by_decision",
 }
 PROPS_CACHE_TTL = 300  # 5 min
 
@@ -1078,7 +1081,7 @@ async def get_player_props(sport: str):
     """Fetch real player prop lines from The Odds API with edge analysis."""
     sport_lower = sport.lower()
     if sport_lower not in PROP_MARKETS:
-        return JSONResponse({"error": f"No prop markets for {sport}", "available": list(PROP_MARKETS.keys())}, status_code=400)
+        return JSONResponse({"sport": sport.upper(), "props": [], "count": 0, "fetched_at": _now_ts(), "message": f"No prop markets configured for {sport}"})
 
     cache_key = f"props:{sport_lower}"
     cached = _get_cached(cache_key, ttl=PROPS_CACHE_TTL)
@@ -1481,6 +1484,8 @@ async def get_analysis(sport: str):
 
     # ===== BATCH ANALYSIS — split games into groups of 4 for parallel Azure calls =====
     BATCH_SIZE = 4
+    MAX_BATCHES = 6  # Cap at 6 batches (24 games) to avoid excessive Azure calls
+    MAX_GAMES = BATCH_SIZE * MAX_BATCHES
 
     def _build_batch_prompt(batch_games_text, batch_incomplete_note, is_first_batch):
         """Build the Azure prompt for a batch of games."""
@@ -1575,15 +1580,17 @@ Return ONLY valid JSON. No markdown. No explanation."""
         return json.loads(raw)
 
     try:
-        # Split complete games into batches of BATCH_SIZE
+        # Split complete games into batches of BATCH_SIZE, capped at MAX_BATCHES
+        games_to_analyze = complete_games[:MAX_GAMES]  # cap total games
         game_batches = []
-        for i in range(0, len(complete_games), BATCH_SIZE):
-            game_batches.append(complete_games[i:i + BATCH_SIZE])
+        for i in range(0, len(games_to_analyze), BATCH_SIZE):
+            game_batches.append(games_to_analyze[i:i + BATCH_SIZE])
 
         if not game_batches:
             game_batches = [[]]  # still need gotcha even with 0 complete games
 
-        logger.info(f"Analysis {sport}: {len(complete_games)} games -> {len(game_batches)} batches of {BATCH_SIZE}")
+        skipped = len(complete_games) - len(games_to_analyze)
+        logger.info(f"Analysis {sport}: {len(complete_games)} games -> {len(game_batches)} batches of {BATCH_SIZE} (skipped {skipped})")
 
         # Build prompts for each batch
         batch_prompts = []
