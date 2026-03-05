@@ -1549,10 +1549,24 @@ def _grade_pick_against_score(pick: dict, game: dict) -> str | None:
 
 
 @app.post("/api/picks/autograde")
-async def autograde_picks():
-    """Auto-grade ungraded picks by fetching final scores from The Odds API."""
-    # Get all ungraded picks
-    if sb:
+async def autograde_picks(request: Request):
+    """Auto-grade ungraded picks by fetching final scores from The Odds API.
+
+    Accepts optional JSON body with {picks: [...]} from client localStorage.
+    Falls back to server-side picks if none sent.
+    """
+    # Accept picks from client (localStorage) or fall back to server storage
+    body = {}
+    try:
+        body = await request.json()
+    except Exception:
+        pass
+
+    client_picks = body.get("picks", [])
+
+    if client_picks:
+        ungraded = [p for p in client_picks if not p.get("result")]
+    elif sb:
         res = sb.table("picks").select("*").is_("result", "null").execute()
         ungraded = res.data or []
     else:
@@ -1568,57 +1582,91 @@ async def autograde_picks():
         sport = p.get("sport", "").lower()
         if sport in SPORT_KEYS:
             sports_needed.add(sport)
+        else:
+            # If sport doesn't match exactly, try all major sports
+            sports_needed.update(["nba", "nhl"])
 
     # Fetch scores for each sport
     all_scores = []
+    fetch_errors = []
     for sport in sports_needed:
-        for key in SPORT_KEYS[sport]:
+        for key in SPORT_KEYS.get(sport, []):
             scores = await _fetch_scores(key)
-            all_scores.extend(scores)
+            if scores:
+                all_scores.extend(scores)
+            else:
+                fetch_errors.append(f"{sport}/{key}")
 
     completed = [g for g in all_scores if g.get("completed")]
+
+    # Debug info
+    debug_parts = [
+        f"{len(ungraded)} ungraded",
+        f"{len(sports_needed)} sports ({', '.join(sports_needed)})",
+        f"{len(all_scores)} games fetched",
+        f"{len(completed)} completed",
+    ]
+    if fetch_errors:
+        debug_parts.append(f"fetch errors: {', '.join(fetch_errors)}")
+
     if not completed:
-        return JSONResponse({"status": "ok", "graded": 0, "message": f"No completed games found for {', '.join(sports_needed)}"})
+        return JSONResponse({
+            "status": "ok", "graded": 0,
+            "message": f"No completed games found",
+            "debug": " | ".join(debug_parts),
+        })
 
     # Match and grade
     graded_count = 0
     results = []
+    no_match = []
     for pick in ungraded:
         matchup = pick.get("matchup", "")
+        selection = pick.get("selection", "")
+        matched = False
         for game in completed:
             home = game.get("home_team", "")
             away = game.get("away_team", "")
             if not _teams_match(matchup, home, away):
-                continue
+                # Also try matching on selection text
+                if not _teams_match(selection, home, away):
+                    continue
 
             result = _grade_pick_against_score(pick, game)
             if result:
                 pick_id = pick.get("id", "")
+                # Update server-side storage if pick has ID
                 if sb and pick_id:
-                    sb.table("picks").update({
-                        "result": result,
-                        "graded_at": datetime.now(PST).isoformat(),
-                    }).eq("id", pick_id).execute()
-                elif not sb:
-                    file_data = _read_picks()
-                    for fp in file_data["picks"]:
-                        if fp["id"] == pick_id:
-                            fp["result"] = result
-                            fp["graded_at"] = datetime.now(PST).strftime("%Y-%m-%d %H:%M:%S")
-                            break
-                    _write_picks(file_data)
+                    try:
+                        sb.table("picks").update({
+                            "result": result,
+                            "graded_at": datetime.now(PST).isoformat(),
+                        }).eq("id", pick_id).execute()
+                    except Exception:
+                        pass
 
                 graded_count += 1
                 scores_info = game.get("scores", [])
                 score_str = " - ".join([f"{s['name']} {s.get('score', '?')}" for s in scores_info])
                 results.append({
                     "pick_id": pick_id,
-                    "selection": pick.get("selection", ""),
+                    "selection": selection,
                     "matchup": matchup,
                     "result": result,
                     "final_score": score_str,
                 })
+                matched = True
                 break
+
+        if not matched:
+            no_match.append(f"{matchup} ({selection})")
+
+    if no_match:
+        debug_parts.append(f"no match: {', '.join(no_match[:5])}")
+
+    # Also show sample completed games for debugging
+    sample_games = [f"{g['away_team']} @ {g['home_team']}" for g in completed[:5]]
+    debug_parts.append(f"sample games: {', '.join(sample_games)}")
 
     return JSONResponse({
         "status": "ok",
@@ -1626,6 +1674,7 @@ async def autograde_picks():
         "total_ungraded": len(ungraded),
         "completed_games": len(completed),
         "results": results,
+        "debug": " | ".join(debug_parts),
     })
 
 

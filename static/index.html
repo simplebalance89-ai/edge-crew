@@ -2166,20 +2166,38 @@ function autoGradePicks() {
     var btn = document.getElementById('autoGradeBtn');
     var status = document.getElementById('autoGradeStatus');
     btn.disabled = true;
-    btn.textContent = 'GRADING...';
+    btn.classList.add('btn-loading');
+    btn.textContent = 'Grading';
     status.textContent = 'Fetching final scores...';
 
-    crewFetch('/api/picks/autograde', { method: 'POST' })
+    // Send ungraded picks FROM localStorage so server can match them
+    var stored = JSON.parse(safeLoad('edgePicks') || '[]');
+    var ungraded = stored.filter(function(p) { return !p.result && !p.archived; });
+
+    if (ungraded.length === 0) {
+        btn.disabled = false;
+        btn.classList.remove('btn-loading');
+        btn.textContent = 'AUTO-GRADE PICKS';
+        status.textContent = 'No ungraded picks to grade.';
+        return;
+    }
+
+    crewFetch('/api/picks/autograde', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ picks: ungraded })
+    })
         .then(function(r) { return r.json(); })
         .then(function(data) {
             btn.disabled = false;
+            btn.classList.remove('btn-loading');
             btn.textContent = 'AUTO-GRADE PICKS';
             if (data.graded > 0) {
                 // Update localStorage picks with server results
-                var stored = JSON.parse(safeLoad('edgePicks') || '[]');
                 data.results.forEach(function(r) {
                     for (var i = 0; i < stored.length; i++) {
-                        if (stored[i].id === r.pick_id || (stored[i].matchup === r.matchup && stored[i].selection === r.selection && !stored[i].result)) {
+                        var p = stored[i];
+                        if (!p.result && (p.id === r.pick_id || (p.matchup === r.matchup && p.selection === r.selection))) {
                             stored[i].result = r.result;
                             break;
                         }
@@ -2187,16 +2205,17 @@ function autoGradePicks() {
                 });
                 safeSave('edgePicks', JSON.stringify(stored));
                 renderBankroll();
-                status.textContent = data.graded + ' pick' + (data.graded > 1 ? 's' : '') + ' graded!';
+                status.textContent = data.graded + '/' + ungraded.length + ' graded! ' + (data.debug || '');
                 status.style.color = '#10B981';
                 showToast(data.graded + ' picks auto-graded!');
             } else {
-                status.textContent = data.message || 'No picks could be graded — games may not be final yet.';
+                status.textContent = (data.message || 'No matches found') + ' ' + (data.debug || '');
                 status.style.color = 'rgba(255,255,255,0.4)';
             }
         })
         .catch(function(err) {
             btn.disabled = false;
+            btn.classList.remove('btn-loading');
             btn.textContent = 'AUTO-GRADE PICKS';
             status.textContent = 'Error: ' + err.message;
             status.style.color = '#EF4444';
@@ -2442,8 +2461,60 @@ function renderBankroll() {
     });
 }
 
+// Sync server picks into localStorage (merge, don't overwrite)
+function syncPicksFromServer() {
+    crewFetch('/api/picks').then(function(r) { return r.json(); }).then(function(data) {
+        var serverPicks = data.picks || [];
+        if (!serverPicks.length) return;
+        var stored = JSON.parse(safeLoad('edgePicks') || '[]');
+        var localIds = {};
+        var localMatchups = {};
+        stored.forEach(function(p) {
+            if (p.id) localIds[p.id] = true;
+            var key = (p.matchup || '') + '|' + (p.selection || '') + '|' + (p.name || '');
+            localMatchups[key] = true;
+        });
+        var added = 0;
+        serverPicks.forEach(function(sp) {
+            // Skip if already in localStorage by ID
+            if (sp.id && localIds[sp.id]) {
+                // But update result if server has it graded and local doesn't
+                for (var i = 0; i < stored.length; i++) {
+                    if (stored[i].id === sp.id && !stored[i].result && sp.result) {
+                        stored[i].result = sp.result;
+                    }
+                }
+                return;
+            }
+            // Skip if matching by matchup+selection+name
+            var key = (sp.matchup || '') + '|' + (sp.selection || '') + '|' + (sp.name || '');
+            if (localMatchups[key]) {
+                // Update result if server has it
+                if (sp.result) {
+                    for (var i = 0; i < stored.length; i++) {
+                        var lk = (stored[i].matchup || '') + '|' + (stored[i].selection || '') + '|' + (stored[i].name || '');
+                        if (lk === key && !stored[i].result) {
+                            stored[i].result = sp.result;
+                            if (!stored[i].id) stored[i].id = sp.id;
+                        }
+                    }
+                }
+                return;
+            }
+            // New pick from server — add to localStorage
+            stored.push(sp);
+            added++;
+        });
+        if (added > 0 || serverPicks.some(function(sp) { return sp.result; })) {
+            safeSave('edgePicks', JSON.stringify(stored));
+            renderBankroll();
+        }
+    }).catch(function() {});
+}
+
 // Load bankroll on page load
 renderBankroll();
+syncPicksFromServer();
 
 // ===== GOTCHA CARD (All Sports) =====
 function toggleGotchaEdit(sport) {
