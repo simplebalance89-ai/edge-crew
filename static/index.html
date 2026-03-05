@@ -378,6 +378,22 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 }
 @keyframes edgeSpin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
 
+/* Full-page loading overlay */
+.loading-overlay{
+    display:none;position:fixed;top:0;left:0;right:0;bottom:0;
+    background:rgba(13,13,26,0.92);z-index:9999;
+    justify-content:center;align-items:center;flex-direction:column;gap:16px;
+}
+.loading-overlay.active{display:flex;}
+.loading-overlay .loading-spinner{
+    width:50px;height:50px;border:4px solid rgba(212,160,23,0.2);
+    border-top:4px solid #D4A017;border-radius:50%;animation:edgeSpin 0.8s linear infinite;
+}
+.loading-overlay .loading-text{
+    color:#D4A017;font-size:14px;font-weight:700;font-family:'Nunito',sans-serif;
+    letter-spacing:1px;text-transform:uppercase;
+}
+
 /* Loading button state */
 .btn-loading{pointer-events:none;opacity:0.7;position:relative;}
 .btn-loading::after{
@@ -657,6 +673,12 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     </div>
 </div>
 
+<!-- LOADING OVERLAY -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+    <div class="loading-text" id="loadingText">Loading slate...</div>
+</div>
+
 <!-- TOP BAR -->
 <div class="topbar">
     <div class="topbar-left">
@@ -727,7 +749,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 
 <!-- NBA UPSET SPECIALS (top of panel — Peter's territory) -->
 <div class="upset-section" id="upsetNBA">
-    <h3>Daily Upset Specials</h3>
+    <h3>EV+ Money Specials</h3>
     <form class="upset-submit-form" onsubmit="submitUpset('NBA');return false;">
         <select id="upsetTeamNBA" required><option value="">-- Load slate first --</option></select>
         <input type="text" id="upsetOddsNBA" placeholder="Odds" required>
@@ -789,7 +811,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 
 <!-- NHL UPSET SPECIALS -->
 <div class="upset-section" id="upsetNHL">
-    <h3>Daily Upset Specials</h3>
+    <h3>EV+ Money Specials</h3>
     <form class="upset-submit-form" onsubmit="submitUpset('NHL');return false;">
         <select id="upsetTeamNHL" required><option value="">-- Load slate first --</option></select>
         <input type="text" id="upsetOddsNHL" placeholder="Odds" required>
@@ -847,7 +869,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 
 <!-- MLB UPSET SPECIALS -->
 <div class="upset-section" id="upsetMLB">
-    <h3>Daily Upset Specials</h3>
+    <h3>EV+ Money Specials</h3>
     <form class="upset-submit-form" onsubmit="submitUpset('MLB');return false;">
         <select id="upsetTeamMLB" required><option value="">-- Load slate first --</option></select>
         <input type="text" id="upsetOddsMLB" placeholder="Odds" required>
@@ -902,7 +924,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 <div class="empty-state">No games on the slate.<br><strong>Hit REFRESH SLATE</strong> to check for live lines.</div>
 <!-- SOCCER UPSET SPECIALS -->
 <div class="upset-section" id="upsetSOCCER">
-    <h3>Daily Upset Specials</h3>
+    <h3>EV+ Money Specials</h3>
     <form class="upset-submit-form" onsubmit="submitUpset('SOCCER');return false;">
         <select id="upsetTeamSOCCER" required><option value="">-- Load slate first --</option></select>
         <input type="text" id="upsetOddsSOCCER" placeholder="Odds" required>
@@ -952,7 +974,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 <div class="empty-state">No fights on the slate.<br><strong>Hit REFRESH SLATE</strong> to check for live lines.</div>
 <!-- MMA UPSET SPECIALS -->
 <div class="upset-section" id="upsetMMA">
-    <h3>Daily Upset Specials</h3>
+    <h3>EV+ Money Specials</h3>
     <form class="upset-submit-form" onsubmit="submitUpset('MMA');return false;">
         <select id="upsetTeamMMA" required><option value="">-- Load slate first --</option></select>
         <input type="text" id="upsetOddsMMA" placeholder="Odds" required>
@@ -1002,7 +1024,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 <div class="empty-state">No fights on the slate.<br><strong>Hit REFRESH SLATE</strong> to check for live lines.</div>
 <!-- BOXING UPSET SPECIALS -->
 <div class="upset-section" id="upsetBOXING">
-    <h3>Daily Upset Specials</h3>
+    <h3>EV+ Money Specials</h3>
     <form class="upset-submit-form" onsubmit="submitUpset('BOXING');return false;">
         <select id="upsetTeamBOXING" required><option value="">-- Load slate first --</option></select>
         <input type="text" id="upsetOddsBOXING" placeholder="Odds" required>
@@ -1101,7 +1123,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 
 <!-- FULL SLATE UPSET SPECIALS (all sports combined) -->
 <div class="upset-section" id="upsetCOMBINED">
-    <h3>Daily Upset Specials — All Sports</h3>
+    <h3>EV+ Money Specials — All Sports</h3>
     <div class="upset-cards" id="upsetCardsCOMBINED"></div>
 </div>
 
@@ -1694,18 +1716,31 @@ function refreshSlate() {
     // Update submit bar
     updateSubmitBar();
 
-    showToast('Slate refreshed!');
+    // Show loading overlay
+    var overlay = document.getElementById('loadingOverlay');
+    var loadText = document.getElementById('loadingText');
+    if (overlay) overlay.classList.add('active');
+    if (loadText) loadText.textContent = 'Loading odds...';
+
+    var sportsToLoad = ['nba','nhl','mlb','soccer','mma','boxing'];
+    var loadedCount = 0;
+
+    function onSportLoaded(sport) {
+        loadedCount++;
+        if (loadText) loadText.textContent = 'Loading ' + sport.toUpperCase() + '... (' + loadedCount + '/' + sportsToLoad.length + ')';
+        if (loadedCount >= sportsToLoad.length) {
+            if (loadText) loadText.textContent = 'Running analysis...';
+            setTimeout(function() {
+                if (overlay) overlay.classList.remove('active');
+                showToast('Slate refreshed!');
+            }, 3000);
+        }
+    }
 
     // Fetch live odds for all sports
-    fetchLiveOdds('nba');
-    fetchLiveOdds('nhl');
-    fetchLiveOdds('mlb');
-    fetchLiveOdds('soccer');
-    fetchLiveOdds('mma');
-    fetchLiveOdds('boxing');
-
-    // Analysis + edge now triggered directly from fetchLiveOdds callback
-    // after game rows are rendered (no more timer race condition)
+    sportsToLoad.forEach(function(sport) {
+        fetchLiveOdds(sport, onSportLoaded);
+    });
 
     // Load props from analysis cache after analysis calls complete
     setTimeout(function() { loadProps(); }, 6000);
@@ -3317,7 +3352,7 @@ function buildGameRowHTML(g) {
     '</div>';
 }
 
-function fetchLiveOdds(sport) {
+function fetchLiveOdds(sport, onDone) {
     var panel = document.getElementById('panel-' + sport);
     if (!panel) return;
 
@@ -3375,6 +3410,7 @@ function fetchLiveOdds(sport) {
                 if (data.games && data.games.length > 0) {
                     fetchAnalysis(sport);
                 }
+                if (typeof onDone === 'function') onDone(sport);
                 return;
             }
 
@@ -3445,9 +3481,11 @@ function fetchLiveOdds(sport) {
                 fetchAnalysis(sport);
                 fetchEdge(sport);
             }
+            if (typeof onDone === 'function') onDone(sport);
         })
         .catch(function(err) {
             panel.classList.remove('panel-loading');
+            if (typeof onDone === 'function') onDone(sport);
             var errMsg = document.createElement('div');
             errMsg.className = 'panel-error';
             errMsg.textContent = 'Failed to load ' + sport.toUpperCase() + ' odds. Check connection and try again.';
@@ -4397,10 +4435,11 @@ function populateUpsetDropdowns(sport) {
         hdr.textContent = '── ' + matchup + ' ──';
         hdr.style.color = '#D4A017';
         select.appendChild(hdr);
-        // Only show + odds lines (underdogs = upset specials)
+        // Only show ML underdogs (+ moneyline = upset specials)
         var btns = row.querySelectorAll('.side-btn');
         btns.forEach(function(btn) {
             var txt = btn.textContent;
+            if (txt.indexOf('ML') === -1) return; // Only ML lines
             var m = txt.match(/\(([+-]?\d+)\)\s*$/);
             if (m && parseInt(m[1], 10) > 0) {
                 select.appendChild(new Option(txt, txt));
