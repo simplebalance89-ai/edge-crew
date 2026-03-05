@@ -1601,8 +1601,7 @@ Return ONLY valid JSON. No markdown. No explanation."""
             batch_prompts.append(_build_batch_prompt(batch_text, batch_inc, is_first_batch=(idx == 0)))
 
         # Run all batches in parallel via asyncio threads
-        loop = asyncio.get_event_loop()
-        tasks = [loop.run_in_executor(None, _call_azure_batch, p) for p in batch_prompts]
+        tasks = [asyncio.to_thread(_call_azure_batch, p) for p in batch_prompts]
         batch_results = await asyncio.gather(*tasks, return_exceptions=True)
 
         # Merge results: first batch provides gotcha, all provide games
