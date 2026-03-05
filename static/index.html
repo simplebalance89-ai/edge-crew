@@ -609,6 +609,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 <!-- LOGIN OVERLAY -->
 <div class="login-overlay" id="loginOverlay">
     <div class="login-card">
+        <img src="/static/logo.png" alt="Edge Crew" style="width:120px;border-radius:12px;margin:0 auto 12px;display:block;">
         <h1>Edge Crew</h1>
         <div class="login-sub">Crew Dashboard</div>
         <div class="login-tabs">
@@ -659,6 +660,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 <!-- TOP BAR -->
 <div class="topbar">
     <div class="topbar-left">
+        <img src="/static/logo.png" alt="Edge Crew" style="height:38px;border-radius:6px;margin-right:8px;vertical-align:middle;">
         <div class="topbar-title">Edge Crew</div>
         <div class="topbar-date" id="topbarDate"></div>
     </div>
@@ -3234,6 +3236,34 @@ function buildGameRowHTML(g) {
 
     var bookTag = '<span class="tag" style="background:rgba(212,160,23,0.15);color:#D4A017;">' + bookSource.toUpperCase() + '</span> ';
 
+    // Line shift indicators
+    var shiftTag = '';
+    if (g.shifts) {
+        var parts = [];
+        if (g.shifts.spread) {
+            var d = g.shifts.spread.delta;
+            parts.push('SPR ' + (d > 0 ? '\u2191' : '\u2193') + Math.abs(d));
+        }
+        if (g.shifts.total) {
+            var dt = g.shifts.total.delta;
+            parts.push('O/U ' + (dt > 0 ? '\u2191' : '\u2193') + Math.abs(dt));
+        }
+        if (g.shifts.away_ml || g.shifts.home_ml) parts.push('ML \u21C5');
+        if (parts.length) {
+            shiftTag = '<span class="tag" style="background:rgba(59,130,246,0.2);color:#60A5FA;font-size:9px;" title="Line moved since open">' + parts.join(' | ') + '</span> ';
+        }
+    }
+
+    // Arbitrage tag
+    var arbTag = '';
+    if (g.arbs && g.arbs.length) {
+        var best = g.arbs[0];
+        var arbTitle = g.arbs.map(function(a) {
+            return a.type + ': ' + a.legs.map(function(l) { return l.side + ' (' + l.odds + ') @ ' + l.book.toUpperCase(); }).join(' vs ');
+        }).join('\\n');
+        arbTag = '<span class="tag" style="background:rgba(16,185,129,0.25);color:#10B981;font-weight:800;font-size:9px;cursor:help;" title="' + arbTitle.replace(/"/g,'&quot;') + '">\uD83D\uDCB0 ARB ' + best.profit_pct + '%</span> ';
+    }
+
     return '<div class="game-row" data-game="' + matchup + '" data-away="' + g.away + '" data-home="' + g.home + '" data-book="' + bookSource + '" data-fetched="' + fetchedAt + '" data-complete="' + (isComplete ? 'true' : 'false') + '" data-time="' + (g.time || '') + '" style="' + todayStyle + '" onclick="this.classList.toggle(\'expanded\')">' +
         '<div class="game-header">' +
             '<div class="pick-check" onclick="togglePick(event, this, \'' + matchup + '\')"></div>' +
@@ -3251,7 +3281,7 @@ function buildGameRowHTML(g) {
             '<div class="game-spread">' + (hasSpread ? ((fav || homeAbbr) + ' ' + (spread < 0 ? spreadStr : awaySpreadStr)) : 'ML') + '</div>' +
             '<div class="game-total">O/U ' + total + '</div>' +
             '<div class="game-grade"><span class="grade ' + gradeClass + '">' + gradeDisplay + '</span></div>' +
-            '<div class="game-edge">' + dataTag + bookTag +
+            '<div class="game-edge">' + arbTag + shiftTag + dataTag + bookTag +
                 'ML: ' + awayAbbr + ' (' + awayML + ') / ' + homeAbbr + ' (' + homeML + ')' +
             '</div>' +
         '</div>' +
@@ -3261,8 +3291,21 @@ function buildGameRowHTML(g) {
                     (hasSpread ? '<p>Spread: ' + awayAbbr + ' ' + awaySpreadStr + ' (' + (g.away_spread_odds||'--') + ') / ' + homeAbbr + ' ' + spreadStr + ' (' + (g.home_spread_odds||'--') + ')<br>' : '<p>Spread: N/A (ML game)<br>') +
                     'Total: O ' + total + ' (' + (g.over_odds||'--') + ') / U ' + total + ' (' + (g.under_odds||'--') + ')<br>' +
                     'ML: ' + awayAbbr + ' ' + awayML + ' / ' + homeAbbr + ' ' + homeML + '</p>' +
+                    (g.shifts ? '<p style="font-size:10px;color:#60A5FA;margin-top:6px;font-weight:600;">\u21C5 Line Movement: ' +
+                        (g.shifts.spread ? 'Spread ' + g.shifts.spread.open + ' \u2192 ' + g.shifts.spread.now + ' ' : '') +
+                        (g.shifts.total ? 'Total ' + g.shifts.total.open + ' \u2192 ' + g.shifts.total.now + ' ' : '') +
+                        (g.shifts.away_ml ? 'Away ML ' + g.shifts.away_ml.open + ' \u2192 ' + g.shifts.away_ml.now + ' ' : '') +
+                        (g.shifts.home_ml ? 'Home ML ' + g.shifts.home_ml.open + ' \u2192 ' + g.shifts.home_ml.now : '') +
+                    '</p>' : '') +
                     '<p style="font-size:10px;color:rgba(255,255,255,0.25);margin-top:6px;">Fetched: ' + fetchedAt + ' | Book: ' + bookSource + '</p>' +
                 '</div>' +
+                (g.arbs && g.arbs.length ? '<div class="detail-box" style="border-color:rgba(16,185,129,0.3);"><h4 style="color:#10B981;">\uD83D\uDCB0 Arbitrage Opportunities</h4>' +
+                    g.arbs.map(function(a) {
+                        return '<p style="font-size:12px;"><strong>' + a.type + '</strong> — ' + a.profit_pct + '% profit<br>' +
+                            a.legs.map(function(l) { return '<span style="color:#D4A017;">' + l.side + '</span> (' + l.odds + ') @ <span style="color:#60A5FA;">' + l.book.toUpperCase() + '</span>'; }).join(' vs ') +
+                        '</p>';
+                    }).join('') +
+                '</div>' : '') +
                 '<div class="detail-box trends"><h4>Notes</h4><p>' + (isComplete ? 'Lines complete. Ready for analysis.' : 'INCOMPLETE — missing data. Do not grade.') + '</p>' +
                     (rotowireUrls[g.sport] ? '<div style="margin-top:8px;display:flex;gap:6px;">' +
                         '<a href="' + rotowireUrls[g.sport].lineups + '" target="_blank" onclick="event.stopPropagation()" style="display:inline-block;padding:4px 10px;background:rgba(212,160,23,0.15);color:#D4A017;border-radius:4px;text-decoration:none;font-size:11px;font-weight:600;">Lineups</a>' +
