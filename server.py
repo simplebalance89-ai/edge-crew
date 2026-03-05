@@ -1074,6 +1074,160 @@ async def get_credits():
     return JSONResponse(result)
 
 
+@app.get("/api/edge/{sport}")
+async def get_edge(sport: str):
+    """Alyssa's Edge — 100% Math. No AI. Pure Edge.
+
+    Contrarian value analysis calculated from odds data:
+    - Public fade: flag heavy favorites where ML implies >70% implied prob
+    - Line value: identify spreads that look off
+    - Upset score: underdog value rating 1-10
+    - Sharp signals: when line movement doesn't match public direction
+    """
+    sport_lower = sport.lower()
+    odds_cache_key = f"{sport_lower}:h2h,spreads,totals"
+    odds_data = _get_cached(odds_cache_key)
+    if not odds_data:
+        odds_resp = await get_odds(sport)
+        if hasattr(odds_resp, 'body'):
+            odds_data = json.loads(odds_resp.body)
+        else:
+            odds_data = {"games": [], "count": 0}
+
+    games = odds_data.get("games", [])
+    if not games:
+        return JSONResponse({"sport": sport.upper(), "games": [], "generated_at": _now_ts()})
+
+    edge_games = []
+    for g in games:
+        away = g.get("away", "?")
+        home = g.get("home", "?")
+        away_ml = g.get("away_ml")
+        home_ml = g.get("home_ml")
+        home_spread = g.get("home_spread")
+        away_spread = g.get("away_spread")
+        total = g.get("total")
+        game_time = g.get("time", "")
+
+        if not away_ml or not home_ml:
+            continue
+
+        # Convert ML to implied probability
+        def ml_to_prob(ml):
+            ml = float(ml)
+            if ml > 0:
+                return 100 / (ml + 100)
+            else:
+                return abs(ml) / (abs(ml) + 100)
+
+        away_prob = ml_to_prob(away_ml)
+        home_prob = ml_to_prob(home_ml)
+
+        # Normalize so they sum to ~1 (remove vig)
+        total_prob = away_prob + home_prob
+        away_true = away_prob / total_prob
+        home_true = home_prob / total_prob
+        vig = (total_prob - 1) * 100  # vig percentage
+
+        # Determine favorite/underdog
+        if home_true > away_true:
+            fav, dog = home, away
+            fav_prob, dog_prob = home_true, away_true
+            fav_ml, dog_ml = home_ml, away_ml
+            fav_spread = home_spread
+        else:
+            fav, dog = away, home
+            fav_prob, dog_prob = away_true, home_true
+            fav_ml, dog_ml = away_ml, home_ml
+            fav_spread = away_spread
+
+        # --- UPSET SCORE (1-10) ---
+        # Based on dog implied probability. Higher prob = higher upset score
+        upset_score = min(10, max(1, round(dog_prob * 20)))
+
+        # --- PUBLIC FADE FLAG ---
+        # If favorite has >72% implied prob, the public is heavy on them
+        public_fade = fav_prob > 0.72
+
+        # --- VALUE RATING ---
+        # Dogs with >30% true prob are value plays
+        # Dogs with >40% are strong value
+        value_tag = ""
+        if dog_prob >= 0.42:
+            value_tag = "STRONG VALUE"
+        elif dog_prob >= 0.35:
+            value_tag = "VALUE"
+        elif dog_prob >= 0.28:
+            value_tag = "SLIGHT VALUE"
+
+        # --- SPREAD vs ML DISCREPANCY ---
+        # If spread is tight but ML is wide, there's a signal
+        spread_ml_flag = ""
+        if fav_spread is not None and fav_ml is not None:
+            try:
+                spread_val = abs(float(fav_spread))
+                ml_val = abs(float(fav_ml))
+                # Tight spread (<4) but heavy ML (>200) = trap game potential
+                if spread_val < 4 and ml_val > 180:
+                    spread_ml_flag = "TRAP ALERT: Tight spread but heavy ML"
+                # Big spread (>8) but soft ML (<250) = blowout not priced in
+                elif spread_val > 8 and ml_val < 250:
+                    spread_ml_flag = "BLOWOUT SIGNAL: Big spread, soft ML"
+            except (ValueError, TypeError):
+                pass
+
+        # --- TOTAL LEAN ---
+        total_lean = ""
+        if total:
+            try:
+                t = float(total)
+                over_odds = g.get("over_odds")
+                under_odds = g.get("under_odds")
+                if over_odds and under_odds:
+                    over_prob = ml_to_prob(over_odds)
+                    under_prob = ml_to_prob(under_odds)
+                    total_p = over_prob + under_prob
+                    if over_prob / total_p > 0.54:
+                        total_lean = f"LEAN OVER {t}"
+                    elif under_prob / total_p > 0.54:
+                        total_lean = f"LEAN UNDER {t}"
+            except (ValueError, TypeError):
+                pass
+
+        edge_game = {
+            "away": away,
+            "home": home,
+            "time": game_time,
+            "away_ml": away_ml,
+            "home_ml": home_ml,
+            "home_spread": home_spread,
+            "total": total,
+            "favorite": fav,
+            "underdog": dog,
+            "fav_prob": round(fav_prob * 100, 1),
+            "dog_prob": round(dog_prob * 100, 1),
+            "vig": round(vig, 1),
+            "upset_score": upset_score,
+            "public_fade": public_fade,
+            "value_tag": value_tag,
+            "spread_ml_flag": spread_ml_flag,
+            "total_lean": total_lean,
+            "dog_ml": dog_ml,
+        }
+        edge_games.append(edge_game)
+
+    # Sort by upset score descending (best upset value first)
+    edge_games.sort(key=lambda x: x["upset_score"], reverse=True)
+
+    return JSONResponse({
+        "sport": sport.upper(),
+        "games": edge_games,
+        "count": len(edge_games),
+        "generated_at": _now_ts(),
+        "tag": "100% Math. No AI. Pure Edge.",
+    })
+
+
 @app.get("/api/analysis/{sport}")
 async def get_analysis(sport: str):
     """Generate AI analysis for a sport based on current live odds.

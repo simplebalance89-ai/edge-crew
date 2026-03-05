@@ -710,13 +710,28 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     <div class="ml-filter-btn" onclick="toggleMLFilter('nba')" style="cursor:pointer;padding:6px 14px;border-radius:6px;background:rgba(212,160,23,0.1);border:1px solid rgba(212,160,23,0.3);color:#D4A017;font-size:12px;font-weight:700;transition:all 0.2s;">ML+ Only</div>
 </div>
 
-<!-- NBA PETER GUT PICKS (DYNAMIC) -->
-<div class="input-section" id="peterGutNBA">
+<!-- ANALYSIS TOGGLE -->
+<div class="analysis-toggle" style="display:flex;gap:0;margin:12px 0 4px;border-radius:8px;overflow:hidden;border:1px solid rgba(212,160,23,0.3);">
+    <div class="atoggle-btn atoggle-active" onclick="toggleAnalysis('nba','sintonia',this)" style="flex:1;text-align:center;padding:8px;cursor:pointer;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif;background:rgba(167,139,250,0.15);color:#A78BFA;transition:all 0.2s;">Sinton.ia's Card</div>
+    <div class="atoggle-btn" onclick="toggleAnalysis('nba','alyssa',this)" style="flex:1;text-align:center;padding:8px;cursor:pointer;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif;background:transparent;color:rgba(232,121,249,0.4);transition:all 0.2s;">Alyssa's Edge</div>
+</div>
+
+<!-- NBA SINTON.IA CARD -->
+<div class="input-section analysis-card" id="peterGutNBA" data-card="sintonia">
     <h3 id="peterGutNBATitle">Sinton.ia's Card &mdash; NBA</h3>
     <div id="peterGutNBAContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
         <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate or click NBA tab to load Sinton.ia's analysis card...</p>
     </div>
     <div id="peterGutNBATimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
+</div>
+
+<!-- NBA ALYSSA'S EDGE -->
+<div class="input-section analysis-card" id="alyssaEdgeNBA" data-card="alyssa" style="display:none;">
+    <h3 style="color:#E879F9;">Alyssa's Edge &mdash; NBA</h3>
+    <div style="font-size:10px;color:rgba(232,121,249,0.5);font-weight:700;letter-spacing:1px;margin-bottom:8px;">100% MATH. NO AI. PURE EDGE.</div>
+    <div id="alyssaEdgeNBAContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
+        <p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load edge analysis...</p>
+    </div>
 </div>
 
 </div>
@@ -757,13 +772,24 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     <div class="ml-filter-btn" onclick="toggleMLFilter('nhl')" style="cursor:pointer;padding:6px 14px;border-radius:6px;background:rgba(212,160,23,0.1);border:1px solid rgba(212,160,23,0.3);color:#D4A017;font-size:12px;font-weight:700;transition:all 0.2s;">ML+ Only</div>
 </div>
 
-<!-- NHL PETER GUT PICKS (DYNAMIC) -->
-<div class="input-section" id="peterGutNHL">
+<!-- ANALYSIS TOGGLE -->
+<div class="analysis-toggle" style="display:flex;gap:0;margin:12px 0 4px;border-radius:8px;overflow:hidden;border:1px solid rgba(212,160,23,0.3);">
+    <div class="atoggle-btn atoggle-active" onclick="toggleAnalysis('nhl','sintonia',this)" style="flex:1;text-align:center;padding:8px;cursor:pointer;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif;background:rgba(167,139,250,0.15);color:#A78BFA;transition:all 0.2s;">Sinton.ia's Card</div>
+    <div class="atoggle-btn" onclick="toggleAnalysis('nhl','alyssa',this)" style="flex:1;text-align:center;padding:8px;cursor:pointer;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif;background:transparent;color:rgba(232,121,249,0.4);transition:all 0.2s;">Alyssa's Edge</div>
+</div>
+<div class="input-section analysis-card" id="peterGutNHL" data-card="sintonia">
     <h3 id="peterGutNHLTitle">Sinton.ia's Card &mdash; NHL</h3>
     <div id="peterGutNHLContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
         <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate or click NHL tab to load Sinton.ia's analysis card...</p>
     </div>
     <div id="peterGutNHLTimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
+</div>
+<div class="input-section analysis-card" id="alyssaEdgeNHL" data-card="alyssa" style="display:none;">
+    <h3 style="color:#E879F9;">Alyssa's Edge &mdash; NHL</h3>
+    <div style="font-size:10px;color:rgba(232,121,249,0.5);font-weight:700;letter-spacing:1px;margin-bottom:8px;">100% MATH. NO AI. PURE EDGE.</div>
+    <div id="alyssaEdgeNHLContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
+        <p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load edge analysis...</p>
+    </div>
 </div>
 
 </div>
@@ -804,13 +830,24 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     <div class="ml-filter-btn" onclick="toggleMLFilter('mlb')" style="cursor:pointer;padding:6px 14px;border-radius:6px;background:rgba(212,160,23,0.1);border:1px solid rgba(212,160,23,0.3);color:#D4A017;font-size:12px;font-weight:700;transition:all 0.2s;">ML+ Only</div>
 </div>
 
-<!-- MLB PETER GUT PICKS (DYNAMIC) -->
-<div class="input-section" id="peterGutMLB">
+<!-- ANALYSIS TOGGLE -->
+<div class="analysis-toggle" style="display:flex;gap:0;margin:12px 0 4px;border-radius:8px;overflow:hidden;border:1px solid rgba(212,160,23,0.3);">
+    <div class="atoggle-btn atoggle-active" onclick="toggleAnalysis('mlb','sintonia',this)" style="flex:1;text-align:center;padding:8px;cursor:pointer;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif;background:rgba(167,139,250,0.15);color:#A78BFA;transition:all 0.2s;">Sinton.ia's Card</div>
+    <div class="atoggle-btn" onclick="toggleAnalysis('mlb','alyssa',this)" style="flex:1;text-align:center;padding:8px;cursor:pointer;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif;background:transparent;color:rgba(232,121,249,0.4);transition:all 0.2s;">Alyssa's Edge</div>
+</div>
+<div class="input-section analysis-card" id="peterGutMLB" data-card="sintonia">
     <h3 id="peterGutMLBTitle">Sinton.ia's Card &mdash; MLB</h3>
     <div id="peterGutMLBContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
         <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate or click MLB tab to load Sinton.ia's analysis card...</p>
     </div>
     <div id="peterGutMLBTimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
+</div>
+<div class="input-section analysis-card" id="alyssaEdgeMLB" data-card="alyssa" style="display:none;">
+    <h3 style="color:#E879F9;">Alyssa's Edge &mdash; MLB</h3>
+    <div style="font-size:10px;color:rgba(232,121,249,0.5);font-weight:700;letter-spacing:1px;margin-bottom:8px;">100% MATH. NO AI. PURE EDGE.</div>
+    <div id="alyssaEdgeMLBContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
+        <p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load edge analysis...</p>
+    </div>
 </div>
 
 </div>
@@ -844,12 +881,23 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 </div>
 
 <!-- SOCCER PETER GUT PICKS (DYNAMIC) -->
-<div class="input-section" id="peterGutSOCCER">
+<div class="analysis-toggle" style="display:flex;gap:0;margin:12px 0 4px;border-radius:8px;overflow:hidden;border:1px solid rgba(212,160,23,0.3);">
+    <div class="atoggle-btn atoggle-active" onclick="toggleAnalysis('soccer','sintonia',this)" style="flex:1;text-align:center;padding:8px;cursor:pointer;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif;background:rgba(167,139,250,0.15);color:#A78BFA;transition:all 0.2s;">Sinton.ia's Card</div>
+    <div class="atoggle-btn" onclick="toggleAnalysis('soccer','alyssa',this)" style="flex:1;text-align:center;padding:8px;cursor:pointer;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif;background:transparent;color:rgba(232,121,249,0.4);transition:all 0.2s;">Alyssa's Edge</div>
+</div>
+<div class="input-section analysis-card" id="peterGutSOCCER" data-card="sintonia">
     <h3 id="peterGutSOCCERTitle">Sinton.ia's Card &mdash; Soccer</h3>
     <div id="peterGutSOCCERContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
         <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load Sinton.ia's analysis card...</p>
     </div>
     <div id="peterGutSOCCERTimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
+</div>
+<div class="input-section analysis-card" id="alyssaEdgeSOCCER" data-card="alyssa" style="display:none;">
+    <h3 style="color:#E879F9;">Alyssa's Edge &mdash; Soccer</h3>
+    <div style="font-size:10px;color:rgba(232,121,249,0.5);font-weight:700;letter-spacing:1px;margin-bottom:8px;">100% MATH. NO AI. PURE EDGE.</div>
+    <div id="alyssaEdgeSOCCERContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
+        <p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load edge analysis...</p>
+    </div>
 </div>
 
 </div>
@@ -883,12 +931,23 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 </div>
 
 <!-- MMA PETER GUT PICKS (DYNAMIC) -->
-<div class="input-section" id="peterGutMMA">
+<div class="analysis-toggle" style="display:flex;gap:0;margin:12px 0 4px;border-radius:8px;overflow:hidden;border:1px solid rgba(212,160,23,0.3);">
+    <div class="atoggle-btn atoggle-active" onclick="toggleAnalysis('mma','sintonia',this)" style="flex:1;text-align:center;padding:8px;cursor:pointer;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif;background:rgba(167,139,250,0.15);color:#A78BFA;transition:all 0.2s;">Sinton.ia's Card</div>
+    <div class="atoggle-btn" onclick="toggleAnalysis('mma','alyssa',this)" style="flex:1;text-align:center;padding:8px;cursor:pointer;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif;background:transparent;color:rgba(232,121,249,0.4);transition:all 0.2s;">Alyssa's Edge</div>
+</div>
+<div class="input-section analysis-card" id="peterGutMMA" data-card="sintonia">
     <h3 id="peterGutMMATitle">Sinton.ia's Card &mdash; MMA</h3>
     <div id="peterGutMMAContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
         <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load Sinton.ia's analysis card...</p>
     </div>
     <div id="peterGutMMATimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
+</div>
+<div class="input-section analysis-card" id="alyssaEdgeMMA" data-card="alyssa" style="display:none;">
+    <h3 style="color:#E879F9;">Alyssa's Edge &mdash; MMA</h3>
+    <div style="font-size:10px;color:rgba(232,121,249,0.5);font-weight:700;letter-spacing:1px;margin-bottom:8px;">100% MATH. NO AI. PURE EDGE.</div>
+    <div id="alyssaEdgeMMAContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
+        <p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load edge analysis...</p>
+    </div>
 </div>
 
 </div>
@@ -922,12 +981,23 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 </div>
 
 <!-- BOXING PETER GUT PICKS (DYNAMIC) -->
-<div class="input-section" id="peterGutBOXING">
+<div class="analysis-toggle" style="display:flex;gap:0;margin:12px 0 4px;border-radius:8px;overflow:hidden;border:1px solid rgba(212,160,23,0.3);">
+    <div class="atoggle-btn atoggle-active" onclick="toggleAnalysis('boxing','sintonia',this)" style="flex:1;text-align:center;padding:8px;cursor:pointer;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif;background:rgba(167,139,250,0.15);color:#A78BFA;transition:all 0.2s;">Sinton.ia's Card</div>
+    <div class="atoggle-btn" onclick="toggleAnalysis('boxing','alyssa',this)" style="flex:1;text-align:center;padding:8px;cursor:pointer;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif;background:transparent;color:rgba(232,121,249,0.4);transition:all 0.2s;">Alyssa's Edge</div>
+</div>
+<div class="input-section analysis-card" id="peterGutBOXING" data-card="sintonia">
     <h3 id="peterGutBOXINGTitle">Sinton.ia's Card &mdash; Boxing</h3>
     <div id="peterGutBOXINGContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
         <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load Sinton.ia's analysis card...</p>
     </div>
     <div id="peterGutBOXINGTimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
+</div>
+<div class="input-section analysis-card" id="alyssaEdgeBOXING" data-card="alyssa" style="display:none;">
+    <h3 style="color:#E879F9;">Alyssa's Edge &mdash; Boxing</h3>
+    <div style="font-size:10px;color:rgba(232,121,249,0.5);font-weight:700;letter-spacing:1px;margin-bottom:8px;">100% MATH. NO AI. PURE EDGE.</div>
+    <div id="alyssaEdgeBOXINGContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
+        <p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load edge analysis...</p>
+    </div>
 </div>
 
 </div>
@@ -1574,6 +1644,7 @@ function refreshSlate() {
             var panel = document.getElementById('panel-' + s);
             if (panel && panel.querySelectorAll('.game-row').length > 0) {
                 fetchAnalysis(s);
+                fetchEdge(s);
             }
         });
     }, 2000);
@@ -3580,6 +3651,100 @@ function updatePeterGut(sport, analysisData) {
 var _analysisCache = {};
 
 // ===== ANALYSIS FETCH =====
+// ===== ANALYSIS TOGGLE (Sinton.ia vs Alyssa) =====
+function toggleAnalysis(sport, who, btn) {
+    var panel = document.getElementById('panel-' + sport);
+    if (!panel) return;
+    // Toggle button styles
+    var toggle = btn.parentElement;
+    toggle.querySelectorAll('.atoggle-btn').forEach(function(b) {
+        b.classList.remove('atoggle-active');
+        b.style.background = 'transparent';
+        b.style.color = b.textContent.indexOf('Sinton') !== -1 ? 'rgba(167,139,250,0.4)' : 'rgba(232,121,249,0.4)';
+    });
+    btn.classList.add('atoggle-active');
+    btn.style.background = who === 'sintonia' ? 'rgba(167,139,250,0.15)' : 'rgba(232,121,249,0.15)';
+    btn.style.color = who === 'sintonia' ? '#A78BFA' : '#E879F9';
+    // Show/hide cards
+    panel.querySelectorAll('.analysis-card').forEach(function(card) {
+        card.style.display = card.getAttribute('data-card') === who ? '' : 'none';
+    });
+    // Fetch edge data if switching to Alyssa and not loaded yet
+    if (who === 'alyssa') {
+        var sportKey = sport.toUpperCase();
+        var content = document.getElementById('alyssaEdge' + sportKey + 'Content');
+        if (content && content.querySelector('p[style*="italic"]')) {
+            fetchEdge(sport);
+        }
+    }
+}
+
+function fetchEdge(sport) {
+    var sportKey = sport.toUpperCase();
+    var content = document.getElementById('alyssaEdge' + sportKey + 'Content');
+    if (!content) return;
+    content.innerHTML = '<p style="color:#E879F9;">Crunching numbers...</p>';
+
+    fetch('/api/edge/' + sport)
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            var games = data.games || [];
+            if (!games.length) {
+                content.innerHTML = '<p style="color:rgba(255,255,255,0.3);">No games with complete lines to analyze.</p>';
+                return;
+            }
+            var html = '';
+            games.forEach(function(g) {
+                var flags = [];
+                if (g.public_fade) flags.push('<span style="background:rgba(239,68,68,0.15);color:#EF4444;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;">PUBLIC FADE</span>');
+                if (g.value_tag) flags.push('<span style="background:rgba(16,185,129,0.15);color:#10B981;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;">' + g.value_tag + '</span>');
+                if (g.spread_ml_flag) flags.push('<span style="background:rgba(212,160,23,0.15);color:#D4A017;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;">' + g.spread_ml_flag + '</span>');
+                if (g.total_lean) flags.push('<span style="background:rgba(96,165,250,0.15);color:#60A5FA;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;">' + g.total_lean + '</span>');
+
+                // Upset score bar
+                var barColor = g.upset_score >= 7 ? '#10B981' : (g.upset_score >= 4 ? '#D4A017' : '#EF4444');
+                var barWidth = g.upset_score * 10;
+
+                html += '<div style="border:1px solid rgba(232,121,249,0.15);border-radius:10px;padding:12px;margin-bottom:10px;background:rgba(232,121,249,0.03);">';
+                html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">';
+                html += '<div style="color:#fff;font-weight:700;font-size:14px;">' + g.away + ' @ ' + g.home + '</div>';
+                html += '<div style="font-size:11px;color:rgba(255,255,255,0.3);">Vig: ' + g.vig + '%</div>';
+                html += '</div>';
+
+                // Lines
+                html += '<div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:8px;">';
+                html += 'Spread: ' + g.home + ' ' + (g.home_spread || '—');
+                html += ' | O/U: ' + (g.total || '—');
+                html += ' | ML: ' + g.away + ' ' + g.away_ml + ' / ' + g.home + ' ' + g.home_ml;
+                html += '</div>';
+
+                // Favorite/Underdog breakdown
+                html += '<div style="font-size:12px;color:rgba(255,255,255,0.6);margin-bottom:6px;">';
+                html += '<span style="color:#EF4444;">Fav:</span> ' + g.favorite + ' (' + g.fav_prob + '%) ';
+                html += '<span style="color:#10B981;margin-left:12px;">Dog:</span> ' + g.underdog + ' (' + g.dog_prob + '%) @ ' + g.dog_ml;
+                html += '</div>';
+
+                // Upset score bar
+                html += '<div style="margin:8px 0 6px;">';
+                html += '<div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:3px;">Upset Score: ' + g.upset_score + '/10</div>';
+                html += '<div style="background:rgba(255,255,255,0.06);border-radius:4px;height:6px;overflow:hidden;">';
+                html += '<div style="width:' + barWidth + '%;height:100%;background:' + barColor + ';border-radius:4px;transition:width 0.3s;"></div>';
+                html += '</div></div>';
+
+                // Flags
+                if (flags.length) {
+                    html += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;">' + flags.join('') + '</div>';
+                }
+
+                html += '</div>';
+            });
+            content.innerHTML = html;
+        })
+        .catch(function(err) {
+            content.innerHTML = '<p style="color:#EF4444;">Failed to load edge data.</p>';
+        });
+}
+
 function fetchAnalysis(sport) {
     var panel = document.getElementById('panel-' + sport);
     if (!panel) return;
