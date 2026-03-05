@@ -5117,7 +5117,16 @@ async function clearAllCache() {
     .agent-header-clear{font-size:13px;padding:8px;}
     .ev-mode-banner{padding:8px 12px;font-size:13px;}
     .ev-end-voice button{padding:12px 24px;font-size:14px;min-height:44px;}
+    .agent-fab{display:none !important;}
 }
+
+/* Fix 5: Thinking pulse animation */
+.ev-avatar.thinking{animation:pulse-think 1s ease infinite;}
+@keyframes pulse-think{0%,100%{box-shadow:0 4px 20px rgba(0,230,118,0.3);}50%{box-shadow:0 4px 30px rgba(0,230,118,0.6),0 0 60px rgba(0,230,118,0.15);}}
+
+/* Fix 6: Desktop maximize */
+.agent-panel.maximized{width:480px;max-height:80vh;bottom:20px;}
+@media(min-width:1200px){.agent-panel.maximized{width:560px;max-height:85vh;}}
 
 .agent-header{
     padding:12px 16px;background:rgba(0,230,118,0.1);
@@ -5271,6 +5280,7 @@ async function clearAllCache() {
         <div class="agent-header-dot"></div>
         <div class="agent-header-title">EV - Expected Value</div>
         <button class="agent-header-clear" onclick="clearAgentChat()">Clear</button>
+        <button class="ev-mode-exit" onclick="toggleAgentSize()" title="Maximize" id="agentMaxBtn" style="font-size:16px;line-height:1;">&#x26F6;</button>
         <button class="ev-mode-exit" onclick="closeEVAgent()" title="Close">&times;</button>
     </div>
 
@@ -5375,14 +5385,18 @@ function openEVAgent() {
     fab.classList.add('open');
     fab.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
     document.getElementById('agentInput').focus();
-    // Dynamic greeting based on time
-    var h = new Date().getHours();
-    var greet = h < 12 ? 'Morning' : h < 17 ? 'Afternoon' : 'Evening';
+    // Load persisted chat history
+    loadAgentHistory();
+    // Dynamic greeting based on time (only if no history)
     var msgs = document.getElementById('agentMessages');
-    if (msgs.children.length <= 1) {
+    if (msgs.children.length === 0) {
+        var h = new Date().getHours();
+        var greet = h < 12 ? 'Morning' : h < 17 ? 'Afternoon' : 'Evening';
         msgs.innerHTML = '<div class="agent-msg agent">' + greet + '. EV online. ' +
             (_evSportMode ? _evSportMode.toUpperCase() + ' mode active. ' : 'Pick a sport mode or just ask.') +
             ' 100% math, no gut.</div>';
+    } else {
+        collapseWelcomeChrome();
     }
 }
 function closeEVAgent() {
@@ -5657,8 +5671,16 @@ function evSpeak(text) {
 /* ---- Chat ---- */
 function clearAgentChat() {
     _agentHistory = [];
+    safeSave('evAgentHistory', '[]');
     document.getElementById('agentMessages').innerHTML =
         '<div class="agent-msg agent">Clean slate. What\'s the play?</div>';
+    // Restore welcome chrome
+    var sm = document.querySelector('.ev-sport-modes');
+    if (sm) sm.style.display = '';
+    var vr = document.querySelector('.ev-voice-row');
+    if (vr) vr.style.display = '';
+    var ep = document.getElementById('evPrompts');
+    if (ep) ep.style.display = '';
 }
 
 function addAgentMsg(who, text) {
@@ -5671,12 +5693,58 @@ function addAgentMsg(who, text) {
     return div;
 }
 
+function collapseWelcomeChrome() {
+    var sm = document.querySelector('.ev-sport-modes');
+    if (sm) sm.style.display = 'none';
+    if (!_evVoiceMode) {
+        var vr = document.querySelector('.ev-voice-row');
+        if (vr) vr.style.display = 'none';
+    }
+    var ep = document.getElementById('evPrompts');
+    if (ep) ep.style.display = 'none';
+    var ea = document.getElementById('evAvatarArea');
+    if (ea) ea.style.display = 'none';
+}
+
+function detectPickType(selection) {
+    var sel = (selection || '').toLowerCase();
+    if (sel.includes('over') || sel.includes('under')) return 'Over/Under';
+    if (sel.includes('ml') || sel.includes('money')) return 'Moneyline';
+    if (/[+-]\d/.test(sel)) return 'Spread';
+    return 'Moneyline';
+}
+
+function toggleAgentSize() {
+    var panel = document.getElementById('agentPanel');
+    panel.classList.toggle('maximized');
+}
+
+function saveAgentHistory() {
+    var trimmed = _agentHistory.slice(-20);
+    safeSave('evAgentHistory', JSON.stringify(trimmed));
+}
+
+function loadAgentHistory() {
+    try {
+        var saved = safeLoad('evAgentHistory');
+        if (saved) {
+            _agentHistory = JSON.parse(saved);
+            var msgs = document.getElementById('agentMessages');
+            msgs.innerHTML = '';
+            _agentHistory.forEach(function(m) {
+                addAgentMsg(m.role === 'user' ? 'user' : 'agent', m.content.replace(/\n/g, '<br>'));
+            });
+        }
+    } catch(e) { _agentHistory = []; }
+}
+
 function sendAgentMsg() {
     var input = document.getElementById('agentInput');
     var text = input.value.trim();
     if (!text) return;
     input.value = '';
 
+    collapseWelcomeChrome();
     addAgentMsg('user', text);
 
     // Prepend sport mode context
@@ -5687,6 +5755,8 @@ function sendAgentMsg() {
     _agentHistory.push({ role: 'user', content: contextText });
 
     var thinking = addAgentMsg('agent thinking', 'Calculating...');
+    var avatar = document.getElementById('evAvatar');
+    if (avatar) avatar.classList.add('thinking');
 
     crewFetch('/api/chat', {
         method: 'POST',
@@ -5696,8 +5766,10 @@ function sendAgentMsg() {
     .then(function(r) { return r.json(); })
     .then(function(data) {
         thinking.remove();
+        if (avatar) avatar.classList.remove('thinking');
         var reply = data.response || 'No response.';
         _agentHistory.push({ role: 'assistant', content: reply });
+        saveAgentHistory();
 
         var actionMatch = reply.match(/```json\s*(\{[\s\S]*?\})\s*```/);
         if (actionMatch) {
@@ -5719,6 +5791,7 @@ function sendAgentMsg() {
     })
     .catch(function(err) {
         thinking.remove();
+        if (avatar) avatar.classList.remove('thinking');
         addAgentMsg('agent', 'Connection dropped. Try again.');
         if (_evVoiceMode) {
             setTimeout(function() { if (_evVoiceMode && !_agentListening) _startListening(); }, 1000);
@@ -5746,7 +5819,7 @@ function agentLockPick(encodedAction) {
     var pick = {
         name: who,
         sport: action.sport || '',
-        type: action.selection && action.selection.match(/[+-]/) ? 'Spread' : (action.selection && action.selection.toLowerCase().includes('over') || action.selection && action.selection.toLowerCase().includes('under') ? 'Over/Under' : 'Moneyline'),
+        type: detectPickType(action.selection),
         matchup: action.matchup || '',
         selection: action.selection || '',
         odds: action.odds || '-110',
