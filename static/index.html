@@ -989,6 +989,10 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 <div class="pick-form">
     <h2 style="color:#D4A017;">Pick Results</h2>
     <div class="form-sub">Click W / L / P to grade each pick. Results save automatically.</div>
+    <div style="margin:12px 0;display:flex;gap:8px;align-items:center;">
+        <button onclick="autoGradePicks()" id="autoGradeBtn" style="background:linear-gradient(135deg,#D4A017,#B8860B);color:#0D0D1A;border:none;border-radius:8px;padding:10px 20px;font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;cursor:pointer;letter-spacing:0.5px;">AUTO-GRADE PICKS</button>
+        <span id="autoGradeStatus" style="color:rgba(255,255,255,0.4);font-size:12px;"></span>
+    </div>
     <div id="bankrollPicks"></div>
 </div>
 </div>
@@ -2103,6 +2107,47 @@ function clearStalePicks() {
     safeSave('edgePicks', JSON.stringify(stored));
     renderBankroll();
     showToast('Stale picks archived');
+}
+
+function autoGradePicks() {
+    var btn = document.getElementById('autoGradeBtn');
+    var status = document.getElementById('autoGradeStatus');
+    btn.disabled = true;
+    btn.textContent = 'GRADING...';
+    status.textContent = 'Fetching final scores...';
+
+    crewFetch('/api/picks/autograde', { method: 'POST' })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            btn.disabled = false;
+            btn.textContent = 'AUTO-GRADE PICKS';
+            if (data.graded > 0) {
+                // Update localStorage picks with server results
+                var stored = JSON.parse(safeLoad('edgePicks') || '[]');
+                data.results.forEach(function(r) {
+                    for (var i = 0; i < stored.length; i++) {
+                        if (stored[i].id === r.pick_id || (stored[i].matchup === r.matchup && stored[i].selection === r.selection && !stored[i].result)) {
+                            stored[i].result = r.result;
+                            break;
+                        }
+                    }
+                });
+                safeSave('edgePicks', JSON.stringify(stored));
+                renderBankroll();
+                status.textContent = data.graded + ' pick' + (data.graded > 1 ? 's' : '') + ' graded!';
+                status.style.color = '#10B981';
+                showToast(data.graded + ' picks auto-graded!');
+            } else {
+                status.textContent = data.message || 'No picks could be graded — games may not be final yet.';
+                status.style.color = 'rgba(255,255,255,0.4)';
+            }
+        })
+        .catch(function(err) {
+            btn.disabled = false;
+            btn.textContent = 'AUTO-GRADE PICKS';
+            status.textContent = 'Error: ' + err.message;
+            status.style.color = '#EF4444';
+        });
 }
 
 function calcPayout(odds, units) {

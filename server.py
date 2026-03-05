@@ -5,6 +5,7 @@ import uuid
 import hashlib
 import secrets
 import httpx
+import re
 from openai import AzureOpenAI
 from datetime import datetime
 from zoneinfo import ZoneInfo
@@ -1411,6 +1412,186 @@ async def grade_pick(request: Request):
             return JSONResponse({"status": "ok", "pick": pick})
 
     return JSONResponse({"error": "Pick not found"}, status_code=404)
+
+
+async def _fetch_scores(sport_key: str) -> list:
+    """Fetch completed game scores from The Odds API."""
+    if not ODDS_API_KEY:
+        return []
+    url = f"{ODDS_API_BASE}/{sport_key}/scores/"
+    params = {"apiKey": ODDS_API_KEY, "daysFrom": 3}
+    try:
+        async with httpx.AsyncClient(timeout=15) as client:
+            r = await client.get(url, params=params)
+            if r.status_code == 200:
+                return r.json()
+    except Exception as e:
+        logger.warning(f"Scores fetch failed for {sport_key}: {e}")
+    return []
+
+
+def _normalize_team(name: str) -> str:
+    """Normalize team name for fuzzy matching."""
+    return name.lower().strip().replace(".", "").replace("-", " ")
+
+
+def _teams_match(pick_text: str, home: str, away: str) -> bool:
+    """Check if a pick's matchup references this game."""
+    pt = _normalize_team(pick_text)
+    h = _normalize_team(home)
+    a = _normalize_team(away)
+    # Check if both team names (or significant parts) appear in the pick matchup
+    h_parts = h.split()
+    a_parts = a.split()
+    h_match = any(p in pt for p in h_parts if len(p) > 3) or h in pt
+    a_match = any(p in pt for p in a_parts if len(p) > 3) or a in pt
+    return h_match and a_match
+
+
+def _grade_pick_against_score(pick: dict, game: dict) -> str | None:
+    """Determine W/L/P for a pick given final scores. Returns 'W', 'L', 'P', or None."""
+    scores = game.get("scores")
+    if not scores or not game.get("completed"):
+        return None
+
+    # Parse scores
+    score_map = {}
+    for s in scores:
+        score_map[_normalize_team(s["name"])] = int(s.get("score", 0) or 0)
+
+    home = _normalize_team(game.get("home_team", ""))
+    away = _normalize_team(game.get("away_team", ""))
+    home_score = score_map.get(home, 0)
+    away_score = score_map.get(away, 0)
+
+    selection = pick.get("selection", "")
+    pick_type = pick.get("type", "").lower()
+    sel_lower = selection.lower().strip()
+
+    # --- MONEYLINE ---
+    if pick_type in ("moneyline", "ml", "money line") or "ml" in sel_lower:
+        # Figure out which team was picked
+        if any(p in sel_lower for p in _normalize_team(game["home_team"]).split() if len(p) > 3):
+            return "W" if home_score > away_score else ("P" if home_score == away_score else "L")
+        elif any(p in sel_lower for p in _normalize_team(game["away_team"]).split() if len(p) > 3):
+            return "W" if away_score > home_score else ("P" if home_score == away_score else "L")
+
+    # --- SPREAD ---
+    if pick_type == "spread" or any(c in selection for c in ["+", "-"]):
+        spread_match = re.search(r'([+-]?\d+\.?\d*)', selection)
+        if spread_match:
+            spread = float(spread_match.group(1))
+            # Determine which team the spread applies to
+            sel_before_num = sel_lower[:sel_lower.find(spread_match.group(1))].strip()
+            picked_home = any(p in sel_before_num for p in home.split() if len(p) > 3)
+            picked_away = any(p in sel_before_num for p in away.split() if len(p) > 3)
+
+            if picked_home:
+                adj = home_score + spread
+                if adj > away_score: return "W"
+                elif adj == away_score: return "P"
+                else: return "L"
+            elif picked_away:
+                adj = away_score + spread
+                if adj > home_score: return "W"
+                elif adj == home_score: return "P"
+                else: return "L"
+
+    # --- OVER/UNDER ---
+    if pick_type in ("over/under", "total", "over", "under") or "over" in sel_lower or "under" in sel_lower:
+        total_match = re.search(r'(\d+\.?\d*)', selection)
+        if total_match:
+            line = float(total_match.group(1))
+            actual_total = home_score + away_score
+            is_over = "over" in sel_lower
+            if actual_total == line: return "P"
+            if is_over:
+                return "W" if actual_total > line else "L"
+            else:
+                return "W" if actual_total < line else "L"
+
+    return None
+
+
+@app.post("/api/picks/autograde")
+async def autograde_picks():
+    """Auto-grade ungraded picks by fetching final scores from The Odds API."""
+    # Get all ungraded picks
+    if sb:
+        res = sb.table("picks").select("*").is_("result", "null").execute()
+        ungraded = res.data or []
+    else:
+        data = _read_picks()
+        ungraded = [p for p in data.get("picks", []) if not p.get("result")]
+
+    if not ungraded:
+        return JSONResponse({"status": "ok", "graded": 0, "message": "No ungraded picks"})
+
+    # Determine which sports need scores
+    sports_needed = set()
+    for p in ungraded:
+        sport = p.get("sport", "").lower()
+        if sport in SPORT_KEYS:
+            sports_needed.add(sport)
+
+    # Fetch scores for each sport
+    all_scores = []
+    for sport in sports_needed:
+        for key in SPORT_KEYS[sport]:
+            scores = await _fetch_scores(key)
+            all_scores.extend(scores)
+
+    completed = [g for g in all_scores if g.get("completed")]
+    if not completed:
+        return JSONResponse({"status": "ok", "graded": 0, "message": f"No completed games found for {', '.join(sports_needed)}"})
+
+    # Match and grade
+    graded_count = 0
+    results = []
+    for pick in ungraded:
+        matchup = pick.get("matchup", "")
+        for game in completed:
+            home = game.get("home_team", "")
+            away = game.get("away_team", "")
+            if not _teams_match(matchup, home, away):
+                continue
+
+            result = _grade_pick_against_score(pick, game)
+            if result:
+                pick_id = pick.get("id", "")
+                if sb and pick_id:
+                    sb.table("picks").update({
+                        "result": result,
+                        "graded_at": datetime.now(PST).isoformat(),
+                    }).eq("id", pick_id).execute()
+                elif not sb:
+                    file_data = _read_picks()
+                    for fp in file_data["picks"]:
+                        if fp["id"] == pick_id:
+                            fp["result"] = result
+                            fp["graded_at"] = datetime.now(PST).strftime("%Y-%m-%d %H:%M:%S")
+                            break
+                    _write_picks(file_data)
+
+                graded_count += 1
+                scores_info = game.get("scores", [])
+                score_str = " - ".join([f"{s['name']} {s.get('score', '?')}" for s in scores_info])
+                results.append({
+                    "pick_id": pick_id,
+                    "selection": pick.get("selection", ""),
+                    "matchup": matchup,
+                    "result": result,
+                    "final_score": score_str,
+                })
+                break
+
+    return JSONResponse({
+        "status": "ok",
+        "graded": graded_count,
+        "total_ungraded": len(ungraded),
+        "completed_games": len(completed),
+        "results": results,
+    })
 
 
 def _read_upsets():
