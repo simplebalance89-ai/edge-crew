@@ -7,6 +7,7 @@ import secrets
 import logging
 import httpx
 import re
+import asyncio
 from openai import AzureOpenAI
 from datetime import datetime
 from zoneinfo import ZoneInfo
@@ -1733,22 +1734,27 @@ async def grade_pick(request: Request):
 
 
 async def _fetch_scores(sport_key: str) -> list:
-    """Fetch completed game scores from The Odds API."""
+    """Fetch completed game scores from The Odds API. Cached 5 min."""
     if not ODDS_API_KEY:
         logger.warning("No ODDS_API_KEY configured for scores fetch")
         return []
+    cache_key = f"scores:{sport_key}"
+    cached = _get_cached(cache_key)
+    if cached is not None:
+        return cached
     url = f"{ODDS_API_BASE}/{sport_key}/scores/"
     params = {"apiKey": ODDS_API_KEY, "daysFrom": 3}
     try:
-        async with httpx.AsyncClient(timeout=20) as client:
+        async with httpx.AsyncClient(timeout=15) as client:
             r = await client.get(url, params=params)
-            logger.info(f"Scores fetch {sport_key}: status={r.status_code}, url={url}")
+            logger.info(f"Scores fetch {sport_key}: status={r.status_code}")
             if r.status_code == 200:
                 data = r.json()
                 logger.info(f"Scores fetch {sport_key}: got {len(data)} games")
+                _set_cache(cache_key, data)
                 return data
             else:
-                logger.warning(f"Scores fetch {sport_key}: HTTP {r.status_code} - {r.text[:200]}")
+                logger.warning(f"Scores fetch {sport_key}: HTTP {r.status_code}")
     except Exception as e:
         logger.warning(f"Scores fetch failed for {sport_key}: {type(e).__name__}: {e}")
     return []
@@ -1991,20 +1997,27 @@ async def autograde_picks(request: Request):
         sport = p.get("sport", "").lower()
         if sport in SPORT_KEYS:
             sports_needed.add(sport)
-        else:
-            # If sport doesn't match exactly, try all major sports
-            sports_needed.update(["nba", "nhl"])
+        # Skip unknown sports instead of fetching everything
 
-    # Fetch scores for each sport
-    all_scores = []
-    fetch_errors = []
+    if not sports_needed:
+        sports_needed = {"nba", "nhl"}  # fallback only if zero sports detected
+
+    # Fetch scores for all sports IN PARALLEL (was sequential — very slow)
+    fetch_tasks = []
+    fetch_labels = []
     for sport in sports_needed:
         for key in SPORT_KEYS.get(sport, []):
-            scores = await _fetch_scores(key)
-            if scores:
-                all_scores.extend(scores)
-            else:
-                fetch_errors.append(f"{sport}/{key}")
+            fetch_tasks.append(_fetch_scores(key))
+            fetch_labels.append(f"{sport}/{key}")
+
+    all_scores = []
+    fetch_errors = []
+    results = await asyncio.gather(*fetch_tasks, return_exceptions=True)
+    for label, result in zip(fetch_labels, results):
+        if isinstance(result, Exception):
+            fetch_errors.append(f"{label}: {result}")
+        elif result:
+            all_scores.extend(result)
 
     completed = [g for g in all_scores if g.get("completed")]
 
