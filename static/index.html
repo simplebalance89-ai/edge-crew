@@ -2517,8 +2517,20 @@ function renderBankroll() {
 function syncPicksFromServer() {
     crewFetch('/api/picks').then(function(r) { return r.json(); }).then(function(data) {
         var serverPicks = data.picks || [];
-        if (!serverPicks.length) return;
+        // Build server ID set for pruning
+        var serverIds = {};
+        serverPicks.forEach(function(sp) { if (sp.id) serverIds[sp.id] = true; });
+
         var stored = JSON.parse(safeLoad('edgePicks') || '[]');
+
+        // Remove local picks that have server IDs but no longer exist on server
+        var before = stored.length;
+        stored = stored.filter(function(p) {
+            if (p.id && !serverIds[p.id]) return false; // deleted from server
+            return true;
+        });
+        var pruned = before - stored.length;
+
         var localIds = {};
         var localMatchups = {};
         stored.forEach(function(p) {
@@ -2528,9 +2540,7 @@ function syncPicksFromServer() {
         });
         var added = 0;
         serverPicks.forEach(function(sp) {
-            // Skip if already in localStorage by ID
             if (sp.id && localIds[sp.id]) {
-                // But update result if server has it graded and local doesn't
                 for (var i = 0; i < stored.length; i++) {
                     if (stored[i].id === sp.id && !stored[i].result && sp.result) {
                         stored[i].result = sp.result;
@@ -2538,10 +2548,8 @@ function syncPicksFromServer() {
                 }
                 return;
             }
-            // Skip if matching by matchup+selection+name
             var key = (sp.matchup || '') + '|' + (sp.selection || '') + '|' + (sp.name || '');
             if (localMatchups[key]) {
-                // Update result if server has it
                 if (sp.result) {
                     for (var i = 0; i < stored.length; i++) {
                         var lk = (stored[i].matchup || '') + '|' + (stored[i].selection || '') + '|' + (stored[i].name || '');
@@ -2553,13 +2561,13 @@ function syncPicksFromServer() {
                 }
                 return;
             }
-            // New pick from server — add to localStorage
             stored.push(sp);
             added++;
         });
-        if (added > 0 || serverPicks.some(function(sp) { return sp.result; })) {
+        if (added > 0 || pruned > 0 || serverPicks.some(function(sp) { return sp.result; })) {
             safeSave('edgePicks', JSON.stringify(stored));
             renderBankroll();
+            renderPicks();
         }
     }).catch(function() {});
 }

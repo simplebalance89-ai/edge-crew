@@ -1751,14 +1751,35 @@ async def agent_chat(request: Request):
         picks_str = "\n".join([f"- {p.get('name','?')}: {p.get('selection','')} ({p.get('matchup','')}) {p.get('odds','')} {p.get('units','1')}u [{p.get('result','PENDING')}]" for p in recent])
         context_parts.append(f"RECENT PICKS:\n{picks_str}")
 
-    # Add cached slate info if available
+    # Add cached slate info if available — include odds so agent can share real lines
     for sport in ["nba", "nhl", "mlb", "soccer", "mma", "boxing"]:
         cache_key = f"{sport}:h2h,spreads,totals"
         cached = _get_cached(cache_key)
         if cached and cached.get("games"):
-            game_count = len(cached["games"])
-            games_str = ", ".join([f"{g.get('away','')} @ {g.get('home','')}" for g in cached["games"][:5]])
-            context_parts.append(f"{sport.upper()} SLATE ({game_count} games): {games_str}")
+            games = cached["games"]
+            game_count = len(games)
+            lines = []
+            for g in games[:8]:
+                away = g.get("away", "?")
+                home = g.get("home", "?")
+                away_spread = g.get("away_spread", "")
+                home_spread = g.get("home_spread", "")
+                total = g.get("total", "")
+                away_ml = g.get("away_ml", "")
+                home_ml = g.get("home_ml", "")
+                time_str = g.get("fetched_at", g.get("time", ""))
+                line = f"{away} @ {home}"
+                details = []
+                if home_spread:
+                    details.append(f"{home} {home_spread}")
+                if total:
+                    details.append(f"O/U {total}")
+                if away_ml and home_ml:
+                    details.append(f"ML: {away} {away_ml} / {home} {home_ml}")
+                if details:
+                    line += f" | {' | '.join(details)}"
+                lines.append(line)
+            context_parts.append(f"{sport.upper()} SLATE ({game_count} games):\n" + "\n".join(lines))
 
     context = "\n\n".join(context_parts) if context_parts else "No slate data loaded yet. Tell user to click a sport tab first to load odds."
 
