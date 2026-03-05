@@ -1417,16 +1417,22 @@ async def grade_pick(request: Request):
 async def _fetch_scores(sport_key: str) -> list:
     """Fetch completed game scores from The Odds API."""
     if not ODDS_API_KEY:
+        logger.warning("No ODDS_API_KEY configured for scores fetch")
         return []
     url = f"{ODDS_API_BASE}/{sport_key}/scores/"
-    params = {"apiKey": ODDS_API_KEY, "daysFrom": 7}
+    params = {"apiKey": ODDS_API_KEY, "daysFrom": 3}
     try:
-        async with httpx.AsyncClient(timeout=15) as client:
+        async with httpx.AsyncClient(timeout=20) as client:
             r = await client.get(url, params=params)
+            logger.info(f"Scores fetch {sport_key}: status={r.status_code}, url={url}")
             if r.status_code == 200:
-                return r.json()
+                data = r.json()
+                logger.info(f"Scores fetch {sport_key}: got {len(data)} games")
+                return data
+            else:
+                logger.warning(f"Scores fetch {sport_key}: HTTP {r.status_code} - {r.text[:200]}")
     except Exception as e:
-        logger.warning(f"Scores fetch failed for {sport_key}: {e}")
+        logger.warning(f"Scores fetch failed for {sport_key}: {type(e).__name__}: {e}")
     return []
 
 
