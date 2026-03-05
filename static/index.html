@@ -4101,11 +4101,11 @@ async function clearAllCache() {
 <div class="agent-panel" id="agentPanel">
     <div class="agent-header">
         <div class="agent-header-dot"></div>
-        <div class="agent-header-title">Edge Crew Agent</div>
+        <div class="agent-header-title">EV — Expected Value</div>
         <button class="agent-header-clear" onclick="clearAgentChat()">Clear</button>
     </div>
     <div class="agent-messages" id="agentMessages">
-        <div class="agent-msg agent">What's good? I'm your Edge Crew agent. Ask me to lock picks, check the slate, grade results, or break down any matchup.</div>
+        <div class="agent-msg agent">EV here. Your edge, calculated. Talk or type — picks, slate, grades, matchups. I'm always +EV.</div>
     </div>
     <div class="agent-input">
         <button onclick="toggleAgentVoice()" id="agentMicBtn" style="background:transparent;border:1px solid rgba(212,160,23,0.3);border-radius:8px;padding:10px;cursor:pointer;color:#D4A017;flex:0 0 auto;" title="Voice input"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button>
@@ -4227,7 +4227,7 @@ function stopAgentVoice() {
 function clearAgentChat() {
     _agentHistory = [];
     var msgs = document.getElementById('agentMessages');
-    msgs.innerHTML = '<div class="agent-msg agent">Fresh start. What do you need?</div>';
+    msgs.innerHTML = '<div class="agent-msg agent">Clean slate. What\'s the play?</div>';
 }
 
 function addAgentMsg(who, text) {
