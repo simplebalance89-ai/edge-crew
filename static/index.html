@@ -5123,10 +5123,10 @@ function evStartVoice(mode) {
 
 function _startListening() {
     var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SR || _agentListening) return;
+    if (!SR || _agentListening || _evSpeaking) return;
 
     _agentRecognition = new SR();
-    _agentRecognition.continuous = (_evVoiceMode === 'freeflow');
+    _agentRecognition.continuous = true;
     _agentRecognition.interimResults = true;
     _agentRecognition.lang = 'en-US';
     _agentListening = true;
@@ -5140,18 +5140,36 @@ function _startListening() {
     document.getElementById('evAvatar').classList.add('speaking');
 
     var listeningMsg = addAgentMsg('agent', '<em>Listening...</em>');
-    var finalTranscript = '';
+    var _sendTimeout = null;
 
     _agentRecognition.onresult = function(event) {
         var interim = '';
+        var final = '';
         for (var i = event.resultIndex; i < event.results.length; i++) {
             if (event.results[i].isFinal) {
-                finalTranscript += event.results[i][0].transcript;
+                final += event.results[i][0].transcript;
             } else {
                 interim += event.results[i][0].transcript;
             }
         }
-        document.getElementById('agentInput').value = finalTranscript + interim;
+        // Show what user is saying in the input
+        document.getElementById('agentInput').value = final || interim;
+
+        // In freeflow: auto-send after final result with short pause
+        if (final && _evVoiceMode === 'freeflow') {
+            if (_sendTimeout) clearTimeout(_sendTimeout);
+            _sendTimeout = setTimeout(function() {
+                if (listeningMsg && listeningMsg.parentNode) listeningMsg.remove();
+                // Stop listening while processing
+                _agentListening = false;
+                try { _agentRecognition.stop(); } catch(e){}
+                fab.classList.remove('listening');
+                micBtn.style.background = 'transparent';
+                micBtn.style.borderColor = 'rgba(0,230,118,0.3)';
+                micBtn.style.color = '#00E676';
+                sendAgentMsg();
+            }, 600); // 600ms pause after final speech = send
+        }
     };
 
     _agentRecognition.onend = function() {
@@ -5163,13 +5181,14 @@ function _startListening() {
         document.getElementById('evAvatar').classList.remove('speaking');
         if (listeningMsg && listeningMsg.parentNode) listeningMsg.remove();
 
-        var text = document.getElementById('agentInput').value.trim();
-        if (text) {
-            sendAgentMsg();
-        } else if (_evVoiceMode === 'freeflow' && _evVoiceMode) {
-            // Auto-restart in freeflow if no speech detected
+        if (_evVoiceMode === 'turnbased') {
+            // Turn-based: send accumulated text, done
+            var text = document.getElementById('agentInput').value.trim();
+            if (text) sendAgentMsg();
+        } else if (_evVoiceMode === 'freeflow' && !_evSpeaking) {
+            // Freeflow: browser killed recognition, restart
             setTimeout(function() {
-                if (_evVoiceMode === 'freeflow') _startListening();
+                if (_evVoiceMode === 'freeflow' && !_evSpeaking && !_agentListening) _startListening();
             }, 500);
         }
     };
@@ -5186,8 +5205,8 @@ function _startListening() {
             addAgentMsg('agent', 'Mic error: ' + event.error);
         }
         // Auto-restart in freeflow on non-fatal errors
-        if (_evVoiceMode === 'freeflow' && event.error === 'no-speech') {
-            setTimeout(function() { if (_evVoiceMode === 'freeflow') _startListening(); }, 500);
+        if (_evVoiceMode === 'freeflow' && (event.error === 'no-speech' || event.error === 'aborted')) {
+            setTimeout(function() { if (_evVoiceMode === 'freeflow' && !_evSpeaking) _startListening(); }, 500);
         }
     };
 
@@ -5214,28 +5233,43 @@ function evStopVoice() {
 var _evVoice = null;
 var _evVoiceReady = false;
 
-// Pick the best available voice — prefer natural/premium voices
+// Pick the best available voice — prioritize neural/online voices
 function _pickBestVoice() {
     var voices = window.speechSynthesis ? window.speechSynthesis.getVoices() : [];
     if (!voices.length) return null;
-    // Priority list: natural-sounding male voices for a sports analyst vibe
-    var preferred = [
-        'Google UK English Male',
-        'Daniel',
-        'Microsoft Mark Online',
-        'Microsoft Guy Online',
-        'Microsoft Mark',
-        'Google US English',
-        'Alex',
-        'Samantha',
-        'Microsoft David',
-        'Microsoft Zira',
+    // PRIORITY 1: "Online" neural voices (much better quality)
+    var neuralPreferred = [
+        'Microsoft Guy Online',    // Male, natural
+        'Microsoft Ryan Online',   // Male, natural
+        'Microsoft Mark Online',   // Male
+        'Microsoft Andrew Online', // Male
+        'Microsoft Christopher Online',
+        'Microsoft Eric Online',
+        'Microsoft Steffan Online',
     ];
-    for (var i = 0; i < preferred.length; i++) {
+    for (var i = 0; i < neuralPreferred.length; i++) {
         for (var j = 0; j < voices.length; j++) {
-            if (voices[j].name.indexOf(preferred[i]) !== -1 && voices[j].lang.indexOf('en') !== -1) {
-                return voices[j];
-            }
+            if (voices[j].name === neuralPreferred[i]) return voices[j];
+        }
+    }
+    // PRIORITY 2: Any "Online" English voice (neural quality)
+    for (var j = 0; j < voices.length; j++) {
+        if (voices[j].name.indexOf('Online') !== -1 && voices[j].lang.indexOf('en') !== -1) {
+            return voices[j];
+        }
+    }
+    // PRIORITY 3: Google voices (decent quality)
+    var googlePref = ['Google UK English Male', 'Google US English'];
+    for (var g = 0; g < googlePref.length; g++) {
+        for (var j = 0; j < voices.length; j++) {
+            if (voices[j].name.indexOf(googlePref[g]) !== -1) return voices[j];
+        }
+    }
+    // PRIORITY 4: macOS voices
+    var macPref = ['Daniel', 'Alex', 'Samantha'];
+    for (var m = 0; m < macPref.length; m++) {
+        for (var j = 0; j < voices.length; j++) {
+            if (voices[j].name.indexOf(macPref[m]) !== -1 && voices[j].lang.indexOf('en') !== -1) return voices[j];
         }
     }
     // Fallback: first English voice
@@ -5262,12 +5296,17 @@ function evSpeak(text) {
     if (!window.speechSynthesis) return;
     window.speechSynthesis.cancel(); // stop any current speech
     // Strip HTML
-    var clean = text.replace(/<[^>]*>/g, '').replace(/&#\d+;/g, '');
-    if (clean.length > 400) clean = clean.substring(0, 400) + '...';
+    var clean = text.replace(/<[^>]*>/g, '').replace(/&#\d+;/g, '').replace(/&[a-z]+;/gi, ' ');
+    if (clean.length > 500) clean = clean.substring(0, 500) + '... that\'s the gist.';
     var utter = new SpeechSynthesisUtterance(clean);
-    if (_evVoice) utter.voice = _evVoice;
-    utter.rate = 1.0;
-    utter.pitch = 0.9;
+    if (_evVoice) {
+        utter.voice = _evVoice;
+        console.log('EV Voice:', _evVoice.name, _evVoice.lang);
+    }
+    // Natural speech: slightly slower, deeper, full volume
+    var isOnline = _evVoice && _evVoice.name.indexOf('Online') !== -1;
+    utter.rate = isOnline ? 1.05 : 0.95; // Online voices handle speed better
+    utter.pitch = isOnline ? 1.0 : 0.85; // Deeper for non-neural
     utter.volume = 1.0;
     _evSpeaking = true;
     document.getElementById('evAvatar').classList.add('speaking');
