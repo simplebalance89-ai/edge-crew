@@ -31,6 +31,75 @@ def _sanitize(s):
 app = FastAPI()
 
 
+async def _autograde_loop():
+    """Background loop: auto-grade picks every 15 min between 10PM-6AM PST."""
+    await asyncio.sleep(60)  # Wait 60s after startup before first check
+    while True:
+        try:
+            now = datetime.now(PST)
+            if now.hour >= 22 or now.hour < 6:
+                # Fetch ungraded picks from Supabase
+                if sb:
+                    res = sb.table("picks").select("*").is_("result", "null").execute()
+                    ungraded = res.data or []
+                else:
+                    data = _read_picks()
+                    ungraded = [p for p in data.get("picks", []) if not p.get("result")]
+
+                if ungraded:
+                    sports_needed = set()
+                    for p in ungraded:
+                        sport = p.get("sport", "").lower()
+                        if sport in SPORT_KEYS:
+                            sports_needed.add(sport)
+                    if not sports_needed:
+                        sports_needed = {"nba", "nhl"}
+
+                    fetch_tasks = []
+                    for sport in sports_needed:
+                        for key in SPORT_KEYS.get(sport, []):
+                            fetch_tasks.append(_fetch_scores(key))
+
+                    all_scores = []
+                    results = await asyncio.gather(*fetch_tasks, return_exceptions=True)
+                    for result in results:
+                        if not isinstance(result, Exception) and result:
+                            all_scores.extend(result)
+
+                    completed = [g for g in all_scores if g.get("completed")]
+                    graded = 0
+                    for pick in ungraded:
+                        pick_type = pick.get("type", "").lower()
+                        if pick_type == "parlay":
+                            grade = _grade_parlay(pick, completed)
+                        else:
+                            grade = None
+                            for game in completed:
+                                if _teams_match(pick.get("matchup", ""), game.get("home_team", ""), game.get("away_team", "")):
+                                    grade = _grade_pick_against_score(pick, game)
+                                    if grade:
+                                        break
+                        if grade and sb:
+                            try:
+                                sb.table("picks").update({
+                                    "result": grade,
+                                    "graded_at": datetime.now(PST).isoformat(),
+                                }).eq("id", pick.get("id", "")).execute()
+                                graded += 1
+                            except Exception:
+                                pass
+                    if graded:
+                        print(f"[AUTOGRADE] Graded {graded}/{len(ungraded)} picks at {now.strftime('%I:%M %p PST')}")
+        except Exception as e:
+            print(f"[AUTOGRADE] Error: {e}")
+        await asyncio.sleep(900)  # 15 minutes
+
+
+@app.on_event("startup")
+async def start_background_tasks():
+    asyncio.create_task(_autograde_loop())
+
+
 @app.get("/health")
 async def health_check():
     """Health check for Render auto-restart."""
@@ -1616,9 +1685,30 @@ async def get_analysis(sport: str):
         injury_context = f"INJURY DATA FETCH FAILED: {e}. Grade conservatively."
         print(f"Injury context fetch error for {sport_lower}: {e}")
 
+    # ===== FETCH ROSTER CONTEXT (verify who's on which team) =====
+    roster_context = ""
+    try:
+        roster_cache = _get_cached(f"rosters:{sport_lower}", ttl=86400)
+        if roster_cache:
+            roster_lines = [f"\n=== CURRENT ROSTERS (ESPN - verified) ==="]
+            rosters = roster_cache.get("rosters", {})
+            # Only include teams playing today
+            today_teams = set()
+            for g in odds_data.get("games", []):
+                today_teams.add(g.get("away", ""))
+                today_teams.add(g.get("home", ""))
+            for abbr, info in rosters.items():
+                team_full = info.get("team", "")
+                if team_full in today_teams or abbr in [_normalize_team(t).split()[0].upper() for t in today_teams]:
+                    top_players = [p["name"] for p in info.get("players", [])[:8]]
+                    roster_lines.append(f"{abbr} ({team_full}): {', '.join(top_players)}")
+            if len(roster_lines) > 1:
+                roster_context = "\n".join(roster_lines)
+    except Exception as e:
+        print(f"Roster context error: {e}")
+
     # ===== BUILD WEIGHTED MATRIX SECTION =====
     matrix_section = _build_matrix_section(sport_lower)
-
 
     # ===== BATCH ANALYSIS — split games into groups of 4 for parallel Azure calls =====
     BATCH_SIZE = 4
@@ -1646,6 +1736,8 @@ Today's {sport.upper()} slate - {today} (pulled at {now_time}):
 
 === INJURY & LINEUP INTELLIGENCE (CBS Sports + RotoWire + API-Sports) ===
 {injury_context}
+
+{roster_context}
 
 {matrix_section}
 
@@ -1964,8 +2056,8 @@ def _normalize_team(name: str) -> str:
 
 
 # Common abbreviations → full team names for matching
-_TEAM_ABBREVS = {
-    "lal": "lakers", "lak": "lakers", "lac": "clippers", "clip": "clippers",
+_NBA_ABBREVS = {
+    "lal": "lakers", "lac": "clippers", "clip": "clippers",
     "gsw": "warriors", "gs": "warriors", "bos": "celtics", "cel": "celtics",
     "nyk": "knicks", "ny": "knicks", "bkn": "nets", "phi": "76ers",
     "mil": "bucks", "chi": "bulls", "cle": "cavaliers", "det": "pistons",
@@ -1975,25 +2067,39 @@ _TEAM_ABBREVS = {
     "hou": "rockets", "sa": "spurs", "sas": "spurs", "okc": "thunder",
     "den": "nuggets", "min": "timberwolves", "por": "trail blazers",
     "uta": "jazz", "sac": "kings", "phx": "suns",
-    # NHL
-    "bru": "bruins", "buf": "sabres", "car": "hurricanes", "cbj": "blue jackets",
-    "col": "avalanche", "dal": "stars", "edm": "oilers", "fla": "panthers",
-    "lak": "kings", "min": "wild", "mtl": "canadiens", "njd": "devils",
+}
+_NHL_ABBREVS = {
+    "bos": "bruins", "bru": "bruins", "buf": "sabres", "car": "hurricanes",
+    "cbj": "blue jackets", "col": "avalanche", "dal": "stars",
+    "edm": "oilers", "fla": "panthers", "lak": "kings",
+    "min": "wild", "mtl": "canadiens", "njd": "devils",
     "nsh": "predators", "nyi": "islanders", "nyr": "rangers", "ott": "senators",
     "pit": "penguins", "sea": "kraken", "stl": "blues", "tb": "lightning",
     "tbl": "lightning", "van": "canucks", "vgk": "golden knights",
-    "wpg": "jets", "wsh": "capitals",
+    "wpg": "jets", "wsh": "capitals", "chi": "blackhawks", "det": "red wings",
+    "phi": "flyers", "tor": "maple leafs",
 }
 
+def _get_abbrevs_for_sport(sport: str) -> dict:
+    """Return the correct abbreviation dict for the sport."""
+    s = (sport or "").lower()
+    if s in ("nhl", "hockey"):
+        return _NHL_ABBREVS
+    return _NBA_ABBREVS
 
-def _expand_abbrevs(text: str) -> str:
+# Combined fallback for cases where sport isn't available
+_TEAM_ABBREVS = {**_NBA_ABBREVS, **_NHL_ABBREVS}
+
+
+def _expand_abbrevs(text: str, sport: str = "") -> str:
     """Expand common team abbreviations in text."""
+    abbrevs = _get_abbrevs_for_sport(sport) if sport else _TEAM_ABBREVS
     words = text.lower().split()
     expanded = []
     for w in words:
         clean = w.strip("@().,-")
-        if clean in _TEAM_ABBREVS:
-            expanded.append(_TEAM_ABBREVS[clean])
+        if clean in abbrevs:
+            expanded.append(abbrevs[clean])
         expanded.append(clean)
     return " ".join(expanded)
 
@@ -2062,7 +2168,9 @@ def _grade_pick_against_score(pick: dict, game: dict) -> str | None:
 
     # --- SPREAD ---
     if pick_type == "spread" or any(c in selection for c in ["+", "-"]):
-        spread_match = re.search(r'([+-]?\d+\.?\d*)', selection)
+        # Strip odds in parens like (-105) or (+110) before parsing spread
+        sel_no_odds = re.sub(r'\([+-]?\d+\)', '', selection)
+        spread_match = re.search(r'([+-]?\d+\.?\d*)', sel_no_odds)
         if spread_match:
             spread = float(spread_match.group(1))
             # Determine which team the spread applies to
@@ -2106,9 +2214,10 @@ def _parse_parlay_legs(pick: dict) -> list:
       "Leg 1: Hornets ML | Leg 2: Leafs ML"
     Returns list of dicts with {selection, type} per leg.
     """
-    text = pick.get("selection", "") + " " + pick.get("notes", "")
-    # Split on common delimiters: +, |, /, comma, "and", "leg N:"
-    parts = re.split(r'\s*[+|/]\s*|\s*,\s*|\s+and\s+|\s*leg\s*\d+\s*:\s*', text, flags=re.IGNORECASE)
+    text = pick.get("selection", "")
+    # Split on " / " (space-slash-space) or " | " or comma-space or "leg N:"
+    # Do NOT split on "+" as it appears in spreads like "LAL +5"
+    parts = re.split(r'\s*/\s*|\s*\|\s*|\s*,\s*|\s+and\s+|\s*leg\s*\d+\s*:\s*', text, flags=re.IGNORECASE)
     legs = []
     for part in parts:
         part = part.strip()
@@ -2785,6 +2894,64 @@ async def get_lineups(sport: str):
         "fetched_at": _now_ts(),
     }
     if injuries_by_team:
+        _set_cache(cache_key, result)
+    return JSONResponse(result)
+
+
+_ESPN_TEAM_IDS = {
+    "nba": ["atl","bos","bkn","cha","chi","cle","dal","den","det","gs","hou","ind",
+            "lac","lal","mem","mia","mil","min","no","ny","okc","orl","phi","phx",
+            "por","sac","sa","tor","utah","wsh"],
+    "nhl": ["ana","ari","bos","buf","car","cgy","chi","col","cbj","dal","det","edm",
+            "fla","la","min","mtl","nsh","njd","nyi","nyr","ott","phi","pit","sjs",
+            "sea","stl","tb","tor","utah","van","vgk","wpg","wsh"],
+}
+
+@app.get("/api/rosters/{sport}")
+async def get_rosters(sport: str):
+    """Fetch current team rosters from ESPN. Cached 24 hours."""
+    sport_lower = sport.lower()
+    cache_key = f"rosters:{sport_lower}"
+    cached = _get_cached(cache_key, ttl=86400)
+    if cached:
+        return JSONResponse(cached)
+
+    espn_sport = {"nba": "basketball/nba", "nhl": "hockey/nhl"}.get(sport_lower)
+    team_ids = _ESPN_TEAM_IDS.get(sport_lower, [])
+    if not espn_sport or not team_ids:
+        return JSONResponse({"error": f"No roster source for {sport}"}, status_code=400)
+
+    rosters = {}
+    async with httpx.AsyncClient(timeout=15.0) as client:
+        for tid in team_ids:
+            try:
+                resp = await client.get(
+                    f"https://site.api.espn.com/apis/site/v2/sports/{espn_sport}/teams/{tid}/roster",
+                    headers={"User-Agent": "Mozilla/5.0"},
+                )
+                if resp.status_code == 200:
+                    data = resp.json()
+                    team_name = data.get("team", {}).get("displayName", "?")
+                    abbr = data.get("team", {}).get("abbreviation", tid.upper())
+                    players = []
+                    for a in data.get("athletes", []):
+                        players.append({
+                            "name": a.get("displayName", "?"),
+                            "pos": a.get("position", {}).get("abbreviation", "?"),
+                            "number": a.get("jersey", "?"),
+                        })
+                    rosters[abbr] = {"team": team_name, "players": players}
+            except Exception:
+                pass
+
+    result = {
+        "sport": sport.upper(),
+        "rosters": rosters,
+        "team_count": len(rosters),
+        "source": "ESPN",
+        "fetched_at": _now_ts(),
+    }
+    if rosters:
         _set_cache(cache_key, result)
     return JSONResponse(result)
 
