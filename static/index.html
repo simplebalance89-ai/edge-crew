@@ -658,6 +658,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 <div class="sport-tabs sport-row">
     <div class="sport-tab active" onclick="switchSport('nba', event)">NBA <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('nhl', event)">NHL <span class="tab-count">0</span></div>
+    <div class="sport-tab" onclick="switchSport('mlb', event)">MLB <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('soccer', event)">Soccer <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('mma', event)">MMA <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('boxing', event)">Boxing <span class="tab-count">0</span></div>
@@ -763,6 +764,53 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
         <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate or click NHL tab to load Sinton.ia's analysis card...</p>
     </div>
     <div id="peterGutNHLTimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
+</div>
+
+</div>
+
+<!-- ===== MLB PANEL ===== -->
+<div class="sport-panel" id="panel-mlb">
+
+<div class="gotcha-banner">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h3 id="gotchaMLBTitle">Gotcha Card &mdash; MLB</h3>
+        <div style="display:flex;gap:6px;">
+            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(212,160,23,0.15);color:#D4A017;font-size:11px;font-weight:700;border:none;" onclick="toggleGotchaEdit('MLB')">EDIT</button>
+            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(16,185,129,0.15);color:#10B981;font-size:11px;font-weight:700;border:none;" onclick="saveGotcha('MLB')">SAVE</button>
+        </div>
+    </div>
+    <div id="gotchaDisplay-MLB">
+        <p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load today's gotcha card...</p>
+    </div>
+    <textarea id="gotchaEditor-MLB" style="display:none;width:100%;min-height:150px;background:#0D0D1A;color:#fff;border:1px solid #D4A017;border-radius:6px;padding:10px;font-family:'Nunito',sans-serif;font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line. Use for pitching matchups, bullpen notes, weather, B2B flags..."></textarea>
+</div>
+
+<div class="empty-state">No MLB games loaded.<br><strong>Hit REFRESH SLATE</strong> to load live lines.</div>
+
+<!-- MLB UPSET SPECIALS -->
+<div class="upset-section" id="upsetMLB">
+    <h3>Daily Upset Specials</h3>
+    <form class="upset-submit-form" onsubmit="submitUpset('MLB');return false;">
+        <select id="upsetTeamMLB" required><option value="">-- Load slate first --</option></select>
+        <input type="text" id="upsetOddsMLB" placeholder="Odds" required>
+        <input type="text" id="upsetThesisMLB" placeholder="Thesis / reasoning">
+        <button type="submit">SUBMIT</button>
+    </form>
+    <div class="upset-cards" id="upsetCardsMLB"></div>
+</div>
+
+<!-- ML+ Filter -->
+<div class="ml-filter" style="display:flex;gap:8px;margin:10px 0;">
+    <div class="ml-filter-btn" onclick="toggleMLFilter('mlb')" style="cursor:pointer;padding:6px 14px;border-radius:6px;background:rgba(212,160,23,0.1);border:1px solid rgba(212,160,23,0.3);color:#D4A017;font-size:12px;font-weight:700;transition:all 0.2s;">ML+ Only</div>
+</div>
+
+<!-- MLB PETER GUT PICKS (DYNAMIC) -->
+<div class="input-section" id="peterGutMLB">
+    <h3 id="peterGutMLBTitle">Sinton.ia's Card &mdash; MLB</h3>
+    <div id="peterGutMLBContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
+        <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate or click MLB tab to load Sinton.ia's analysis card...</p>
+    </div>
+    <div id="peterGutMLBTimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
 </div>
 
 </div>
@@ -1514,6 +1562,7 @@ function refreshSlate() {
     // Fetch live odds for all sports
     fetchLiveOdds('nba');
     fetchLiveOdds('nhl');
+    fetchLiveOdds('mlb');
     fetchLiveOdds('soccer');
     fetchLiveOdds('mma');
     fetchLiveOdds('boxing');
@@ -1521,7 +1570,7 @@ function refreshSlate() {
     // Fetch analysis after a short delay so odds are cached first
     // Only call analysis for sports that have games on the slate (saves Azure credits)
     setTimeout(function() {
-        ['nba','nhl','soccer','mma','boxing'].forEach(function(s) {
+        ['nba','nhl','mlb','soccer','mma','boxing'].forEach(function(s) {
             var panel = document.getElementById('panel-' + s);
             if (panel && panel.querySelectorAll('.game-row').length > 0) {
                 fetchAnalysis(s);
@@ -3724,7 +3773,7 @@ function loadProps() {
 }
 
 // ===== UPSET SPECIALS — CREW PICKS =====
-var UPSET_SPORTS = ['NBA', 'NHL', 'SOCCER', 'MMA', 'BOXING'];
+var UPSET_SPORTS = ['NBA', 'NHL', 'MLB', 'SOCCER', 'MMA', 'BOXING'];
 var NAME_COLORS = {peter: 'peter', chinny: 'chinny', jimmy: 'jimmy', alyssa: 'alyssa', 'sinton.ia': 'sintonia'};
 
 function getUpsetName() {

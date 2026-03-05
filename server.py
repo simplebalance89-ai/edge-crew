@@ -1027,7 +1027,7 @@ async def get_slate():
         return JSONResponse({"error": "No odds API configured"}, status_code=500)
 
     all_games = []
-    for sport in ["nba", "nhl", "soccer", "mma", "boxing"]:
+    for sport in ["nba", "nhl", "mlb", "soccer", "mma", "boxing"]:
         resp = await get_odds(sport)
         if hasattr(resp, 'body'):
             data = json.loads(resp.body)
@@ -1752,7 +1752,7 @@ async def agent_chat(request: Request):
         context_parts.append(f"RECENT PICKS:\n{picks_str}")
 
     # Add cached slate info if available
-    for sport in ["nba", "nhl", "soccer", "mma", "boxing"]:
+    for sport in ["nba", "nhl", "mlb", "soccer", "mma", "boxing"]:
         cache_key = f"{sport}:h2h,spreads,totals"
         cached = _get_cached(cache_key)
         if cached and cached.get("games"):
