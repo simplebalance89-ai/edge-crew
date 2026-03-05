@@ -993,6 +993,15 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
         <button onclick="autoGradePicks()" id="autoGradeBtn" style="background:linear-gradient(135deg,#D4A017,#B8860B);color:#0D0D1A;border:none;border-radius:8px;padding:10px 20px;font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;cursor:pointer;letter-spacing:0.5px;">AUTO-GRADE PICKS</button>
         <span id="autoGradeStatus" style="color:rgba(255,255,255,0.4);font-size:12px;"></span>
     </div>
+    <!-- Swim lane filter buttons -->
+    <div id="swimLaneBar" style="display:flex;gap:6px;margin:12px 0;flex-wrap:wrap;">
+        <button class="swim-btn swim-active" onclick="setSwimLane('ALL',this)" style="background:#D4A017;color:#0D0D1A;border:none;border-radius:6px;padding:6px 14px;font-family:'Nunito',sans-serif;font-weight:800;font-size:12px;cursor:pointer;">ALL</button>
+        <button class="swim-btn" onclick="setSwimLane('Peter',this)" style="background:transparent;border:1px solid #D4A017;color:#D4A017;border-radius:6px;padding:6px 14px;font-family:'Nunito',sans-serif;font-weight:700;font-size:12px;cursor:pointer;">Peter</button>
+        <button class="swim-btn" onclick="setSwimLane('Chinny',this)" style="background:transparent;border:1px solid #10B981;color:#10B981;border-radius:6px;padding:6px 14px;font-family:'Nunito',sans-serif;font-weight:700;font-size:12px;cursor:pointer;">Chinny</button>
+        <button class="swim-btn" onclick="setSwimLane('Jimmy',this)" style="background:transparent;border:1px solid #5588EE;color:#5588EE;border-radius:6px;padding:6px 14px;font-family:'Nunito',sans-serif;font-weight:700;font-size:12px;cursor:pointer;">Jimmy</button>
+        <button class="swim-btn" onclick="setSwimLane('Alyssa',this)" style="background:transparent;border:1px solid #E879F9;color:#E879F9;border-radius:6px;padding:6px 14px;font-family:'Nunito',sans-serif;font-weight:700;font-size:12px;cursor:pointer;">Alyssa</button>
+        <button class="swim-btn" onclick="setSwimLane('Sinton.ia',this)" style="background:transparent;border:1px solid #A78BFA;color:#A78BFA;border-radius:6px;padding:6px 14px;font-family:'Nunito',sans-serif;font-weight:700;font-size:12px;cursor:pointer;">Sinton.ia</button>
+    </div>
     <div id="bankrollPicks"></div>
 </div>
 </div>
@@ -2094,6 +2103,29 @@ function gradePick(index, result) {
     }
 }
 
+var activeSwimLane = 'ALL';
+var CREW_COLORS = {Peter:'#D4A017',Chinny:'#10B981',Jimmy:'#5588EE',Alyssa:'#E879F9','Sinton.ia':'#A78BFA'};
+
+function setSwimLane(name, btn) {
+    activeSwimLane = name;
+    document.querySelectorAll('.swim-btn').forEach(function(b) {
+        b.style.background = 'transparent';
+        var n = b.textContent.trim();
+        b.style.color = CREW_COLORS[n] || '#D4A017';
+        b.style.border = '1px solid ' + (CREW_COLORS[n] || '#D4A017');
+    });
+    if (name === 'ALL') {
+        btn.style.background = '#D4A017';
+        btn.style.color = '#0D0D1A';
+        btn.style.border = 'none';
+    } else {
+        btn.style.background = CREW_COLORS[name] || '#D4A017';
+        btn.style.color = '#0D0D1A';
+        btn.style.border = 'none';
+    }
+    renderBankroll();
+}
+
 function clearStalePicks() {
     var stored = JSON.parse(safeLoad('edgePicks') || '[]');
     var now48 = Date.now() - (48 * 60 * 60 * 1000);
@@ -2232,10 +2264,20 @@ function renderBankroll() {
         document.getElementById('brROI').style.color = 'rgba(255,255,255,0.3)';
     }
 
+    // Swim lane filter
+    var filteredPicks = [];
+    stored.forEach(function(pick, i) {
+        if (activeSwimLane === 'ALL' || pick.name === activeSwimLane) {
+            filteredPicks.push({ pick: pick, originalIndex: i });
+        }
+    });
+
     // FIX 2: Group picks by date, most recent first
     var dateGroups = {};
     var dateOrder = [];
-    stored.forEach(function(pick, i) {
+    filteredPicks.forEach(function(item) {
+        var pick = item.pick;
+        var i = item.originalIndex;
         var dateKey = pick.date || 'Unknown';
         if (!dateGroups[dateKey]) {
             dateGroups[dateKey] = [];
@@ -2263,6 +2305,25 @@ function renderBankroll() {
 
     var container = document.getElementById('bankrollPicks');
     container.innerHTML = '';
+
+    // Swim lane person header
+    if (activeSwimLane !== 'ALL') {
+        var laneW = 0, laneL = 0, laneP = 0, laneNet = 0;
+        filteredPicks.forEach(function(item) {
+            if (item.pick.result === 'W') { laneW++; laneNet += calcPayout(item.pick.odds, item.pick.units); }
+            else if (item.pick.result === 'L') { laneL++; laneNet -= (parseFloat(item.pick.units) || 1); }
+            else if (item.pick.result === 'P') { laneP++; }
+        });
+        var laneUngraded = filteredPicks.filter(function(item) { return !item.pick.result; }).length;
+        var laneColor = CREW_COLORS[activeSwimLane] || '#D4A017';
+        var laneHeader = document.createElement('div');
+        laneHeader.style.cssText = 'background:rgba(255,255,255,0.03);border:1px solid ' + laneColor + ';border-radius:10px;padding:14px;margin-bottom:12px;text-align:center;';
+        laneHeader.innerHTML = '<div style="font-size:18px;font-weight:800;color:' + laneColor + ';">' + activeSwimLane + '</div>' +
+            '<div style="color:#fff;font-size:20px;font-weight:800;margin:6px 0;">' + laneW + '-' + laneL + '-' + laneP + '</div>' +
+            '<div style="color:rgba(255,255,255,0.5);font-size:13px;">' + (laneNet >= 0 ? '+' : '') + laneNet.toFixed(1) + 'u net' +
+            (laneUngraded > 0 ? ' | ' + laneUngraded + ' pending' : '') + '</div>';
+        container.appendChild(laneHeader);
+    }
 
     // FIX 6: Clear stale button
     var staleCount = stored.filter(isStale).length;
@@ -2346,7 +2407,8 @@ function renderBankroll() {
     });
 
     if (stored.length === 0) {
-        container.innerHTML = '<div style="color:rgba(255,255,255,0.3);text-align:center;padding:20px;">No picks yet. Submit picks and grade them here.</div>';
+        var emptyMsg = activeSwimLane === 'ALL' ? 'No picks yet. Submit picks and grade them here.' : 'No picks from ' + activeSwimLane + ' yet.';
+        container.innerHTML = '<div style="color:rgba(255,255,255,0.3);text-align:center;padding:20px;">' + emptyMsg + '</div>';
     }
 
     // Update Results tab count
