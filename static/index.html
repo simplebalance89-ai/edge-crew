@@ -440,13 +440,14 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 }
 .mqb-btn{
     display:flex;flex-direction:column;align-items:center;gap:2px;
-    padding:6px 12px;border:none;background:transparent;
-    color:rgba(255,255,255,0.4);font-family:'Nunito',sans-serif;
-    font-size:0.55rem;font-weight:700;letter-spacing:0.5px;
+    padding:10px 6px;border:none;background:transparent;
+    color:rgba(255,255,255,0.5);font-family:'Nunito',sans-serif;
+    font-size:0.65rem;font-weight:700;letter-spacing:0.3px;
     text-transform:uppercase;cursor:pointer;transition:color 0.2s;
     -webkit-tap-highlight-color:transparent;
+    min-width:50px;min-height:50px;justify-content:center;
 }
-.mqb-btn .mqb-icon{font-size:1.2rem;line-height:1;}
+.mqb-btn .mqb-icon{font-size:1.5rem;line-height:1;}
 .mqb-btn:active{color:#D4A017;}
 .mqb-btn.mqb-submit{color:#10B981;}
 .mqb-btn.mqb-results{color:#D4A017;}
@@ -4296,23 +4297,23 @@ async function clearAllCache() {
 <!-- MOBILE QUICK BAR -->
 <div class="mobile-quick-bar">
     <div class="mobile-quick-bar-inner">
-        <button class="mqb-btn" onclick="openSportPicker()">
-            <span class="mqb-icon">&#x1F3C8;</span>Games
+        <button class="mqb-btn" ontouchend="event.preventDefault();openSportPicker()" onclick="openSportPicker()">
+            <span class="mqb-icon">🏈</span>Games
         </button>
-        <button class="mqb-btn mqb-results" onclick="switchSport('results',event)">
-            <span class="mqb-icon">&#x1F4CA;</span>Results
+        <button class="mqb-btn mqb-results" ontouchend="event.preventDefault();switchSport('results')" onclick="switchSport('results',event)">
+            <span class="mqb-icon">📊</span>Results
         </button>
-        <button class="mqb-btn" onclick="switchSport('bankroll',event)">
-            <span class="mqb-icon">&#x1F4B0;</span>Bankroll
+        <button class="mqb-btn" ontouchend="event.preventDefault();switchSport('bankroll')" onclick="switchSport('bankroll',event)">
+            <span class="mqb-icon">💰</span>Bank
         </button>
-        <button class="mqb-btn" onclick="switchSport('combined',event)">
-            <span class="mqb-icon">&#x1F4CB;</span>Slate
+        <button class="mqb-btn" ontouchend="event.preventDefault();switchSport('combined')" onclick="switchSport('combined',event)">
+            <span class="mqb-icon">📋</span>Slate
         </button>
-        <button class="mqb-btn" onclick="openEVAgent()">
-            <span class="mqb-icon">&#x1F4C8;</span>EV
+        <button class="mqb-btn" ontouchend="event.preventDefault();openEVAgent()" onclick="openEVAgent()">
+            <span class="mqb-icon">📈</span>EV
         </button>
-        <button class="mqb-btn" onclick="refreshSlate()">
-            <span class="mqb-icon">&#x1F504;</span>Refresh
+        <button class="mqb-btn" ontouchend="event.preventDefault();refreshSlate()" onclick="refreshSlate()">
+            <span class="mqb-icon">🔄</span>Refresh
         </button>
     </div>
 </div>
@@ -4324,27 +4325,27 @@ async function clearAllCache() {
         <div class="sport-picker-title">Pick a Sport</div>
         <div class="sport-picker-grid">
             <button class="sport-pick-btn" onclick="pickSport('nba')">
-                <span class="sp-icon">&#x1F3C0;</span>NBA
+                <span class="sp-icon">🏀</span>NBA
                 <span class="sp-count" id="sp-count-nba"></span>
             </button>
             <button class="sport-pick-btn" onclick="pickSport('nhl')">
-                <span class="sp-icon">&#x1F3D2;</span>NHL
+                <span class="sp-icon">🏒</span>NHL
                 <span class="sp-count" id="sp-count-nhl"></span>
             </button>
             <button class="sport-pick-btn" onclick="pickSport('mlb')">
-                <span class="sp-icon">&#x26BE;</span>MLB
+                <span class="sp-icon">⚾</span>MLB
                 <span class="sp-count" id="sp-count-mlb"></span>
             </button>
             <button class="sport-pick-btn" onclick="pickSport('soccer')">
-                <span class="sp-icon">&#x26BD;</span>Soccer
+                <span class="sp-icon">⚽</span>Soccer
                 <span class="sp-count" id="sp-count-soccer"></span>
             </button>
             <button class="sport-pick-btn" onclick="pickSport('mma')">
-                <span class="sp-icon">&#x1F94A;</span>MMA
+                <span class="sp-icon">🥊</span>MMA
                 <span class="sp-count" id="sp-count-mma"></span>
             </button>
             <button class="sport-pick-btn" onclick="pickSport('boxing')">
-                <span class="sp-icon">&#x1F3C6;</span>Boxing
+                <span class="sp-icon">🏆</span>Boxing
                 <span class="sp-count" id="sp-count-boxing"></span>
             </button>
         </div>
@@ -4577,12 +4578,12 @@ async function clearAllCache() {
     <!-- Voice Mode Buttons -->
     <div class="ev-voice-row">
         <button class="ev-voice-btn" id="evBtnFreeflow" onclick="evStartVoice('freeflow')">
-            <span class="ev-v-icon">&#x1F50A;</span>
+            <span class="ev-v-icon">🔊</span>
             <span class="ev-v-label">Free Flow</span>
             <span class="ev-v-sub">Talk anytime</span>
         </button>
         <button class="ev-voice-btn" id="evBtnTurnbased" onclick="evStartVoice('turnbased')">
-            <span class="ev-v-icon">&#x1F3A4;</span>
+            <span class="ev-v-icon">🎤</span>
             <span class="ev-v-label">Turn-Based</span>
             <span class="ev-v-sub">Take turns</span>
         </button>
@@ -4595,12 +4596,12 @@ async function clearAllCache() {
 
     <!-- Sport Modes -->
     <div class="ev-sport-modes">
-        <button class="ev-sport-mode" onclick="evSetMode('nba',this)"><span class="esm-icon">&#x1F3C0;</span>NBA</button>
-        <button class="ev-sport-mode" onclick="evSetMode('nhl',this)"><span class="esm-icon">&#x1F3D2;</span>NHL</button>
-        <button class="ev-sport-mode" onclick="evSetMode('mlb',this)"><span class="esm-icon">&#x26BE;</span>MLB</button>
-        <button class="ev-sport-mode" onclick="evSetMode('soccer',this)"><span class="esm-icon">&#x26BD;</span>Soccer</button>
-        <button class="ev-sport-mode" onclick="evSetMode('mma',this)"><span class="esm-icon">&#x1F94A;</span>MMA</button>
-        <button class="ev-sport-mode" onclick="evSetMode('full',this)"><span class="esm-icon">&#x1F4CB;</span>Full Slate</button>
+        <button class="ev-sport-mode" onclick="evSetMode('nba',this)"><span class="esm-icon">🏀</span>NBA</button>
+        <button class="ev-sport-mode" onclick="evSetMode('nhl',this)"><span class="esm-icon">🏒</span>NHL</button>
+        <button class="ev-sport-mode" onclick="evSetMode('mlb',this)"><span class="esm-icon">⚾</span>MLB</button>
+        <button class="ev-sport-mode" onclick="evSetMode('soccer',this)"><span class="esm-icon">⚽</span>Soccer</button>
+        <button class="ev-sport-mode" onclick="evSetMode('mma',this)"><span class="esm-icon">🥊</span>MMA</button>
+        <button class="ev-sport-mode" onclick="evSetMode('full',this)"><span class="esm-icon">📋</span>Full Slate</button>
     </div>
 </div>
 
