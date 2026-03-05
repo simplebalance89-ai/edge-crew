@@ -1032,24 +1032,47 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 
 </div>
 
-<!-- ===== PROPS PANEL (Chinny's Card) ===== -->
+<!-- ===== PROPS PANEL (Real Lines + AI) ===== -->
 <div class="sport-panel" id="panel-props">
 
+<!-- Sport tabs for props -->
+<div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;" id="propsSportTabs">
+    <button class="sport-tab active" onclick="loadRealProps('nba')" style="font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid rgba(212,160,23,0.3);background:rgba(212,160,23,0.15);color:#D4A017;cursor:pointer;font-weight:700;">NBA</button>
+    <button class="sport-tab" onclick="loadRealProps('nhl')" style="font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;font-weight:700;">NHL</button>
+    <button class="sport-tab" onclick="loadRealProps('nfl')" style="font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;font-weight:700;">NFL</button>
+    <button class="sport-tab" onclick="loadRealProps('mlb')" style="font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;font-weight:700;">MLB</button>
+</div>
+
+<!-- Search/filter -->
+<div style="margin-bottom:12px;">
+    <input type="text" id="propsSearch" placeholder="Search player name..." oninput="filterProps()" style="width:100%;padding:10px 14px;background:#141428;border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;font-size:14px;font-family:'Nunito',sans-serif;">
+</div>
+
+<!-- Stat type filter -->
+<div style="display:flex;gap:4px;margin-bottom:12px;flex-wrap:wrap;" id="propsStatFilter">
+    <button class="stat-filter-btn active" onclick="filterPropsByStat('all',this)" style="font-size:11px;padding:4px 10px;border-radius:12px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.1);color:#fff;cursor:pointer;">All</button>
+</div>
+
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-    <div style="font-size:11px;color:rgba(255,255,255,0.25);" id="propsTimestamp">Loading props...</div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.25);" id="propsTimestamp">Select a sport to load props...</div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.3);" id="propsCount"></div>
 </div>
 
-<div class="gotcha-banner" style="border-color:rgba(16,185,129,0.2);background:rgba(16,185,129,0.06);">
-    <h3 style="color:#10B981;">Chinny's Props Card</h3>
-    <ul>
-        <li><strong>Props are Chinny's territory.</strong> Top 5 per game. B or higher only.</li>
-        <li>Blowout filter: if the game is projected 15+ margin, prop volume drops (starters sit).</li>
-        <li>Streak data must be verified for CURRENT TEAM context (learned from Harden mistake).</li>
-    </ul>
+<!-- Real props container -->
+<div id="realPropsContainer">
+    <div class="empty-state">Select a sport above to load real player prop lines from 8+ bookmakers.</div>
 </div>
 
+<!-- Divider -->
+<div style="margin:24px 0 16px;border-top:1px solid rgba(16,185,129,0.2);padding-top:16px;">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+        <span style="font-size:16px;">&#x1F916;</span>
+        <span style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#10B981;">Sinton.ia's AI Props</span>
+        <span style="font-size:10px;color:rgba(16,185,129,0.5);letter-spacing:1px;">FROM ANALYSIS</span>
+    </div>
+</div>
 <div id="propsContainer">
-    <div class="empty-state">No props loaded yet.<br><strong>Hit REFRESH SLATE</strong> to load analysis data.</div>
+    <div class="empty-state">No AI props loaded yet.<br><strong>Hit REFRESH SLATE</strong> to load analysis data.</div>
 </div>
 
 <div id="propsBottomTimestamp" style="text-align:right;font-size:10px;color:rgba(255,255,255,0.2);margin-top:12px;"></div>
@@ -4021,6 +4044,214 @@ function loadProps() {
     if (propsTs) propsTs.textContent = 'Props loaded: ' + ts;
     var bottomTs = document.getElementById('propsBottomTimestamp');
     if (bottomTs) bottomTs.textContent = 'Props generated from analysis: ' + ts + ' | ' + totalProps + ' props across ' + allProps.length + ' games';
+}
+
+// ===== REAL PLAYER PROPS — The Odds API =====
+var _realPropsData = [];
+var _realPropsSport = '';
+var _realPropsStatFilter = 'all';
+
+function loadRealProps(sport) {
+    _realPropsSport = sport;
+    _realPropsStatFilter = 'all';
+    var container = document.getElementById('realPropsContainer');
+    if (!container) return;
+    container.innerHTML = '<div style="text-align:center;padding:30px;color:rgba(255,255,255,0.4);"><div style="font-size:24px;margin-bottom:8px;">Loading ' + sport.toUpperCase() + ' props...</div><div style="font-size:12px;">Fetching real lines from 8+ bookmakers</div></div>';
+
+    // Update sport tab active state
+    var tabs = document.querySelectorAll('#propsSportTabs .sport-tab');
+    tabs.forEach(function(t) {
+        if (t.textContent.trim().toLowerCase() === sport) {
+            t.classList.add('active');
+            t.style.borderColor = 'rgba(212,160,23,0.3)';
+            t.style.background = 'rgba(212,160,23,0.15)';
+            t.style.color = '#D4A017';
+        } else {
+            t.classList.remove('active');
+            t.style.borderColor = 'rgba(255,255,255,0.1)';
+            t.style.background = 'transparent';
+            t.style.color = 'rgba(255,255,255,0.5)';
+        }
+    });
+
+    crewFetch('/api/props/' + sport).then(function(r) { return r.json(); }).then(function(data) {
+        if (data.error) {
+            container.innerHTML = '<div class="empty-state">' + data.error + '</div>';
+            return;
+        }
+        _realPropsData = data.props || [];
+        // Build stat filter buttons
+        var stats = {};
+        _realPropsData.forEach(function(p) { stats[p.stat] = true; });
+        var filterDiv = document.getElementById('propsStatFilter');
+        var filterHtml = '<button class="stat-filter-btn active" onclick="filterPropsByStat(\'all\',this)" style="font-size:11px;padding:4px 10px;border-radius:12px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.1);color:#fff;cursor:pointer;">All</button>';
+        Object.keys(stats).forEach(function(s) {
+            filterHtml += '<button class="stat-filter-btn" onclick="filterPropsByStat(\'' + s + '\',this)" style="font-size:11px;padding:4px 10px;border-radius:12px;border:1px solid rgba(255,255,255,0.08);background:transparent;color:rgba(255,255,255,0.4);cursor:pointer;">' + s + '</button>';
+        });
+        filterDiv.innerHTML = filterHtml;
+
+        document.getElementById('propsCount').textContent = data.count + ' props | ' + (data.fetched_at || '');
+        document.getElementById('propsTimestamp').textContent = 'Real lines from The Odds API | ' + (data.fetched_at || '');
+        renderRealProps(_realPropsData);
+    }).catch(function(err) {
+        container.innerHTML = '<div class="empty-state">Failed to load props: ' + err.message + '</div>';
+    });
+}
+
+function filterProps() {
+    var q = (document.getElementById('propsSearch').value || '').toLowerCase();
+    var filtered = _realPropsData.filter(function(p) {
+        var matchSearch = !q || p.player.toLowerCase().indexOf(q) !== -1 || p.matchup.toLowerCase().indexOf(q) !== -1;
+        var matchStat = _realPropsStatFilter === 'all' || p.stat === _realPropsStatFilter;
+        return matchSearch && matchStat;
+    });
+    renderRealProps(filtered);
+}
+
+function filterPropsByStat(stat, el) {
+    _realPropsStatFilter = stat;
+    // Update button styles
+    var btns = document.querySelectorAll('#propsStatFilter .stat-filter-btn');
+    btns.forEach(function(b) {
+        b.classList.remove('active');
+        b.style.borderColor = 'rgba(255,255,255,0.08)';
+        b.style.background = 'transparent';
+        b.style.color = 'rgba(255,255,255,0.4)';
+    });
+    if (el) {
+        el.classList.add('active');
+        el.style.borderColor = 'rgba(255,255,255,0.15)';
+        el.style.background = 'rgba(255,255,255,0.1)';
+        el.style.color = '#fff';
+    }
+    filterProps();
+}
+
+function renderRealProps(props) {
+    var container = document.getElementById('realPropsContainer');
+    if (!container) return;
+    if (!props || props.length === 0) {
+        container.innerHTML = '<div class="empty-state">No props found matching your filters.</div>';
+        return;
+    }
+
+    // Group by matchup
+    var byGame = {};
+    props.forEach(function(p) {
+        if (!byGame[p.matchup]) byGame[p.matchup] = [];
+        byGame[p.matchup].push(p);
+    });
+
+    var html = '';
+    var verdictColors = {
+        'SHARP VALUE': {bg: 'rgba(16,185,129,0.15)', color: '#10B981', border: 'rgba(16,185,129,0.3)'},
+        'SLIGHT EDGE': {bg: 'rgba(212,160,23,0.12)', color: '#D4A017', border: 'rgba(212,160,23,0.25)'},
+        'FAIR LINE': {bg: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.5)', border: 'rgba(255,255,255,0.1)'},
+        'BAD NUMBER': {bg: 'rgba(239,68,68,0.08)', color: '#EF4444', border: 'rgba(239,68,68,0.15)'}
+    };
+
+    Object.keys(byGame).forEach(function(matchup) {
+        var gameProps = byGame[matchup];
+        // Only show Over side for cleaner display (Under is implied)
+        var overProps = gameProps.filter(function(p) { return p.side === 'Over'; });
+        if (overProps.length === 0) overProps = gameProps;
+
+        html += '<div style="margin-bottom:16px;">';
+        html += '<div style="font-family:\'Playfair Display\',serif;font-size:14px;font-weight:700;color:rgba(255,255,255,0.8);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.06);">' + matchup + '</div>';
+
+        overProps.forEach(function(prop) {
+            var vc = verdictColors[prop.verdict] || verdictColors['FAIR LINE'];
+            var edgeSign = prop.edge > 0 ? '+' : '';
+            var oddsStr = prop.best_odds > 0 ? '+' + prop.best_odds : '' + prop.best_odds;
+
+            html += '<div class="real-prop-card" data-player="' + (prop.player || '').toLowerCase() + '" data-stat="' + prop.stat + '" style="background:' + vc.bg + ';border:1px solid ' + vc.border + ';border-radius:10px;padding:12px 14px;margin-bottom:6px;cursor:pointer;" onclick="togglePropDetail(this)">';
+
+            // Main row
+            html += '<div style="display:flex;justify-content:space-between;align-items:center;">';
+            html += '<div style="flex:1;">';
+            html += '<span style="font-weight:700;color:#fff;font-size:14px;">' + prop.player + '</span>';
+            html += '<span style="color:rgba(255,255,255,0.4);font-size:12px;margin-left:8px;">' + prop.stat + '</span>';
+            html += '</div>';
+            html += '<div style="text-align:right;display:flex;align-items:center;gap:8px;">';
+            html += '<span style="font-weight:800;color:#fff;font-size:15px;">O ' + prop.line + '</span>';
+            html += '<span style="font-weight:700;color:' + vc.color + ';font-size:13px;">' + oddsStr + '</span>';
+            // Verdict badge
+            html += '<span style="font-size:9px;font-weight:800;padding:2px 6px;border-radius:4px;background:' + vc.bg + ';color:' + vc.color + ';border:1px solid ' + vc.border + ';letter-spacing:0.5px;white-space:nowrap;">' + prop.verdict + '</span>';
+            html += '</div></div>';
+
+            // Detail (hidden by default)
+            html += '<div class="prop-detail" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06);">';
+            // Books table
+            if (prop.books && prop.books.length > 0) {
+                html += '<div style="display:grid;grid-template-columns:1fr auto auto;gap:2px 12px;font-size:12px;margin-bottom:10px;">';
+                prop.books.forEach(function(b) {
+                    var isBest = b.book === prop.best_book;
+                    var bOdds = b.odds > 0 ? '+' + b.odds : '' + b.odds;
+                    html += '<div style="color:rgba(255,255,255,0.6);' + (isBest ? 'font-weight:700;color:#D4A017;' : '') + '">' + b.book + (isBest ? ' &#x2B50;' : '') + '</div>';
+                    html += '<div style="color:#fff;font-weight:600;text-align:right;' + (isBest ? 'color:#D4A017;' : '') + '">' + bOdds + '</div>';
+                    html += '<div style="color:rgba(255,255,255,0.3);text-align:right;">' + (b.implied_prob || '?') + '%</div>';
+                });
+                html += '</div>';
+            }
+            // Edge analysis
+            html += '<div style="display:flex;gap:16px;font-size:12px;margin-bottom:10px;">';
+            html += '<div><span style="color:rgba(255,255,255,0.4);">Best:</span> <strong style="color:#D4A017;">' + prop.best_book + ' ' + oddsStr + '</strong></div>';
+            html += '<div><span style="color:rgba(255,255,255,0.4);">Implied:</span> <strong style="color:#fff;">' + (prop.best_prob || '?') + '%</strong></div>';
+            html += '<div><span style="color:rgba(255,255,255,0.4);">Consensus:</span> <strong style="color:#fff;">' + (prop.consensus_prob || '?') + '%</strong></div>';
+            html += '<div><span style="color:rgba(255,255,255,0.4);">Edge:</span> <strong style="color:' + vc.color + ';">' + edgeSign + prop.edge + '%</strong></div>';
+            html += '</div>';
+            // Add to picks button
+            var propSel = prop.player + ' Over ' + prop.line + ' ' + prop.stat;
+            var propNote = prop.best_book + ' best line. Edge: ' + edgeSign + prop.edge + '%. ' + prop.book_count + ' books.';
+            html += '<button onclick="event.stopPropagation();addPropToPicks(\'' + propSel.replace(/'/g,"\\'") + '\',\'' + oddsStr.replace(/'/g,"\\'") + '\',\'' + prop.matchup.replace(/'/g,"\\'") + '\',\'' + _realPropsSport.toUpperCase() + '\',\'' + propNote.replace(/'/g,"\\'") + '\')" style="width:100%;padding:8px;background:linear-gradient(135deg,#D4A017,#B8860B);color:#0D0D1A;border:none;border-radius:8px;font-family:\'Nunito\',sans-serif;font-weight:800;font-size:13px;cursor:pointer;letter-spacing:0.5px;">ADD TO PICKS</button>';
+            html += '</div>';
+
+            html += '</div>';
+        });
+
+        html += '</div>';
+    });
+
+    container.innerHTML = html;
+}
+
+function togglePropDetail(card) {
+    var detail = card.querySelector('.prop-detail');
+    if (!detail) return;
+    detail.style.display = detail.style.display === 'none' ? 'block' : 'none';
+}
+
+function addPropToPicks(selection, odds, matchup, sport, notes) {
+    if (!crewProfile) {
+        showToast('Login first to add picks!', 'error');
+        return;
+    }
+    var pick = {
+        name: crewProfile.display_name,
+        sport: sport,
+        type: 'prop',
+        matchup: matchup,
+        selection: selection,
+        odds: odds,
+        units: 1,
+        confidence: 'MED',
+        notes: notes,
+        date: toPSTDate(),
+        time: toPSTShort(),
+        created_at: new Date().toISOString()
+    };
+
+    crewFetch('/api/picks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(pick)
+    }).then(function(r) { return r.json(); }).then(function() {
+        showToast(selection + ' LOCKED!');
+        renderPicks();
+        renderBankroll();
+    }).catch(function() {
+        showToast(selection + ' locked (offline)!', 'warning');
+    });
 }
 
 // ===== UPSET SPECIALS — CREW PICKS =====

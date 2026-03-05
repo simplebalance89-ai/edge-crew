@@ -1042,6 +1042,167 @@ async def get_slate():
     })
 
 
+# ===== PLAYER PROPS — Real Lines from The Odds API =====
+PROP_MARKETS = {
+    "nba": "player_points,player_rebounds,player_assists,player_threes",
+    "nhl": "player_points,player_assists,player_goals",
+    "nfl": "player_pass_yds,player_rush_yds,player_reception_yds,player_pass_tds",
+    "mlb": "pitcher_strikeouts,batter_total_bases,batter_hits",
+}
+PROPS_CACHE_TTL = 300  # 5 min
+
+
+def _calc_implied_prob(american_odds):
+    """Convert American odds to implied probability %."""
+    try:
+        odds = float(american_odds)
+        if odds < 0:
+            return round(abs(odds) / (abs(odds) + 100) * 100, 1)
+        else:
+            return round(100 / (odds + 100) * 100, 1)
+    except (ValueError, TypeError, ZeroDivisionError):
+        return None
+
+
+def _calc_edge(best_prob, consensus_prob):
+    """Edge = consensus implied prob - best book implied prob.
+    Positive = you're getting a better price than the market average."""
+    if best_prob and consensus_prob:
+        return round(consensus_prob - best_prob, 1)
+    return 0
+
+
+@app.get("/api/props/{sport}")
+async def get_player_props(sport: str):
+    """Fetch real player prop lines from The Odds API with edge analysis."""
+    sport_lower = sport.lower()
+    if sport_lower not in PROP_MARKETS:
+        return JSONResponse({"error": f"No prop markets for {sport}", "available": list(PROP_MARKETS.keys())}, status_code=400)
+
+    cache_key = f"props:{sport_lower}"
+    cached = _get_cached(cache_key, ttl=PROPS_CACHE_TTL)
+    if cached:
+        return JSONResponse(cached)
+
+    if not ODDS_API_KEY:
+        return JSONResponse({"error": "No ODDS_API_KEY configured"}, status_code=500)
+
+    sport_keys = SPORT_KEYS.get(sport_lower, [sport_lower])
+    markets = PROP_MARKETS[sport_lower]
+    all_props = []
+
+    for sport_key in sport_keys:
+        # First get events list
+        events_url = f"{ODDS_API_BASE}/{sport_key}/events/"
+        params = {"apiKey": ODDS_API_KEY}
+        try:
+            async with httpx.AsyncClient(timeout=15) as client:
+                events_resp = await client.get(events_url, params=params)
+                if events_resp.status_code != 200:
+                    continue
+                events = events_resp.json()
+
+                # Fetch props for each event (limit to 6 games to conserve credits)
+                for event in events[:6]:
+                    event_id = event.get("id")
+                    home = event.get("home_team", "")
+                    away = event.get("away_team", "")
+                    matchup = f"{away} @ {home}"
+                    commence = event.get("commence_time", "")
+
+                    props_url = f"{ODDS_API_BASE}/{sport_key}/events/{event_id}/odds"
+                    props_params = {
+                        "apiKey": ODDS_API_KEY,
+                        "regions": REGIONS,
+                        "markets": markets,
+                        "oddsFormat": "american",
+                    }
+                    try:
+                        props_resp = await client.get(props_url, params=props_params)
+                        if props_resp.status_code != 200:
+                            continue
+                        event_data = props_resp.json()
+                    except Exception:
+                        continue
+
+                    # Parse bookmaker props into unified format
+                    props_by_player = {}  # key: "player|stat|over/under" -> list of {book, line, odds}
+                    for bookmaker in event_data.get("bookmakers", []):
+                        book_name = bookmaker.get("title", bookmaker.get("key", "Unknown"))
+                        for market in bookmaker.get("markets", []):
+                            market_key = market.get("key", "")
+                            stat_label = market_key.replace("player_", "").replace("pitcher_", "").replace("batter_", "").replace("_", " ").title()
+                            for outcome in market.get("outcomes", []):
+                                player = outcome.get("description", "Unknown")
+                                side = outcome.get("name", "Over")  # Over/Under
+                                line = outcome.get("point", 0)
+                                price = outcome.get("price", 0)
+                                pk = f"{player}|{stat_label}|{side}|{line}"
+                                if pk not in props_by_player:
+                                    props_by_player[pk] = {
+                                        "player": player,
+                                        "stat": stat_label,
+                                        "side": side,
+                                        "line": line,
+                                        "matchup": matchup,
+                                        "commence": commence,
+                                        "books": [],
+                                    }
+                                props_by_player[pk]["books"].append({
+                                    "book": book_name,
+                                    "odds": price,
+                                    "implied_prob": _calc_implied_prob(price),
+                                })
+
+                    # Calculate edge for each prop
+                    for pk, prop in props_by_player.items():
+                        books = prop["books"]
+                        if not books:
+                            continue
+                        # Best odds = highest for Over (least negative), lowest abs for Under
+                        best = max(books, key=lambda b: b["odds"])
+                        prop["best_book"] = best["book"]
+                        prop["best_odds"] = best["odds"]
+                        prop["best_prob"] = best["implied_prob"]
+                        # Consensus = average implied prob across books
+                        probs = [b["implied_prob"] for b in books if b["implied_prob"]]
+                        prop["consensus_prob"] = round(sum(probs) / len(probs), 1) if probs else None
+                        prop["edge"] = _calc_edge(prop["best_prob"], prop["consensus_prob"])
+                        prop["book_count"] = len(books)
+                        # Edge verdict
+                        edge = prop["edge"]
+                        if edge >= 3:
+                            prop["verdict"] = "SHARP VALUE"
+                        elif edge >= 1:
+                            prop["verdict"] = "SLIGHT EDGE"
+                        elif edge >= -1:
+                            prop["verdict"] = "FAIR LINE"
+                        else:
+                            prop["verdict"] = "BAD NUMBER"
+
+                        all_props.append(prop)
+
+        except Exception as e:
+            logger.error(f"Props fetch error for {sport_key}: {e}")
+            continue
+
+    # Sort: SHARP VALUE first, then by edge descending
+    verdict_order = {"SHARP VALUE": 0, "SLIGHT EDGE": 1, "FAIR LINE": 2, "BAD NUMBER": 3}
+    all_props.sort(key=lambda p: (verdict_order.get(p.get("verdict", ""), 9), -(p.get("edge", 0))))
+
+    result = {
+        "sport": sport.upper(),
+        "props": all_props,
+        "count": len(all_props),
+        "games_scanned": min(6, len(all_props)),
+        "fetched_at": _now_ts(),
+        "cached": False,
+    }
+
+    _set_cache(cache_key, result)
+    return JSONResponse(result)
+
+
 @app.get("/api/credits")
 async def get_credits():
     """Check remaining API credits for both odds sources."""
