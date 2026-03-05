@@ -93,15 +93,20 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 var allPicks = [];
 
 function formatDate() {
-    var d = new Date();
-    var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-    return months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+    return new Date().toLocaleDateString('en-US', {
+        timeZone: 'America/Los_Angeles',
+        month: 'long', day: 'numeric', year: 'numeric'
+    });
+}
+
+function getPSTDate() {
+    return new Date().toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' });
 }
 
 document.getElementById('todayDate').textContent = formatDate();
 
 function fetchPicks() {
-    fetch('/api/picks?date=today')
+    fetch('/api/picks?date=' + getPSTDate())
         .then(function(r) { return r.json(); })
         .then(function(data) {
             allPicks = data.picks || [];

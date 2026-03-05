@@ -1697,8 +1697,9 @@ function submitBetSlip() {
         units: slipState.units,
         confidence: slipState.conf,
         notes: note,
-        date: new Date().toLocaleDateString(),
-        time: new Date().toLocaleTimeString()
+        date: toPSTDate(),
+        time: toPSTShort(),
+        created_at: new Date().toISOString()
     };
 
     // Save to localStorage for bankroll tracker compatibility
@@ -2021,8 +2022,9 @@ function submitPick() {
         units: units,
         confidence: selectedConf || 'Lean',
         notes: notes,
-        date: new Date().toLocaleDateString(),
-        time: new Date().toLocaleTimeString()
+        date: toPSTDate(),
+        time: toPSTShort(),
+        created_at: new Date().toISOString()
     };
 
     // Save to localStorage
@@ -2086,6 +2088,21 @@ function gradePick(index, result) {
         }
         renderBankroll();
     }
+}
+
+function clearStalePicks() {
+    var stored = JSON.parse(safeLoad('edgePicks') || '[]');
+    var now48 = Date.now() - (48 * 60 * 60 * 1000);
+    stored.forEach(function(pick) {
+        if (!pick.result) {
+            var ts = pick.created_at ? new Date(pick.created_at).getTime() : 0;
+            if (!ts && pick.date) ts = new Date(pick.date + 'T23:59:59').getTime();
+            if (ts > 0 && ts < now48) pick.archived = true;
+        }
+    });
+    safeSave('edgePicks', JSON.stringify(stored));
+    renderBankroll();
+    showToast('Stale picks archived');
 }
 
 function calcPayout(odds, units) {
@@ -2152,35 +2169,135 @@ function renderBankroll() {
         }
     }
 
-    // Render grading list
+    // FIX 5: Show pending count and conditional ROI
+    var ungradedCount = stored.filter(function(p) { return !p.result; }).length;
+    var gradedCount = stored.length - ungradedCount;
+    var pendingEl = document.getElementById('brPending');
+    if (pendingEl) pendingEl.remove();
+    if (ungradedCount > 0) {
+        var pendingDiv = document.createElement('div');
+        pendingDiv.id = 'brPending';
+        pendingDiv.style.cssText = 'background:rgba(212,160,23,0.1);border:1px solid rgba(212,160,23,0.3);border-radius:8px;padding:12px;text-align:center;margin-bottom:12px;color:#D4A017;font-weight:700;font-size:14px;';
+        pendingDiv.textContent = ungradedCount + ' pick' + (ungradedCount > 1 ? 's' : '') + ' pending grading';
+        var statsGrid = document.querySelector('.bankroll-stats-4');
+        if (statsGrid) statsGrid.parentNode.insertBefore(pendingDiv, statsGrid);
+    }
+    if (gradedCount < 10) {
+        document.getElementById('brROI').textContent = '--';
+        document.getElementById('brROI').style.color = 'rgba(255,255,255,0.3)';
+    }
+
+    // FIX 2: Group picks by date, most recent first
+    var dateGroups = {};
+    var dateOrder = [];
+    stored.forEach(function(pick, i) {
+        var dateKey = pick.date || 'Unknown';
+        if (!dateGroups[dateKey]) {
+            dateGroups[dateKey] = [];
+            dateOrder.push(dateKey);
+        }
+        dateGroups[dateKey].push({ pick: pick, index: i });
+    });
+    // Sort date groups: most recent first
+    dateOrder.sort(function(a, b) {
+        if (a === 'Unknown') return 1;
+        if (b === 'Unknown') return -1;
+        return b.localeCompare(a);
+    });
+
+    // FIX 6: Stale detection (>48hrs ungraded)
+    var now48 = Date.now() - (48 * 60 * 60 * 1000);
+    function isStale(pick) {
+        if (pick.result) return false;
+        var ts = pick.created_at ? new Date(pick.created_at).getTime() : 0;
+        if (!ts && pick.date) {
+            ts = new Date(pick.date + 'T23:59:59').getTime();
+        }
+        return ts > 0 && ts < now48;
+    }
+
     var container = document.getElementById('bankrollPicks');
     container.innerHTML = '';
-    stored.forEach(function(pick, i) {
-        var div = document.createElement('div');
-        div.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.08);';
 
-        var graded = pick.result || '';
-        var wClass = graded === 'W' ? 'background:#10B981;color:#fff;' : 'background:transparent;border:1px solid #10B981;color:#10B981;';
-        var lClass = graded === 'L' ? 'background:#EF4444;color:#fff;' : 'background:transparent;border:1px solid #EF4444;color:#EF4444;';
-        var pClass = graded === 'P' ? 'background:#D4A017;color:#fff;' : 'background:transparent;border:1px solid #D4A017;color:#D4A017;';
-        var btnStyle = 'cursor:pointer;padding:4px 10px;border-radius:4px;font-weight:700;font-size:12px;';
+    // FIX 6: Clear stale button
+    var staleCount = stored.filter(isStale).length;
+    if (staleCount > 0) {
+        var clearBtn = document.createElement('div');
+        clearBtn.style.cssText = 'text-align:right;margin-bottom:8px;';
+        clearBtn.innerHTML = '<span style="cursor:pointer;color:rgba(255,255,255,0.4);font-size:12px;border:1px solid rgba(255,255,255,0.15);border-radius:4px;padding:4px 10px;" onclick="clearStalePicks()">Clear ' + staleCount + ' stale pick' + (staleCount > 1 ? 's' : '') + '</span>';
+        container.appendChild(clearBtn);
+    }
 
-        div.innerHTML =
-            '<div style="flex:1;">' +
-                '<div style="color:#fff;font-weight:600;">' + (pick.selection || pick.matchup) + '</div>' +
-                '<div style="color:rgba(255,255,255,0.4);font-size:12px;">' +
-                    pick.name + ' | ' + (pick.sport || '?') + ' | ' + (pick.matchup || '') + ' | ' + (pick.odds || '') + ' | ' + (pick.units || 1) + 'u' +
-                    (pick.type === 'Parlay' || (pick.legs && pick.legs.length) ? ' | PARLAY' : '') +
+    // Render grouped picks
+    dateOrder.forEach(function(dateKey) {
+        var group = dateGroups[dateKey];
+        // FIX 6: Skip archived
+        var visible = group.filter(function(item) { return !item.pick.archived; });
+        if (visible.length === 0) return;
+
+        // Date header
+        var header = document.createElement('div');
+        var displayDate = dateKey;
+        try {
+            var dp = new Date(dateKey + 'T12:00:00');
+            displayDate = dp.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        } catch(e) {}
+        header.style.cssText = 'color:#D4A017;font-weight:700;font-size:13px;padding:12px 0 6px;border-bottom:1px solid rgba(212,160,23,0.2);margin-top:8px;';
+        header.textContent = displayDate + ' (' + visible.length + ' pick' + (visible.length > 1 ? 's' : '') + ')';
+        container.appendChild(header);
+
+        visible.forEach(function(item) {
+            var pick = item.pick;
+            var i = item.index;
+            var stale = isStale(pick);
+            var graded = pick.result || '';
+            var div = document.createElement('div');
+
+            // FIX 1: Row border color based on grade
+            var borderLeft = '3px solid transparent';
+            if (graded === 'W') borderLeft = '3px solid #10B981';
+            else if (graded === 'L') borderLeft = '3px solid #EF4444';
+            else if (graded === 'P') borderLeft = '3px solid #6B7280';
+            div.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 0 10px 8px;border-bottom:1px solid rgba(255,255,255,0.08);border-left:' + borderLeft + ';' + (stale ? 'opacity:0.4;' : '');
+
+            // FIX 1: Button styling — dim when ungraded, solid when selected
+            var btnStyle = 'cursor:pointer;padding:4px 10px;border-radius:4px;font-weight:700;font-size:12px;';
+            var wClass, lClass, pClass;
+            if (!graded) {
+                wClass = 'background:transparent;border:1px solid rgba(16,185,129,0.3);color:rgba(16,185,129,0.3);';
+                lClass = 'background:transparent;border:1px solid rgba(239,68,68,0.3);color:rgba(239,68,68,0.3);';
+                pClass = 'background:transparent;border:1px solid rgba(107,114,128,0.3);color:rgba(107,114,128,0.3);';
+            } else {
+                wClass = graded === 'W' ? 'background:#10B981;color:#fff;' : 'background:transparent;border:1px solid rgba(16,185,129,0.15);color:rgba(16,185,129,0.15);';
+                lClass = graded === 'L' ? 'background:#EF4444;color:#fff;' : 'background:transparent;border:1px solid rgba(239,68,68,0.15);color:rgba(239,68,68,0.15);';
+                pClass = graded === 'P' ? 'background:#6B7280;color:#fff;' : 'background:transparent;border:1px solid rgba(107,114,128,0.15);color:rgba(107,114,128,0.15);';
+            }
+
+            // FIX 1: UNGRADED badge + FIX 6: Stale label
+            var badge = '';
+            if (stale) {
+                badge = '<span style="background:rgba(239,68,68,0.15);color:#EF4444;font-size:10px;font-weight:700;padding:2px 6px;border-radius:3px;margin-left:6px;">STALE</span>';
+            } else if (!graded) {
+                badge = '<span style="background:rgba(212,160,23,0.15);color:#D4A017;font-size:10px;font-weight:700;padding:2px 6px;border-radius:3px;margin-left:6px;">UNGRADED</span>';
+            }
+
+            div.innerHTML =
+                '<div style="flex:1;">' +
+                    '<div style="color:#fff;font-weight:600;">' + (pick.selection || pick.matchup) + badge + '</div>' +
+                    '<div style="color:rgba(255,255,255,0.4);font-size:12px;">' +
+                        pick.name + ' | ' + (pick.sport || '?') + ' | ' + (pick.matchup || '') + ' | ' + (pick.odds || '') + ' | ' + (pick.units || 1) + 'u' +
+                        (pick.type === 'Parlay' || (pick.legs && pick.legs.length) ? ' | PARLAY' : '') +
+                    '</div>' +
+                    '<div style="color:rgba(255,255,255,0.3);font-size:11px;">' + (pick.date || '') + ' ' + (pick.time || '') + '</div>' +
                 '</div>' +
-                '<div style="color:rgba(255,255,255,0.3);font-size:11px;">' + (pick.date || '') + ' ' + (pick.time || '') + '</div>' +
-            '</div>' +
-            '<div style="display:flex;gap:4px;">' +
-                '<div style="' + btnStyle + wClass + '" onclick="gradePick(' + i + ',\'W\')">W</div>' +
-                '<div style="' + btnStyle + lClass + '" onclick="gradePick(' + i + ',\'L\')">L</div>' +
-                '<div style="' + btnStyle + pClass + '" onclick="gradePick(' + i + ',\'P\')">P</div>' +
-            '</div>';
+                '<div style="display:flex;gap:4px;">' +
+                    '<div style="' + btnStyle + wClass + '" onclick="gradePick(' + i + ',\'W\')">W</div>' +
+                    '<div style="' + btnStyle + lClass + '" onclick="gradePick(' + i + ',\'L\')">L</div>' +
+                    '<div style="' + btnStyle + pClass + '" onclick="gradePick(' + i + ',\'P\')">P</div>' +
+                '</div>';
 
-        container.appendChild(div);
+            container.appendChild(div);
+        });
     });
 
     if (stored.length === 0) {
@@ -2600,6 +2717,28 @@ function formatGameTime(isoTime) {
     return et.replace(' ', '') + ' ET / ' + pt.replace(' ', '') + ' PT';
 }
 
+function toPST(dateStr) {
+    var d = dateStr ? new Date(dateStr) : new Date();
+    return d.toLocaleString('en-US', {
+        timeZone: 'America/Los_Angeles',
+        hour: 'numeric', minute: '2-digit', hour12: true,
+        month: 'short', day: 'numeric', year: 'numeric'
+    });
+}
+
+function toPSTDate(dateStr) {
+    var d = dateStr ? new Date(dateStr) : new Date();
+    return d.toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' });
+}
+
+function toPSTShort(dateStr) {
+    var d = dateStr ? new Date(dateStr) : new Date();
+    return d.toLocaleString('en-US', {
+        timeZone: 'America/Los_Angeles',
+        hour: 'numeric', minute: '2-digit', hour12: true
+    });
+}
+
 function buildGameRowHTML(g) {
     var awayAbbr = abbr(g.away);
     var homeAbbr = abbr(g.home);
@@ -2800,7 +2939,7 @@ function fetchLiveOdds(sport) {
             // Update sweep time with server timestamp
             var sweepEl = document.getElementById('sweepTime');
             if (sweepEl) {
-                var serverTime = data.fetched_at || new Date().toLocaleTimeString();
+                var serverTime = data.fetched_at ? toPST(data.fetched_at) : toPST();
                 var booksUsed = (data.books_used && data.books_used.length) ? data.books_used.join(', ') : 'unknown';
                 var completeCount = data.lines_complete || 0;
                 var incompleteCount = data.lines_incomplete || 0;

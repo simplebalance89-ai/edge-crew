@@ -7,6 +7,9 @@ import secrets
 import httpx
 from openai import AzureOpenAI
 from datetime import datetime
+from zoneinfo import ZoneInfo
+
+PST = ZoneInfo("America/Los_Angeles")
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
@@ -74,7 +77,7 @@ def _seed_profiles():
             "pin_hash": default_pin_hash,
             "color": member["color"],
             "is_admin": member["is_admin"],
-            "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "created_at": datetime.now(PST).strftime("%Y-%m-%d %H:%M:%S"),
             "last_login": None,
         })
     _write_profiles(data)
@@ -112,7 +115,7 @@ async def auth_register(request: Request):
         "pin_hash": _hash_pin(pin),
         "color": color,
         "is_admin": False,
-        "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "created_at": datetime.now(PST).strftime("%Y-%m-%d %H:%M:%S"),
         "last_login": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
     }
     data.setdefault("profiles", []).append(profile)
@@ -260,8 +263,8 @@ ANALYSIS_CACHE_TTL = 900  # 15 minutes for analysis
 
 
 def _now_ts():
-    """Return current timestamp string for API responses."""
-    return time.strftime("%I:%M %p %Z — %b %d, %Y")
+    """Return current timestamp string for API responses (PST)."""
+    return datetime.now(PST).strftime("%I:%M %p PST — %b %d, %Y")
 
 
 def _get_cached(key, ttl=None):
@@ -1287,11 +1290,12 @@ def _write_picks(data):
 @app.get("/api/picks")
 async def get_picks(date: str = ""):
     """Return picks, optionally filtered by date (YYYY-MM-DD or 'today')."""
+    if date == "today":
+        date = datetime.now(PST).strftime("%Y-%m-%d")
+
     if sb:
         query = sb.table("picks").select("*").order("created_at", desc=True)
         if date:
-            if date == "today":
-                date = datetime.now().strftime("%Y-%m-%d")
             query = query.eq("date", date)
         res = query.execute()
         return JSONResponse({"picks": res.data, "count": len(res.data)})
@@ -1299,8 +1303,6 @@ async def get_picks(date: str = ""):
     data = _read_picks()
     picks = data.get("picks", [])
     if date:
-        if date == "today":
-            date = datetime.now().strftime("%Y-%m-%d")
         picks = [p for p in picks if p.get("date", "").startswith(date)]
     return JSONResponse({"picks": picks, "count": len(picks)})
 
@@ -1328,13 +1330,13 @@ async def save_pick(request: Request):
         "units": _sanitize(body.get("units", "1")),
         "confidence": _sanitize(body.get("confidence", "Lean")),
         "notes": _sanitize(body.get("notes", "")),
-        "date": datetime.now().strftime("%Y-%m-%d"),
-        "time": datetime.now().strftime("%H:%M:%S"),
+        "date": datetime.now(PST).strftime("%Y-%m-%d"),
+        "time": datetime.now(PST).strftime("%I:%M %p"),
         "placed": False,
         "placed_at": None,
         "result": None,
         "graded_at": None,
-        "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "created_at": datetime.now(PST).strftime("%Y-%m-%d %H:%M:%S"),
     }
 
     if sb:
@@ -1514,7 +1516,7 @@ async def save_upset(request: Request):
         "odds": odds,
         "thesis": body.get("thesis", ""),
         "date": datetime.now().strftime("%Y-%m-%d"),
-        "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "created_at": datetime.now(PST).strftime("%Y-%m-%d %H:%M:%S"),
     }
 
     if sb:
