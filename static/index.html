@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#0a0a1a">
+<meta name="theme-color" content="#0D0D1A">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Edge Crew">
@@ -24,11 +24,11 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 }
 .topbar-left{display:flex;align-items:center;gap:12px;}
 .topbar-title{font-family:'Playfair Display',serif;font-size:18px;
-    background:linear-gradient(135deg,#D4A017,#FFE082);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    background:linear-gradient(135deg,#00E676,#69F0AE);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
 .topbar-date{font-size:12px;color:rgba(255,255,255,0.3);}
 .crew{display:flex;gap:8px;}
 .crew-badge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:0.5px;}
-.crew-peter{background:rgba(212,160,23,0.15);color:#D4A017;border:1px solid rgba(212,160,23,0.3);}
+.crew-peter{background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.3);}
 .crew-chinny{background:rgba(16,185,129,0.15);color:#10B981;border:1px solid rgba(16,185,129,0.3);}
 .crew-jimmy{background:rgba(96,165,250,0.15);color:#60A5FA;border:1px solid rgba(96,165,250,0.3);}
 .crew-alyssa{background:rgba(232,121,249,0.15);color:#E879F9;border:1px solid rgba(232,121,249,0.3);}
@@ -48,14 +48,14 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     border-bottom:3px solid transparent;transition:all 0.2s;white-space:nowrap;
 }
 .sport-tab:hover{color:rgba(255,255,255,0.6);}
-.sport-tab.active{color:#fff;border-bottom-color:#D4A017;}
+.sport-tab.active{color:#fff;border-bottom-color:#00E676;}
 .sport-tab .tab-count{
     display:inline-block;margin-left:6px;padding:2px 6px;border-radius:10px;
     font-size:10px;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.4);
 }
-.sport-tab.active .tab-count{background:rgba(212,160,23,0.2);color:#D4A017;}
+.sport-tab.active .tab-count{background:rgba(0,230,118,0.2);color:#00E676;}
 .utility-tab{font-size:11px !important;letter-spacing:0.5px !important;padding:10px 24px !important;}
-.utility-tab.active{border-bottom-color:#D4A017 !important;color:#fff !important;}
+.utility-tab.active{border-bottom-color:#00E676 !important;color:#fff !important;}
 
 /* ===== CONTENT ===== */
 .content{max-width:1100px;margin:0 auto;padding:24px;}
@@ -76,8 +76,8 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     border-radius:12px;padding:0;margin-bottom:12px;overflow:hidden;
     transition:all 0.2s;cursor:pointer;
 }
-.game-row:hover{border-color:rgba(212,160,23,0.3);background:rgba(255,255,255,0.03);}
-.game-row.expanded{border-color:rgba(212,160,23,0.4);}
+.game-row:hover{border-color:rgba(0,230,118,0.3);background:rgba(255,255,255,0.03);}
+.game-row.expanded{border-color:rgba(0,230,118,0.4);}
 .game-row.pass{opacity:0.4;}
 .game-row.pass:hover{opacity:0.7;}
 .game-row[data-complete="false"]{border-left:3px solid rgba(251,191,36,0.4) !important;}
@@ -89,7 +89,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     background:transparent;cursor:pointer;transition:all 0.2s;flex-shrink:0;
     display:flex;align-items:center;justify-content:center;
 }
-.pick-check:hover{border-color:rgba(212,160,23,0.5);}
+.pick-check:hover{border-color:rgba(0,230,118,0.5);}
 .pick-check.on{background:#10B981;border-color:#10B981;}
 .pick-check.on::after{content:'';display:block;width:6px;height:10px;border:solid #000;border-width:0 2.5px 2.5px 0;transform:rotate(45deg);margin-top:-2px;}
 
@@ -102,27 +102,27 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     border:1px solid rgba(255,255,255,0.1);background:transparent;
     color:rgba(255,255,255,0.4);cursor:pointer;transition:all 0.2s;
 }
-.side-btn:hover{border-color:rgba(212,160,23,0.4);color:rgba(255,255,255,0.7);}
-.side-btn.picked{background:rgba(212,160,23,0.2);border-color:#D4A017;color:#D4A017;}
+.side-btn:hover{border-color:rgba(0,230,118,0.4);color:rgba(255,255,255,0.7);}
+.side-btn.picked{background:rgba(0,230,118,0.2);border-color:#00E676;color:#00E676;}
 
 /* ===== SUBMIT BAR ===== */
 .submit-bar{
     position:fixed;bottom:0;left:0;right:0;
     background:rgba(13,13,26,0.95);backdrop-filter:blur(12px);
-    border-top:1px solid rgba(212,160,23,0.3);
+    border-top:1px solid rgba(0,230,118,0.3);
     padding:12px 24px;display:flex;align-items:center;justify-content:space-between;
     transform:translateY(100%);transition:transform 0.3s ease;z-index:200;
 }
 .submit-bar.visible{transform:translateY(0);}
 .submit-count{font-size:14px;color:rgba(255,255,255,0.6);}
-.submit-count strong{color:#D4A017;}
+.submit-count strong{color:#00E676;}
 .submit-btn{
     padding:10px 32px;border-radius:24px;border:none;
-    background:linear-gradient(135deg,#D4A017,#B8860B);color:#0D0D1A;
+    background:linear-gradient(135deg,#00E676,#00C853);color:#0D0D1A;
     font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;
     cursor:pointer;transition:all 0.2s;letter-spacing:0.5px;
 }
-.submit-btn:hover{transform:scale(1.05);box-shadow:0 4px 20px rgba(212,160,23,0.4);}
+.submit-btn:hover{transform:scale(1.05);box-shadow:0 4px 20px rgba(0,230,118,0.4);}
 
 /* ===== LOCKED CARD MODAL ===== */
 .modal-overlay{
@@ -133,13 +133,13 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 }
 .modal-overlay.show{display:flex;}
 .modal{
-    background:#0D0D1A;border:1px solid rgba(212,160,23,0.3);border-radius:16px;
+    background:#0D0D1A;border:1px solid rgba(0,230,118,0.3);border-radius:16px;
     padding:32px;max-width:700px;width:100%;max-height:80vh;overflow-y:auto;
 }
-.modal h2{font-family:'Playfair Display',serif;color:#D4A017;margin-bottom:4px;}
+.modal h2{font-family:'Playfair Display',serif;color:#00E676;margin-bottom:4px;}
 .modal .modal-sub{font-size:12px;color:rgba(255,255,255,0.3);margin-bottom:20px;}
 .modal table{width:100%;border-collapse:collapse;}
-.modal th{text-align:left;padding:8px;font-size:11px;color:#D4A017;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid rgba(255,255,255,0.08);}
+.modal th{text-align:left;padding:8px;font-size:11px;color:#00E676;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid rgba(255,255,255,0.08);}
 .modal td{padding:8px;font-size:14px;color:rgba(255,255,255,0.8);border-bottom:1px solid rgba(255,255,255,0.04);}
 .modal-close{
     margin-top:20px;padding:10px 24px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);
@@ -156,7 +156,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 .game-matchup{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;}
 .game-matchup .away{color:rgba(255,255,255,0.5);}
 .game-matchup .home{color:#fff;}
-.game-spread{font-size:14px;font-weight:700;color:#D4A017;text-align:center;}
+.game-spread{font-size:14px;font-weight:700;color:#00E676;text-align:center;}
 .game-total{font-size:13px;color:rgba(255,255,255,0.4);text-align:center;}
 .game-grade{text-align:center;}
 .game-edge{font-size:12px;color:rgba(255,255,255,0.5);line-height:1.4;}
@@ -175,7 +175,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px;}
 .detail-box{background:rgba(255,255,255,0.02);border-radius:8px;padding:14px;}
 .detail-box h4{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;}
-.detail-box.peter h4{color:#D4A017;}
+.detail-box.peter h4{color:#00E676;}
 .detail-box.chinny h4{color:#10B981;}
 .detail-box.trends h4{color:#A78BFA;}
 .detail-box.flags h4{color:#EF4444;}
@@ -187,24 +187,24 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 .tag-rust{background:rgba(167,139,250,0.15);color:#A78BFA;}
 .tag-trap{background:rgba(239,68,68,0.15);color:#EF4444;}
 .tag-home{background:rgba(16,185,129,0.15);color:#10B981;}
-.tag-upset{background:rgba(212,160,23,0.15);color:#D4A017;}
+.tag-upset{background:rgba(0,230,118,0.15);color:#00E676;}
 
 /* ===== UPSET SPECIALS ===== */
 .upset-section{
-    margin-top:24px;background:rgba(212,160,23,0.04);border:1px solid rgba(212,160,23,0.15);
+    margin-top:24px;background:rgba(0,230,118,0.04);border:1px solid rgba(0,230,118,0.15);
     border-radius:12px;padding:20px;
 }
-.upset-section h3{font-family:'Playfair Display',serif;color:#D4A017;font-size:16px;margin-bottom:12px;}
+.upset-section h3{font-family:'Playfair Display',serif;color:#00E676;font-size:16px;margin-bottom:12px;}
 .upset-submit-form{display:grid;grid-template-columns:minmax(180px,2fr) 80px 2fr auto;gap:8px;align-items:center;margin-bottom:16px;}
 .upset-submit-form input,.upset-submit-form select{background:#0D0D1A;color:#fff;border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:8px 10px;font-family:'Nunito',sans-serif;font-size:13px;}
-.upset-submit-form input:focus,.upset-submit-form select:focus{border-color:#D4A017;outline:none;}
+.upset-submit-form input:focus,.upset-submit-form select:focus{border-color:#00E676;outline:none;}
 .upset-submit-form select option{background:#0D0D1A;color:#fff;}
-.upset-submit-form button{background:rgba(212,160,23,0.15);color:#D4A017;border:none;border-radius:6px;padding:8px 16px;font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap;}
-.upset-submit-form button:hover{background:rgba(212,160,23,0.3);}
+.upset-submit-form button{background:rgba(0,230,118,0.15);color:#00E676;border:none;border-radius:6px;padding:8px 16px;font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap;}
+.upset-submit-form button:hover{background:rgba(0,230,118,0.3);}
 .upset-cards{display:flex;flex-direction:column;gap:8px;}
 .upset-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:12px 14px;display:flex;align-items:center;gap:12px;}
 .upset-card-name{font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;min-width:60px;}
-.upset-card-name.peter{color:#D4A017;}
+.upset-card-name.peter{color:#00E676;}
 .upset-card-name.chinny{color:#10B981;}
 .upset-card-name.jimmy{color:#A855F7;}
 .upset-card-team{font-weight:700;font-size:14px;min-width:80px;}
@@ -216,10 +216,10 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 
 /* ===== PETER INPUT ===== */
 .input-section{
-    margin-top:24px;background:rgba(212,160,23,0.04);border:2px dashed rgba(212,160,23,0.25);
+    margin-top:24px;background:rgba(0,230,118,0.04);border:2px dashed rgba(0,230,118,0.25);
     border-radius:12px;padding:20px;
 }
-.input-section h3{font-family:'Playfair Display',serif;color:#D4A017;font-size:16px;margin-bottom:8px;}
+.input-section h3{font-family:'Playfair Display',serif;color:#00E676;font-size:16px;margin-bottom:8px;}
 .input-section p{font-size:13px;color:rgba(255,255,255,0.4);line-height:1.6;}
 
 /* ===== COMBINED VIEW ===== */
@@ -231,7 +231,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 /* ===== SUBMIT PICK FORM ===== */
 .pick-form{max-width:600px;margin:0 auto;}
 .pick-form h2{font-family:'Playfair Display',serif;font-size:22px;margin-bottom:4px;
-    background:linear-gradient(135deg,#D4A017,#FFE082);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    background:linear-gradient(135deg,#00E676,#69F0AE);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
 .pick-form .form-sub{font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:24px;}
 .form-group{margin-bottom:16px;}
 .form-group label{display:block;font-size:12px;font-weight:700;color:rgba(255,255,255,0.5);
@@ -242,7 +242,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     transition:border-color 0.2s;
 }
 .form-group input:focus,.form-group select:focus,.form-group textarea:focus{
-    outline:none;border-color:rgba(212,160,23,0.5);
+    outline:none;border-color:rgba(0,230,118,0.5);
 }
 .form-group select{appearance:none;cursor:pointer;}
 .form-group select option{background:#0D0D1A;color:#fff;}
@@ -252,24 +252,24 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 .conf-btn{padding:8px 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);
     background:transparent;color:rgba(255,255,255,0.4);font-family:'Nunito',sans-serif;
     font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;flex:1;text-align:center;}
-.conf-btn:hover{border-color:rgba(212,160,23,0.4);color:rgba(255,255,255,0.7);}
-.conf-btn.active{background:rgba(212,160,23,0.2);border-color:#D4A017;color:#D4A017;}
+.conf-btn:hover{border-color:rgba(0,230,118,0.4);color:rgba(255,255,255,0.7);}
+.conf-btn.active{background:rgba(0,230,118,0.2);border-color:#00E676;color:#00E676;}
 .submit-pick-btn{
     width:100%;padding:14px;border-radius:12px;border:none;margin-top:8px;
-    background:linear-gradient(135deg,#D4A017,#B8860B);color:#0D0D1A;
+    background:linear-gradient(135deg,#00E676,#00C853);color:#0D0D1A;
     font-family:'Nunito',sans-serif;font-size:16px;font-weight:800;
     cursor:pointer;transition:all 0.2s;letter-spacing:0.5px;
 }
-.submit-pick-btn:hover{transform:scale(1.02);box-shadow:0 4px 20px rgba(212,160,23,0.4);}
+.submit-pick-btn:hover{transform:scale(1.02);box-shadow:0 4px 20px rgba(0,230,118,0.4);}
 .pick-history{margin-top:32px;}
-.pick-history h3{font-family:'Playfair Display',serif;font-size:16px;color:#D4A017;margin-bottom:12px;}
+.pick-history h3{font-family:'Playfair Display',serif;font-size:16px;color:#00E676;margin-bottom:12px;}
 .pick-card{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);
     border-radius:10px;padding:14px 18px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;}
 .pick-card .pick-main{font-size:14px;font-weight:700;}
 .pick-card .pick-meta{font-size:12px;color:rgba(255,255,255,0.4);}
 .pick-card .pick-conf{font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;}
 .pick-conf.fire{background:rgba(239,68,68,0.15);color:#EF4444;}
-.pick-conf.strong{background:rgba(212,160,23,0.15);color:#D4A017;}
+.pick-conf.strong{background:rgba(0,230,118,0.15);color:#00E676;}
 .pick-conf.lean{background:rgba(96,165,250,0.15);color:#60A5FA;}
 .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-100px);
     background:#10B981;color:#000;font-weight:800;font-size:14px;padding:12px 28px;
@@ -285,7 +285,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 }
 .betslip-overlay.show{display:flex;}
 .betslip-card{
-    background:#0D0D1A;border:1px solid rgba(212,160,23,0.4);
+    background:#0D0D1A;border:1px solid rgba(0,230,118,0.4);
     border-radius:20px 20px 0 0;padding:24px 20px 28px;
     width:100%;max-width:480px;
     transform:translateY(100%);transition:transform 0.3s ease;
@@ -293,7 +293,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 }
 .betslip-overlay.show .betslip-card{transform:translateY(0);}
 .slip-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
-.slip-title{font-family:'Playfair Display',serif;font-size:18px;color:#D4A017;font-weight:900;letter-spacing:1px;}
+.slip-title{font-family:'Playfair Display',serif;font-size:18px;color:#00E676;font-weight:900;letter-spacing:1px;}
 .slip-close{background:none;border:none;color:rgba(255,255,255,0.4);font-size:24px;cursor:pointer;padding:4px 8px;}
 .slip-close:hover{color:#fff;}
 .slip-pick{font-size:20px;font-weight:800;color:#fff;margin-bottom:4px;}
@@ -306,32 +306,32 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;flex:1;text-align:center;
     min-width:60px;
 }
-.slip-btn:hover{border-color:rgba(212,160,23,0.4);color:rgba(255,255,255,0.7);}
-.slip-btn.active{background:rgba(212,160,23,0.2);border-color:#D4A017;color:#D4A017;}
+.slip-btn:hover{border-color:rgba(0,230,118,0.4);color:rgba(255,255,255,0.7);}
+.slip-btn.active{background:rgba(0,230,118,0.2);border-color:#00E676;color:#00E676;}
 .slip-odds-input{
     width:100px;padding:8px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);
     background:rgba(255,255,255,0.04);color:#fff;font-family:'Nunito',sans-serif;
     font-size:14px;font-weight:700;text-align:center;
 }
-.slip-odds-input:focus{outline:none;border-color:rgba(212,160,23,0.5);}
+.slip-odds-input:focus{outline:none;border-color:rgba(0,230,118,0.5);}
 .slip-note-toggle{
-    background:none;border:none;color:rgba(212,160,23,0.6);font-size:13px;
+    background:none;border:none;color:rgba(0,230,118,0.6);font-size:13px;
     cursor:pointer;padding:0;margin-top:12px;font-family:'Nunito',sans-serif;
 }
-.slip-note-toggle:hover{color:#D4A017;}
+.slip-note-toggle:hover{color:#00E676;}
 .slip-note-area{
     width:100%;padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);
     background:rgba(255,255,255,0.04);color:#fff;font-family:'Nunito',sans-serif;
     font-size:13px;resize:vertical;min-height:50px;margin-top:6px;display:none;
 }
-.slip-note-area:focus{outline:none;border-color:rgba(212,160,23,0.5);}
+.slip-note-area:focus{outline:none;border-color:rgba(0,230,118,0.5);}
 .betslip-submit{
     width:100%;padding:14px;border-radius:12px;border:none;margin-top:16px;
-    background:linear-gradient(135deg,#D4A017,#B8860B);color:#0D0D1A;
+    background:linear-gradient(135deg,#00E676,#00C853);color:#0D0D1A;
     font-family:'Nunito',sans-serif;font-size:16px;font-weight:800;
     cursor:pointer;transition:all 0.2s;letter-spacing:0.5px;
 }
-.betslip-submit:hover{transform:scale(1.02);box-shadow:0 4px 20px rgba(212,160,23,0.4);}
+.betslip-submit:hover{transform:scale(1.02);box-shadow:0 4px 20px rgba(0,230,118,0.4);}
 .betslip-submit:disabled{opacity:0.5;cursor:not-allowed;transform:none;box-shadow:none;}
 @media(min-width:769px){
     .betslip-overlay{align-items:center;}
@@ -373,7 +373,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 .panel-loading::before{
     content:'';position:absolute;top:50%;left:50%;z-index:11;
     width:36px;height:36px;margin:-18px 0 0 -18px;
-    border:3px solid rgba(212,160,23,0.2);border-top:3px solid #D4A017;
+    border:3px solid rgba(0,230,118,0.2);border-top:3px solid #00E676;
     border-radius:50%;animation:edgeSpin 0.8s linear infinite;
 }
 @keyframes edgeSpin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
@@ -386,11 +386,11 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 }
 .loading-overlay.active{display:flex;}
 .loading-overlay .loading-spinner{
-    width:50px;height:50px;border:4px solid rgba(212,160,23,0.2);
-    border-top:4px solid #D4A017;border-radius:50%;animation:edgeSpin 0.8s linear infinite;
+    width:50px;height:50px;border:4px solid rgba(0,230,118,0.2);
+    border-top:4px solid #00E676;border-radius:50%;animation:edgeSpin 0.8s linear infinite;
 }
 .loading-overlay .loading-text{
-    color:#D4A017;font-size:14px;font-weight:700;font-family:'Nunito',sans-serif;
+    color:#00E676;font-size:14px;font-weight:700;font-family:'Nunito',sans-serif;
     letter-spacing:1px;text-transform:uppercase;
 }
 
@@ -447,7 +447,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 .mobile-quick-bar{
     display:none;position:fixed;bottom:0;left:0;right:0;z-index:250;
     background:rgba(13,13,26,0.97);backdrop-filter:blur(16px);
-    border-top:1px solid rgba(212,160,23,0.25);
+    border-top:1px solid rgba(0,230,118,0.25);
     padding:8px 12px;padding-bottom:max(8px,env(safe-area-inset-bottom));
 }
 .mobile-quick-bar-inner{
@@ -464,9 +464,9 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     min-width:50px;min-height:50px;justify-content:center;
 }
 .mqb-btn .mqb-icon{font-size:1.5rem;line-height:1;}
-.mqb-btn:active{color:#D4A017;}
+.mqb-btn:active{color:#00E676;}
 .mqb-btn.mqb-submit{color:#10B981;}
-.mqb-btn.mqb-results{color:#D4A017;}
+.mqb-btn.mqb-results{color:#00E676;}
 
 /* ===== SPORT PICKER POPUP ===== */
 .sport-picker-overlay{
@@ -476,24 +476,24 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 .sport-picker-overlay.visible{display:block;}
 .sport-picker-sheet{
     position:fixed;bottom:0;left:0;right:0;z-index:301;
-    background:#0D0D1A;border-top:2px solid rgba(212,160,23,0.4);
+    background:#0D0D1A;border-top:2px solid rgba(0,230,118,0.4);
     border-radius:20px 20px 0 0;padding:16px 16px;
     padding-bottom:max(16px,env(safe-area-inset-bottom));
     transform:translateY(100%);transition:transform 0.3s ease;
 }
 .sport-picker-overlay.visible .sport-picker-sheet{transform:translateY(0);}
 .sport-picker-handle{width:40px;height:4px;background:rgba(255,255,255,0.2);border-radius:2px;margin:0 auto 16px;}
-.sport-picker-title{text-align:center;color:#D4A017;font-weight:800;font-size:0.8rem;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;}
+.sport-picker-title{text-align:center;color:#00E676;font-weight:800;font-size:0.8rem;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;}
 .sport-picker-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:360px;margin:0 auto;}
 .sport-pick-btn{
     display:flex;flex-direction:column;align-items:center;gap:4px;
-    padding:14px 8px;border:1px solid rgba(212,160,23,0.2);border-radius:12px;
-    background:rgba(212,160,23,0.04);color:rgba(255,255,255,0.7);
+    padding:14px 8px;border:1px solid rgba(0,230,118,0.2);border-radius:12px;
+    background:rgba(0,230,118,0.04);color:rgba(255,255,255,0.7);
     font-family:'Nunito',sans-serif;font-size:0.7rem;font-weight:700;
     cursor:pointer;transition:all 0.2s;-webkit-tap-highlight-color:transparent;
 }
 .sport-pick-btn:active,.sport-pick-btn:hover{
-    background:rgba(212,160,23,0.15);color:#D4A017;border-color:rgba(212,160,23,0.5);
+    background:rgba(0,230,118,0.15);color:#00E676;border-color:rgba(0,230,118,0.5);
 }
 .sport-pick-btn .sp-icon{font-size:1.6rem;}
 .sport-pick-btn .sp-count{font-size:0.6rem;opacity:0.5;}
@@ -583,16 +583,16 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 }
 .login-overlay.hidden{display:none;}
 .login-card{
-    background:#0D0D1A;border:1px solid rgba(212,160,23,0.4);border-radius:20px;
+    background:#0D0D1A;border:1px solid rgba(0,230,118,0.4);border-radius:20px;
     padding:32px 28px;max-width:380px;width:100%;text-align:center;
 }
 .login-card h1{font-family:'Playfair Display',serif;font-size:28px;
-    background:linear-gradient(135deg,#D4A017,#FFE082);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px;}
+    background:linear-gradient(135deg,#00E676,#69F0AE);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px;}
 .login-card .login-sub{font-size:13px;color:rgba(255,255,255,0.3);margin-bottom:24px;}
 .login-tabs{display:flex;gap:0;margin-bottom:20px;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);}
 .login-tab{flex:1;padding:10px;font-size:13px;font-weight:700;text-align:center;cursor:pointer;
     background:transparent;color:rgba(255,255,255,0.4);border:none;font-family:'Nunito',sans-serif;transition:all 0.2s;}
-.login-tab.active{background:rgba(212,160,23,0.15);color:#D4A017;}
+.login-tab.active{background:rgba(0,230,118,0.15);color:#00E676;}
 .login-field{margin-bottom:14px;text-align:left;}
 .login-field label{display:block;font-size:11px;font-weight:700;color:rgba(255,255,255,0.5);
     text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;}
@@ -601,7 +601,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     background:rgba(255,255,255,0.04);color:#fff;font-family:'Nunito',sans-serif;font-size:16px;
     transition:border-color 0.2s;
 }
-.login-field input:focus,.login-field select:focus{outline:none;border-color:rgba(212,160,23,0.5);}
+.login-field input:focus,.login-field select:focus{outline:none;border-color:rgba(0,230,118,0.5);}
 .login-field select option{background:#0D0D1A;color:#fff;}
 .color-swatches{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:4px;}
 .color-swatch{width:36px;height:36px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all 0.2s;}
@@ -609,11 +609,11 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 .color-swatch.picked{border-color:#fff;box-shadow:0 0 12px rgba(255,255,255,0.3);}
 .login-submit{
     width:100%;padding:14px;border-radius:12px;border:none;margin-top:16px;
-    background:linear-gradient(135deg,#D4A017,#B8860B);color:#0D0D1A;
+    background:linear-gradient(135deg,#00E676,#00C853);color:#0D0D1A;
     font-family:'Nunito',sans-serif;font-size:16px;font-weight:800;
     cursor:pointer;transition:all 0.2s;letter-spacing:0.5px;
 }
-.login-submit:hover{transform:scale(1.02);box-shadow:0 4px 20px rgba(212,160,23,0.4);}
+.login-submit:hover{transform:scale(1.02);box-shadow:0 4px 20px rgba(0,230,118,0.4);}
 .login-submit:disabled{opacity:0.5;cursor:not-allowed;transform:none;box-shadow:none;}
 .login-error{color:#EF4444;font-size:13px;margin-top:10px;min-height:20px;}
 .crew-badge.active-user{box-shadow:0 0 8px currentColor;animation:glowPulse 2s infinite;}
@@ -657,7 +657,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
             <div class="login-field">
                 <label>Pick Your Color</label>
                 <div class="color-swatches" id="colorSwatches">
-                    <div class="color-swatch picked" data-color="#D4A017" style="background:#D4A017;" onclick="pickColor(this)"></div>
+                    <div class="color-swatch picked" data-color="#00E676" style="background:#00E676;" onclick="pickColor(this)"></div>
                     <div class="color-swatch" data-color="#10B981" style="background:#10B981;" onclick="pickColor(this)"></div>
                     <div class="color-swatch" data-color="#60A5FA" style="background:#60A5FA;" onclick="pickColor(this)"></div>
                     <div class="color-swatch" data-color="#A78BFA" style="background:#A78BFA;" onclick="pickColor(this)"></div>
@@ -695,7 +695,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     </div>
     <div class="sweep-time" id="sweepTime">Last sweep: --<br>Waiting for refresh</div>
     <div style="display:flex;gap:6px;align-items:center;">
-        <a href="/bets" class="topbar-refresh" style="text-decoration:none;background:rgba(212,160,23,0.15);color:#D4A017;border-color:rgba(212,160,23,0.3);">TODAY'S BETS</a>
+        <a href="/bets" class="topbar-refresh" style="text-decoration:none;background:rgba(0,230,118,0.15);color:#00E676;border-color:rgba(0,230,118,0.3);">TODAY'S BETS</a>
         <button class="topbar-refresh" onclick="refreshSlate()">REFRESH SLATE</button>
         <div style="position:relative;">
             <button onclick="toggleGearMenu()" style="cursor:pointer;padding:4px 10px;border-radius:20px;font-size:16px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.1);font-family:'Nunito',sans-serif;line-height:1;">&#9881;</button>
@@ -735,14 +735,14 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     <div style="display:flex;justify-content:space-between;align-items:center;">
         <h3 id="gotchaNBATitle">Gotcha Card &mdash; NBA</h3>
         <div style="display:flex;gap:6px;">
-            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(212,160,23,0.15);color:#D4A017;font-size:11px;font-weight:700;border:none;" onclick="toggleGotchaEdit('NBA')">EDIT</button>
+            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(0,230,118,0.15);color:#00E676;font-size:11px;font-weight:700;border:none;" onclick="toggleGotchaEdit('NBA')">EDIT</button>
             <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(16,185,129,0.15);color:#10B981;font-size:11px;font-weight:700;border:none;" onclick="saveGotcha('NBA')">SAVE</button>
         </div>
     </div>
     <div id="gotchaDisplay-NBA">
         <p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load today's gotcha card...</p>
     </div>
-    <textarea id="gotchaEditor-NBA" style="display:none;width:100%;min-height:150px;background:#0D0D1A;color:#fff;border:1px solid #D4A017;border-radius:6px;padding:10px;font-family:'Nunito',sans-serif;font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line. Use for injuries, traps, edges, B2B flags..."></textarea>
+    <textarea id="gotchaEditor-NBA" style="display:none;width:100%;min-height:150px;background:#0D0D1A;color:#fff;border:1px solid #00E676;border-radius:6px;padding:10px;font-family:'Nunito',sans-serif;font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line. Use for injuries, traps, edges, B2B flags..."></textarea>
 </div>
 
 <div class="empty-state">No NBA games loaded.<br><strong>Hit REFRESH SLATE</strong> to load live lines.</div>
@@ -761,11 +761,11 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 
 <!-- ML+ Filter -->
 <div class="ml-filter" style="display:flex;gap:8px;margin:10px 0;">
-    <div class="ml-filter-btn" onclick="toggleMLFilter('nba')" style="cursor:pointer;padding:6px 14px;border-radius:6px;background:rgba(212,160,23,0.1);border:1px solid rgba(212,160,23,0.3);color:#D4A017;font-size:12px;font-weight:700;transition:all 0.2s;">ML+ Only</div>
+    <div class="ml-filter-btn" onclick="toggleMLFilter('nba')" style="cursor:pointer;padding:6px 14px;border-radius:6px;background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.3);color:#00E676;font-size:12px;font-weight:700;transition:all 0.2s;">ML+ Only</div>
 </div>
 
 <!-- ANALYSIS TOGGLE -->
-<div class="analysis-toggle" style="display:flex;gap:0;margin:12px 0 4px;border-radius:8px;overflow:hidden;border:1px solid rgba(212,160,23,0.3);">
+<div class="analysis-toggle" style="display:flex;gap:0;margin:12px 0 4px;border-radius:8px;overflow:hidden;border:1px solid rgba(0,230,118,0.3);">
     <div class="atoggle-btn atoggle-active" onclick="toggleAnalysis('nba','sintonia',this)" style="flex:1;text-align:center;padding:8px;cursor:pointer;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif;background:rgba(167,139,250,0.15);color:#A78BFA;transition:all 0.2s;">Sinton.ia's Card</div>
     <div class="atoggle-btn" onclick="toggleAnalysis('nba','alyssa',this)" style="flex:1;text-align:center;padding:8px;cursor:pointer;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif;background:transparent;color:rgba(232,121,249,0.4);transition:all 0.2s;">Alyssa's Edge</div>
 </div>
@@ -797,14 +797,14 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     <div style="display:flex;justify-content:space-between;align-items:center;">
         <h3 id="gotchaNHLTitle">Gotcha Card &mdash; NHL</h3>
         <div style="display:flex;gap:6px;">
-            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(212,160,23,0.15);color:#D4A017;font-size:11px;font-weight:700;border:none;" onclick="toggleGotchaEdit('NHL')">EDIT</button>
+            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(0,230,118,0.15);color:#00E676;font-size:11px;font-weight:700;border:none;" onclick="toggleGotchaEdit('NHL')">EDIT</button>
             <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(16,185,129,0.15);color:#10B981;font-size:11px;font-weight:700;border:none;" onclick="saveGotcha('NHL')">SAVE</button>
         </div>
     </div>
     <div id="gotchaDisplay-NHL">
         <p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load today's gotcha card...</p>
     </div>
-    <textarea id="gotchaEditor-NHL" style="display:none;width:100%;min-height:150px;background:#0D0D1A;color:#fff;border:1px solid #D4A017;border-radius:6px;padding:10px;font-family:'Nunito',sans-serif;font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line..."></textarea>
+    <textarea id="gotchaEditor-NHL" style="display:none;width:100%;min-height:150px;background:#0D0D1A;color:#fff;border:1px solid #00E676;border-radius:6px;padding:10px;font-family:'Nunito',sans-serif;font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line..."></textarea>
 </div>
 
 <div class="empty-state">No NHL games loaded.<br><strong>Hit REFRESH SLATE</strong> to load live lines.</div>
@@ -823,11 +823,11 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 
 <!-- ML+ Filter -->
 <div class="ml-filter" style="display:flex;gap:8px;margin:10px 0;">
-    <div class="ml-filter-btn" onclick="toggleMLFilter('nhl')" style="cursor:pointer;padding:6px 14px;border-radius:6px;background:rgba(212,160,23,0.1);border:1px solid rgba(212,160,23,0.3);color:#D4A017;font-size:12px;font-weight:700;transition:all 0.2s;">ML+ Only</div>
+    <div class="ml-filter-btn" onclick="toggleMLFilter('nhl')" style="cursor:pointer;padding:6px 14px;border-radius:6px;background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.3);color:#00E676;font-size:12px;font-weight:700;transition:all 0.2s;">ML+ Only</div>
 </div>
 
 <!-- ANALYSIS TOGGLE -->
-<div class="analysis-toggle" style="display:flex;gap:0;margin:12px 0 4px;border-radius:8px;overflow:hidden;border:1px solid rgba(212,160,23,0.3);">
+<div class="analysis-toggle" style="display:flex;gap:0;margin:12px 0 4px;border-radius:8px;overflow:hidden;border:1px solid rgba(0,230,118,0.3);">
     <div class="atoggle-btn atoggle-active" onclick="toggleAnalysis('nhl','sintonia',this)" style="flex:1;text-align:center;padding:8px;cursor:pointer;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif;background:rgba(167,139,250,0.15);color:#A78BFA;transition:all 0.2s;">Sinton.ia's Card</div>
     <div class="atoggle-btn" onclick="toggleAnalysis('nhl','alyssa',this)" style="flex:1;text-align:center;padding:8px;cursor:pointer;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif;background:transparent;color:rgba(232,121,249,0.4);transition:all 0.2s;">Alyssa's Edge</div>
 </div>
@@ -855,14 +855,14 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     <div style="display:flex;justify-content:space-between;align-items:center;">
         <h3 id="gotchaMLBTitle">Gotcha Card &mdash; MLB</h3>
         <div style="display:flex;gap:6px;">
-            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(212,160,23,0.15);color:#D4A017;font-size:11px;font-weight:700;border:none;" onclick="toggleGotchaEdit('MLB')">EDIT</button>
+            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(0,230,118,0.15);color:#00E676;font-size:11px;font-weight:700;border:none;" onclick="toggleGotchaEdit('MLB')">EDIT</button>
             <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(16,185,129,0.15);color:#10B981;font-size:11px;font-weight:700;border:none;" onclick="saveGotcha('MLB')">SAVE</button>
         </div>
     </div>
     <div id="gotchaDisplay-MLB">
         <p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load today's gotcha card...</p>
     </div>
-    <textarea id="gotchaEditor-MLB" style="display:none;width:100%;min-height:150px;background:#0D0D1A;color:#fff;border:1px solid #D4A017;border-radius:6px;padding:10px;font-family:'Nunito',sans-serif;font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line. Use for pitching matchups, bullpen notes, weather, B2B flags..."></textarea>
+    <textarea id="gotchaEditor-MLB" style="display:none;width:100%;min-height:150px;background:#0D0D1A;color:#fff;border:1px solid #00E676;border-radius:6px;padding:10px;font-family:'Nunito',sans-serif;font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line. Use for pitching matchups, bullpen notes, weather, B2B flags..."></textarea>
 </div>
 
 <div class="empty-state">No MLB games loaded.<br><strong>Hit REFRESH SLATE</strong> to load live lines.</div>
@@ -881,11 +881,11 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 
 <!-- ML+ Filter -->
 <div class="ml-filter" style="display:flex;gap:8px;margin:10px 0;">
-    <div class="ml-filter-btn" onclick="toggleMLFilter('mlb')" style="cursor:pointer;padding:6px 14px;border-radius:6px;background:rgba(212,160,23,0.1);border:1px solid rgba(212,160,23,0.3);color:#D4A017;font-size:12px;font-weight:700;transition:all 0.2s;">ML+ Only</div>
+    <div class="ml-filter-btn" onclick="toggleMLFilter('mlb')" style="cursor:pointer;padding:6px 14px;border-radius:6px;background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.3);color:#00E676;font-size:12px;font-weight:700;transition:all 0.2s;">ML+ Only</div>
 </div>
 
 <!-- ANALYSIS TOGGLE -->
-<div class="analysis-toggle" style="display:flex;gap:0;margin:12px 0 4px;border-radius:8px;overflow:hidden;border:1px solid rgba(212,160,23,0.3);">
+<div class="analysis-toggle" style="display:flex;gap:0;margin:12px 0 4px;border-radius:8px;overflow:hidden;border:1px solid rgba(0,230,118,0.3);">
     <div class="atoggle-btn atoggle-active" onclick="toggleAnalysis('mlb','sintonia',this)" style="flex:1;text-align:center;padding:8px;cursor:pointer;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif;background:rgba(167,139,250,0.15);color:#A78BFA;transition:all 0.2s;">Sinton.ia's Card</div>
     <div class="atoggle-btn" onclick="toggleAnalysis('mlb','alyssa',this)" style="flex:1;text-align:center;padding:8px;cursor:pointer;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif;background:transparent;color:rgba(232,121,249,0.4);transition:all 0.2s;">Alyssa's Edge</div>
 </div>
@@ -912,7 +912,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     <div style="display:flex;justify-content:space-between;align-items:center;">
         <h3 style="color:#10B981;">Soccer — Live Lines (Hard Rock Bet)</h3>
         <div style="display:flex;gap:6px;">
-            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(212,160,23,0.15);color:#D4A017;font-size:11px;font-weight:700;border:none;" onclick="toggleGotchaEdit('SOCCER')">EDIT</button>
+            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(0,230,118,0.15);color:#00E676;font-size:11px;font-weight:700;border:none;" onclick="toggleGotchaEdit('SOCCER')">EDIT</button>
             <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(16,185,129,0.15);color:#10B981;font-size:11px;font-weight:700;border:none;" onclick="saveGotcha('SOCCER')">SAVE</button>
         </div>
     </div>
@@ -935,7 +935,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 </div>
 
 <!-- SOCCER PETER GUT PICKS (DYNAMIC) -->
-<div class="analysis-toggle" style="display:flex;gap:0;margin:12px 0 4px;border-radius:8px;overflow:hidden;border:1px solid rgba(212,160,23,0.3);">
+<div class="analysis-toggle" style="display:flex;gap:0;margin:12px 0 4px;border-radius:8px;overflow:hidden;border:1px solid rgba(0,230,118,0.3);">
     <div class="atoggle-btn atoggle-active" onclick="toggleAnalysis('soccer','sintonia',this)" style="flex:1;text-align:center;padding:8px;cursor:pointer;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif;background:rgba(167,139,250,0.15);color:#A78BFA;transition:all 0.2s;">Sinton.ia's Card</div>
     <div class="atoggle-btn" onclick="toggleAnalysis('soccer','alyssa',this)" style="flex:1;text-align:center;padding:8px;cursor:pointer;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif;background:transparent;color:rgba(232,121,249,0.4);transition:all 0.2s;">Alyssa's Edge</div>
 </div>
@@ -962,7 +962,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     <div style="display:flex;justify-content:space-between;align-items:center;">
         <h3 style="color:#EF4444;">MMA / UFC — Live Lines (Hard Rock Bet)</h3>
         <div style="display:flex;gap:6px;">
-            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(212,160,23,0.15);color:#D4A017;font-size:11px;font-weight:700;border:none;" onclick="toggleGotchaEdit('MMA')">EDIT</button>
+            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(0,230,118,0.15);color:#00E676;font-size:11px;font-weight:700;border:none;" onclick="toggleGotchaEdit('MMA')">EDIT</button>
             <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(16,185,129,0.15);color:#10B981;font-size:11px;font-weight:700;border:none;" onclick="saveGotcha('MMA')">SAVE</button>
         </div>
     </div>
@@ -985,7 +985,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 </div>
 
 <!-- MMA PETER GUT PICKS (DYNAMIC) -->
-<div class="analysis-toggle" style="display:flex;gap:0;margin:12px 0 4px;border-radius:8px;overflow:hidden;border:1px solid rgba(212,160,23,0.3);">
+<div class="analysis-toggle" style="display:flex;gap:0;margin:12px 0 4px;border-radius:8px;overflow:hidden;border:1px solid rgba(0,230,118,0.3);">
     <div class="atoggle-btn atoggle-active" onclick="toggleAnalysis('mma','sintonia',this)" style="flex:1;text-align:center;padding:8px;cursor:pointer;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif;background:rgba(167,139,250,0.15);color:#A78BFA;transition:all 0.2s;">Sinton.ia's Card</div>
     <div class="atoggle-btn" onclick="toggleAnalysis('mma','alyssa',this)" style="flex:1;text-align:center;padding:8px;cursor:pointer;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif;background:transparent;color:rgba(232,121,249,0.4);transition:all 0.2s;">Alyssa's Edge</div>
 </div>
@@ -1012,7 +1012,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     <div style="display:flex;justify-content:space-between;align-items:center;">
         <h3 style="color:#A855F7;">Boxing — Live Lines (Hard Rock Bet)</h3>
         <div style="display:flex;gap:6px;">
-            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(212,160,23,0.15);color:#D4A017;font-size:11px;font-weight:700;border:none;" onclick="toggleGotchaEdit('BOXING')">EDIT</button>
+            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(0,230,118,0.15);color:#00E676;font-size:11px;font-weight:700;border:none;" onclick="toggleGotchaEdit('BOXING')">EDIT</button>
             <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(16,185,129,0.15);color:#10B981;font-size:11px;font-weight:700;border:none;" onclick="saveGotcha('BOXING')">SAVE</button>
         </div>
     </div>
@@ -1035,7 +1035,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 </div>
 
 <!-- BOXING PETER GUT PICKS (DYNAMIC) -->
-<div class="analysis-toggle" style="display:flex;gap:0;margin:12px 0 4px;border-radius:8px;overflow:hidden;border:1px solid rgba(212,160,23,0.3);">
+<div class="analysis-toggle" style="display:flex;gap:0;margin:12px 0 4px;border-radius:8px;overflow:hidden;border:1px solid rgba(0,230,118,0.3);">
     <div class="atoggle-btn atoggle-active" onclick="toggleAnalysis('boxing','sintonia',this)" style="flex:1;text-align:center;padding:8px;cursor:pointer;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif;background:rgba(167,139,250,0.15);color:#A78BFA;transition:all 0.2s;">Sinton.ia's Card</div>
     <div class="atoggle-btn" onclick="toggleAnalysis('boxing','alyssa',this)" style="flex:1;text-align:center;padding:8px;cursor:pointer;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif;background:transparent;color:rgba(232,121,249,0.4);transition:all 0.2s;">Alyssa's Edge</div>
 </div>
@@ -1061,7 +1061,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 
 <!-- Sport tabs for props -->
 <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;" id="propsSportTabs">
-    <button class="sport-tab active" onclick="loadRealProps('nba')" style="font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid rgba(212,160,23,0.3);background:rgba(212,160,23,0.15);color:#D4A017;cursor:pointer;font-weight:700;">NBA</button>
+    <button class="sport-tab active" onclick="loadRealProps('nba')" style="font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid rgba(0,230,118,0.3);background:rgba(0,230,118,0.15);color:#00E676;cursor:pointer;font-weight:700;">NBA</button>
     <button class="sport-tab" onclick="loadRealProps('nhl')" style="font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;font-weight:700;">NHL</button>
     <button class="sport-tab" onclick="loadRealProps('nfl')" style="font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;font-weight:700;">NFL</button>
     <button class="sport-tab" onclick="loadRealProps('mlb')" style="font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;font-weight:700;">MLB</button>
@@ -1133,7 +1133,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 <!-- ===== BANKROLL PANEL ===== -->
 <div class="sport-panel" id="panel-bankroll">
 <div class="pick-form">
-    <h2 style="color:#D4A017;">Bankroll Tracker</h2>
+    <h2 style="color:#00E676;">Bankroll Tracker</h2>
     <div class="form-sub">Track every pick. Know where you stand.</div>
 
     <!-- Bankroll settings -->
@@ -1155,7 +1155,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     <div class="bankroll-stats-4" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0;">
         <div style="background:#141428;border:1px solid #1e1e40;border-radius:8px;padding:14px;text-align:center;">
             <div style="color:rgba(255,255,255,0.5);font-size:11px;text-transform:uppercase;">Current Balance</div>
-            <div id="brBalance" style="color:#D4A017;font-size:24px;font-weight:800;">$0</div>
+            <div id="brBalance" style="color:#00E676;font-size:24px;font-weight:800;">$0</div>
         </div>
         <div style="background:#141428;border:1px solid #1e1e40;border-radius:8px;padding:14px;text-align:center;">
             <div style="color:rgba(255,255,255,0.5);font-size:11px;text-transform:uppercase;">Record (W-L-P)</div>
@@ -1174,7 +1174,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     <!-- Per-person breakdown -->
     <div class="bankroll-stats-3" style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:16px 0;">
         <div style="background:#141428;border:1px solid #2a2a5a;border-radius:8px;padding:12px;text-align:center;">
-            <div style="color:#D4A017;font-weight:700;margin-bottom:4px;">Peter</div>
+            <div style="color:#00E676;font-weight:700;margin-bottom:4px;">Peter</div>
             <div id="brPeter" style="color:#fff;font-size:14px;">0-0-0 | 0u</div>
         </div>
         <div style="background:#141428;border:1px solid #2a2a5a;border-radius:8px;padding:12px;text-align:center;">
@@ -1202,16 +1202,16 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 <!-- ===== RESULTS PANEL (Pick Grading) ===== -->
 <div class="sport-panel" id="panel-results">
 <div class="pick-form">
-    <h2 style="color:#D4A017;">Pick Results</h2>
+    <h2 style="color:#00E676;">Pick Results</h2>
     <div class="form-sub">Click W / L / P to grade each pick. Results save automatically.</div>
     <div style="margin:12px 0;display:flex;gap:8px;align-items:center;">
-        <button onclick="autoGradePicks()" id="autoGradeBtn" style="background:linear-gradient(135deg,#D4A017,#B8860B);color:#0D0D1A;border:none;border-radius:8px;padding:10px 20px;font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;cursor:pointer;letter-spacing:0.5px;">AUTO-GRADE PICKS</button>
+        <button onclick="autoGradePicks()" id="autoGradeBtn" style="background:linear-gradient(135deg,#00E676,#00C853);color:#0D0D1A;border:none;border-radius:8px;padding:10px 20px;font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;cursor:pointer;letter-spacing:0.5px;">AUTO-GRADE PICKS</button>
         <span id="autoGradeStatus" style="color:rgba(255,255,255,0.4);font-size:12px;"></span>
     </div>
     <!-- Swim lane filter buttons -->
     <div id="swimLaneBar" style="display:flex;gap:6px;margin:12px 0;flex-wrap:wrap;">
-        <button class="swim-btn swim-active" onclick="setSwimLane('ALL',this)" style="background:#D4A017;color:#0D0D1A;border:none;border-radius:6px;padding:6px 14px;font-family:'Nunito',sans-serif;font-weight:800;font-size:12px;cursor:pointer;">ALL</button>
-        <button class="swim-btn" onclick="setSwimLane('Peter',this)" style="background:transparent;border:1px solid #D4A017;color:#D4A017;border-radius:6px;padding:6px 14px;font-family:'Nunito',sans-serif;font-weight:700;font-size:12px;cursor:pointer;">Peter</button>
+        <button class="swim-btn swim-active" onclick="setSwimLane('ALL',this)" style="background:#00E676;color:#0D0D1A;border:none;border-radius:6px;padding:6px 14px;font-family:'Nunito',sans-serif;font-weight:800;font-size:12px;cursor:pointer;">ALL</button>
+        <button class="swim-btn" onclick="setSwimLane('Peter',this)" style="background:transparent;border:1px solid #00E676;color:#00E676;border-radius:6px;padding:6px 14px;font-family:'Nunito',sans-serif;font-weight:700;font-size:12px;cursor:pointer;">Peter</button>
         <button class="swim-btn" onclick="setSwimLane('Chinny',this)" style="background:transparent;border:1px solid #10B981;color:#10B981;border-radius:6px;padding:6px 14px;font-family:'Nunito',sans-serif;font-weight:700;font-size:12px;cursor:pointer;">Chinny</button>
         <button class="swim-btn" onclick="setSwimLane('Jimmy',this)" style="background:transparent;border:1px solid #5588EE;color:#5588EE;border-radius:6px;padding:6px 14px;font-family:'Nunito',sans-serif;font-weight:700;font-size:12px;cursor:pointer;">Jimmy</button>
         <button class="swim-btn" onclick="setSwimLane('Alyssa',this)" style="background:transparent;border:1px solid #E879F9;color:#E879F9;border-radius:6px;padding:6px 14px;font-family:'Nunito',sans-serif;font-weight:700;font-size:12px;cursor:pointer;">Alyssa</button>
@@ -1229,7 +1229,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 
     <div class="form-group">
         <label>Picking As</label>
-        <div id="pickNameDisplay" style="padding:12px 16px;border-radius:10px;border:1px solid rgba(212,160,23,0.3);background:rgba(212,160,23,0.06);color:#D4A017;font-weight:700;font-size:14px;">--</div>
+        <div id="pickNameDisplay" style="padding:12px 16px;border-radius:10px;border:1px solid rgba(0,230,118,0.3);background:rgba(0,230,118,0.06);color:#00E676;font-weight:700;font-size:14px;">--</div>
         <input type="hidden" id="pickName" value="">
     </div>
 
@@ -1337,17 +1337,17 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 
     <div style="display:flex;gap:8px;">
         <button class="submit-pick-btn" onclick="submitPick()" style="flex:1;">Lock This Pick</button>
-        <button class="submit-pick-btn" onclick="addParlayLeg()" style="flex:1;background:#1a1a3a !important;border:1px solid #D4A017 !important;color:#D4A017 !important;">+ Add Leg</button>
+        <button class="submit-pick-btn" onclick="addParlayLeg()" style="flex:1;background:#1a1a3a !important;border:1px solid #00E676 !important;color:#00E676 !important;">+ Add Leg</button>
     </div>
 
-    <div id="parlayBuilder" style="display:none;margin-top:16px;background:#1a1a2a;border:1px solid #D4A017;border-radius:10px;padding:16px;">
+    <div id="parlayBuilder" style="display:none;margin-top:16px;background:#1a1a2a;border:1px solid #00E676;border-radius:10px;padding:16px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-            <h3 style="color:#D4A017;margin:0;font-size:16px;">Parlay Builder</h3>
-            <span id="parlayOdds" style="color:#D4A017;font-weight:800;font-size:18px;"></span>
+            <h3 style="color:#00E676;margin:0;font-size:16px;">Parlay Builder</h3>
+            <span id="parlayOdds" style="color:#00E676;font-weight:800;font-size:18px;"></span>
         </div>
         <div id="parlayLegs"></div>
         <div style="display:flex;gap:8px;margin-top:12px;">
-            <button class="submit-pick-btn" onclick="submitParlay()" style="flex:1;background:#D4A017 !important;color:#0D0D1A !important;font-weight:800;">Lock Parlay</button>
+            <button class="submit-pick-btn" onclick="submitParlay()" style="flex:1;background:#00E676 !important;color:#0D0D1A !important;font-weight:800;">Lock Parlay</button>
             <button class="submit-pick-btn" onclick="clearParlay()" style="flex:0 0 auto;background:transparent !important;border:1px solid #EF4444 !important;color:#EF4444 !important;padding:8px 16px;">Clear</button>
         </div>
     </div>
@@ -1375,7 +1375,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
         <input type="text" class="slip-odds-input" id="slipOdds" value="-110">
 
         <div class="slip-label">PICKING AS</div>
-        <div id="slipWhoDisplay" style="font-size:14px;font-weight:700;color:#D4A017;padding:8px 0;"></div>
+        <div id="slipWhoDisplay" style="font-size:14px;font-weight:700;color:#00E676;padding:8px 0;"></div>
 
         <div class="slip-label">UNITS</div>
         <div class="slip-btn-group" id="slipUnitsGroup">
@@ -1494,7 +1494,7 @@ function pickColor(el) {
 
 function getSelectedColor() {
     var picked = document.querySelector('.color-swatch.picked');
-    return picked ? picked.getAttribute('data-color') : '#D4A017';
+    return picked ? picked.getAttribute('data-color') : '#00E676';
 }
 
 function doLogin() {
@@ -1724,16 +1724,27 @@ function refreshSlate() {
 
     var sportsToLoad = ['nba','nhl','mlb','soccer','mma','boxing'];
     var loadedCount = 0;
+    var analysisCount = 0;
+    var oddsPhase = true;
+    window._analysisLoadCallback = function(sport) {
+        analysisCount++;
+        if (loadText && overlay && overlay.classList.contains('active')) {
+            loadText.textContent = 'Grading ' + sport.toUpperCase() + '... (' + analysisCount + '/' + sportsToLoad.length + ')';
+        }
+        if (analysisCount >= sportsToLoad.length && overlay) {
+            overlay.classList.remove('active');
+            showToast('Slate refreshed + graded!');
+        }
+    };
+    // Safety timeout — dismiss after 30s no matter what
+    setTimeout(function() { if (overlay) overlay.classList.remove('active'); }, 30000);
 
     function onSportLoaded(sport) {
         loadedCount++;
         if (loadText) loadText.textContent = 'Loading ' + sport.toUpperCase() + '... (' + loadedCount + '/' + sportsToLoad.length + ')';
         if (loadedCount >= sportsToLoad.length) {
             if (loadText) loadText.textContent = 'Running analysis...';
-            setTimeout(function() {
-                if (overlay) overlay.classList.remove('active');
-                showToast('Slate refreshed!');
-            }, 3000);
+            oddsPhase = false;
         }
     }
 
@@ -2005,7 +2016,7 @@ function lockCard() {
         td2.textContent = g;
         var td3 = document.createElement('td');
         td3.textContent = picks[g].side || '—';
-        td3.style.color = picks[g].side ? '#D4A017' : 'rgba(255,255,255,0.3)';
+        td3.style.color = picks[g].side ? '#00E676' : 'rgba(255,255,255,0.3)';
         td3.style.fontWeight = '700';
         tr.appendChild(td1);
         tr.appendChild(td2);
@@ -2387,22 +2398,22 @@ function editPick(index) {
 }
 
 var activeSwimLane = 'ALL';
-var CREW_COLORS = {Peter:'#D4A017',Chinny:'#10B981',Jimmy:'#5588EE',Alyssa:'#E879F9','Sinton.ia':'#A78BFA'};
+var CREW_COLORS = {Peter:'#00E676',Chinny:'#10B981',Jimmy:'#5588EE',Alyssa:'#E879F9','Sinton.ia':'#A78BFA'};
 
 function setSwimLane(name, btn) {
     activeSwimLane = name;
     document.querySelectorAll('.swim-btn').forEach(function(b) {
         b.style.background = 'transparent';
         var n = b.textContent.trim();
-        b.style.color = CREW_COLORS[n] || '#D4A017';
-        b.style.border = '1px solid ' + (CREW_COLORS[n] || '#D4A017');
+        b.style.color = CREW_COLORS[n] || '#00E676';
+        b.style.border = '1px solid ' + (CREW_COLORS[n] || '#00E676');
     });
     if (name === 'ALL') {
-        btn.style.background = '#D4A017';
+        btn.style.background = '#00E676';
         btn.style.color = '#0D0D1A';
         btn.style.border = 'none';
     } else {
-        btn.style.background = CREW_COLORS[name] || '#D4A017';
+        btn.style.background = CREW_COLORS[name] || '#00E676';
         btn.style.color = '#0D0D1A';
         btn.style.border = 'none';
     }
@@ -2556,7 +2567,7 @@ function renderBankroll() {
     if (ungradedCount > 0) {
         var pendingDiv = document.createElement('div');
         pendingDiv.id = 'brPending';
-        pendingDiv.style.cssText = 'background:rgba(212,160,23,0.1);border:1px solid rgba(212,160,23,0.3);border-radius:8px;padding:12px;text-align:center;margin-bottom:12px;color:#D4A017;font-weight:700;font-size:14px;';
+        pendingDiv.style.cssText = 'background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.3);border-radius:8px;padding:12px;text-align:center;margin-bottom:12px;color:#00E676;font-weight:700;font-size:14px;';
         pendingDiv.textContent = ungradedCount + ' pick' + (ungradedCount > 1 ? 's' : '') + ' pending grading';
         var statsGrid = document.querySelector('.bankroll-stats-4');
         if (statsGrid) statsGrid.parentNode.insertBefore(pendingDiv, statsGrid);
@@ -2617,7 +2628,7 @@ function renderBankroll() {
             else if (item.pick.result === 'P') { laneP++; }
         });
         var laneUngraded = filteredPicks.filter(function(item) { return !item.pick.result; }).length;
-        var laneColor = CREW_COLORS[activeSwimLane] || '#D4A017';
+        var laneColor = CREW_COLORS[activeSwimLane] || '#00E676';
         var laneHeader = document.createElement('div');
         laneHeader.style.cssText = 'background:rgba(255,255,255,0.03);border:1px solid ' + laneColor + ';border-radius:10px;padding:14px;margin-bottom:12px;text-align:center;';
         laneHeader.innerHTML = '<div style="font-size:18px;font-weight:800;color:' + laneColor + ';">' + activeSwimLane + '</div>' +
@@ -2650,7 +2661,7 @@ function renderBankroll() {
             var dp = new Date(dateKey + 'T12:00:00');
             displayDate = dp.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
         } catch(e) {}
-        header.style.cssText = 'color:#D4A017;font-weight:700;font-size:13px;padding:12px 0 6px;border-bottom:1px solid rgba(212,160,23,0.2);margin-top:8px;';
+        header.style.cssText = 'color:#00E676;font-weight:700;font-size:13px;padding:12px 0 6px;border-bottom:1px solid rgba(0,230,118,0.2);margin-top:8px;';
         header.textContent = displayDate + ' (' + visible.length + ' pick' + (visible.length > 1 ? 's' : '') + ')';
         container.appendChild(header);
 
@@ -2686,7 +2697,7 @@ function renderBankroll() {
             if (stale) {
                 badge = '<span style="background:rgba(239,68,68,0.15);color:#EF4444;font-size:10px;font-weight:700;padding:2px 6px;border-radius:3px;margin-left:6px;">STALE</span>';
             } else if (!graded) {
-                badge = '<span style="background:rgba(212,160,23,0.15);color:#D4A017;font-size:10px;font-weight:700;padding:2px 6px;border-radius:3px;margin-left:6px;">UNGRADED</span>';
+                badge = '<span style="background:rgba(0,230,118,0.15);color:#00E676;font-size:10px;font-weight:700;padding:2px 6px;border-radius:3px;margin-left:6px;">UNGRADED</span>';
             }
 
             div.innerHTML =
@@ -2939,7 +2950,7 @@ function renderParlayLegs() {
         var div = document.createElement('div');
         div.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.1);';
         div.innerHTML = '<div style="flex:1;">' +
-            '<span style="color:#D4A017;font-weight:700;">Leg ' + (i+1) + '</span> ' +
+            '<span style="color:#00E676;font-weight:700;">Leg ' + (i+1) + '</span> ' +
             '<span style="color:rgba(255,255,255,0.5);font-size:12px;">' + leg.sport + ' — ' + leg.matchup + '</span><br>' +
             '<span style="color:#fff;font-weight:600;">' + leg.selection + '</span> ' +
             '<span style="color:rgba(255,255,255,0.4);">(' + leg.odds + ')</span>' +
@@ -3064,7 +3075,7 @@ function renderPicks() {
     }
     // Group by crew member
     var crewOrder = ['Peter','Chinny','Jimmy','Alyssa','Sinton.ia'];
-    var crewColors = {Peter:'#D4A017',Chinny:'#10B981',Jimmy:'#60A5FA',Alyssa:'#E879F9','Sinton.ia':'#A78BFA'};
+    var crewColors = {Peter:'#00E676',Chinny:'#10B981',Jimmy:'#60A5FA',Alyssa:'#E879F9','Sinton.ia':'#A78BFA'};
     var grouped = {};
     todayPicks.forEach(function(p) {
         var name = p.name || 'Unknown';
@@ -3090,7 +3101,7 @@ function renderSwimLane(container, name, picks, color) {
     // Pick cards
     picks.forEach(function(p) {
         var confClass = p.confidence === 'Fire' ? 'fire' : p.confidence === 'Strong' ? 'strong' : 'lean';
-        var typeTag = p.type === 'Parlay' ? '<span style="background:#D4A017;color:#0D0D1A;font-size:10px;font-weight:800;padding:2px 6px;border-radius:4px;margin-left:6px;">PARLAY</span>' :
+        var typeTag = p.type === 'Parlay' ? '<span style="background:#00E676;color:#0D0D1A;font-size:10px;font-weight:800;padding:2px 6px;border-radius:4px;margin-left:6px;">PARLAY</span>' :
                       p.type === 'Prop' ? '<span style="background:#A78BFA;color:#0D0D1A;font-size:10px;font-weight:800;padding:2px 6px;border-radius:4px;margin-left:6px;">PROP</span>' : '';
         var card = document.createElement('div');
         card.style.cssText = 'padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;justify-content:space-between;align-items:center;';
@@ -3231,7 +3242,7 @@ function buildGameRowHTML(g) {
     // Check if game is today
     var now = new Date();
     var isToday = gameDate.toDateString() === now.toDateString();
-    var todayStyle = isToday ? 'border-left:3px solid #D4A017;background:rgba(212,160,23,0.04);' : 'border-left:3px solid transparent;opacity:0.75;';
+    var todayStyle = isToday ? 'border-left:3px solid #00E676;background:rgba(0,230,118,0.04);' : 'border-left:3px solid transparent;opacity:0.75;';
 
     // Store odds in liveOddsMap for auto-select in form
     liveOddsMap[matchup] = {};
@@ -3269,7 +3280,7 @@ function buildGameRowHTML(g) {
         gradeClass = 'gc';
     }
 
-    var bookTag = '<span class="tag" style="background:rgba(212,160,23,0.15);color:#D4A017;">' + bookSource.toUpperCase() + '</span> ';
+    var bookTag = '<span class="tag" style="background:rgba(0,230,118,0.15);color:#00E676;">' + bookSource.toUpperCase() + '</span> ';
 
     // Line shift indicators
     var shiftTag = '';
@@ -3337,13 +3348,13 @@ function buildGameRowHTML(g) {
                 (g.arbs && g.arbs.length ? '<div class="detail-box" style="border-color:rgba(16,185,129,0.3);"><h4 style="color:#10B981;">\uD83D\uDCB0 Arbitrage Opportunities</h4>' +
                     g.arbs.map(function(a) {
                         return '<p style="font-size:12px;"><strong>' + a.type + '</strong> — ' + a.profit_pct + '% profit<br>' +
-                            a.legs.map(function(l) { return '<span style="color:#D4A017;">' + l.side + '</span> (' + l.odds + ') @ <span style="color:#60A5FA;">' + l.book.toUpperCase() + '</span>'; }).join(' vs ') +
+                            a.legs.map(function(l) { return '<span style="color:#00E676;">' + l.side + '</span> (' + l.odds + ') @ <span style="color:#60A5FA;">' + l.book.toUpperCase() + '</span>'; }).join(' vs ') +
                         '</p>';
                     }).join('') +
                 '</div>' : '') +
                 '<div class="detail-box trends"><h4>Notes</h4><p>' + (isComplete ? 'Lines complete. Ready for analysis.' : 'INCOMPLETE — missing data. Do not grade.') + '</p>' +
                     (rotowireUrls[g.sport] ? '<div style="margin-top:8px;display:flex;gap:6px;">' +
-                        '<a href="' + rotowireUrls[g.sport].lineups + '" target="_blank" onclick="event.stopPropagation()" style="display:inline-block;padding:4px 10px;background:rgba(212,160,23,0.15);color:#D4A017;border-radius:4px;text-decoration:none;font-size:11px;font-weight:600;">Lineups</a>' +
+                        '<a href="' + rotowireUrls[g.sport].lineups + '" target="_blank" onclick="event.stopPropagation()" style="display:inline-block;padding:4px 10px;background:rgba(0,230,118,0.15);color:#00E676;border-radius:4px;text-decoration:none;font-size:11px;font-weight:600;">Lineups</a>' +
                         '<a href="' + rotowireUrls[g.sport].injuries + '" target="_blank" onclick="event.stopPropagation()" style="display:inline-block;padding:4px 10px;background:rgba(239,68,68,0.15);color:#EF4444;border-radius:4px;text-decoration:none;font-size:11px;font-weight:600;">Injuries</a>' +
                     '</div>' : '') +
                 '</div>' +
@@ -3409,6 +3420,8 @@ function fetchLiveOdds(sport, onDone) {
                 // Still fetch analysis for gotcha card even with 0 pregame games
                 if (data.games && data.games.length > 0) {
                     fetchAnalysis(sport);
+                } else {
+                    if (typeof window._analysisLoadCallback === 'function') window._analysisLoadCallback(sport);
                 }
                 if (typeof onDone === 'function') onDone(sport);
                 return;
@@ -3480,6 +3493,9 @@ function fetchLiveOdds(sport, onDone) {
             if (pregameGames.length > 0) {
                 fetchAnalysis(sport);
                 fetchEdge(sport);
+            } else {
+                // No pregame games — still fire analysis callback for loading overlay
+                if (typeof window._analysisLoadCallback === 'function') window._analysisLoadCallback(sport);
             }
             if (typeof onDone === 'function') onDone(sport);
         })
@@ -3502,11 +3518,11 @@ function toggleMLFilter(sport) {
     var btn = panel.querySelector('.ml-filter-btn');
     if (btn) {
         if (mlFilterActive[sport]) {
-            btn.style.background = 'rgba(212,160,23,0.4)';
-            btn.style.borderColor = '#D4A017';
+            btn.style.background = 'rgba(0,230,118,0.4)';
+            btn.style.borderColor = '#00E676';
         } else {
-            btn.style.background = 'rgba(212,160,23,0.1)';
-            btn.style.borderColor = 'rgba(212,160,23,0.3)';
+            btn.style.background = 'rgba(0,230,118,0.1)';
+            btn.style.borderColor = 'rgba(0,230,118,0.3)';
         }
     }
     var rows = panel.querySelectorAll('.game-row');
@@ -3578,7 +3594,7 @@ function renderCombinedTable(data) {
     for (var sport in sportCounts) {
         statsHtml += '<div class="stat-pill">' + sportCounts[sport] + ' ' + sport + '</div>';
     }
-    statsHtml += '<div class="stat-pill" style="color:#D4A017;">' + games.length + ' Total</div>';
+    statsHtml += '<div class="stat-pill" style="color:#00E676;">' + games.length + ' Total</div>';
     document.getElementById('combinedStats').innerHTML = statsHtml;
     document.getElementById('combinedTimestamp').textContent = 'Updated: ' + (data.fetched_at || new Date().toLocaleTimeString()) + ' | Source: ' + (data.source || 'The Odds API');
 
@@ -3622,16 +3638,16 @@ function renderCombinedTable(data) {
     }
 
     var html = '<table style="width:100%;border-collapse:collapse;">';
-    html += '<tr><th style="background:rgba(255,255,255,0.06);text-align:left;padding:10px 12px;font-size:11px;color:#D4A017;text-transform:uppercase;letter-spacing:1px;">Time</th>';
-    html += '<th style="background:rgba(255,255,255,0.06);text-align:left;padding:10px;font-size:11px;color:#D4A017;text-transform:uppercase;">Sport</th>';
-    html += '<th style="background:rgba(255,255,255,0.06);text-align:left;padding:10px;font-size:11px;color:#D4A017;text-transform:uppercase;">Game</th>';
-    html += '<th style="background:rgba(255,255,255,0.06);text-align:center;padding:10px;font-size:11px;color:#D4A017;text-transform:uppercase;">Grade</th>';
-    html += '<th style="background:rgba(255,255,255,0.06);text-align:left;padding:10px;font-size:11px;color:#D4A017;text-transform:uppercase;">Spread</th>';
-    html += '<th style="background:rgba(255,255,255,0.06);text-align:center;padding:10px;font-size:11px;color:#D4A017;text-transform:uppercase;">O/U</th>';
-    html += '<th style="background:rgba(255,255,255,0.06);text-align:center;padding:10px;font-size:11px;color:#D4A017;text-transform:uppercase;">ML</th>';
-    html += '<th style="background:rgba(255,255,255,0.06);text-align:center;padding:10px;font-size:11px;color:#D4A017;text-transform:uppercase;">Props</th>';
-    html += '<th style="background:rgba(255,255,255,0.06);text-align:center;padding:10px;font-size:11px;color:#D4A017;text-transform:uppercase;">Book</th>';
-    html += '<th style="background:rgba(255,255,255,0.06);text-align:center;padding:10px;font-size:11px;color:#D4A017;text-transform:uppercase;">Status</th></tr>';
+    html += '<tr><th style="background:rgba(255,255,255,0.06);text-align:left;padding:10px 12px;font-size:11px;color:#00E676;text-transform:uppercase;letter-spacing:1px;">Time</th>';
+    html += '<th style="background:rgba(255,255,255,0.06);text-align:left;padding:10px;font-size:11px;color:#00E676;text-transform:uppercase;">Sport</th>';
+    html += '<th style="background:rgba(255,255,255,0.06);text-align:left;padding:10px;font-size:11px;color:#00E676;text-transform:uppercase;">Game</th>';
+    html += '<th style="background:rgba(255,255,255,0.06);text-align:center;padding:10px;font-size:11px;color:#00E676;text-transform:uppercase;">Grade</th>';
+    html += '<th style="background:rgba(255,255,255,0.06);text-align:left;padding:10px;font-size:11px;color:#00E676;text-transform:uppercase;">Spread</th>';
+    html += '<th style="background:rgba(255,255,255,0.06);text-align:center;padding:10px;font-size:11px;color:#00E676;text-transform:uppercase;">O/U</th>';
+    html += '<th style="background:rgba(255,255,255,0.06);text-align:center;padding:10px;font-size:11px;color:#00E676;text-transform:uppercase;">ML</th>';
+    html += '<th style="background:rgba(255,255,255,0.06);text-align:center;padding:10px;font-size:11px;color:#00E676;text-transform:uppercase;">Props</th>';
+    html += '<th style="background:rgba(255,255,255,0.06);text-align:center;padding:10px;font-size:11px;color:#00E676;text-transform:uppercase;">Book</th>';
+    html += '<th style="background:rgba(255,255,255,0.06);text-align:center;padding:10px;font-size:11px;color:#00E676;text-transform:uppercase;">Status</th></tr>';
 
     games.forEach(function(g) {
         var awayAbbr = abbr(g.away);
@@ -3652,7 +3668,7 @@ function renderCombinedTable(data) {
         else if (!g.lines_complete && g.sport === 'SOCCER' && (g.away_ml || g.home_ml)) statusTag = '<span class="tag" style="background:rgba(16,185,129,0.2);color:#10B981;">ML ONLY</span>';
         else if (!g.lines_complete) statusTag = '<span class="tag" style="background:rgba(251,191,36,0.2);color:#FBB024;">PARTIAL</span>';
         else statusTag = '<span class="tag" style="background:rgba(16,185,129,0.2);color:#10B981;">FULL</span>';
-        var rowBg = isToday ? 'background:rgba(212,160,23,0.03);' : '';
+        var rowBg = isToday ? 'background:rgba(0,230,118,0.03);' : '';
 
         // Look up analysis data for this game
         var analysis = findAnalysis(g.sport, g.away, g.home);
@@ -3677,11 +3693,11 @@ function renderCombinedTable(data) {
         html += '<td><span class="tag" style="' + sportStyle + '">' + g.sport + '</span></td>';
         html += '<td style="padding:10px;font-size:14px;font-weight:' + (g.lines_complete ? '700' : '400') + ';">' + awayAbbr + ' @ ' + homeAbbr + '</td>';
         html += '<td style="padding:10px;text-align:center;">' + gradeHtml + '</td>';
-        html += '<td style="padding:10px;font-size:13px;color:' + (g.lines_available ? '#D4A017' : 'rgba(255,255,255,0.3)') + ';">' + (g.lines_available ? homeAbbr + ' ' + spreadStr : '--') + '</td>';
+        html += '<td style="padding:10px;font-size:13px;color:' + (g.lines_available ? '#00E676' : 'rgba(255,255,255,0.3)') + ';">' + (g.lines_available ? homeAbbr + ' ' + spreadStr : '--') + '</td>';
         html += '<td style="padding:10px;font-size:13px;color:rgba(255,255,255,0.5);text-align:center;">' + (total ? total : '--') + '</td>';
         html += '<td style="padding:10px;font-size:12px;color:rgba(255,255,255,0.4);text-align:center;">' + awayAbbr + ' ' + awayML + '<br>' + homeAbbr + ' ' + homeML + '</td>';
         html += '<td style="padding:10px;text-align:center;">' + (propsHtml || '<span style="color:rgba(255,255,255,0.2);">--</span>') + '</td>';
-        html += '<td style="padding:10px;text-align:center;"><span class="tag" style="background:rgba(212,160,23,0.15);color:#D4A017;font-size:9px;">' + book.toUpperCase() + '</span></td>';
+        html += '<td style="padding:10px;text-align:center;"><span class="tag" style="background:rgba(0,230,118,0.15);color:#00E676;font-size:9px;">' + book.toUpperCase() + '</span></td>';
         html += '<td style="padding:10px;text-align:center;">' + statusTag + '</td>';
         html += '</tr>';
     });
@@ -3728,12 +3744,12 @@ function renderCombinedTable(data) {
             }
         }
 
-        cardsHtml += '<div class="combined-card"' + (isTd ? ' style="border-left:3px solid #D4A017;"' : '') + '>';
+        cardsHtml += '<div class="combined-card"' + (isTd ? ' style="border-left:3px solid #00E676;"' : '') + '>';
         cardsHtml += '<div class="combined-card-top"><span class="combined-card-matchup">' + awayA + ' @ ' + homeA + '</span>';
         cardsHtml += '<span style="display:flex;gap:6px;align-items:center;">' + mGrade + '<span class="combined-card-sport" style="' + sStyle + '">' + g.sport + '</span></span></div>';
         cardsHtml += '<div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:4px;">' + dl + '</div>';
         cardsHtml += '<div class="combined-card-lines">';
-        if (g.lines_available) cardsHtml += '<span style="color:#D4A017;font-weight:700;">' + homeA + ' ' + spStr + '</span>';
+        if (g.lines_available) cardsHtml += '<span style="color:#00E676;font-weight:700;">' + homeA + ' ' + spStr + '</span>';
         if (tot) cardsHtml += '<span>O/U ' + tot + '</span>';
         cardsHtml += '<span>ML: ' + awayA + ' ' + aML + ' / ' + homeA + ' ' + hML + '</span>';
         cardsHtml += '</div>';
@@ -3762,7 +3778,7 @@ function updatePeterGut(sport, analysisData) {
     var n = 0;
     sorted.forEach(function(game) {
         n++;
-        var gradeColor = '#D4A017';
+        var gradeColor = '#00E676';
         if (game.grade === 'A' || game.grade === 'A-') gradeColor = '#10B981';
         else if (game.grade === 'INCOMPLETE') gradeColor = '#F59E0B';
         else if (game.grade === 'C' || game.grade === 'C+') gradeColor = '#EF4444';
@@ -3853,11 +3869,11 @@ function fetchEdge(sport) {
                 var flags = [];
                 if (g.public_fade) flags.push('<span style="background:rgba(239,68,68,0.15);color:#EF4444;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;">PUBLIC FADE</span>');
                 if (g.value_tag) flags.push('<span style="background:rgba(16,185,129,0.15);color:#10B981;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;">' + g.value_tag + '</span>');
-                if (g.spread_ml_flag) flags.push('<span style="background:rgba(212,160,23,0.15);color:#D4A017;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;">' + g.spread_ml_flag + '</span>');
+                if (g.spread_ml_flag) flags.push('<span style="background:rgba(0,230,118,0.15);color:#00E676;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;">' + g.spread_ml_flag + '</span>');
                 if (g.total_lean) flags.push('<span style="background:rgba(96,165,250,0.15);color:#60A5FA;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;">' + g.total_lean + '</span>');
 
                 // Upset score bar
-                var barColor = g.upset_score >= 7 ? '#10B981' : (g.upset_score >= 4 ? '#D4A017' : '#EF4444');
+                var barColor = g.upset_score >= 7 ? '#10B981' : (g.upset_score >= 4 ? '#00E676' : '#EF4444');
                 var barWidth = g.upset_score * 10;
 
                 html += '<div style="border:1px solid rgba(232,121,249,0.15);border-radius:10px;padding:12px;margin-bottom:10px;background:rgba(232,121,249,0.03);">';
@@ -4001,7 +4017,7 @@ function fetchAnalysis(sport) {
                                     var sp = gameSport.replace('panel-','').toUpperCase();
                                     if (rotowireUrls[sp]) {
                                         th += '<div style="margin-top:8px;display:flex;gap:6px;">' +
-                                            '<a href="' + rotowireUrls[sp].lineups + '" target="_blank" onclick="event.stopPropagation()" style="display:inline-block;padding:4px 10px;background:rgba(212,160,23,0.15);color:#D4A017;border-radius:4px;text-decoration:none;font-size:11px;font-weight:600;">Lineups</a>' +
+                                            '<a href="' + rotowireUrls[sp].lineups + '" target="_blank" onclick="event.stopPropagation()" style="display:inline-block;padding:4px 10px;background:rgba(0,230,118,0.15);color:#00E676;border-radius:4px;text-decoration:none;font-size:11px;font-weight:600;">Lineups</a>' +
                                             '<a href="' + rotowireUrls[sp].injuries + '" target="_blank" onclick="event.stopPropagation()" style="display:inline-block;padding:4px 10px;background:rgba(239,68,68,0.15);color:#EF4444;border-radius:4px;text-decoration:none;font-size:11px;font-weight:600;">Injuries</a>' +
                                             '</div>';
                                     }
@@ -4028,8 +4044,12 @@ function fetchAnalysis(sport) {
             }
 
             showToast(sport.toUpperCase() + ' analysis updated \u2014 ' + (data.generated_at || 'just now'));
+            if (typeof window._analysisLoadCallback === 'function') window._analysisLoadCallback(sport);
         })
-        .catch(function(err) { console.error('Analysis fetch error:', err); });
+        .catch(function(err) {
+            console.error('Analysis fetch error:', err);
+            if (typeof window._analysisLoadCallback === 'function') window._analysisLoadCallback(sport);
+        });
 }
 
 // ===== FIX 1: DYNAMIC GOTCHA CARD DATES =====
@@ -4103,16 +4123,16 @@ function loadProps() {
     // === HAMMER SECTION — top-grade props front and center ===
     if (hammerProps.length > 0) {
         html += '<div style="margin-bottom:24px;">';
-        html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid rgba(212,160,23,0.3);">';
+        html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid rgba(0,230,118,0.3);">';
         html += '<span style="font-size:24px;">&#x1F528;</span>';
-        html += '<span style="font-family:\'Playfair Display\',serif;font-size:18px;font-weight:700;color:#D4A017;">HAMMER PROPS</span>';
-        html += '<span style="font-size:11px;color:rgba(212,160,23,0.7);font-weight:600;letter-spacing:1px;">A-GRADE GAMES ONLY</span>';
+        html += '<span style="font-family:\'Playfair Display\',serif;font-size:18px;font-weight:700;color:#00E676;">HAMMER PROPS</span>';
+        html += '<span style="font-size:11px;color:rgba(0,230,118,0.7);font-weight:600;letter-spacing:1px;">A-GRADE GAMES ONLY</span>';
         html += '</div>';
         hammerProps.forEach(function(entry) {
             var sportStyle = sportColors[entry.sport] || 'background:rgba(255,255,255,0.1);color:#fff;';
             var gradeClass = 'g' + entry.grade.toLowerCase().replace(/[^a-z]/g,'');
-            html += '<div style="background:rgba(212,160,23,0.06);border:2px solid rgba(212,160,23,0.35);border-radius:12px;padding:18px 22px;margin-bottom:14px;position:relative;">';
-            html += '<div style="position:absolute;top:-10px;right:16px;background:#D4A017;color:#0D0D0D;font-size:10px;font-weight:800;padding:3px 10px;border-radius:6px;letter-spacing:1px;">HAMMER</div>';
+            html += '<div style="background:rgba(0,230,118,0.06);border:2px solid rgba(0,230,118,0.35);border-radius:12px;padding:18px 22px;margin-bottom:14px;position:relative;">';
+            html += '<div style="position:absolute;top:-10px;right:16px;background:#00E676;color:#0D0D0D;font-size:10px;font-weight:800;padding:3px 10px;border-radius:6px;letter-spacing:1px;">HAMMER</div>';
             html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">';
             html += '<div><span class="tag" style="' + sportStyle + '">' + entry.sport + '</span> ';
             html += '<strong style="font-family:\'Playfair Display\',serif;font-size:15px;">' + entry.matchup + '</strong></div>';
@@ -4121,8 +4141,8 @@ function loadProps() {
             html += '<ul style="list-style:none;padding:0;margin:0;">';
             entry.props.forEach(function(prop) {
                 totalProps++;
-                html += '<li style="padding:8px 0;border-bottom:1px solid rgba(212,160,23,0.12);font-size:14px;color:rgba(255,255,255,0.85);font-weight:600;">';
-                html += '<span style="color:#D4A017;margin-right:6px;">&#x25B6;</span>' + prop + '</li>';
+                html += '<li style="padding:8px 0;border-bottom:1px solid rgba(0,230,118,0.12);font-size:14px;color:rgba(255,255,255,0.85);font-weight:600;">';
+                html += '<span style="color:#00E676;margin-right:6px;">&#x25B6;</span>' + prop + '</li>';
             });
             html += '</ul></div>';
         });
@@ -4191,9 +4211,9 @@ function loadRealProps(sport) {
     tabs.forEach(function(t) {
         if (t.textContent.trim().toLowerCase() === sport) {
             t.classList.add('active');
-            t.style.borderColor = 'rgba(212,160,23,0.3)';
-            t.style.background = 'rgba(212,160,23,0.15)';
-            t.style.color = '#D4A017';
+            t.style.borderColor = 'rgba(0,230,118,0.3)';
+            t.style.background = 'rgba(0,230,118,0.15)';
+            t.style.color = '#00E676';
         } else {
             t.classList.remove('active');
             t.style.borderColor = 'rgba(255,255,255,0.1)';
@@ -4273,7 +4293,7 @@ function renderRealProps(props) {
     var html = '';
     var verdictColors = {
         'SHARP VALUE': {bg: 'rgba(16,185,129,0.15)', color: '#10B981', border: 'rgba(16,185,129,0.3)'},
-        'SLIGHT EDGE': {bg: 'rgba(212,160,23,0.12)', color: '#D4A017', border: 'rgba(212,160,23,0.25)'},
+        'SLIGHT EDGE': {bg: 'rgba(0,230,118,0.12)', color: '#00E676', border: 'rgba(0,230,118,0.25)'},
         'FAIR LINE': {bg: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.5)', border: 'rgba(255,255,255,0.1)'},
         'BAD NUMBER': {bg: 'rgba(239,68,68,0.08)', color: '#EF4444', border: 'rgba(239,68,68,0.15)'}
     };
@@ -4315,15 +4335,15 @@ function renderRealProps(props) {
                 prop.books.forEach(function(b) {
                     var isBest = b.book === prop.best_book;
                     var bOdds = b.odds > 0 ? '+' + b.odds : '' + b.odds;
-                    html += '<div style="color:rgba(255,255,255,0.6);' + (isBest ? 'font-weight:700;color:#D4A017;' : '') + '">' + b.book + (isBest ? ' &#x2B50;' : '') + '</div>';
-                    html += '<div style="color:#fff;font-weight:600;text-align:right;' + (isBest ? 'color:#D4A017;' : '') + '">' + bOdds + '</div>';
+                    html += '<div style="color:rgba(255,255,255,0.6);' + (isBest ? 'font-weight:700;color:#00E676;' : '') + '">' + b.book + (isBest ? ' &#x2B50;' : '') + '</div>';
+                    html += '<div style="color:#fff;font-weight:600;text-align:right;' + (isBest ? 'color:#00E676;' : '') + '">' + bOdds + '</div>';
                     html += '<div style="color:rgba(255,255,255,0.3);text-align:right;">' + (b.implied_prob || '?') + '%</div>';
                 });
                 html += '</div>';
             }
             // Edge analysis
             html += '<div style="display:flex;gap:16px;font-size:12px;margin-bottom:10px;">';
-            html += '<div><span style="color:rgba(255,255,255,0.4);">Best:</span> <strong style="color:#D4A017;">' + prop.best_book + ' ' + oddsStr + '</strong></div>';
+            html += '<div><span style="color:rgba(255,255,255,0.4);">Best:</span> <strong style="color:#00E676;">' + prop.best_book + ' ' + oddsStr + '</strong></div>';
             html += '<div><span style="color:rgba(255,255,255,0.4);">Implied:</span> <strong style="color:#fff;">' + (prop.best_prob || '?') + '%</strong></div>';
             html += '<div><span style="color:rgba(255,255,255,0.4);">Consensus:</span> <strong style="color:#fff;">' + (prop.consensus_prob || '?') + '%</strong></div>';
             html += '<div><span style="color:rgba(255,255,255,0.4);">Edge:</span> <strong style="color:' + vc.color + ';">' + edgeSign + prop.edge + '%</strong></div>';
@@ -4331,7 +4351,7 @@ function renderRealProps(props) {
             // Add to picks button
             var propSel = prop.player + ' Over ' + prop.line + ' ' + prop.stat;
             var propNote = prop.best_book + ' best line. Edge: ' + edgeSign + prop.edge + '%. ' + prop.book_count + ' books.';
-            html += '<button onclick="event.stopPropagation();addPropToPicks(\'' + propSel.replace(/'/g,"\\'") + '\',\'' + oddsStr.replace(/'/g,"\\'") + '\',\'' + prop.matchup.replace(/'/g,"\\'") + '\',\'' + _realPropsSport.toUpperCase() + '\',\'' + propNote.replace(/'/g,"\\'") + '\')" style="width:100%;padding:8px;background:linear-gradient(135deg,#D4A017,#B8860B);color:#0D0D1A;border:none;border-radius:8px;font-family:\'Nunito\',sans-serif;font-weight:800;font-size:13px;cursor:pointer;letter-spacing:0.5px;">ADD TO PICKS</button>';
+            html += '<button onclick="event.stopPropagation();addPropToPicks(\'' + propSel.replace(/'/g,"\\'") + '\',\'' + oddsStr.replace(/'/g,"\\'") + '\',\'' + prop.matchup.replace(/'/g,"\\'") + '\',\'' + _realPropsSport.toUpperCase() + '\',\'' + propNote.replace(/'/g,"\\'") + '\')" style="width:100%;padding:8px;background:linear-gradient(135deg,#00E676,#00C853);color:#0D0D1A;border:none;border-radius:8px;font-family:\'Nunito\',sans-serif;font-weight:800;font-size:13px;cursor:pointer;letter-spacing:0.5px;">ADD TO PICKS</button>';
             html += '</div>';
 
             html += '</div>';
@@ -4433,7 +4453,7 @@ function populateUpsetDropdowns(sport) {
         var hdr = document.createElement('option');
         hdr.disabled = true;
         hdr.textContent = '── ' + matchup + ' ──';
-        hdr.style.color = '#D4A017';
+        hdr.style.color = '#00E676';
         select.appendChild(hdr);
         // Only show ML underdogs (+ moneyline = upset specials)
         var btns = row.querySelectorAll('.side-btn');
@@ -4717,12 +4737,12 @@ async function clearAllCache() {
 .agent-fab{
     position:fixed;bottom:16px;left:20px;z-index:200;
     width:52px;height:52px;border-radius:50%;border:none;
-    background:linear-gradient(135deg,#D4A017,#B8860B);
+    background:linear-gradient(135deg,#00E676,#00C853);
     color:#0D0D1A;font-size:22px;
-    cursor:pointer;box-shadow:0 4px 20px rgba(212,160,23,0.4);
+    cursor:pointer;box-shadow:0 4px 20px rgba(0,230,118,0.4);
     transition:all 0.3s;display:flex;align-items:center;justify-content:center;
 }
-.agent-fab:hover{transform:scale(1.1);box-shadow:0 6px 30px rgba(212,160,23,0.6);}
+.agent-fab:hover{transform:scale(1.1);box-shadow:0 6px 30px rgba(0,230,118,0.6);}
 .agent-fab.open{background:#EF4444;}
 .agent-fab.listening{background:#10B981;animation:pulse-mic 1.5s ease infinite;}
 @keyframes pulse-mic{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,0.4);}50%{box-shadow:0 0 0 12px rgba(16,185,129,0);}}
@@ -4732,7 +4752,7 @@ async function clearAllCache() {
     position:fixed;bottom:80px;left:20px;z-index:200;
     width:380px;max-width:calc(100vw - 40px);
     max-height:600px;
-    background:#0D0D1A;border:1px solid rgba(212,160,23,0.3);
+    background:#0D0D1A;border:1px solid rgba(0,230,118,0.3);
     border-radius:16px;overflow:hidden;
     display:none;flex-direction:column;
     box-shadow:0 8px 40px rgba(0,0,0,0.6);
@@ -4744,7 +4764,7 @@ async function clearAllCache() {
     .agent-panel{
         position:fixed;bottom:90px;left:8px;right:8px;
         width:auto;max-width:calc(100vw - 16px);max-height:55vh;
-        border-radius:14px;border:1px solid rgba(212,160,23,0.3);z-index:400;
+        border-radius:14px;border:1px solid rgba(0,230,118,0.3);z-index:400;
         box-shadow:0 8px 40px rgba(0,0,0,0.7);
     }
     .agent-messages{max-height:none;flex:1;min-height:0;padding:8px;gap:6px;}
@@ -4767,13 +4787,13 @@ async function clearAllCache() {
 }
 
 .agent-header{
-    padding:12px 16px;background:rgba(212,160,23,0.1);
-    border-bottom:1px solid rgba(212,160,23,0.2);
+    padding:12px 16px;background:rgba(0,230,118,0.1);
+    border-bottom:1px solid rgba(0,230,118,0.2);
     display:flex;align-items:center;gap:8px;
 }
 .agent-header-dot{width:8px;height:8px;border-radius:50%;background:#10B981;animation:pulse 2s infinite;}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
-.agent-header-title{color:#D4A017;font-weight:800;font-size:14px;flex:1;}
+.agent-header-title{color:#00E676;font-weight:800;font-size:14px;flex:1;}
 .agent-header-clear{color:rgba(255,255,255,0.3);font-size:11px;cursor:pointer;border:none;background:none;font-family:'Nunito',sans-serif;}
 .agent-header-clear:hover{color:#fff;}
 
@@ -4782,13 +4802,13 @@ async function clearAllCache() {
     display:flex;flex-direction:column;gap:8px;
 }
 .agent-messages::-webkit-scrollbar{width:4px;}
-.agent-messages::-webkit-scrollbar-thumb{background:rgba(212,160,23,0.3);border-radius:2px;}
+.agent-messages::-webkit-scrollbar-thumb{background:rgba(0,230,118,0.3);border-radius:2px;}
 .agent-msg{
     max-width:85%;padding:8px 12px;border-radius:12px;font-size:13px;line-height:1.4;
     word-wrap:break-word;
 }
 .agent-msg.user{
-    align-self:flex-end;background:rgba(212,160,23,0.15);color:#fff;
+    align-self:flex-end;background:rgba(0,230,118,0.15);color:#fff;
     border-bottom-right-radius:4px;
 }
 .agent-msg.agent{
@@ -4814,17 +4834,17 @@ async function clearAllCache() {
     border-radius:8px;padding:10px 12px;color:#fff;font-family:'Nunito',sans-serif;
     font-size:13px;outline:none;
 }
-.agent-input input:focus{border-color:rgba(212,160,23,0.4);}
+.agent-input input:focus{border-color:rgba(0,230,118,0.4);}
 .agent-input button.ev-send{
-    background:linear-gradient(135deg,#D4A017,#B8860B);color:#0D0D1A;border:none;
+    background:linear-gradient(135deg,#00E676,#00C853);color:#0D0D1A;border:none;
     border-radius:8px;padding:10px 16px;font-weight:800;font-size:13px;cursor:pointer;
     font-family:'Nunito',sans-serif;
 }
 /* EV Sport Mode Banner */
 .ev-mode-banner{
-    display:none;padding:6px 12px;background:rgba(212,160,23,0.1);
-    border-bottom:1px solid rgba(212,160,23,0.15);
-    font-size:12px;color:#D4A017;font-weight:700;
+    display:none;padding:6px 12px;background:rgba(0,230,118,0.1);
+    border-bottom:1px solid rgba(0,230,118,0.15);
+    font-size:12px;color:#00E676;font-weight:700;
     align-items:center;justify-content:space-between;
 }
 .ev-mode-banner.active{display:flex;}
@@ -4836,10 +4856,10 @@ async function clearAllCache() {
 }
 .ev-avatar{
     width:64px;height:64px;border-radius:50%;
-    background:linear-gradient(135deg,#D4A017,#B8860B);
+    background:linear-gradient(135deg,#00E676,#00C853);
     display:flex;align-items:center;justify-content:center;
     font-size:24px;font-weight:900;color:#0D0D1A;
-    box-shadow:0 4px 20px rgba(212,160,23,0.3);
+    box-shadow:0 4px 20px rgba(0,230,118,0.3);
     transition:box-shadow 0.3s;font-family:'Nunito',sans-serif;
 }
 .ev-avatar.speaking{box-shadow:0 0 0 8px rgba(16,185,129,0.2),0 0 0 16px rgba(16,185,129,0.1);}
@@ -4853,13 +4873,13 @@ async function clearAllCache() {
 .ev-prompts::-webkit-scrollbar{display:none;}
 .ev-prompt-btn{
     white-space:nowrap;padding:6px 12px;border-radius:20px;
-    border:1px solid rgba(212,160,23,0.25);background:rgba(212,160,23,0.06);
+    border:1px solid rgba(0,230,118,0.25);background:rgba(0,230,118,0.06);
     color:rgba(255,255,255,0.6);font-size:11px;font-weight:700;
     cursor:pointer;font-family:'Nunito',sans-serif;transition:all 0.2s;
     flex-shrink:0;
 }
 .ev-prompt-btn:active,.ev-prompt-btn:hover{
-    background:rgba(212,160,23,0.15);color:#D4A017;border-color:rgba(212,160,23,0.5);
+    background:rgba(0,230,118,0.15);color:#00E676;border-color:rgba(0,230,118,0.5);
 }
 
 /* Voice Mode Buttons */
@@ -4891,9 +4911,9 @@ async function clearAllCache() {
     font-size:0.6rem;font-weight:700;transition:all 0.2s;
 }
 .ev-sport-mode:active,.ev-sport-mode:hover{
-    background:rgba(212,160,23,0.08);color:#D4A017;border-color:rgba(212,160,23,0.3);
+    background:rgba(0,230,118,0.08);color:#00E676;border-color:rgba(0,230,118,0.3);
 }
-.ev-sport-mode.active{background:rgba(212,160,23,0.12);color:#D4A017;border-color:rgba(212,160,23,0.4);}
+.ev-sport-mode.active{background:rgba(0,230,118,0.12);color:#00E676;border-color:rgba(0,230,118,0.4);}
 .ev-sport-mode .esm-icon{font-size:1.1rem;}
 
 /* End Voice Button */
@@ -4949,7 +4969,7 @@ async function clearAllCache() {
 
     <!-- Input -->
     <div class="agent-input">
-        <button onclick="evToggleVoice()" id="agentMicBtn" style="background:transparent;border:1px solid rgba(212,160,23,0.3);border-radius:8px;padding:10px;cursor:pointer;color:#D4A017;flex:0 0 auto;" title="Tap to Talk"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button>
+        <button onclick="evToggleVoice()" id="agentMicBtn" style="background:transparent;border:1px solid rgba(0,230,118,0.3);border-radius:8px;padding:10px;cursor:pointer;color:#00E676;flex:0 0 auto;" title="Tap to Talk"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button>
         <input type="text" id="agentInput" placeholder="Ask EV anything..." onkeydown="if(event.key==='Enter')sendAgentMsg()">
         <button class="ev-send" onclick="sendAgentMsg()">Send</button>
     </div>
@@ -5138,8 +5158,8 @@ function _startListening() {
         _agentListening = false;
         fab.classList.remove('listening');
         micBtn.style.background = 'transparent';
-        micBtn.style.borderColor = 'rgba(212,160,23,0.3)';
-        micBtn.style.color = '#D4A017';
+        micBtn.style.borderColor = 'rgba(0,230,118,0.3)';
+        micBtn.style.color = '#00E676';
         document.getElementById('evAvatar').classList.remove('speaking');
         if (listeningMsg && listeningMsg.parentNode) listeningMsg.remove();
 
@@ -5158,8 +5178,8 @@ function _startListening() {
         _agentListening = false;
         fab.classList.remove('listening');
         micBtn.style.background = 'transparent';
-        micBtn.style.borderColor = 'rgba(212,160,23,0.3)';
-        micBtn.style.color = '#D4A017';
+        micBtn.style.borderColor = 'rgba(0,230,118,0.3)';
+        micBtn.style.color = '#00E676';
         document.getElementById('evAvatar').classList.remove('speaking');
         if (listeningMsg && listeningMsg.parentNode) listeningMsg.remove();
         if (event.error !== 'no-speech' && event.error !== 'aborted') {
@@ -5181,8 +5201,8 @@ function evStopVoice() {
     document.getElementById('agentFab').classList.remove('listening');
     var micBtn = document.getElementById('agentMicBtn');
     micBtn.style.background = 'transparent';
-    micBtn.style.borderColor = 'rgba(212,160,23,0.3)';
-    micBtn.style.color = '#D4A017';
+    micBtn.style.borderColor = 'rgba(0,230,118,0.3)';
+    micBtn.style.color = '#00E676';
     document.getElementById('evAvatar').classList.remove('speaking');
     document.getElementById('evBtnFreeflow').classList.remove('active');
     document.getElementById('evBtnTurnbased').classList.remove('active');
