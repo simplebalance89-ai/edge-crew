@@ -1713,6 +1713,87 @@ def _grade_pick_against_score(pick: dict, game: dict) -> str | None:
     return None
 
 
+def _parse_parlay_legs(pick: dict) -> list:
+    """Parse parlay legs from selection/notes text.
+
+    Looks for patterns like:
+      "Hornets ML + Leafs ML + OKC ML"
+      "CHA +7.5, TOR ML, Over 215.5"
+      "Leg 1: Hornets ML | Leg 2: Leafs ML"
+    Returns list of dicts with {selection, type} per leg.
+    """
+    text = pick.get("selection", "") + " " + pick.get("notes", "")
+    # Split on common delimiters: +, |, /, comma, "and", "leg N:"
+    parts = re.split(r'\s*[+|/]\s*|\s*,\s*|\s+and\s+|\s*leg\s*\d+\s*:\s*', text, flags=re.IGNORECASE)
+    legs = []
+    for part in parts:
+        part = part.strip()
+        if len(part) < 3:
+            continue
+        # Determine type from text
+        p_lower = part.lower()
+        if "over" in p_lower or "under" in p_lower:
+            leg_type = "Over/Under"
+        elif re.search(r'[+-]\d', part):
+            leg_type = "Spread"
+        elif "ml" in p_lower or "money" in p_lower:
+            leg_type = "Moneyline"
+        else:
+            leg_type = "Moneyline"  # default for team-name-only legs
+        legs.append({"selection": part, "type": leg_type})
+    return legs
+
+
+def _grade_parlay(pick: dict, completed_games: list) -> str | None:
+    """Grade a parlay by grading each leg individually.
+
+    All legs W = Parlay W
+    Any leg L = Parlay L
+    Mix of W and P (no L) = reduced parlay W
+    Not all legs gradeable = None (wait)
+    """
+    legs = _parse_parlay_legs(pick)
+    if not legs:
+        return None
+
+    leg_results = []
+    for leg in legs:
+        leg_pick = {
+            "selection": leg["selection"],
+            "type": leg["type"],
+            "matchup": pick.get("matchup", ""),
+        }
+        graded = False
+        for game in completed_games:
+            home = game.get("home_team", "")
+            away = game.get("away_team", "")
+            # Try matching this leg to a game
+            if _teams_match(leg["selection"], home, away) or _teams_match(pick.get("matchup", ""), home, away):
+                result = _grade_pick_against_score(leg_pick, game)
+                if result:
+                    leg_results.append(result)
+                    graded = True
+                    break
+        if not graded:
+            leg_results.append(None)
+
+    # If any leg ungraded, can't determine parlay result yet
+    if None in leg_results:
+        # But if any leg is already L, parlay is dead
+        if "L" in leg_results:
+            return "L"
+        return None
+
+    # All legs graded
+    if "L" in leg_results:
+        return "L"
+    if all(r == "W" or r == "P" for r in leg_results):
+        if all(r == "P" for r in leg_results):
+            return "P"
+        return "W"  # Mix of W and P = reduced parlay wins
+    return None
+
+
 @app.post("/api/picks/autograde")
 async def autograde_picks(request: Request):
     """Auto-grade ungraded picks by fetching final scores from The Odds API.
@@ -1790,7 +1871,37 @@ async def autograde_picks(request: Request):
     for pick in ungraded:
         matchup = pick.get("matchup", "")
         selection = pick.get("selection", "")
+        pick_type = pick.get("type", "").lower()
         matched = False
+
+        # --- PARLAY GRADING ---
+        if pick_type == "parlay" or "+" in selection and selection.count("+") >= 1 and "+" not in selection[:2]:
+            result = _grade_parlay(pick, completed)
+            if result:
+                pick_id = pick.get("id", "")
+                if sb and pick_id:
+                    try:
+                        sb.table("picks").update({
+                            "result": result,
+                            "graded_at": datetime.now(PST).isoformat(),
+                        }).eq("id", pick_id).execute()
+                    except Exception:
+                        pass
+                graded_count += 1
+                legs = _parse_parlay_legs(pick)
+                results.append({
+                    "pick_id": pick_id,
+                    "selection": selection,
+                    "matchup": matchup,
+                    "result": result,
+                    "final_score": f"Parlay ({len(legs)} legs)",
+                })
+                matched = True
+            if not matched:
+                no_match.append(f"PARLAY: {selection[:60]}")
+            continue
+
+        # --- SINGLE PICK GRADING ---
         for game in completed:
             home = game.get("home_team", "")
             away = game.get("away_team", "")
