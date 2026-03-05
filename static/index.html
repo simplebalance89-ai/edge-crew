@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#0D0D1A">
+<meta name="theme-color" content="#0A0A0A">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Edge Crew">
@@ -13,7 +13,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:100vh;padding-bottom:70px;}
+body{background:#0A0A0A;color:#fff;font-family:'Nunito',sans-serif;min-height:100vh;padding-bottom:70px;}
 
 /* ===== TOP BAR ===== */
 .topbar{
@@ -108,7 +108,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 /* ===== SUBMIT BAR ===== */
 .submit-bar{
     position:fixed;bottom:0;left:0;right:0;
-    background:rgba(13,13,26,0.95);backdrop-filter:blur(12px);
+    background:rgba(10,10,10,0.95);backdrop-filter:blur(12px);
     border-top:1px solid rgba(0,230,118,0.3);
     padding:12px 24px;display:flex;align-items:center;justify-content:space-between;
     transform:translateY(100%);transition:transform 0.3s ease;z-index:200;
@@ -118,7 +118,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 .submit-count strong{color:#00E676;}
 .submit-btn{
     padding:10px 32px;border-radius:24px;border:none;
-    background:linear-gradient(135deg,#00E676,#00C853);color:#0D0D1A;
+    background:linear-gradient(135deg,#00E676,#00C853);color:#0A0A0A;
     font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;
     cursor:pointer;transition:all 0.2s;letter-spacing:0.5px;
 }
@@ -133,7 +133,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 }
 .modal-overlay.show{display:flex;}
 .modal{
-    background:#0D0D1A;border:1px solid rgba(0,230,118,0.3);border-radius:16px;
+    background:#0A0A0A;border:1px solid rgba(0,230,118,0.3);border-radius:16px;
     padding:32px;max-width:700px;width:100%;max-height:80vh;overflow-y:auto;
 }
 .modal h2{font-family:'Playfair Display',serif;color:#00E676;margin-bottom:4px;}
@@ -163,7 +163,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 
 .grade{display:inline-block;padding:4px 10px;border-radius:6px;font-weight:800;font-size:12px;}
 .ga{background:#10B981;color:#000;} .gam{background:#10B981;color:#000;}
-.gbp{background:#2563EB;color:#fff;} .gb{background:#3B82F6;color:#fff;} .gbm{background:#3B82F6;color:#fff;}
+.gbp{background:#00C853;color:#000;} .gb{background:#00E676;color:#000;} .gbm{background:#00E676;color:#000;}
 .gc{background:#F59E0B;color:#000;} .gcm{background:#F59E0B;color:#000;}
 .gd{background:#EF4444;color:#fff;} .gf{background:#7F1D1D;color:#fff;}
 
@@ -196,9 +196,9 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 }
 .upset-section h3{font-family:'Playfair Display',serif;color:#00E676;font-size:16px;margin-bottom:12px;}
 .upset-submit-form{display:grid;grid-template-columns:minmax(180px,2fr) 80px 2fr auto;gap:8px;align-items:center;margin-bottom:16px;}
-.upset-submit-form input,.upset-submit-form select{background:#0D0D1A;color:#fff;border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:8px 10px;font-family:'Nunito',sans-serif;font-size:13px;}
+.upset-submit-form input,.upset-submit-form select{background:#0A0A0A;color:#fff;border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:8px 10px;font-family:'Nunito',sans-serif;font-size:13px;}
 .upset-submit-form input:focus,.upset-submit-form select:focus{border-color:#00E676;outline:none;}
-.upset-submit-form select option{background:#0D0D1A;color:#fff;}
+.upset-submit-form select option{background:#0A0A0A;color:#fff;}
 .upset-submit-form button{background:rgba(0,230,118,0.15);color:#00E676;border:none;border-radius:6px;padding:8px 16px;font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap;}
 .upset-submit-form button:hover{background:rgba(0,230,118,0.3);}
 .upset-cards{display:flex;flex-direction:column;gap:8px;}
@@ -245,7 +245,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     outline:none;border-color:rgba(0,230,118,0.5);
 }
 .form-group select{appearance:none;cursor:pointer;}
-.form-group select option{background:#0D0D1A;color:#fff;}
+.form-group select option{background:#0A0A0A;color:#fff;}
 .form-group textarea{resize:vertical;min-height:60px;}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .confidence-btns{display:flex;gap:8px;}
@@ -256,7 +256,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 .conf-btn.active{background:rgba(0,230,118,0.2);border-color:#00E676;color:#00E676;}
 .submit-pick-btn{
     width:100%;padding:14px;border-radius:12px;border:none;margin-top:8px;
-    background:linear-gradient(135deg,#00E676,#00C853);color:#0D0D1A;
+    background:linear-gradient(135deg,#00E676,#00C853);color:#0A0A0A;
     font-family:'Nunito',sans-serif;font-size:16px;font-weight:800;
     cursor:pointer;transition:all 0.2s;letter-spacing:0.5px;
 }
@@ -270,7 +270,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 .pick-card .pick-conf{font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;}
 .pick-conf.fire{background:rgba(239,68,68,0.15);color:#EF4444;}
 .pick-conf.strong{background:rgba(0,230,118,0.15);color:#00E676;}
-.pick-conf.lean{background:rgba(96,165,250,0.15);color:#60A5FA;}
+.pick-conf.lean{background:rgba(0,230,118,0.1);color:#69F0AE;}
 .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-100px);
     background:#10B981;color:#000;font-weight:800;font-size:14px;padding:12px 28px;
     border-radius:12px;z-index:999;transition:transform 0.3s ease;pointer-events:none;}
@@ -285,7 +285,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 }
 .betslip-overlay.show{display:flex;}
 .betslip-card{
-    background:#0D0D1A;border:1px solid rgba(0,230,118,0.4);
+    background:#0A0A0A;border:1px solid rgba(0,230,118,0.4);
     border-radius:20px 20px 0 0;padding:24px 20px 28px;
     width:100%;max-width:480px;
     transform:translateY(100%);transition:transform 0.3s ease;
@@ -327,7 +327,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 .slip-note-area:focus{outline:none;border-color:rgba(0,230,118,0.5);}
 .betslip-submit{
     width:100%;padding:14px;border-radius:12px;border:none;margin-top:16px;
-    background:linear-gradient(135deg,#00E676,#00C853);color:#0D0D1A;
+    background:linear-gradient(135deg,#00E676,#00C853);color:#0A0A0A;
     font-family:'Nunito',sans-serif;font-size:16px;font-weight:800;
     cursor:pointer;transition:all 0.2s;letter-spacing:0.5px;
 }
@@ -367,7 +367,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 .panel-loading{position:relative;min-height:120px;}
 .panel-loading::after{
     content:'';position:absolute;top:0;left:0;right:0;bottom:0;
-    background:rgba(13,13,26,0.85);display:flex;align-items:center;justify-content:center;
+    background:rgba(10,10,10,0.85);display:flex;align-items:center;justify-content:center;
     border-radius:12px;z-index:10;
 }
 .panel-loading::before{
@@ -381,7 +381,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 /* Full-page loading overlay */
 .loading-overlay{
     display:none;position:fixed;top:0;left:0;right:0;bottom:0;
-    background:rgba(13,13,26,0.92);z-index:9999;
+    background:rgba(10,10,10,0.92);z-index:9999;
     justify-content:center;align-items:center;flex-direction:column;gap:16px;
 }
 .loading-overlay.active{display:flex;}
@@ -446,7 +446,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 /* ===== MOBILE QUICK BAR ===== */
 .mobile-quick-bar{
     display:none;position:fixed;bottom:0;left:0;right:0;z-index:250;
-    background:rgba(13,13,26,0.97);backdrop-filter:blur(16px);
+    background:rgba(10,10,10,0.97);backdrop-filter:blur(16px);
     border-top:1px solid rgba(0,230,118,0.25);
     padding:8px 12px;padding-bottom:max(8px,env(safe-area-inset-bottom));
 }
@@ -476,7 +476,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 .sport-picker-overlay.visible{display:block;}
 .sport-picker-sheet{
     position:fixed;bottom:0;left:0;right:0;z-index:301;
-    background:#0D0D1A;border-top:2px solid rgba(0,230,118,0.4);
+    background:#0A0A0A;border-top:2px solid rgba(0,230,118,0.4);
     border-radius:20px 20px 0 0;padding:16px 16px;
     padding-bottom:max(16px,env(safe-area-inset-bottom));
     transform:translateY(100%);transition:transform 0.3s ease;
@@ -577,13 +577,13 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 /* ===== LOGIN OVERLAY ===== */
 .login-overlay{
     position:fixed;top:0;left:0;right:0;bottom:0;
-    background:rgba(13,13,26,0.97);backdrop-filter:blur(16px);
+    background:rgba(10,10,10,0.97);backdrop-filter:blur(16px);
     display:flex;align-items:center;justify-content:center;z-index:500;
     padding:24px;
 }
 .login-overlay.hidden{display:none;}
 .login-card{
-    background:#0D0D1A;border:1px solid rgba(0,230,118,0.4);border-radius:20px;
+    background:#0A0A0A;border:1px solid rgba(0,230,118,0.4);border-radius:20px;
     padding:32px 28px;max-width:380px;width:100%;text-align:center;
 }
 .login-card h1{font-family:'Playfair Display',serif;font-size:28px;
@@ -602,14 +602,14 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     transition:border-color 0.2s;
 }
 .login-field input:focus,.login-field select:focus{outline:none;border-color:rgba(0,230,118,0.5);}
-.login-field select option{background:#0D0D1A;color:#fff;}
+.login-field select option{background:#0A0A0A;color:#fff;}
 .color-swatches{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:4px;}
 .color-swatch{width:36px;height:36px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all 0.2s;}
 .color-swatch:hover{transform:scale(1.15);}
 .color-swatch.picked{border-color:#fff;box-shadow:0 0 12px rgba(255,255,255,0.3);}
 .login-submit{
     width:100%;padding:14px;border-radius:12px;border:none;margin-top:16px;
-    background:linear-gradient(135deg,#00E676,#00C853);color:#0D0D1A;
+    background:linear-gradient(135deg,#00E676,#00C853);color:#0A0A0A;
     font-family:'Nunito',sans-serif;font-size:16px;font-weight:800;
     cursor:pointer;transition:all 0.2s;letter-spacing:0.5px;
 }
@@ -699,7 +699,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
         <button class="topbar-refresh" onclick="refreshSlate()">REFRESH SLATE</button>
         <div style="position:relative;">
             <button onclick="toggleGearMenu()" style="cursor:pointer;padding:4px 10px;border-radius:20px;font-size:16px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.1);font-family:'Nunito',sans-serif;line-height:1;">&#9881;</button>
-            <div id="gearMenu" style="display:none;position:absolute;right:0;top:110%;background:#141428;border:1px solid rgba(255,255,255,0.1);border-radius:10px;min-width:160px;z-index:150;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.5);">
+            <div id="gearMenu" style="display:none;position:absolute;right:0;top:110%;background:#111111;border:1px solid rgba(255,255,255,0.1);border-radius:10px;min-width:160px;z-index:150;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.5);">
                 <button onclick="clearAllCache()" style="display:block;width:100%;text-align:left;padding:12px 16px;background:transparent;border:none;color:#EF4444;font-size:12px;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.06);">Clear Cache</button>
                 <button onclick="doLogout()" style="display:block;width:100%;text-align:left;padding:12px 16px;background:transparent;border:none;color:rgba(255,255,255,0.5);font-size:12px;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;">Logout</button>
             </div>
@@ -742,7 +742,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     <div id="gotchaDisplay-NBA">
         <p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load today's gotcha card...</p>
     </div>
-    <textarea id="gotchaEditor-NBA" style="display:none;width:100%;min-height:150px;background:#0D0D1A;color:#fff;border:1px solid #00E676;border-radius:6px;padding:10px;font-family:'Nunito',sans-serif;font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line. Use for injuries, traps, edges, B2B flags..."></textarea>
+    <textarea id="gotchaEditor-NBA" style="display:none;width:100%;min-height:150px;background:#0A0A0A;color:#fff;border:1px solid #00E676;border-radius:6px;padding:10px;font-family:'Nunito',sans-serif;font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line. Use for injuries, traps, edges, B2B flags..."></textarea>
 </div>
 
 <div class="empty-state">No NBA games loaded.<br><strong>Hit REFRESH SLATE</strong> to load live lines.</div>
@@ -804,7 +804,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     <div id="gotchaDisplay-NHL">
         <p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load today's gotcha card...</p>
     </div>
-    <textarea id="gotchaEditor-NHL" style="display:none;width:100%;min-height:150px;background:#0D0D1A;color:#fff;border:1px solid #00E676;border-radius:6px;padding:10px;font-family:'Nunito',sans-serif;font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line..."></textarea>
+    <textarea id="gotchaEditor-NHL" style="display:none;width:100%;min-height:150px;background:#0A0A0A;color:#fff;border:1px solid #00E676;border-radius:6px;padding:10px;font-family:'Nunito',sans-serif;font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line..."></textarea>
 </div>
 
 <div class="empty-state">No NHL games loaded.<br><strong>Hit REFRESH SLATE</strong> to load live lines.</div>
@@ -862,7 +862,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     <div id="gotchaDisplay-MLB">
         <p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load today's gotcha card...</p>
     </div>
-    <textarea id="gotchaEditor-MLB" style="display:none;width:100%;min-height:150px;background:#0D0D1A;color:#fff;border:1px solid #00E676;border-radius:6px;padding:10px;font-family:'Nunito',sans-serif;font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line. Use for pitching matchups, bullpen notes, weather, B2B flags..."></textarea>
+    <textarea id="gotchaEditor-MLB" style="display:none;width:100%;min-height:150px;background:#0A0A0A;color:#fff;border:1px solid #00E676;border-radius:6px;padding:10px;font-family:'Nunito',sans-serif;font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line. Use for pitching matchups, bullpen notes, weather, B2B flags..."></textarea>
 </div>
 
 <div class="empty-state">No MLB games loaded.<br><strong>Hit REFRESH SLATE</strong> to load live lines.</div>
@@ -919,7 +919,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     <div id="gotchaDisplay-SOCCER">
         <p style="color:rgba(255,255,255,0.5);font-size:13px;">MLS, EPL, Champions League, La Liga. Moneylines + totals. No player props.</p>
     </div>
-    <textarea id="gotchaEditor-SOCCER" style="display:none;width:100%;min-height:150px;background:#0D0D1A;color:#fff;border:1px solid #10B981;border-radius:6px;padding:10px;font-family:'Nunito',sans-serif;font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line..."></textarea>
+    <textarea id="gotchaEditor-SOCCER" style="display:none;width:100%;min-height:150px;background:#0A0A0A;color:#fff;border:1px solid #10B981;border-radius:6px;padding:10px;font-family:'Nunito',sans-serif;font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line..."></textarea>
 </div>
 <div class="empty-state">No games on the slate.<br><strong>Hit REFRESH SLATE</strong> to check for live lines.</div>
 <!-- SOCCER UPSET SPECIALS -->
@@ -969,7 +969,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     <div id="gotchaDisplay-MMA">
         <p style="color:rgba(255,255,255,0.5);font-size:13px;">Moneylines + totals (rounds). Fight night data.</p>
     </div>
-    <textarea id="gotchaEditor-MMA" style="display:none;width:100%;min-height:150px;background:#0D0D1A;color:#fff;border:1px solid #EF4444;border-radius:6px;padding:10px;font-family:'Nunito',sans-serif;font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line..."></textarea>
+    <textarea id="gotchaEditor-MMA" style="display:none;width:100%;min-height:150px;background:#0A0A0A;color:#fff;border:1px solid #EF4444;border-radius:6px;padding:10px;font-family:'Nunito',sans-serif;font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line..."></textarea>
 </div>
 <div class="empty-state">No fights on the slate.<br><strong>Hit REFRESH SLATE</strong> to check for live lines.</div>
 <!-- MMA UPSET SPECIALS -->
@@ -1019,7 +1019,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     <div id="gotchaDisplay-BOXING">
         <p style="color:rgba(255,255,255,0.5);font-size:13px;">Moneylines + totals (rounds).</p>
     </div>
-    <textarea id="gotchaEditor-BOXING" style="display:none;width:100%;min-height:150px;background:#0D0D1A;color:#fff;border:1px solid #A855F7;border-radius:6px;padding:10px;font-family:'Nunito',sans-serif;font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line..."></textarea>
+    <textarea id="gotchaEditor-BOXING" style="display:none;width:100%;min-height:150px;background:#0A0A0A;color:#fff;border:1px solid #A855F7;border-radius:6px;padding:10px;font-family:'Nunito',sans-serif;font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line..."></textarea>
 </div>
 <div class="empty-state">No fights on the slate.<br><strong>Hit REFRESH SLATE</strong> to check for live lines.</div>
 <!-- BOXING UPSET SPECIALS -->
@@ -1072,7 +1072,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 
 <!-- Search/filter -->
 <div style="margin-bottom:12px;">
-    <input type="text" id="propsSearch" placeholder="Search player name..." oninput="filterProps()" style="width:100%;padding:10px 14px;background:#141428;border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;font-size:14px;font-family:'Nunito',sans-serif;">
+    <input type="text" id="propsSearch" placeholder="Search player name..." oninput="filterProps()" style="width:100%;padding:10px 14px;background:#111111;border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;font-size:14px;font-family:'Nunito',sans-serif;">
 </div>
 
 <!-- Stat type filter -->
@@ -1153,19 +1153,19 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 
     <!-- Summary cards -->
     <div class="bankroll-stats-4" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0;">
-        <div style="background:#141428;border:1px solid #1e1e40;border-radius:8px;padding:14px;text-align:center;">
+        <div style="background:#111111;border:1px solid #1a1a1a;border-radius:8px;padding:14px;text-align:center;">
             <div style="color:rgba(255,255,255,0.5);font-size:11px;text-transform:uppercase;">Current Balance</div>
             <div id="brBalance" style="color:#00E676;font-size:24px;font-weight:800;">$0</div>
         </div>
-        <div style="background:#141428;border:1px solid #1e1e40;border-radius:8px;padding:14px;text-align:center;">
+        <div style="background:#111111;border:1px solid #1a1a1a;border-radius:8px;padding:14px;text-align:center;">
             <div style="color:rgba(255,255,255,0.5);font-size:11px;text-transform:uppercase;">Record (W-L-P)</div>
             <div id="brRecord" style="color:#fff;font-size:24px;font-weight:800;">0-0-0</div>
         </div>
-        <div style="background:#141428;border:1px solid #1e1e40;border-radius:8px;padding:14px;text-align:center;">
+        <div style="background:#111111;border:1px solid #1a1a1a;border-radius:8px;padding:14px;text-align:center;">
             <div style="color:rgba(255,255,255,0.5);font-size:11px;text-transform:uppercase;">Net Units</div>
             <div id="brUnits" style="color:#fff;font-size:24px;font-weight:800;">0</div>
         </div>
-        <div style="background:#141428;border:1px solid #1e1e40;border-radius:8px;padding:14px;text-align:center;">
+        <div style="background:#111111;border:1px solid #1a1a1a;border-radius:8px;padding:14px;text-align:center;">
             <div style="color:rgba(255,255,255,0.5);font-size:11px;text-transform:uppercase;">ROI</div>
             <div id="brROI" style="color:#fff;font-size:24px;font-weight:800;">0%</div>
         </div>
@@ -1173,23 +1173,23 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 
     <!-- Per-person breakdown -->
     <div class="bankroll-stats-3" style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:16px 0;">
-        <div style="background:#141428;border:1px solid #2a2a5a;border-radius:8px;padding:12px;text-align:center;">
+        <div style="background:#111111;border:1px solid #2a2a5a;border-radius:8px;padding:12px;text-align:center;">
             <div style="color:#00E676;font-weight:700;margin-bottom:4px;">Peter</div>
             <div id="brPeter" style="color:#fff;font-size:14px;">0-0-0 | 0u</div>
         </div>
-        <div style="background:#141428;border:1px solid #2a2a5a;border-radius:8px;padding:12px;text-align:center;">
+        <div style="background:#111111;border:1px solid #2a2a5a;border-radius:8px;padding:12px;text-align:center;">
             <div style="color:#10B981;font-weight:700;margin-bottom:4px;">Chinny</div>
             <div id="brChinny" style="color:#fff;font-size:14px;">0-0-0 | 0u</div>
         </div>
-        <div style="background:#141428;border:1px solid #2a2a5a;border-radius:8px;padding:12px;text-align:center;">
+        <div style="background:#111111;border:1px solid #2a2a5a;border-radius:8px;padding:12px;text-align:center;">
             <div style="color:#5588EE;font-weight:700;margin-bottom:4px;">Jimmy</div>
             <div id="brJimmy" style="color:#fff;font-size:14px;">0-0-0 | 0u</div>
         </div>
-        <div style="background:#141428;border:1px solid #2a2a5a;border-radius:8px;padding:12px;text-align:center;">
+        <div style="background:#111111;border:1px solid #2a2a5a;border-radius:8px;padding:12px;text-align:center;">
             <div style="color:#E879F9;font-weight:700;margin-bottom:4px;">Alyssa</div>
             <div id="brAlyssa" style="color:#fff;font-size:14px;">0-0-0 | 0u</div>
         </div>
-        <div style="background:#141428;border:1px solid #2a2a5a;border-radius:8px;padding:12px;text-align:center;">
+        <div style="background:#111111;border:1px solid #2a2a5a;border-radius:8px;padding:12px;text-align:center;">
             <div style="color:#A78BFA;font-weight:700;margin-bottom:4px;">Sinton.ia</div>
             <div id="brSinton.ia" style="color:#fff;font-size:14px;">0-0-0 | 0u</div>
         </div>
@@ -1205,12 +1205,12 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     <h2 style="color:#00E676;">Pick Results</h2>
     <div class="form-sub">Click W / L / P to grade each pick. Results save automatically.</div>
     <div style="margin:12px 0;display:flex;gap:8px;align-items:center;">
-        <button onclick="autoGradePicks()" id="autoGradeBtn" style="background:linear-gradient(135deg,#00E676,#00C853);color:#0D0D1A;border:none;border-radius:8px;padding:10px 20px;font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;cursor:pointer;letter-spacing:0.5px;">AUTO-GRADE PICKS</button>
+        <button onclick="autoGradePicks()" id="autoGradeBtn" style="background:linear-gradient(135deg,#00E676,#00C853);color:#0A0A0A;border:none;border-radius:8px;padding:10px 20px;font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;cursor:pointer;letter-spacing:0.5px;">AUTO-GRADE PICKS</button>
         <span id="autoGradeStatus" style="color:rgba(255,255,255,0.4);font-size:12px;"></span>
     </div>
     <!-- Swim lane filter buttons -->
     <div id="swimLaneBar" style="display:flex;gap:6px;margin:12px 0;flex-wrap:wrap;">
-        <button class="swim-btn swim-active" onclick="setSwimLane('ALL',this)" style="background:#00E676;color:#0D0D1A;border:none;border-radius:6px;padding:6px 14px;font-family:'Nunito',sans-serif;font-weight:800;font-size:12px;cursor:pointer;">ALL</button>
+        <button class="swim-btn swim-active" onclick="setSwimLane('ALL',this)" style="background:#00E676;color:#0A0A0A;border:none;border-radius:6px;padding:6px 14px;font-family:'Nunito',sans-serif;font-weight:800;font-size:12px;cursor:pointer;">ALL</button>
         <button class="swim-btn" onclick="setSwimLane('Peter',this)" style="background:transparent;border:1px solid #00E676;color:#00E676;border-radius:6px;padding:6px 14px;font-family:'Nunito',sans-serif;font-weight:700;font-size:12px;cursor:pointer;">Peter</button>
         <button class="swim-btn" onclick="setSwimLane('Chinny',this)" style="background:transparent;border:1px solid #10B981;color:#10B981;border-radius:6px;padding:6px 14px;font-family:'Nunito',sans-serif;font-weight:700;font-size:12px;cursor:pointer;">Chinny</button>
         <button class="swim-btn" onclick="setSwimLane('Jimmy',this)" style="background:transparent;border:1px solid #5588EE;color:#5588EE;border-radius:6px;padding:6px 14px;font-family:'Nunito',sans-serif;font-weight:700;font-size:12px;cursor:pointer;">Jimmy</button>
@@ -1347,7 +1347,7 @@ body{background:#0D0D1A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
         </div>
         <div id="parlayLegs"></div>
         <div style="display:flex;gap:8px;margin-top:12px;">
-            <button class="submit-pick-btn" onclick="submitParlay()" style="flex:1;background:#00E676 !important;color:#0D0D1A !important;font-weight:800;">Lock Parlay</button>
+            <button class="submit-pick-btn" onclick="submitParlay()" style="flex:1;background:#00E676 !important;color:#0A0A0A !important;font-weight:800;">Lock Parlay</button>
             <button class="submit-pick-btn" onclick="clearParlay()" style="flex:0 0 auto;background:transparent !important;border:1px solid #EF4444 !important;color:#EF4444 !important;padding:8px 16px;">Clear</button>
         </div>
     </div>
@@ -2410,11 +2410,11 @@ function setSwimLane(name, btn) {
     });
     if (name === 'ALL') {
         btn.style.background = '#00E676';
-        btn.style.color = '#0D0D1A';
+        btn.style.color = '#0A0A0A';
         btn.style.border = 'none';
     } else {
         btn.style.background = CREW_COLORS[name] || '#00E676';
-        btn.style.color = '#0D0D1A';
+        btn.style.color = '#0A0A0A';
         btn.style.border = 'none';
     }
     renderBankroll();
@@ -3075,7 +3075,7 @@ function renderPicks() {
     }
     // Group by crew member
     var crewOrder = ['Peter','Chinny','Jimmy','Alyssa','Sinton.ia'];
-    var crewColors = {Peter:'#00E676',Chinny:'#10B981',Jimmy:'#60A5FA',Alyssa:'#E879F9','Sinton.ia':'#A78BFA'};
+    var crewColors = {Peter:'#fff',Chinny:'#10B981',Jimmy:'#60A5FA',Alyssa:'#E879F9','Sinton.ia':'#A78BFA'};
     var grouped = {};
     todayPicks.forEach(function(p) {
         var name = p.name || 'Unknown';
@@ -3101,8 +3101,8 @@ function renderSwimLane(container, name, picks, color) {
     // Pick cards
     picks.forEach(function(p) {
         var confClass = p.confidence === 'Fire' ? 'fire' : p.confidence === 'Strong' ? 'strong' : 'lean';
-        var typeTag = p.type === 'Parlay' ? '<span style="background:#00E676;color:#0D0D1A;font-size:10px;font-weight:800;padding:2px 6px;border-radius:4px;margin-left:6px;">PARLAY</span>' :
-                      p.type === 'Prop' ? '<span style="background:#A78BFA;color:#0D0D1A;font-size:10px;font-weight:800;padding:2px 6px;border-radius:4px;margin-left:6px;">PROP</span>' : '';
+        var typeTag = p.type === 'Parlay' ? '<span style="background:#00E676;color:#0A0A0A;font-size:10px;font-weight:800;padding:2px 6px;border-radius:4px;margin-left:6px;">PARLAY</span>' :
+                      p.type === 'Prop' ? '<span style="background:#A78BFA;color:#0A0A0A;font-size:10px;font-weight:800;padding:2px 6px;border-radius:4px;margin-left:6px;">PROP</span>' : '';
         var card = document.createElement('div');
         card.style.cssText = 'padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;justify-content:space-between;align-items:center;';
         card.innerHTML = '<div style="flex:1;">' +
@@ -3296,7 +3296,7 @@ function buildGameRowHTML(g) {
         }
         if (g.shifts.away_ml || g.shifts.home_ml) parts.push('ML \u21C5');
         if (parts.length) {
-            shiftTag = '<span class="tag" style="background:rgba(59,130,246,0.2);color:#60A5FA;font-size:9px;" title="Line moved since open">' + parts.join(' | ') + '</span> ';
+            shiftTag = '<span class="tag" style="background:rgba(255,255,255,0.1);color:#B0BEC5;font-size:9px;" title="Line moved since open">' + parts.join(' | ') + '</span> ';
         }
     }
 
@@ -3337,7 +3337,7 @@ function buildGameRowHTML(g) {
                     (hasSpread ? '<p>Spread: ' + awayAbbr + ' ' + awaySpreadStr + ' (' + (g.away_spread_odds||'--') + ') / ' + homeAbbr + ' ' + spreadStr + ' (' + (g.home_spread_odds||'--') + ')<br>' : '<p>Spread: N/A (ML game)<br>') +
                     'Total: O ' + total + ' (' + (g.over_odds||'--') + ') / U ' + total + ' (' + (g.under_odds||'--') + ')<br>' +
                     'ML: ' + awayAbbr + ' ' + awayML + ' / ' + homeAbbr + ' ' + homeML + '</p>' +
-                    (g.shifts ? '<p style="font-size:10px;color:#60A5FA;margin-top:6px;font-weight:600;">\u21C5 Line Movement: ' +
+                    (g.shifts ? '<p style="font-size:10px;color:#B0BEC5;margin-top:6px;font-weight:600;">\u21C5 Line Movement: ' +
                         (g.shifts.spread ? 'Spread ' + g.shifts.spread.open + ' \u2192 ' + g.shifts.spread.now + ' ' : '') +
                         (g.shifts.total ? 'Total ' + g.shifts.total.open + ' \u2192 ' + g.shifts.total.now + ' ' : '') +
                         (g.shifts.away_ml ? 'Away ML ' + g.shifts.away_ml.open + ' \u2192 ' + g.shifts.away_ml.now + ' ' : '') +
@@ -3348,7 +3348,7 @@ function buildGameRowHTML(g) {
                 (g.arbs && g.arbs.length ? '<div class="detail-box" style="border-color:rgba(16,185,129,0.3);"><h4 style="color:#10B981;">\uD83D\uDCB0 Arbitrage Opportunities</h4>' +
                     g.arbs.map(function(a) {
                         return '<p style="font-size:12px;"><strong>' + a.type + '</strong> — ' + a.profit_pct + '% profit<br>' +
-                            a.legs.map(function(l) { return '<span style="color:#00E676;">' + l.side + '</span> (' + l.odds + ') @ <span style="color:#60A5FA;">' + l.book.toUpperCase() + '</span>'; }).join(' vs ') +
+                            a.legs.map(function(l) { return '<span style="color:#00E676;">' + l.side + '</span> (' + l.odds + ') @ <span style="color:#B0BEC5;">' + l.book.toUpperCase() + '</span>'; }).join(' vs ') +
                         '</p>';
                     }).join('') +
                 '</div>' : '') +
@@ -3870,7 +3870,7 @@ function fetchEdge(sport) {
                 if (g.public_fade) flags.push('<span style="background:rgba(239,68,68,0.15);color:#EF4444;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;">PUBLIC FADE</span>');
                 if (g.value_tag) flags.push('<span style="background:rgba(16,185,129,0.15);color:#10B981;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;">' + g.value_tag + '</span>');
                 if (g.spread_ml_flag) flags.push('<span style="background:rgba(0,230,118,0.15);color:#00E676;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;">' + g.spread_ml_flag + '</span>');
-                if (g.total_lean) flags.push('<span style="background:rgba(96,165,250,0.15);color:#60A5FA;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;">' + g.total_lean + '</span>');
+                if (g.total_lean) flags.push('<span style="background:rgba(96,165,250,0.15);color:#B0BEC5;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;">' + g.total_lean + '</span>');
 
                 // Upset score bar
                 var barColor = g.upset_score >= 7 ? '#10B981' : (g.upset_score >= 4 ? '#00E676' : '#EF4444');
@@ -4351,7 +4351,7 @@ function renderRealProps(props) {
             // Add to picks button
             var propSel = prop.player + ' Over ' + prop.line + ' ' + prop.stat;
             var propNote = prop.best_book + ' best line. Edge: ' + edgeSign + prop.edge + '%. ' + prop.book_count + ' books.';
-            html += '<button onclick="event.stopPropagation();addPropToPicks(\'' + propSel.replace(/'/g,"\\'") + '\',\'' + oddsStr.replace(/'/g,"\\'") + '\',\'' + prop.matchup.replace(/'/g,"\\'") + '\',\'' + _realPropsSport.toUpperCase() + '\',\'' + propNote.replace(/'/g,"\\'") + '\')" style="width:100%;padding:8px;background:linear-gradient(135deg,#00E676,#00C853);color:#0D0D1A;border:none;border-radius:8px;font-family:\'Nunito\',sans-serif;font-weight:800;font-size:13px;cursor:pointer;letter-spacing:0.5px;">ADD TO PICKS</button>';
+            html += '<button onclick="event.stopPropagation();addPropToPicks(\'' + propSel.replace(/'/g,"\\'") + '\',\'' + oddsStr.replace(/'/g,"\\'") + '\',\'' + prop.matchup.replace(/'/g,"\\'") + '\',\'' + _realPropsSport.toUpperCase() + '\',\'' + propNote.replace(/'/g,"\\'") + '\')" style="width:100%;padding:8px;background:linear-gradient(135deg,#00E676,#00C853);color:#0A0A0A;border:none;border-radius:8px;font-family:\'Nunito\',sans-serif;font-weight:800;font-size:13px;cursor:pointer;letter-spacing:0.5px;">ADD TO PICKS</button>';
             html += '</div>';
 
             html += '</div>';
@@ -4738,7 +4738,7 @@ async function clearAllCache() {
     position:fixed;bottom:16px;left:20px;z-index:200;
     width:52px;height:52px;border-radius:50%;border:none;
     background:linear-gradient(135deg,#00E676,#00C853);
-    color:#0D0D1A;font-size:22px;
+    color:#0A0A0A;font-size:22px;
     cursor:pointer;box-shadow:0 4px 20px rgba(0,230,118,0.4);
     transition:all 0.3s;display:flex;align-items:center;justify-content:center;
 }
@@ -4752,7 +4752,7 @@ async function clearAllCache() {
     position:fixed;bottom:80px;left:20px;z-index:200;
     width:380px;max-width:calc(100vw - 40px);
     max-height:600px;
-    background:#0D0D1A;border:1px solid rgba(0,230,118,0.3);
+    background:#0A0A0A;border:1px solid rgba(0,230,118,0.3);
     border-radius:16px;overflow:hidden;
     display:none;flex-direction:column;
     box-shadow:0 8px 40px rgba(0,0,0,0.6);
@@ -4836,7 +4836,7 @@ async function clearAllCache() {
 }
 .agent-input input:focus{border-color:rgba(0,230,118,0.4);}
 .agent-input button.ev-send{
-    background:linear-gradient(135deg,#00E676,#00C853);color:#0D0D1A;border:none;
+    background:linear-gradient(135deg,#00E676,#00C853);color:#0A0A0A;border:none;
     border-radius:8px;padding:10px 16px;font-weight:800;font-size:13px;cursor:pointer;
     font-family:'Nunito',sans-serif;
 }
@@ -4858,7 +4858,7 @@ async function clearAllCache() {
     width:64px;height:64px;border-radius:50%;
     background:linear-gradient(135deg,#00E676,#00C853);
     display:flex;align-items:center;justify-content:center;
-    font-size:24px;font-weight:900;color:#0D0D1A;
+    font-size:24px;font-weight:900;color:#0A0A0A;
     box-shadow:0 4px 20px rgba(0,230,118,0.3);
     transition:box-shadow 0.3s;font-family:'Nunito',sans-serif;
 }
