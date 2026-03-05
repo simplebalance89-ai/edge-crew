@@ -2011,8 +2011,27 @@ def _teams_match(pick_text: str, home: str, away: str) -> bool:
     return h_match and a_match
 
 
+_PROP_STATS = {"points", "assists", "rebounds", "steals", "blocks", "threes",
+               "turnovers", "pts", "ast", "reb", "stl", "blk", "3pm", "pra",
+               "goals", "saves", "shots", "hits", "faceoffs", "toi",
+               "strikeouts", "runs", "rbi", "hrs", "walks",
+               "yards", "touchdowns", "completions", "receptions"}
+
+
+def _is_prop(pick: dict) -> bool:
+    """Detect if a pick is a player prop (not a game-level bet)."""
+    if pick.get("type", "").lower() == "prop":
+        return True
+    sel = pick.get("selection", "").lower()
+    return any(stat in sel for stat in _PROP_STATS)
+
+
 def _grade_pick_against_score(pick: dict, game: dict) -> str | None:
     """Determine W/L/P for a pick given final scores. Returns 'W', 'L', 'P', or None."""
+    # NEVER grade player props against game scores - needs a stats API
+    if _is_prop(pick):
+        return None
+
     scores = game.get("scores")
     if not scores or not game.get("completed"):
         return None
