@@ -2176,6 +2176,52 @@ function gradePick(index, result) {
     }
 }
 
+function deletePick(index) {
+    if (!confirm('Delete this pick?')) return;
+    var stored = JSON.parse(safeLoad('edgePicks') || '[]');
+    if (stored[index]) {
+        var pick = stored[index];
+        // Delete from server if it has an ID
+        if (pick.id) {
+            crewFetch('/api/picks/' + pick.id, { method: 'DELETE' }).catch(function() {});
+        }
+        stored.splice(index, 1);
+        safeSave('edgePicks', JSON.stringify(stored));
+        renderBankroll();
+        renderPicks();
+        showToast('Pick deleted');
+    }
+}
+
+function editPick(index) {
+    var stored = JSON.parse(safeLoad('edgePicks') || '[]');
+    if (!stored[index]) return;
+    var pick = stored[index];
+    var newSelection = prompt('Edit selection:', pick.selection || '');
+    if (newSelection === null) return; // cancelled
+    var newOdds = prompt('Edit odds:', pick.odds || '-110');
+    if (newOdds === null) return;
+    var newUnits = prompt('Edit units:', pick.units || '1');
+    if (newUnits === null) return;
+
+    stored[index].selection = newSelection;
+    stored[index].odds = newOdds;
+    stored[index].units = newUnits;
+    safeSave('edgePicks', JSON.stringify(stored));
+
+    // Update server if it has an ID
+    if (pick.id) {
+        crewFetch('/api/picks/' + pick.id, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ selection: newSelection, odds: newOdds, units: newUnits })
+        }).catch(function() {});
+    }
+    renderBankroll();
+    renderPicks();
+    showToast('Pick updated');
+}
+
 var activeSwimLane = 'ALL';
 var CREW_COLORS = {Peter:'#D4A017',Chinny:'#10B981',Jimmy:'#5588EE',Alyssa:'#E879F9','Sinton.ia':'#A78BFA'};
 
@@ -2488,10 +2534,12 @@ function renderBankroll() {
                     '</div>' +
                     '<div style="color:rgba(255,255,255,0.3);font-size:11px;">' + (pick.date || '') + ' ' + (pick.time || '') + '</div>' +
                 '</div>' +
-                '<div style="display:flex;gap:4px;">' +
+                '<div style="display:flex;gap:4px;align-items:center;">' +
                     '<div style="' + btnStyle + wClass + '" onclick="gradePick(' + i + ',\'W\')">W</div>' +
                     '<div style="' + btnStyle + lClass + '" onclick="gradePick(' + i + ',\'L\')">L</div>' +
                     '<div style="' + btnStyle + pClass + '" onclick="gradePick(' + i + ',\'P\')">P</div>' +
+                    '<div style="cursor:pointer;padding:4px 6px;font-size:11px;color:rgba(255,255,255,0.3);" onclick="editPick(' + i + ')" title="Edit">✏️</div>' +
+                    '<div style="cursor:pointer;padding:4px 6px;font-size:11px;color:rgba(239,68,68,0.4);" onclick="deletePick(' + i + ')" title="Delete">🗑️</div>' +
                 '</div>';
 
             container.appendChild(div);

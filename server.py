@@ -1861,6 +1861,29 @@ def _migrate_upsets(old_data):
     return {"picks": picks}
 
 
+@app.put("/api/picks/{pick_id}")
+async def update_pick(pick_id: str, request: Request):
+    """Update a pick's fields (selection, odds, units, etc.)."""
+    body = await request.json()
+    allowed = {"selection", "odds", "units", "matchup", "notes", "confidence", "sport", "type"}
+    update_data = {k: _sanitize(str(v)) for k, v in body.items() if k in allowed and v is not None}
+    if not update_data:
+        return JSONResponse({"error": "No valid fields to update"}, status_code=400)
+    if sb:
+        res = sb.table("picks").update(update_data).eq("id", pick_id).execute()
+        if not res.data:
+            return JSONResponse({"error": "Pick not found"}, status_code=404)
+        return JSONResponse({"status": "ok", "pick": res.data[0]})
+    else:
+        data = _read_picks()
+        for pick in data["picks"]:
+            if pick["id"] == pick_id:
+                pick.update(update_data)
+                _write_picks(data)
+                return JSONResponse({"status": "ok", "pick": pick})
+        return JSONResponse({"error": "Pick not found"}, status_code=404)
+
+
 @app.delete("/api/picks/{pick_id}")
 async def delete_pick(pick_id: str):
     """Delete a pick by ID."""
