@@ -266,6 +266,9 @@ _cache = {}
 CACHE_TTL = 300  # 5 minutes
 ANALYSIS_CACHE_TTL = 900  # 15 minutes for analysis
 
+# Opening lines tracker — stores first-seen odds per game per day
+_opening_lines = {}  # key: "YYYY-MM-DD:{game_id}" -> {spread, total, away_ml, home_ml}
+
 
 def _now_ts():
     """Return current timestamp string for API responses (PST)."""
@@ -282,6 +285,121 @@ def _get_cached(key, ttl=None):
 
 def _set_cache(key, data):
     _cache[key] = (data, time.time())
+
+
+def _track_opening_lines(game):
+    """Store opening lines for a game (first time seen today). Returns shift data."""
+    today = datetime.now(PST).strftime("%Y-%m-%d")
+    key = f"{today}:{game.get('id', '')}"
+    spread = game.get("home_spread")
+    total = game.get("total")
+    away_ml = game.get("away_ml")
+    home_ml = game.get("home_ml")
+
+    if key not in _opening_lines:
+        _opening_lines[key] = {
+            "spread": spread, "total": total,
+            "away_ml": away_ml, "home_ml": home_ml,
+            "ts": time.time(),
+        }
+        return None  # First fetch — no shift yet
+
+    opening = _opening_lines[key]
+    shifts = {}
+    if spread is not None and opening["spread"] is not None and spread != opening["spread"]:
+        shifts["spread"] = {"open": opening["spread"], "now": spread, "delta": round(spread - opening["spread"], 1)}
+    if total is not None and opening["total"] is not None and total != opening["total"]:
+        shifts["total"] = {"open": opening["total"], "now": total, "delta": round(total - opening["total"], 1)}
+    if away_ml is not None and opening["away_ml"] is not None and away_ml != opening["away_ml"]:
+        shifts["away_ml"] = {"open": opening["away_ml"], "now": away_ml}
+    if home_ml is not None and opening["home_ml"] is not None and home_ml != opening["home_ml"]:
+        shifts["home_ml"] = {"open": opening["home_ml"], "now": home_ml}
+    return shifts if shifts else None
+
+
+def _american_to_implied(odds):
+    """Convert American odds to implied probability (0-1)."""
+    if odds is None or odds == 0:
+        return None
+    if odds > 0:
+        return 100.0 / (odds + 100)
+    else:
+        return abs(odds) / (abs(odds) + 100)
+
+
+def _detect_arbitrage(event, sport_label):
+    """Scan all bookmakers for arbitrage opportunities on an event.
+    Returns list of arb opps with book names and profit %."""
+    bookmakers = event.get("bookmakers", [])
+    if len(bookmakers) < 2:
+        return []
+
+    arbs = []
+
+    # --- ML Arbitrage ---
+    away_team = event["away_team"]
+    home_team = event["home_team"]
+    best_away_ml = {"odds": None, "implied": 1.0, "book": None}
+    best_home_ml = {"odds": None, "implied": 1.0, "book": None}
+
+    for bk in bookmakers:
+        for market in bk.get("markets", []):
+            if market["key"] == "h2h":
+                for outcome in market["outcomes"]:
+                    price = outcome.get("price", 0)
+                    imp = _american_to_implied(price)
+                    if imp is None:
+                        continue
+                    if outcome["name"] == away_team and imp < best_away_ml["implied"]:
+                        best_away_ml = {"odds": price, "implied": imp, "book": bk["key"]}
+                    elif outcome["name"] == home_team and imp < best_home_ml["implied"]:
+                        best_home_ml = {"odds": price, "implied": imp, "book": bk["key"]}
+
+    if best_away_ml["book"] and best_home_ml["book"]:
+        total_implied = best_away_ml["implied"] + best_home_ml["implied"]
+        if total_implied < 1.0:
+            profit_pct = round((1.0 / total_implied - 1.0) * 100, 2)
+            arbs.append({
+                "type": "ML",
+                "profit_pct": profit_pct,
+                "legs": [
+                    {"side": away_team, "odds": best_away_ml["odds"], "book": best_away_ml["book"]},
+                    {"side": home_team, "odds": best_home_ml["odds"], "book": best_home_ml["book"]},
+                ],
+            })
+
+    # --- Totals Arbitrage ---
+    best_over = {"odds": None, "implied": 1.0, "book": None, "point": None}
+    best_under = {"odds": None, "implied": 1.0, "book": None, "point": None}
+
+    for bk in bookmakers:
+        for market in bk.get("markets", []):
+            if market["key"] == "totals":
+                for outcome in market["outcomes"]:
+                    price = outcome.get("price", 0)
+                    point = outcome.get("point")
+                    imp = _american_to_implied(price)
+                    if imp is None or point is None:
+                        continue
+                    if outcome["name"] == "Over" and imp < best_over["implied"]:
+                        best_over = {"odds": price, "implied": imp, "book": bk["key"], "point": point}
+                    elif outcome["name"] == "Under" and imp < best_under["implied"]:
+                        best_under = {"odds": price, "implied": imp, "book": bk["key"], "point": point}
+
+    if best_over["book"] and best_under["book"] and best_over["point"] == best_under["point"]:
+        total_implied = best_over["implied"] + best_under["implied"]
+        if total_implied < 1.0:
+            profit_pct = round((1.0 / total_implied - 1.0) * 100, 2)
+            arbs.append({
+                "type": f"O/U {best_over['point']}",
+                "profit_pct": profit_pct,
+                "legs": [
+                    {"side": f"Over {best_over['point']}", "odds": best_over["odds"], "book": best_over["book"]},
+                    {"side": f"Under {best_under['point']}", "odds": best_under["odds"], "book": best_under["book"]},
+                ],
+            })
+
+    return arbs
 
 
 # ============================================================
@@ -807,6 +925,10 @@ def _parse_sharpapi_events(rows, sport_label):
         # MMA/Boxing: ML-only is complete
         elif sport_label in ("MMA", "BOXING") and has_ml:
             game["lines_complete"] = True
+        # Track line shifts for SharpAPI games too
+        shifts = _track_opening_lines(game)
+        if shifts:
+            game["shifts"] = shifts
         games.append(game)
 
     return games
@@ -919,6 +1041,16 @@ def _parse_event(event, sport_label):
         game["lines_complete"] = True
     else:
         game["lines_complete"] = has_spread and has_total and has_ml
+
+    # Track line shifts (opening vs current)
+    shifts = _track_opening_lines(game)
+    if shifts:
+        game["shifts"] = shifts
+
+    # Detect arbitrage across bookmakers
+    arbs = _detect_arbitrage(event, sport_label)
+    if arbs:
+        game["arbs"] = arbs
 
     return game
 
