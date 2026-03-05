@@ -1511,13 +1511,15 @@ def _grade_pick_against_score(pick: dict, game: dict) -> str | None:
     selection = pick.get("selection", "")
     pick_type = pick.get("type", "").lower()
     sel_lower = selection.lower().strip()
+    # Expand abbreviations in selection for matching (e.g. "OKC ML" → "thunder okc ml")
+    sel_expanded = _expand_abbrevs(sel_lower)
 
     # --- MONEYLINE ---
     if pick_type in ("moneyline", "ml", "money line") or "ml" in sel_lower:
         # Figure out which team was picked
-        if any(p in sel_lower for p in _normalize_team(game["home_team"]).split() if len(p) > 3):
+        if any(p in sel_expanded for p in _normalize_team(game["home_team"]).split() if len(p) > 3):
             return "W" if home_score > away_score else ("P" if home_score == away_score else "L")
-        elif any(p in sel_lower for p in _normalize_team(game["away_team"]).split() if len(p) > 3):
+        elif any(p in sel_expanded for p in _normalize_team(game["away_team"]).split() if len(p) > 3):
             return "W" if away_score > home_score else ("P" if home_score == away_score else "L")
 
     # --- SPREAD ---
@@ -1526,7 +1528,7 @@ def _grade_pick_against_score(pick: dict, game: dict) -> str | None:
         if spread_match:
             spread = float(spread_match.group(1))
             # Determine which team the spread applies to
-            sel_before_num = sel_lower[:sel_lower.find(spread_match.group(1))].strip()
+            sel_before_num = _expand_abbrevs(sel_lower[:sel_lower.find(spread_match.group(1))].strip())
             picked_home = any(p in sel_before_num for p in home.split() if len(p) > 3)
             picked_away = any(p in sel_before_num for p in away.split() if len(p) > 3)
 
