@@ -2178,6 +2178,7 @@ document.getElementById('pickMatchup').addEventListener('change', function() {
 
 // Store live odds keyed by matchup -> pick -> odds
 var liveOddsMap = {};
+var _injuryCache = {}; // sport -> {injuries_by_team: {...}}
 
 function populatePickDropdown() {
     var select = document.getElementById('pickSelection');
@@ -3547,6 +3548,7 @@ function fetchLiveOdds(sport, onDone) {
             if (pregameGames.length > 0) {
                 fetchAnalysis(sport);
                 fetchEdge(sport);
+                fetchInjuries(sport);
             } else {
                 // No pregame games — still fire analysis callback for loading overlay
                 if (typeof window._analysisLoadCallback === 'function') window._analysisLoadCallback(sport);
@@ -3561,6 +3563,104 @@ function fetchLiveOdds(sport, onDone) {
             errMsg.textContent = 'Failed to load ' + sport.toUpperCase() + ' odds. Check connection and try again.';
             panel.appendChild(errMsg);
         });
+}
+
+// ===== INJURY BADGES =====
+function fetchInjuries(sport) {
+    fetch('/api/lineups/' + sport)
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (!data.injuries_by_team) return;
+            _injuryCache[sport.toUpperCase()] = data;
+            applyInjuryBadges(sport, data.injuries_by_team);
+        })
+        .catch(function(e) { console.log('Injury fetch failed:', e); });
+}
+
+// CBS Sports short names -> abbreviations (these don't match teamAbbr keys)
+var cbsTeamMap = {
+    "Atlanta":"ATL","Boston":"BOS","Brooklyn":"BKN","Charlotte":"CHA","Chicago":"CHI",
+    "Cleveland":"CLE","Dallas":"DAL","Denver":"DEN","Detroit":"DET","Golden St.":"GS",
+    "Houston":"HOU","Indiana":"IND","L.A. Clippers":"LAC","L.A. Lakers":"LAL",
+    "Memphis":"MEM","Miami":"MIA","Milwaukee":"MIL","Minnesota":"MIN",
+    "New Orleans":"NOP","New York":"NYK","Oklahoma City":"OKC","Orlando":"ORL",
+    "Philadelphia":"PHI","Phoenix":"PHX","Portland":"POR","Sacramento":"SAC",
+    "San Antonio":"SA","Toronto":"TOR","Utah":"UTA","Washington":"WAS",
+    "Anaheim":"ANA","Arizona":"ARI","Buffalo":"BUF","Calgary":"CGY","Carolina":"CAR",
+    "Colorado":"COL","Columbus":"CBJ","Edmonton":"EDM","Florida":"FLA",
+    "Los Angeles":"LAK","Montreal":"MTL","Nashville":"NSH","New Jersey":"NJD",
+    "NY Islanders":"NYI","NY Rangers":"NYR","Ottawa":"OTT","Pittsburgh":"PIT",
+    "San Jose":"SJS","Seattle":"SEA","St. Louis":"STL","Tampa Bay":"TBL",
+    "Vancouver":"VAN","Vegas":"VGK","Winnipeg":"WPG"
+};
+function teamNameToAbbr(teamName) {
+    if (cbsTeamMap[teamName]) return cbsTeamMap[teamName];
+    if (teamAbbr[teamName]) return teamAbbr[teamName];
+    // Fallback: check if teamName is contained in any full team name
+    var lower = teamName.toLowerCase();
+    for (var full in teamAbbr) {
+        if (full.toLowerCase().indexOf(lower) !== -1) return teamAbbr[full];
+    }
+    return null;
+}
+
+function applyInjuryBadges(sport, injByTeam) {
+    var panel = document.getElementById('panel-' + sport);
+    if (!panel) return;
+    var rows = panel.querySelectorAll('.game-row[data-game]');
+    rows.forEach(function(row) {
+        var away = row.getAttribute('data-away');
+        var home = row.getAttribute('data-home');
+        var awayA = abbr(away);
+        var homeA = abbr(home);
+
+        // Find injuries for each team
+        var awayInj = [], homeInj = [];
+        for (var teamName in injByTeam) {
+            var ta = teamNameToAbbr(teamName);
+            if (ta === awayA) awayInj = injByTeam[teamName];
+            if (ta === homeA) homeInj = injByTeam[teamName];
+        }
+
+        if (awayInj.length === 0 && homeInj.length === 0) return;
+
+        // Find the Notes detail-box and inject injury badges
+        var detailBoxes = row.querySelectorAll('.detail-box');
+        var notesBox = detailBoxes[detailBoxes.length - 1]; // Last detail box = Notes
+        if (!notesBox) return;
+        // Don't inject twice
+        if (notesBox.querySelector('.injury-badges')) return;
+
+        var badgeHtml = '<div class="injury-badges" style="margin-top:10px;">';
+
+        function renderTeamInj(teamAbbrev, injuries) {
+            if (!injuries.length) return '';
+            var out = injuries.filter(function(p) { return p.status === 'OUT'; });
+            var gtd = injuries.filter(function(p) { return p.status === 'GTD'; });
+            var html = '';
+            if (out.length) {
+                html += '<div style="margin-bottom:4px;"><span style="font-size:11px;font-weight:700;color:#EF4444;">' + teamAbbrev + ' OUT:</span> ';
+                html += out.map(function(p) {
+                    return '<span style="display:inline-block;padding:2px 6px;margin:1px;background:rgba(239,68,68,0.2);color:#EF4444;border-radius:3px;font-size:10px;font-weight:600;">' + p.player + ' (' + p.pos + ' - ' + p.injury + ')</span>';
+                }).join(' ');
+                html += '</div>';
+            }
+            if (gtd.length) {
+                html += '<div style="margin-bottom:4px;"><span style="font-size:11px;font-weight:700;color:#FBB024;">' + teamAbbrev + ' GTD:</span> ';
+                html += gtd.map(function(p) {
+                    return '<span style="display:inline-block;padding:2px 6px;margin:1px;background:rgba(251,191,36,0.2);color:#FBB024;border-radius:3px;font-size:10px;font-weight:600;">' + p.player + ' (' + p.pos + ' - ' + p.injury + ')</span>';
+                }).join(' ');
+                html += '</div>';
+            }
+            return html;
+        }
+
+        badgeHtml += renderTeamInj(awayA, awayInj);
+        badgeHtml += renderTeamInj(homeA, homeInj);
+        badgeHtml += '</div>';
+
+        notesBox.insertAdjacentHTML('beforeend', badgeHtml);
+    });
 }
 
 // ===== ML+ FILTER =====

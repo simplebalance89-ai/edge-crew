@@ -2685,15 +2685,89 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/api/lineups/{sport}")
 async def get_lineups(sport: str):
-    """Fetch per-game lineups from API-Sports for the frontend."""
+    """Fetch injury/lineup data from CBS Sports + RotoWire for frontend badges."""
+    import re
     sport_lower = sport.lower()
-    lineups = await _fetch_api_sports_lineups(sport_lower)
-    return JSONResponse({
+
+    cache_key = f"frontend_injuries:{sport_lower}"
+    cached = _get_cached(cache_key, ttl=1800)
+    if cached:
+        return JSONResponse(cached)
+
+    injuries_by_team = {}  # team_name -> [{"player": ..., "status": ..., "injury": ..., "pos": ...}]
+
+    # --- CBS SPORTS (primary - structured injury report) ---
+    CBS_URLS = {
+        "nba": "https://www.cbssports.com/nba/injuries/",
+        "nhl": "https://www.cbssports.com/nhl/injuries/",
+    }
+    cbs_url = CBS_URLS.get(sport_lower)
+    if cbs_url:
+        try:
+            async with httpx.AsyncClient(timeout=20.0, follow_redirects=True) as client:
+                resp = await client.get(cbs_url, headers={
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                    "Accept-Language": "en-US,en;q=0.9",
+                })
+                if resp.status_code == 200:
+                    html = resp.text
+                    # CBS uses team links like <a href="/nba/teams/CHI/">Chicago</a>
+                    # Split by team position to get per-team sections
+                    sport_path = sport_lower
+                    team_pattern = rf'href="/{sport_path}/teams/([^"]+)/?\"[^>]*>([^<]+)</a>'
+                    team_positions = [(m.start(), m.group(2).strip()) for m in re.finditer(team_pattern, html)]
+
+                    for i, (pos, team_name) in enumerate(team_positions):
+                        end_pos = team_positions[i + 1][0] if i + 1 < len(team_positions) else len(html)
+                        section = html[pos:end_pos]
+
+                        rows = re.findall(r'<tr[^>]*>(.*?)</tr>', section, re.DOTALL)
+                        for row in rows:
+                            if 'CellPlayerName' not in row:
+                                continue
+                            name_match = re.findall(r'>([^<]+)</a>', row)
+                            tds = re.findall(r'<td[^>]*>(.*?)</td>', row, re.DOTALL)
+                            cells = [re.sub(r'<[^>]+>', '', td).strip() for td in tds]
+                            cells = [c for c in cells if c]
+
+                            if name_match and len(cells) >= 4:
+                                full_name = name_match[-1].strip() if len(name_match) > 1 else name_match[0].strip()
+                                pos_str = cells[1] if len(cells) > 1 else "?"
+                                injury_type = cells[3] if len(cells) > 3 else "?"
+                                status = cells[4] if len(cells) > 4 else cells[-1]
+                                # Normalize status
+                                status_upper = status.strip().upper()
+                                if "OUT" in status_upper or "DOUBTFUL" in status_upper:
+                                    norm_status = "OUT"
+                                elif any(k in status_upper for k in ("DAY", "GTD", "GAME TIME", "QUESTIONABLE", "PROBABLE")):
+                                    norm_status = "GTD"
+                                else:
+                                    norm_status = status.strip()
+
+                                if team_name not in injuries_by_team:
+                                    injuries_by_team[team_name] = []
+                                injuries_by_team[team_name].append({
+                                    "player": full_name,
+                                    "pos": pos_str,
+                                    "injury": injury_type,
+                                    "status": norm_status,
+                                    "raw_status": status.strip(),
+                                })
+        except Exception as e:
+            print(f"CBS lineups/injuries fetch error ({sport_lower}): {e}")
+
+    result = {
         "sport": sport.upper(),
-        "lineups": lineups,
-        "source": "API-Sports" if lineups else "none",
+        "injuries_by_team": injuries_by_team,
+        "team_count": len(injuries_by_team),
+        "total_players": sum(len(v) for v in injuries_by_team.values()),
+        "source": "CBS Sports" if injuries_by_team else "none",
         "fetched_at": _now_ts(),
-    })
+    }
+    if injuries_by_team:
+        _set_cache(cache_key, result)
+    return JSONResponse(result)
 
 
 @app.post("/api/cache/clear")
