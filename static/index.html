@@ -3234,7 +3234,7 @@ function buildGameRowHTML(g) {
 
     var bookTag = '<span class="tag" style="background:rgba(212,160,23,0.15);color:#D4A017;">' + bookSource.toUpperCase() + '</span> ';
 
-    return '<div class="game-row" data-game="' + matchup + '" data-away="' + g.away + '" data-home="' + g.home + '" data-book="' + bookSource + '" data-fetched="' + fetchedAt + '" data-complete="' + (isComplete ? 'true' : 'false') + '" style="' + todayStyle + '" onclick="this.classList.toggle(\'expanded\')">' +
+    return '<div class="game-row" data-game="' + matchup + '" data-away="' + g.away + '" data-home="' + g.home + '" data-book="' + bookSource + '" data-fetched="' + fetchedAt + '" data-complete="' + (isComplete ? 'true' : 'false') + '" data-time="' + (g.time || '') + '" style="' + todayStyle + '" onclick="this.classList.toggle(\'expanded\')">' +
         '<div class="game-header">' +
             '<div class="pick-check" onclick="togglePick(event, this, \'' + matchup + '\')"></div>' +
             '<div class="game-time">' + dateStr + '<br>' + time + '</div>' +
@@ -3581,6 +3581,11 @@ function renderCombinedTable(data) {
             var gc = 'g' + (analysis.grade || '').toLowerCase().replace(/[^a-z]/g,'');
             if (analysis.grade === 'INCOMPLETE') gc = 'gc';
             gradeHtml = '<span class="grade ' + gc + '">' + (analysis.grade || '--') + '</span>';
+            // Add lineup warning if game is >90min away
+            var msToG = g.time ? (new Date(g.time).getTime() - Date.now()) : 0;
+            if (msToG > 90 * 60 * 1000) {
+                gradeHtml += '<div style="font-size:8px;color:#FBB024;font-weight:600;margin-top:1px;">\u26A0 Lineups Open</div>';
+            }
             if (analysis.chinny_props && analysis.chinny_props.length) {
                 propsHtml = '<span class="tag" style="background:rgba(16,185,129,0.15);color:#10B981;cursor:help;" title="' + analysis.chinny_props.join(' | ').replace(/"/g,'&quot;') + '">' + analysis.chinny_props.length + ' props</span>';
             }
@@ -3865,8 +3870,25 @@ function fetchAnalysis(sport) {
                                 if (isIncomplete) { gradeEl.className = 'grade gc'; gradeEl.textContent = 'INC'; }
                                 else { gradeEl.className = 'grade g' + game.grade.toLowerCase().replace(/[^a-z]/g,''); gradeEl.textContent = game.grade; }
                             }
-                            // Add props count badge next to grade
+                            // Add "Lineups Open" tag if game is >90min away
                             var gradeContainer = row.querySelector('.game-grade');
+                            if (gradeContainer) {
+                                var existingLU = gradeContainer.querySelector('.lineup-tag');
+                                if (!existingLU) {
+                                    var gameTime = row.getAttribute('data-time');
+                                    if (gameTime) {
+                                        var msToGame = new Date(gameTime).getTime() - Date.now();
+                                        if (msToGame > 90 * 60 * 1000) {
+                                            var luTag = document.createElement('span');
+                                            luTag.className = 'lineup-tag';
+                                            luTag.style.cssText = 'display:block;font-size:8px;color:#FBB024;margin-top:2px;font-weight:600;';
+                                            luTag.textContent = '\u26A0 Lineups Open';
+                                            gradeContainer.appendChild(luTag);
+                                        }
+                                    }
+                                }
+                            }
+                            // Add props count badge next to grade
                             if (gradeContainer && game.chinny_props && game.chinny_props.length) {
                                 var existingBadge = gradeContainer.querySelector('.props-badge');
                                 if (!existingBadge) {
