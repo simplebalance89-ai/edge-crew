@@ -4854,7 +4854,7 @@ var _evSpeaking = false;
 function openSportPicker() {
     // Update counts from existing badge data
     ['nba','nhl','mlb','soccer','mma','boxing'].forEach(function(s) {
-        var tab = document.querySelector('.sport-tab[onclick*="\\'' + s + '\\'"]');
+        var tab = document.querySelector(".sport-tab[onclick*=\"" + s + "\"]");
         var badge = tab ? tab.querySelector('.tab-badge') : null;
         var el = document.getElementById('sp-count-' + s);
         if (el) el.textContent = badge ? badge.textContent + ' games' : '';
