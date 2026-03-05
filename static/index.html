@@ -2595,11 +2595,9 @@ function abbr(name) {
 
 function formatGameTime(isoTime) {
     var d = new Date(isoTime);
-    var h = d.getHours();
-    var m = d.getMinutes();
-    var ampm = h >= 12 ? 'PM' : 'AM';
-    h = h % 12 || 12;
-    return h + ':' + (m < 10 ? '0' : '') + m + ' ' + ampm;
+    var et = d.toLocaleString('en-US', {hour:'numeric', minute:'2-digit', hour12:true, timeZone:'America/New_York'});
+    var pt = d.toLocaleString('en-US', {hour:'numeric', minute:'2-digit', hour12:true, timeZone:'America/Los_Angeles'});
+    return et.replace(' ', '') + ' ET / ' + pt.replace(' ', '') + ' PT';
 }
 
 function buildGameRowHTML(g) {
@@ -2732,18 +2730,34 @@ function fetchLiveOdds(sport) {
             var emptyState = panel.querySelector('.empty-state');
             if (emptyState) emptyState.remove();
 
-            if (!data.games || data.games.length === 0) {
+            // Filter out started games (pregame only on main slate)
+            var now = new Date();
+            var pregameGames = (data.games || []).filter(function(g) {
+                return new Date(g.time) > now;
+            });
+
+            if (pregameGames.length === 0) {
                 var msg = document.createElement('div');
                 msg.className = 'no-games';
                 msg.style.cssText = 'text-align:center;padding:40px;color:rgba(255,255,255,0.4);';
-                msg.textContent = 'No ' + sport.toUpperCase() + ' games on the slate right now.';
+                msg.textContent = data.games && data.games.length > 0
+                    ? 'All ' + sport.toUpperCase() + ' games have started. Check Results.'
+                    : 'No ' + sport.toUpperCase() + ' games on the slate right now.';
                 panel.appendChild(msg);
+                // Still update tab count to 0
+                var tabs0 = document.querySelectorAll('.sport-tab');
+                tabs0.forEach(function(tab) {
+                    if (tab.textContent.indexOf(sport.toUpperCase()) === 0) {
+                        var count = tab.querySelector('.tab-count');
+                        if (count) count.textContent = '0';
+                    }
+                });
                 return;
             }
 
             // Build new rows
             var html = '';
-            data.games.forEach(function(g) {
+            pregameGames.forEach(function(g) {
                 html += buildGameRowHTML(g);
             });
 
@@ -2769,12 +2783,12 @@ function fetchLiveOdds(sport) {
                 }
             }
 
-            // Update tab count
+            // Update tab count (pregame only)
             var tabs = document.querySelectorAll('.sport-tab');
             tabs.forEach(function(tab) {
                 if (tab.textContent.indexOf(sport.toUpperCase()) === 0) {
                     var count = tab.querySelector('.tab-count');
-                    if (count) count.textContent = data.games.length;
+                    if (count) count.textContent = pregameGames.length;
                 }
             });
 
@@ -2797,7 +2811,8 @@ function fetchLiveOdds(sport) {
                 sweepEl.innerHTML = 'Last sweep: ' + serverTime + '<br>Books: ' + booksUsed + '<br>' + statusLine;
             }
 
-            showToast(sport.toUpperCase() + ' slate loaded — ' + data.games.length + ' games (' + (data.lines_complete || 0) + ' complete, ' + (data.lines_incomplete || 0) + ' incomplete)');
+            var startedCount = (data.games ? data.games.length : 0) - pregameGames.length;
+            showToast(sport.toUpperCase() + ' slate loaded — ' + pregameGames.length + ' pregame' + (startedCount > 0 ? ', ' + startedCount + ' started (hidden)' : '') + ' (' + (data.lines_complete || 0) + ' complete)');
 
             // Re-apply saved picks after DOM rebuild
             if (typeof restoreLockedPicks === 'function') restoreLockedPicks();
