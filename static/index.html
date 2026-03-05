@@ -567,6 +567,9 @@ body{background:#0A0A0A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 
     /* Footer less padding */
     .footer{padding:20px 16px;margin-top:16px;}
+
+    /* Props swim lanes stack on mobile */
+    #propsLanes{grid-template-columns:1fr !important;gap:20px !important;}
 }
 @media(min-width:769px){
     .mobile-quick-bar{display:none !important;}
@@ -1056,18 +1059,18 @@ body{background:#0A0A0A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 
 </div>
 
-<!-- ===== PROPS PANEL (Real Lines + AI) ===== -->
+<!-- ===== PROPS PANEL (Two Swim Lanes + Parlay Builder) ===== -->
 <div class="sport-panel" id="panel-props">
 
 <!-- Sport tabs for props -->
 <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;" id="propsSportTabs">
-    <button class="sport-tab active" onclick="loadRealProps('nba')" style="font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid rgba(0,230,118,0.3);background:rgba(0,230,118,0.15);color:#00E676;cursor:pointer;font-weight:700;">NBA</button>
-    <button class="sport-tab" onclick="loadRealProps('nhl')" style="font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;font-weight:700;">NHL</button>
-    <button class="sport-tab" onclick="loadRealProps('nfl')" style="font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;font-weight:700;">NFL</button>
-    <button class="sport-tab" onclick="loadRealProps('mlb')" style="font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;font-weight:700;">MLB</button>
-    <button class="sport-tab" onclick="loadRealProps('soccer')" style="font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;font-weight:700;">Soccer</button>
-    <button class="sport-tab" onclick="loadRealProps('mma')" style="font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;font-weight:700;">MMA</button>
-    <button class="sport-tab" onclick="loadRealProps('boxing')" style="font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;font-weight:700;">Boxing</button>
+    <button class="sport-tab active" onclick="loadPropsForSport('nba')" style="font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid rgba(0,230,118,0.3);background:rgba(0,230,118,0.15);color:#00E676;cursor:pointer;font-weight:700;">NBA</button>
+    <button class="sport-tab" onclick="loadPropsForSport('nhl')" style="font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;font-weight:700;">NHL</button>
+    <button class="sport-tab" onclick="loadPropsForSport('nfl')" style="font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;font-weight:700;">NFL</button>
+    <button class="sport-tab" onclick="loadPropsForSport('mlb')" style="font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;font-weight:700;">MLB</button>
+    <button class="sport-tab" onclick="loadPropsForSport('soccer')" style="font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;font-weight:700;">Soccer</button>
+    <button class="sport-tab" onclick="loadPropsForSport('mma')" style="font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;font-weight:700;">MMA</button>
+    <button class="sport-tab" onclick="loadPropsForSport('boxing')" style="font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;font-weight:700;">Boxing</button>
 </div>
 
 <!-- Search/filter -->
@@ -1085,21 +1088,72 @@ body{background:#0A0A0A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     <div style="font-size:11px;color:rgba(255,255,255,0.3);" id="propsCount"></div>
 </div>
 
-<!-- Real props container -->
-<div id="realPropsContainer">
-    <div class="empty-state">Select a sport above to load real player prop lines from 8+ bookmakers.</div>
+<!-- TWO SWIM LANES -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;" id="propsLanes">
+
+    <!-- LEFT LANE: Sinton.ia's Hammer Props -->
+    <div style="min-width:0;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding-bottom:10px;border-bottom:2px solid rgba(16,185,129,0.3);">
+            <span style="font-size:18px;">&#x1F528;</span>
+            <span style="font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:#10B981;">Sinton.ia's Hammer Props</span>
+        </div>
+        <div id="propsContainer">
+            <div class="empty-state" style="font-size:12px;">Hit REFRESH SLATE to load AI analysis props.</div>
+        </div>
+    </div>
+
+    <!-- RIGHT LANE: Alyssa's Props (Real Lines) -->
+    <div style="min-width:0;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding-bottom:10px;border-bottom:2px solid rgba(232,121,249,0.3);">
+            <span style="font-size:18px;">&#x1F4CA;</span>
+            <span style="font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:#E879F9;">Alyssa's Sharp Props</span>
+        </div>
+        <div id="realPropsContainer">
+            <div class="empty-state" style="font-size:12px;">Select a sport above to load real prop lines.</div>
+        </div>
+    </div>
+
 </div>
 
-<!-- Divider -->
-<div style="margin:24px 0 16px;border-top:1px solid rgba(16,185,129,0.2);padding-top:16px;">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
-        <span style="font-size:16px;">&#x1F916;</span>
-        <span style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#10B981;">Sinton.ia's AI Props</span>
-        <span style="font-size:10px;color:rgba(16,185,129,0.5);letter-spacing:1px;">FROM ANALYSIS</span>
+<!-- PROPS PARLAY BUILDER (shown when legs selected) -->
+<div id="propsParlayBuilder" style="display:none;margin-top:20px;background:#111111;border:2px solid #00E676;border-radius:12px;padding:16px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:16px;">&#x1F3B0;</span>
+            <span style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#00E676;">Parlay Builder</span>
+        </div>
+        <span id="propsParlayOdds" style="color:#00E676;font-weight:800;font-size:18px;"></span>
+    </div>
+    <div id="propsParlayLegsContainer"></div>
+    <div style="display:flex;gap:8px;margin-top:12px;">
+        <button onclick="submitPropsParlay()" style="flex:1;padding:10px;background:linear-gradient(135deg,#00E676,#00C853);color:#0A0A0A;border:none;border-radius:8px;font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;cursor:pointer;letter-spacing:0.5px;">LOCK PARLAY</button>
+        <button onclick="clearPropsParlay()" style="flex:0 0 auto;padding:10px 20px;background:transparent;border:1px solid #EF4444;border-radius:8px;font-family:'Nunito',sans-serif;font-weight:700;color:#EF4444;cursor:pointer;">Clear</button>
     </div>
 </div>
-<div id="propsContainer">
-    <div class="empty-state">No AI props loaded yet.<br><strong>Hit REFRESH SLATE</strong> to load analysis data.</div>
+
+<!-- New card entry -->
+<div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.06);">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;cursor:pointer;" onclick="toggleNewPropCard()">
+        <span style="font-size:14px;color:#00E676;font-weight:800;">+</span>
+        <span style="font-size:13px;color:rgba(255,255,255,0.5);font-weight:600;">Add Custom Prop / Bet Card</span>
+    </div>
+    <div id="newPropCardForm" style="display:none;background:#111111;border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:14px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+            <input type="text" id="customPropPlayer" placeholder="Player name" style="padding:8px 10px;background:#0A0A0A;border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#fff;font-size:13px;font-family:'Nunito',sans-serif;">
+            <input type="text" id="customPropLine" placeholder="Over 24.5 Points" style="padding:8px 10px;background:#0A0A0A;border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#fff;font-size:13px;font-family:'Nunito',sans-serif;">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;">
+            <input type="text" id="customPropOdds" placeholder="Odds (-110)" style="padding:8px 10px;background:#0A0A0A;border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#fff;font-size:13px;font-family:'Nunito',sans-serif;">
+            <input type="text" id="customPropMatchup" placeholder="Matchup (NYK @ BOS)" style="padding:8px 10px;background:#0A0A0A;border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#fff;font-size:13px;font-family:'Nunito',sans-serif;">
+            <select id="customPropSport" style="padding:8px 10px;background:#0A0A0A;border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#fff;font-size:13px;font-family:'Nunito',sans-serif;">
+                <option value="NBA">NBA</option><option value="NHL">NHL</option><option value="NFL">NFL</option><option value="MLB">MLB</option><option value="SOCCER">Soccer</option><option value="MMA">MMA</option><option value="BOXING">Boxing</option>
+            </select>
+        </div>
+        <div style="display:flex;gap:8px;">
+            <button onclick="addCustomPropCard()" style="flex:1;padding:8px;background:linear-gradient(135deg,#00E676,#00C853);color:#0A0A0A;border:none;border-radius:6px;font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;cursor:pointer;">ADD TO PARLAY</button>
+            <button onclick="lockCustomPropCard()" style="flex:1;padding:8px;background:transparent;border:1px solid #00E676;border-radius:6px;font-family:'Nunito',sans-serif;font-weight:700;color:#00E676;font-size:13px;cursor:pointer;">LOCK AS PICK</button>
+        </div>
+    </div>
 </div>
 
 <div id="propsBottomTimestamp" style="text-align:right;font-size:10px;color:rgba(255,255,255,0.2);margin-top:12px;"></div>
@@ -1337,10 +1391,10 @@ body{background:#0A0A0A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 
     <div style="display:flex;gap:8px;">
         <button class="submit-pick-btn" onclick="submitPick()" style="flex:1;">Lock This Pick</button>
-        <button class="submit-pick-btn" onclick="addParlayLeg()" style="flex:1;background:#1a1a3a !important;border:1px solid #00E676 !important;color:#00E676 !important;">+ Add Leg</button>
+        <button class="submit-pick-btn" onclick="addParlayLeg()" style="flex:1;background:#1a1a1a !important;border:1px solid #00E676 !important;color:#00E676 !important;">+ Add Leg</button>
     </div>
 
-    <div id="parlayBuilder" style="display:none;margin-top:16px;background:#1a1a2a;border:1px solid #00E676;border-radius:10px;padding:16px;">
+    <div id="parlayBuilder" style="display:none;margin-top:16px;background:#1a1a1a;border:1px solid #00E676;border-radius:10px;padding:16px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
             <h3 style="color:#00E676;margin:0;font-size:16px;">Parlay Builder</h3>
             <span id="parlayOdds" style="color:#00E676;font-weight:800;font-size:18px;"></span>
@@ -4080,25 +4134,48 @@ function fetchAnalysis(sport) {
 })();
 
 // ===== LOAD PROPS FROM ANALYSIS CACHE =====
-function loadProps() {
+// ===== PROPS PARLAY STATE =====
+var _propsParlayLegs = [];
+var _currentPropsSport = 'nba';
+
+function loadPropsForSport(sport) {
+    _currentPropsSport = sport.toLowerCase();
+
+    // Update sport tab active state
+    var tabs = document.querySelectorAll('#propsSportTabs .sport-tab');
+    tabs.forEach(function(t) {
+        if (t.textContent.trim().toLowerCase() === sport.toLowerCase()) {
+            t.classList.add('active');
+            t.style.borderColor = 'rgba(0,230,118,0.3)';
+            t.style.background = 'rgba(0,230,118,0.15)';
+            t.style.color = '#00E676';
+        } else {
+            t.classList.remove('active');
+            t.style.borderColor = 'rgba(255,255,255,0.1)';
+            t.style.background = 'transparent';
+            t.style.color = 'rgba(255,255,255,0.5)';
+        }
+    });
+
+    // Load BOTH lanes for this sport
+    loadProps(sport);
+    loadRealProps(sport);
+}
+
+function loadProps(sportFilter) {
     var container = document.getElementById('propsContainer');
     if (!container) return;
 
+    var filterKey = (sportFilter || _currentPropsSport || '').toUpperCase();
     var allProps = [];
-    var sportColors = {
-        'NBA': 'background:rgba(200,50,50,0.2);color:#E25555;',
-        'NHL': 'background:rgba(50,100,200,0.2);color:#5588EE;',
-        'SOCCER': 'background:rgba(16,185,129,0.2);color:#10B981;',
-        'MMA': 'background:rgba(167,139,250,0.2);color:#A78BFA;',
-        'BOXING': 'background:rgba(245,158,11,0.2);color:#F59E0B;'
-    };
 
-    ['NBA','NHL','MLB','SOCCER','MMA','BOXING'].forEach(function(sport) {
+    // Only load for the selected sport
+    var sportsToScan = filterKey ? [filterKey] : ['NBA','NHL','MLB','SOCCER','MMA','BOXING'];
+    sportsToScan.forEach(function(sport) {
         var cached = _analysisCache[sport];
         if (!cached || !cached.games) return;
         cached.games.forEach(function(game) {
             if (game.chinny_props && game.chinny_props.length) {
-                // Normalize props — handle both string and object format
                 var normalizedProps = game.chinny_props.map(function(p) {
                     if (typeof p === 'string') {
                         return { player: '', prop: p, line: '', grade: game.grade || '--', edge: '' };
@@ -4116,112 +4193,64 @@ function loadProps() {
     });
 
     if (allProps.length === 0) {
-        container.innerHTML = '<div class="empty-state">No props loaded yet.<br><strong>Hit REFRESH SLATE</strong> to load analysis data.</div>';
+        container.innerHTML = '<div class="empty-state" style="font-size:12px;">No ' + filterKey + ' AI props yet. Hit REFRESH SLATE.</div>';
         return;
     }
 
-    // Split props into HAMMER (A-/A/A+/BEST BET) vs regular
-    var hammerProps = [];
-    var regularProps = [];
-    allProps.forEach(function(entry) {
-        var g = (entry.grade || '').toUpperCase();
-        if (g === 'A+' || g === 'A' || g === 'A-') {
-            hammerProps.push(entry);
-        } else {
-            regularProps.push(entry);
-        }
+    // Sort: hammers (A grades) first
+    allProps.sort(function(a, b) {
+        var aH = /^A[\+\-]?$/.test((a.grade||'').toUpperCase()) ? 0 : 1;
+        var bH = /^A[\+\-]?$/.test((b.grade||'').toUpperCase()) ? 0 : 1;
+        return aH - bH;
     });
 
     var html = '';
     var totalProps = 0;
+    var propIdx = 0;
 
-    // === HAMMER SECTION — top-grade props front and center ===
-    if (hammerProps.length > 0) {
-        html += '<div style="margin-bottom:24px;">';
-        html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid rgba(0,230,118,0.3);">';
-        html += '<span style="font-size:24px;">&#x1F528;</span>';
-        html += '<span style="font-family:\'Playfair Display\',serif;font-size:18px;font-weight:700;color:#00E676;">HAMMER PROPS</span>';
-        html += '<span style="font-size:11px;color:rgba(0,230,118,0.7);font-weight:600;letter-spacing:1px;">A-GRADE GAMES ONLY</span>';
-        html += '</div>';
-        hammerProps.forEach(function(entry) {
-            var sportStyle = sportColors[entry.sport] || 'background:rgba(255,255,255,0.1);color:#fff;';
-            var gradeClass = 'g' + entry.grade.toLowerCase().replace(/[^a-z]/g,'');
-            html += '<div style="background:rgba(0,230,118,0.06);border:2px solid rgba(0,230,118,0.35);border-radius:12px;padding:18px 22px;margin-bottom:14px;position:relative;">';
-            html += '<div style="position:absolute;top:-10px;right:16px;background:#00E676;color:#0A0A0A;font-size:10px;font-weight:800;padding:3px 10px;border-radius:6px;letter-spacing:1px;">HAMMER</div>';
-            html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">';
-            html += '<div><span class="tag" style="' + sportStyle + '">' + entry.sport + '</span> ';
-            html += '<strong style="font-family:\'Playfair Display\',serif;font-size:15px;">' + entry.matchup + '</strong></div>';
-            html += '<span class="grade ' + gradeClass + '" style="font-size:18px;font-weight:800;">' + entry.grade + '</span>';
-            html += '</div>';
-            html += '<div style="display:flex;flex-direction:column;gap:8px;">';
-            entry.props.forEach(function(prop) {
-                totalProps++;
-                var pGrade = prop.grade || entry.grade;
-                var pGradeClass = 'g' + pGrade.toLowerCase().replace(/[^a-z]/g,'');
-                var propText = prop.player ? '<strong>' + prop.player + '</strong> — ' + prop.prop : prop.prop;
-                if (prop.line) propText += ' <span style="color:#00E676;">(' + prop.line + ')</span>';
-                html += '<div style="background:rgba(0,230,118,0.04);border:1px solid rgba(0,230,118,0.15);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:12px;">';
-                html += '<span class="grade ' + pGradeClass + '" style="font-size:11px;min-width:28px;text-align:center;">' + pGrade + '</span>';
-                html += '<div style="flex:1;"><div style="font-size:13px;color:rgba(255,255,255,0.9);font-weight:600;">' + propText + '</div>';
-                if (prop.edge) html += '<div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px;">' + prop.edge + '</div>';
-                html += '</div></div>';
-            });
-            html += '</div></div>';
-        });
-        html += '</div>';
-    }
+    allProps.forEach(function(entry) {
+        var g = (entry.grade || '').toUpperCase();
+        var isHammer = g === 'A+' || g === 'A' || g === 'A-';
+        var gradeClass = 'g' + entry.grade.toLowerCase().replace(/[^a-z]/g,'');
+        var borderColor = isHammer ? 'rgba(0,230,118,0.35)' : 'rgba(255,255,255,0.06)';
+        var bgColor = isHammer ? 'rgba(0,230,118,0.06)' : 'rgba(255,255,255,0.02)';
 
-    // === REGULAR PROPS — grouped by game ===
-    if (regularProps.length > 0) {
-        if (hammerProps.length > 0) {
-            html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.06);">';
-            html += '<span style="font-size:14px;color:rgba(255,255,255,0.4);font-weight:700;letter-spacing:1px;text-transform:uppercase;">Other Games</span>';
-            html += '</div>';
-        }
-        regularProps.forEach(function(entry) {
-            var sportStyle = sportColors[entry.sport] || 'background:rgba(255,255,255,0.1);color:#fff;';
-            var gradeClass = 'g' + entry.grade.toLowerCase().replace(/[^a-z]/g,'');
-            html += '<div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px 20px;margin-bottom:12px;">';
-            html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">';
-            html += '<div><span class="tag" style="' + sportStyle + '">' + entry.sport + '</span> ';
-            html += '<strong style="font-family:\'Playfair Display\',serif;">' + entry.matchup + '</strong></div>';
-            html += '<span class="grade ' + gradeClass + '">' + entry.grade + '</span>';
-            html += '</div>';
-            html += '<div style="display:flex;flex-direction:column;gap:6px;">';
-            entry.props.forEach(function(prop) {
-                totalProps++;
-                var pGrade = prop.grade || entry.grade;
-                var pGradeClass = 'g' + pGrade.toLowerCase().replace(/[^a-z]/g,'');
-                var propText = prop.player ? '<strong>' + prop.player + '</strong> — ' + prop.prop : prop.prop;
-                if (prop.line) propText += ' <span style="color:#00E676;">(' + prop.line + ')</span>';
-                html += '<div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:8px 12px;display:flex;align-items:center;gap:10px;">';
-                html += '<span class="grade ' + pGradeClass + '" style="font-size:10px;min-width:26px;text-align:center;">' + pGrade + '</span>';
-                html += '<div style="flex:1;"><div style="font-size:13px;color:rgba(255,255,255,0.7);">' + propText + '</div>';
-                if (prop.edge) html += '<div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px;">' + prop.edge + '</div>';
-                html += '</div></div>';
-            });
+        html += '<div style="background:' + bgColor + ';border:1px solid ' + borderColor + ';border-radius:10px;padding:12px 14px;margin-bottom:10px;position:relative;">';
+        if (isHammer) html += '<div style="position:absolute;top:-8px;right:12px;background:#00E676;color:#0A0A0A;font-size:9px;font-weight:800;padding:2px 8px;border-radius:4px;letter-spacing:1px;">HAMMER</div>';
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">';
+        html += '<strong style="font-family:\'Playfair Display\',serif;font-size:13px;">' + entry.matchup + '</strong>';
+        html += '<span class="grade ' + gradeClass + '" style="font-size:14px;font-weight:800;">' + entry.grade + '</span>';
+        html += '</div>';
+
+        entry.props.forEach(function(prop) {
+            totalProps++;
+            var pGrade = prop.grade || entry.grade;
+            var pGradeClass = 'g' + pGrade.toLowerCase().replace(/[^a-z]/g,'');
+            var propText = prop.player ? '<strong>' + prop.player + '</strong> — ' + prop.prop : prop.prop;
+            if (prop.line) propText += ' <span style="color:#10B981;">(' + prop.line + ')</span>';
+            var pid = 'sinprop_' + propIdx;
+            var propSel = (prop.player ? prop.player + ' ' : '') + prop.prop;
+            var propOdds = prop.line || '-110';
+
+            html += '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.03);">';
+            html += '<input type="checkbox" id="' + pid + '" class="prop-check" onchange="togglePropLeg(this,\'sinton\',\'' + propSel.replace(/'/g,"\\'") + '\',\'' + propOdds.replace(/'/g,"\\'") + '\',\'' + entry.matchup.replace(/'/g,"\\'") + '\',\'' + entry.sport + '\')" style="width:18px;height:18px;accent-color:#10B981;cursor:pointer;flex-shrink:0;">';
+            html += '<span class="grade ' + pGradeClass + '" style="font-size:10px;min-width:24px;text-align:center;">' + pGrade + '</span>';
+            html += '<div style="flex:1;min-width:0;"><div style="font-size:12px;color:rgba(255,255,255,0.85);font-weight:600;overflow:hidden;text-overflow:ellipsis;">' + propText + '</div>';
+            if (prop.edge) html += '<div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:1px;overflow:hidden;text-overflow:ellipsis;">' + prop.edge + '</div>';
             html += '</div></div>';
+            propIdx++;
         });
-    }
+
+        html += '</div>';
+    });
 
     container.innerHTML = html;
-
-    // Update Props tab count
-    var tabs = document.querySelectorAll('.sport-tab');
-    tabs.forEach(function(tab) {
-        if (tab.textContent.indexOf('Props') !== -1) {
-            var count = tab.querySelector('.tab-count');
-            if (count) count.textContent = totalProps;
-        }
-    });
 
     // Update timestamps
     var now = new Date();
     var ts = now.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}) + ' \u2014 ' + now.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit', timeZoneName:'short'});
-    var propsTs = document.getElementById('propsTimestamp');
-    if (propsTs) propsTs.textContent = 'Props loaded: ' + ts;
     var bottomTs = document.getElementById('propsBottomTimestamp');
-    if (bottomTs) bottomTs.textContent = 'Props generated from analysis: ' + ts + ' | ' + totalProps + ' props across ' + allProps.length + ' games';
+    if (bottomTs) bottomTs.textContent = totalProps + ' AI props | ' + ts;
 }
 
 // ===== REAL PLAYER PROPS — The Odds API =====
@@ -4234,27 +4263,11 @@ function loadRealProps(sport) {
     _realPropsStatFilter = 'all';
     var container = document.getElementById('realPropsContainer');
     if (!container) return;
-    container.innerHTML = '<div style="text-align:center;padding:30px;color:rgba(255,255,255,0.4);"><div style="font-size:24px;margin-bottom:8px;">Loading ' + sport.toUpperCase() + ' props...</div><div style="font-size:12px;">Fetching real lines from 8+ bookmakers</div></div>';
-
-    // Update sport tab active state
-    var tabs = document.querySelectorAll('#propsSportTabs .sport-tab');
-    tabs.forEach(function(t) {
-        if (t.textContent.trim().toLowerCase() === sport) {
-            t.classList.add('active');
-            t.style.borderColor = 'rgba(0,230,118,0.3)';
-            t.style.background = 'rgba(0,230,118,0.15)';
-            t.style.color = '#00E676';
-        } else {
-            t.classList.remove('active');
-            t.style.borderColor = 'rgba(255,255,255,0.1)';
-            t.style.background = 'transparent';
-            t.style.color = 'rgba(255,255,255,0.5)';
-        }
-    });
+    container.innerHTML = '<div style="text-align:center;padding:20px;color:rgba(255,255,255,0.4);font-size:12px;">Loading ' + sport.toUpperCase() + ' real props...</div>';
 
     crewFetch('/api/props/' + sport).then(function(r) { return r.json(); }).then(function(data) {
         if (data.error) {
-            container.innerHTML = '<div class="empty-state">' + data.error + '</div>';
+            container.innerHTML = '<div class="empty-state" style="font-size:12px;">' + data.error + '</div>';
             return;
         }
         _realPropsData = data.props || [];
@@ -4272,7 +4285,7 @@ function loadRealProps(sport) {
         document.getElementById('propsTimestamp').textContent = 'Real lines from The Odds API | ' + (data.fetched_at || '');
         renderRealProps(_realPropsData);
     }).catch(function(err) {
-        container.innerHTML = '<div class="empty-state">Failed to load props: ' + err.message + '</div>';
+        container.innerHTML = '<div class="empty-state" style="font-size:12px;">Failed to load props: ' + err.message + '</div>';
     });
 }
 
@@ -4309,7 +4322,7 @@ function renderRealProps(props) {
     var container = document.getElementById('realPropsContainer');
     if (!container) return;
     if (!props || props.length === 0) {
-        container.innerHTML = '<div class="empty-state">No props found matching your filters.</div>';
+        container.innerHTML = '<div class="empty-state" style="font-size:12px;">No props found matching your filters.</div>';
         return;
     }
 
@@ -4321,70 +4334,64 @@ function renderRealProps(props) {
     });
 
     var html = '';
+    var rpIdx = 0;
     var verdictColors = {
-        'SHARP VALUE': {bg: 'rgba(16,185,129,0.15)', color: '#10B981', border: 'rgba(16,185,129,0.3)'},
-        'SLIGHT EDGE': {bg: 'rgba(0,230,118,0.12)', color: '#00E676', border: 'rgba(0,230,118,0.25)'},
-        'FAIR LINE': {bg: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.5)', border: 'rgba(255,255,255,0.1)'},
-        'BAD NUMBER': {bg: 'rgba(239,68,68,0.08)', color: '#EF4444', border: 'rgba(239,68,68,0.15)'}
+        'SHARP VALUE': {bg: 'rgba(232,121,249,0.12)', color: '#E879F9', border: 'rgba(232,121,249,0.3)'},
+        'SLIGHT EDGE': {bg: 'rgba(232,121,249,0.08)', color: '#C084FC', border: 'rgba(232,121,249,0.2)'},
+        'FAIR LINE': {bg: 'rgba(255,255,255,0.03)', color: 'rgba(255,255,255,0.5)', border: 'rgba(255,255,255,0.08)'},
+        'BAD NUMBER': {bg: 'rgba(239,68,68,0.06)', color: '#EF4444', border: 'rgba(239,68,68,0.12)'}
     };
 
     Object.keys(byGame).forEach(function(matchup) {
         var gameProps = byGame[matchup];
-        // Only show Over side for cleaner display (Under is implied)
         var overProps = gameProps.filter(function(p) { return p.side === 'Over'; });
         if (overProps.length === 0) overProps = gameProps;
 
-        html += '<div style="margin-bottom:16px;">';
-        html += '<div style="font-family:\'Playfair Display\',serif;font-size:14px;font-weight:700;color:rgba(255,255,255,0.8);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.06);">' + matchup + '</div>';
+        html += '<div style="margin-bottom:12px;">';
+        html += '<div style="font-family:\'Playfair Display\',serif;font-size:13px;font-weight:700;color:rgba(255,255,255,0.7);margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid rgba(255,255,255,0.06);">' + matchup + '</div>';
 
         overProps.forEach(function(prop) {
             var vc = verdictColors[prop.verdict] || verdictColors['FAIR LINE'];
-            var edgeSign = prop.edge > 0 ? '+' : '';
             var oddsStr = prop.best_odds > 0 ? '+' + prop.best_odds : '' + prop.best_odds;
+            var propSel = prop.player + ' O ' + prop.line + ' ' + prop.stat;
+            var pid = 'realprop_' + rpIdx;
 
-            html += '<div class="real-prop-card" data-player="' + (prop.player || '').toLowerCase() + '" data-stat="' + prop.stat + '" style="background:' + vc.bg + ';border:1px solid ' + vc.border + ';border-radius:10px;padding:12px 14px;margin-bottom:6px;cursor:pointer;" onclick="togglePropDetail(this)">';
+            html += '<div class="real-prop-card" data-player="' + (prop.player || '').toLowerCase() + '" data-stat="' + prop.stat + '" style="background:' + vc.bg + ';border:1px solid ' + vc.border + ';border-radius:8px;padding:8px 10px;margin-bottom:4px;cursor:pointer;" onclick="togglePropDetail(this)">';
 
-            // Main row
+            // Main row with checkbox
+            html += '<div style="display:flex;align-items:center;gap:8px;">';
+            html += '<input type="checkbox" id="' + pid + '" class="prop-check" onclick="event.stopPropagation()" onchange="togglePropLeg(this,\'alyssa\',\'' + propSel.replace(/'/g,"\\'") + '\',\'' + oddsStr.replace(/'/g,"\\'") + '\',\'' + prop.matchup.replace(/'/g,"\\'") + '\',\'' + _realPropsSport.toUpperCase() + '\')" style="width:18px;height:18px;accent-color:#E879F9;cursor:pointer;flex-shrink:0;">';
+            html += '<div style="flex:1;min-width:0;">';
             html += '<div style="display:flex;justify-content:space-between;align-items:center;">';
-            html += '<div style="flex:1;">';
-            html += '<span style="font-weight:700;color:#fff;font-size:14px;">' + prop.player + '</span>';
-            html += '<span style="color:rgba(255,255,255,0.4);font-size:12px;margin-left:8px;">' + prop.stat + '</span>';
-            html += '</div>';
-            html += '<div style="text-align:right;display:flex;align-items:center;gap:8px;">';
-            html += '<span style="font-weight:800;color:#fff;font-size:15px;">O ' + prop.line + '</span>';
-            html += '<span style="font-weight:700;color:' + vc.color + ';font-size:13px;">' + oddsStr + '</span>';
-            // Verdict badge
-            html += '<span style="font-size:9px;font-weight:800;padding:2px 6px;border-radius:4px;background:' + vc.bg + ';color:' + vc.color + ';border:1px solid ' + vc.border + ';letter-spacing:0.5px;white-space:nowrap;">' + prop.verdict + '</span>';
-            html += '</div></div>';
+            html += '<span style="font-weight:700;color:#fff;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + prop.player + ' <span style="color:rgba(255,255,255,0.35);font-size:10px;">' + prop.stat + '</span></span>';
+            html += '<div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">';
+            html += '<span style="font-weight:800;color:#fff;font-size:12px;">O ' + prop.line + '</span>';
+            html += '<span style="font-weight:700;color:' + vc.color + ';font-size:11px;">' + oddsStr + '</span>';
+            html += '<span style="font-size:8px;font-weight:800;padding:1px 4px;border-radius:3px;background:' + vc.bg + ';color:' + vc.color + ';border:1px solid ' + vc.border + ';white-space:nowrap;">' + prop.verdict + '</span>';
+            html += '</div></div></div></div>';
 
-            // Detail (hidden by default)
-            html += '<div class="prop-detail" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06);">';
-            // Books table
+            // Detail (hidden)
+            var edgeSign = prop.edge > 0 ? '+' : '';
+            html += '<div class="prop-detail" style="display:none;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06);font-size:11px;">';
             if (prop.books && prop.books.length > 0) {
-                html += '<div style="display:grid;grid-template-columns:1fr auto auto;gap:2px 12px;font-size:12px;margin-bottom:10px;">';
+                html += '<div style="display:grid;grid-template-columns:1fr auto auto;gap:1px 8px;margin-bottom:6px;">';
                 prop.books.forEach(function(b) {
                     var isBest = b.book === prop.best_book;
                     var bOdds = b.odds > 0 ? '+' + b.odds : '' + b.odds;
-                    html += '<div style="color:rgba(255,255,255,0.6);' + (isBest ? 'font-weight:700;color:#00E676;' : '') + '">' + b.book + (isBest ? ' &#x2B50;' : '') + '</div>';
-                    html += '<div style="color:#fff;font-weight:600;text-align:right;' + (isBest ? 'color:#00E676;' : '') + '">' + bOdds + '</div>';
+                    html += '<div style="color:rgba(255,255,255,0.5);' + (isBest ? 'font-weight:700;color:#E879F9;' : '') + '">' + b.book + (isBest ? ' *' : '') + '</div>';
+                    html += '<div style="color:#fff;font-weight:600;text-align:right;' + (isBest ? 'color:#E879F9;' : '') + '">' + bOdds + '</div>';
                     html += '<div style="color:rgba(255,255,255,0.3);text-align:right;">' + (b.implied_prob || '?') + '%</div>';
                 });
                 html += '</div>';
             }
-            // Edge analysis
-            html += '<div style="display:flex;gap:16px;font-size:12px;margin-bottom:10px;">';
-            html += '<div><span style="color:rgba(255,255,255,0.4);">Best:</span> <strong style="color:#00E676;">' + prop.best_book + ' ' + oddsStr + '</strong></div>';
-            html += '<div><span style="color:rgba(255,255,255,0.4);">Implied:</span> <strong style="color:#fff;">' + (prop.best_prob || '?') + '%</strong></div>';
-            html += '<div><span style="color:rgba(255,255,255,0.4);">Consensus:</span> <strong style="color:#fff;">' + (prop.consensus_prob || '?') + '%</strong></div>';
+            html += '<div style="display:flex;gap:10px;flex-wrap:wrap;">';
+            html += '<div><span style="color:rgba(255,255,255,0.4);">Best:</span> <strong style="color:#E879F9;">' + prop.best_book + '</strong></div>';
             html += '<div><span style="color:rgba(255,255,255,0.4);">Edge:</span> <strong style="color:' + vc.color + ';">' + edgeSign + prop.edge + '%</strong></div>';
             html += '</div>';
-            // Add to picks button
-            var propSel = prop.player + ' Over ' + prop.line + ' ' + prop.stat;
-            var propNote = prop.best_book + ' best line. Edge: ' + edgeSign + prop.edge + '%. ' + prop.book_count + ' books.';
-            html += '<button onclick="event.stopPropagation();addPropToPicks(\'' + propSel.replace(/'/g,"\\'") + '\',\'' + oddsStr.replace(/'/g,"\\'") + '\',\'' + prop.matchup.replace(/'/g,"\\'") + '\',\'' + _realPropsSport.toUpperCase() + '\',\'' + propNote.replace(/'/g,"\\'") + '\')" style="width:100%;padding:8px;background:linear-gradient(135deg,#00E676,#00C853);color:#0A0A0A;border:none;border-radius:8px;font-family:\'Nunito\',sans-serif;font-weight:800;font-size:13px;cursor:pointer;letter-spacing:0.5px;">ADD TO PICKS</button>';
             html += '</div>';
 
             html += '</div>';
+            rpIdx++;
         });
 
         html += '</div>';
@@ -4430,6 +4437,190 @@ function addPropToPicks(selection, odds, matchup, sport, notes) {
     }).catch(function() {
         showToast(selection + ' locked (offline)!', 'warning');
     });
+}
+
+// ===== PROPS PARLAY BUILDER =====
+function togglePropLeg(checkbox, source, selection, odds, matchup, sport) {
+    if (checkbox.checked) {
+        _propsParlayLegs.push({
+            source: source,
+            selection: selection,
+            odds: odds,
+            matchup: matchup,
+            sport: sport,
+            checkboxId: checkbox.id
+        });
+    } else {
+        _propsParlayLegs = _propsParlayLegs.filter(function(l) { return l.checkboxId !== checkbox.id; });
+    }
+    renderPropsParlayBuilder();
+}
+
+function renderPropsParlayBuilder() {
+    var builder = document.getElementById('propsParlayBuilder');
+    var container = document.getElementById('propsParlayLegsContainer');
+    if (!builder || !container) return;
+
+    if (_propsParlayLegs.length === 0) {
+        builder.style.display = 'none';
+        return;
+    }
+
+    builder.style.display = 'block';
+    var html = '';
+    _propsParlayLegs.forEach(function(leg, i) {
+        var srcColor = leg.source === 'sinton' ? '#10B981' : '#E879F9';
+        var srcLabel = leg.source === 'sinton' ? 'SIN' : 'ALY';
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.06);">';
+        html += '<div style="flex:1;min-width:0;">';
+        html += '<span style="font-size:9px;font-weight:800;padding:1px 5px;border-radius:3px;background:rgba(255,255,255,0.06);color:' + srcColor + ';margin-right:6px;">' + srcLabel + '</span>';
+        html += '<span style="color:#fff;font-size:12px;font-weight:600;">' + leg.selection + '</span>';
+        html += '<span style="color:rgba(255,255,255,0.3);font-size:10px;margin-left:6px;">(' + leg.odds + ')</span>';
+        html += '</div>';
+        html += '<div style="cursor:pointer;color:#EF4444;padding:2px 6px;font-size:16px;" onclick="removePropsParlayLeg(' + i + ')">x</div>';
+        html += '</div>';
+    });
+    container.innerHTML = html;
+
+    // Calculate combined odds
+    var combinedDecimal = 1;
+    _propsParlayLegs.forEach(function(leg) {
+        var o = parseInt(leg.odds);
+        if (!o) return;
+        if (o > 0) combinedDecimal *= (o / 100) + 1;
+        else combinedDecimal *= (100 / Math.abs(o)) + 1;
+    });
+    var combinedAmerican;
+    if (combinedDecimal >= 2) combinedAmerican = '+' + Math.round((combinedDecimal - 1) * 100);
+    else combinedAmerican = '-' + Math.round(100 / (combinedDecimal - 1));
+
+    document.getElementById('propsParlayOdds').textContent = _propsParlayLegs.length + ' legs | ' + combinedAmerican;
+}
+
+function removePropsParlayLeg(index) {
+    var leg = _propsParlayLegs[index];
+    if (leg && leg.checkboxId) {
+        var cb = document.getElementById(leg.checkboxId);
+        if (cb) cb.checked = false;
+    }
+    _propsParlayLegs.splice(index, 1);
+    renderPropsParlayBuilder();
+}
+
+function clearPropsParlay() {
+    _propsParlayLegs.forEach(function(leg) {
+        if (leg.checkboxId) {
+            var cb = document.getElementById(leg.checkboxId);
+            if (cb) cb.checked = false;
+        }
+    });
+    _propsParlayLegs = [];
+    renderPropsParlayBuilder();
+}
+
+function submitPropsParlay() {
+    if (_propsParlayLegs.length < 2) {
+        showToast('Need at least 2 legs for a parlay.', true);
+        return;
+    }
+    if (!crewProfile) {
+        showToast('Login first!', true);
+        return;
+    }
+
+    var combinedDecimal = 1;
+    _propsParlayLegs.forEach(function(leg) {
+        var o = parseInt(leg.odds);
+        if (!o) return;
+        if (o > 0) combinedDecimal *= (o / 100) + 1;
+        else combinedDecimal *= (100 / Math.abs(o)) + 1;
+    });
+    var combinedAmerican;
+    if (combinedDecimal >= 2) combinedAmerican = '+' + Math.round((combinedDecimal - 1) * 100);
+    else combinedAmerican = '-' + Math.round(100 / (combinedDecimal - 1));
+
+    var pick = {
+        name: crewProfile.display_name,
+        sport: 'PARLAY',
+        type: 'Props Parlay (' + _propsParlayLegs.length + ' legs)',
+        matchup: _propsParlayLegs.map(function(l) { return l.matchup; }).join(' + '),
+        selection: _propsParlayLegs.map(function(l) { return l.selection; }).join(' / '),
+        odds: combinedAmerican,
+        units: 1,
+        confidence: 'Strong',
+        notes: 'Props parlay from ' + _propsParlayLegs.map(function(l) { return l.source === 'sinton' ? "Sinton.ia" : "Alyssa"; }).join(' + '),
+        date: toPSTDate(),
+        time: toPSTShort(),
+        created_at: new Date().toISOString(),
+        legs: _propsParlayLegs.slice()
+    };
+
+    crewFetch('/api/picks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(pick)
+    }).then(function(r) { return r.json(); }).then(function() {
+        showToast(_propsParlayLegs.length + '-leg props parlay LOCKED! ' + combinedAmerican);
+        renderPicks();
+        renderBankroll();
+    }).catch(function() {
+        showToast('Parlay locked (offline)!');
+    });
+
+    clearPropsParlay();
+}
+
+// ===== CUSTOM PROP CARD ENTRY =====
+function toggleNewPropCard() {
+    var form = document.getElementById('newPropCardForm');
+    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+}
+
+function addCustomPropCard() {
+    var player = document.getElementById('customPropPlayer').value.trim();
+    var line = document.getElementById('customPropLine').value.trim();
+    var odds = document.getElementById('customPropOdds').value.trim() || '-110';
+    var matchup = document.getElementById('customPropMatchup').value.trim() || 'Custom';
+    var sport = document.getElementById('customPropSport').value;
+
+    if (!player || !line) {
+        showToast('Need player + prop line.', true);
+        return;
+    }
+
+    _propsParlayLegs.push({
+        source: 'custom',
+        selection: player + ' ' + line,
+        odds: odds,
+        matchup: matchup,
+        sport: sport,
+        checkboxId: null
+    });
+    renderPropsParlayBuilder();
+    showToast('Added: ' + player + ' ' + line);
+
+    // Clear form
+    document.getElementById('customPropPlayer').value = '';
+    document.getElementById('customPropLine').value = '';
+    document.getElementById('customPropOdds').value = '';
+    document.getElementById('customPropMatchup').value = '';
+}
+
+function lockCustomPropCard() {
+    if (!crewProfile) { showToast('Login first!', true); return; }
+    var player = document.getElementById('customPropPlayer').value.trim();
+    var line = document.getElementById('customPropLine').value.trim();
+    var odds = document.getElementById('customPropOdds').value.trim() || '-110';
+    var matchup = document.getElementById('customPropMatchup').value.trim() || 'Custom';
+    var sport = document.getElementById('customPropSport').value;
+
+    if (!player || !line) { showToast('Need player + prop line.', true); return; }
+
+    addPropToPicks(player + ' ' + line, odds, matchup, sport, 'Manual entry');
+    document.getElementById('customPropPlayer').value = '';
+    document.getElementById('customPropLine').value = '';
+    document.getElementById('customPropOdds').value = '';
+    document.getElementById('customPropMatchup').value = '';
 }
 
 // ===== UPSET SPECIALS — CREW PICKS =====
