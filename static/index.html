@@ -2939,7 +2939,7 @@ function fetchLiveOdds(sport) {
             // Update sweep time with server timestamp
             var sweepEl = document.getElementById('sweepTime');
             if (sweepEl) {
-                var serverTime = data.fetched_at ? toPST(data.fetched_at) : toPST();
+                var serverTime = data.fetched_at || toPST();
                 var booksUsed = (data.books_used && data.books_used.length) ? data.books_used.join(', ') : 'unknown';
                 var completeCount = data.lines_complete || 0;
                 var incompleteCount = data.lines_incomplete || 0;
