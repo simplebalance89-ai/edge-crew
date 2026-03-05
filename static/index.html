@@ -1693,17 +1693,8 @@ function refreshSlate() {
     fetchLiveOdds('mma');
     fetchLiveOdds('boxing');
 
-    // Fetch analysis after a short delay so odds are cached first
-    // Only call analysis for sports that have games on the slate (saves Azure credits)
-    setTimeout(function() {
-        ['nba','nhl','mlb','soccer','mma','boxing'].forEach(function(s) {
-            var panel = document.getElementById('panel-' + s);
-            if (panel && panel.querySelectorAll('.game-row').length > 0) {
-                fetchAnalysis(s);
-                fetchEdge(s);
-            }
-        });
-    }, 2000);
+    // Analysis + edge now triggered directly from fetchLiveOdds callback
+    // after game rows are rendered (no more timer race condition)
 
     // Load props from analysis cache after analysis calls complete
     setTimeout(function() { loadProps(); }, 6000);
@@ -3325,6 +3316,10 @@ function fetchLiveOdds(sport) {
                         if (count) count.textContent = '0';
                     }
                 });
+                // Still fetch analysis for gotcha card even with 0 pregame games
+                if (data.games && data.games.length > 0) {
+                    fetchAnalysis(sport);
+                }
                 return;
             }
 
@@ -3389,6 +3384,12 @@ function fetchLiveOdds(sport) {
 
             // Re-apply saved picks after DOM rebuild
             if (typeof restoreLockedPicks === 'function') restoreLockedPicks();
+
+            // Trigger analysis + edge AFTER game rows are rendered (not on a timer)
+            if (pregameGames.length > 0) {
+                fetchAnalysis(sport);
+                fetchEdge(sport);
+            }
         })
         .catch(function(err) {
             panel.classList.remove('panel-loading');
@@ -4764,7 +4765,7 @@ async function clearAllCache() {
 </style>
 
 <!-- EV FAB (visible on all devices — mic icon bottom-left) -->
-<button class="agent-fab" id="agentFab" onclick="openEVAgent()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button>
+<button class="agent-fab" id="agentFab" ontouchend="event.preventDefault();openEVAgent()" onclick="openEVAgent()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button>
 
 <!-- EV AGENT PANEL -->
 <div class="agent-panel" id="agentPanel">
