@@ -4,11 +4,14 @@ import json
 import uuid
 import hashlib
 import secrets
+import logging
 import httpx
 import re
 from openai import AzureOpenAI
 from datetime import datetime
 from zoneinfo import ZoneInfo
+
+logger = logging.getLogger("edge-crew")
 
 PST = ZoneInfo("America/Los_Angeles")
 from fastapi import FastAPI, Request
