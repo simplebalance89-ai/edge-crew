@@ -1672,7 +1672,9 @@ Generate analysis in this EXACT JSON format:
       "peter_zone": "2-3 sentences. Peter's play: conviction level, sizing suggestion (full unit / half / small / pass), line value assessment.",
       "trends": ["ATS trend", "O/U trend", "H2H trend"],
       "flags": ["injury flag 1", "schedule flag", "sharp money flag"],
-      "chinny_props": ["player PROP over/under LINE - matchup reason", "..."],
+      "chinny_props": [
+        {{"player": "Player Name", "prop": "Over 24.5 Points", "line": "-115", "grade": "A/B+/B/C", "edge": "why this prop hits"}}
+      ],
       "data_status": "COMPLETE or INCOMPLETE - state exactly what is missing",
       "book_source": "which sportsbook"
     }}
@@ -1689,7 +1691,7 @@ GRADING RULES:
 - injury_impact is MANDATORY. Check the RotoWire data above. Name specific players.
 - If RotoWire data is unavailable, flag it: "Injury data not confirmed - grade with caution."
 - rest_schedule is MANDATORY. Check game times for B2B detection.
-- Chinny props: top 3-5 per game, B+ grade minimum. Skip for INCOMPLETE.
+- Chinny props: top 3-5 per game, B+ grade minimum. Skip for INCOMPLETE. Each prop MUST have player name, prop line, odds estimate, individual grade (A/B+/B/C), and 1-sentence edge explanation.
 - PASS games get grade D or F with explicit reason.
 - Be brutally honest. C means marginal. D means no edge. F means trap.
 

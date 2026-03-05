@@ -3684,7 +3684,8 @@ function renderCombinedTable(data) {
                 gradeHtml += '<div style="font-size:8px;color:#FBB024;font-weight:600;margin-top:1px;">\u26A0 Lineups Open</div>';
             }
             if (analysis.chinny_props && analysis.chinny_props.length) {
-                propsHtml = '<span class="tag" style="background:rgba(16,185,129,0.15);color:#10B981;cursor:help;" title="' + analysis.chinny_props.join(' | ').replace(/"/g,'&quot;') + '">' + analysis.chinny_props.length + ' props</span>';
+                var propTitles = analysis.chinny_props.map(function(p) { return typeof p === 'string' ? p : (p.player + ' ' + p.prop); }).join(' | ');
+                propsHtml = '<span class="tag" style="background:rgba(16,185,129,0.15);color:#10B981;cursor:help;" title="' + propTitles.replace(/"/g,'&quot;') + '">' + analysis.chinny_props.length + ' props</span>';
             }
         }
 
@@ -4032,10 +4033,17 @@ function fetchAnalysis(sport) {
                                 }
                                 var chinnyBox = detail.querySelector('.detail-box.chinny');
                                 if (chinnyBox && game.chinny_props && game.chinny_props.length) {
-                                    var ch = '<h4>Chinny\'s Props Zone</h4><ul>'; game.chinny_props.forEach(function(p){ch+='<li>'+p+'</li>';}); ch+='</ul>'; chinnyBox.innerHTML = ch;
+                                    var ch = '<h4>Chinny\'s Props Zone</h4><ul>'; game.chinny_props.forEach(function(p){
+                                        var txt = typeof p === 'string' ? p : '<strong>' + (p.player||'') + '</strong> ' + (p.prop||'') + (p.line ? ' ('+p.line+')' : '') + (p.edge ? ' — <em>'+p.edge+'</em>' : '');
+                                        var pg = typeof p === 'object' && p.grade ? ' <span class="grade g'+p.grade.toLowerCase().replace(/[^a-z]/g,'')+'" style="font-size:9px;padding:2px 5px;">'+p.grade+'</span>' : '';
+                                        ch+='<li>'+txt+pg+'</li>';
+                                    }); ch+='</ul>'; chinnyBox.innerHTML = ch;
                                 } else if (!chinnyBox && game.chinny_props && game.chinny_props.length) {
                                     var nc = document.createElement('div'); nc.className = 'detail-box chinny';
-                                    var ch2 = '<h4>Chinny\'s Props Zone</h4><ul>'; game.chinny_props.forEach(function(p){ch2+='<li>'+p+'</li>';}); ch2+='</ul>'; nc.innerHTML = ch2; detail.appendChild(nc);
+                                    var ch2 = '<h4>Chinny\'s Props Zone</h4><ul>'; game.chinny_props.forEach(function(p){
+                                        var txt2 = typeof p === 'string' ? p : '<strong>' + (p.player||'') + '</strong> ' + (p.prop||'') + (p.line ? ' ('+p.line+')' : '') + (p.edge ? ' — <em>'+p.edge+'</em>' : '');
+                                        ch2+='<li>'+txt2+'</li>';
+                                    }); ch2+='</ul>'; nc.innerHTML = ch2; detail.appendChild(nc);
                                 }
                             }
                         }
@@ -4085,16 +4093,23 @@ function loadProps() {
         'BOXING': 'background:rgba(245,158,11,0.2);color:#F59E0B;'
     };
 
-    ['NBA','NHL','SOCCER','MMA','BOXING'].forEach(function(sport) {
+    ['NBA','NHL','MLB','SOCCER','MMA','BOXING'].forEach(function(sport) {
         var cached = _analysisCache[sport];
         if (!cached || !cached.games) return;
         cached.games.forEach(function(game) {
             if (game.chinny_props && game.chinny_props.length) {
+                // Normalize props — handle both string and object format
+                var normalizedProps = game.chinny_props.map(function(p) {
+                    if (typeof p === 'string') {
+                        return { player: '', prop: p, line: '', grade: game.grade || '--', edge: '' };
+                    }
+                    return { player: p.player || '', prop: p.prop || '', line: p.line || '', grade: p.grade || game.grade || '--', edge: p.edge || '' };
+                });
                 allProps.push({
                     sport: sport,
                     matchup: game.matchup || 'Unknown',
                     grade: game.grade || '--',
-                    props: game.chinny_props
+                    props: normalizedProps
                 });
             }
         });
@@ -4132,19 +4147,26 @@ function loadProps() {
             var sportStyle = sportColors[entry.sport] || 'background:rgba(255,255,255,0.1);color:#fff;';
             var gradeClass = 'g' + entry.grade.toLowerCase().replace(/[^a-z]/g,'');
             html += '<div style="background:rgba(0,230,118,0.06);border:2px solid rgba(0,230,118,0.35);border-radius:12px;padding:18px 22px;margin-bottom:14px;position:relative;">';
-            html += '<div style="position:absolute;top:-10px;right:16px;background:#00E676;color:#0D0D0D;font-size:10px;font-weight:800;padding:3px 10px;border-radius:6px;letter-spacing:1px;">HAMMER</div>';
+            html += '<div style="position:absolute;top:-10px;right:16px;background:#00E676;color:#0A0A0A;font-size:10px;font-weight:800;padding:3px 10px;border-radius:6px;letter-spacing:1px;">HAMMER</div>';
             html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">';
             html += '<div><span class="tag" style="' + sportStyle + '">' + entry.sport + '</span> ';
             html += '<strong style="font-family:\'Playfair Display\',serif;font-size:15px;">' + entry.matchup + '</strong></div>';
             html += '<span class="grade ' + gradeClass + '" style="font-size:18px;font-weight:800;">' + entry.grade + '</span>';
             html += '</div>';
-            html += '<ul style="list-style:none;padding:0;margin:0;">';
+            html += '<div style="display:flex;flex-direction:column;gap:8px;">';
             entry.props.forEach(function(prop) {
                 totalProps++;
-                html += '<li style="padding:8px 0;border-bottom:1px solid rgba(0,230,118,0.12);font-size:14px;color:rgba(255,255,255,0.85);font-weight:600;">';
-                html += '<span style="color:#00E676;margin-right:6px;">&#x25B6;</span>' + prop + '</li>';
+                var pGrade = prop.grade || entry.grade;
+                var pGradeClass = 'g' + pGrade.toLowerCase().replace(/[^a-z]/g,'');
+                var propText = prop.player ? '<strong>' + prop.player + '</strong> — ' + prop.prop : prop.prop;
+                if (prop.line) propText += ' <span style="color:#00E676;">(' + prop.line + ')</span>';
+                html += '<div style="background:rgba(0,230,118,0.04);border:1px solid rgba(0,230,118,0.15);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:12px;">';
+                html += '<span class="grade ' + pGradeClass + '" style="font-size:11px;min-width:28px;text-align:center;">' + pGrade + '</span>';
+                html += '<div style="flex:1;"><div style="font-size:13px;color:rgba(255,255,255,0.9);font-weight:600;">' + propText + '</div>';
+                if (prop.edge) html += '<div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px;">' + prop.edge + '</div>';
+                html += '</div></div>';
             });
-            html += '</ul></div>';
+            html += '</div></div>';
         });
         html += '</div>';
     }
@@ -4165,12 +4187,20 @@ function loadProps() {
             html += '<strong style="font-family:\'Playfair Display\',serif;">' + entry.matchup + '</strong></div>';
             html += '<span class="grade ' + gradeClass + '">' + entry.grade + '</span>';
             html += '</div>';
-            html += '<ul style="list-style:none;padding:0;margin:0;">';
+            html += '<div style="display:flex;flex-direction:column;gap:6px;">';
             entry.props.forEach(function(prop) {
                 totalProps++;
-                html += '<li style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:13px;color:rgba(255,255,255,0.6);">' + prop + '</li>';
+                var pGrade = prop.grade || entry.grade;
+                var pGradeClass = 'g' + pGrade.toLowerCase().replace(/[^a-z]/g,'');
+                var propText = prop.player ? '<strong>' + prop.player + '</strong> — ' + prop.prop : prop.prop;
+                if (prop.line) propText += ' <span style="color:#00E676;">(' + prop.line + ')</span>';
+                html += '<div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:8px 12px;display:flex;align-items:center;gap:10px;">';
+                html += '<span class="grade ' + pGradeClass + '" style="font-size:10px;min-width:26px;text-align:center;">' + pGrade + '</span>';
+                html += '<div style="flex:1;"><div style="font-size:13px;color:rgba(255,255,255,0.7);">' + propText + '</div>';
+                if (prop.edge) html += '<div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px;">' + prop.edge + '</div>';
+                html += '</div></div>';
             });
-            html += '</ul></div>';
+            html += '</div></div>';
         });
     }
 
