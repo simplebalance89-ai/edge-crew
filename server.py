@@ -1571,7 +1571,13 @@ async def get_analysis(sport: str):
         away_ml = g.get("away_ml", "?")
         home_ml = g.get("home_ml", "?")
         book = g.get("bookmaker", "unknown")
-        game_time = g.get("time", "?")
+        game_time_raw = g.get("time", "?")
+        # Convert UTC ISO time to PST for display
+        try:
+            gt = datetime.fromisoformat(game_time_raw.replace("Z", "+00:00")).astimezone(PST)
+            game_time = gt.strftime("%I:%M %p PST")
+        except Exception:
+            game_time = game_time_raw
 
         line_str = f"{away} @ {home} | Spread: {home} {spread} | Total: {total} | ML: {away} ({away_ml}) / {home} ({home_ml}) | Book: {book} | Time: {game_time}"
 
@@ -1592,8 +1598,8 @@ async def get_analysis(sport: str):
             })
 
     games_text = "\n".join(complete_games)
-    today = time.strftime("%B %d, %Y")
-    now_time = time.strftime("%I:%M %p %Z")
+    today = datetime.now(PST).strftime("%B %d, %Y")
+    now_time = datetime.now(PST).strftime("%I:%M %p PST")
 
     # Build incomplete games note for prompt
     incomplete_note = ""
@@ -1623,7 +1629,7 @@ async def get_analysis(sport: str):
         """Build the Azure prompt for a batch of games."""
         gotcha_instruction = ""
         if is_first_batch:
-            gotcha_instruction = f'"gotcha": "HTML unordered list (<ul><li>...</li></ul>). 4-8 bullet points covering: KEY INJURIES affecting tonight\'s lines (star players OUT/GTD), B2B/rest flags, line movement alerts, traps to avoid, weather (outdoor), sharp money indicators. Bold critical items with <strong>. End with: <li><em>Analysis generated {now_time} | Data: API-Sports + RotoWire + SharpAPI</em></li>",'
+            gotcha_instruction = f'"gotcha": "HTML unordered list (<ul><li>...</li></ul>). 4-8 bullet points covering: KEY INJURIES affecting tonight\'s lines (star players OUT/GTD), B2B/rest flags, line movement alerts, traps to avoid, weather (outdoor), sharp money indicators. Bold critical items with <strong>. End with: <li><em>Analysis generated {now_time} | Data: The Odds API + CBS Sports + RotoWire</em></li>",'
         else:
             gotcha_instruction = '"gotcha": "",'
 
