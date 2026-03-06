@@ -47,6 +47,7 @@ async def _autograde_loop():
                     ungraded = [p for p in data.get("picks", []) if not p.get("result")]
 
                 if ungraded:
+                    ungraded = _deduplicate_picks(ungraded)
                     sports_needed = set()
                     for p in ungraded:
                         sport = p.get("sport", "").lower()
@@ -2298,6 +2299,23 @@ def _grade_parlay(pick: dict, completed_games: list) -> str | None:
     return None
 
 
+def _pick_key(p):
+    """Generate a dedup key from pick fields."""
+    return f"{p.get('name','').lower().strip()}|{p.get('date','')}|{p.get('selection','').lower().strip()}|{p.get('matchup','').lower().strip()}"
+
+
+def _deduplicate_picks(picks):
+    """Remove duplicate picks, keeping the earliest created_at."""
+    seen = set()
+    unique = []
+    for p in sorted(picks, key=lambda x: x.get("created_at", "")):
+        key = _pick_key(p)
+        if key not in seen:
+            seen.add(key)
+            unique.append(p)
+    return unique
+
+
 @app.post("/api/picks/autograde")
 async def autograde_picks(request: Request):
     """Auto-grade ungraded picks by fetching final scores from The Odds API.
@@ -2327,6 +2345,9 @@ async def autograde_picks(request: Request):
 
     if not ungraded:
         return JSONResponse({"status": "ok", "graded": 0, "message": "No ungraded picks"})
+
+    # Deduplicate picks by key fields (name + date + selection + matchup)
+    ungraded = _deduplicate_picks(ungraded)
 
     # Determine which sports need scores
     sports_needed = set()
