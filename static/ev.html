@@ -4,264 +4,191 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0A0A0A">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>EV — Edge Crew</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<title>EV Agent — Edge Crew</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-:root{
-    --bg:#08080c;--bg2:#0f1018;--accent:#6366f1;--accent-light:#818cf8;
-    --turq:#2dd4bf;--silver:#c0c0c0;--danger:#ef4444;--success:#10B981;
-    --text:#f1f5f9;--text2:#94a3b8;--text3:#64748b;--border:rgba(255,255,255,0.06);
+body{
+    background:#0A0A0A;color:#fff;font-family:'Nunito',sans-serif;
+    height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:hidden;
 }
-html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;overflow:hidden;}
-
-/* Layout: fixed header, scrollable messages, fixed bottom */
-.ev-page{display:flex;flex-direction:column;height:100%;height:100dvh;}
 
 /* Header */
 .ev-header{
-    display:flex;align-items:center;gap:10px;padding:12px 16px;
-    background:var(--bg2);border-bottom:1px solid var(--border);
-    flex:0 0 auto;
+    padding:12px 16px;background:rgba(0,206,209,0.08);
+    border-bottom:1px solid rgba(0,206,209,0.2);
+    display:flex;align-items:center;gap:10px;flex-shrink:0;
 }
-.ev-back{background:none;border:none;color:var(--accent-light);font-size:24px;cursor:pointer;padding:4px 8px;line-height:1;}
-.ev-title{flex:1;font-size:16px;font-weight:800;color:var(--accent-light);}
-.ev-clear{background:none;border:none;color:var(--text3);font-size:12px;cursor:pointer;font-family:inherit;}
-
-/* Mode banner */
-.ev-mode-banner{display:none;padding:8px 16px;background:rgba(99,102,241,0.08);border-bottom:1px solid rgba(99,102,241,0.2);font-size:13px;color:var(--accent-light);font-weight:700;justify-content:space-between;align-items:center;}
-.ev-mode-banner.active{display:flex;}
-.ev-mode-exit{background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;padding:2px 6px;}
-
-/* Welcome chrome (collapsible) */
-.ev-welcome{flex:0 0 auto;padding:12px 16px 0;}
-.ev-avatar-area{text-align:center;padding:16px 0 8px;}
-.ev-avatar{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--turq));display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:#fff;}
-.ev-tagline{color:var(--text3);font-size:11px;margin-top:6px;font-weight:600;letter-spacing:0.5px;}
-
-/* Voice buttons */
-.ev-voice-row{display:flex;gap:10px;padding:8px 0;}
-.ev-voice-btn{
-    flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;
-    padding:12px 8px;border-radius:10px;border:1px solid var(--border);
-    background:transparent;color:var(--text2);cursor:pointer;font-family:inherit;
+.ev-back{
+    background:none;border:none;color:#00CED1;font-size:22px;cursor:pointer;padding:4px 8px;
 }
-.ev-voice-btn.active{border-color:var(--success);background:rgba(16,185,129,0.1);color:var(--success);}
-.ev-v-icon{font-size:1.3rem;}
-.ev-v-label{font-size:0.75rem;font-weight:800;}
-
-/* End voice */
-.ev-end-voice{display:none;padding:8px 0;text-align:center;}
-.ev-end-voice.active{display:block;}
-.ev-end-voice button{background:rgba(220,60,60,0.1);border:1px solid rgba(220,60,60,0.3);color:var(--danger);border-radius:8px;padding:10px 24px;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit;}
-
-/* Sport modes */
-.ev-sport-modes{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:8px 0;}
-.ev-sport-mode{
-    display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;
-    border-radius:8px;border:1px solid var(--border);background:transparent;
-    color:var(--text3);cursor:pointer;font-family:inherit;font-size:0.65rem;font-weight:700;
-}
-.ev-sport-mode.active{background:rgba(99,102,241,0.12);color:var(--accent-light);border-color:rgba(99,102,241,0.4);}
-.esm-icon{font-size:1.1rem;}
+.ev-header-dot{width:8px;height:8px;border-radius:50%;background:#00CED1;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+.ev-header-title{color:#00CED1;font-weight:800;font-size:16px;flex:1;}
+.ev-header-clear{background:none;border:none;color:rgba(255,255,255,0.4);font-size:13px;cursor:pointer;font-weight:700;}
 
 /* Messages */
 .ev-messages{
-    flex:1;overflow-y:auto;padding:12px 16px;min-height:0;
-    display:flex;flex-direction:column;gap:8px;
-    -webkit-overflow-scrolling:touch;
+    flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
+    padding:16px;display:flex;flex-direction:column;gap:10px;min-height:0;
 }
-.ev-msg{max-width:85%;padding:10px 14px;border-radius:14px;font-size:14px;line-height:1.5;word-wrap:break-word;}
-.ev-msg.user{align-self:flex-end;background:rgba(99,102,241,0.12);color:#fff;border-bottom-right-radius:4px;}
-.ev-msg.agent{align-self:flex-start;background:rgba(255,255,255,0.06);color:#fff;border-bottom-left-radius:4px;}
-.ev-msg.thinking{color:var(--text3);font-style:italic;}
-.ev-msg .pick-action{margin-top:8px;padding:10px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:8px;font-size:13px;}
-.ev-msg .pick-action button{margin-top:8px;background:var(--success);color:#fff;border:none;border-radius:6px;padding:8px 16px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;}
+.ev-msg{
+    max-width:85%;padding:12px 16px;border-radius:14px;font-size:14px;line-height:1.5;
+    word-wrap:break-word;animation:fadeIn 0.2s ease;
+}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.ev-msg.agent{background:rgba(0,206,209,0.12);color:#fff;align-self:flex-start;border:1px solid rgba(0,206,209,0.2);}
+.ev-msg.user{background:rgba(255,255,255,0.1);color:#fff;align-self:flex-end;}
+.ev-msg.system{background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.5);align-self:center;font-size:12px;font-style:italic;}
 
-/* Quick prompts */
-.ev-prompts{display:flex;gap:8px;padding:8px 16px;overflow-x:auto;flex:0 0 auto;}
-.ev-prompt-btn{
-    white-space:nowrap;padding:8px 14px;border-radius:100px;
-    border:1px solid var(--border);background:transparent;
-    color:var(--text2);font-size:12px;cursor:pointer;font-family:inherit;font-weight:600;
+/* Voice status */
+.ev-voice-status{
+    text-align:center;padding:8px;font-size:13px;color:#00CED1;
+    display:none;flex-shrink:0;
 }
+.ev-voice-status.active{display:block;}
+.ev-voice-status .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#00CED1;margin-right:6px;animation:pulse 1s infinite;}
+
+/* Voice controls */
+.ev-voice-bar{
+    display:flex;gap:8px;padding:10px 16px;flex-shrink:0;justify-content:center;
+}
+.ev-vbtn{
+    padding:10px 20px;border-radius:10px;border:1px solid rgba(0,206,209,0.3);
+    background:rgba(0,206,209,0.08);color:#00CED1;font-family:'Nunito',sans-serif;
+    font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;
+}
+.ev-vbtn:hover,.ev-vbtn.active{background:rgba(0,206,209,0.2);border-color:#00CED1;}
+.ev-vbtn.end{border-color:rgba(239,68,68,0.3);color:#EF4444;background:rgba(239,68,68,0.08);display:none;}
+.ev-vbtn.end.active{display:inline-block;}
 
 /* Input bar */
 .ev-input-bar{
     display:flex;gap:8px;padding:12px 16px;padding-bottom:max(12px,env(safe-area-inset-bottom));
-    border-top:1px solid var(--border);background:var(--bg2);flex:0 0 auto;
-}
-.ev-input-bar button.mic{
-    background:transparent;border:1px solid rgba(99,102,241,0.3);border-radius:10px;
-    padding:12px;cursor:pointer;color:var(--accent-light);flex:0 0 auto;
+    background:#0A0A0A;border-top:1px solid rgba(255,255,255,0.08);flex-shrink:0;
 }
 .ev-input-bar input{
-    flex:1;padding:12px 14px;background:rgba(255,255,255,0.06);border:1px solid var(--border);
-    border-radius:10px;color:#fff;font-size:16px;font-family:inherit;outline:none;min-height:44px;
+    flex:1;padding:12px 16px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);
+    border-radius:12px;color:#fff;font-size:16px;font-family:'Nunito',sans-serif;outline:none;
+    min-height:44px;
 }
-.ev-input-bar input:focus{border-color:var(--accent);}
-.ev-input-bar button.send{
-    background:var(--accent);color:#fff;border:none;border-radius:10px;
-    padding:12px 20px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;min-height:44px;
+.ev-input-bar input:focus{border-color:rgba(0,206,209,0.4);}
+.ev-input-bar input::placeholder{color:rgba(255,255,255,0.3);}
+.ev-mic-btn{
+    width:44px;height:44px;border-radius:10px;border:1px solid rgba(0,206,209,0.3);
+    background:transparent;color:#00CED1;cursor:pointer;display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;transition:all 0.2s;
 }
+.ev-mic-btn.listening{background:rgba(0,206,209,0.2);border-color:#00CED1;animation:pulse-mic 1.5s infinite;}
+@keyframes pulse-mic{0%,100%{box-shadow:0 0 0 0 rgba(0,206,209,0.4);}50%{box-shadow:0 0 0 10px rgba(0,206,209,0);}}
+.ev-send-btn{
+    padding:12px 20px;border-radius:10px;border:none;
+    background:#00CED1;color:#0A0A0A;font-weight:800;font-size:14px;
+    font-family:'Nunito',sans-serif;cursor:pointer;min-height:44px;flex-shrink:0;
+}
+
+/* Quick prompts */
+.ev-prompts{
+    display:flex;gap:6px;padding:6px 16px;overflow-x:auto;flex-shrink:0;
+    -webkit-overflow-scrolling:touch;
+}
+.ev-prompts::-webkit-scrollbar{display:none;}
+.ev-qp{
+    white-space:nowrap;padding:8px 14px;border-radius:20px;
+    background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
+    color:rgba(255,255,255,0.6);font-size:12px;font-weight:600;cursor:pointer;
+    font-family:'Nunito',sans-serif;flex-shrink:0;
+}
+.ev-qp:active{background:rgba(0,206,209,0.15);color:#00CED1;border-color:rgba(0,206,209,0.3);}
+
+/* Connecting overlay */
+.ev-connecting{
+    position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:100;
+    display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;
+}
+.ev-connecting.visible{display:flex;}
+.ev-connecting-text{color:#00CED1;font-size:16px;font-weight:700;}
+.ev-spinner{width:40px;height:40px;border:3px solid rgba(0,206,209,0.2);border-top-color:#00CED1;border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
 </style>
 </head>
 <body>
-<div class="ev-page">
-    <!-- Header -->
-    <div class="ev-header">
-        <button class="ev-back" onclick="location.href='/'">&larr;</button>
-        <div class="ev-title">EV — Expected Value</div>
-        <button class="ev-clear" onclick="clearChat()">Clear</button>
-    </div>
 
-    <!-- Mode banner -->
-    <div class="ev-mode-banner" id="evModeBanner">
-        <span id="evModeText"></span>
-        <button class="ev-mode-exit" onclick="exitMode()">&times;</button>
-    </div>
-
-    <!-- Welcome chrome (hidden after first message) -->
-    <div class="ev-welcome" id="evWelcome">
-        <div class="ev-avatar-area">
-            <div class="ev-avatar" id="evAvatar">EV</div>
-            <div class="ev-tagline">100% Math. No Gut. Pure Edge.</div>
-        </div>
-        <div class="ev-voice-row">
-            <button class="ev-voice-btn" id="evBtnFreeflow" onclick="startVoice('freeflow')">
-                <span class="ev-v-icon">🔊</span><span class="ev-v-label">Free Flow</span>
-            </button>
-            <button class="ev-voice-btn" id="evBtnTurnbased" onclick="startVoice('turnbased')">
-                <span class="ev-v-icon">🎤</span><span class="ev-v-label">Turn-Based</span>
-            </button>
-        </div>
-        <div class="ev-end-voice" id="evEndVoice">
-            <button onclick="stopVoice()">End Voice</button>
-        </div>
-        <div class="ev-sport-modes">
-            <button class="ev-sport-mode" onclick="setMode('nba',this)"><span class="esm-icon">🏀</span>NBA</button>
-            <button class="ev-sport-mode" onclick="setMode('wnba',this)"><span class="esm-icon">🏀</span>WNBA</button>
-            <button class="ev-sport-mode" onclick="setMode('ncaab',this)"><span class="esm-icon">🏀</span>NCAAB</button>
-            <button class="ev-sport-mode" onclick="setMode('nhl',this)"><span class="esm-icon">🏒</span>NHL</button>
-            <button class="ev-sport-mode" onclick="setMode('mlb',this)"><span class="esm-icon">⚾</span>MLB</button>
-            <button class="ev-sport-mode" onclick="setMode('ncaaf',this)"><span class="esm-icon">🏈</span>NCAAF</button>
-            <button class="ev-sport-mode" onclick="setMode('tennis',this)"><span class="esm-icon">🎾</span>Tennis</button>
-            <button class="ev-sport-mode" onclick="setMode('soccer',this)"><span class="esm-icon">⚽</span>Soccer</button>
-            <button class="ev-sport-mode" onclick="setMode('mma',this)"><span class="esm-icon">🥊</span>MMA</button>
-            <button class="ev-sport-mode" onclick="setMode('full',this)"><span class="esm-icon">📋</span>All</button>
-        </div>
-    </div>
-
-    <!-- Messages -->
-    <div class="ev-messages" id="evMessages">
-        <div class="ev-msg agent">What's the play? Pick a sport or just ask.</div>
-    </div>
-
-    <!-- Quick prompts -->
-    <div class="ev-prompts" id="evPrompts">
-        <button class="ev-prompt-btn" onclick="quickPrompt('Best value tonight')">Best value tonight</button>
-        <button class="ev-prompt-btn" onclick="quickPrompt('Any upset specials?')">Upset specials?</button>
-        <button class="ev-prompt-btn" onclick="quickPrompt('Lock a pick for me')">Lock a pick</button>
-        <button class="ev-prompt-btn" onclick="quickPrompt('Grade my results')">Grade results</button>
-    </div>
-
-    <!-- Input -->
-    <div class="ev-input-bar">
-        <button class="mic" id="micBtn" onclick="toggleVoice()">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-        </button>
-        <input type="text" id="evInput" placeholder="Ask EV anything..." onkeydown="if(event.key==='Enter')sendMsg()">
-        <button class="send" onclick="sendMsg()">Send</button>
-    </div>
+<!-- Connecting overlay -->
+<div class="ev-connecting" id="evConnecting">
+    <div class="ev-spinner"></div>
+    <div class="ev-connecting-text" id="evConnectText">Connecting to EV...</div>
 </div>
 
+<!-- Header -->
+<div class="ev-header">
+    <button class="ev-back" onclick="window.location.href='/'">&larr;</button>
+    <div class="ev-header-dot"></div>
+    <div class="ev-header-title">EV — Expected Value</div>
+    <button class="ev-header-clear" onclick="clearChat()">Clear</button>
+</div>
+
+<!-- Voice status -->
+<div class="ev-voice-status" id="evVoiceStatus">
+    <span class="dot"></span><span id="evStatusText">Listening...</span>
+</div>
+
+<!-- Messages -->
+<div class="ev-messages" id="evMessages">
+    <div class="ev-msg agent">What's the play? Ask me anything — best value tonight, break down a matchup, or lock a pick.</div>
+</div>
+
+<!-- Quick prompts -->
+<div class="ev-prompts">
+    <button class="ev-qp" onclick="quickPrompt('Best value tonight')">Best value tonight</button>
+    <button class="ev-qp" onclick="quickPrompt('Any upset specials?')">Upset specials?</button>
+    <button class="ev-qp" onclick="quickPrompt('Break down the next game')">Break down next</button>
+    <button class="ev-qp" onclick="quickPrompt('Grade my results')">Grade results</button>
+    <button class="ev-qp" onclick="quickPrompt('Bankroll check')">Bankroll</button>
+</div>
+
+<!-- Voice controls -->
+<div class="ev-voice-bar">
+    <button class="ev-vbtn" id="btnFreeflow" onclick="startVoice('freeflow')">Free Flow</button>
+    <button class="ev-vbtn" id="btnTurns" onclick="startVoice('turnbased')">Take Turns</button>
+    <button class="ev-vbtn end" id="btnEndVoice" onclick="endVoice()">End Voice</button>
+</div>
+
+<!-- Input -->
+<div class="ev-input-bar">
+    <button class="ev-mic-btn" id="micBtn" onclick="toggleVoice()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+    </button>
+    <input type="text" id="evInput" placeholder="Ask EV anything..." onkeydown="if(event.key==='Enter')sendMsg()">
+    <button class="ev-send-btn" onclick="sendMsg()">Send</button>
+</div>
+
+<!-- Hidden audio element for WebRTC -->
+<audio id="evAudio" autoplay style="display:none;"></audio>
+
 <script>
-/* ===== Utilities ===== */
-function safeSave(k,v){try{localStorage.setItem(k,v)}catch(e){}}
-function safeLoad(k){try{return localStorage.getItem(k)}catch(e){return null}}
-var crewToken = safeLoad('edgeCrewToken') || '';
-function crewFetch(url, opts){
-    opts = opts || {};
-    opts.headers = opts.headers || {};
-    if(crewToken) opts.headers['X-Crew-Token'] = crewToken;
-    return fetch(url, opts);
+// === State ===
+var rtcPC = null;
+var rtcDC = null;
+var rtcMicStream = null;
+var voiceActive = false;
+var voiceMode = 'freeflow';
+var chatHistory = [];
+
+// === Text Chat ===
+function addMsg(role, text) {
+    var el = document.createElement('div');
+    el.className = 'ev-msg ' + role;
+    el.innerHTML = text;
+    document.getElementById('evMessages').appendChild(el);
+    el.scrollIntoView({behavior: 'smooth', block: 'end'});
+    return el;
 }
 
-/* ===== State ===== */
-var _history = [];
-var _sportMode = null;
-var _voiceMode = null;
-var _rtcPeer = null;
-var _rtcStream = null;
-var _rtcActive = false;
-var _speaking = false;
-
-/* ===== Chat ===== */
-function addMsg(who, html) {
-    var msgs = document.getElementById('evMessages');
-    var div = document.createElement('div');
-    div.className = 'ev-msg ' + who;
-    div.innerHTML = html;
-    msgs.appendChild(div);
-    msgs.scrollTop = msgs.scrollHeight;
-    return div;
-}
-
-function collapseWelcome() {
-    var w = document.getElementById('evWelcome');
-    if (w && !_voiceMode) w.style.display = 'none';
-    var p = document.getElementById('evPrompts');
-    if (p) p.style.display = 'none';
-}
-
-function sendMsg() {
-    var input = document.getElementById('evInput');
-    var text = input.value.trim();
-    if (!text) return;
-    input.value = '';
-    collapseWelcome();
-    addMsg('user', text);
-
-    var ctx = text;
-    if (_sportMode && _sportMode !== 'full') ctx = '[' + _sportMode.toUpperCase() + ' MODE] ' + text;
-    _history.push({role:'user', content:ctx});
-
-    var thinking = addMsg('agent thinking', 'Calculating...');
-
-    crewFetch('/api/chat', {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({message:ctx, history:_history})
-    })
-    .then(function(r){return r.json()})
-    .then(function(data){
-        thinking.remove();
-        var reply = data.response || 'No response.';
-        _history.push({role:'assistant', content:reply});
-        saveHistory();
-
-        var actionMatch = reply.match(/```json\s*(\{[\s\S]*?\})\s*```/);
-        if (actionMatch) {
-            try {
-                var action = JSON.parse(actionMatch[1]);
-                var clean = reply.replace(/```json[\s\S]*?```/, '').trim();
-                if (clean) addMsg('agent', clean);
-                handleAction(action);
-                if (_voiceMode && !_rtcActive && clean) speak(clean);
-                return;
-            } catch(e){}
-        }
-
-        reply = reply.replace(/\n/g, '<br>');
-        addMsg('agent', reply);
-        if (_voiceMode && !_rtcActive) speak(reply);
-    })
-    .catch(function(){
-        thinking.remove();
-        addMsg('agent', 'Connection dropped. Try again.');
-    });
+function clearChat() {
+    document.getElementById('evMessages').innerHTML = '';
+    chatHistory = [];
+    addMsg('agent', 'Cleared. What\'s next?');
 }
 
 function quickPrompt(text) {
@@ -269,205 +196,190 @@ function quickPrompt(text) {
     sendMsg();
 }
 
-function clearChat() {
-    _history = [];
-    safeSave('evAgentHistory', '[]');
-    document.getElementById('evMessages').innerHTML = '<div class="ev-msg agent">Clean slate. What\'s the play?</div>';
-    var w = document.getElementById('evWelcome');
-    if (w) w.style.display = '';
-    var p = document.getElementById('evPrompts');
-    if (p) p.style.display = '';
-}
+async function sendMsg() {
+    var input = document.getElementById('evInput');
+    var text = input.value.trim();
+    if (!text) return;
+    input.value = '';
+    addMsg('user', text);
+    chatHistory.push({role: 'user', content: text});
 
-function saveHistory() {
-    safeSave('evAgentHistory', JSON.stringify(_history.slice(-20)));
-}
-
-function loadHistory() {
+    var thinking = addMsg('agent', '<em>Thinking...</em>');
     try {
-        var saved = safeLoad('evAgentHistory');
-        if (saved) {
-            _history = JSON.parse(saved);
-            var msgs = document.getElementById('evMessages');
-            msgs.innerHTML = '';
-            _history.forEach(function(m){
-                addMsg(m.role === 'user' ? 'user' : 'agent', m.content.replace(/\n/g,'<br>'));
-            });
-            if (_history.length > 0) collapseWelcome();
-        }
-    } catch(e){ _history = []; }
+        var resp = await fetch('/api/chat', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({message: text, history: chatHistory.slice(-10)})
+        });
+        var data = await resp.json();
+        thinking.innerHTML = data.response || 'No response.';
+        chatHistory.push({role: 'assistant', content: data.response});
+    } catch(e) {
+        thinking.innerHTML = 'Connection error. Try again.';
+    }
 }
 
-/* ===== Sport Modes ===== */
-var MODE_NAMES = {nba:'NBA',wnba:'WNBA',ncaab:'NCAAB',ncaaf:'NCAAF',nhl:'NHL',mlb:'MLB',tennis:'Tennis',soccer:'Soccer',mma:'MMA/Boxing',full:'Full Slate'};
-function setMode(sport, btn) {
-    _sportMode = sport;
-    document.querySelectorAll('.ev-sport-mode').forEach(function(b){b.classList.remove('active')});
-    if (btn) btn.classList.add('active');
-    var banner = document.getElementById('evModeBanner');
-    document.getElementById('evModeText').textContent = (MODE_NAMES[sport]||sport.toUpperCase()) + ' Mode';
-    banner.classList.add('active');
-    addMsg('agent', 'Switched to <strong>' + (MODE_NAMES[sport]||sport) + '</strong> mode.');
-}
-function exitMode() {
-    _sportMode = null;
-    document.getElementById('evModeBanner').classList.remove('active');
-    document.querySelectorAll('.ev-sport-mode').forEach(function(b){b.classList.remove('active')});
-    addMsg('agent', 'Mode cleared. Ask me anything.');
-}
-
-/* ===== Voice (WebRTC) ===== */
+// === WebRTC Voice ===
 function toggleVoice() {
-    if (_rtcActive) stopVoice();
-    else startVoice(_voiceMode || 'freeflow');
+    if (voiceActive) {
+        endVoice();
+    } else {
+        startVoice(voiceMode);
+    }
 }
 
 async function startVoice(mode) {
-    if (_rtcActive) return;
-    _voiceMode = mode;
-    document.getElementById('evBtnFreeflow').classList.toggle('active', mode === 'freeflow');
-    document.getElementById('evBtnTurnbased').classList.toggle('active', mode === 'turnbased');
-    document.getElementById('evEndVoice').classList.add('active');
-    var micBtn = document.getElementById('micBtn');
-    micBtn.style.background = 'rgba(16,185,129,0.2)';
-    micBtn.style.borderColor = '#10B981';
-    micBtn.style.color = '#10B981';
+    voiceMode = mode;
+    var overlay = document.getElementById('evConnecting');
+    overlay.classList.add('visible');
 
-    addMsg('agent', '<em>Connecting voice...</em>');
     try {
-        var tokenResp = await crewFetch('/api/voice/token', {method:'POST', headers:{'Content-Type':'application/json'}});
-        var tokenData = await tokenResp.json();
-        if (tokenData.error) throw new Error(tokenData.error);
-
-        _rtcStream = await navigator.mediaDevices.getUserMedia({audio:true});
-        _rtcPeer = new RTCPeerConnection();
-        _rtcStream.getTracks().forEach(function(t){_rtcPeer.addTrack(t, _rtcStream)});
-
-        var audioEl = document.getElementById('evAudio');
-        if (!audioEl) {
-            audioEl = document.createElement('audio');
-            audioEl.id = 'evAudio';
-            audioEl.autoplay = true;
-            document.body.appendChild(audioEl);
-        }
-        _rtcPeer.ontrack = function(e){audioEl.srcObject = e.streams[0]};
-
-        var offer = await _rtcPeer.createOffer();
-        await _rtcPeer.setLocalDescription(offer);
-
-        var sdpResp = await crewFetch('/api/voice/sdp', {
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({sdp:offer.sdp, token:tokenData.token})
+        // 1. Get ephemeral token
+        var tokenResp = await fetch('/api/voice/token', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'}
         });
+        if (!tokenResp.ok) {
+            var err = await tokenResp.json().catch(function(){return {};});
+            throw new Error(err.error || 'Failed to get voice token');
+        }
+        var tokenData = await tokenResp.json();
+
+        // 2. Create peer connection
+        rtcPC = new RTCPeerConnection();
+
+        // 3. Setup audio output
+        var audioEl = document.getElementById('evAudio');
+        rtcPC.ontrack = function(event) {
+            if (event.streams.length > 0) audioEl.srcObject = event.streams[0];
+        };
+
+        // 4. Get mic
+        rtcMicStream = await navigator.mediaDevices.getUserMedia({
+            audio: {noiseSuppression: true, echoCancellation: true, autoGainControl: true, channelCount: 1}
+        });
+        rtcPC.addTrack(rtcMicStream.getAudioTracks()[0]);
+
+        // 5. Data channel for session control
+        rtcDC = rtcPC.createDataChannel('realtime-channel');
+
+        // 6. Create offer
+        var offer = await rtcPC.createOffer();
+        await rtcPC.setLocalDescription(offer);
+
+        // 7. SDP exchange
+        var sdpResp = await fetch('/api/voice/sdp', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({sdp: offer.sdp, token: tokenData.token})
+        });
+        if (!sdpResp.ok) throw new Error('SDP exchange failed');
         var answerSdp = await sdpResp.text();
-        await _rtcPeer.setRemoteDescription({type:'answer', sdp:answerSdp});
+        await rtcPC.setRemoteDescription({type: 'answer', sdp: answerSdp});
 
-        _rtcActive = true;
-        addMsg('agent', 'Voice connected. Talk to me.');
-        document.getElementById('evAvatar').classList.add('speaking');
+        // 8. On data channel open — configure VAD
+        rtcDC.onopen = function() {
+            overlay.classList.remove('visible');
 
-        _rtcPeer.onconnectionstatechange = function(){
-            if (_rtcPeer && (_rtcPeer.connectionState === 'disconnected' || _rtcPeer.connectionState === 'failed')) {
-                addMsg('agent', 'Voice disconnected.');
-                stopVoice();
+            var waitMode = (mode === 'turnbased');
+            rtcDC.send(JSON.stringify({
+                type: 'session.update',
+                session: {
+                    input_audio_transcription: {model: 'whisper-1'},
+                    turn_detection: {
+                        type: 'semantic_vad',
+                        create_response: true,
+                        interrupt_response: !waitMode,
+                        eagerness: 'medium'
+                    }
+                }
+            }));
+
+            voiceActive = true;
+            updateVoiceUI(true);
+
+            // Initial greeting
+            rtcDC.send(JSON.stringify({
+                type: 'response.create',
+                response: {
+                    instructions: 'Greet the user. Say you\'re EV, ready to find edges. Ask what sport or matchup they want to look at. Keep it to 2 sentences. Be confident.'
+                }
+            }));
+        };
+
+        // 9. Handle incoming messages (transcription, etc)
+        rtcDC.onmessage = function(event) {
+            var msg = JSON.parse(event.data);
+
+            // Show user's transcribed speech
+            if (msg.type === 'conversation.item.input_audio_transcription.completed') {
+                if (msg.transcript && msg.transcript.trim()) {
+                    addMsg('user', msg.transcript.trim());
+                }
+            }
+
+            // Show AI response transcript
+            if (msg.type === 'response.audio_transcript.done') {
+                if (msg.transcript && msg.transcript.trim()) {
+                    addMsg('agent', msg.transcript.trim());
+                }
             }
         };
+
+        rtcDC.onclose = function() {
+            endVoice();
+        };
+
+        rtcPC.onconnectionstatechange = function() {
+            if (rtcPC && (rtcPC.connectionState === 'failed' || rtcPC.connectionState === 'disconnected')) {
+                endVoice();
+                addMsg('system', 'Voice disconnected.');
+            }
+        };
+
     } catch(e) {
-        addMsg('agent', 'Voice error: ' + (e.message||e));
-        resetVoiceUI();
-        _voiceMode = null;
+        overlay.classList.remove('visible');
+        addMsg('system', 'Voice error: ' + e.message);
+        endVoice();
     }
 }
 
-function stopVoice() {
-    _voiceMode = null;
-    _rtcActive = false;
-    if (_rtcPeer){try{_rtcPeer.close()}catch(e){}_rtcPeer=null}
-    if (_rtcStream){_rtcStream.getTracks().forEach(function(t){t.stop()});_rtcStream=null}
-    resetVoiceUI();
+function endVoice() {
+    if (rtcPC) { try { rtcPC.close(); } catch(e){} rtcPC = null; }
+    if (rtcDC) { try { rtcDC.close(); } catch(e){} rtcDC = null; }
+    if (rtcMicStream) { rtcMicStream.getTracks().forEach(function(t){t.stop();}); rtcMicStream = null; }
     var audioEl = document.getElementById('evAudio');
-    if (audioEl) audioEl.srcObject = null;
-}
-
-function resetVoiceUI() {
-    var micBtn = document.getElementById('micBtn');
-    micBtn.style.background = 'transparent';
-    micBtn.style.borderColor = 'rgba(99,102,241,0.3)';
-    micBtn.style.color = 'var(--accent-light)';
-    document.getElementById('evBtnFreeflow').classList.remove('active');
-    document.getElementById('evBtnTurnbased').classList.remove('active');
-    document.getElementById('evEndVoice').classList.remove('active');
-    var avatar = document.getElementById('evAvatar');
-    if (avatar) avatar.classList.remove('speaking');
-}
-
-/* ===== TTS (browser fallback for text chat) ===== */
-function speak(text) {
-    if (!window.speechSynthesis || _rtcActive) return;
-    window.speechSynthesis.cancel();
-    var clean = text.replace(/<[^>]*>/g,'').replace(/&#\d+;/g,'').replace(/&[a-z]+;/gi,' ');
-    if (clean.length > 500) clean = clean.substring(0,500) + '... that\'s the gist.';
-    var utter = new SpeechSynthesisUtterance(clean);
-    utter.rate = 1.0; utter.pitch = 1.0; utter.volume = 1.0;
-    _speaking = true;
-    utter.onend = function(){_speaking = false};
-    window.speechSynthesis.speak(utter);
-}
-
-/* ===== Pick Actions ===== */
-function handleAction(action) {
-    if (action.action === 'lock_pick') {
-        var html = '<div class="pick-action"><strong>' + (action.selection||'?') + '</strong><br>' +
-            (action.matchup||'') + ' | ' + (action.sport||'').toUpperCase() + '<br>' +
-            'Odds: ' + (action.odds||'-110') + ' | ' + (action.units||'1') + 'u | ' + (action.confidence||'Lean') +
-            '<br><button onclick="lockPick(\'' + btoa(JSON.stringify(action)) + '\')">LOCK IT</button></div>';
-        addMsg('agent', 'Ready to lock:' + html);
+    if (audioEl && audioEl.srcObject) {
+        audioEl.srcObject.getTracks().forEach(function(t){t.stop();});
+        audioEl.srcObject = null;
     }
+    voiceActive = false;
+    updateVoiceUI(false);
+    document.getElementById('evConnecting').classList.remove('visible');
 }
 
-function lockPick(encoded) {
-    var action = JSON.parse(atob(encoded));
-    var who = safeLoad('edgeCrewName') || 'Peter';
-    var pick = {
-        name:who, sport:action.sport||'', type:detectPickType(action.selection),
-        matchup:action.matchup||'', selection:action.selection||'',
-        odds:action.odds||'-110', units:action.units||'1', confidence:action.confidence||'Lean',
-        notes:'Locked via EV Agent', date:new Date().toISOString().slice(0,10),
-        time:new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}),
-        created_at:new Date().toISOString()
-    };
-    var stored = JSON.parse(safeLoad('edgePicks')||'[]');
-    stored.unshift(pick);
-    safeSave('edgePicks', JSON.stringify(stored));
-    crewFetch('/api/picks',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(pick)}).catch(function(){});
-    addMsg('agent', '&#10003; <strong>' + pick.selection + '</strong> locked! ' + pick.odds + ' ' + pick.units + 'u');
-}
+function updateVoiceUI(active) {
+    var micBtn = document.getElementById('micBtn');
+    var statusBar = document.getElementById('evVoiceStatus');
+    var btnEnd = document.getElementById('btnEndVoice');
+    var btnFreeflow = document.getElementById('btnFreeflow');
+    var btnTurns = document.getElementById('btnTurns');
 
-function detectPickType(sel) {
-    var s = (sel||'').toLowerCase();
-    if (s.includes('over')||s.includes('under')) return 'Over/Under';
-    if (s.includes('ml')||s.includes('money')) return 'Moneyline';
-    if (/[+-]\d/.test(s)) return 'Spread';
-    return 'Moneyline';
-}
-
-/* ===== Init ===== */
-loadHistory();
-
-// Auto-start voice if came from mic FAB (?voice=1)
-if (location.search.includes('voice=1')) {
-    setTimeout(function(){startVoice('freeflow')}, 500);
-}
-
-// Quick pick from /picks text entry (?quick=...)
-var quickMatch = location.search.match(/quick=([^&]+)/);
-if (quickMatch) {
-    var quickText = decodeURIComponent(quickMatch[1]);
-    setTimeout(function(){
-        document.getElementById('evInput').value = 'Lock this pick: ' + quickText;
-        sendMsg();
-    }, 300);
+    if (active) {
+        micBtn.classList.add('listening');
+        statusBar.classList.add('active');
+        btnEnd.classList.add('active');
+        document.getElementById('evStatusText').textContent =
+            voiceMode === 'freeflow' ? 'Free Flow — just talk' : 'Take Turns — listen, then speak';
+        btnFreeflow.classList.toggle('active', voiceMode === 'freeflow');
+        btnTurns.classList.toggle('active', voiceMode === 'turnbased');
+    } else {
+        micBtn.classList.remove('listening');
+        statusBar.classList.remove('active');
+        btnEnd.classList.remove('active');
+        btnFreeflow.classList.remove('active');
+        btnTurns.classList.remove('active');
+    }
 }
 </script>
 </body>
