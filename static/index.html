@@ -2115,6 +2115,12 @@ function refreshSlate() {
         }
     }
 
+    // Clear server cache + refresh rosters before fetching fresh data
+    crewFetch('/api/cache/clear', {method:'POST'}).catch(function(){});
+    sportsToLoad.forEach(function(sport) {
+        crewFetch('/api/rosters/' + sport).catch(function(){});
+    });
+
     // Fetch live odds for all sports
     sportsToLoad.forEach(function(sport) {
         fetchLiveOdds(sport, onSportLoaded);

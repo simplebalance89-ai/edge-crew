@@ -1362,7 +1362,7 @@ async def get_player_props(sport: str):
         return JSONResponse({"error": "No ODDS_API_KEY configured"}, status_code=500)
 
     # Pre-fetch rosters for cross-check (if not cached)
-    if not _get_cached(f"rosters:{sport_lower}", ttl=86400):
+    if not _get_cached(f"rosters:{sport_lower}", ttl=14400):
         try:
             await get_rosters(sport)
         except Exception:
@@ -1468,7 +1468,7 @@ async def get_player_props(sport: str):
             continue
 
     # ===== ROSTER CROSS-CHECK: Flag stale team assignments =====
-    roster_cache = _get_cached(f"rosters:{sport_lower}", ttl=86400)
+    roster_cache = _get_cached(f"rosters:{sport_lower}", ttl=14400)
     if roster_cache:
         # Build player -> team lookup from ESPN rosters
         player_team_map = {}  # "jimmy butler iii" -> "Golden State Warriors"
@@ -1788,12 +1788,12 @@ async def get_analysis(sport: str):
     # ===== FETCH ROSTER CONTEXT (verify who's on which team) =====
     roster_context = ""
     try:
-        roster_cache = _get_cached(f"rosters:{sport_lower}", ttl=86400)
+        roster_cache = _get_cached(f"rosters:{sport_lower}", ttl=14400)
         if not roster_cache:
             # Trigger ESPN roster fetch if not cached
             try:
                 await get_rosters(sport)
-                roster_cache = _get_cached(f"rosters:{sport_lower}", ttl=86400)
+                roster_cache = _get_cached(f"rosters:{sport_lower}", ttl=14400)
             except Exception:
                 pass
         if roster_cache:
@@ -3148,7 +3148,7 @@ async def get_rosters(sport: str):
     """Fetch current team rosters from ESPN. Cached 24 hours."""
     sport_lower = sport.lower()
     cache_key = f"rosters:{sport_lower}"
-    cached = _get_cached(cache_key, ttl=86400)
+    cached = _get_cached(cache_key, ttl=14400)
     if cached:
         return JSONResponse(cached)
 
