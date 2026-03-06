@@ -570,6 +570,9 @@ body{background:#0A0A0A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
 
     /* Props swim lanes stack on mobile */
     #propsLanes{grid-template-columns:1fr !important;gap:20px !important;}
+    /* Props stat filter scrollable on mobile */
+    #propsStatFilter{overflow-x:auto;flex-wrap:nowrap !important;-webkit-overflow-scrolling:touch;padding-bottom:4px;}
+    #propsStatFilter .stat-filter-btn{white-space:nowrap;flex-shrink:0;}
 }
 @media(min-width:769px){
     .mobile-quick-bar{display:none !important;}
@@ -4374,8 +4377,9 @@ var _realPropsSport = '';
 var _realPropsStatFilter = 'all';
 
 function loadRealProps(sport) {
+    // Reset filter only when switching sports
+    if (sport !== _realPropsSport) _realPropsStatFilter = 'all';
     _realPropsSport = sport;
-    _realPropsStatFilter = 'all';
     var container = document.getElementById('realPropsContainer');
     if (!container) return;
     container.innerHTML = '<div style="text-align:center;padding:20px;color:rgba(255,255,255,0.4);font-size:12px;">Loading ' + sport.toUpperCase() + ' real props...</div>';
