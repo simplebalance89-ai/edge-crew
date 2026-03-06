@@ -5381,12 +5381,12 @@ async function clearAllCache() {
         </button>
         <button class="mqb-btn mqb-ai-hero" ontouchend="event.preventDefault();openEVAgent()" onclick="openEVAgent()" style="
             background:linear-gradient(135deg,var(--ec-accent),#a78bfa);
-            color:#fff;border-radius:16px;padding:10px 16px;
+            color:#fff;border-radius:16px;padding:8px 14px;
             box-shadow:0 4px 20px var(--ec-accent-glow);
             margin-top:-14px;min-width:60px;min-height:56px;
         ">
-            <span class="mqb-icon" style="font-size:1.5rem;">🤖</span>
-            <span style="font-size:0.6rem;font-weight:800;letter-spacing:0.3px;">AI</span>
+            <span class="mqb-icon" style="font-size:1.4rem;">🤖</span>
+            <span style="font-size:0.55rem;font-weight:800;letter-spacing:0.3px;">EV AGENT</span>
         </button>
         <button class="mqb-btn" ontouchend="event.preventDefault();switchSport('results')" onclick="switchSport('results',event)">
             <span class="mqb-icon">📈</span>Results
@@ -5681,8 +5681,11 @@ async function clearAllCache() {
 }
 </style>
 
-<!-- EV FAB (visible on all devices — mic icon bottom-left) -->
-<button class="agent-fab" id="agentFab" ontouchend="event.preventDefault();openEVAgent()" onclick="openEVAgent()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button>
+<!-- EV Pick FAB — voice-first pick placement -->
+<button class="agent-fab" id="agentFab" ontouchend="event.preventDefault();openEVPick()" onclick="openEVPick()" style="flex-direction:column;gap:2px;">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+    <span style="font-size:7px;font-weight:800;letter-spacing:0.5px;">PICK</span>
+</button>
 
 <!-- EV AGENT PANEL -->
 <div class="agent-panel" id="agentPanel">
@@ -5821,6 +5824,23 @@ function closeEVAgent() {
     fab.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>';
     if (_agentListening) evStopVoice();
 }
+// EV Pick — voice-first pick entry. Opens agent + starts voice immediately.
+function openEVPick() {
+    if (_agentOpen && _agentListening) {
+        // Already in voice mode — close
+        closeEVAgent();
+        return;
+    }
+    openEVAgent();
+    // Collapse welcome chrome, go straight to voice
+    collapseWelcomeChrome();
+    // Short delay to let panel render, then start voice
+    setTimeout(function() {
+        evStartVoice('turnbased');
+        addAgentMsg('agent', 'Voice pick mode. Tell me your pick — team, line, odds, units, confidence. I\'ll lock it.');
+    }, 300);
+}
+
 // Keep toggleAgentChat for backwards compat
 function toggleAgentChat() {
     if (_agentOpen) closeEVAgent(); else openEVAgent();
