@@ -4656,6 +4656,19 @@ var _currentPropsSport = 'nba';
 function loadPropsForSport(sport) {
     _currentPropsSport = sport.toLowerCase();
 
+    // Reset stat filter + search when switching sports
+    _realPropsStatFilter = 'all';
+    var searchBox = document.getElementById('propsSearch');
+    if (searchBox) searchBox.value = '';
+    var filterDiv = document.getElementById('propsStatFilter');
+    if (filterDiv) filterDiv.innerHTML = '<button class="stat-filter-btn active" onclick="filterPropsByStat(\'all\',this)" style="font-size:11px;padding:4px 10px;border-radius:12px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.1);color:#fff;cursor:pointer;">All</button>';
+
+    // Clear both containers immediately so stale data doesn't linger
+    var realContainer = document.getElementById('realPropsContainer');
+    if (realContainer) realContainer.innerHTML = '<div style="text-align:center;padding:20px;color:rgba(255,255,255,0.4);font-size:12px;">Loading ' + sport.toUpperCase() + ' props...</div>';
+    var aiContainer = document.getElementById('propsContainer');
+    if (aiContainer) aiContainer.innerHTML = '<div class="empty-state" style="font-size:12px;">Loading ' + sport.toUpperCase() + ' AI props...</div>';
+
     // Update sport tab active state
     var tabs = document.querySelectorAll('#propsSportTabs .sport-tab');
     tabs.forEach(function(t) {
