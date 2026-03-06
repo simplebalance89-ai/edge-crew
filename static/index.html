@@ -6273,18 +6273,21 @@ function agentLockPick(encodedAction) {
     showToast(pick.selection + ' locked via EV!');
 }
 
-/* ---- Mobile Keyboard: resize agent panel to fit above keyboard ---- */
+/* ---- Mobile Keyboard: resize agent panel (docked + floating keyboards) ---- */
 if (window.visualViewport) {
-    var _vpInitH = window.visualViewport.height;
-    window.visualViewport.addEventListener('resize', function() {
+    function _adjustPanelForKeyboard() {
         var panel = document.getElementById('agentPanel');
         if (!panel || !panel.classList.contains('visible')) return;
-        var vh = window.visualViewport.height;
-        // Keyboard open if viewport shrank significantly
-        if (vh < _vpInitH * 0.85) {
-            panel.style.height = vh + 'px';
-            panel.style.maxHeight = vh + 'px';
-            panel.style.top = window.visualViewport.offsetTop + 'px';
+
+        var availHeight = window.visualViewport.height;
+        var offsetTop = window.visualViewport.offsetTop;
+
+        // Keyboard open if viewport is smaller than ~85% of full window
+        if (availHeight < window.innerHeight * 0.85) {
+            panel.style.height = availHeight + 'px';
+            panel.style.maxHeight = availHeight + 'px';
+            panel.style.bottom = 'auto';
+            panel.style.top = offsetTop + 'px';
             // Hide welcome chrome to give max space
             var vr = document.querySelector('.ev-voice-row');
             if (vr && !_rtcVoiceActive) vr.style.display = 'none';
@@ -6296,11 +6299,16 @@ if (window.visualViewport) {
             // Keyboard closed — reset
             panel.style.height = '';
             panel.style.maxHeight = '';
+            panel.style.bottom = '';
             panel.style.top = '';
         }
         // Scroll messages to bottom
         var msgs = document.getElementById('agentMessages');
         if (msgs) msgs.scrollTop = msgs.scrollHeight;
+    }
+    // Listen to both resize AND scroll — floating keyboard triggers both
+    ['resize', 'scroll'].forEach(function(evt) {
+        window.visualViewport.addEventListener(evt, _adjustPanelForKeyboard);
     });
 }
 </script>
