@@ -821,11 +821,13 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
 ::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.15);}
 
 /* ===== V3 MOBILE BOTTOM NAV UPGRADE ===== */
-.mobile-quick-bar{
-    display:none;position:fixed;bottom:0;left:0;right:0;z-index:250;
-    background:rgba(8,8,12,0.97);backdrop-filter:blur(24px) saturate(150%);
-    border-top:1px solid var(--ec-border);
-    padding:4px 8px;padding-bottom:max(4px,env(safe-area-inset-bottom));
+@media(max-width:768px){
+    .mobile-quick-bar{
+        display:block !important;position:fixed;bottom:0;left:0;right:0;z-index:250;
+        background:rgba(8,8,12,0.97);backdrop-filter:blur(24px) saturate(150%);
+        border-top:1px solid var(--ec-border);
+        padding:4px 8px;padding-bottom:max(4px,env(safe-area-inset-bottom));
+    }
 }
 .mqb-btn{
     display:flex;flex-direction:column;align-items:center;gap:2px;
@@ -967,7 +969,6 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
         <div style="position:relative;">
             <button onclick="toggleGearMenu()" style="cursor:pointer;width:32px;height:32px;border-radius:50%;font-size:14px;background:var(--ec-bg-secondary);color:var(--ec-text-tertiary);border:1px solid var(--ec-border);font-family:var(--ec-font-body);display:flex;align-items:center;justify-content:center;transition:all 0.2s;">&#9881;</button>
             <div id="gearMenu" style="display:none;position:absolute;right:0;top:calc(100% + 8px);background:var(--ec-bg-elevated);border:1px solid var(--ec-border);border-radius:var(--ec-radius-md);min-width:180px;z-index:150;overflow:hidden;box-shadow:var(--ec-shadow-lg);">
-                <button onclick="clearAllCache()" style="display:block;width:100%;text-align:left;padding:12px 16px;background:transparent;border:none;color:var(--ec-danger);font-size:12px;font-weight:600;font-family:var(--ec-font-body);cursor:pointer;border-bottom:1px solid var(--ec-border);transition:background 0.15s;">Clear Cache</button>
                 <button onclick="doLogout()" style="display:block;width:100%;text-align:left;padding:12px 16px;background:transparent;border:none;color:var(--ec-text-tertiary);font-size:12px;font-weight:600;font-family:var(--ec-font-body);cursor:pointer;transition:background 0.15s;">Logout</button>
             </div>
         </div>
@@ -5372,23 +5373,27 @@ async function clearAllCache() {
 }
 </script>
 
-<!-- MOBILE QUICK BAR -->
+<!-- MOBILE BOTTOM NAV (iOS-style) -->
 <div class="mobile-quick-bar">
     <div class="mobile-quick-bar-inner">
         <button class="mqb-btn" ontouchend="event.preventDefault();openSportPicker()" onclick="openSportPicker()">
             <span class="mqb-icon">🏈</span>Games
         </button>
-        <button class="mqb-btn mqb-results" ontouchend="event.preventDefault();switchSport('results')" onclick="switchSport('results',event)">
+        <button class="mqb-btn" ontouchend="event.preventDefault();switchSport('results')" onclick="switchSport('results',event)">
             <span class="mqb-icon">📊</span>Results
+        </button>
+        <button class="mqb-btn mqb-ai-hero" ontouchend="event.preventDefault();openEVAgent()" onclick="openEVAgent()" style="
+            background:linear-gradient(135deg,var(--ec-accent),#a78bfa);
+            color:#fff;border-radius:16px;padding:10px 20px;
+            box-shadow:0 4px 20px var(--ec-accent-glow);
+            margin-top:-12px;min-width:64px;min-height:56px;
+            position:relative;
+        ">
+            <span class="mqb-icon" style="font-size:1.6rem;">🤖</span>
+            <span style="font-size:0.65rem;font-weight:800;letter-spacing:0.5px;">AI AGENT</span>
         </button>
         <button class="mqb-btn" ontouchend="event.preventDefault();switchSport('bankroll')" onclick="switchSport('bankroll',event)">
             <span class="mqb-icon">💰</span>Bank
-        </button>
-        <button class="mqb-btn" ontouchend="event.preventDefault();switchSport('combined')" onclick="switchSport('combined',event)">
-            <span class="mqb-icon">📋</span>Slate
-        </button>
-        <button class="mqb-btn" ontouchend="event.preventDefault();openEVAgent()" onclick="openEVAgent()">
-            <span class="mqb-icon">📈</span>EV
         </button>
         <button class="mqb-btn" ontouchend="event.preventDefault();refreshSlate()" onclick="refreshSlate()">
             <span class="mqb-icon">🔄</span>Refresh
@@ -5433,11 +5438,11 @@ async function clearAllCache() {
 <!-- ===== EV AGENT — EXPECTED VALUE ===== -->
 <style>
 .agent-fab{
-    position:fixed;bottom:16px;left:20px;z-index:200;
-    width:52px;height:52px;border-radius:50%;border:none;
+    position:fixed;bottom:24px;right:24px;left:auto;z-index:260;
+    width:56px;height:56px;border-radius:16px;border:none;
     background:linear-gradient(135deg,#6366f1,#a78bfa);
     color:#fff;font-size:22px;
-    cursor:pointer;box-shadow:0 4px 20px rgba(99,102,241,0.4);
+    cursor:pointer;box-shadow:0 8px 32px rgba(99,102,241,0.5);
     transition:all 0.3s;display:flex;align-items:center;justify-content:center;
 }
 .agent-fab:hover{transform:scale(1.1);box-shadow:0 6px 30px rgba(99,102,241,0.5);}
@@ -5447,13 +5452,14 @@ async function clearAllCache() {
 
 /* Desktop: panel overlay */
 .agent-panel{
-    position:fixed;bottom:80px;left:20px;z-index:200;
-    width:380px;max-width:calc(100vw - 40px);
+    position:fixed;bottom:90px;right:24px;left:auto;z-index:260;
+    width:400px;max-width:calc(100vw - 48px);
     max-height:600px;
-    background:#08080c;border:1px solid rgba(99,102,241,0.3);
-    border-radius:16px;overflow:hidden;
+    background:rgba(15,16,24,0.95);border:1px solid var(--ec-border);
+    border-radius:20px;overflow:hidden;
     display:none;flex-direction:column;
-    box-shadow:0 8px 40px rgba(0,0,0,0.6);
+    box-shadow:0 24px 80px rgba(0,0,0,0.6),0 0 40px var(--ec-accent-glow);
+    backdrop-filter:blur(24px) saturate(150%);
 }
 .agent-panel.visible{display:flex;}
 
@@ -5494,7 +5500,12 @@ async function clearAllCache() {
     .agent-header-clear{font-size:13px;padding:8px;}
     .ev-mode-banner{padding:8px 12px;font-size:13px;}
     .ev-end-voice button{padding:12px 24px;font-size:14px;min-height:44px;}
-    .agent-fab{display:none !important;}
+    .agent-fab{
+        display:flex !important;
+        position:fixed;bottom:76px;right:16px;left:auto;
+        width:56px;height:56px;border-radius:16px;z-index:260;
+        box-shadow:0 8px 32px rgba(99,102,241,0.5);
+    }
 }
 
 /* Fix 5: Thinking pulse animation */
