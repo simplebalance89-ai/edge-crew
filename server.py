@@ -1129,11 +1129,35 @@ def _parse_event(event, sport_label):
 SPORT_KEYS = {
     "nba": ["basketball_nba"],
     "wnba": ["basketball_wnba"],
+    "ncaab": ["basketball_ncaab"],
     "nhl": ["icehockey_nhl"],
     "nfl": ["americanfootball_nfl"],
     "mlb": ["baseball_mlb"],
     "mma": ["mma_mixed_martial_arts"],
     "boxing": ["boxing_boxing"],
+    "tennis": [
+        "tennis_atp_aus_open_singles",
+        "tennis_atp_french_open",
+        "tennis_atp_wimbledon",
+        "tennis_atp_us_open",
+        "tennis_atp_indian_wells",
+        "tennis_atp_miami_open",
+        "tennis_atp_italian_open",
+        "tennis_atp_madrid_open",
+        "tennis_atp_cincinnati_open",
+        "tennis_atp_shanghai_masters",
+        "tennis_atp_canadian_open",
+        "tennis_atp_monte_carlo_masters",
+        "tennis_wta_aus_open_singles",
+        "tennis_wta_french_open",
+        "tennis_wta_wimbledon",
+        "tennis_wta_us_open",
+        "tennis_wta_indian_wells",
+        "tennis_wta_miami_open",
+        "tennis_wta_madrid_open",
+        "tennis_wta_cincinnati_open",
+        "tennis_wta_canadian_open",
+    ],
     "soccer": [
         "soccer_usa_mls",
         "soccer_epl",
@@ -1232,7 +1256,7 @@ async def get_slate():
         return JSONResponse({"error": "No odds API configured"}, status_code=500)
 
     all_games = []
-    for sport in ["nba", "wnba", "nhl", "mlb", "soccer", "mma", "boxing"]:
+    for sport in ["nba", "wnba", "ncaab", "nhl", "mlb", "tennis", "soccer", "mma", "boxing"]:
         resp = await get_odds(sport)
         if hasattr(resp, 'body'):
             data = json.loads(resp.body)
@@ -2551,7 +2575,7 @@ async def agent_chat(request: Request):
         context_parts.append(f"RECENT PICKS:\n{picks_str}")
 
     # Add cached slate info if available — include odds so agent can share real lines
-    for sport in ["nba", "wnba", "nhl", "mlb", "soccer", "mma", "boxing"]:
+    for sport in ["nba", "wnba", "ncaab", "nhl", "mlb", "tennis", "soccer", "mma", "boxing"]:
         cache_key = f"{sport}:h2h,spreads,totals"
         cached = _get_cached(cache_key)
         if cached and cached.get("games"):
