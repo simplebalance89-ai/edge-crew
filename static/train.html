@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0A0A0A">
+<title>Train Your Edge Agent — Edge Crew</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--bg:#08080c;--bg2:#0f1018;--card:#161822;--accent:#6366f1;--accent2:#818cf8;--turq:#2dd4bf;--text:#f1f5f9;--text2:#94a3b8;--text3:#64748b;--border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.12);}
+html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;}
+
+/* Header */
+.t-header{padding:12px 16px;background:rgba(99,102,241,0.08);border-bottom:1px solid rgba(99,102,241,0.2);display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10;}
+.t-back{background:none;border:none;color:var(--accent2);font-size:22px;cursor:pointer;padding:4px 8px;}
+.t-header-title{flex:1;font-size:16px;font-weight:800;color:var(--accent2);}
+
+/* Page body */
+.t-body{max-width:600px;margin:0 auto;padding:20px 16px 100px;}
+.t-hero{text-align:center;padding:24px 0 16px;}
+.t-hero-icon{font-size:48px;margin-bottom:8px;}
+.t-hero h1{font-size:22px;font-weight:800;color:var(--accent2);margin-bottom:4px;}
+.t-hero p{color:var(--text3);font-size:14px;line-height:1.5;}
+
+/* Section */
+.t-section{margin-top:28px;}
+.t-section-title{font-size:14px;font-weight:800;color:var(--accent2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.t-section-num{width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;}
+
+/* Sport pills */
+.t-sports{display:flex;flex-wrap:wrap;gap:8px;}
+.t-sport{
+    padding:10px 16px;border-radius:100px;border:1px solid var(--border2);
+    background:transparent;color:var(--text2);font-size:13px;font-weight:700;
+    cursor:pointer;font-family:inherit;transition:all 0.2s;
+}
+.t-sport.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.t-sport:active{transform:scale(0.96);}
+
+/* Variable cards */
+.t-vars{display:flex;flex-direction:column;gap:8px;}
+.t-var{
+    background:var(--card);border:1px solid var(--border2);border-radius:12px;
+    padding:14px 16px;cursor:grab;transition:all 0.15s;user-select:none;
+}
+.t-var:active{cursor:grabbing;transform:scale(0.98);border-color:var(--accent);}
+.t-var.dragging{opacity:0.5;border-color:var(--accent);}
+.t-var.drag-over{border-color:var(--turq);background:rgba(45,212,191,0.05);}
+.t-var-top{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.t-var-handle{color:var(--text3);font-size:16px;flex:0 0 auto;cursor:grab;}
+.t-var-rank{width:22px;height:22px;border-radius:50%;background:rgba(99,102,241,0.15);color:var(--accent2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex:0 0 auto;}
+.t-var-name{flex:1;font-weight:700;font-size:14px;}
+.t-var-toggle{width:36px;height:20px;border-radius:10px;background:var(--text3);position:relative;cursor:pointer;transition:background 0.2s;border:none;flex:0 0 auto;}
+.t-var-toggle.on{background:var(--accent);}
+.t-var-toggle::after{content:'';position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;top:2px;left:2px;transition:left 0.2s;}
+.t-var-toggle.on::after{left:18px;}
+.t-var-desc{color:var(--text3);font-size:12px;line-height:1.4;margin-bottom:8px;}
+.t-var-slider{display:flex;align-items:center;gap:10px;}
+.t-var-slider input[type=range]{
+    flex:1;-webkit-appearance:none;height:4px;border-radius:2px;
+    background:linear-gradient(to right,var(--accent),var(--turq));outline:none;
+}
+.t-var-slider input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:20px;height:20px;border-radius:50%;
+    background:#fff;border:2px solid var(--accent);cursor:pointer;
+}
+.t-var-slider .weight-val{color:var(--accent2);font-weight:800;font-size:14px;min-width:20px;text-align:center;}
+
+/* Custom variable */
+.t-custom-input{display:flex;gap:8px;margin-top:8px;}
+.t-custom-input input{
+    flex:1;padding:10px 14px;background:rgba(255,255,255,0.06);border:1px solid var(--border2);
+    border-radius:10px;color:#fff;font-size:14px;font-family:inherit;outline:none;
+}
+.t-custom-input input:focus{border-color:var(--accent);}
+.t-custom-input button{
+    padding:10px 16px;border-radius:10px;border:none;background:var(--accent);
+    color:#fff;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;
+}
+.t-custom-list{display:flex;flex-direction:column;gap:6px;margin-top:8px;}
+.t-custom-item{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--card);border:1px solid var(--border2);border-radius:8px;font-size:13px;}
+.t-custom-item .name{flex:1;font-weight:600;}
+.t-custom-item .remove{background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;}
+
+/* Personality */
+.t-field{margin-bottom:16px;}
+.t-field label{display:block;color:var(--text2);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;}
+.t-field input[type=text],.t-field select{
+    width:100%;padding:12px 14px;background:rgba(255,255,255,0.06);border:1px solid var(--border2);
+    border-radius:10px;color:#fff;font-size:15px;font-family:inherit;outline:none;
+}
+.t-field select{appearance:none;}
+.t-risk-slider{display:flex;align-items:center;gap:12px;}
+.t-risk-slider span{font-size:12px;color:var(--text3);font-weight:700;white-space:nowrap;}
+.t-risk-slider input[type=range]{flex:1;-webkit-appearance:none;height:4px;border-radius:2px;background:linear-gradient(to right,var(--accent),#ef4444);outline:none;}
+.t-risk-slider input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:#fff;border:2px solid var(--accent);cursor:pointer;}
+
+/* Bet style toggles */
+.t-bet-styles{display:flex;flex-wrap:wrap;gap:8px;}
+.t-bet-style{
+    padding:8px 14px;border-radius:100px;border:1px solid var(--border2);
+    background:transparent;color:var(--text2);font-size:13px;font-weight:700;
+    cursor:pointer;font-family:inherit;transition:all 0.2s;
+}
+.t-bet-style.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+
+/* Preview */
+.t-preview-card{
+    background:var(--card);border:1px solid var(--border2);border-radius:14px;
+    padding:20px;text-align:center;
+}
+.t-preview-card .grade{font-size:48px;font-weight:800;margin:12px 0 4px;}
+.t-preview-card .matchup{font-size:16px;font-weight:700;color:var(--text2);}
+.t-preview-card .breakdown{text-align:left;margin-top:16px;font-size:13px;color:var(--text3);line-height:1.6;}
+.t-preview-card .bar{height:4px;border-radius:2px;background:var(--border2);margin:4px 0 8px;overflow:hidden;}
+.t-preview-card .bar-fill{height:100%;border-radius:2px;background:linear-gradient(to right,var(--accent),var(--turq));}
+
+/* Save buttons */
+.t-actions{display:flex;flex-direction:column;gap:10px;margin-top:28px;}
+.t-btn{
+    width:100%;padding:16px;border:none;border-radius:12px;font-size:15px;font-weight:800;
+    cursor:pointer;font-family:inherit;letter-spacing:0.3px;transition:all 0.2s;
+}
+.t-btn:active{transform:scale(0.98);}
+.t-btn-primary{background:linear-gradient(135deg,var(--accent),var(--turq));color:#fff;}
+.t-btn-secondary{background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.3);color:var(--accent2);}
+.t-btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--text3);}
+
+/* Toast */
+.t-toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;padding:10px 20px;border-radius:100px;font-size:13px;font-weight:700;opacity:0;transition:opacity 0.3s;z-index:100;pointer-events:none;}
+.t-toast.show{opacity:1;}
+</style>
+</head>
+<body>
+
+<div class="t-header">
+    <button class="t-back" onclick="location.href='/'">&larr;</button>
+    <div class="t-header-title">Train Your Edge Agent</div>
+</div>
+
+<div class="t-body">
+    <div class="t-hero">
+        <div class="t-hero-icon">🧠</div>
+        <h1>Your Edge. Your Rules.</h1>
+        <p>Train an AI analyst that thinks like you. Customize the variables, set your style, and let your agent find edge your way.</p>
+    </div>
+
+    <!-- Section 1: Sport -->
+    <div class="t-section">
+        <div class="t-section-title"><span class="t-section-num">1</span> Pick Your Sport</div>
+        <div class="t-sports" id="sportPills">
+            <button class="t-sport active" onclick="switchSport('nba',this)">🏀 NBA</button>
+            <button class="t-sport" onclick="switchSport('nhl',this)">🏒 NHL</button>
+            <button class="t-sport" onclick="switchSport('soccer',this)">⚽ Soccer</button>
+            <button class="t-sport" onclick="switchSport('mlb',this)">⚾ MLB</button>
+            <button class="t-sport" onclick="switchSport('nfl',this)">🏈 NFL</button>
+            <button class="t-sport" onclick="switchSport('mma',this)">🥊 MMA</button>
+            <button class="t-sport" onclick="switchSport('boxing',this)">🥊 Boxing</button>
+            <button class="t-sport" onclick="switchSport('tennis',this)">🎾 Tennis</button>
+        </div>
+    </div>
+
+    <!-- Section 2: Variables -->
+    <div class="t-section">
+        <div class="t-section-title"><span class="t-section-num">2</span> Your Variables — Drag & Rank</div>
+        <div class="t-vars" id="varsList"></div>
+    </div>
+
+    <!-- Section 3: Custom Variables -->
+    <div class="t-section">
+        <div class="t-section-title"><span class="t-section-num">3</span> Add Custom Variables</div>
+        <p style="color:var(--text3);font-size:13px;margin-bottom:8px;">Track something we don't? Add up to 5 custom edge factors.</p>
+        <div class="t-custom-input">
+            <input type="text" id="customVarInput" placeholder="e.g. Weather, Altitude, Social sentiment..." maxlength="40">
+            <button onclick="addCustomVar()">Add</button>
+        </div>
+        <div class="t-custom-list" id="customVarList"></div>
+    </div>
+
+    <!-- Section 4: Agent Personality -->
+    <div class="t-section">
+        <div class="t-section-title"><span class="t-section-num">4</span> Agent Personality</div>
+
+        <div class="t-field">
+            <label>Agent Name</label>
+            <input type="text" id="agentName" placeholder='e.g. "The Hammer", "Ice Cold Eddie"' maxlength="30">
+        </div>
+
+        <div class="t-field">
+            <label>Risk Profile</label>
+            <div class="t-risk-slider">
+                <span>Conservative</span>
+                <input type="range" id="riskSlider" min="0" max="100" value="50">
+                <span>Aggressive</span>
+            </div>
+        </div>
+
+        <div class="t-field">
+            <label>Bet Styles</label>
+            <div class="t-bet-styles" id="betStyles">
+                <button class="t-bet-style active" onclick="toggleBetStyle('spread',this)">Spread</button>
+                <button class="t-bet-style active" onclick="toggleBetStyle('ml',this)">Moneyline</button>
+                <button class="t-bet-style active" onclick="toggleBetStyle('totals',this)">Totals</button>
+                <button class="t-bet-style" onclick="toggleBetStyle('props',this)">Props</button>
+                <button class="t-bet-style" onclick="toggleBetStyle('parlays',this)">Parlays</button>
+            </div>
+        </div>
+
+        <div class="t-field">
+            <label>Voice</label>
+            <select id="voiceSelect">
+                <option value="ash">Ash — Confident & Sharp</option>
+                <option value="ballad">Ballad — Smooth & Analytical</option>
+                <option value="coral">Coral — Calm & Measured</option>
+                <option value="sage">Sage — Warm & Direct</option>
+                <option value="verse">Verse — Bold & Energetic</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Section 5: Preview -->
+    <div class="t-section">
+        <div class="t-section-title"><span class="t-section-num">5</span> Preview</div>
+        <div class="t-preview-card" id="previewCard">
+            <div class="matchup">LAL @ BOS — Tonight 7:30 ET</div>
+            <div class="grade" id="previewGrade" style="color:var(--turq);">B+</div>
+            <div style="color:var(--text3);font-size:13px;">Your Agent's Grade</div>
+            <div class="breakdown" id="previewBreakdown"></div>
+        </div>
+    </div>
+
+    <!-- Section 6: Save -->
+    <div class="t-actions">
+        <button class="t-btn t-btn-primary" onclick="saveAgent()">Save Agent</button>
+        <button class="t-btn t-btn-secondary" onclick="shareAgent()">Share with Crew</button>
+        <button class="t-btn t-btn-ghost" onclick="resetAgent()">Reset to Default</button>
+    </div>
+</div>
+
+<div class="t-toast" id="toast"></div>
+
+<script>
+/* ===== Variable Data ===== */
+var SPORT_VARS = {
+    nba: [
+        {key:'injuries_lineup', name:'Injuries / Lineup', desc:'Are star players OUT or GTD? Lineup changes shift everything.'},
+        {key:'rest_advantage', name:'Rest Advantage', desc:'Back-to-back games, 3-in-5 stretches, days of rest. Fatigue is real.'},
+        {key:'sharp_vs_public', name:'Sharp vs Public', desc:'Where\'s the smart money going vs where the public is betting?'},
+        {key:'defensive_ranking', name:'Defensive Ranking', desc:'How does the defense match up against the opponent\'s strengths?'},
+        {key:'pace_matchup', name:'Pace Matchup', desc:'Fast team vs slow team creates over/under edges.'},
+        {key:'travel', name:'Travel', desc:'Road trip length, time zone changes, West Coast late games.'},
+        {key:'ats_trend', name:'ATS Trend', desc:'How has the team performed against the spread recently?'},
+        {key:'home_away', name:'Home/Away Record', desc:'Some teams are monsters at home, others thrive on the road.'},
+        {key:'coach_tendencies', name:'Coach Tendencies', desc:'Does the coach adjust? Rest starters? Play small ball?'},
+        {key:'revenge_rivalry', name:'Revenge / Rivalry', desc:'Motivation factor — traded player revenge games, division rivals.'}
+    ],
+    nhl: [
+        {key:'goalie_confirmed', name:'Goalie Confirmed', desc:'Knowing the starter is half the battle in hockey.'},
+        {key:'injuries_lineup', name:'Injuries / Lineup', desc:'Key skaters OUT changes team dynamics.'},
+        {key:'b2b_fatigue', name:'B2B / Schedule Fatigue', desc:'Second night of a back-to-back is brutal in hockey.'},
+        {key:'home_away', name:'Home/Away Record', desc:'Home ice advantage is real — last change, crowd energy.'},
+        {key:'sharp_vs_public', name:'Sharp vs Public', desc:'Follow the sharp money, not the public.'},
+        {key:'pp_pk', name:'PP/PK Rankings', desc:'Special teams win playoff games and cover spreads.'},
+        {key:'save_pct', name:'Save % Trend', desc:'Is the goalie hot or cold over last 5 starts?'},
+        {key:'division_rivalry', name:'Division / Rivalry', desc:'Division games are different animals.'},
+        {key:'corsi_xg', name:'Corsi / xG', desc:'Advanced metrics — shot attempts and expected goals.'},
+        {key:'travel', name:'Travel / Time Zone', desc:'Cross-country road trips drain teams.'}
+    ],
+    soccer: [
+        {key:'btts_trend', name:'BTTS Trend', desc:'Both teams scoring? Critical for BTTS and over/under markets.'},
+        {key:'injuries_lineup', name:'Injuries / Lineup', desc:'Missing a striker or keeper changes everything.'},
+        {key:'home_away_form', name:'Home/Away Form', desc:'Some clubs are unbeatable at home.'},
+        {key:'goals_avg', name:'Goals Avg', desc:'Average goals scored and conceded — the baseline.'},
+        {key:'h2h_record', name:'H2H Record', desc:'Historical matchup trends matter in rivalries.'},
+        {key:'league_position', name:'League Position', desc:'Relegation battle vs mid-table cruise = different motivation.'},
+        {key:'xg_trend', name:'xG Trend', desc:'Expected goals shows if a team is over/under-performing.'},
+        {key:'sharp_vs_public', name:'Sharp vs Public', desc:'Professional money vs casual fan bets.'},
+        {key:'clean_sheet', name:'Clean Sheet %', desc:'Defensive solidity for under bets.'},
+        {key:'fixture_congestion', name:'Fixture Congestion', desc:'Champions League midweek + league weekend = tired legs.'}
+    ],
+    mlb: [
+        {key:'starting_pitcher', name:'Starting Pitcher', desc:'The pitcher IS the bet in baseball.'},
+        {key:'bullpen_usage', name:'Bullpen Usage', desc:'Overworked relievers blow leads.'},
+        {key:'injuries_lineup', name:'Injuries / Lineup', desc:'Key bats out of the lineup changes run totals.'},
+        {key:'home_away', name:'Home/Away Splits', desc:'Park factors + home cooking.'},
+        {key:'sharp_vs_public', name:'Sharp vs Public', desc:'Reverse line movement is gold in MLB.'},
+        {key:'weather', name:'Weather / Wind', desc:'Wind blowing out = over city. Cold = pitchers\' duel.'},
+        {key:'platoon_splits', name:'Platoon Splits', desc:'Lefty-righty matchup advantages.'},
+        {key:'umpire', name:'Umpire Tendencies', desc:'Some umps have tight zones (more walks = more runs).'},
+        {key:'rest_travel', name:'Rest / Travel', desc:'Day games after night games, cross-country flights.'},
+        {key:'ats_trend', name:'ATS / RL Trend', desc:'Run line and F5 trends.'}
+    ],
+    nfl: [
+        {key:'injuries_lineup', name:'Injuries / Lineup', desc:'QB health is everything. Missing an OT changes the game.'},
+        {key:'sharp_vs_public', name:'Sharp vs Public', desc:'NFL is the most bet sport — sharp vs public gaps are huge.'},
+        {key:'home_away', name:'Home/Away Record', desc:'Dome teams on the road in December.'},
+        {key:'rest_advantage', name:'Rest Advantage', desc:'Thursday games, bye weeks, extra rest.'},
+        {key:'defensive_matchup', name:'Defensive Matchup', desc:'Pass rush vs weak OL. Secondary vs elite WR corps.'},
+        {key:'weather', name:'Weather', desc:'Wind kills passing games. Cold favors run-heavy teams.'},
+        {key:'coach_tendencies', name:'Coach Tendencies', desc:'Aggressive 4th down coaches vs conservative game managers.'},
+        {key:'divisional', name:'Divisional Game', desc:'Division rivals play each other differently.'},
+        {key:'ats_trend', name:'ATS Trend', desc:'How the team covers against the number.'},
+        {key:'revenge_narrative', name:'Revenge Narrative', desc:'Returning to former team, playoff rematch.'}
+    ],
+    mma: [
+        {key:'style_matchup', name:'Style Matchup', desc:'Striker vs grappler, southpaw vs orthodox.'},
+        {key:'injuries_camp', name:'Injuries / Camp', desc:'Pulled out of sparring? Short camp? Big tells.'},
+        {key:'sharp_vs_public', name:'Sharp vs Public', desc:'Name recognition inflates favorites in MMA.'},
+        {key:'reach_size', name:'Reach / Size', desc:'Physical advantages matter in the cage.'},
+        {key:'momentum', name:'Momentum / Streak', desc:'Coming off KO loss vs 5-fight win streak.'},
+        {key:'cardio', name:'Cardio / Championship Rounds', desc:'Who fades in rounds 4-5?'},
+        {key:'venue_altitude', name:'Venue / Altitude', desc:'Mexico City altitude. Abu Dhabi heat.'},
+        {key:'weight_cut', name:'Weight Cut', desc:'Brutal cuts lead to compromised performance.'},
+        {key:'odds_movement', name:'Odds Movement', desc:'Where the line opened vs where it is now.'},
+        {key:'finish_rate', name:'Finish Rate', desc:'KO power, submission threat, decision fighters.'}
+    ],
+    boxing: [
+        {key:'style_matchup', name:'Style Matchup', desc:'Counter puncher vs pressure fighter.'},
+        {key:'injuries_camp', name:'Injuries / Camp', desc:'Training camp quality and sparring reports.'},
+        {key:'sharp_vs_public', name:'Sharp vs Public', desc:'Casuals love the name. Sharps follow the tape.'},
+        {key:'reach_size', name:'Reach / Size', desc:'Longer reach = jab control.'},
+        {key:'activity', name:'Activity Level', desc:'Ring rust from long layoffs vs staying active.'},
+        {key:'cardio', name:'Cardio / Late Rounds', desc:'Championship distance is different.'},
+        {key:'judges', name:'Judges / Location', desc:'Home cooking in boxing is real.'},
+        {key:'weight_cut', name:'Weight Cut', desc:'Moving up vs draining down.'},
+        {key:'odds_movement', name:'Odds Movement', desc:'Line shifts tell the story.'},
+        {key:'ko_power', name:'KO Power', desc:'One punch can end it. Chin durability matters.'}
+    ],
+    tennis: [
+        {key:'surface', name:'Surface', desc:'Clay specialist vs hard court demon.'},
+        {key:'injuries_fitness', name:'Injuries / Fitness', desc:'Carrying a nagging injury into a 5-setter.'},
+        {key:'h2h', name:'H2H Record', desc:'Some players just own certain opponents.'},
+        {key:'form', name:'Recent Form', desc:'Last 5 matches — winning or losing sets?'},
+        {key:'sharp_vs_public', name:'Sharp vs Public', desc:'Name value inflates big names.'},
+        {key:'fatigue', name:'Fatigue / Schedule', desc:'3rd match in 4 days vs fresh off a bye.'},
+        {key:'conditions', name:'Conditions', desc:'Wind, heat, altitude, indoor vs outdoor.'},
+        {key:'serve_stats', name:'Serve Stats', desc:'Ace rate, first serve %, break points saved.'},
+        {key:'mental', name:'Mental / Clutch', desc:'Tiebreak record, 5th set record, comebacks.'},
+        {key:'motivation', name:'Motivation', desc:'Grand slam vs early round of a 250.'}
+    ]
+};
+
+/* ===== State ===== */
+var currentSport = 'nba';
+var varConfigs = {}; // {sport: [{key, weight, enabled, rank}]}
+var customVars = []; // [{name, weight}]
+var betStyles = ['spread','ml','totals'];
+var dragSrcIdx = null;
+
+function initVarConfigs(sport) {
+    if (!varConfigs[sport]) {
+        varConfigs[sport] = SPORT_VARS[sport].map(function(v, i) {
+            return {key:v.key, weight:5, enabled:true, rank:i+1};
+        });
+    }
+}
+
+/* ===== Render Variables ===== */
+function renderVars() {
+    var list = document.getElementById('varsList');
+    list.innerHTML = '';
+    var vars = SPORT_VARS[currentSport];
+    var configs = varConfigs[currentSport];
+
+    configs.forEach(function(cfg, idx) {
+        var v = vars.find(function(x){return x.key===cfg.key}) || {name:cfg.key, desc:''};
+        var div = document.createElement('div');
+        div.className = 't-var';
+        div.draggable = true;
+        div.dataset.idx = idx;
+
+        div.innerHTML =
+            '<div class="t-var-top">' +
+                '<span class="t-var-handle">⠿</span>' +
+                '<span class="t-var-rank">' + (idx+1) + '</span>' +
+                '<span class="t-var-name">' + v.name + '</span>' +
+                '<button class="t-var-toggle ' + (cfg.enabled?'on':'') + '" onclick="toggleVar('+idx+',this)"></button>' +
+            '</div>' +
+            '<div class="t-var-desc">' + v.desc + '</div>' +
+            '<div class="t-var-slider">' +
+                '<input type="range" min="1" max="10" value="'+cfg.weight+'" oninput="setWeight('+idx+',this.value)">' +
+                '<span class="weight-val" id="wv-'+idx+'">'+cfg.weight+'</span>' +
+            '</div>';
+
+        // Drag events
+        div.addEventListener('dragstart', function(e){
+            dragSrcIdx = idx;
+            div.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        });
+        div.addEventListener('dragend', function(){
+            div.classList.remove('dragging');
+            document.querySelectorAll('.t-var').forEach(function(el){el.classList.remove('drag-over')});
+        });
+        div.addEventListener('dragover', function(e){
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            div.classList.add('drag-over');
+        });
+        div.addEventListener('dragleave', function(){
+            div.classList.remove('drag-over');
+        });
+        div.addEventListener('drop', function(e){
+            e.preventDefault();
+            div.classList.remove('drag-over');
+            if (dragSrcIdx !== null && dragSrcIdx !== idx) {
+                var arr = varConfigs[currentSport];
+                var moved = arr.splice(dragSrcIdx, 1)[0];
+                arr.splice(idx, 0, moved);
+                arr.forEach(function(c,i){c.rank = i+1});
+                renderVars();
+                updatePreview();
+            }
+        });
+
+        // Touch drag (mobile)
+        var touchStartY = 0;
+        div.addEventListener('touchstart', function(e){
+            touchStartY = e.touches[0].clientY;
+            div.classList.add('dragging');
+        }, {passive:true});
+        div.addEventListener('touchend', function(e){
+            div.classList.remove('dragging');
+            var dy = e.changedTouches[0].clientY - touchStartY;
+            if (Math.abs(dy) > 40) {
+                var direction = dy > 0 ? 1 : -1;
+                var newIdx = Math.max(0, Math.min(configs.length-1, idx+direction));
+                if (newIdx !== idx) {
+                    var arr = varConfigs[currentSport];
+                    var moved = arr.splice(idx, 1)[0];
+                    arr.splice(newIdx, 0, moved);
+                    arr.forEach(function(c,i){c.rank = i+1});
+                    renderVars();
+                    updatePreview();
+                }
+            }
+        });
+
+        list.appendChild(div);
+    });
+}
+
+function toggleVar(idx, btn) {
+    varConfigs[currentSport][idx].enabled = !varConfigs[currentSport][idx].enabled;
+    btn.classList.toggle('on');
+    updatePreview();
+}
+
+function setWeight(idx, val) {
+    varConfigs[currentSport][idx].weight = parseInt(val);
+    document.getElementById('wv-'+idx).textContent = val;
+    updatePreview();
+}
+
+/* ===== Sport Switch ===== */
+function switchSport(sport, btn) {
+    currentSport = sport;
+    document.querySelectorAll('.t-sport').forEach(function(b){b.classList.remove('active')});
+    if (btn) btn.classList.add('active');
+    initVarConfigs(sport);
+    renderVars();
+    updatePreview();
+}
+
+/* ===== Custom Variables ===== */
+function addCustomVar() {
+    var input = document.getElementById('customVarInput');
+    var name = input.value.trim();
+    if (!name || customVars.length >= 5) return;
+    if (customVars.some(function(v){return v.name.toLowerCase()===name.toLowerCase()})) return;
+    customVars.push({name:name, weight:5});
+    input.value = '';
+    renderCustomVars();
+}
+
+function removeCustomVar(idx) {
+    customVars.splice(idx, 1);
+    renderCustomVars();
+}
+
+function renderCustomVars() {
+    var list = document.getElementById('customVarList');
+    list.innerHTML = '';
+    customVars.forEach(function(v, i) {
+        var div = document.createElement('div');
+        div.className = 't-custom-item';
+        div.innerHTML = '<span class="name">' + v.name + '</span>' +
+            '<input type="range" min="1" max="10" value="'+v.weight+'" style="width:80px;-webkit-appearance:none;height:3px;border-radius:2px;background:var(--accent);outline:none;" oninput="customVars['+i+'].weight=parseInt(this.value)">' +
+            '<button class="remove" onclick="removeCustomVar('+i+')">&times;</button>';
+        list.appendChild(div);
+    });
+}
+
+/* ===== Bet Styles ===== */
+function toggleBetStyle(style, btn) {
+    var idx = betStyles.indexOf(style);
+    if (idx >= 0) { betStyles.splice(idx,1); btn.classList.remove('active'); }
+    else { betStyles.push(style); btn.classList.add('active'); }
+}
+
+/* ===== Preview ===== */
+function updatePreview() {
+    var configs = varConfigs[currentSport] || [];
+    var enabled = configs.filter(function(c){return c.enabled});
+    if (enabled.length === 0) {
+        document.getElementById('previewGrade').textContent = '--';
+        document.getElementById('previewBreakdown').innerHTML = '<em>Enable at least one variable</em>';
+        return;
+    }
+
+    // Simulate a grade based on weights (demo — just weighted average)
+    var totalWeight = 0;
+    var weightedScore = 0;
+    var breakdownHtml = '';
+    var vars = SPORT_VARS[currentSport];
+
+    enabled.forEach(function(cfg, i) {
+        var v = vars.find(function(x){return x.key===cfg.key}) || {name:cfg.key};
+        // Simulate a random-ish score based on rank (higher rank = more influence on grade)
+        var simScore = Math.min(10, Math.max(3, 8 - cfg.rank * 0.3 + cfg.weight * 0.2));
+        totalWeight += cfg.weight;
+        weightedScore += simScore * cfg.weight;
+
+        var pct = Math.round(simScore * 10);
+        breakdownHtml += '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+            '<span>' + v.name + ' (w:' + cfg.weight + ')</span>' +
+            '<span style="color:var(--accent2);font-weight:700;">' + simScore.toFixed(1) + '</span></div>' +
+            '<div class="bar"><div class="bar-fill" style="width:'+pct+'%"></div></div>';
+    });
+
+    var avg = totalWeight > 0 ? weightedScore / totalWeight : 0;
+    var grade = avg >= 8.5 ? 'A' : avg >= 7.5 ? 'A-' : avg >= 7 ? 'B+' : avg >= 6.5 ? 'B' : avg >= 6 ? 'B-' : avg >= 5.5 ? 'C+' : avg >= 5 ? 'C' : 'D';
+    var gradeColor = avg >= 7.5 ? 'var(--turq)' : avg >= 6 ? 'var(--accent2)' : '#f59e0b';
+
+    document.getElementById('previewGrade').textContent = grade;
+    document.getElementById('previewGrade').style.color = gradeColor;
+    document.getElementById('previewBreakdown').innerHTML = breakdownHtml;
+}
+
+/* ===== Save / Share / Reset ===== */
+function saveAgent() {
+    var config = {
+        agent_name: document.getElementById('agentName').value || 'My Agent',
+        sport: currentSport,
+        variables: varConfigs[currentSport],
+        custom_variables: customVars,
+        risk_profile: parseInt(document.getElementById('riskSlider').value) / 100,
+        bet_styles: betStyles,
+        voice: document.getElementById('voiceSelect').value
+    };
+    try { localStorage.setItem('edgeAgentConfig_' + currentSport, JSON.stringify(config)); } catch(e){}
+    showToast('Agent saved!');
+}
+
+function shareAgent() {
+    var config = {
+        sport: currentSport,
+        variables: varConfigs[currentSport],
+        custom_variables: customVars
+    };
+    var encoded = btoa(JSON.stringify(config));
+    var url = location.origin + '/train?import=' + encoded;
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(function(){showToast('Share link copied!')});
+    } else {
+        showToast('Share link generated');
+    }
+}
+
+function resetAgent() {
+    if (!confirm('Reset all variables to default?')) return;
+    delete varConfigs[currentSport];
+    customVars = [];
+    initVarConfigs(currentSport);
+    renderVars();
+    renderCustomVars();
+    updatePreview();
+    document.getElementById('agentName').value = '';
+    document.getElementById('riskSlider').value = 50;
+    showToast('Reset to default');
+}
+
+function showToast(msg) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(function(){t.classList.remove('show')}, 2000);
+}
+
+/* ===== Import from share link ===== */
+function checkImport() {
+    var match = location.search.match(/import=([^&]+)/);
+    if (match) {
+        try {
+            var config = JSON.parse(atob(decodeURIComponent(match[1])));
+            if (config.sport && config.variables) {
+                currentSport = config.sport;
+                varConfigs[config.sport] = config.variables;
+                if (config.custom_variables) customVars = config.custom_variables;
+                // Activate the right sport pill
+                document.querySelectorAll('.t-sport').forEach(function(b){
+                    b.classList.toggle('active', b.textContent.toLowerCase().includes(config.sport));
+                });
+                showToast('Imported agent config!');
+            }
+        } catch(e){}
+    }
+}
+
+/* ===== Init ===== */
+initVarConfigs('nba');
+checkImport();
+renderVars();
+renderCustomVars();
+updatePreview();
+</script>
+</body>
+</html>

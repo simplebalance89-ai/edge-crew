@@ -3397,6 +3397,11 @@ async def picks_page():
     return FileResponse("static/picks.html", headers=NO_CACHE_HEADERS)
 
 
+@app.get("/train")
+async def train_page():
+    return FileResponse("static/train.html", headers=NO_CACHE_HEADERS)
+
+
 @app.get("/")
 async def root():
     return FileResponse("static/index.html", headers=NO_CACHE_HEADERS)
