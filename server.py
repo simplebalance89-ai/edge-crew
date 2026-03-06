@@ -1361,6 +1361,13 @@ async def get_player_props(sport: str):
     if not ODDS_API_KEY:
         return JSONResponse({"error": "No ODDS_API_KEY configured"}, status_code=500)
 
+    # Pre-fetch rosters for cross-check (if not cached)
+    if not _get_cached(f"rosters:{sport_lower}", ttl=86400):
+        try:
+            await get_rosters(sport)
+        except Exception:
+            pass
+
     sport_keys = SPORT_KEYS.get(sport_lower, [sport_lower])
     markets = PROP_MARKETS[sport_lower]
     all_props = []
@@ -1459,6 +1466,30 @@ async def get_player_props(sport: str):
         except Exception as e:
             logger.error(f"Props fetch error for {sport_key}: {e}")
             continue
+
+    # ===== ROSTER CROSS-CHECK: Flag stale team assignments =====
+    roster_cache = _get_cached(f"rosters:{sport_lower}", ttl=86400)
+    if roster_cache:
+        # Build player -> team lookup from ESPN rosters
+        player_team_map = {}  # "jimmy butler iii" -> "Golden State Warriors"
+        for abbr, info in roster_cache.get("rosters", {}).items():
+            team_name = info.get("team", "")
+            for p in info.get("players", []):
+                pname = p.get("name", "").lower().strip()
+                if pname:
+                    player_team_map[pname] = team_name
+        # Cross-check each prop
+        for prop in all_props:
+            pname = prop.get("player", "").lower().strip()
+            matchup = prop.get("matchup", "")
+            actual_team = player_team_map.get(pname)
+            if actual_team:
+                prop["actual_team"] = actual_team
+                # Check if actual team is in the matchup string
+                if actual_team.lower() not in matchup.lower():
+                    # Player is listed under wrong game — stale bookmaker data
+                    prop["roster_flag"] = f"ROSTER: {prop['player']} is on {actual_team}"
+                    prop["matchup"] = f"{matchup} [{prop['player']} now on {actual_team}]"
 
     # Sort: SHARP VALUE first, then by edge descending
     verdict_order = {"SHARP VALUE": 0, "SLIGHT EDGE": 1, "FAIR LINE": 2, "BAD NUMBER": 3}
@@ -1758,6 +1789,13 @@ async def get_analysis(sport: str):
     roster_context = ""
     try:
         roster_cache = _get_cached(f"rosters:{sport_lower}", ttl=86400)
+        if not roster_cache:
+            # Trigger ESPN roster fetch if not cached
+            try:
+                await get_rosters(sport)
+                roster_cache = _get_cached(f"rosters:{sport_lower}", ttl=86400)
+            except Exception:
+                pass
         if roster_cache:
             roster_lines = [f"\n=== CURRENT ROSTERS (ESPN - verified) ==="]
             rosters = roster_cache.get("rosters", {})
@@ -1769,7 +1807,7 @@ async def get_analysis(sport: str):
             for abbr, info in rosters.items():
                 team_full = info.get("team", "")
                 if team_full in today_teams or abbr in [_normalize_team(t).split()[0].upper() for t in today_teams]:
-                    top_players = [p["name"] for p in info.get("players", [])[:8]]
+                    top_players = [p["name"] for p in info.get("players", [])[:15]]
                     roster_lines.append(f"{abbr} ({team_full}): {', '.join(top_players)}")
             if len(roster_lines) > 1:
                 roster_context = "\n".join(roster_lines)
@@ -1853,6 +1891,7 @@ GRADING RULES:
 - If RotoWire data is unavailable, flag it: "Injury data not confirmed - grade with caution."
 - rest_schedule is MANDATORY. Check game times for B2B detection.
 - Chinny props: top 3-5 per game, B+ grade minimum. Skip for INCOMPLETE. Each prop MUST have player name, prop line, odds estimate, individual grade (A/B+/B/C), and 1-sentence edge explanation.
+- CRITICAL — ROSTER CHECK: Use the CURRENT ROSTERS section above to verify which team each player is on BEFORE suggesting props. Players get traded mid-season. Do NOT assume a player is on the same team as last year. If a player is NOT in the roster data for a team, do NOT suggest props for that player under that team's game.
 - PASS games get grade D or F with explicit reason.
 - Be brutally honest. C means marginal. D means no edge. F means trap.
 
