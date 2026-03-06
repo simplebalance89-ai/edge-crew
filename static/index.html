@@ -5771,6 +5771,9 @@ var _agentOpen = false;
 var _agentRecognition = null;
 var _agentListening = false;
 var _evVoiceMode = null; // 'freeflow' or 'turnbased'
+var _rtcPeer = null;
+var _rtcStream = null;
+var _rtcVoiceActive = false;
 var _evSportMode = null;
 var _evSpeaking = false;
 
@@ -5822,22 +5825,18 @@ function closeEVAgent() {
     var fab = document.getElementById('agentFab');
     fab.classList.remove('open');
     fab.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>';
-    if (_agentListening) evStopVoice();
+    if (_rtcVoiceActive || _agentListening) evStopVoice();
 }
 // EV Pick — voice-first pick entry. Opens agent + starts voice immediately.
 function openEVPick() {
-    if (_agentOpen && _agentListening) {
-        // Already in voice mode — close
+    if (_agentOpen && _rtcVoiceActive) {
         closeEVAgent();
         return;
     }
     openEVAgent();
-    // Collapse welcome chrome, go straight to voice
     collapseWelcomeChrome();
-    // Short delay to let panel render, then start voice
     setTimeout(function() {
-        evStartVoice('turnbased');
-        addAgentMsg('agent', 'Voice pick mode. Tell me your pick — team, line, odds, units, confidence. I\'ll lock it.');
+        evStartVoice('freeflow');
     }, 300);
 }
 
@@ -5874,43 +5873,24 @@ function evQuickPrompt(text) {
     sendAgentMsg();
 }
 
-/* ---- Voice ---- */
+/* ---- Voice (WebRTC Realtime via Azure) ---- */
 function evToggleVoice() {
-    if (_agentListening) {
+    if (_rtcVoiceActive) {
         evStopVoice();
     } else {
-        evStartVoice(_evVoiceMode || 'turnbased');
+        evStartVoice(_evVoiceMode || 'freeflow');
     }
 }
 
-function evStartVoice(mode) {
-    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SR) {
-        addAgentMsg('agent', 'Voice not supported. Use Chrome or Safari.');
-        return;
-    }
+async function evStartVoice(mode) {
     if (!_agentOpen) openEVAgent();
+    if (_rtcVoiceActive) return;
 
     _evVoiceMode = mode;
-    // Update button states
     document.getElementById('evBtnFreeflow').classList.toggle('active', mode === 'freeflow');
     document.getElementById('evBtnTurnbased').classList.toggle('active', mode === 'turnbased');
     document.getElementById('evEndVoice').classList.add('active');
-    // Hide avatar area during voice to save space
     document.getElementById('evAvatarArea').style.display = 'none';
-
-    _startListening();
-}
-
-function _startListening() {
-    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SR || _agentListening || _evSpeaking) return;
-
-    _agentRecognition = new SR();
-    _agentRecognition.continuous = true;
-    _agentRecognition.interimResults = true;
-    _agentRecognition.lang = 'en-US';
-    _agentListening = true;
 
     var fab = document.getElementById('agentFab');
     var micBtn = document.getElementById('agentMicBtn');
@@ -5918,86 +5898,80 @@ function _startListening() {
     micBtn.style.background = 'rgba(16,185,129,0.2)';
     micBtn.style.borderColor = '#10B981';
     micBtn.style.color = '#10B981';
-    document.getElementById('evAvatar').classList.add('speaking');
 
-    var listeningMsg = addAgentMsg('agent', '<em>Listening...</em>');
-    var _sendTimeout = null;
+    addAgentMsg('agent', '<em>Connecting voice...</em>');
 
-    _agentRecognition.onresult = function(event) {
-        var interim = '';
-        var final = '';
-        for (var i = event.resultIndex; i < event.results.length; i++) {
-            if (event.results[i].isFinal) {
-                final += event.results[i][0].transcript;
-            } else {
-                interim += event.results[i][0].transcript;
+    try {
+        // 1. Get ephemeral token
+        var tokenResp = await crewFetch('/api/voice/token', {method: 'POST', headers: {'Content-Type': 'application/json'}});
+        var tokenData = await tokenResp.json();
+        if (tokenData.error) throw new Error(tokenData.error);
+
+        // 2. Get mic
+        _rtcStream = await navigator.mediaDevices.getUserMedia({audio: true});
+
+        // 3. Create peer connection
+        _rtcPeer = new RTCPeerConnection();
+        _rtcStream.getTracks().forEach(function(t) { _rtcPeer.addTrack(t, _rtcStream); });
+
+        // 4. Handle remote audio (EV speaking back)
+        var audioEl = document.getElementById('evAudio');
+        if (!audioEl) {
+            audioEl = document.createElement('audio');
+            audioEl.id = 'evAudio';
+            audioEl.autoplay = true;
+            document.body.appendChild(audioEl);
+        }
+        _rtcPeer.ontrack = function(e) { audioEl.srcObject = e.streams[0]; };
+
+        // 5. Create offer
+        var offer = await _rtcPeer.createOffer();
+        await _rtcPeer.setLocalDescription(offer);
+
+        // 6. Exchange SDP via server proxy
+        var sdpResp = await crewFetch('/api/voice/sdp', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({sdp: offer.sdp, token: tokenData.token})
+        });
+        var answerSdp = await sdpResp.text();
+        await _rtcPeer.setRemoteDescription({type: 'answer', sdp: answerSdp});
+
+        // Connected
+        _rtcVoiceActive = true;
+        _agentListening = true;
+        addAgentMsg('agent', 'Voice connected. Talk to me — I hear you live.');
+        document.getElementById('evAvatar').classList.add('speaking');
+
+        // Turn-based: mute mic initially, unmute on user's turn
+        if (mode === 'turnbased') {
+            _rtcStream.getAudioTracks().forEach(function(t) { t.enabled = true; });
+        }
+
+        // Handle disconnection
+        _rtcPeer.onconnectionstatechange = function() {
+            if (_rtcPeer && (_rtcPeer.connectionState === 'disconnected' || _rtcPeer.connectionState === 'failed')) {
+                addAgentMsg('agent', 'Voice disconnected.');
+                evStopVoice();
             }
-        }
-        // Show what user is saying in the input
-        document.getElementById('agentInput').value = final || interim;
+        };
 
-        // In freeflow: auto-send after final result with short pause
-        if (final && _evVoiceMode === 'freeflow') {
-            if (_sendTimeout) clearTimeout(_sendTimeout);
-            _sendTimeout = setTimeout(function() {
-                if (listeningMsg && listeningMsg.parentNode) listeningMsg.remove();
-                // Stop listening while processing
-                _agentListening = false;
-                try { _agentRecognition.stop(); } catch(e){}
-                fab.classList.remove('listening');
-                micBtn.style.background = 'transparent';
-                micBtn.style.borderColor = 'rgba(99,102,241,0.3)';
-                micBtn.style.color = '#818cf8';
-                sendAgentMsg();
-            }, 600); // 600ms pause after final speech = send
-        }
-    };
-
-    _agentRecognition.onend = function() {
-        _agentListening = false;
+    } catch(e) {
+        addAgentMsg('agent', 'Voice error: ' + (e.message || e));
         fab.classList.remove('listening');
         micBtn.style.background = 'transparent';
         micBtn.style.borderColor = 'rgba(99,102,241,0.3)';
         micBtn.style.color = '#818cf8';
-        document.getElementById('evAvatar').classList.remove('speaking');
-        if (listeningMsg && listeningMsg.parentNode) listeningMsg.remove();
-
-        if (_evVoiceMode === 'turnbased') {
-            // Turn-based: send accumulated text, done
-            var text = document.getElementById('agentInput').value.trim();
-            if (text) sendAgentMsg();
-        } else if (_evVoiceMode === 'freeflow' && !_evSpeaking) {
-            // Freeflow: browser killed recognition, restart
-            setTimeout(function() {
-                if (_evVoiceMode === 'freeflow' && !_evSpeaking && !_agentListening) _startListening();
-            }, 500);
-        }
-    };
-
-    _agentRecognition.onerror = function(event) {
-        _agentListening = false;
-        fab.classList.remove('listening');
-        micBtn.style.background = 'transparent';
-        micBtn.style.borderColor = 'rgba(99,102,241,0.3)';
-        micBtn.style.color = '#818cf8';
-        document.getElementById('evAvatar').classList.remove('speaking');
-        if (listeningMsg && listeningMsg.parentNode) listeningMsg.remove();
-        if (event.error !== 'no-speech' && event.error !== 'aborted') {
-            addAgentMsg('agent', 'Mic error: ' + event.error);
-        }
-        // Auto-restart in freeflow on non-fatal errors
-        if (_evVoiceMode === 'freeflow' && (event.error === 'no-speech' || event.error === 'aborted')) {
-            setTimeout(function() { if (_evVoiceMode === 'freeflow' && !_evSpeaking) _startListening(); }, 500);
-        }
-    };
-
-    _agentRecognition.start();
+        _evVoiceMode = null;
+    }
 }
 
 function evStopVoice() {
     _evVoiceMode = null;
     _agentListening = false;
-    if (_agentRecognition) { try { _agentRecognition.abort(); } catch(e){} }
+    _rtcVoiceActive = false;
+    if (_rtcPeer) { try { _rtcPeer.close(); } catch(e){} _rtcPeer = null; }
+    if (_rtcStream) { _rtcStream.getTracks().forEach(function(t) { t.stop(); }); _rtcStream = null; }
     document.getElementById('agentFab').classList.remove('listening');
     var micBtn = document.getElementById('agentMicBtn');
     micBtn.style.background = 'transparent';
@@ -6008,6 +5982,8 @@ function evStopVoice() {
     document.getElementById('evBtnTurnbased').classList.remove('active');
     document.getElementById('evEndVoice').classList.remove('active');
     document.getElementById('evAvatarArea').style.display = '';
+    var audioEl = document.getElementById('evAudio');
+    if (audioEl) { audioEl.srcObject = null; }
 }
 
 /* ---- TTS (speak EV responses) ---- */
@@ -6094,10 +6070,6 @@ function evSpeak(text) {
     utter.onend = function() {
         _evSpeaking = false;
         document.getElementById('evAvatar').classList.remove('speaking');
-        // Auto-restart mic after EV finishes speaking in voice mode
-        if (_evVoiceMode) {
-            setTimeout(function() { if (_evVoiceMode && !_agentListening) _startListening(); }, 800);
-        }
     };
     window.speechSynthesis.speak(utter);
 }
@@ -6212,7 +6184,7 @@ function sendAgentMsg() {
                 var cleanReply = reply.replace(/```json[\s\S]*?```/, '').trim();
                 if (cleanReply) addAgentMsg('agent', cleanReply);
                 handleAgentAction(action);
-                if (_evVoiceMode && cleanReply) evSpeak(cleanReply);
+                if (_evVoiceMode && !_rtcVoiceActive && cleanReply) evSpeak(cleanReply);
                 return;
             } catch(e) {}
         }
@@ -6220,16 +6192,13 @@ function sendAgentMsg() {
         reply = reply.replace(/\n/g, '<br>');
         addAgentMsg('agent', reply);
 
-        // Speak response if in voice mode
-        if (_evVoiceMode) evSpeak(reply);
+        // Speak response if in voice mode (skip if WebRTC — Azure handles TTS)
+        if (_evVoiceMode && !_rtcVoiceActive) evSpeak(reply);
     })
     .catch(function(err) {
         thinking.remove();
         if (avatar) avatar.classList.remove('thinking');
         addAgentMsg('agent', 'Connection dropped. Try again.');
-        if (_evVoiceMode) {
-            setTimeout(function() { if (_evVoiceMode && !_agentListening) _startListening(); }, 1000);
-        }
     });
 }
 
@@ -6278,6 +6247,37 @@ function agentLockPick(encodedAction) {
     addAgentMsg('agent', '&#10003; <strong>' + pick.selection + '</strong> locked! ' + pick.odds + ' ' + pick.units + 'u');
     renderBankroll();
     showToast(pick.selection + ' locked via EV!');
+}
+
+/* ---- Mobile Keyboard: resize agent panel to fit above keyboard ---- */
+if (window.visualViewport) {
+    var _vpInitH = window.visualViewport.height;
+    window.visualViewport.addEventListener('resize', function() {
+        var panel = document.getElementById('agentPanel');
+        if (!panel || !panel.classList.contains('visible')) return;
+        var vh = window.visualViewport.height;
+        // Keyboard open if viewport shrank significantly
+        if (vh < _vpInitH * 0.85) {
+            panel.style.height = vh + 'px';
+            panel.style.maxHeight = vh + 'px';
+            panel.style.top = window.visualViewport.offsetTop + 'px';
+            // Hide welcome chrome to give max space
+            var vr = document.querySelector('.ev-voice-row');
+            if (vr && !_rtcVoiceActive) vr.style.display = 'none';
+            var sm = document.querySelector('.ev-sport-modes');
+            if (sm) sm.style.display = 'none';
+            var ep = document.getElementById('evPrompts');
+            if (ep) ep.style.display = 'none';
+        } else {
+            // Keyboard closed — reset
+            panel.style.height = '';
+            panel.style.maxHeight = '';
+            panel.style.top = '';
+        }
+        // Scroll messages to bottom
+        var msgs = document.getElementById('agentMessages');
+        if (msgs) msgs.scrollTop = msgs.scrollHeight;
+    });
 }
 </script>
 

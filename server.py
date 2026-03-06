@@ -17,7 +17,7 @@ logger = logging.getLogger("edge-crew")
 PST = ZoneInfo("America/Los_Angeles")
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, Response
 
 
 import html as _html
@@ -319,6 +319,20 @@ API_SPORTS_LEAGUES = {
 AZURE_ENDPOINT = os.environ.get("AZURE_OPENAI_ENDPOINT", "")
 AZURE_KEY = os.environ.get("AZURE_OPENAI_KEY", "")
 AZURE_MODEL = os.environ.get("AZURE_OPENAI_MODEL", "gpt-4.1-mini")
+REALTIME_DEPLOYMENT = "gpt-4o-realtime"
+AZURE_BASE = AZURE_ENDPOINT.rstrip("/")
+
+# EV Agent character config for voice
+EV_AGENT_VOICE = {
+    "voice": "ash",
+    "prompt": """You are EV, the Expected Value agent for Edge Crew — a sports betting analytics platform. You are 100% math, no gut, pure edge. You analyze odds, find value, grade picks, and break down matchups.
+
+Your personality: sharp, confident, data-driven. You speak in short punchy sentences. You know every sport — NBA, NFL, NHL, MLB, NCAAB, NCAAF, Tennis, Soccer, MMA, Boxing, WNBA. You reference real odds, spreads, and over/unders.
+
+When asked about picks: give the edge percentage, the why, and the confidence level. When grading: be honest, show the math. When a user is on a streak, hype them up. When they're cold, analyze what went wrong.
+
+Keep responses under 3 sentences for voice. Be the sharpest analyst in the room."""
+}
 
 # Supabase config (persistent storage — replaces file-based picks/upsets)
 SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
@@ -3180,6 +3194,42 @@ async def debug_injuries(sport: str):
             })
     except Exception as e:
         return JSONResponse({"error": str(e)})
+
+
+# ── WebRTC Voice (Azure Realtime API) ──────────────────────────────
+
+@app.post("/api/voice/token")
+async def voice_token():
+    """Get ephemeral WebRTC token from Azure Realtime API."""
+    if not AZURE_BASE or not AZURE_KEY:
+        return JSONResponse({"error": "Azure not configured"}, status_code=500)
+    url = f"{AZURE_BASE}/openai/v1/realtime/client_secrets"
+    headers = {"api-key": AZURE_KEY, "Content-Type": "application/json"}
+    payload = {
+        "session": {
+            "type": "realtime",
+            "model": REALTIME_DEPLOYMENT,
+            "instructions": EV_AGENT_VOICE["prompt"],
+            "audio": {"output": {"voice": EV_AGENT_VOICE["voice"]}}
+        }
+    }
+    async with httpx.AsyncClient(timeout=15.0) as client:
+        resp = await client.post(url, json=payload, headers=headers)
+        resp.raise_for_status()
+        data = resp.json()
+        return {"token": data["value"], "expires_at": data.get("expires_at"), "voice": EV_AGENT_VOICE["voice"]}
+
+
+@app.post("/api/voice/sdp")
+async def voice_sdp(request: Request):
+    """Proxy SDP exchange so Azure URL stays server-side."""
+    body = await request.json()
+    url = f"{AZURE_BASE}/openai/v1/realtime/calls?webrtcfilter=on"
+    headers = {"Authorization": f"Bearer {body['token']}", "Content-Type": "application/sdp"}
+    async with httpx.AsyncClient(timeout=15.0) as client:
+        resp = await client.post(url, content=body["sdp"], headers=headers)
+        resp.raise_for_status()
+        return Response(content=resp.content, media_type="application/sdp")
 
 
 NO_CACHE_HEADERS = {
