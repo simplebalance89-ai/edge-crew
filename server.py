@@ -269,6 +269,11 @@ async def no_cache_headers(request, call_next):
     response.headers["Pragma"] = "no-cache"
     response.headers["Expires"] = "0"
     response.headers["Surrogate-Control"] = "no-store"
+    # Kill ETags so StaticFiles can't trigger 304 Not Modified
+    if "etag" in response.headers:
+        del response.headers["etag"]
+    if "last-modified" in response.headers:
+        del response.headers["last-modified"]
     return response
 
 
