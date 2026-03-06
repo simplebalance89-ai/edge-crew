@@ -1972,6 +1972,21 @@ async def get_picks(date: str = ""):
     return JSONResponse({"picks": picks, "count": len(picks)})
 
 
+@app.get("/api/picks/unique")
+async def get_unique_picks():
+    """Return scored unique/contrarian picks from graded history."""
+    if sb:
+        res = sb.table("picks").select("*").eq("result", "W").execute()
+        wins = res.data or []
+    else:
+        data = _read_picks()
+        wins = [p for p in data.get("picks", []) if p.get("result") == "W"]
+
+    graded_results = [{"pick_id": p.get("id"), "result": "W"} for p in wins]
+    unique = _score_unique_picks(graded_results, wins)
+    return JSONResponse({"unique_picks": unique, "count": len(unique)})
+
+
 @app.post("/api/picks")
 async def save_pick(request: Request):
     """Save a new pick from the bet slip popup."""
@@ -2368,6 +2383,79 @@ def _deduplicate_picks(picks):
     return unique
 
 
+def _score_unique_picks(graded_results: list, all_picks: list) -> list:
+    """Score unique/contrarian picks that deserve special recognition.
+
+    A pick is 'unique' if it:
+    - Won on underdog odds (positive odds like +150, +200)
+    - Won on a spread going against the favorite (taking points)
+    - Had high confidence and won
+    - Was flagged as high-edge by the model
+
+    Returns list of unique picks with scores.
+    """
+    unique = []
+    pick_map = {p.get("id", ""): p for p in all_picks if p.get("id")}
+
+    for r in graded_results:
+        if r.get("result") != "W":
+            continue
+
+        pick_id = r.get("pick_id", "")
+        pick = pick_map.get(pick_id, {})
+        if not pick:
+            continue
+
+        score = 0
+        tags = []
+        odds_str = pick.get("odds", "-110")
+        confidence = pick.get("confidence", "").lower()
+
+        # Underdog win — positive odds
+        try:
+            odds_val = int(str(odds_str).replace("+", ""))
+            if odds_val > 0:
+                score += min(odds_val // 50, 5)  # +150=3, +200=4, +300=5 (cap at 5)
+                tags.append(f"dog +{odds_val}")
+        except (ValueError, TypeError):
+            pass
+
+        # High confidence win
+        if confidence in ("hammer", "max", "5u", "strong"):
+            score += 3
+            tags.append("high-conviction")
+        elif confidence in ("confident", "3u", "4u"):
+            score += 2
+            tags.append("confident")
+
+        # Spread underdog (taking + points and winning)
+        selection = pick.get("selection", "")
+        pick_type = pick.get("type", "").lower()
+        if pick_type == "spread" and "+" in selection:
+            spread_match = re.search(r'\+(\d+\.?\d*)', re.sub(r'\([+-]?\d+\)', '', selection))
+            if spread_match:
+                pts = float(spread_match.group(1))
+                if pts >= 5:
+                    score += 2
+                    tags.append(f"spread dog +{pts}")
+                elif pts >= 2:
+                    score += 1
+                    tags.append(f"spread dog +{pts}")
+
+        if score > 0:
+            unique.append({
+                "pick_id": pick_id,
+                "selection": pick.get("selection", ""),
+                "matchup": pick.get("matchup", ""),
+                "score": score,
+                "tags": tags,
+                "name": pick.get("name", ""),
+            })
+
+    unique.sort(key=lambda x: x["score"], reverse=True)
+    return unique
+
+
 @app.post("/api/picks/autograde")
 async def autograde_picks(request: Request):
     """Auto-grade ungraded picks by fetching final scores from The Odds API.
@@ -2530,12 +2618,16 @@ async def autograde_picks(request: Request):
     sample_games = [f"{g['away_team']} @ {g['home_team']}" for g in completed[:5]]
     debug_parts.append(f"sample games: {', '.join(sample_games)}")
 
+    # Score unique picks — contrarian/underdog wins get bonus grades
+    unique_picks = _score_unique_picks(results, ungraded)
+
     return JSONResponse({
         "status": "ok",
         "graded": graded_count,
         "total_ungraded": len(ungraded),
         "completed_games": len(completed),
         "results": results,
+        "unique_picks": unique_picks,
         "debug": " | ".join(debug_parts),
     })
 
