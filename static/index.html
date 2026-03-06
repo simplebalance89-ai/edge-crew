@@ -632,6 +632,18 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
     .sport-picker-grid{grid-template-columns:repeat(5,1fr) !important;max-width:550px !important;gap:12px !important;}
     .sport-pick-btn{padding:16px 12px;font-size:0.8rem;}
     .sport-pick-btn .sp-icon{font-size:1.8rem;}
+
+    /* Game cards fill width on desktop */
+    .game-row{width:100%;}
+    .game-header{
+        display:grid !important;
+        grid-template-columns:30px 80px 1fr auto auto auto auto !important;
+        align-items:center;gap:12px;
+    }
+    .game-detail{width:100%;}
+    .detail-grid{grid-template-columns:1fr 1fr !important;}
+    .detail-box p,.detail-box li{word-wrap:break-word;overflow-wrap:break-word;}
+    .game-edge{max-width:none !important;white-space:normal !important;}
 }
 
 /* ===== LOGIN OVERLAY ===== */
