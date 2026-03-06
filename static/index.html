@@ -53,6 +53,9 @@
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:var(--ec-font-body);min-height:100vh;padding-bottom:80px;max-width:600px;margin:0 auto;}
+@media(min-width:769px){
+    body{max-width:1200px;padding:0 32px 80px;}
+}
 
 /* ===== TOP BAR ===== */
 .topbar{
@@ -491,7 +494,7 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
 }
 .mobile-quick-bar-inner{
     display:flex;justify-content:space-around;align-items:center;gap:4px;
-    max-width:480px;margin:0 auto;
+    max-width:600px;margin:0 auto;
 }
 .mqb-btn{
     display:flex;flex-direction:column;align-items:center;gap:2px;
@@ -614,20 +617,21 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
     .combined-cards-mobile{display:none !important;}
     .tabs-wrapper::after{display:none;}
     body{padding-bottom:80px;}
-    /* Center nav bar to match body max-width on desktop */
+    /* Full-width nav bar on desktop */
     .mobile-quick-bar{
-        max-width:600px;left:0;right:0;margin:0 auto;
-        border-radius:16px 16px 0 0;border:1px solid var(--ec-border);border-bottom:none;
+        left:0;right:0;
     }
-    .mobile-quick-bar-inner{gap:8px;}
-    .mqb-btn{min-width:64px;font-size:0.7rem;}
+    .mobile-quick-bar-inner{max-width:1200px;gap:12px;}
+    .mqb-btn{min-width:80px;font-size:0.75rem;}
     .mqb-btn .mqb-icon{font-size:1.6rem;}
-    /* Sport picker sheet centered on desktop */
+    /* Sport picker sheet wider on desktop */
     .sport-picker-sheet{
-        max-width:480px;left:0;right:0;margin:0 auto;
+        max-width:600px;left:0;right:0;margin:0 auto;
         border-radius:20px 20px 0 0;
     }
-    .sport-picker-grid{grid-template-columns:repeat(5,1fr) !important;max-width:450px !important;}
+    .sport-picker-grid{grid-template-columns:repeat(5,1fr) !important;max-width:550px !important;gap:12px !important;}
+    .sport-pick-btn{padding:16px 12px;font-size:0.8rem;}
+    .sport-pick-btn .sp-icon{font-size:1.8rem;}
 }
 
 /* ===== LOGIN OVERLAY ===== */
