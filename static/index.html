@@ -5391,8 +5391,8 @@ async function clearAllCache() {
         <button class="mqb-btn" ontouchend="event.preventDefault();switchSport('results')" onclick="switchSport('results',event)">
             <span class="mqb-icon">📈</span>Results
         </button>
-        <button class="mqb-btn" ontouchend="event.preventDefault();refreshSlate()" onclick="refreshSlate()">
-            <span class="mqb-icon">🔄</span>Refresh
+        <button class="mqb-btn" ontouchend="event.preventDefault();switchSport('bankroll')" onclick="switchSport('bankroll',event)">
+            <span class="mqb-icon">💰</span>Bank
         </button>
     </div>
 </div>
@@ -5486,17 +5486,17 @@ async function clearAllCache() {
 }
 .agent-panel.visible{display:flex;}
 
-/* Mobile: full-width panel sized for phone screens (375x812 iPhone, 390x844 etc) */
+/* Mobile: full-width panel sized for phone screens */
 @media(max-width:768px){
     .agent-panel{
         position:fixed;
-        bottom:0;left:0;right:0;
+        top:0;left:0;right:0;bottom:0;
         width:100%;max-width:100%;
-        height:75vh;max-height:75vh;
-        border-radius:16px 16px 0 0;
-        border:none;border-top:2px solid rgba(99,102,241,0.4);
+        height:100%;max-height:100%;
+        border-radius:0;
+        border:none;
         z-index:500;
-        box-shadow:0 -8px 40px rgba(0,0,0,0.8);
+        background:var(--ec-bg-primary) !important;
     }
     .agent-messages{
         max-height:none;flex:1;min-height:0;
@@ -5689,7 +5689,7 @@ async function clearAllCache() {
     <!-- Header -->
     <div class="agent-header">
         <div class="agent-header-dot"></div>
-        <div class="agent-header-title">EV - Expected Value</div>
+        <div class="agent-header-title">EV Pick</div>
         <button class="agent-header-clear" onclick="clearAgentChat()">Clear</button>
         <button class="ev-mode-exit" onclick="toggleAgentSize()" title="Maximize" id="agentMaxBtn" style="font-size:16px;line-height:1;">&#x26F6;</button>
         <button class="ev-mode-exit" onclick="closeEVAgent()" title="Close">&times;</button>
@@ -5707,28 +5707,7 @@ async function clearAllCache() {
         <div class="ev-tagline">100% Math. No Gut. Pure Edge.</div>
     </div>
 
-    <!-- Messages -->
-    <div class="agent-messages" id="agentMessages">
-        <div class="agent-msg agent">What's the play? Pick a sport mode below or just ask me anything.</div>
-    </div>
-
-    <!-- Quick Prompts -->
-    <div class="ev-prompts" id="evPrompts">
-        <button class="ev-prompt-btn" onclick="evQuickPrompt('Best value tonight')">Best value tonight</button>
-        <button class="ev-prompt-btn" onclick="evQuickPrompt('Any upset specials?')">Upset specials?</button>
-        <button class="ev-prompt-btn" onclick="evQuickPrompt('Break down the next game')">Break down next game</button>
-        <button class="ev-prompt-btn" onclick="evQuickPrompt('Lock a pick for me')">Lock a pick</button>
-        <button class="ev-prompt-btn" onclick="evQuickPrompt('Grade my results')">Grade results</button>
-    </div>
-
-    <!-- Input -->
-    <div class="agent-input">
-        <button onclick="evToggleVoice()" id="agentMicBtn" style="background:transparent;border:1px solid rgba(99,102,241,0.3);border-radius:8px;padding:10px;cursor:pointer;color:#818cf8;flex:0 0 auto;" title="Tap to Talk"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button>
-        <input type="text" id="agentInput" placeholder="Ask EV anything..." onkeydown="if(event.key==='Enter')sendAgentMsg()">
-        <button class="ev-send" onclick="sendAgentMsg()">Send</button>
-    </div>
-
-    <!-- Voice Mode Buttons -->
+    <!-- Voice Mode Buttons (above messages — welcome chrome) -->
     <div class="ev-voice-row">
         <button class="ev-voice-btn" id="evBtnFreeflow" onclick="evStartVoice('freeflow')">
             <span class="ev-v-icon">🔊</span>
@@ -5747,7 +5726,7 @@ async function clearAllCache() {
         <button onclick="evStopVoice()">End Voice</button>
     </div>
 
-    <!-- Sport Modes -->
+    <!-- Sport Modes (above messages — welcome chrome) -->
     <div class="ev-sport-modes">
         <button class="ev-sport-mode" onclick="evSetMode('nba',this)"><span class="esm-icon">🏀</span>NBA</button>
         <button class="ev-sport-mode" onclick="evSetMode('wnba',this)"><span class="esm-icon">🏀</span>WNBA</button>
@@ -5758,7 +5737,27 @@ async function clearAllCache() {
         <button class="ev-sport-mode" onclick="evSetMode('tennis',this)"><span class="esm-icon">🎾</span>Tennis</button>
         <button class="ev-sport-mode" onclick="evSetMode('soccer',this)"><span class="esm-icon">⚽</span>Soccer</button>
         <button class="ev-sport-mode" onclick="evSetMode('mma',this)"><span class="esm-icon">🥊</span>MMA</button>
-        <button class="ev-sport-mode" onclick="evSetMode('full',this)"><span class="esm-icon">📋</span>Full Slate</button>
+        <button class="ev-sport-mode" onclick="evSetMode('full',this)"><span class="esm-icon">📋</span>All</button>
+    </div>
+
+    <!-- Messages (scrollable middle) -->
+    <div class="agent-messages" id="agentMessages">
+        <div class="agent-msg agent">What's the play? Pick a sport mode above or just ask me anything.</div>
+    </div>
+
+    <!-- Quick Prompts -->
+    <div class="ev-prompts" id="evPrompts">
+        <button class="ev-prompt-btn" onclick="evQuickPrompt('Best value tonight')">Best value tonight</button>
+        <button class="ev-prompt-btn" onclick="evQuickPrompt('Any upset specials?')">Upset specials?</button>
+        <button class="ev-prompt-btn" onclick="evQuickPrompt('Lock a pick for me')">Lock a pick</button>
+        <button class="ev-prompt-btn" onclick="evQuickPrompt('Grade my results')">Grade results</button>
+    </div>
+
+    <!-- Input (ALWAYS at bottom) -->
+    <div class="agent-input">
+        <button onclick="evToggleVoice()" id="agentMicBtn" style="background:transparent;border:1px solid rgba(99,102,241,0.3);border-radius:8px;padding:10px;cursor:pointer;color:#818cf8;flex:0 0 auto;" title="Tap to Talk"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button>
+        <input type="text" id="agentInput" placeholder="Ask EV anything..." onkeydown="if(event.key==='Enter')sendAgentMsg()">
+        <button class="ev-send" onclick="sendAgentMsg()">Send</button>
     </div>
 </div>
 
