@@ -52,7 +52,7 @@
     --ec-sport-tennis:#84cc16; --ec-sport-wnba:#ec4899;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
-body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:var(--ec-font-body);min-height:100vh;padding-bottom:70px;max-width:600px;margin:0 auto;}
+body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:var(--ec-font-body);min-height:100vh;padding-bottom:80px;max-width:600px;margin:0 auto;}
 
 /* ===== TOP BAR ===== */
 .topbar{
@@ -453,7 +453,7 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
 .empty-state strong{color:rgba(255,255,255,0.5);}
 
 /* ===== TAB SCROLL AFFORDANCE ===== */
-.tabs-wrapper{position:sticky;top:56px;z-index:99;background:var(--ec-bg-primary);}
+.tabs-wrapper{display:none !important;}
 .tabs-wrapper::after{
     content:'';position:absolute;right:0;top:0;bottom:0;width:40px;
     background:linear-gradient(to right,transparent,rgba(0,0,0,0.8));
@@ -482,9 +482,9 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
 .combined-card-lines span{white-space:nowrap;}
 .combined-card-status{margin-top:6px;}
 
-/* ===== MOBILE QUICK BAR ===== */
+/* ===== BOTTOM NAV BAR (universal — all screen sizes) ===== */
 .mobile-quick-bar{
-    display:none;position:fixed;bottom:0;left:0;right:0;z-index:250;
+    display:block;position:fixed;bottom:0;left:0;right:0;z-index:250;
     background:rgba(8,8,12,0.95);backdrop-filter:blur(20px);
     border-top:1px solid var(--ec-border);
     padding:8px 12px;padding-bottom:max(8px,env(safe-area-inset-bottom));
@@ -539,10 +539,6 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
 
 /* ===== RESPONSIVE ===== */
 @media(max-width:768px){
-    /* Show mobile quick bar */
-    .mobile-quick-bar{display:block;}
-    body{padding-bottom:80px;}
-
     /* Slim topbar on mobile */
     .crew{display:none !important;}
     #sweepStatus{display:none !important;}
@@ -551,8 +547,6 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
     .topbar-title{font-size:15px !important;}
     .topbar-date{display:none !important;}
 
-    /* Mobile: hide top sport tabs — use bottom nav sport picker instead */
-    .tabs-wrapper{display:none !important;}
     /* Hero stats right under topbar on mobile */
     .hero-stats{padding:8px 12px 4px;margin-top:0;}
 
@@ -614,9 +608,29 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
     #propsStatFilter .stat-filter-btn{white-space:nowrap;flex-shrink:0;}
 }
 @media(min-width:769px){
-    .mobile-quick-bar{display:none !important;}
+    /* Universal nav — same bottom bar + sport picker on desktop */
+    .mobile-quick-bar{display:block !important;}
+    .tabs-wrapper{display:none !important;}
     .combined-cards-mobile{display:none !important;}
     .tabs-wrapper::after{display:none;}
+    body{padding-bottom:80px;}
+    /* Center and widen the nav bar on desktop */
+    .mobile-quick-bar{
+        max-width:600px;left:50%;transform:translateX(-50%);right:auto;
+        border-radius:16px 16px 0 0;border:1px solid var(--ec-border);border-bottom:none;
+    }
+    .mobile-quick-bar-inner{gap:8px;}
+    .mqb-btn{min-width:64px;font-size:0.7rem;}
+    .mqb-btn .mqb-icon{font-size:1.6rem;}
+    /* Sport picker sheet centered on desktop */
+    .sport-picker-sheet{
+        max-width:480px;left:50%;transform:translateX(-50%) translateY(100%);right:auto;
+        border-radius:20px 20px 0 0;
+    }
+    .sport-picker-overlay.visible .sport-picker-sheet{
+        transform:translateX(-50%) translateY(0);
+    }
+    .sport-picker-grid{grid-template-columns:repeat(5,1fr) !important;max-width:450px !important;}
 }
 
 /* ===== LOGIN OVERLAY ===== */
@@ -824,14 +838,12 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
 ::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:3px;}
 ::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.15);}
 
-/* ===== V3 MOBILE BOTTOM NAV UPGRADE ===== */
-@media(max-width:768px){
-    .mobile-quick-bar{
-        display:block !important;position:fixed;bottom:0;left:0;right:0;z-index:250;
-        background:rgba(8,8,12,0.97);backdrop-filter:blur(24px) saturate(150%);
-        border-top:1px solid var(--ec-border);
-        padding:4px 8px;padding-bottom:max(4px,env(safe-area-inset-bottom));
-    }
+/* ===== V3 BOTTOM NAV (universal) ===== */
+.mobile-quick-bar{
+    display:block !important;position:fixed;bottom:0;left:0;right:0;z-index:250;
+    background:rgba(8,8,12,0.97);backdrop-filter:blur(24px) saturate(150%);
+    border-top:1px solid var(--ec-border);
+    padding:4px 8px;padding-bottom:max(4px,env(safe-area-inset-bottom));
 }
 .mqb-btn{
     display:flex;flex-direction:column;align-items:center;gap:2px;
@@ -5835,7 +5847,7 @@ var _evSpeaking = false;
 /* ---- Sport Picker ---- */
 function openSportPicker() {
     // Update counts from existing badge data
-    ['nba','nhl','mlb','soccer','mma','boxing'].forEach(function(s) {
+    ['nba','wnba','ncaab','ncaaf','nhl','mlb','tennis','soccer','mma','boxing'].forEach(function(s) {
         var tab = document.querySelector(".sport-tab[onclick*=\"" + s + "\"]");
         var badge = tab ? tab.querySelector('.tab-badge') : null;
         var el = document.getElementById('sp-count-' + s);
