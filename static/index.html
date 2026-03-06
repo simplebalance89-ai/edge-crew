@@ -4454,12 +4454,23 @@ function fetchEdge(sport) {
                 html += '<span style="color:#10B981;margin-left:12px;">Dog:</span> ' + g.underdog + ' (' + g.dog_prob + '%) @ ' + g.dog_ml;
                 html += '</div>';
 
-                // Upset score bar
+                // Upset score bar (show injury boost if any)
+                var boostLabel = g.injury_boost ? ' (injury adj ' + (g.injury_boost > 0 ? '+' : '') + g.injury_boost + ')' : '';
                 html += '<div style="margin:8px 0 6px;">';
-                html += '<div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:3px;">Upset Score: ' + g.upset_score + '/10</div>';
+                html += '<div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:3px;">Upset Score: ' + g.upset_score + '/10' + boostLabel + '</div>';
                 html += '<div style="background:rgba(255,255,255,0.06);border-radius:4px;height:6px;overflow:hidden;">';
                 html += '<div style="width:' + barWidth + '%;height:100%;background:' + barColor + ';border-radius:4px;transition:width 0.3s;"></div>';
                 html += '</div></div>';
+
+                // Injury flags
+                if (g.injury_flags && g.injury_flags.length) {
+                    html += '<div style="margin:6px 0;padding:8px 10px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.15);border-radius:8px;">';
+                    g.injury_flags.forEach(function(f) {
+                        var fColor = f.indexOf('EDGE:') === 0 ? '#10B981' : (f.indexOf('CAUTION:') === 0 ? '#EF4444' : 'rgba(255,255,255,0.5)');
+                        html += '<div style="font-size:11px;color:' + fColor + ';font-weight:700;margin-bottom:2px;">' + f + '</div>';
+                    });
+                    html += '</div>';
+                }
 
                 // Flags
                 if (flags.length) {

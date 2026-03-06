@@ -1542,13 +1542,14 @@ async def get_credits():
 
 @app.get("/api/edge/{sport}")
 async def get_edge(sport: str):
-    """Alyssa's Edge — 100% Math. No AI. Pure Edge.
+    """Alyssa's Edge — Math + Lineups. No AI. Pure Edge.
 
-    Contrarian value analysis calculated from odds data:
+    Contrarian value analysis calculated from odds + injury/roster data:
     - Public fade: flag heavy favorites where ML implies >70% implied prob
     - Line value: identify spreads that look off
-    - Upset score: underdog value rating 1-10
+    - Upset score: underdog value rating 1-10 (adjusted for injuries)
     - Sharp signals: when line movement doesn't match public direction
+    - Injury impact: star players OUT shift the edge math
     """
     sport_lower = sport.lower()
     odds_cache_key = f"{sport_lower}:h2h,spreads,totals"
@@ -1563,6 +1564,39 @@ async def get_edge(sport: str):
     games = odds_data.get("games", [])
     if not games:
         return JSONResponse({"sport": sport.upper(), "games": [], "generated_at": _now_ts()})
+
+    # ===== FETCH INJURY + ROSTER DATA =====
+    injuries_by_team = {}
+    try:
+        inj_cache = _get_cached(f"frontend_injuries:{sport_lower}", ttl=1800)
+        if not inj_cache:
+            inj_resp = await get_lineups(sport)
+            if hasattr(inj_resp, 'body'):
+                inj_cache = json.loads(inj_resp.body)
+        if inj_cache:
+            injuries_by_team = inj_cache.get("injuries_by_team", {})
+    except Exception as e:
+        print(f"Edge injury fetch error: {e}")
+
+    # Build roster lookup: team_name -> [player names] (top 8 = starters/key rotation)
+    roster_top = {}  # team_name -> list of top player names
+    try:
+        roster_cache = _get_cached(f"rosters:{sport_lower}", ttl=14400)
+        if not roster_cache:
+            try:
+                await get_rosters(sport)
+                roster_cache = _get_cached(f"rosters:{sport_lower}", ttl=14400)
+            except Exception:
+                pass
+        if roster_cache:
+            for abbr, info in roster_cache.get("rosters", {}).items():
+                team_name = info.get("team", "")
+                # Top 8 on roster = starters + key rotation (ESPN lists by importance)
+                top = [p["name"].lower() for p in info.get("players", [])[:8]]
+                roster_top[team_name.lower()] = top
+                roster_top[abbr.lower()] = top
+    except Exception as e:
+        print(f"Edge roster fetch error: {e}")
 
     edge_games = []
     for g in games:
@@ -1607,9 +1641,67 @@ async def get_edge(sport: str):
             fav_ml, dog_ml = away_ml, home_ml
             fav_spread = away_spread
 
+        # --- INJURY ANALYSIS ---
+        # Check injuries for both teams. Star OUT on favorite = edge for dog.
+        def _count_injuries(team_name):
+            """Count OUT and GTD players for a team, check if any are key (top 8 roster)."""
+            out_players = []
+            gtd_players = []
+            out_stars = []
+            # Try matching team name in injuries_by_team (CBS uses city names, full names vary)
+            team_lower = team_name.lower()
+            matched_injuries = []
+            for inj_team, players in injuries_by_team.items():
+                # Fuzzy match: "Golden State" in "Golden State Warriors", or "Warriors" in team
+                inj_lower = inj_team.lower()
+                if inj_lower in team_lower or team_lower in inj_lower or any(w in inj_lower for w in team_lower.split() if len(w) > 3):
+                    matched_injuries = players
+                    break
+            # Get top roster players for this team
+            top_roster = []
+            for rkey, rplayers in roster_top.items():
+                if rkey in team_lower or team_lower in rkey or any(w in rkey for w in team_lower.split() if len(w) > 3):
+                    top_roster = rplayers
+                    break
+            for p in matched_injuries:
+                pname = p.get("player", "").lower()
+                if p.get("status") == "OUT":
+                    out_players.append(p["player"])
+                    if any(pname in rp or rp in pname for rp in top_roster):
+                        out_stars.append(p["player"])
+                elif p.get("status") == "GTD":
+                    gtd_players.append(p["player"])
+            return {"out": out_players, "gtd": gtd_players, "out_stars": out_stars, "out_count": len(out_players), "gtd_count": len(gtd_players)}
+
+        fav_injuries = _count_injuries(fav)
+        dog_injuries = _count_injuries(dog)
+
         # --- UPSET SCORE (1-10) ---
-        # Based on dog implied probability. Higher prob = higher upset score
+        # Base: dog implied probability. Adjusted by injuries.
         upset_score = min(10, max(1, round(dog_prob * 20)))
+
+        # Injury adjustments: star OUT on favorite = huge edge shift
+        injury_boost = 0
+        if fav_injuries["out_stars"]:
+            injury_boost += min(3, len(fav_injuries["out_stars"]) * 2)  # +2 per star OUT on fav
+        if fav_injuries["out_count"] >= 3:
+            injury_boost += 1  # Depth hit on favorite
+        if dog_injuries["out_stars"]:
+            injury_boost -= min(2, len(dog_injuries["out_stars"]))  # -1 per star OUT on dog
+        upset_score = min(10, max(1, upset_score + injury_boost))
+
+        # Build injury summary
+        injury_flags = []
+        if fav_injuries["out_stars"]:
+            injury_flags.append(f"EDGE: {fav} missing {', '.join(fav_injuries['out_stars'])}")
+        if fav_injuries["out_count"] > 0 and not fav_injuries["out_stars"]:
+            injury_flags.append(f"{fav}: {fav_injuries['out_count']} OUT (role players)")
+        if dog_injuries["out_stars"]:
+            injury_flags.append(f"CAUTION: {dog} missing {', '.join(dog_injuries['out_stars'])}")
+        if fav_injuries["gtd_count"] > 0:
+            injury_flags.append(f"{fav}: {fav_injuries['gtd_count']} GTD — monitor")
+        if dog_injuries["gtd_count"] > 0:
+            injury_flags.append(f"{dog}: {dog_injuries['gtd_count']} GTD — monitor")
 
         # --- PUBLIC FADE FLAG ---
         # If favorite has >72% implied prob, the public is heavy on them
@@ -1618,13 +1710,18 @@ async def get_edge(sport: str):
         # --- VALUE RATING ---
         # Dogs with >30% true prob are value plays
         # Dogs with >40% are strong value
+        # Injury boost: if fav missing stars, lower the threshold
+        value_threshold_shift = 0.03 if fav_injuries["out_stars"] else 0
         value_tag = ""
-        if dog_prob >= 0.42:
+        if dog_prob >= (0.42 - value_threshold_shift):
             value_tag = "STRONG VALUE"
-        elif dog_prob >= 0.35:
+        elif dog_prob >= (0.35 - value_threshold_shift):
             value_tag = "VALUE"
-        elif dog_prob >= 0.28:
+        elif dog_prob >= (0.28 - value_threshold_shift):
             value_tag = "SLIGHT VALUE"
+        # Special: if fav missing 2+ stars and dog has decent prob, it's sharp value
+        if len(fav_injuries["out_stars"]) >= 2 and dog_prob >= 0.25 and not value_tag:
+            value_tag = "INJURY VALUE"
 
         # --- SPREAD vs ML DISCREPANCY ---
         # If spread is tight but ML is wide, there's a signal
@@ -1674,11 +1771,17 @@ async def get_edge(sport: str):
             "dog_prob": round(dog_prob * 100, 1),
             "vig": round(vig, 1),
             "upset_score": upset_score,
+            "injury_boost": injury_boost,
             "public_fade": public_fade,
             "value_tag": value_tag,
             "spread_ml_flag": spread_ml_flag,
             "total_lean": total_lean,
             "dog_ml": dog_ml,
+            "injury_flags": injury_flags,
+            "fav_out": fav_injuries["out_count"],
+            "dog_out": dog_injuries["out_count"],
+            "fav_stars_out": fav_injuries["out_stars"],
+            "dog_stars_out": dog_injuries["out_stars"],
         }
         edge_games.append(edge_game)
 
