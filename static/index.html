@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="Edge Crew">
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
-<title>Edge Crew — Crew Dashboard</title>
+<title>Edge Crew — Your AI Sports Analyst</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -24,15 +24,32 @@
     --ec-success:#22c55e;
     --ec-warning:#f59e0b;
     --ec-danger:#ef4444;
+    --ec-info:#38bdf8;
     --ec-text-primary:#f1f5f9;
     --ec-text-secondary:#94a3b8;
     --ec-text-tertiary:#64748b;
+    --ec-text-accent:#a5b4fc;
     --ec-border:rgba(255,255,255,0.06);
     --ec-border-hover:rgba(255,255,255,0.12);
     --ec-border-accent:rgba(99,102,241,0.3);
     --ec-font-heading:'Inter',sans-serif;
     --ec-font-body:'Inter',sans-serif;
     --ec-font-mono:'JetBrains Mono',monospace;
+    /* Spacing */
+    --ec-space-1:4px; --ec-space-2:8px; --ec-space-3:12px; --ec-space-4:16px;
+    --ec-space-5:20px; --ec-space-6:24px; --ec-space-8:32px; --ec-space-10:40px;
+    /* Radius */
+    --ec-radius-sm:6px; --ec-radius-md:10px; --ec-radius-lg:14px; --ec-radius-xl:20px; --ec-radius-full:100px;
+    /* Shadows */
+    --ec-shadow-sm:0 2px 8px rgba(0,0,0,0.15);
+    --ec-shadow-md:0 8px 32px rgba(0,0,0,0.25);
+    --ec-shadow-lg:0 16px 64px rgba(0,0,0,0.4);
+    --ec-shadow-glow:0 0 40px var(--ec-accent-glow);
+    /* Sport colors */
+    --ec-sport-nba:#f97316; --ec-sport-nfl:#22c55e; --ec-sport-nhl:#38bdf8;
+    --ec-sport-mlb:#ef4444; --ec-sport-soccer:#10b981; --ec-sport-mma:#f43f5e;
+    --ec-sport-boxing:#eab308; --ec-sport-ncaab:#3b82f6; --ec-sport-ncaaf:#a855f7;
+    --ec-sport-tennis:#84cc16; --ec-sport-wnba:#ec4899;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:var(--ec-font-body);min-height:100vh;padding-bottom:70px;}
@@ -67,7 +84,7 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
 .sport-tab{
     padding:12px 28px;font-size:13px;font-weight:600;letter-spacing:0.5px;
     text-transform:uppercase;color:var(--ec-text-tertiary);cursor:pointer;
-    border-bottom:3px solid transparent;transition:all 0.2s;white-space:nowrap;
+    transition:all 0.2s;white-space:nowrap;
 }
 .sport-tab:hover{color:var(--ec-text-secondary);}
 .sport-tab.active{color:var(--ec-text-primary);border-bottom-color:var(--ec-accent);}
@@ -647,6 +664,220 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
 .login-error{color:var(--ec-danger);font-size:13px;margin-top:10px;min-height:20px;}
 .crew-badge.active-user{box-shadow:0 0 8px currentColor;animation:glowPulse 2s infinite;}
 @keyframes glowPulse{0%,100%{box-shadow:0 0 6px currentColor;}50%{box-shadow:0 0 14px currentColor;}}
+
+/* ===== V3 HERO STATS ===== */
+.hero-stats{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:12px;
+    padding:16px 24px 8px;max-width:1100px;margin:0 auto;
+}
+.hero-card{
+    background:linear-gradient(135deg,var(--ec-bg-secondary),var(--ec-bg-elevated));
+    border:1px solid var(--ec-border);border-radius:14px;padding:18px 16px;
+    position:relative;overflow:hidden;transition:all 0.25s ease;
+}
+.hero-card:hover{border-color:var(--ec-border-hover);transform:translateY(-1px);box-shadow:var(--ec-shadow-md);}
+.hero-card::before{
+    content:'';position:absolute;top:0;left:0;right:0;height:2px;
+    background:linear-gradient(90deg,var(--ec-accent),var(--ec-accent-light));
+}
+.hero-card .hero-label{
+    font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;
+    color:var(--ec-text-tertiary);margin-bottom:6px;
+}
+.hero-card .hero-value{
+    font-family:var(--ec-font-mono);font-size:28px;font-weight:700;
+    color:var(--ec-text-primary);line-height:1.1;
+}
+.hero-card .hero-sub{
+    font-family:var(--ec-font-mono);font-size:12px;font-weight:600;
+    margin-top:4px;
+}
+.hero-sub.positive{color:var(--ec-success);}
+.hero-sub.negative{color:var(--ec-danger);}
+.hero-sub.neutral{color:var(--ec-text-tertiary);}
+@media(max-width:768px){
+    .hero-stats{grid-template-columns:1fr 1fr;gap:8px;padding:12px 12px 4px;}
+    .hero-card .hero-value{font-size:22px;}
+    .hero-card{padding:14px 12px;}
+}
+@media(max-width:400px){
+    .hero-stats{grid-template-columns:1fr 1fr;gap:6px;}
+}
+
+/* ===== V3 CARD ENTRANCE ANIMATIONS ===== */
+@keyframes cardEnter{
+    from{opacity:0;transform:translateY(8px);}
+    to{opacity:1;transform:translateY(0);}
+}
+.game-row{animation:cardEnter 0.3s ease forwards;}
+.game-row:nth-child(1){animation-delay:0ms;}
+.game-row:nth-child(2){animation-delay:50ms;}
+.game-row:nth-child(3){animation-delay:60ms;}
+.game-row:nth-child(4){animation-delay:90ms;}
+.game-row:nth-child(5){animation-delay:120ms;}
+.game-row:nth-child(6){animation-delay:150ms;}
+
+/* Edge grade A pulse */
+@keyframes edgePulse{
+    0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,0.3);}
+    50%{box-shadow:0 0 0 6px rgba(34,197,94,0);}
+}
+.ga,.gam{animation:edgePulse 3s ease infinite;}
+
+/* ===== V3 SPORT TAB PILLS (override flat tabs) ===== */
+.sport-tabs{
+    display:flex;gap:6px;padding:10px 24px;background:var(--ec-bg-primary);
+    border-bottom:1px solid var(--ec-border);overflow-x:auto;
+    scrollbar-width:none;-webkit-overflow-scrolling:touch;
+}
+.sport-tabs::-webkit-scrollbar{display:none;}
+.sport-tab{
+    padding:8px 16px;font-size:12px;font-weight:600;letter-spacing:0.3px;
+    text-transform:uppercase;color:var(--ec-text-tertiary);cursor:pointer;
+    border:1px solid var(--ec-border);border-radius:var(--ec-radius-full);
+    background:var(--ec-bg-secondary);transition:all 0.2s ease;white-space:nowrap;
+    border-bottom:none;
+}
+.sport-tab:hover{color:var(--ec-text-secondary);border-color:var(--ec-border-hover);background:var(--ec-bg-hover);}
+.sport-tab.active{
+    color:var(--ec-accent-light);border-color:var(--ec-accent);
+    background:var(--ec-accent-subtle);box-shadow:0 0 16px var(--ec-accent-glow);
+}
+.sport-tab .tab-count{
+    display:inline-block;margin-left:4px;padding:1px 6px;border-radius:var(--ec-radius-full);
+    font-size:9px;font-weight:700;background:rgba(255,255,255,0.06);color:var(--ec-text-tertiary);
+}
+.sport-tab.active .tab-count{background:var(--ec-accent);color:#fff;}
+.sport-row{border-bottom:none;}
+.utility-row{border-bottom:none;padding-top:0;}
+.utility-tab{font-size:11px !important;padding:7px 14px !important;}
+.utility-tab.active{border-color:var(--ec-accent) !important;color:var(--ec-accent-light) !important;
+    background:var(--ec-accent-subtle) !important;box-shadow:0 0 16px var(--ec-accent-glow) !important;}
+
+/* ===== V3 TOPBAR UPGRADE ===== */
+.topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:0 24px;height:56px;border-bottom:1px solid var(--ec-border);
+    background:rgba(8,8,12,0.92);position:sticky;top:0;z-index:100;
+    backdrop-filter:blur(24px) saturate(150%);
+}
+
+/* ===== V3 GAME CARD EDGE INDICATOR ===== */
+.game-row.has-edge-a{border-left:3px solid var(--ec-success);}
+.game-row.has-edge-b{border-left:3px solid var(--ec-accent);}
+
+/* ===== V3 GOTCHA BANNER UPGRADE ===== */
+.gotcha-banner{
+    background:rgba(245,158,11,0.04);border:1px solid rgba(245,158,11,0.15);
+    border-radius:var(--ec-radius-lg);padding:16px 20px;margin-bottom:20px;
+    position:relative;overflow:hidden;
+}
+.gotcha-banner::before{
+    content:'';position:absolute;top:0;left:0;bottom:0;width:3px;
+    background:var(--ec-warning);
+}
+
+/* ===== V3 INPUT/ANALYSIS SECTIONS ===== */
+.input-section{
+    margin-top:16px;background:var(--ec-bg-secondary);border:1px solid var(--ec-border);
+    border-radius:var(--ec-radius-lg);padding:20px;transition:all 0.25s ease;
+}
+.input-section:hover{border-color:var(--ec-border-hover);}
+
+/* ===== V3 UPSET SECTION ===== */
+.upset-section{
+    margin-top:16px;background:var(--ec-bg-secondary);border:1px solid var(--ec-border-accent);
+    border-radius:var(--ec-radius-lg);padding:20px;position:relative;overflow:hidden;
+}
+.upset-section::before{
+    content:'';position:absolute;top:0;left:0;right:0;height:2px;
+    background:linear-gradient(90deg,var(--ec-accent),#a78bfa);
+}
+
+/* ===== V3 AGENT PANEL GLASS ===== */
+#agentPanel{
+    background:rgba(15,16,24,0.95) !important;
+    backdrop-filter:blur(24px) saturate(150%) !important;
+    border:1px solid var(--ec-border) !important;
+    border-radius:var(--ec-radius-xl) !important;
+    box-shadow:0 24px 80px rgba(0,0,0,0.6),0 0 40px var(--ec-accent-glow) !important;
+}
+.agent-msg.agent{
+    background:var(--ec-bg-elevated);border:1px solid var(--ec-border);
+    border-radius:16px 16px 16px 4px;color:var(--ec-text-primary);
+}
+.agent-msg.user{
+    background:var(--ec-accent);color:#fff;
+    border-radius:16px 16px 4px 16px;
+}
+
+/* ===== V3 SMOOTH TRANSITIONS ===== */
+.sport-panel{animation:cardEnter 0.2s ease forwards;}
+
+/* ===== V3 SCROLLBAR STYLING ===== */
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:3px;}
+::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.15);}
+
+/* ===== V3 MOBILE BOTTOM NAV UPGRADE ===== */
+.mobile-quick-bar{
+    display:none;position:fixed;bottom:0;left:0;right:0;z-index:250;
+    background:rgba(8,8,12,0.97);backdrop-filter:blur(24px) saturate(150%);
+    border-top:1px solid var(--ec-border);
+    padding:4px 8px;padding-bottom:max(4px,env(safe-area-inset-bottom));
+}
+.mqb-btn{
+    display:flex;flex-direction:column;align-items:center;gap:2px;
+    padding:8px 6px;border:none;background:transparent;
+    color:var(--ec-text-tertiary);font-family:var(--ec-font-body);
+    font-size:0.6rem;font-weight:600;letter-spacing:0.3px;
+    text-transform:uppercase;cursor:pointer;transition:all 0.2s;
+    -webkit-tap-highlight-color:transparent;
+    min-width:48px;min-height:48px;justify-content:center;
+    border-radius:12px;position:relative;
+}
+.mqb-btn .mqb-icon{font-size:1.4rem;line-height:1;transition:all 0.2s;}
+.mqb-btn:active{color:var(--ec-accent-light);background:var(--ec-accent-subtle);}
+.mqb-btn.mqb-submit,.mqb-btn.mqb-results{color:var(--ec-accent-light);}
+.mqb-btn:active .mqb-icon{transform:scale(0.92);}
+
+/* ===== V3 SECTION DIVIDERS ===== */
+.content{max-width:1100px;margin:0 auto;padding:20px 24px;}
+.content > .sport-panel > .gotcha-banner:first-child{margin-top:0;}
+
+/* ===== V3 PICK FORM PREMIUM ===== */
+.pick-form h2{
+    font-size:24px;font-weight:700;
+    background:linear-gradient(135deg,var(--ec-accent),#a78bfa);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+
+/* ===== V3 BANKROLL STAT CARDS ===== */
+.bankroll-stats-4 > div, .bankroll-stats-3 > div{
+    background:var(--ec-bg-secondary) !important;
+    border:1px solid var(--ec-border) !important;
+    border-radius:var(--ec-radius-lg) !important;
+    transition:all 0.2s ease;
+}
+.bankroll-stats-4 > div:hover, .bankroll-stats-3 > div:hover{
+    border-color:var(--ec-border-hover) !important;
+    transform:translateY(-1px);
+}
+
+/* ===== V3 EMPTY STATE ===== */
+.empty-state{
+    text-align:center;padding:48px 20px;color:var(--ec-text-tertiary);
+    font-size:14px;line-height:1.7;
+}
+.empty-state strong{color:var(--ec-text-secondary);}
+
+/* ===== V3 FOOTER ===== */
+.footer{
+    text-align:center;padding:32px 24px;margin-top:32px;
+    border-top:1px solid var(--ec-border);
+    color:var(--ec-text-tertiary);font-size:11px;letter-spacing:0.02em;
+}
 </style>
 </head>
 <body>
@@ -656,7 +887,7 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
     <div class="login-card">
         <img src="/static/logo.png" alt="Edge Crew" style="width:120px;border-radius:12px;margin:0 auto 12px;display:block;">
         <h1>Edge Crew</h1>
-        <div class="login-sub">Crew Dashboard</div>
+        <div class="login-sub">Your AI Sports Analyst</div>
         <div class="login-tabs">
             <button class="login-tab active" onclick="switchLoginTab('signin')">Sign In</button>
             <button class="login-tab" onclick="switchLoginTab('register')">Join Crew</button>
@@ -710,27 +941,34 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
 
 <!-- TOP BAR -->
 <div class="topbar">
-    <div class="topbar-left">
-        <img src="/static/logo.png" alt="Edge Crew" style="height:38px;border-radius:6px;margin-right:8px;vertical-align:middle;">
-        <div class="topbar-title">Edge Crew</div>
-        <div class="topbar-date" id="topbarDate"></div>
+    <div class="topbar-left" style="display:flex;align-items:center;gap:12px;">
+        <img src="/static/logo.png" alt="Edge Crew" style="height:32px;border-radius:8px;">
+        <div>
+            <div class="topbar-title" style="font-size:17px;line-height:1.2;">Edge Crew</div>
+            <div class="topbar-date" id="topbarDate" style="font-size:10px;color:var(--ec-text-tertiary);font-weight:500;"></div>
+        </div>
     </div>
-    <div class="crew">
-        <span class="crew-badge crew-peter">Peter</span>
-        <span class="crew-badge crew-chinny">Chinny</span>
-        <span class="crew-badge crew-jimmy">Jimmy</span>
-        <span class="crew-badge crew-alyssa">Alyssa</span>
-        <span class="crew-badge crew-sintonia">Sinton.ia</span>
-    </div>
-    <div class="sweep-time" id="sweepTime">Last sweep: --<br>Waiting for refresh</div>
-    <div style="display:flex;gap:6px;align-items:center;">
-        <a href="/bets" class="topbar-refresh" style="text-decoration:none;background:rgba(99,102,241,0.12);color:#818cf8;border-color:rgba(99,102,241,0.3);">TODAY'S BETS</a>
-        <button class="topbar-refresh" onclick="refreshSlate()">REFRESH SLATE</button>
+    <div style="display:flex;align-items:center;gap:8px;">
+        <!-- Status dot -->
+        <div id="sweepStatus" style="display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:var(--ec-radius-full);background:var(--ec-bg-secondary);border:1px solid var(--ec-border);font-size:10px;color:var(--ec-text-tertiary);font-weight:600;">
+            <span style="width:6px;height:6px;border-radius:50%;background:var(--ec-success);display:inline-block;"></span>
+            <span id="sweepTime">LIVE</span>
+        </div>
+        <!-- Crew avatars (compact) -->
+        <div class="crew" style="display:flex;gap:-4px;">
+            <span class="crew-badge crew-peter" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0;">P</span>
+            <span class="crew-badge crew-chinny" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0;margin-left:-4px;">C</span>
+            <span class="crew-badge crew-jimmy" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0;margin-left:-4px;">J</span>
+            <span class="crew-badge crew-alyssa" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0;margin-left:-4px;">A</span>
+            <span class="crew-badge crew-sintonia" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0;margin-left:-4px;">S</span>
+        </div>
+        <a href="/bets" style="text-decoration:none;padding:6px 14px;border-radius:var(--ec-radius-full);font-size:11px;font-weight:700;background:var(--ec-accent-subtle);color:var(--ec-accent-light);border:1px solid var(--ec-border-accent);transition:all 0.2s;">BETS</a>
+        <button class="topbar-refresh" onclick="refreshSlate()" style="padding:6px 14px;border-radius:var(--ec-radius-full);font-size:11px;font-weight:700;background:linear-gradient(135deg,var(--ec-accent),#a78bfa);color:#fff;border:none;cursor:pointer;transition:all 0.2s;letter-spacing:0.3px;">REFRESH</button>
         <div style="position:relative;">
-            <button onclick="toggleGearMenu()" style="cursor:pointer;padding:4px 10px;border-radius:20px;font-size:16px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.1);font-family:var(--ec-font-body);line-height:1;">&#9881;</button>
-            <div id="gearMenu" style="display:none;position:absolute;right:0;top:110%;background:#0f1018;border:1px solid rgba(255,255,255,0.1);border-radius:10px;min-width:160px;z-index:150;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.5);">
-                <button onclick="clearAllCache()" style="display:block;width:100%;text-align:left;padding:12px 16px;background:transparent;border:none;color:#EF4444;font-size:12px;font-weight:700;font-family:var(--ec-font-body);cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.06);">Clear Cache</button>
-                <button onclick="doLogout()" style="display:block;width:100%;text-align:left;padding:12px 16px;background:transparent;border:none;color:rgba(255,255,255,0.5);font-size:12px;font-weight:700;font-family:var(--ec-font-body);cursor:pointer;">Logout</button>
+            <button onclick="toggleGearMenu()" style="cursor:pointer;width:32px;height:32px;border-radius:50%;font-size:14px;background:var(--ec-bg-secondary);color:var(--ec-text-tertiary);border:1px solid var(--ec-border);font-family:var(--ec-font-body);display:flex;align-items:center;justify-content:center;transition:all 0.2s;">&#9881;</button>
+            <div id="gearMenu" style="display:none;position:absolute;right:0;top:calc(100% + 8px);background:var(--ec-bg-elevated);border:1px solid var(--ec-border);border-radius:var(--ec-radius-md);min-width:180px;z-index:150;overflow:hidden;box-shadow:var(--ec-shadow-lg);">
+                <button onclick="clearAllCache()" style="display:block;width:100%;text-align:left;padding:12px 16px;background:transparent;border:none;color:var(--ec-danger);font-size:12px;font-weight:600;font-family:var(--ec-font-body);cursor:pointer;border-bottom:1px solid var(--ec-border);transition:background 0.15s;">Clear Cache</button>
+                <button onclick="doLogout()" style="display:block;width:100%;text-align:left;padding:12px 16px;background:transparent;border:none;color:var(--ec-text-tertiary);font-size:12px;font-weight:600;font-family:var(--ec-font-body);cursor:pointer;transition:background 0.15s;">Logout</button>
             </div>
         </div>
     </div>
@@ -756,6 +994,30 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
     <div class="sport-tab utility-tab" onclick="switchSport('bankroll', event)">Bankroll</div>
     <div class="sport-tab utility-tab" onclick="switchSport('results', event)">Results <span class="tab-count">0</span></div>
 </div>
+</div>
+
+<!-- HERO STATS -->
+<div class="hero-stats" id="heroStats">
+    <div class="hero-card">
+        <div class="hero-label">Today's Record</div>
+        <div class="hero-value" id="heroRecord">--</div>
+        <div class="hero-sub neutral" id="heroHitRate">Refresh slate to load</div>
+    </div>
+    <div class="hero-card">
+        <div class="hero-label">Top Edge</div>
+        <div class="hero-value" id="heroTopEdge">--</div>
+        <div class="hero-sub neutral" id="heroTopEdgeSub">No edges loaded</div>
+    </div>
+    <div class="hero-card">
+        <div class="hero-label">Season ROI</div>
+        <div class="hero-value" id="heroROI">--</div>
+        <div class="hero-sub neutral" id="heroROISub">All picks</div>
+    </div>
+    <div class="hero-card">
+        <div class="hero-label">Streak</div>
+        <div class="hero-value" id="heroStreak">--</div>
+        <div class="hero-sub neutral" id="heroStreakSub">Start picking</div>
+    </div>
 </div>
 
 <!-- CONTENT -->
@@ -1496,9 +1758,9 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
 <div class="toast" id="toast">Pick locked!</div>
 
 <div class="footer">
-    Edge Crew by Sinton.ia | Crew Dashboard | No edge = no bet<br>
-    Peter + Chinny + Jimmy + Sinton.ia | Crew picks + upsets in every panel<br>
-    Sweep → Gotcha → Trends → Card → Peter picks → Chinny picks → Lock
+    <div style="font-weight:700;color:var(--ec-text-secondary);margin-bottom:4px;">Edge Crew</div>
+    <div>AI-Powered Sports Analytics — 11 Sports, Real Edges, Full Transparency</div>
+    <div style="margin-top:6px;color:var(--ec-text-tertiary);">No edge = no bet &bull; Built by the crew</div>
 </div>
 
 <!-- SUBMIT BAR -->
@@ -2595,6 +2857,76 @@ function calcPayout(odds, units) {
     else return (100 / Math.abs(o)) * u;
 }
 
+function updateHeroStats() {
+    var stored = JSON.parse(safeLoad('edgePicks') || '[]');
+    var today = toPSTDate();
+    var todayPicks = stored.filter(function(p) { return p.date === today && p.result; });
+    var todayW = todayPicks.filter(function(p) { return p.result === 'W'; }).length;
+    var todayL = todayPicks.filter(function(p) { return p.result === 'L'; }).length;
+    var todayTotal = todayW + todayL;
+    var hitRate = todayTotal > 0 ? ((todayW / todayTotal) * 100).toFixed(0) : 0;
+
+    var heroRecord = document.getElementById('heroRecord');
+    var heroHitRate = document.getElementById('heroHitRate');
+    if (heroRecord) heroRecord.textContent = todayTotal > 0 ? todayW + '-' + todayL : '0-0';
+    if (heroHitRate) {
+        heroHitRate.textContent = todayTotal > 0 ? hitRate + '% hit rate' : 'No graded picks today';
+        heroHitRate.className = 'hero-sub ' + (todayTotal === 0 ? 'neutral' : (parseFloat(hitRate) >= 55 ? 'positive' : 'negative'));
+    }
+
+    // Season ROI
+    var allGraded = stored.filter(function(p) { return p.result === 'W' || p.result === 'L'; });
+    var totalW = allGraded.filter(function(p) { return p.result === 'W'; }).length;
+    var totalL = allGraded.length - totalW;
+    var netU = 0;
+    var totalRisked = 0;
+    allGraded.forEach(function(p) {
+        var u = parseFloat(p.units) || 1;
+        totalRisked += u;
+        if (p.result === 'W') netU += calcPayout(p.odds, u);
+        else netU -= u;
+    });
+    var roi = totalRisked > 0 ? ((netU / totalRisked) * 100).toFixed(1) : 0;
+    var heroROI = document.getElementById('heroROI');
+    var heroROISub = document.getElementById('heroROISub');
+    if (heroROI) heroROI.textContent = allGraded.length >= 10 ? (roi >= 0 ? '+' : '') + roi + '%' : '--';
+    if (heroROISub) {
+        heroROISub.textContent = totalW + '-' + totalL + ' all picks';
+        heroROISub.className = 'hero-sub ' + (allGraded.length < 10 ? 'neutral' : (roi >= 0 ? 'positive' : 'negative'));
+    }
+
+    // Streak
+    var streak = 0;
+    var streakType = '';
+    for (var i = 0; i < stored.length; i++) {
+        if (!stored[i].result || stored[i].result === 'P') continue;
+        if (!streakType) streakType = stored[i].result;
+        if (stored[i].result === streakType) streak++;
+        else break;
+    }
+    var heroStreak = document.getElementById('heroStreak');
+    var heroStreakSub = document.getElementById('heroStreakSub');
+    if (heroStreak) heroStreak.textContent = streak > 0 ? (streakType === 'W' ? 'W' : 'L') + streak : '--';
+    if (heroStreakSub) {
+        heroStreakSub.textContent = streak > 0 ? (streakType === 'W' ? 'Hot streak' : 'Cold streak') : 'Start picking';
+        heroStreakSub.className = 'hero-sub ' + (streak === 0 ? 'neutral' : (streakType === 'W' ? 'positive' : 'negative'));
+    }
+
+    // Top edge — find highest grade game from current data
+    var heroTopEdge = document.getElementById('heroTopEdge');
+    var heroTopEdgeSub = document.getElementById('heroTopEdgeSub');
+    var bestGrade = document.querySelector('.ga, .gam');
+    if (bestGrade && heroTopEdge) {
+        var row = bestGrade.closest('.game-row');
+        if (row) {
+            var matchup = row.querySelector('.game-matchup');
+            heroTopEdge.textContent = matchup ? matchup.textContent.trim().substring(0, 12) : 'A+';
+            heroTopEdgeSub.textContent = 'Grade A edge';
+            heroTopEdgeSub.className = 'hero-sub positive';
+        }
+    }
+}
+
 function renderBankroll() {
     var stored = JSON.parse(safeLoad('edgePicks') || '[]');
     var startBR = parseFloat(safeLoad('edgeBankrollStart') || '1000');
@@ -2826,6 +3158,9 @@ function renderBankroll() {
             if (count) count.textContent = stored.length;
         }
     });
+
+    // Update hero stats
+    updateHeroStats();
 }
 
 // Sync server picks into localStorage (merge, don't overwrite)
