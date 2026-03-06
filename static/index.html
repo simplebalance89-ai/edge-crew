@@ -1572,6 +1572,14 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
         <button class="swim-btn" onclick="setSwimLane('Sinton.ia',this)" style="background:transparent;border:1px solid #A78BFA;color:#A78BFA;border-radius:6px;padding:6px 14px;font-family:var(--ec-font-body);font-weight:700;font-size:12px;cursor:pointer;">Sinton.ia</button>
     </div>
     <div id="bankrollPicks"></div>
+
+    <!-- Train Your Edge Agent — v3 teaser -->
+    <div style="margin:24px 0 8px;padding:20px;background:linear-gradient(135deg,rgba(99,102,241,0.06),rgba(167,139,250,0.06));border:1px dashed rgba(99,102,241,0.3);border-radius:14px;text-align:center;opacity:0.7;">
+        <div style="font-size:24px;margin-bottom:6px;">🧠</div>
+        <div style="color:#818cf8;font-size:16px;font-weight:800;margin-bottom:4px;">Train Your Edge Agent</div>
+        <div style="color:rgba(255,255,255,0.4);font-size:13px;line-height:1.5;">Coming in v3 — Build your own AI analyst. Set your style. Share with your crew.</div>
+        <div style="margin-top:10px;display:inline-block;padding:4px 12px;border-radius:4px;background:rgba(99,102,241,0.12);color:#818cf8;font-size:11px;font-weight:700;letter-spacing:0.5px;">COMING SOON</div>
+    </div>
 </div>
 </div>
 
@@ -1726,6 +1734,7 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
             <div class="slip-title">QUICK SLIP</div>
             <button class="slip-close" onclick="closeBetSlip()">&times;</button>
         </div>
+        <div style="padding:0 16px 8px;"><input type="text" id="slipTextPick" placeholder="Or type: Lakers ML 2u, Hornets +220 3u fire..." style="width:100%;padding:10px 14px;background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.3);border-radius:8px;color:#fff;font-size:14px;font-family:var(--ec-font-body);outline:none;" onkeydown="if(event.key==='Enter'){parseTextPick();event.preventDefault();}"></div>
         <div class="slip-pick" id="slipPick">MIL +3.0</div>
         <div class="slip-meta" id="slipMeta">CLE @ MIL &middot; NBA &middot; Spread</div>
 
@@ -2290,6 +2299,19 @@ function toggleSlipNote() {
         area.style.display = 'none';
         toggle.textContent = '+ Add Note';
     }
+}
+
+function parseTextPick() {
+    var input = document.getElementById('slipTextPick');
+    var text = input.value.trim();
+    if (!text) return;
+    input.value = '';
+    // Route through EV Agent for intelligent parsing
+    closeBetSlip();
+    openEVAgent();
+    collapseWelcomeChrome();
+    document.getElementById('agentInput').value = 'Lock this pick: ' + text;
+    sendAgentMsg();
 }
 
 function submitBetSlip() {
@@ -3135,6 +3157,8 @@ function renderBankroll() {
                     '<div style="color:rgba(255,255,255,0.4);font-size:12px;">' +
                         pick.name + ' | ' + (pick.sport || '?') + ' | ' + (pick.matchup || '') + ' | ' + (pick.odds || '') + ' | ' + (pick.units || 1) + 'u' +
                         (pick.type === 'Parlay' || (pick.legs && pick.legs.length) ? ' | PARLAY' : '') +
+                        (graded === 'W' ? ' | <span style="color:#10B981;font-weight:700;">+' + calcPayout(pick.odds, pick.units).toFixed(1) + 'u</span>' : '') +
+                        (graded === 'L' ? ' | <span style="color:#EF4444;font-weight:700;">-' + (parseFloat(pick.units)||1).toFixed(1) + 'u</span>' : '') +
                     '</div>' +
                     '<div style="color:rgba(255,255,255,0.3);font-size:11px;">' + (pick.date || '') + ' ' + (pick.time || '') + '</div>' +
                 '</div>' +
