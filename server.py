@@ -53,7 +53,7 @@ async def _autograde_loop():
                         if sport in SPORT_KEYS:
                             sports_needed.add(sport)
                     if not sports_needed:
-                        sports_needed = {"nba", "nhl"}
+                        sports_needed = {"nba", "wnba", "nhl"}
 
                     fetch_tasks = []
                     for sport in sports_needed:
@@ -744,6 +744,7 @@ async def _get_lineup_and_injury_context(sport):
 
     CBS_INJURY_URLS = {
         "nba": "https://www.cbssports.com/nba/injuries/",
+        "wnba": "https://www.cbssports.com/wnba/injuries/",
         "nhl": "https://www.cbssports.com/nhl/injuries/",
         "soccer": None,
     }
@@ -1126,6 +1127,7 @@ def _parse_event(event, sport_label):
 
 SPORT_KEYS = {
     "nba": ["basketball_nba"],
+    "wnba": ["basketball_wnba"],
     "nhl": ["icehockey_nhl"],
     "nfl": ["americanfootball_nfl"],
     "mlb": ["baseball_mlb"],
@@ -1229,7 +1231,7 @@ async def get_slate():
         return JSONResponse({"error": "No odds API configured"}, status_code=500)
 
     all_games = []
-    for sport in ["nba", "nhl", "mlb", "soccer", "mma", "boxing"]:
+    for sport in ["nba", "wnba", "nhl", "mlb", "soccer", "mma", "boxing"]:
         resp = await get_odds(sport)
         if hasattr(resp, 'body'):
             data = json.loads(resp.body)
@@ -2068,6 +2070,13 @@ _NBA_ABBREVS = {
     "den": "nuggets", "min": "timberwolves", "por": "trail blazers",
     "uta": "jazz", "sac": "kings", "phx": "suns",
 }
+_WNBA_ABBREVS = {
+    "nym": "liberty", "ny": "liberty", "lva": "aces", "lv": "aces",
+    "sea": "storm", "chi": "sky", "min": "lynx", "con": "sun", "ct": "sun",
+    "ind": "fever", "atl": "dream", "dal": "wings", "phx": "mercury",
+    "was": "mystics", "la": "sparks", "las": "sparks",
+}
+
 _NHL_ABBREVS = {
     "bos": "bruins", "bru": "bruins", "buf": "sabres", "car": "hurricanes",
     "cbj": "blue jackets", "col": "avalanche", "dal": "stars",
@@ -2085,10 +2094,12 @@ def _get_abbrevs_for_sport(sport: str) -> dict:
     s = (sport or "").lower()
     if s in ("nhl", "hockey"):
         return _NHL_ABBREVS
+    if s in ("wnba",):
+        return _WNBA_ABBREVS
     return _NBA_ABBREVS
 
 # Combined fallback for cases where sport isn't available
-_TEAM_ABBREVS = {**_NBA_ABBREVS, **_NHL_ABBREVS}
+_TEAM_ABBREVS = {**_NBA_ABBREVS, **_WNBA_ABBREVS, **_NHL_ABBREVS}
 
 
 def _expand_abbrevs(text: str, sport: str = "") -> str:
@@ -2326,7 +2337,7 @@ async def autograde_picks(request: Request):
         # Skip unknown sports instead of fetching everything
 
     if not sports_needed:
-        sports_needed = {"nba", "nhl"}  # fallback only if zero sports detected
+        sports_needed = {"nba", "wnba", "nhl"}  # fallback only if zero sports detected
 
     # Fetch scores for all sports IN PARALLEL (was sequential — very slow)
     fetch_tasks = []
@@ -2519,7 +2530,7 @@ async def agent_chat(request: Request):
         context_parts.append(f"RECENT PICKS:\n{picks_str}")
 
     # Add cached slate info if available — include odds so agent can share real lines
-    for sport in ["nba", "nhl", "mlb", "soccer", "mma", "boxing"]:
+    for sport in ["nba", "wnba", "nhl", "mlb", "soccer", "mma", "boxing"]:
         cache_key = f"{sport}:h2h,spreads,totals"
         cached = _get_cached(cache_key)
         if cached and cached.get("games"):
@@ -2827,6 +2838,7 @@ async def get_lineups(sport: str):
     # --- CBS SPORTS (primary - structured injury report) ---
     CBS_URLS = {
         "nba": "https://www.cbssports.com/nba/injuries/",
+        "wnba": "https://www.cbssports.com/wnba/injuries/",
         "nhl": "https://www.cbssports.com/nhl/injuries/",
     }
     cbs_url = CBS_URLS.get(sport_lower)
@@ -2902,6 +2914,7 @@ _ESPN_TEAM_IDS = {
     "nba": ["atl","bos","bkn","cha","chi","cle","dal","den","det","gs","hou","ind",
             "lac","lal","mem","mia","mil","min","no","ny","okc","orl","phi","phx",
             "por","sac","sa","tor","utah","wsh"],
+    "wnba": ["atl","chi","con","dal","ind","lva","la","min","ny","phx","sea","wsh"],
     "nhl": ["ana","ari","bos","buf","car","cgy","chi","col","cbj","dal","det","edm",
             "fla","la","min","mtl","nsh","njd","nyi","nyr","ott","phi","pit","sjs",
             "sea","stl","tb","tor","utah","van","vgk","wpg","wsh"],
@@ -2916,7 +2929,7 @@ async def get_rosters(sport: str):
     if cached:
         return JSONResponse(cached)
 
-    espn_sport = {"nba": "basketball/nba", "nhl": "hockey/nhl"}.get(sport_lower)
+    espn_sport = {"nba": "basketball/nba", "wnba": "basketball/wnba", "nhl": "hockey/nhl"}.get(sport_lower)
     team_ids = _ESPN_TEAM_IDS.get(sport_lower, [])
     if not espn_sport or not team_ids:
         return JSONResponse({"error": f"No roster source for {sport}"}, status_code=400)
@@ -2968,7 +2981,7 @@ async def debug_injuries(sport: str):
     """Debug endpoint: test CBS Sports injury fetch from this server."""
     import re
     sport_lower = sport.lower()
-    CBS_URLS = {"nba": "https://www.cbssports.com/nba/injuries/", "nhl": "https://www.cbssports.com/nhl/injuries/"}
+    CBS_URLS = {"nba": "https://www.cbssports.com/nba/injuries/", "wnba": "https://www.cbssports.com/wnba/injuries/", "nhl": "https://www.cbssports.com/nhl/injuries/"}
     url = CBS_URLS.get(sport_lower)
     if not url:
         return JSONResponse({"error": f"No CBS URL for {sport}"})
