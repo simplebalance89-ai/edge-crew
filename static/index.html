@@ -52,7 +52,7 @@
     --ec-sport-tennis:#84cc16; --ec-sport-wnba:#ec4899;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
-body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:var(--ec-font-body);min-height:100vh;padding-bottom:70px;}
+body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:var(--ec-font-body);min-height:100vh;padding-bottom:70px;max-width:600px;margin:0 auto;}
 
 /* ===== TOP BAR ===== */
 .topbar{
@@ -188,8 +188,8 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
 .modal-close:hover{border-color:var(--ec-border-hover);}
 
 .game-header{
-    display:grid;grid-template-columns:30px 60px 1fr 100px 80px 60px 1fr;
-    align-items:center;padding:14px 20px;gap:12px;
+    display:grid;grid-template-columns:30px 60px 1fr;
+    align-items:center;padding:14px 16px;gap:8px;
 }
 .game-time{font-size:12px;color:var(--ec-text-tertiary);font-weight:500;font-family:var(--ec-font-mono);}
 .game-matchup{font-family:var(--ec-font-heading);font-size:16px;font-weight:700;}
@@ -211,7 +211,7 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
     display:none;padding:0 20px 16px;border-top:1px solid var(--ec-border);
 }
 .game-row.expanded .game-detail{display:block;}
-.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px;}
+.detail-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:12px;}
 .detail-box{background:var(--ec-bg-elevated);border:1px solid var(--ec-border);border-radius:12px;padding:16px;}
 .detail-box h4{font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;font-weight:600;}
 .detail-box.peter h4{color:var(--ec-accent-light);}
@@ -234,7 +234,7 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
     border-radius:14px;padding:20px;
 }
 .upset-section h3{font-family:var(--ec-font-heading);color:var(--ec-accent-light);font-size:15px;font-weight:700;margin-bottom:12px;}
-.upset-submit-form{display:grid;grid-template-columns:minmax(180px,2fr) 80px 2fr auto;gap:8px;align-items:center;margin-bottom:16px;}
+.upset-submit-form{display:grid;grid-template-columns:1fr;gap:8px;align-items:center;margin-bottom:16px;}
 .upset-submit-form input,.upset-submit-form select{background:#08080c;color:#fff;border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:8px 10px;font-family:var(--ec-font-body);font-size:13px;}
 .upset-submit-form input:focus,.upset-submit-form select:focus{border-color:#818cf8;outline:none;}
 .upset-submit-form select option{background:#08080c;color:#fff;}
@@ -286,7 +286,7 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
 .form-group select{appearance:none;cursor:pointer;}
 .form-group select option{background:var(--ec-bg-elevated);color:var(--ec-text-primary);}
 .form-group textarea{resize:vertical;min-height:60px;}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.form-row{display:grid;grid-template-columns:1fr;gap:12px;}
 .confidence-btns{display:flex;gap:8px;}
 .conf-btn{padding:8px 16px;border-radius:10px;border:1px solid var(--ec-border);
     background:transparent;color:var(--ec-text-tertiary);font-family:var(--ec-font-body);
