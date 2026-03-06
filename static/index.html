@@ -543,41 +543,18 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
     .mobile-quick-bar{display:block;}
     body{padding-bottom:80px;}
 
-    /* Slim topbar: hide crew badges + sweep time on mobile */
+    /* Slim topbar on mobile */
     .crew{display:none !important;}
-    .sweep-time{display:none !important;}
-    .topbar{flex-wrap:nowrap;gap:8px;padding:8px 12px;}
+    #sweepStatus{display:none !important;}
+    .topbar{flex-wrap:nowrap;gap:6px;padding:0 12px;height:48px;}
     .topbar-left{gap:8px;}
-    .topbar-title{font-size:16px;}
-    .topbar-date{font-size:10px;}
+    .topbar-title{font-size:15px !important;}
+    .topbar-date{display:none !important;}
 
-    /* Sport tabs: icon-first compact pills on mobile */
-    .tabs-wrapper{position:sticky;top:56px;z-index:99;background:var(--ec-bg-primary);}
-    .sport-tabs{
-        display:flex;gap:4px;padding:8px 12px;overflow-x:auto;
-        scrollbar-width:none;flex-wrap:nowrap;
-    }
-    .sport-tabs::-webkit-scrollbar{display:none;}
-    .sport-tab{
-        display:flex;flex-direction:column;align-items:center;gap:2px;
-        padding:6px 10px;min-width:48px;min-height:48px;justify-content:center;
-        border-radius:12px;font-size:10px;
-    }
-    .sport-tab .tab-icon{font-size:1.2rem;line-height:1;}
-    .sport-tab .tab-label{font-size:9px;font-weight:700;letter-spacing:0.3px;}
-    .sport-tab .tab-count{
-        position:absolute;top:2px;right:2px;
-        font-size:8px;padding:1px 4px;min-width:14px;
-    }
-    .sport-tab{position:relative;}
-    .sport-row{padding:6px 8px;gap:4px;}
-    .utility-row{padding:4px 8px !important;gap:4px;}
-    .utility-tab{
-        min-height:40px !important;padding:6px 10px !important;font-size:9px !important;
-        flex-direction:column !important;gap:2px !important;
-    }
-    .utility-tab .tab-icon{font-size:1rem;}
-    .utility-tab .tab-label{font-size:8px !important;}
+    /* Mobile: hide top sport tabs — use bottom nav sport picker instead */
+    .tabs-wrapper{display:none !important;}
+    /* Hero stats right under topbar on mobile */
+    .hero-stats{padding:8px 12px 4px;margin-top:0;}
 
     /* Game header → stacked card */
     .game-header{
@@ -1018,7 +995,7 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
 </div>
 <div class="sport-tabs utility-row">
     <div class="sport-tab utility-tab" onclick="switchSport('props', event)"><span class="tab-icon">📊</span><span class="tab-label">Props</span> <span class="tab-count">0</span></div>
-    <div class="sport-tab utility-tab" onclick="switchSport('combined', event)"><span class="tab-icon">📋</span><span class="tab-label">Slate</span> <span class="tab-count">0</span></div>
+    <!-- Full Slate removed per Peter's request -->
     <div class="sport-tab utility-tab" onclick="switchSport('bankroll', event)"><span class="tab-icon">💰</span><span class="tab-label">Bank</span></div>
     <div class="sport-tab utility-tab" onclick="switchSport('results', event)"><span class="tab-icon">📈</span><span class="tab-label">Results</span> <span class="tab-count">0</span></div>
 </div>
@@ -3927,15 +3904,8 @@ function fetchLiveOdds(sport, onDone) {
             // Update sweep time with server timestamp
             var sweepEl = document.getElementById('sweepTime');
             if (sweepEl) {
-                var serverTime = data.fetched_at || toPST();
-                var booksUsed = (data.books_used && data.books_used.length) ? data.books_used.join(', ') : 'unknown';
                 var completeCount = data.lines_complete || 0;
-                var incompleteCount = data.lines_incomplete || 0;
-                var noLines = data.no_lines || 0;
-                var statusLine = completeCount + ' complete';
-                if (incompleteCount > 0) statusLine += ', ' + incompleteCount + ' incomplete';
-                if (noLines > 0) statusLine += ', ' + noLines + ' no lines';
-                sweepEl.innerHTML = 'Last sweep: ' + serverTime + '<br>Books: ' + booksUsed + '<br>' + statusLine;
+                sweepEl.textContent = completeCount > 0 ? 'LIVE' : 'LOADING';
             }
 
             var startedCount = (data.games ? data.games.length : 0) - pregameGames.length;
@@ -5406,21 +5376,20 @@ async function clearAllCache() {
         <button class="mqb-btn" ontouchend="event.preventDefault();openSportPicker()" onclick="openSportPicker()">
             <span class="mqb-icon">🏈</span>Games
         </button>
-        <button class="mqb-btn" ontouchend="event.preventDefault();switchSport('results')" onclick="switchSport('results',event)">
-            <span class="mqb-icon">📊</span>Results
+        <button class="mqb-btn" ontouchend="event.preventDefault();switchSport('props')" onclick="switchSport('props',event)">
+            <span class="mqb-icon">📊</span>Props
         </button>
         <button class="mqb-btn mqb-ai-hero" ontouchend="event.preventDefault();openEVAgent()" onclick="openEVAgent()" style="
             background:linear-gradient(135deg,var(--ec-accent),#a78bfa);
-            color:#fff;border-radius:16px;padding:10px 20px;
+            color:#fff;border-radius:16px;padding:10px 16px;
             box-shadow:0 4px 20px var(--ec-accent-glow);
-            margin-top:-12px;min-width:64px;min-height:56px;
-            position:relative;
+            margin-top:-14px;min-width:60px;min-height:56px;
         ">
-            <span class="mqb-icon" style="font-size:1.6rem;">🤖</span>
-            <span style="font-size:0.65rem;font-weight:800;letter-spacing:0.5px;">AI AGENT</span>
+            <span class="mqb-icon" style="font-size:1.5rem;">🤖</span>
+            <span style="font-size:0.6rem;font-weight:800;letter-spacing:0.3px;">AI</span>
         </button>
-        <button class="mqb-btn" ontouchend="event.preventDefault();switchSport('bankroll')" onclick="switchSport('bankroll',event)">
-            <span class="mqb-icon">💰</span>Bank
+        <button class="mqb-btn" ontouchend="event.preventDefault();switchSport('results')" onclick="switchSport('results',event)">
+            <span class="mqb-icon">📈</span>Results
         </button>
         <button class="mqb-btn" ontouchend="event.preventDefault();refreshSlate()" onclick="refreshSlate()">
             <span class="mqb-icon">🔄</span>Refresh
@@ -5433,10 +5402,22 @@ async function clearAllCache() {
     <div class="sport-picker-sheet" onclick="event.stopPropagation()">
         <div class="sport-picker-handle"></div>
         <div class="sport-picker-title">Pick a Sport</div>
-        <div class="sport-picker-grid">
+        <div class="sport-picker-grid" style="grid-template-columns:repeat(4,1fr);max-width:400px;">
             <button class="sport-pick-btn" onclick="pickSport('nba')">
                 <span class="sp-icon">🏀</span>NBA
                 <span class="sp-count" id="sp-count-nba"></span>
+            </button>
+            <button class="sport-pick-btn" onclick="pickSport('wnba')">
+                <span class="sp-icon">🏀</span>WNBA
+                <span class="sp-count" id="sp-count-wnba"></span>
+            </button>
+            <button class="sport-pick-btn" onclick="pickSport('ncaab')">
+                <span class="sp-icon">🎓</span>NCAAB
+                <span class="sp-count" id="sp-count-ncaab"></span>
+            </button>
+            <button class="sport-pick-btn" onclick="pickSport('ncaaf')">
+                <span class="sp-icon">🏈</span>NCAAF
+                <span class="sp-count" id="sp-count-ncaaf"></span>
             </button>
             <button class="sport-pick-btn" onclick="pickSport('nhl')">
                 <span class="sp-icon">🏒</span>NHL
@@ -5445,6 +5426,10 @@ async function clearAllCache() {
             <button class="sport-pick-btn" onclick="pickSport('mlb')">
                 <span class="sp-icon">⚾</span>MLB
                 <span class="sp-count" id="sp-count-mlb"></span>
+            </button>
+            <button class="sport-pick-btn" onclick="pickSport('tennis')">
+                <span class="sp-icon">🎾</span>Tennis
+                <span class="sp-count" id="sp-count-tennis"></span>
             </button>
             <button class="sport-pick-btn" onclick="pickSport('soccer')">
                 <span class="sp-icon">⚽</span>Soccer
@@ -5455,8 +5440,19 @@ async function clearAllCache() {
                 <span class="sp-count" id="sp-count-mma"></span>
             </button>
             <button class="sport-pick-btn" onclick="pickSport('boxing')">
-                <span class="sp-icon">🏆</span>Boxing
+                <span class="sp-icon">🥋</span>Boxing
                 <span class="sp-count" id="sp-count-boxing"></span>
+            </button>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:8px;justify-content:center;">
+            <button class="sport-pick-btn" onclick="pickSport('props')" style="flex:1;max-width:120px;flex-direction:row;gap:6px;padding:10px;">
+                <span class="sp-icon" style="font-size:1.2rem;">📊</span>Props
+            </button>
+            <button class="sport-pick-btn" onclick="pickSport('bankroll')" style="flex:1;max-width:120px;flex-direction:row;gap:6px;padding:10px;">
+                <span class="sp-icon" style="font-size:1.2rem;">💰</span>Bank
+            </button>
+            <button class="sport-pick-btn" onclick="pickSport('results')" style="flex:1;max-width:120px;flex-direction:row;gap:6px;padding:10px;">
+                <span class="sp-icon" style="font-size:1.2rem;">📈</span>Results
             </button>
         </div>
     </div>
