@@ -1130,6 +1130,7 @@ SPORT_KEYS = {
     "nba": ["basketball_nba"],
     "wnba": ["basketball_wnba"],
     "ncaab": ["basketball_ncaab"],
+    "ncaaf": ["americanfootball_ncaaf"],
     "nhl": ["icehockey_nhl"],
     "nfl": ["americanfootball_nfl"],
     "mlb": ["baseball_mlb"],
@@ -1166,6 +1167,30 @@ SPORT_KEYS = {
         "soccer_mexico_ligamx",
     ],
 }
+
+
+_active_tennis_cache = {"keys": [], "fetched_at": 0}
+
+
+async def _get_active_tennis_keys():
+    """Fetch currently active tennis tournament keys from The Odds API. Cached 1 hour."""
+    now = time.time()
+    if _active_tennis_cache["keys"] and now - _active_tennis_cache["fetched_at"] < 3600:
+        return _active_tennis_cache["keys"]
+    try:
+        url = f"{ODDS_API_BASE}/"
+        params = {"apiKey": ODDS_API_KEY}
+        async with httpx.AsyncClient(timeout=10) as client:
+            r = await client.get(url, params=params)
+            if r.status_code == 200:
+                sports = r.json()
+                keys = [s["key"] for s in sports if s["key"].startswith("tennis_") and s.get("active")]
+                _active_tennis_cache["keys"] = keys
+                _active_tennis_cache["fetched_at"] = now
+                return keys
+    except Exception:
+        pass
+    return SPORT_KEYS.get("tennis", [])  # fallback to hardcoded list
 
 
 async def _fetch_sport_odds(sport_key, markets, sport_label):
@@ -1208,7 +1233,10 @@ async def get_odds(sport: str, markets: str = "h2h,spreads,totals"):
 
     # --- PRIMARY: The Odds API ---
     if ODDS_API_KEY:
-        keys = SPORT_KEYS.get(sport_lower, [sport_lower])
+        if sport_lower == "tennis":
+            keys = await _get_active_tennis_keys()
+        else:
+            keys = SPORT_KEYS.get(sport_lower, [sport_lower])
         for key in keys:
             games = await _fetch_sport_odds(key, markets, label)
             all_games.extend(games)
@@ -1256,7 +1284,7 @@ async def get_slate():
         return JSONResponse({"error": "No odds API configured"}, status_code=500)
 
     all_games = []
-    for sport in ["nba", "wnba", "ncaab", "nhl", "mlb", "tennis", "soccer", "mma", "boxing"]:
+    for sport in ["nba", "wnba", "ncaab", "ncaaf", "nhl", "mlb", "tennis", "soccer", "mma", "boxing"]:
         resp = await get_odds(sport)
         if hasattr(resp, 'body'):
             data = json.loads(resp.body)
@@ -2575,7 +2603,7 @@ async def agent_chat(request: Request):
         context_parts.append(f"RECENT PICKS:\n{picks_str}")
 
     # Add cached slate info if available — include odds so agent can share real lines
-    for sport in ["nba", "wnba", "ncaab", "nhl", "mlb", "tennis", "soccer", "mma", "boxing"]:
+    for sport in ["nba", "wnba", "ncaab", "ncaaf", "nhl", "mlb", "tennis", "soccer", "mma", "boxing"]:
         cache_key = f"{sport}:h2h,spreads,totals"
         cached = _get_cached(cache_key)
         if cached and cached.get("games"):

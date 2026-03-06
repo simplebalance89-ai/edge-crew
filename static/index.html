@@ -716,6 +716,7 @@ body{background:#0A0A0A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
     <div class="sport-tab active" onclick="switchSport('nba', event)">NBA <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('wnba', event)">WNBA <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('ncaab', event)">NCAAB <span class="tab-count">0</span></div>
+    <div class="sport-tab" onclick="switchSport('ncaaf', event)">NCAAF <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('nhl', event)">NHL <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('mlb', event)">MLB <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('tennis', event)">Tennis <span class="tab-count">0</span></div>
@@ -1152,7 +1153,7 @@ body{background:#0A0A0A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
             <input type="text" id="customPropOdds" placeholder="Odds (-110)" style="padding:8px 10px;background:#0A0A0A;border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#fff;font-size:13px;font-family:'Nunito',sans-serif;">
             <input type="text" id="customPropMatchup" placeholder="Matchup (NYK @ BOS)" style="padding:8px 10px;background:#0A0A0A;border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#fff;font-size:13px;font-family:'Nunito',sans-serif;">
             <select id="customPropSport" style="padding:8px 10px;background:#0A0A0A;border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#fff;font-size:13px;font-family:'Nunito',sans-serif;">
-                <option value="NBA">NBA</option><option value="WNBA">WNBA</option><option value="NCAAB">NCAAB</option><option value="NHL">NHL</option><option value="NFL">NFL</option><option value="MLB">MLB</option><option value="TENNIS">Tennis</option><option value="SOCCER">Soccer</option><option value="MMA">MMA</option><option value="BOXING">Boxing</option>
+                <option value="NBA">NBA</option><option value="WNBA">WNBA</option><option value="NCAAB">NCAAB</option><option value="NCAAF">NCAAF</option><option value="NHL">NHL</option><option value="NFL">NFL</option><option value="MLB">MLB</option><option value="TENNIS">Tennis</option><option value="SOCCER">Soccer</option><option value="MMA">MMA</option><option value="BOXING">Boxing</option>
             </select>
         </div>
         <div style="display:flex;gap:8px;">
@@ -1301,6 +1302,7 @@ body{background:#0A0A0A;color:#fff;font-family:'Nunito',sans-serif;min-height:10
                 <option value="NBA">NBA</option>
                 <option value="WNBA">WNBA</option>
                 <option value="NCAAB">NCAAB</option>
+                <option value="NCAAF">NCAAF</option>
                 <option value="NHL">NHL</option>
                 <option value="NFL">NFL</option>
                 <option value="MLB">MLB</option>
@@ -2916,7 +2918,7 @@ function saveGotcha(sport) {
 
 // Load saved gotcha + bankroll from server (localStorage fallback)
 (function() {
-    var gotchaSports = ['NBA', 'WNBA', 'NCAAB', 'NHL', 'TENNIS', 'SOCCER', 'MMA', 'BOXING'];
+    var gotchaSports = ['NBA', 'WNBA', 'NCAAB', 'NCAAF', 'NHL', 'TENNIS', 'SOCCER', 'MMA', 'BOXING'];
 
     function applyGotcha(sport, text) {
         var display = document.getElementById('gotchaDisplay-' + sport);
@@ -4283,7 +4285,7 @@ function loadProps(sportFilter) {
     var allProps = [];
 
     // Only load for the selected sport
-    var sportsToScan = filterKey ? [filterKey] : ['NBA','WNBA','NCAAB','NHL','MLB','TENNIS','SOCCER','MMA','BOXING'];
+    var sportsToScan = filterKey ? [filterKey] : ['NBA','WNBA','NCAAB','NCAAF','NHL','MLB','TENNIS','SOCCER','MMA','BOXING'];
     sportsToScan.forEach(function(sport) {
         var cached = _analysisCache[sport];
         if (!cached || !cached.games) return;
@@ -4737,7 +4739,7 @@ function lockCustomPropCard() {
 }
 
 // ===== UPSET SPECIALS — CREW PICKS =====
-var UPSET_SPORTS = ['NBA', 'WNBA', 'NCAAB', 'NHL', 'MLB', 'TENNIS', 'SOCCER', 'MMA', 'BOXING'];
+var UPSET_SPORTS = ['NBA', 'WNBA', 'NCAAB', 'NCAAF', 'NHL', 'MLB', 'TENNIS', 'SOCCER', 'MMA', 'BOXING'];
 var NAME_COLORS = {peter: 'peter', chinny: 'chinny', jimmy: 'jimmy', alyssa: 'alyssa', 'sinton.ia': 'sintonia'};
 
 function getUpsetName() {
@@ -5354,6 +5356,7 @@ async function clearAllCache() {
         <button class="ev-sport-mode" onclick="evSetMode('nba',this)"><span class="esm-icon">🏀</span>NBA</button>
         <button class="ev-sport-mode" onclick="evSetMode('wnba',this)"><span class="esm-icon">🏀</span>WNBA</button>
         <button class="ev-sport-mode" onclick="evSetMode('ncaab',this)"><span class="esm-icon">🏀</span>NCAAB</button>
+        <button class="ev-sport-mode" onclick="evSetMode('ncaaf',this)"><span class="esm-icon">🏈</span>NCAAF</button>
         <button class="ev-sport-mode" onclick="evSetMode('nhl',this)"><span class="esm-icon">🏒</span>NHL</button>
         <button class="ev-sport-mode" onclick="evSetMode('mlb',this)"><span class="esm-icon">⚾</span>MLB</button>
         <button class="ev-sport-mode" onclick="evSetMode('tennis',this)"><span class="esm-icon">🎾</span>Tennis</button>
@@ -5430,7 +5433,7 @@ function toggleAgentChat() {
 
 /* ---- Sport Modes ---- */
 function evSetMode(sport, btn) {
-    var modeNames = {nba:'NBA',wnba:'WNBA',ncaab:'NCAAB',nhl:'NHL',mlb:'MLB',tennis:'Tennis',soccer:'Soccer',mma:'MMA/Boxing',full:'Full Slate'};
+    var modeNames = {nba:'NBA',wnba:'WNBA',ncaab:'NCAAB',ncaaf:'NCAAF',nhl:'NHL',mlb:'MLB',tennis:'Tennis',soccer:'Soccer',mma:'MMA/Boxing',full:'Full Slate'};
     _evSportMode = sport;
     // Update button states
     document.querySelectorAll('.ev-sport-mode').forEach(function(b){b.classList.remove('active');});
