@@ -614,9 +614,9 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
     .combined-cards-mobile{display:none !important;}
     .tabs-wrapper::after{display:none;}
     body{padding-bottom:80px;}
-    /* Center and widen the nav bar on desktop */
+    /* Center nav bar to match body max-width on desktop */
     .mobile-quick-bar{
-        max-width:600px;left:50%;transform:translateX(-50%);right:auto;
+        max-width:600px;left:0;right:0;margin:0 auto;
         border-radius:16px 16px 0 0;border:1px solid var(--ec-border);border-bottom:none;
     }
     .mobile-quick-bar-inner{gap:8px;}
@@ -624,11 +624,8 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
     .mqb-btn .mqb-icon{font-size:1.6rem;}
     /* Sport picker sheet centered on desktop */
     .sport-picker-sheet{
-        max-width:480px;left:50%;transform:translateX(-50%) translateY(100%);right:auto;
+        max-width:480px;left:0;right:0;margin:0 auto;
         border-radius:20px 20px 0 0;
-    }
-    .sport-picker-overlay.visible .sport-picker-sheet{
-        transform:translateX(-50%) translateY(0);
     }
     .sport-picker-grid{grid-template-columns:repeat(5,1fr) !important;max-width:450px !important;}
 }
