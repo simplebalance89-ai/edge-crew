@@ -3245,6 +3245,16 @@ async def bets_page():
     return FileResponse("static/bets.html", headers=NO_CACHE_HEADERS)
 
 
+@app.get("/ev")
+async def ev_page():
+    return FileResponse("static/ev.html", headers=NO_CACHE_HEADERS)
+
+
+@app.get("/picks")
+async def picks_page():
+    return FileResponse("static/picks.html", headers=NO_CACHE_HEADERS)
+
+
 @app.get("/")
 async def root():
     return FileResponse("static/index.html", headers=NO_CACHE_HEADERS)

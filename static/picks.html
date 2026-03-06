@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0A0A0A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Add Pick — Edge Crew</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+    --bg:#08080c;--bg2:#0f1018;--accent:#6366f1;--accent-light:#818cf8;
+    --turq:#2dd4bf;--silver:#c0c0c0;--danger:#ef4444;--success:#10B981;
+    --text:#f1f5f9;--text2:#94a3b8;--text3:#64748b;--border:rgba(255,255,255,0.06);
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;}
+
+.picks-page{display:flex;flex-direction:column;height:100%;height:100dvh;}
+.picks-header{
+    display:flex;align-items:center;gap:10px;padding:12px 16px;
+    background:var(--bg2);border-bottom:1px solid var(--border);flex:0 0 auto;
+}
+.picks-back{background:none;border:none;color:var(--accent-light);font-size:24px;cursor:pointer;padding:4px 8px;line-height:1;}
+.picks-title{flex:1;font-size:16px;font-weight:800;color:var(--accent-light);}
+
+.picks-body{flex:1;overflow-y:auto;padding:20px 16px;-webkit-overflow-scrolling:touch;}
+
+/* Quick text entry */
+.quick-text{margin-bottom:20px;}
+.quick-text label{display:block;color:var(--text2);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;}
+.quick-text input{
+    width:100%;padding:14px 16px;background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.3);
+    border-radius:12px;color:#fff;font-size:16px;font-family:inherit;outline:none;
+}
+.quick-text input:focus{border-color:var(--accent);}
+.quick-text .hint{color:var(--text3);font-size:11px;margin-top:4px;}
+
+.divider{text-align:center;color:var(--text3);font-size:12px;padding:12px 0;font-weight:600;}
+
+/* Form fields */
+.form-group{margin-bottom:16px;}
+.form-group label{display:block;color:var(--text2);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;}
+.form-group input, .form-group select{
+    width:100%;padding:12px 14px;background:rgba(255,255,255,0.06);border:1px solid var(--border);
+    border-radius:10px;color:#fff;font-size:15px;font-family:inherit;outline:none;
+}
+.form-group input:focus, .form-group select:focus{border-color:var(--accent);}
+.form-group select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23818cf8' stroke-width='3'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;}
+.form-group select option{background:#1a1a2e;color:#fff;}
+
+/* Sport pills */
+.sport-pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+.sport-pill{
+    padding:8px 14px;border-radius:100px;border:1px solid var(--border);
+    background:transparent;color:var(--text2);font-size:13px;cursor:pointer;
+    font-family:inherit;font-weight:600;
+}
+.sport-pill.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+
+/* Button group */
+.btn-group{display:flex;gap:8px;}
+.btn-opt{
+    flex:1;padding:10px;border-radius:8px;border:1px solid var(--border);
+    background:transparent;color:var(--text2);font-size:13px;font-weight:700;
+    cursor:pointer;font-family:inherit;text-align:center;
+}
+.btn-opt.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+
+/* Submit */
+.submit-btn{
+    width:100%;padding:16px;margin-top:20px;border:none;border-radius:12px;
+    background:linear-gradient(135deg,var(--accent),var(--turq));
+    color:#fff;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit;
+    letter-spacing:0.5px;
+}
+.submit-btn:active{transform:scale(0.98);}
+</style>
+</head>
+<body>
+<div class="picks-page">
+    <div class="picks-header">
+        <button class="picks-back" onclick="location.href='/'">&larr;</button>
+        <div class="picks-title">Add Pick</div>
+    </div>
+
+    <div class="picks-body">
+        <!-- Quick text entry -->
+        <div class="quick-text">
+            <label>Quick Entry</label>
+            <input type="text" id="quickText" placeholder="Lakers ML 2u, Hornets +220 3u fire..." onkeydown="if(event.key==='Enter'){parseQuickPick();event.preventDefault();}">
+            <div class="hint">Type naturally — "Celtics -3.5 $50" or "Over 215.5 BOS/MIA"</div>
+        </div>
+
+        <div class="divider">— or fill in manually —</div>
+
+        <!-- Sport -->
+        <div class="form-group">
+            <label>Sport</label>
+            <div class="sport-pills" id="sportPills">
+                <button class="sport-pill active" onclick="pickSport('nba',this)">NBA</button>
+                <button class="sport-pill" onclick="pickSport('nhl',this)">NHL</button>
+                <button class="sport-pill" onclick="pickSport('mlb',this)">MLB</button>
+                <button class="sport-pill" onclick="pickSport('ncaab',this)">NCAAB</button>
+                <button class="sport-pill" onclick="pickSport('soccer',this)">Soccer</button>
+                <button class="sport-pill" onclick="pickSport('mma',this)">MMA</button>
+                <button class="sport-pill" onclick="pickSport('boxing',this)">Boxing</button>
+            </div>
+        </div>
+
+        <!-- Matchup -->
+        <div class="form-group">
+            <label>Matchup</label>
+            <input type="text" id="pickMatchup" placeholder="e.g. LAL @ BOS">
+        </div>
+
+        <!-- Selection -->
+        <div class="form-group">
+            <label>Selection</label>
+            <input type="text" id="pickSelection" placeholder="e.g. Lakers ML, BOS -3.5, Over 215.5">
+        </div>
+
+        <!-- Odds -->
+        <div class="form-group">
+            <label>Odds</label>
+            <input type="text" id="pickOdds" value="-110" placeholder="-110 or +220">
+        </div>
+
+        <!-- Units -->
+        <div class="form-group">
+            <label>Units</label>
+            <div class="btn-group" id="unitsGroup">
+                <button class="btn-opt active" onclick="pickUnits('1',this)">1</button>
+                <button class="btn-opt" onclick="pickUnits('2',this)">2</button>
+                <button class="btn-opt" onclick="pickUnits('3',this)">3</button>
+                <button class="btn-opt" onclick="pickUnits('5',this)">5</button>
+            </div>
+        </div>
+
+        <!-- Confidence -->
+        <div class="form-group">
+            <label>Confidence</label>
+            <div class="btn-group" id="confGroup">
+                <button class="btn-opt active" onclick="pickConf('Lean',this)">Lean</button>
+                <button class="btn-opt" onclick="pickConf('Strong',this)">Strong</button>
+                <button class="btn-opt" onclick="pickConf('Fire',this)">🔥 Fire</button>
+            </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="form-group">
+            <label>Notes (optional)</label>
+            <input type="text" id="pickNotes" placeholder="Any notes...">
+        </div>
+
+        <button class="submit-btn" id="submitBtn" onclick="submitPick()">LOCK THIS PICK</button>
+    </div>
+</div>
+
+<script>
+function safeSave(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+function safeLoad(k){try{return localStorage.getItem(k)}catch(e){return null}}
+var crewToken = safeLoad('edgeCrewToken') || '';
+function crewFetch(url,opts){
+    opts=opts||{};opts.headers=opts.headers||{};
+    if(crewToken) opts.headers['X-Crew-Token']=crewToken;
+    return fetch(url,opts);
+}
+
+var _sport = 'nba';
+var _units = '1';
+var _conf = 'Lean';
+
+function pickSport(s, btn) {
+    _sport = s;
+    document.querySelectorAll('.sport-pill').forEach(function(b){b.classList.remove('active')});
+    btn.classList.add('active');
+}
+function pickUnits(u, btn) {
+    _units = u;
+    document.querySelectorAll('#unitsGroup .btn-opt').forEach(function(b){b.classList.remove('active')});
+    btn.classList.add('active');
+}
+function pickConf(c, btn) {
+    _conf = c;
+    document.querySelectorAll('#confGroup .btn-opt').forEach(function(b){b.classList.remove('active')});
+    btn.classList.add('active');
+}
+
+function parseQuickPick() {
+    var text = document.getElementById('quickText').value.trim();
+    if (!text) return;
+    // Route to EV agent for intelligent parsing
+    safeSave('_quickPickText', text);
+    location.href = '/ev?quick=' + encodeURIComponent(text);
+}
+
+function submitPick() {
+    var matchup = document.getElementById('pickMatchup').value.trim();
+    var selection = document.getElementById('pickSelection').value.trim();
+    var odds = document.getElementById('pickOdds').value.trim() || '-110';
+    var notes = document.getElementById('pickNotes').value.trim();
+
+    if (!selection) { alert('Enter a selection'); return; }
+
+    var who = safeLoad('edgeCrewName') || 'Peter';
+    var pick = {
+        name: who, sport: _sport,
+        type: detectPickType(selection),
+        matchup: matchup, selection: selection,
+        odds: odds, units: _units, confidence: _conf,
+        notes: notes, date: new Date().toISOString().slice(0,10),
+        time: new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}),
+        created_at: new Date().toISOString()
+    };
+
+    var stored = JSON.parse(safeLoad('edgePicks') || '[]');
+    stored.unshift(pick);
+    safeSave('edgePicks', JSON.stringify(stored));
+
+    var btn = document.getElementById('submitBtn');
+    btn.textContent = 'LOCKING...';
+    btn.disabled = true;
+
+    crewFetch('/api/picks', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(pick)
+    }).then(function(){
+        location.href = '/';
+    }).catch(function(){
+        location.href = '/';
+    });
+}
+
+function detectPickType(sel) {
+    var s = (sel||'').toLowerCase();
+    if (s.includes('over')||s.includes('under')) return 'Over/Under';
+    if (s.includes('ml')||s.includes('money')) return 'Moneyline';
+    if (/[+-]\d/.test(s)) return 'Spread';
+    return 'Moneyline';
+}
+</script>
+</body>
+</html>
