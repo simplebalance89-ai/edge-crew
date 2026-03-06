@@ -623,6 +623,8 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
     }
     .mobile-quick-bar-inner{max-width:1600px;gap:12px;}
     .mqb-btn{min-width:80px;font-size:0.75rem;}
+    /* Submit bar sits above nav bar on desktop too */
+    .submit-bar{bottom:60px;}
     .mqb-btn .mqb-icon{font-size:1.6rem;}
     /* Sport picker sheet wider on desktop */
     .sport-picker-sheet{
@@ -5458,16 +5460,15 @@ async function clearAllCache() {
         <button class="mqb-btn" ontouchend="event.preventDefault();switchSport('props')" onclick="switchSport('props',event)">
             <span class="mqb-icon">📊</span>Props
         </button>
-        <a class="mqb-btn mqb-ai-hero" href="/ev" style="
+        <button class="mqb-btn mqb-ai-hero" onclick="toggleAgentChat()" style="
             background:linear-gradient(135deg,var(--ec-accent),#a78bfa);
             color:#fff;border-radius:16px;padding:8px 14px;
             box-shadow:0 4px 20px var(--ec-accent-glow);
             margin-top:-14px;min-width:60px;min-height:56px;
-            text-decoration:none;
         ">
             <span class="mqb-icon" style="font-size:1.4rem;">🤖</span>
             <span style="font-size:0.55rem;font-weight:800;letter-spacing:0.3px;">EV AGENT</span>
-        </a>
+        </button>
         <button class="mqb-btn" ontouchend="event.preventDefault();switchSport('results')" onclick="switchSport('results',event)">
             <span class="mqb-icon">📈</span>Results
         </button>

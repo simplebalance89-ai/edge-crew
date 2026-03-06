@@ -1988,6 +1988,15 @@ Generate analysis in this EXACT JSON format:
   ]
 }}
 
+HARD RULES — NEVER BREAK THESE:
+1. NEVER grade a moneyline play as A or B if the ML is worse than -190. Past -190, the edge is in the spread, not the ML. Flag it: "ML too juiced — take spread instead."
+2. NEVER suggest a player prop without considering games played this season. If a player has < 20 games, FLAG IT: "Returning from injury / limited sample / possible minutes restriction." Grade that prop C or lower regardless of the line.
+3. ALL player prop analysis uses LAST 10 GAME averages, not season averages. Season stats lie for guys who missed time. If you don't have last 10 data, say so: "No recent game log available."
+4. FULL LINEUP CONTEXT before grading ANY game. If a star player is OUT, LIMITED, or returning from injury, the ENTIRE team analysis changes — scoring output, pace, defensive matchups, everything. The spread already prices this in — your analysis must too. Don't grade a team as if they have their full roster when they don't.
+5. If you don't have current injury/lineup data, SAY SO. "Injury report not confirmed" is better than a confident wrong analysis. Do not fabricate injury status.
+6. Be SPECIFIC in injury_impact. Name the player, their status (OUT/GTD/QUESTIONABLE), and exactly how it changes the line. "Key players may be out" is garbage. "Jimmy Butler OUT — Heat lose 20 PPG, 6 APG, primary creator" is analysis.
+7. edge_question must have a REAL answer or the grade is D/F. "Team X is better" is not an edge. "Line hasn't moved despite Butler being ruled out 2 hours ago" IS an edge.
+
 GRADING RULES:
 - Use the SCORING MATRIX above. Fill in matrix_scores for each game with ALL variables scored 1-10.
 - composite_score = (sum of all weighted scores) / max_possible * 10. Round to 1 decimal.
@@ -1998,10 +2007,10 @@ GRADING RULES:
 - injury_impact is MANDATORY. Check the RotoWire data above. Name specific players.
 - If RotoWire data is unavailable, flag it: "Injury data not confirmed - grade with caution."
 - rest_schedule is MANDATORY. Check game times for B2B detection.
-- Chinny props: top 3-5 per game, B+ grade minimum. Skip for INCOMPLETE. Each prop MUST have player name, prop line, odds estimate, individual grade (A/B+/B/C), and 1-sentence edge explanation.
+- Chinny props: top 3-5 per game, B+ grade minimum. Skip for INCOMPLETE. Each prop MUST have player name, prop line, odds estimate, individual grade (A/B+/B/C), and 1-sentence edge explanation. EVERY prop must note games played this season if available. < 20 games = auto-flag.
 - CRITICAL — ROSTER CHECK: Use the CURRENT ROSTERS section above to verify which team each player is on BEFORE suggesting props. Players get traded mid-season. Do NOT assume a player is on the same team as last year. If a player is NOT in the roster data for a team, do NOT suggest props for that player under that team's game.
 - PASS games get grade D or F with explicit reason.
-- Be brutally honest. C means marginal. D means no edge. F means trap.
+- Be brutally honest. C means marginal. D means no edge. F means trap. "Slight edge" with no specifics = D grade, not B.
 
 Return ONLY valid JSON. No markdown. No explanation."""
 
