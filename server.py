@@ -2191,8 +2191,8 @@ def _teams_match(pick_text: str, home: str, away: str) -> bool:
     # Check if both team names (or significant parts) appear in the pick matchup
     h_parts = h.split()
     a_parts = a.split()
-    h_match = any(p in pt for p in h_parts if len(p) > 2) or h in pt
-    a_match = any(p in pt for p in a_parts if len(p) > 2) or a in pt
+    h_match = any(p in pt for p in h_parts if len(p) > 3) or h in pt
+    a_match = any(p in pt for p in a_parts if len(p) > 3) or a in pt
     return h_match and a_match
 
 
@@ -2230,6 +2230,10 @@ def _grade_pick_against_score(pick: dict, game: dict) -> str | None:
     away = _normalize_team(game.get("away_team", ""))
     home_score = score_map.get(home, 0)
     away_score = score_map.get(away, 0)
+
+    # Skip games where both scores are 0 — likely not actually played or data missing
+    if home_score == 0 and away_score == 0:
+        return None
 
     selection = pick.get("selection", "")
     pick_type = pick.get("type", "").lower()
@@ -2339,8 +2343,9 @@ def _grade_parlay(pick: dict, completed_games: list) -> str | None:
         for game in completed_games:
             home = game.get("home_team", "")
             away = game.get("away_team", "")
-            # Try matching this leg to a game
-            if _teams_match(leg["selection"], home, away) or _teams_match(pick.get("matchup", ""), home, away):
+            # Try matching this leg to a game — only match on the leg's own selection,
+            # NOT the full parlay matchup string (which contains all teams and causes false matches)
+            if _teams_match(leg["selection"], home, away):
                 result = _grade_pick_against_score(leg_pick, game)
                 if result:
                     leg_results.append(result)
