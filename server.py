@@ -2008,8 +2008,8 @@ GRADING RULES:
 - injury_impact is MANDATORY. Check the RotoWire data above. Name specific players.
 - If RotoWire data is unavailable, flag it: "Injury data not confirmed - grade with caution."
 - rest_schedule is MANDATORY. Check game times for B2B detection.
-- Chinny props: top 3-5 per game, B+ grade minimum. Skip for INCOMPLETE. Each prop MUST have player name, prop line, odds estimate, individual grade (A/B+/B/C), and 1-sentence edge explanation. EVERY prop must note games played this season if available. < 20 games = auto-flag.
-- CRITICAL — ROSTER CHECK: Use the CURRENT ROSTERS section above to verify which team each player is on BEFORE suggesting props. Players get traded mid-season. Do NOT assume a player is on the same team as last year. If a player is NOT in the roster data for a team, do NOT suggest props for that player under that team's game.
+- Chinny props: top 3-5 per game, B+ grade minimum. Skip for INCOMPLETE or TBD. Each prop MUST have player name, prop line, odds estimate, individual grade (A/B+/B/C), and 1-sentence edge explanation. EVERY prop must note games played this season if available. < 20 games = auto-flag.
+- ABSOLUTE ROSTER LOCK: A player prop can ONLY be suggested for a player who appears in the CURRENT ROSTERS data for one of the two teams in that specific game. If "Jayson Tatum" is in the BOS roster and the game is NYK @ DEN, you CANNOT suggest a Tatum prop on that game — he is NOT playing in it. This is non-negotiable. Check the roster list, find the player, confirm the team matches the game. If the player is not in either team's roster for that game, DO NOT suggest the prop. Period.
 - PASS games get grade D or F with explicit reason.
 - Be brutally honest. C means marginal. D means no edge. F means trap. "Slight edge" with no specifics = D grade, not B.
 
