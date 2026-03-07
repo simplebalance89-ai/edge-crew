@@ -2417,15 +2417,24 @@ function refreshSlate() {
         }
     }
 
-    // Clear server cache + refresh rosters before fetching fresh data
-    crewFetch('/api/cache/clear', {method:'POST'}).catch(function(){});
-    sportsToLoad.forEach(function(sport) {
-        crewFetch('/api/rosters/' + sport).catch(function(){});
-    });
-
-    // Fetch live odds for all sports
-    sportsToLoad.forEach(function(sport) {
-        fetchLiveOdds(sport, onSportLoaded);
+    // Hard clear: server cache + browser Cache API + then fetch fresh
+    // 1. Nuke browser Cache API (service worker caches)
+    var browserClearDone = Promise.resolve();
+    if ('caches' in window) {
+        browserClearDone = caches.keys().then(function(names) {
+            return Promise.all(names.map(function(n) { return caches.delete(n); }));
+        }).catch(function(){});
+    }
+    // 2. Clear server cache (await it — don't race)
+    var serverClearDone = crewFetch('/api/cache/clear', {method:'POST'}).catch(function(){});
+    // 3. Wait for BOTH clears, then fetch fresh data
+    Promise.all([browserClearDone, serverClearDone]).then(function() {
+        sportsToLoad.forEach(function(sport) {
+            crewFetch('/api/rosters/' + sport).catch(function(){});
+        });
+        sportsToLoad.forEach(function(sport) {
+            fetchLiveOdds(sport, onSportLoaded);
+        });
     });
 
     // Props now reload in _analysisLoadCallback after ALL analysis completes
