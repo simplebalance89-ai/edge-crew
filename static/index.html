@@ -979,7 +979,9 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
 <!-- LOADING OVERLAY -->
 <div class="loading-overlay" id="loadingOverlay">
     <div class="loading-spinner"></div>
+    <div id="loadingBanner" style="font-size:28px;font-weight:900;color:#818cf8;font-family:var(--ec-font-body);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">LOADING</div>
     <div class="loading-text" id="loadingText">Loading slate...</div>
+    <div style="margin-top:8px;color:rgba(255,255,255,0.3);font-size:12px;">Please wait — do not navigate away</div>
     <div id="loadingStack" style="margin-top:24px;max-width:400px;width:90%;max-height:50vh;overflow-y:auto;"></div>
 </div>
 
@@ -1036,6 +1038,7 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
     <!-- Full Slate removed per Peter's request -->
     <div class="sport-tab utility-tab" onclick="switchSport('bankroll', event)"><span class="tab-icon">💰</span><span class="tab-label">Bank</span></div>
     <div class="sport-tab utility-tab" onclick="switchSport('results', event)"><span class="tab-icon">📈</span><span class="tab-label">Results</span> <span class="tab-count">0</span></div>
+    <div class="sport-tab utility-tab" onclick="autoGradePicks()" title="Auto-Grade Picks"><span class="tab-icon">✅</span><span class="tab-label">Grade</span></div>
 </div>
 </div>
 
@@ -2156,6 +2159,8 @@ function refreshSlate() {
     var overlay = document.getElementById('loadingOverlay');
     var loadText = document.getElementById('loadingText');
     if (overlay) overlay.classList.add('active');
+    var loadBanner = document.getElementById('loadingBanner');
+    if (loadBanner) loadBanner.textContent = 'LOADING';
     if (loadText) loadText.textContent = 'Loading odds...';
     renderLoadingStack();
 
@@ -2173,6 +2178,8 @@ function refreshSlate() {
         analysisCount++;
         // Update sweep status to show analyzing progress
         if (sweepEl) sweepEl.textContent = 'ANALYZING ' + analysisCount + '/' + sportsToLoad.length;
+        var loadBanner = document.getElementById('loadingBanner');
+        if (loadBanner) loadBanner.textContent = 'ANALYZING';
         if (loadText && overlay && overlay.classList.contains('active')) {
             loadText.textContent = 'Analyzing ' + sport.toUpperCase() + '... (' + analysisCount + '/' + sportsToLoad.length + ')';
         }
@@ -2196,6 +2203,8 @@ function refreshSlate() {
         loadedCount++;
         if (loadText) loadText.textContent = 'Loading ' + sport.toUpperCase() + '... (' + loadedCount + '/' + sportsToLoad.length + ')';
         if (loadedCount >= sportsToLoad.length) {
+            var loadBanner = document.getElementById('loadingBanner');
+            if (loadBanner) loadBanner.textContent = 'ANALYZING';
             if (loadText) loadText.textContent = 'Analyzing games...';
             if (sweepEl) sweepEl.textContent = 'ANALYZING';
             oddsPhase = false;
@@ -5811,7 +5820,9 @@ restoreLockedPicks();
 // Does NOT fire on page load — waits for login to complete
 var _slateLoaded = false;
 function postLoginLoad() {
-    // Step 1: Sync picks from server FIRST
+    // Immediately render any local picks so they show without waiting
+    try { renderPicks(); } catch(e) {}
+    // Step 1: Sync picks from server
     crewFetch('/api/picks').then(function(r) { return r.json(); }).then(function(data) {
         try {
             if (data.picks && data.picks.length) {
