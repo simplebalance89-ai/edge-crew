@@ -2444,24 +2444,72 @@ function lockCard() {
     var body = document.getElementById('modalBody');
     body.innerHTML = '';
     var n = 0;
+    var lockedPicks = [];
     for (var g in picks) {
         if (!picks[g].checked) continue;
         n++;
+        var side = picks[g].side || '';
         var tr = document.createElement('tr');
         var td1 = document.createElement('td');
         td1.textContent = n;
         var td2 = document.createElement('td');
         td2.textContent = g;
         var td3 = document.createElement('td');
-        td3.textContent = picks[g].side || '—';
-        td3.style.color = picks[g].side ? '#818cf8' : 'rgba(255,255,255,0.3)';
+        td3.textContent = side || '—';
+        td3.style.color = side ? '#818cf8' : 'rgba(255,255,255,0.3)';
         td3.style.fontWeight = '700';
         tr.appendChild(td1);
         tr.appendChild(td2);
         tr.appendChild(td3);
         body.appendChild(tr);
+        if (side) lockedPicks.push({ matchup: g, selection: side });
     }
     document.getElementById('modalOverlay').classList.add('show');
+
+    // Save each locked pick to server and localStorage
+    var name = crewProfile ? crewProfile.display_name : (safeLoad('edgeCrewName') || 'Anonymous');
+    var panel = document.querySelector('.sport-panel.active');
+    var sport = panel ? panel.id.replace('panel-', '').toUpperCase() : '';
+    var saved = 0;
+    lockedPicks.forEach(function(lp) {
+        var type = 'Spread';
+        var sel = lp.selection.toUpperCase();
+        if (sel.indexOf('ML') !== -1) type = 'Moneyline';
+        else if (sel.indexOf('OVER') !== -1 || sel.indexOf('UNDER') !== -1) type = 'Over/Under';
+
+        var pick = {
+            name: name, sport: sport, type: type,
+            matchup: lp.matchup, selection: lp.selection,
+            odds: '-110', units: '1', confidence: 'Lean', notes: 'Lock card',
+            date: toPSTDate(), time: toPSTShort(), created_at: new Date().toISOString()
+        };
+        var stored = JSON.parse(safeLoad('edgePicks') || '[]');
+        stored.unshift(pick);
+        safeSave('edgePicks', JSON.stringify(stored));
+
+        crewFetch('/api/picks', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(pick)
+        }).then(function(r) {
+            if (!r.ok) return r.json().then(function(d) { throw new Error(d.error || 'Server error'); });
+            return r.json();
+        }).then(function() { saved++; }).catch(function(err) {
+            console.error('Lock card pick save failed:', err);
+            showToast('Warning: Some picks failed to sync to server', true);
+        });
+    });
+
+    if (lockedPicks.length > 0) {
+        showToast(lockedPicks.length + ' pick' + (lockedPicks.length > 1 ? 's' : '') + ' locked!');
+        // Clear checked picks
+        for (var g in picks) { picks[g].checked = false; }
+        document.querySelectorAll('.pick-check').forEach(function(el) { el.classList.remove('on'); });
+        document.querySelectorAll('.game-row').forEach(function(el) { el.classList.remove('checked'); });
+        safeSave('edgeLockedPicks', JSON.stringify(picks));
+        updateSubmitBar();
+        renderPicks();
+    }
 }
 
 function closeModal() {
