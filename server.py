@@ -2436,13 +2436,16 @@ _WNBA_ABBREVS = {
 }
 
 _NHL_ABBREVS = {
-    "bos": "bruins", "bru": "bruins", "buf": "sabres", "car": "hurricanes",
+    "ana": "ducks", "ari": "coyotes", "bos": "bruins", "bru": "bruins",
+    "buf": "sabres", "car": "hurricanes", "cgy": "flames",
     "cbj": "blue jackets", "col": "avalanche", "dal": "stars",
     "edm": "oilers", "fla": "panthers", "lak": "kings",
-    "min": "wild", "mtl": "canadiens", "njd": "devils",
+    "min": "wild", "mon": "canadiens", "mtl": "canadiens", "njd": "devils",
     "nsh": "predators", "nyi": "islanders", "nyr": "rangers", "ott": "senators",
-    "pit": "penguins", "sea": "kraken", "stl": "blues", "tb": "lightning",
-    "tbl": "lightning", "van": "canucks", "vgk": "golden knights",
+    "pit": "penguins", "sea": "kraken", "sj": "sharks", "sjs": "sharks",
+    "stl": "blues", "tb": "lightning",
+    "tbl": "lightning", "uta": "utah hockey club", "van": "canucks",
+    "vgk": "golden knights",
     "wpg": "jets", "wsh": "capitals", "chi": "blackhawks", "det": "red wings",
     "phi": "flyers", "tor": "maple leafs",
 }
@@ -2469,7 +2472,8 @@ def _expand_abbrevs(text: str, sport: str = "") -> str:
         clean = w.strip("@().,-")
         if clean in abbrevs:
             expanded.append(abbrevs[clean])
-        expanded.append(clean)
+        else:
+            expanded.append(clean)
     return " ".join(expanded)
 
 
