@@ -2125,9 +2125,11 @@ function refreshSlate() {
         if (loadText && overlay && overlay.classList.contains('active')) {
             loadText.textContent = 'Grading ' + sport.toUpperCase() + '... (' + analysisCount + '/' + sportsToLoad.length + ')';
         }
-        if (analysisCount >= sportsToLoad.length && overlay) {
-            overlay.classList.remove('active');
+        if (analysisCount >= sportsToLoad.length) {
+            if (overlay) overlay.classList.remove('active');
             showToast('Slate refreshed + graded!');
+            // Reload props AFTER all analysis is done — not on a timer
+            loadProps();
         }
     };
     // Safety timeout — dismiss after 30s no matter what
@@ -2153,8 +2155,7 @@ function refreshSlate() {
         fetchLiveOdds(sport, onSportLoaded);
     });
 
-    // Load props from analysis cache after analysis calls complete
-    setTimeout(function() { loadProps(); }, 6000);
+    // Props now reload in _analysisLoadCallback after ALL analysis completes
 
     // Fetch combined slate
     setTimeout(function() { fetchCombinedSlate(); }, 3000);
