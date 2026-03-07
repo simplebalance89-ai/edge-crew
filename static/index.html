@@ -4116,14 +4116,19 @@ function toggleMLFilter(sport) {
             row.style.display = '';
             return;
         }
-        // Check if either team has plus money line via side buttons
+        // Show games where either ML is in the value range: -180 to +400
         var sideButtons = row.querySelectorAll('.side-btn');
-        var hasPlus = false;
+        var inRange = false;
         sideButtons.forEach(function(b) {
             var t = b.textContent;
-            if (t.indexOf('ML') !== -1 && t.match(/\+\d/)) hasPlus = true;
+            if (t.indexOf('ML') === -1) return;
+            var m = t.match(/\(([+-]?\d+)\)/);
+            if (!m) return;
+            var odds = parseInt(m[1]);
+            // Value range: -180 through +400
+            if (odds >= -180 && odds <= 400) inRange = true;
         });
-        row.style.display = hasPlus ? '' : 'none';
+        row.style.display = inRange ? '' : 'none';
     });
 }
 
