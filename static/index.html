@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0A0A0A">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Edge Crew">
@@ -990,7 +993,7 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
     <div style="display:flex;align-items:center;gap:8px;">
         <!-- Status dot -->
         <div id="sweepStatus" style="display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:var(--ec-radius-full);background:var(--ec-bg-secondary);border:1px solid var(--ec-border);font-size:10px;color:var(--ec-text-tertiary);font-weight:600;">
-            <span style="width:6px;height:6px;border-radius:50%;background:var(--ec-success);display:inline-block;"></span>
+            <span id="sweepDot" style="width:6px;height:6px;border-radius:50%;background:var(--ec-success);display:inline-block;"></span>
             <span id="sweepTime">LIVE</span>
         </div>
         <!-- Crew avatars (compact) -->
@@ -2122,30 +2125,45 @@ function refreshSlate() {
     if (overlay) overlay.classList.add('active');
     if (loadText) loadText.textContent = 'Loading odds...';
 
+    // Set sweep status to ANALYZING with spinner
+    var sweepEl = document.getElementById('sweepTime');
+    var sweepDot = document.getElementById('sweepDot');
+    if (sweepEl) sweepEl.textContent = 'LOADING';
+    if (sweepDot) { sweepDot.style.background = '#F59E0B'; sweepDot.style.animation = 'edgePulse 1s ease-in-out infinite'; }
+
     var sportsToLoad = ['nba','nhl','mlb','soccer','mma','boxing'];
     var loadedCount = 0;
     var analysisCount = 0;
     var oddsPhase = true;
     window._analysisLoadCallback = function(sport) {
         analysisCount++;
+        // Update sweep status to show analyzing progress
+        if (sweepEl) sweepEl.textContent = 'ANALYZING ' + analysisCount + '/' + sportsToLoad.length;
         if (loadText && overlay && overlay.classList.contains('active')) {
-            loadText.textContent = 'Grading ' + sport.toUpperCase() + '... (' + analysisCount + '/' + sportsToLoad.length + ')';
+            loadText.textContent = 'Analyzing ' + sport.toUpperCase() + '... (' + analysisCount + '/' + sportsToLoad.length + ')';
         }
         if (analysisCount >= sportsToLoad.length) {
             if (overlay) overlay.classList.remove('active');
-            showToast('Slate refreshed + graded!');
+            // Sweep status back to LIVE
+            if (sweepEl) sweepEl.textContent = 'LIVE';
+            if (sweepDot) { sweepDot.style.background = 'var(--ec-success)'; sweepDot.style.animation = 'none'; }
             // Reload props AFTER all analysis is done — not on a timer
             loadProps();
         }
     };
     // Safety timeout — dismiss after 30s no matter what
-    setTimeout(function() { if (overlay) overlay.classList.remove('active'); }, 30000);
+    setTimeout(function() {
+        if (overlay) overlay.classList.remove('active');
+        if (sweepEl && sweepEl.textContent !== 'LIVE') { sweepEl.textContent = 'LIVE'; }
+        if (sweepDot) { sweepDot.style.background = 'var(--ec-success)'; sweepDot.style.animation = 'none'; }
+    }, 30000);
 
     function onSportLoaded(sport) {
         loadedCount++;
         if (loadText) loadText.textContent = 'Loading ' + sport.toUpperCase() + '... (' + loadedCount + '/' + sportsToLoad.length + ')';
         if (loadedCount >= sportsToLoad.length) {
-            if (loadText) loadText.textContent = 'Running analysis...';
+            if (loadText) loadText.textContent = 'Analyzing games...';
+            if (sweepEl) sweepEl.textContent = 'ANALYZING';
             oddsPhase = false;
         }
     }
@@ -3968,15 +3986,15 @@ function fetchLiveOdds(sport, onDone) {
             populatePickDropdown();
             populateUpsetDropdowns(sport);
 
-            // Update sweep time with server timestamp
+            // Update sweep time — don't overwrite ANALYZING state
             var sweepEl = document.getElementById('sweepTime');
-            if (sweepEl) {
+            if (sweepEl && sweepEl.textContent.indexOf('ANALYZING') === -1) {
                 var completeCount = data.lines_complete || 0;
                 sweepEl.textContent = completeCount > 0 ? 'LIVE' : 'LOADING';
             }
 
             var startedCount = (data.games ? data.games.length : 0) - pregameGames.length;
-            showToast(sport.toUpperCase() + ' slate loaded — ' + pregameGames.length + ' pregame' + (startedCount > 0 ? ', ' + startedCount + ' started (hidden)' : '') + ' (' + (data.lines_complete || 0) + ' complete)');
+            // Toast removed — sweep status + overlay show progress instead
 
             // Re-apply saved picks after DOM rebuild
             if (typeof restoreLockedPicks === 'function') restoreLockedPicks();
@@ -4714,7 +4732,6 @@ function fetchAnalysis(sport) {
                 });
             }
 
-            showToast(sport.toUpperCase() + ' analysis updated \u2014 ' + (data.generated_at || 'just now'));
             if (typeof window._analysisLoadCallback === 'function') window._analysisLoadCallback(sport);
         })
         .catch(function(err) {
