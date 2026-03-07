@@ -323,7 +323,7 @@ API_SPORTS_LEAGUES = {
 # Azure OpenAI config
 AZURE_ENDPOINT = os.environ.get("AZURE_OPENAI_ENDPOINT", "")
 AZURE_KEY = os.environ.get("AZURE_OPENAI_KEY", "")
-AZURE_MODEL = os.environ.get("AZURE_OPENAI_MODEL", "gpt-4.1-mini")
+AZURE_MODEL = os.environ.get("AZURE_OPENAI_MODEL", "gpt-51-instant")
 REALTIME_DEPLOYMENT = "gpt-4o-realtime"
 AZURE_BASE = AZURE_ENDPOINT.rstrip("/")
 
