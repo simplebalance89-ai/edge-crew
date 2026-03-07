@@ -2164,6 +2164,26 @@ async def get_picks(date: str = ""):
     return JSONResponse({"picks": picks, "count": len(picks)})
 
 
+@app.post("/api/picks/seed")
+async def seed_picks(request: Request):
+    """One-time migration: seed picks from Supabase export into local file."""
+    body = await request.json()
+    incoming = body.get("picks", [])
+    if not incoming:
+        return JSONResponse({"error": "No picks to seed"}, status_code=400)
+    data = _read_picks()
+    existing_ids = {p.get("id") for p in data["picks"]}
+    added = 0
+    for p in incoming:
+        if p.get("id") not in existing_ids:
+            data["picks"].append(p)
+            added += 1
+    data["picks"].sort(key=lambda x: x.get("created_at", ""), reverse=True)
+    data["updated_at"] = datetime.now(PST).strftime("%Y-%m-%d %H:%M:%S")
+    _write_picks(data)
+    return JSONResponse({"status": "ok", "added": added, "total": len(data["picks"])})
+
+
 @app.get("/api/picks/unique")
 async def get_unique_picks():
     """Return scored unique/contrarian picks from graded history."""
