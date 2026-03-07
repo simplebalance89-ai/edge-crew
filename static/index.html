@@ -432,8 +432,9 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
 /* Full-page loading overlay */
 .loading-overlay{
     display:none;position:fixed;top:0;left:0;right:0;bottom:0;
-    background:rgba(10,10,10,0.92);z-index:9999;
+    background:rgba(10,10,10,0.95);z-index:9999;
     justify-content:center;align-items:center;flex-direction:column;gap:16px;
+    pointer-events:all;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
 }
 .loading-overlay.active{display:flex;}
 .loading-overlay .loading-spinner{
@@ -3420,6 +3421,15 @@ function loadScoreboard() {
         }
         renderScoreboardFilters();
         renderScoreboardGames();
+        // Auto-grade: if any games are final, trigger grading
+        var finalGames = (data.games || []).filter(function(g) { return g.completed; });
+        if (finalGames.length > 0) {
+            var stored = JSON.parse(safeLoad('edgePicks') || '[]');
+            var hasUngraded = stored.some(function(p) { return !p.result && p.date; });
+            if (hasUngraded) {
+                autoGradePicks();
+            }
+        }
     }).catch(function(err) {
         status.textContent = 'Error: ' + err.message;
         status.style.color = '#EF4444';
@@ -3503,10 +3513,10 @@ function updateHeroStats() {
         heroROISub.className = 'hero-sub ' + (allGraded.length < 10 ? 'neutral' : (roi >= 0 ? 'positive' : 'negative'));
     }
 
-    // Streak
+    // Streak — iterate from most recent (end of array) backward
     var streak = 0;
     var streakType = '';
-    for (var i = 0; i < stored.length; i++) {
+    for (var i = stored.length - 1; i >= 0; i--) {
         if (!stored[i].result || stored[i].result === 'P') continue;
         if (!streakType) streakType = stored[i].result;
         if (stored[i].result === streakType) streak++;
@@ -6417,7 +6427,8 @@ async function clearAllCache() {
             background:linear-gradient(135deg,var(--ec-accent),#a78bfa);
             color:#fff;border-radius:16px;padding:8px 14px;
             box-shadow:0 4px 20px var(--ec-accent-glow);
-            margin-top:-14px;min-width:60px;min-height:56px;
+            margin-top:-8px;min-width:60px;min-height:52px;
+            position:relative;z-index:2;
         ">
             <span class="mqb-icon" style="font-size:1.4rem;">🤖</span>
             <span style="font-size:0.55rem;font-weight:800;letter-spacing:0.3px;">EV AGENT</span>
