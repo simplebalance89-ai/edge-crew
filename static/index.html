@@ -930,7 +930,7 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
         <img src="/static/logo.png" alt="Edge Crew" style="width:120px;border-radius:12px;margin:0 auto 12px;display:block;">
         <h1>Edge Crew</h1>
         <div class="login-sub" style="font-size:12px;line-height:1.5;">AI-Powered Sports Analytics — 11 Sports, Real Edges, Full Transparency</div>
-        <div style="font-size:10px;color:var(--ec-text-tertiary);margin-top:4px;letter-spacing:0.5px;">No edge = no bet &bull; Built by the crew</div>
+        <div style="font-size:10px;color:var(--ec-text-tertiary);margin-top:4px;letter-spacing:0.5px;">No edge = no bet &bull; Build your crew</div>
         <div class="login-tabs">
             <button class="login-tab active" onclick="switchLoginTab('signin')">Sign In</button>
             <button class="login-tab" onclick="switchLoginTab('register')">Join Crew</button>
@@ -1035,7 +1035,8 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
 </div>
 <div class="sport-tabs utility-row">
     <div class="sport-tab utility-tab" onclick="switchSport('props', event)"><span class="tab-icon">📊</span><span class="tab-label">Props</span> <span class="tab-count">0</span></div>
-    <!-- Full Slate removed per Peter's request -->
+    <div class="sport-tab utility-tab" onclick="switchSport('beat', event)"><span class="tab-icon">📰</span><span class="tab-label">Beat</span></div>
+    <div class="sport-tab utility-tab" onclick="switchSport('arbscan', event)"><span class="tab-icon">💎</span><span class="tab-label">Arbs</span> <span class="tab-count">0</span></div>
     <div class="sport-tab utility-tab" onclick="switchSport('bankroll', event)"><span class="tab-icon">💰</span><span class="tab-label">Bank</span></div>
     <div class="sport-tab utility-tab" onclick="switchSport('results', event)"><span class="tab-icon">📈</span><span class="tab-label">Results</span> <span class="tab-count">0</span></div>
     <div class="sport-tab utility-tab" onclick="autoGradePicks()" title="Auto-Grade Picks"><span class="tab-icon">✅</span><span class="tab-label">Grade</span></div>
@@ -1557,6 +1558,50 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
 
 </div>
 
+<!-- ===== BEAT REPORT PANEL ===== -->
+<div class="sport-panel" id="panel-beat">
+<div class="gotcha-banner" style="border-color:rgba(251,191,36,0.3);background:rgba(251,191,36,0.06);">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h3 style="color:#FBB024;">Daily Beat Report</h3>
+        <button style="cursor:pointer;padding:6px 14px;border-radius:6px;background:rgba(251,191,36,0.15);color:#FBB024;font-size:11px;font-weight:700;border:none;letter-spacing:0.5px;" onclick="loadBeatReport()">REFRESH</button>
+    </div>
+    <p style="color:rgba(255,255,255,0.4);font-size:12px;margin-top:4px;">Sharp overnight moves, injury alerts, best bets, trap games, arb opps — all sports.</p>
+</div>
+<div id="beatReportContent" style="padding:8px 0;">
+    <p style="color:rgba(255,255,255,0.3);font-style:italic;text-align:center;padding:40px;">Hit REFRESH to generate today's beat report...</p>
+</div>
+<!-- Social Feed -->
+<div style="margin-top:16px;border-top:1px solid rgba(255,255,255,0.06);padding-top:16px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <h3 style="color:#1DA1F2;font-size:14px;">Sharp Twitter Feed</h3>
+        <div style="display:flex;gap:6px;" id="socialSportTabs">
+            <button class="side-btn" onclick="loadSocialFeed('nba')" style="font-size:10px;padding:4px 10px;">NBA</button>
+            <button class="side-btn" onclick="loadSocialFeed('nhl')" style="font-size:10px;padding:4px 10px;">NHL</button>
+            <button class="side-btn" onclick="loadSocialFeed('ncaab')" style="font-size:10px;padding:4px 10px;">NCAAB</button>
+            <button class="side-btn" onclick="loadSocialFeed('mlb')" style="font-size:10px;padding:4px 10px;">MLB</button>
+            <button class="side-btn" onclick="loadSocialFeed('soccer')" style="font-size:10px;padding:4px 10px;">Soccer</button>
+        </div>
+    </div>
+    <div id="socialFeedContent">
+        <p style="color:rgba(255,255,255,0.3);font-style:italic;text-align:center;padding:20px;font-size:12px;">Select a sport to load sharp tweets...</p>
+    </div>
+</div>
+</div>
+
+<!-- ===== ARB SCANNER PANEL ===== -->
+<div class="sport-panel" id="panel-arbscan">
+<div class="gotcha-banner" style="border-color:rgba(16,185,129,0.3);background:rgba(16,185,129,0.06);">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h3 style="color:#10B981;">Arbitrage Scanner</h3>
+        <button style="cursor:pointer;padding:6px 14px;border-radius:6px;background:rgba(16,185,129,0.15);color:#10B981;font-size:11px;font-weight:700;border:none;letter-spacing:0.5px;" onclick="loadArbScan()">SCAN ALL SPORTS</button>
+    </div>
+    <p style="color:rgba(255,255,255,0.4);font-size:12px;margin-top:4px;">Cross-book arbitrage opportunities sorted by profit %. Refresh slate first to populate.</p>
+</div>
+<div id="arbScanResults" style="padding:8px 0;">
+    <p style="color:rgba(255,255,255,0.3);font-style:italic;text-align:center;padding:40px;">Hit SCAN ALL SPORTS to find arb opportunities...</p>
+</div>
+</div>
+
 <!-- ===== PROPS PANEL (Two Swim Lanes + Parlay Builder) ===== -->
 <div class="sport-panel" id="panel-props">
 
@@ -1565,6 +1610,7 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
     <button class="sport-tab active" onclick="loadPropsForSport('nba')" style="font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid rgba(99,102,241,0.3);background:rgba(99,102,241,0.12);color:#818cf8;cursor:pointer;font-weight:700;">NBA</button>
     <button class="sport-tab" onclick="loadPropsForSport('wnba')" style="font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;font-weight:700;">WNBA</button>
     <button class="sport-tab" onclick="loadPropsForSport('ncaab')" style="font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;font-weight:700;">NCAAB</button>
+    <button class="sport-tab" onclick="loadPropsForSport('ncaaf')" style="font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;font-weight:700;">NCAAF</button>
     <button class="sport-tab" onclick="loadPropsForSport('nhl')" style="font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;font-weight:700;">NHL</button>
     <button class="sport-tab" onclick="loadPropsForSport('nfl')" style="font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;font-weight:700;">NFL</button>
     <button class="sport-tab" onclick="loadPropsForSport('mlb')" style="font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;font-weight:700;">MLB</button>
@@ -1987,9 +2033,9 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
 <div class="toast" id="toast">Pick locked!</div>
 
 <div class="footer">
-    <div style="font-weight:700;color:var(--ec-text-secondary);margin-bottom:4px;">Edge Crew</div>
-    <div>AI-Powered Sports Analytics — 11 Sports, Real Edges, Full Transparency</div>
-    <div style="margin-top:6px;color:var(--ec-text-tertiary);">No edge = no bet &bull; Built by the crew</div>
+    <div style="font-weight:700;color:var(--ec-text-secondary);margin-bottom:4px;font-size:14px;letter-spacing:0.5px;">Edge Crew</div>
+    <div style="font-size:11px;color:var(--ec-text-tertiary);font-weight:500;">AI-Powered Sports Analytics &mdash; 11 Sports, Real Edges, Full Transparency</div>
+    <div style="margin-top:6px;color:var(--ec-text-tertiary);font-size:10px;font-weight:600;letter-spacing:0.5px;">No edge = no bet &bull; Build your crew</div>
 </div>
 
 <!-- SUBMIT BAR -->
@@ -4345,6 +4391,11 @@ function buildGameRowHTML(g) {
                     '<div class="side-btn" onclick="pickSide(event,this,\'UNDER ' + total + '\')">U ' + total + ' (' + (g.under_odds||'-110') + ')</div>' : '') +
                     '<div class="side-btn" onclick="pickSide(event,this,\'' + awayAbbr + ' ML\')">' + awayAbbr + ' ML (' + awayML + ')</div>' +
                     '<div class="side-btn" onclick="pickSide(event,this,\'' + homeAbbr + ' ML\')">' + homeAbbr + ' ML (' + homeML + ')</div>' +
+                    (g.draw_ml ? '<div class="side-btn" onclick="pickSide(event,this,\'DRAW\')">Draw (' + g.draw_ml + ')</div>' : '') +
+                    (g.btts_yes ? '<div class="side-btn" onclick="pickSide(event,this,\'BTTS YES\')">BTTS Yes (' + g.btts_yes + ')</div>' : '') +
+                    (g.btts_no ? '<div class="side-btn" onclick="pickSide(event,this,\'BTTS NO\')">BTTS No (' + g.btts_no + ')</div>' : '') +
+                    (g.dnb_away ? '<div class="side-btn" onclick="pickSide(event,this,\'' + awayAbbr + ' DNB\')">' + awayAbbr + ' DNB (' + g.dnb_away + ')</div>' : '') +
+                    (g.dnb_home ? '<div class="side-btn" onclick="pickSide(event,this,\'' + homeAbbr + ' DNB\')">' + homeAbbr + ' DNB (' + g.dnb_home + ')</div>' : '') +
                 '</div>' +
             '</div>' +
             '<div class="game-spread">' + (hasSpread ? ((fav || homeAbbr) + ' ' + (spread < 0 ? spreadStr : awaySpreadStr)) : 'ML') + '</div>' +
@@ -4352,6 +4403,8 @@ function buildGameRowHTML(g) {
             '<div class="game-grade"><span class="grade ' + gradeClass + '">' + gradeDisplay + '</span></div>' +
             '<div class="game-edge">' + arbTag + shiftTag + dataTag + bookTag +
                 'ML: ' + awayAbbr + ' (' + awayML + ') / ' + homeAbbr + ' (' + homeML + ')' +
+                (g.draw_ml ? ' / Draw (' + g.draw_ml + ')' : '') +
+                (g.btts_yes ? ' | BTTS Y(' + g.btts_yes + ') N(' + (g.btts_no||'--') + ')' : '') +
             '</div>' +
         '</div>' +
         '<div class="game-detail">' +
@@ -4359,7 +4412,12 @@ function buildGameRowHTML(g) {
                 '<div class="detail-box peter"><h4>Lines (' + bookSource + ')</h4>' +
                     (hasSpread ? '<p>Spread: ' + awayAbbr + ' ' + awaySpreadStr + ' (' + (g.away_spread_odds||'--') + ') / ' + homeAbbr + ' ' + spreadStr + ' (' + (g.home_spread_odds||'--') + ')<br>' : '<p>Spread: N/A (ML game)<br>') +
                     (hasTotal ? 'Total: O ' + total + ' (' + (g.over_odds||'--') + ') / U ' + total + ' (' + (g.under_odds||'--') + ')<br>' : '') +
-                    'ML: ' + awayAbbr + ' ' + awayML + ' / ' + homeAbbr + ' ' + homeML + '</p>' +
+                    'ML: ' + awayAbbr + ' ' + awayML + ' / ' + homeAbbr + ' ' + homeML +
+                    (g.draw_ml ? ' / Draw ' + g.draw_ml : '') + '</p>' +
+                    (g.btts_yes || g.dnb_away ? '<p style="font-size:12px;margin-top:4px;">' +
+                        (g.btts_yes ? '<strong style="color:#10B981;">BTTS:</strong> Yes (' + g.btts_yes + ') / No (' + (g.btts_no||'--') + ') ' : '') +
+                        (g.dnb_away ? '<strong style="color:#818cf8;">DNB:</strong> ' + awayAbbr + ' (' + g.dnb_away + ') / ' + homeAbbr + ' (' + (g.dnb_home||'--') + ')' : '') +
+                    '</p>' : '') +
                     (g.shifts ? '<p style="font-size:10px;color:#B0BEC5;margin-top:6px;font-weight:600;">\u21C5 Line Movement: ' +
                         (g.shifts.spread ? 'Spread ' + g.shifts.spread.open + ' \u2192 ' + g.shifts.spread.now + ' ' : '') +
                         (g.shifts.total ? 'Total ' + g.shifts.total.open + ' \u2192 ' + g.shifts.total.now + ' ' : '') +
@@ -4384,6 +4442,92 @@ function buildGameRowHTML(g) {
             '</div>' +
         '</div>' +
     '</div>';
+}
+
+// ===== BEAT REPORT =====
+function loadBeatReport() {
+    var container = document.getElementById('beatReportContent');
+    container.innerHTML = '<p style="color:rgba(255,255,255,0.5);text-align:center;padding:20px;">Generating beat report...</p>';
+    fetch('/api/beat-report')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            var html = '';
+            if (data.report_html) {
+                html += '<div style="font-size:13px;color:rgba(255,255,255,0.7);line-height:1.8;">' + data.report_html + '</div>';
+            }
+            if (data.line_moves && data.line_moves.length) {
+                html += '<div style="margin-top:16px;"><h4 style="color:#FBB024;font-size:12px;margin-bottom:8px;">LINE MOVES (' + data.line_moves.length + ')</h4>';
+                data.line_moves.forEach(function(m) {
+                    var parts = [];
+                    if (m.shifts.spread) parts.push('Spread ' + m.shifts.spread.open + ' \u2192 ' + m.shifts.spread.now);
+                    if (m.shifts.total) parts.push('Total ' + m.shifts.total.open + ' \u2192 ' + m.shifts.total.now);
+                    html += '<div style="padding:6px 8px;margin-bottom:4px;background:rgba(255,255,255,0.03);border-radius:4px;font-size:12px;"><span style="color:#818cf8;font-weight:700;">' + m.sport + '</span> ' + m.matchup + ' \u2014 ' + parts.join(' | ') + '</div>';
+                });
+                html += '</div>';
+            }
+            if (data.arbs && data.arbs.length) {
+                html += '<div style="margin-top:12px;"><h4 style="color:#10B981;font-size:12px;margin-bottom:8px;">ARB OPPORTUNITIES (' + data.arbs.length + ')</h4>';
+                data.arbs.forEach(function(a) {
+                    var legs = a.legs.map(function(l) { return l.side + ' (' + l.odds + ') @ ' + l.book.toUpperCase(); }).join(' vs ');
+                    html += '<div style="padding:6px 8px;margin-bottom:4px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15);border-radius:4px;font-size:12px;"><span style="color:#10B981;font-weight:800;">' + a.profit_pct + '%</span> ' + a.sport + ': ' + a.matchup + ' \u2014 ' + a.type + '<br><span style="color:rgba(255,255,255,0.5);">' + legs + '</span></div>';
+                });
+                html += '</div>';
+            }
+            if (!html) html = '<p style="color:rgba(255,255,255,0.3);text-align:center;padding:20px;">No data yet. Refresh the slate first, then generate the beat report.</p>';
+            html += '<p style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:12px;">Generated: ' + (data.generated_at || 'unknown') + '</p>';
+            container.innerHTML = html;
+        })
+        .catch(function(err) { container.innerHTML = '<p style="color:#EF4444;text-align:center;padding:20px;">Beat report failed: ' + err.message + '</p>'; });
+}
+
+// ===== SOCIAL FEED =====
+function loadSocialFeed(sport) {
+    var container = document.getElementById('socialFeedContent');
+    container.innerHTML = '<p style="color:rgba(255,255,255,0.5);text-align:center;padding:20px;font-size:12px;">Loading ' + sport.toUpperCase() + ' tweets...</p>';
+    fetch('/api/social/' + sport)
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (!data.configured) {
+                container.innerHTML = '<div style="text-align:center;padding:20px;"><p style="color:rgba(255,255,255,0.4);font-size:12px;">Twitter API not configured.</p><p style="color:rgba(255,255,255,0.25);font-size:11px;margin-top:4px;">Set TWITTER_BEARER_TOKEN env var on Render to enable.</p></div>';
+                return;
+            }
+            if (!data.tweets || !data.tweets.length) {
+                container.innerHTML = '<p style="color:rgba(255,255,255,0.3);text-align:center;padding:20px;font-size:12px;">No recent tweets for ' + sport.toUpperCase() + '.</p>';
+                return;
+            }
+            var html = '';
+            data.tweets.forEach(function(t) {
+                var timeAgo = t.created_at ? new Date(t.created_at).toLocaleTimeString() : '';
+                html += '<div style="padding:10px;margin-bottom:6px;background:rgba(29,161,242,0.04);border:1px solid rgba(29,161,242,0.12);border-radius:6px;"><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="color:#1DA1F2;font-weight:700;font-size:12px;">@' + t.username + '</span><span style="color:rgba(255,255,255,0.25);font-size:10px;">' + timeAgo + '</span></div><p style="font-size:12px;color:rgba(255,255,255,0.6);line-height:1.5;">' + t.text + '</p></div>';
+            });
+            container.innerHTML = html;
+        })
+        .catch(function() { container.innerHTML = '<p style="color:#EF4444;text-align:center;padding:20px;font-size:12px;">Failed to load tweets.</p>'; });
+}
+
+// ===== ARB SCANNER =====
+function loadArbScan() {
+    var container = document.getElementById('arbScanResults');
+    container.innerHTML = '<p style="color:rgba(255,255,255,0.5);text-align:center;padding:20px;">Scanning all sports for arb opportunities...</p>';
+    var arbTab = document.querySelector('.sport-tab[onclick*="arbscan"]');
+    fetch('/api/arb-scan')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (arbTab) { var count = arbTab.querySelector('.tab-count'); if (count) count.textContent = data.count || 0; }
+            if (!data.arbs || !data.arbs.length) {
+                container.innerHTML = '<div style="text-align:center;padding:40px;"><p style="color:rgba(255,255,255,0.4);font-size:14px;">No arbitrage opportunities found.</p><p style="color:rgba(255,255,255,0.25);font-size:11px;margin-top:4px;">This is normal \u2014 true arbs are rare. Refresh the slate and scan again.</p></div>';
+                return;
+            }
+            var html = '<div style="margin-bottom:8px;color:rgba(255,255,255,0.5);font-size:11px;">' + data.count + ' arb opportunities found. Scanned: ' + data.scanned_at + '</div>';
+            data.arbs.forEach(function(a) {
+                var legs = a.legs.map(function(l) {
+                    return '<div style="display:flex;justify-content:space-between;padding:4px 0;"><span style="color:#818cf8;">' + l.side + '</span><span>' + l.odds + ' @ <strong>' + l.book.toUpperCase() + '</strong></span></div>';
+                }).join('');
+                html += '<div style="padding:12px;margin-bottom:8px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);border-radius:8px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><div><span style="color:#10B981;font-weight:900;font-size:16px;">' + a.profit_pct + '%</span> <span style="color:rgba(255,255,255,0.4);font-size:11px;">profit</span></div><span style="background:rgba(99,102,241,0.12);color:#818cf8;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:700;">' + a.sport + '</span></div><div style="font-size:13px;color:rgba(255,255,255,0.7);font-weight:600;margin-bottom:6px;">' + a.matchup + ' \u2014 ' + a.type + '</div><div style="font-size:12px;">' + legs + '</div></div>';
+            });
+            container.innerHTML = html;
+        })
+        .catch(function(err) { container.innerHTML = '<p style="color:#EF4444;text-align:center;padding:20px;">Arb scan failed: ' + err.message + '</p>'; });
 }
 
 function fetchLiveOdds(sport, onDone) {

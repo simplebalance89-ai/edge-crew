@@ -397,6 +397,13 @@ def _set_cache(key, data):
     _cache[key] = (data, time.time())
 
 
+def _odds_cache_key(sport_lower):
+    """Return the correct odds cache key for a sport (soccer uses extended markets)."""
+    if sport_lower == "soccer":
+        return f"{sport_lower}:h2h,spreads,totals,btts,draw_no_bet"
+    return f"{sport_lower}:h2h,spreads,totals"
+
+
 def _track_opening_lines(game):
     """Store opening lines for a game (first time seen today). Returns shift data."""
     today = datetime.now(PST).strftime("%Y-%m-%d")
@@ -595,7 +602,49 @@ SOCCER_MATRIX = [
     ("travel_congestion", 4, "Travel / fixture congestion"),
 ]
 
-SPORT_MATRICES = {"nba": NBA_MATRIX, "nhl": NHL_MATRIX, "soccer": SOCCER_MATRIX}
+NCAAB_MATRIX = [
+    ("injuries_lineup", 9, "Injuries / lineup changes"),
+    ("home_court", 8, "Home court advantage (college = massive)"),
+    ("tempo_matchup", 8, "Tempo/pace matchup"),
+    ("three_pt_shooting", 7, "3-point shooting % vs opponent 3pt defense"),
+    ("ats_trend", 7, "ATS trend (last 10 games)"),
+    ("tournament_exp", 7, "Tournament / postseason experience"),
+    ("rest_travel", 6, "Rest / travel (conference tourney fatigue)"),
+    ("sharp_vs_public", 6, "Where the money is (sharp vs public)"),
+    ("coaching", 5, "Coach tournament record / tendencies"),
+    ("rivalry_motivation", 4, "Rivalry / motivation / bubble team urgency"),
+]
+
+NCAAF_MATRIX = [
+    ("injuries_lineup", 10, "Injuries / lineup changes (QB is everything)"),
+    ("home_field", 9, "Home field advantage (college = massive)"),
+    ("rushing_matchup", 8, "Rushing offense vs run defense"),
+    ("turnover_margin", 7, "Turnover margin trend"),
+    ("ats_trend", 7, "ATS trend (last 10 games)"),
+    ("sharp_vs_public", 6, "Where the money is (sharp vs public)"),
+    ("weather", 6, "Weather (outdoor stadiums)"),
+    ("coaching", 5, "Coach record vs spread"),
+    ("rivalry_motivation", 5, "Rivalry / motivation / bowl game factor"),
+    ("rest_bye", 4, "Rest / bye week advantage"),
+]
+
+MLB_MATRIX = [
+    ("starting_pitcher", 10, "Starting pitcher matchup + recent form"),
+    ("bullpen_usage", 9, "Bullpen availability / recent usage"),
+    ("lineup_confirmed", 8, "Lineup confirmed + platoon splits"),
+    ("park_factor", 7, "Park factor (runs environment)"),
+    ("umpire", 6, "Home plate umpire tendencies"),
+    ("sharp_vs_public", 6, "Where the money is (sharp vs public)"),
+    ("weather_wind", 5, "Weather / wind direction"),
+    ("travel_rest", 5, "Travel / rest / day game after night"),
+    ("splits_lr", 4, "L/R splits matchup"),
+    ("streak_trend", 3, "Winning/losing streak"),
+]
+
+SPORT_MATRICES = {
+    "nba": NBA_MATRIX, "nhl": NHL_MATRIX, "soccer": SOCCER_MATRIX,
+    "ncaab": NCAAB_MATRIX, "ncaaf": NCAAF_MATRIX, "mlb": MLB_MATRIX,
+}
 
 
 async def _fetch_api_sports(sport_lower):
@@ -812,7 +861,13 @@ async def _get_lineup_and_injury_context(sport):
         "nba": "https://www.cbssports.com/nba/injuries/",
         "wnba": "https://www.cbssports.com/wnba/injuries/",
         "nhl": "https://www.cbssports.com/nhl/injuries/",
+        "mlb": "https://www.cbssports.com/mlb/injuries/",
         "soccer": None,
+    }
+
+    ESPN_INJURY_URLS = {
+        "ncaab": "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/injuries",
+        "ncaaf": "https://site.api.espn.com/apis/site/v2/sports/football/college-football/injuries",
     }
 
     # --- CBS SPORTS INJURY REPORT (primary - server-rendered, reliable) ---
@@ -885,6 +940,36 @@ async def _get_lineup_and_injury_context(sport):
             except Exception as e:
                 print(f"CBS injury fetch failed for {sport}: {e}")
                 parts.append(f"CBS Sports injury fetch failed: {e}")
+
+    # --- ESPN INJURIES API (for college sports without CBS coverage) ---
+    espn_injury_url = ESPN_INJURY_URLS.get(sport_lower)
+    if espn_injury_url:
+        cache_key_espn = f"espn_injuries:{sport_lower}"
+        cached_espn = _get_cached(cache_key_espn, ttl=1800)
+        if cached_espn:
+            parts.append(cached_espn)
+        else:
+            try:
+                async with httpx.AsyncClient(timeout=15.0) as client:
+                    resp = await client.get(espn_injury_url)
+                    if resp.status_code == 200:
+                        data = resp.json()
+                        injury_lines = [f"INJURY REPORT ({sport.upper()} via ESPN):"]
+                        items = data.get("items", [])
+                        for item in items[:60]:
+                            athlete = item.get("athlete", {})
+                            name = athlete.get("displayName", "Unknown")
+                            pos = athlete.get("position", {}).get("abbreviation", "?")
+                            status = item.get("status", "Unknown")
+                            desc = item.get("type", {}).get("description", "")
+                            team = item.get("team", {}).get("displayName", "?")
+                            injury_lines.append(f"  - {name} ({pos}, {team}) | {desc} | {status}")
+                        if len(injury_lines) > 1:
+                            injury_text = "\n".join(injury_lines)
+                            _set_cache(cache_key_espn, injury_text)
+                            parts.append(injury_text)
+            except Exception as e:
+                print(f"ESPN injury fetch failed for {sport}: {e}")
 
     # --- ROTOWIRE LINEUPS (secondary - best effort for lineup confirmations) ---
     urls = ROTOWIRE_URLS.get(sport_lower, {})
@@ -1173,6 +1258,26 @@ def _parse_event(event, sport_label):
                 game["away_ml"] = h.get("price", 0)
             elif h["name"] == event["home_team"]:
                 game["home_ml"] = h.get("price", 0)
+            elif h["name"] == "Draw":
+                game["draw_ml"] = h.get("price", 0)
+
+    # Parse BTTS (Both Teams To Score) — soccer-specific
+    btts = game["markets"].get("btts", [])
+    if btts:
+        for b in btts:
+            if b["name"] == "Yes":
+                game["btts_yes"] = b.get("price", 0)
+            elif b["name"] == "No":
+                game["btts_no"] = b.get("price", 0)
+
+    # Parse Draw No Bet — soccer-specific
+    dnb = game["markets"].get("draw_no_bet", [])
+    if dnb:
+        for d in dnb:
+            if d["name"] == event["away_team"]:
+                game["dnb_away"] = d.get("price", 0)
+            elif d["name"] == event["home_team"]:
+                game["dnb_home"] = d.get("price", 0)
 
     game["lines_available"] = has_spread or has_total or has_ml
     # Any sport with ML data is considered "complete" for grading
@@ -1460,6 +1565,9 @@ def _analyze_all_books(event):
 async def get_odds(sport: str, markets: str = "h2h,spreads,totals"):
     """Fetch live odds — SharpAPI primary, The Odds API fallback."""
     sport_lower = sport.lower()
+    # Soccer needs additional markets (BTTS, Draw No Bet)
+    if sport_lower == "soccer" and markets == "h2h,spreads,totals":
+        markets = "h2h,spreads,totals,btts,draw_no_bet"
     cache_key = f"{sport_lower}:{markets}"
     cached = _get_cached(cache_key)
     if cached:
@@ -1540,6 +1648,9 @@ async def get_slate():
 # ===== PLAYER PROPS — Real Lines from The Odds API =====
 PROP_MARKETS = {
     "nba": "player_points,player_rebounds,player_assists,player_threes",
+    "wnba": "player_points,player_rebounds,player_assists",
+    "ncaab": "player_points,player_rebounds,player_assists,player_threes",
+    "ncaaf": "player_pass_yds,player_rush_yds,player_reception_yds,player_pass_tds",
     "nhl": "player_points,player_assists,player_goals",
     "nfl": "player_pass_yds,player_rush_yds,player_reception_yds,player_pass_tds",
     "mlb": "pitcher_strikeouts,batter_total_bases,batter_hits",
@@ -2331,7 +2442,7 @@ async def get_analysis(sport: str):
         return JSONResponse(cached)
 
     # Get current odds for context
-    odds_cache_key = f"{sport_lower}:h2h,spreads,totals"
+    odds_cache_key = _odds_cache_key(sport_lower)
     odds_data = _get_cached(odds_cache_key)
     if not odds_data:
         # Fetch fresh odds
@@ -2439,7 +2550,11 @@ async def get_analysis(sport: str):
 
     # ===== BATCH ANALYSIS — split games into groups of 4 for parallel Azure calls =====
     BATCH_SIZE = 4
-    MAX_BATCHES = 6  # Cap at 6 batches (24 games) to avoid excessive Azure calls
+    # College sports can have 90+ games — allow more batches
+    if sport_lower in ("ncaab", "ncaaf"):
+        MAX_BATCHES = 12  # 48 games for college
+    else:
+        MAX_BATCHES = 6  # 24 games for pro sports
     MAX_GAMES = BATCH_SIZE * MAX_BATCHES
 
     def _build_batch_prompt(batch_games_text, batch_incomplete_note, is_first_batch):
@@ -3478,7 +3593,7 @@ async def agent_chat(request: Request):
 
     # Add cached slate info if available — include odds so agent can share real lines
     for sport in ["nba", "wnba", "ncaab", "ncaaf", "nhl", "mlb", "tennis", "soccer", "mma", "boxing"]:
-        cache_key = f"{sport}:h2h,spreads,totals"
+        cache_key = _odds_cache_key(sport)
         cached = _get_cached(cache_key)
         if cached and cached.get("games"):
             games = cached["games"]
@@ -3778,6 +3893,7 @@ async def get_lineups(sport: str):
         "nba": "https://www.cbssports.com/nba/injuries/",
         "wnba": "https://www.cbssports.com/wnba/injuries/",
         "nhl": "https://www.cbssports.com/nhl/injuries/",
+        "mlb": "https://www.cbssports.com/mlb/injuries/",
     }
     cbs_url = CBS_URLS.get(sport_lower)
     if cbs_url:
@@ -3984,6 +4100,239 @@ async def voice_sdp(request: Request):
         resp = await client.post(url, content=body["sdp"], headers=headers)
         resp.raise_for_status()
         return Response(content=resp.content, media_type="application/sdp")
+
+
+# ===== BEAT REPORT — Daily Sharp Summary =====
+
+@app.get("/api/beat-report")
+async def get_beat_report():
+    """Generate a daily beat report: line moves, injuries, best bets, traps, arbs."""
+    cache_key = "beat_report"
+    cached = _get_cached(cache_key, ttl=1800)
+    if cached:
+        return JSONResponse(cached)
+
+    active_sports = ["nba", "nhl", "mlb", "ncaab", "soccer"]
+    all_shifts = []
+    all_arbs = []
+    sport_summaries = []
+
+    for sport in active_sports:
+        odds_key = _odds_cache_key(sport)
+        odds_data = _get_cached(odds_key)
+        if not odds_data or not odds_data.get("games"):
+            try:
+                resp = await get_odds(sport)
+                if hasattr(resp, 'body'):
+                    odds_data = json.loads(resp.body)
+            except Exception:
+                continue
+
+        if not odds_data or not odds_data.get("games"):
+            continue
+
+        games = odds_data["games"]
+        sport_label = sport.upper()
+        sport_summaries.append({"sport": sport_label, "count": len(games)})
+
+        for g in games:
+            if g.get("shifts"):
+                all_shifts.append({
+                    "sport": sport_label,
+                    "matchup": f"{g.get('away','?')} @ {g.get('home','?')}",
+                    "shifts": g["shifts"],
+                    "time": g.get("time", ""),
+                })
+            if g.get("arbs"):
+                for arb in g["arbs"]:
+                    all_arbs.append({
+                        "sport": sport_label,
+                        "matchup": f"{g.get('away','?')} @ {g.get('home','?')}",
+                        **arb,
+                    })
+
+    def shift_magnitude(s):
+        mag = 0
+        shifts = s.get("shifts", {})
+        if shifts.get("spread"):
+            mag += abs(shifts["spread"].get("delta", 0)) * 2
+        if shifts.get("total"):
+            mag += abs(shifts["total"].get("delta", 0))
+        return mag
+    all_shifts.sort(key=shift_magnitude, reverse=True)
+    all_arbs.sort(key=lambda a: a.get("profit_pct", 0), reverse=True)
+
+    beat_report_html = ""
+    if AZURE_ENDPOINT and AZURE_KEY and (all_shifts or all_arbs):
+        try:
+            shifts_text = ""
+            for s in all_shifts[:10]:
+                parts = []
+                sh = s["shifts"]
+                if sh.get("spread"):
+                    parts.append(f"Spread {sh['spread']['open']} -> {sh['spread']['now']}")
+                if sh.get("total"):
+                    parts.append(f"Total {sh['total']['open']} -> {sh['total']['now']}")
+                shifts_text += f"  - {s['sport']}: {s['matchup']} | {' | '.join(parts)}\n"
+
+            arbs_text = ""
+            for a in all_arbs[:5]:
+                legs = " vs ".join([f"{l['side']} ({l['odds']}) @ {l['book'].upper()}" for l in a.get("legs", [])])
+                arbs_text += f"  - {a['sport']}: {a['matchup']} | {a['type']} {a.get('profit_pct',0)}% | {legs}\n"
+
+            today = datetime.now(PST).strftime("%B %d, %Y")
+            now_time = datetime.now(PST).strftime("%I:%M %p PST")
+
+            prompt = f"""You are Edge Finder v2's Beat Reporter. Generate a sharp daily beat report for {today}.
+
+LINE MOVES (sorted by magnitude):
+{shifts_text or 'No significant line moves detected yet.'}
+
+ARBITRAGE OPPORTUNITIES:
+{arbs_text or 'No arbitrage opportunities detected.'}
+
+ACTIVE SPORTS: {', '.join([f"{s['sport']} ({s['count']} games)" for s in sport_summaries])}
+
+Generate an HTML report with these sections (use <h4> headers, <ul><li> lists):
+1. TOP LINE MOVES — biggest spread/total shifts, what it means
+2. ARB OPPORTUNITIES — if any exist, detail the legs
+3. TRAP GAMES — heavy favorites or public-heavy sides to fade
+4. MARKET OVERVIEW — quick summary of today's slate across sports
+
+Keep it sharp, concise, no fluff. Bold important items. End with timestamp: {now_time}."""
+
+            client_ai = AzureOpenAI(
+                azure_endpoint=AZURE_ENDPOINT,
+                api_key=AZURE_KEY,
+                api_version="2024-12-01-preview",
+            )
+            response = client_ai.chat.completions.create(
+                model=AZURE_DEPLOYMENT,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.4,
+                max_tokens=1200,
+            )
+            beat_report_html = response.choices[0].message.content
+        except Exception as e:
+            print(f"Beat report AI generation failed: {e}")
+
+    result = {
+        "generated_at": _now_ts(),
+        "report_html": beat_report_html,
+        "line_moves": all_shifts[:15],
+        "arbs": all_arbs[:10],
+        "sports_active": sport_summaries,
+        "cached": False,
+    }
+    _set_cache(cache_key, result)
+    return JSONResponse(result)
+
+
+# ===== TWITTER/X SOCIAL FEED =====
+
+TWITTER_BEARER = os.environ.get("TWITTER_BEARER_TOKEN", "")
+
+SHARP_TWITTER_ACCOUNTS = {
+    "nba": ["ShamsCharania", "wojespn", "FantasyLabsNBA", "ActionNetworkHQ"],
+    "nhl": ["FriedgeHNIC", "TSNBobMcKenzie", "PuckPedia"],
+    "ncaab": ["JonRothstein", "GoodmanHoops", "jeffborzello"],
+    "mlb": ["JeffPassan", "Ken_Rosenthal", "FantasyLabsMLB"],
+    "soccer": ["FabrizioRomano", "taraborelli"],
+    "general": ["CircaSports", "pregabortonern", "BetMGM"],
+}
+
+
+@app.get("/api/social/{sport}")
+async def get_social_feed(sport: str):
+    """Fetch betting-relevant tweets from curated sharp accounts."""
+    sport_lower = sport.lower()
+
+    if not TWITTER_BEARER:
+        return JSONResponse({
+            "sport": sport.upper(),
+            "tweets": [],
+            "message": "Twitter API not configured. Set TWITTER_BEARER_TOKEN env var.",
+            "configured": False,
+            "fetched_at": _now_ts(),
+        })
+
+    cache_key = f"social:{sport_lower}"
+    cached = _get_cached(cache_key, ttl=300)
+    if cached:
+        return JSONResponse(cached)
+
+    accounts = SHARP_TWITTER_ACCOUNTS.get(sport_lower, []) + SHARP_TWITTER_ACCOUNTS.get("general", [])
+    from_query = " OR ".join([f"from:{a}" for a in accounts])
+    query = f"({from_query}) -is:retweet"
+
+    tweets = []
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            resp = await client.get(
+                "https://api.twitter.com/2/tweets/search/recent",
+                params={
+                    "query": query,
+                    "max_results": 20,
+                    "tweet.fields": "created_at,author_id,public_metrics",
+                    "expansions": "author_id",
+                    "user.fields": "username,name",
+                },
+                headers={"Authorization": f"Bearer {TWITTER_BEARER}"},
+            )
+            if resp.status_code == 200:
+                data = resp.json()
+                users = {u["id"]: u for u in data.get("includes", {}).get("users", [])}
+                for tweet in data.get("data", []):
+                    author = users.get(tweet.get("author_id"), {})
+                    tweets.append({
+                        "text": tweet.get("text", ""),
+                        "author": author.get("name", "Unknown"),
+                        "username": author.get("username", ""),
+                        "created_at": tweet.get("created_at", ""),
+                        "metrics": tweet.get("public_metrics", {}),
+                    })
+    except Exception as e:
+        print(f"Twitter fetch failed: {e}")
+
+    result = {
+        "sport": sport.upper(),
+        "tweets": tweets,
+        "count": len(tweets),
+        "configured": True,
+        "fetched_at": _now_ts(),
+    }
+    _set_cache(cache_key, result)
+    return JSONResponse(result)
+
+
+# ===== ARB SCANNER — Consolidated View =====
+
+@app.get("/api/arb-scan")
+async def arb_scan():
+    """Scan all active sports for arbitrage opportunities. Returns consolidated list."""
+    all_arbs = []
+    for sport in ["nba", "wnba", "ncaab", "nhl", "mlb", "soccer", "mma", "boxing"]:
+        odds_key = _odds_cache_key(sport)
+        odds_data = _get_cached(odds_key)
+        if not odds_data or not odds_data.get("games"):
+            continue
+        for g in odds_data["games"]:
+            if g.get("arbs"):
+                for arb in g["arbs"]:
+                    all_arbs.append({
+                        "sport": sport.upper(),
+                        "matchup": f"{g.get('away','?')} @ {g.get('home','?')}",
+                        "time": g.get("time", ""),
+                        "bookmaker": g.get("bookmaker", ""),
+                        **arb,
+                    })
+
+    all_arbs.sort(key=lambda a: a.get("profit_pct", 0), reverse=True)
+    return JSONResponse({
+        "arbs": all_arbs,
+        "count": len(all_arbs),
+        "scanned_at": _now_ts(),
+    })
 
 
 NO_CACHE_HEADERS = {
