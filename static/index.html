@@ -2737,7 +2737,17 @@ function submitPick() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(pick)
-    }).then(function(r) { return r.json(); }).catch(function() {});
+    }).then(function(r) {
+        if (!r.ok) {
+            return r.json().then(function(d) { throw new Error(d.error || 'Server error ' + r.status); });
+        }
+        return r.json();
+    }).then(function(data) {
+        console.log('Pick saved to server:', data);
+    }).catch(function(err) {
+        console.error('Pick save failed:', err);
+        showToast('WARNING: Pick saved locally but failed to sync to server. Try again.', true);
+    });
 
     showToast(pick.name + "'s pick locked!");
 
