@@ -4116,19 +4116,14 @@ function toggleMLFilter(sport) {
             row.style.display = '';
             return;
         }
-        // Show games where either ML is in the value range: -180 to +400
+        // Upset specials: show games where either team has plus money ML
         var sideButtons = row.querySelectorAll('.side-btn');
-        var inRange = false;
+        var hasPlus = false;
         sideButtons.forEach(function(b) {
             var t = b.textContent;
-            if (t.indexOf('ML') === -1) return;
-            var m = t.match(/\(([+-]?\d+)\)/);
-            if (!m) return;
-            var odds = parseInt(m[1]);
-            // Value range: -180 through +400
-            if (odds >= -180 && odds <= 400) inRange = true;
+            if (t.indexOf('ML') !== -1 && t.match(/\+\d/)) hasPlus = true;
         });
-        row.style.display = inRange ? '' : 'none';
+        row.style.display = hasPlus ? '' : 'none';
     });
 }
 
@@ -4267,7 +4262,8 @@ function renderCombinedTable(data) {
         if (analysis) {
             var gc = 'g' + (analysis.grade || '').toLowerCase().replace(/[^a-z]/g,'');
             if (analysis.grade === 'INCOMPLETE') gc = 'gc';
-            gradeHtml = '<span class="grade ' + gc + '">' + (analysis.grade || '--') + '</span>';
+            if (analysis.grade === 'TBD') gc = 'gc';
+            gradeHtml = '<span class="grade ' + gc + '"' + (analysis.grade === 'TBD' ? ' style="background:rgba(251,176,36,0.15);color:#FBB024;"' : '') + '>' + (analysis.grade || '--') + '</span>';
             // Add lineup warning if game is >90min away
             var msToG = g.time ? (new Date(g.time).getTime() - Date.now()) : 0;
             if (msToG > 90 * 60 * 1000) {
@@ -4324,6 +4320,7 @@ function renderCombinedTable(data) {
         if (mAnalysis) {
             var mgc = 'g' + (mAnalysis.grade || '').toLowerCase().replace(/[^a-z]/g,'');
             if (mAnalysis.grade === 'INCOMPLETE') mgc = 'gc';
+            if (mAnalysis.grade === 'TBD') mgc = 'gc';
             mGrade = '<span class="grade ' + mgc + '" style="font-size:12px;">' + (mAnalysis.grade || '') + '</span>';
             if (mAnalysis.chinny_props && mAnalysis.chinny_props.length) {
                 mProps = '<div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.06);">';
@@ -4371,7 +4368,7 @@ function updatePeterGut(sport, analysisData) {
         n++;
         var gradeColor = '#818cf8';
         if (game.grade === 'A' || game.grade === 'A-') gradeColor = '#10B981';
-        else if (game.grade === 'INCOMPLETE') gradeColor = '#F59E0B';
+        else if (game.grade === 'INCOMPLETE' || game.grade === 'TBD') gradeColor = '#F59E0B';
         else if (game.grade === 'C' || game.grade === 'C+') gradeColor = '#EF4444';
 
         var tagStr = '';
@@ -4566,7 +4563,9 @@ function fetchAnalysis(sport) {
                             var gradeEl = row.querySelector('.game-grade .grade');
                             if (gradeEl && game.grade) {
                                 var isIncomplete = game.grade === 'INCOMPLETE' || (game.data_status && game.data_status.indexOf('MISSING') !== -1);
+                                var isTBD = game.grade === 'TBD' || (game.data_status && game.data_status.indexOf('TBD') !== -1);
                                 if (isIncomplete) { gradeEl.className = 'grade gc'; gradeEl.textContent = 'INC'; }
+                                else if (isTBD) { gradeEl.className = 'grade gc'; gradeEl.style.cssText = 'background:rgba(251,176,36,0.15);color:#FBB024;'; gradeEl.textContent = 'TBD'; }
                                 else { gradeEl.className = 'grade g' + game.grade.toLowerCase().replace(/[^a-z]/g,''); gradeEl.textContent = game.grade; }
                             }
                             // Add "Lineups Open" tag if game is >90min away

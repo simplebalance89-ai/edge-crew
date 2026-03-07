@@ -1966,7 +1966,7 @@ Generate analysis in this EXACT JSON format:
     {{
       "matchup": "AWAY @ HOME",
       "composite_score": 7.2,
-      "grade": "A+/A/A-/B+/B/B-/C+/C/D/F/INCOMPLETE",
+      "grade": "A+/A/A-/B+/B/B-/C+/C/D/F/TBD/INCOMPLETE",
       "edge_question": "Why is the market wrong? 1-2 sentences. If no answer: 'No clear edge identified.'",
       "tags": ["B2B", "SHARP", "TRAP", "UPSET", "PASS", "BEST BET", "REST-EDGE", "INJURY-IMPACT", "INCOMPLETE"],
       "matrix_scores": {{
@@ -1982,14 +1982,15 @@ Generate analysis in this EXACT JSON format:
       "chinny_props": [
         {{"player": "Player Name", "prop": "Over 24.5 Points", "line": "-115", "grade": "A/B+/B/C", "edge": "why this prop hits"}}
       ],
-      "data_status": "COMPLETE or INCOMPLETE - state exactly what is missing",
+      "data_status": "COMPLETE or INCOMPLETE or TBD - state exactly what is missing or pending (lineups, injury report, etc.)",
       "book_source": "which sportsbook"
     }}
   ]
 }}
 
 HARD RULES — NEVER BREAK THESE:
-1. NEVER grade a moneyline play as A or B if the ML is worse than -190. Past -190, the edge is in the spread, not the ML. Flag it: "ML too juiced — take spread instead."
+1. VALUE RANGE: -180 to +400. This is where we find edges. ML worse than -180 = too juiced, take the spread instead. ML past +400 = longshot, not a value play. If a game's best ML play falls outside -180 to +400, flag it and redirect to spread/total.
+8. If lineups are NOT confirmed (game hasn't posted starters, injury report pending, lineups TBD), grade the game "TBD" — not a letter grade. We do not grade games without confirmed lineups. Period.
 2. NEVER suggest a player prop without considering games played this season. If a player has < 20 games, FLAG IT: "Returning from injury / limited sample / possible minutes restriction." Grade that prop C or lower regardless of the line.
 3. ALL player prop analysis uses LAST 10 GAME averages, not season averages. Season stats lie for guys who missed time. If you don't have last 10 data, say so: "No recent game log available."
 4. FULL LINEUP CONTEXT before grading ANY game. If a star player is OUT, LIMITED, or returning from injury, the ENTIRE team analysis changes — scoring output, pace, defensive matchups, everything. The spread already prices this in — your analysis must too. Don't grade a team as if they have their full roster when they don't.
