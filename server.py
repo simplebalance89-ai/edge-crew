@@ -2271,14 +2271,19 @@ async def grade_pick(request: Request):
     pick_id = body.get("id", "")
     result_val = body.get("result", "")
 
-    if not pick_id or result_val not in ("W", "L", "P"):
-        return JSONResponse({"error": "id and result (W/L/P) required"}, status_code=400)
+    if not pick_id:
+        return JSONResponse({"error": "id is required"}, status_code=400)
+    if result_val not in ("W", "L", "P", ""):
+        return JSONResponse({"error": "result must be W, L, P, or empty to ungrade"}, status_code=400)
+    # Empty string = ungrade (reset to null)
+    if result_val == "":
+        result_val = None
 
     data = _read_picks()
     for pick in data["picks"]:
         if pick["id"] == pick_id:
             pick["result"] = result_val
-            pick["graded_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            pick["graded_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S") if result_val else None
             data["updated_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             _write_picks(data)
             return JSONResponse({"status": "ok", "pick": pick})

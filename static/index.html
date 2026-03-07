@@ -2862,6 +2862,24 @@ function gradePick(index, result) {
     }
 }
 
+function ungradePick(index) {
+    var stored = JSON.parse(safeLoad('edgePicks') || '[]');
+    if (stored[index]) {
+        stored[index].result = null;
+        stored[index].graded_at = null;
+        safeSave('edgePicks', JSON.stringify(stored));
+        if (stored[index].id) {
+            fetch('/api/picks/grade', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: stored[index].id, result: '' })
+            }).catch(function() {});
+        }
+        showToast('Pick ungraded');
+        renderBankroll();
+    }
+}
+
 function deletePick(index) {
     if (!confirm('Delete this pick?')) return;
     var stored = JSON.parse(safeLoad('edgePicks') || '[]');
@@ -3369,6 +3387,7 @@ function renderBankroll() {
                     '<div style="' + btnStyle + wClass + '" onclick="gradePick(' + i + ',\'W\')">W</div>' +
                     '<div style="' + btnStyle + lClass + '" onclick="gradePick(' + i + ',\'L\')">L</div>' +
                     '<div style="' + btnStyle + pClass + '" onclick="gradePick(' + i + ',\'P\')">P</div>' +
+                    (graded ? '<div style="cursor:pointer;padding:4px 6px;font-size:11px;color:rgba(251,191,36,0.6);" onclick="ungradePick(' + i + ')" title="Ungrade">↩</div>' : '') +
                     '<div style="cursor:pointer;padding:4px 6px;font-size:11px;color:rgba(255,255,255,0.3);" onclick="editPick(' + i + ')" title="Edit">✏️</div>' +
                     '<div style="cursor:pointer;padding:4px 6px;font-size:11px;color:rgba(239,68,68,0.4);" onclick="deletePick(' + i + ')" title="Delete">🗑️</div>' +
                 '</div>';
