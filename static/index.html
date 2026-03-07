@@ -1807,6 +1807,15 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
 </div>
 </div>
 
+<!-- ===== STATUS BOARD PANEL ===== -->
+<div class="sport-panel" id="panel-board">
+<div class="pick-form">
+    <h2 style="color:#818cf8;">Status Board</h2>
+    <div class="form-sub">What we're building, what needs doing, and where to go.</div>
+    <div id="statusBoardContent"></div>
+</div>
+</div>
+
 <!-- ===== RESULTS PANEL (Pick Grading) ===== -->
 <!-- ===== SCOREBOARD PANEL ===== -->
 <div class="sport-panel" id="panel-scores">
@@ -6409,6 +6418,140 @@ function postLoginLoad() {
     }, 5000);
 }
 
+// ===== STATUS BOARD =====
+var _statusBoard = {
+    sections: [
+        {
+            title: "IN PROGRESS",
+            color: "#818cf8",
+            items: [
+                {id:"ip1", text:"Props V2 — ESPN data pipeline + GPT reasoning with real stats", done:true},
+                {id:"ip2", text:"Post-GPT validation gate (roster check + stat verification)", done:true},
+                {id:"ip3", text:"Prop filter buttons fix (Rebounds, Threes, Assists, Points)", done:true},
+                {id:"ip4", text:"Auto-grade from live scoreboard", done:true},
+                {id:"ip5", text:"Status Board tab (this page)", done:true},
+            ]
+        },
+        {
+            title: "PETER ACTION ITEMS",
+            color: "#F59E0B",
+            items: [
+                {id:"pa1", text:"Verify Odds API tier + credits", done:false,
+                 steps:["Go to The Odds API dashboard","Check remaining credits (should be 100K tier)","If low, upgrade or adjust polling frequency"],
+                 link:"https://the-odds-api.com/account/", linkLabel:"Odds API Dashboard"},
+                {id:"pa2", text:"Check Azure OpenAI quota / deployment", done:false,
+                 steps:["Login to Azure Portal","Go to your OpenAI resource (pwgcerp-9302-resource)","Check Deployments — verify gpt-51-instant is active","Check Quotas — TPM limit, rate limits"],
+                 link:"https://portal.azure.com/#view/Microsoft_Azure_ProjectOxford/CognitiveServicesHub/~/OpenAI", linkLabel:"Azure OpenAI Portal"},
+                {id:"pa3", text:"Verify Render deployment is healthy", done:false,
+                 steps:["Go to Render dashboard","Check edge-crew-v2 service status","Verify latest deploy succeeded","Check logs for any errors"],
+                 link:"https://dashboard.render.com/web/srv-d6f9iba4d50c73e84dj0", linkLabel:"Render Dashboard"},
+                {id:"pa4", text:"Review prop reasoning quality on live slate", done:false,
+                 steps:["Open Edge Crew on your phone","Go to Props tab, pick NBA","Check SHARP VALUE props — does reasoning cite real stats?","Verify player teams are correct","Flag any fabricated stats to Alyssa"]},
+                {id:"pa5", text:"Decide: upgrade Render to Standard ($25/mo) for RAM?", done:false,
+                 steps:["Edge Crew is on Starter ($7/mo) — 512MB RAM","Standard ($25/mo) gives 2GB RAM, better CPU","If analysis is slow or timing out, upgrade","Go to Render > edge-crew-v2 > Settings > Instance Type"],
+                 link:"https://dashboard.render.com/web/srv-d6f9iba4d50c73e84dj0/settings", linkLabel:"Render Settings"},
+                {id:"pa6", text:"Review BALLDONTLIE API for production upgrade ($300/mo)", done:false,
+                 steps:["Current: ESPN free tier (no SLA, could break)","BALLDONTLIE ALL-ACCESS: $299.99/mo — all sports, structured data, webhooks","Evaluate when Edge Crew has paying users","Sign up at balldontlie.io if ready"],
+                 link:"https://balldontlie.io", linkLabel:"BALLDONTLIE"},
+            ]
+        },
+        {
+            title: "API & CONFIG STATUS",
+            color: "#10B981",
+            items: [
+                {id:"ac1", text:"The Odds API — LIVE (paid tier, player props enabled)", done:true,
+                 link:"https://the-odds-api.com/account/", linkLabel:"Dashboard"},
+                {id:"ac2", text:"Azure OpenAI — LIVE (gpt-51-instant deployment)", done:true,
+                 link:"https://portal.azure.com", linkLabel:"Azure Portal"},
+                {id:"ac3", text:"ESPN APIs — LIVE (free, no auth, rosters + injuries + game logs)", done:true},
+                {id:"ac4", text:"Render — edge-crew-v2 on Starter tier ($7/mo)", done:true,
+                 link:"https://dashboard.render.com", linkLabel:"Render"},
+                {id:"ac5", text:"GitHub — simplebalance89-ai/edge-crew", done:true,
+                 link:"https://github.com/simplebalance89-ai/edge-crew", linkLabel:"GitHub Repo"},
+            ]
+        },
+        {
+            title: "UPCOMING / BACKLOG",
+            color: "#C084FC",
+            items: [
+                {id:"bl1", text:"Live Intel Feed — RotoWire RSS + ESPN news ticker", done:false,
+                 steps:["Scrape RotoWire RSS per sport (free, no auth)","Parse injury updates, lineup changes, scratches","Display as scrolling ticker below header","Auto-refresh every 30 min on game days"]},
+                {id:"bl2", text:"Bet Report Ticker — ESPN-style scrolling crawl", done:false,
+                 steps:["Show latest graded picks (W/L with units)","Daily ROI updates","Hot streak alerts","Smooth CSS animation, auto-scrolling"]},
+                {id:"bl3", text:"Line Movement Alerts — flag 1+ point moves", done:false,
+                 steps:["Odds API already has opening/current lines","Compare open vs current spread/total","Flag moves > 1 point","Show in beat report and game cards"]},
+                {id:"bl4", text:"Weather integration for outdoor sports (MLB, NFL, Soccer)", done:false},
+                {id:"bl5", text:"Persistent picks DB (currently localStorage only)", done:false},
+                {id:"bl6", text:"Crew invite system — shareable join link", done:false},
+            ]
+        }
+    ]
+};
+
+function renderStatusBoard() {
+    var container = document.getElementById('statusBoardContent');
+    if (!container) return;
+    var checked = JSON.parse(safeLoad('edgeBoardChecked') || '{}');
+
+    var html = '';
+    _statusBoard.sections.forEach(function(section) {
+        html += '<div style="margin-bottom:20px;">';
+        html += '<div style="font-family:var(--ec-font-heading);font-size:13px;font-weight:800;color:' + section.color + ';letter-spacing:1px;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid ' + section.color + '33;">' + section.title + '</div>';
+
+        section.items.forEach(function(item) {
+            var isChecked = checked[item.id] || false;
+            var checkStyle = isChecked ? 'text-decoration:line-through;color:rgba(255,255,255,0.3);' : 'color:rgba(255,255,255,0.85);';
+            html += '<div style="margin-bottom:8px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:10px 12px;">';
+
+            // Checkbox + text
+            html += '<div style="display:flex;align-items:flex-start;gap:10px;">';
+            html += '<input type="checkbox" ' + (isChecked ? 'checked' : '') + ' onchange="toggleBoardItem(\'' + item.id + '\',this)" style="width:18px;height:18px;accent-color:' + section.color + ';cursor:pointer;flex-shrink:0;margin-top:1px;">';
+            html += '<div style="flex:1;min-width:0;">';
+            html += '<div style="font-size:13px;font-weight:600;' + checkStyle + '">' + item.text + '</div>';
+
+            // Steps (if any)
+            if (item.steps && item.steps.length) {
+                html += '<div style="margin-top:6px;padding-left:4px;">';
+                item.steps.forEach(function(step, idx) {
+                    html += '<div style="font-size:11px;color:rgba(255,255,255,0.45);padding:2px 0;display:flex;gap:6px;">';
+                    html += '<span style="color:' + section.color + ';font-weight:700;flex-shrink:0;">' + (idx+1) + '.</span>';
+                    html += '<span>' + step + '</span>';
+                    html += '</div>';
+                });
+                html += '</div>';
+            }
+
+            // Link (if any)
+            if (item.link) {
+                html += '<a href="' + item.link + '" target="_blank" rel="noopener" style="display:inline-block;margin-top:6px;font-size:11px;color:' + section.color + ';text-decoration:none;font-weight:700;padding:3px 10px;border:1px solid ' + section.color + '44;border-radius:5px;background:' + section.color + '11;">' + (item.linkLabel || 'Open') + ' &rarr;</a>';
+            }
+
+            html += '</div></div>';
+            html += '</div>';
+        });
+
+        html += '</div>';
+    });
+
+    // Last updated
+    html += '<div style="text-align:center;font-size:10px;color:rgba(255,255,255,0.2);margin-top:16px;">Last code update: March 7, 2026 | Check states saved in your browser</div>';
+    container.innerHTML = html;
+}
+
+function toggleBoardItem(id, checkbox) {
+    var checked = JSON.parse(safeLoad('edgeBoardChecked') || '{}');
+    checked[id] = checkbox.checked;
+    safeSave('edgeBoardChecked', JSON.stringify(checked));
+    renderStatusBoard();
+}
+
+// Render board when switching to it
+var _origSwitchSport = switchSport;
+switchSport = function(sport, e) {
+    _origSwitchSport(sport, e);
+    if (sport === 'board') renderStatusBoard();
+};
+
 // ===== GEAR MENU =====
 function toggleGearMenu() {
     var menu = document.getElementById('gearMenu');
@@ -6482,6 +6625,9 @@ async function clearAllCache() {
         </button>
         <button class="mqb-btn" ontouchend="event.preventDefault();switchSport('bankroll',event)" onclick="switchSport('bankroll',event)">
             <span class="mqb-icon">💰</span>Bank
+        </button>
+        <button class="mqb-btn" ontouchend="event.preventDefault();switchSport('board',event)" onclick="switchSport('board',event)">
+            <span class="mqb-icon">📝</span>Board
         </button>
     </div>
 </div>
