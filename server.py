@@ -2295,6 +2295,58 @@ async def grade_pick(request: Request):
     return JSONResponse({"error": "Pick not found"}, status_code=404)
 
 
+@app.get("/api/scores")
+async def get_scores():
+    """Live scoreboard — all sports, today's games with scores."""
+    today_pst = datetime.now(PST).strftime("%Y-%m-%d")
+    active_sports = ["nba", "nhl", "mlb", "wnba", "ncaab", "soccer", "mma", "boxing"]
+    fetch_tasks = []
+    fetch_sports = []
+    for sport in active_sports:
+        for key in SPORT_KEYS.get(sport, []):
+            fetch_tasks.append(_fetch_scores(key))
+            fetch_sports.append(sport)
+
+    results = await asyncio.gather(*fetch_tasks, return_exceptions=True)
+    games = []
+    for sport, result in zip(fetch_sports, results):
+        if isinstance(result, Exception) or not result:
+            continue
+        for g in result:
+            commence = g.get("commence_time", "")
+            try:
+                game_dt = datetime.fromisoformat(commence.replace("Z", "+00:00"))
+                game_date = game_dt.astimezone(PST).strftime("%Y-%m-%d")
+                game_time = game_dt.astimezone(PST).strftime("%I:%M %p")
+            except (ValueError, TypeError):
+                game_date = ""
+                game_time = ""
+            if game_date != today_pst:
+                continue
+            scores = g.get("scores") or []
+            score_map = {}
+            for s in scores:
+                score_map[s["name"]] = s.get("score", "")
+            games.append({
+                "sport": sport.upper(),
+                "away": g.get("away_team", ""),
+                "home": g.get("home_team", ""),
+                "away_score": score_map.get(g.get("away_team", ""), ""),
+                "home_score": score_map.get(g.get("home_team", ""), ""),
+                "completed": g.get("completed", False),
+                "time": game_time,
+                "commence_time": commence,
+            })
+
+    games.sort(key=lambda x: x.get("commence_time", ""))
+    return JSONResponse({
+        "date": today_pst,
+        "games": games,
+        "count": len(games),
+        "timestamp": _now_ts(),
+    })
+
+
 async def _fetch_scores(sport_key: str) -> list:
     """Fetch completed game scores from The Odds API. Cached 5 min."""
     if not ODDS_API_KEY:

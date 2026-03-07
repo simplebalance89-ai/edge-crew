@@ -1590,6 +1590,19 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
 </div>
 
 <!-- ===== RESULTS PANEL (Pick Grading) ===== -->
+<!-- ===== SCOREBOARD PANEL ===== -->
+<div class="sport-panel" id="panel-scores">
+<div class="pick-form">
+    <h2 style="color:#818cf8;">Live Scoreboard</h2>
+    <div class="form-sub">Today's games across all sports. Auto-refreshes every 60 seconds.</div>
+    <div style="display:flex;gap:8px;align-items:center;margin:12px 0;">
+        <button onclick="loadScoreboard()" style="background:linear-gradient(135deg,#6366f1,#a78bfa);color:#fff;border:none;border-radius:8px;padding:10px 20px;font-family:var(--ec-font-body);font-weight:800;font-size:14px;cursor:pointer;">REFRESH</button>
+        <span id="scoreboardStatus" style="color:rgba(255,255,255,0.4);font-size:12px;"></span>
+    </div>
+    <div id="scoreboardGames"></div>
+</div>
+</div>
+
 <div class="sport-panel" id="panel-results">
 <div class="pick-form">
     <h2 style="color:#818cf8;">Pick Results</h2>
@@ -2537,6 +2550,7 @@ function switchSport(sport, e) {
         });
     }
     if (sport === 'combined') fetchCombinedSlate();
+    if (sport === 'scores') { loadScoreboard(); startScoreboardRefresh(); }
     window.scrollTo(0, 0);
 }
 
@@ -2998,6 +3012,63 @@ function calcPayout(odds, units) {
     if (!o) return 0;
     if (o > 0) return (o / 100) * u;
     else return (100 / Math.abs(o)) * u;
+}
+
+// ===== LIVE SCOREBOARD =====
+var _scoreboardInterval = null;
+function loadScoreboard() {
+    var container = document.getElementById('scoreboardGames');
+    var status = document.getElementById('scoreboardStatus');
+    if (!container) return;
+    status.textContent = 'Loading...';
+    crewFetch('/api/scores').then(function(r) { return r.json(); }).then(function(data) {
+        status.textContent = data.count + ' games today — ' + data.timestamp;
+        if (!data.games || data.games.length === 0) {
+            container.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.3);padding:40px;font-size:16px;">No games scheduled today.</div>';
+            return;
+        }
+        var html = '';
+        var currentSport = '';
+        data.games.forEach(function(g) {
+            if (g.sport !== currentSport) {
+                currentSport = g.sport;
+                html += '<div style="color:#818cf8;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:1px;margin:20px 0 8px;padding-bottom:4px;border-bottom:1px solid rgba(99,102,241,0.2);">' + currentSport + '</div>';
+            }
+            var statusText = '';
+            var statusColor = '';
+            if (g.completed) {
+                statusText = 'FINAL';
+                statusColor = '#10B981';
+            } else if (g.away_score || g.home_score) {
+                statusText = 'LIVE';
+                statusColor = '#EF4444';
+            } else {
+                statusText = g.time || 'TBD';
+                statusColor = 'rgba(255,255,255,0.4)';
+            }
+            var awayScore = g.away_score || (g.completed ? '0' : '-');
+            var homeScore = g.home_score || (g.completed ? '0' : '-');
+            var awayBold = g.completed && parseInt(g.away_score||0) > parseInt(g.home_score||0) ? 'font-weight:800;color:#fff;' : '';
+            var homeBold = g.completed && parseInt(g.home_score||0) > parseInt(g.away_score||0) ? 'font-weight:800;color:#fff;' : '';
+            html += '<div style="display:grid;grid-template-columns:1fr 40px 20px 40px 1fr 60px;align-items:center;padding:10px 12px;background:rgba(255,255,255,0.02);border-radius:8px;margin:4px 0;gap:8px;">' +
+                '<div style="text-align:right;font-size:14px;color:rgba(255,255,255,0.7);' + awayBold + '">' + g.away + '</div>' +
+                '<div style="text-align:center;font-size:18px;font-weight:800;color:#fff;' + awayBold + '">' + awayScore + '</div>' +
+                '<div style="text-align:center;color:rgba(255,255,255,0.2);font-size:12px;">@</div>' +
+                '<div style="text-align:center;font-size:18px;font-weight:800;color:#fff;' + homeBold + '">' + homeScore + '</div>' +
+                '<div style="font-size:14px;color:rgba(255,255,255,0.7);' + homeBold + '">' + g.home + '</div>' +
+                '<div style="text-align:right;font-size:11px;font-weight:700;color:' + statusColor + ';">' + statusText + '</div>' +
+            '</div>';
+        });
+        container.innerHTML = html;
+    }).catch(function(err) {
+        status.textContent = 'Error: ' + err.message;
+        status.style.color = '#EF4444';
+    });
+}
+
+function startScoreboardRefresh() {
+    if (_scoreboardInterval) clearInterval(_scoreboardInterval);
+    _scoreboardInterval = setInterval(loadScoreboard, 60000);
 }
 
 function updateHeroStats() {
@@ -5611,8 +5682,8 @@ async function clearAllCache() {
             <span class="mqb-icon" style="font-size:1.4rem;">🤖</span>
             <span style="font-size:0.55rem;font-weight:800;letter-spacing:0.3px;">EV AGENT</span>
         </button>
-        <button class="mqb-btn" ontouchend="event.preventDefault();switchSport('results')" onclick="switchSport('results',event)">
-            <span class="mqb-icon">📈</span>Results
+        <button class="mqb-btn" ontouchend="event.preventDefault();switchSport('scores')" onclick="switchSport('scores',event)">
+            <span class="mqb-icon">📈</span>Scores
         </button>
         <button class="mqb-btn" ontouchend="event.preventDefault();switchSport('bankroll')" onclick="switchSport('bankroll',event)">
             <span class="mqb-icon">💰</span>Bank
@@ -5677,8 +5748,11 @@ async function clearAllCache() {
             <button class="sport-pick-btn" onclick="pickSport('bankroll')" style="flex:1;max-width:120px;flex-direction:row;gap:6px;padding:10px;">
                 <span class="sp-icon" style="font-size:1.2rem;">💰</span>Bank
             </button>
+            <button class="sport-pick-btn" onclick="pickSport('scores')" style="flex:1;max-width:120px;flex-direction:row;gap:6px;padding:10px;">
+                <span class="sp-icon" style="font-size:1.2rem;">📈</span>Scores
+            </button>
             <button class="sport-pick-btn" onclick="pickSport('results')" style="flex:1;max-width:120px;flex-direction:row;gap:6px;padding:10px;">
-                <span class="sp-icon" style="font-size:1.2rem;">📈</span>Results
+                <span class="sp-icon" style="font-size:1.2rem;">✅</span>Results
             </button>
         </div>
     </div>
