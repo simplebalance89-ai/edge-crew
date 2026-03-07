@@ -4822,32 +4822,60 @@ function fetchEdge(sport) {
                 if (g.value_tag) flags.push('<span style="background:rgba(16,185,129,0.15);color:#10B981;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;">' + g.value_tag + '</span>');
                 if (g.spread_ml_flag) flags.push('<span style="background:rgba(99,102,241,0.12);color:#818cf8;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;">' + g.spread_ml_flag + '</span>');
                 if (g.total_lean) flags.push('<span style="background:rgba(96,165,250,0.15);color:#B0BEC5;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;">' + g.total_lean + '</span>');
+                if (g.sharp_signal) flags.push('<span style="background:rgba(232,121,249,0.15);color:#E879F9;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;">SHARP</span>');
+                if (g.spread_disagreement) flags.push('<span style="background:rgba(251,191,36,0.12);color:#FCD34D;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;">BOOKS SPLIT</span>');
 
                 // Upset score bar
                 var barColor = g.upset_score >= 7 ? '#10B981' : (g.upset_score >= 4 ? '#818cf8' : '#EF4444');
                 var barWidth = g.upset_score * 10;
 
                 html += '<div style="border:1px solid rgba(232,121,249,0.15);border-radius:10px;padding:12px;margin-bottom:10px;background:rgba(232,121,249,0.03);">';
+
+                // Header: matchup + book count + vig
                 html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">';
                 html += '<div style="color:#fff;font-weight:700;font-size:14px;">' + g.away + ' @ ' + g.home + '</div>';
-                html += '<div style="font-size:11px;color:rgba(255,255,255,0.3);">Vig: ' + g.vig + '%</div>';
+                html += '<div style="font-size:10px;color:rgba(255,255,255,0.3);">' + (g.book_count || 0) + ' books | Vig: ' + g.vig + '%</div>';
                 html += '</div>';
 
-                // Lines
-                html += '<div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:8px;">';
-                html += 'Spread: ' + g.home + ' ' + (g.home_spread || '—');
-                html += ' | O/U: ' + (g.total || '—');
+                // Consensus lines
+                html += '<div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:4px;">';
+                html += '<span style="color:rgba(232,121,249,0.5);font-weight:600;">CONSENSUS</span> ';
+                html += 'Spread: ' + g.home + ' ' + (g.home_spread != null ? g.home_spread : '—');
+                if (g.spread_range > 0) html += ' <span style="color:rgba(255,255,255,0.25);">(range ' + g.spread_range + ')</span>';
+                html += ' | O/U: ' + (g.total != null ? g.total : '—');
+                if (g.total_range > 0) html += ' <span style="color:rgba(255,255,255,0.25);">(range ' + g.total_range + ')</span>';
                 html += ' | ML: ' + g.away + ' ' + g.away_ml + ' / ' + g.home + ' ' + g.home_ml;
                 html += '</div>';
 
-                // Favorite/Underdog breakdown
+                // Best available prices
+                if (g.best_away_ml || g.best_home_ml) {
+                    html += '<div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:6px;">';
+                    html += '<span style="color:rgba(16,185,129,0.7);font-weight:600;">BEST PRICE</span> ';
+                    if (g.best_away_ml) html += g.away + ' ' + g.best_away_ml + ' <span style="color:rgba(255,255,255,0.2);">(' + (g.best_away_ml_book || '?') + ')</span>';
+                    if (g.best_home_ml) html += ' | ' + g.home + ' ' + g.best_home_ml + ' <span style="color:rgba(255,255,255,0.2);">(' + (g.best_home_ml_book || '?') + ')</span>';
+                    html += '</div>';
+                }
+
+                // Favorite/Underdog + edge
                 html += '<div style="font-size:12px;color:rgba(255,255,255,0.6);margin-bottom:6px;">';
                 html += '<span style="color:#EF4444;">Fav:</span> ' + g.favorite + ' (' + g.fav_prob + '%) ';
-                html += '<span style="color:#10B981;margin-left:12px;">Dog:</span> ' + g.underdog + ' (' + g.dog_prob + '%) @ ' + g.dog_ml;
+                html += '<span style="color:#10B981;margin-left:12px;">Dog:</span> ' + g.underdog + ' (' + g.dog_prob + '%)';
+                if (g.best_dog_ml) {
+                    html += ' — best ' + g.best_dog_ml;
+                    if (g.best_dog_ml_book) html += ' <span style="color:rgba(255,255,255,0.2);">(' + g.best_dog_ml_book + ')</span>';
+                }
+                if (g.dog_edge > 0) html += ' <span style="color:#E879F9;font-weight:700;">[' + g.dog_edge + '% edge]</span>';
                 html += '</div>';
 
-                // Upset score bar (show injury boost if any)
-                var boostLabel = g.injury_boost ? ' (injury adj ' + (g.injury_boost > 0 ? '+' : '') + g.injury_boost + ')' : '';
+                // Sharp signal callout
+                if (g.sharp_signal) {
+                    html += '<div style="margin:6px 0;padding:8px 10px;background:rgba(232,121,249,0.06);border:1px solid rgba(232,121,249,0.2);border-radius:8px;">';
+                    html += '<div style="font-size:11px;color:#E879F9;font-weight:700;">' + g.sharp_signal + '</div>';
+                    html += '</div>';
+                }
+
+                // Upset score bar
+                var boostLabel = g.injury_boost ? ' (adj ' + (g.injury_boost > 0 ? '+' : '') + g.injury_boost + ')' : '';
                 html += '<div style="margin:8px 0 6px;">';
                 html += '<div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:3px;">Upset Score: ' + g.upset_score + '/10' + boostLabel + '</div>';
                 html += '<div style="background:rgba(255,255,255,0.06);border-radius:4px;height:6px;overflow:hidden;">';

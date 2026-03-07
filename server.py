@@ -1282,6 +1282,158 @@ async def _fetch_sport_odds(sport_key, markets, sport_label):
     return games
 
 
+async def _fetch_raw_events(sport_lower):
+    """Fetch raw events with ALL bookmaker data intact (for edge engine).
+    Returns list of raw Odds API event dicts, cached 5 min."""
+    cache_key = f"raw_events:{sport_lower}"
+    cached = _get_cached(cache_key, ttl=300)
+    if cached:
+        return cached
+
+    if not ODDS_API_KEY:
+        return []
+
+    sport_keys = SPORT_KEYS.get(sport_lower, [sport_lower])
+    all_events = []
+    for sport_key in sport_keys:
+        url = f"{ODDS_API_BASE}/{sport_key}/odds/"
+        params = {
+            "apiKey": ODDS_API_KEY,
+            "regions": REGIONS,
+            "markets": "h2h,spreads,totals",
+            "oddsFormat": "american",
+        }
+        try:
+            async with httpx.AsyncClient(timeout=15) as client:
+                resp = await client.get(url, params=params)
+                if resp.status_code == 200:
+                    all_events.extend(resp.json())
+        except Exception:
+            pass
+
+    _set_cache(cache_key, all_events)
+    return all_events
+
+
+def _analyze_all_books(event):
+    """Analyze ALL bookmakers for a single event.
+
+    Returns dict with:
+    - consensus (average) lines across all books
+    - best available price per side
+    - book count
+    - line spread across books (max - min = disagreement signal)
+    - sharp signal: reverse line movement detection
+    """
+    bookmakers = event.get("bookmakers", [])
+    away_team = event["away_team"]
+    home_team = event["home_team"]
+
+    # Collect all book data
+    all_away_ml = []
+    all_home_ml = []
+    all_home_spread = []
+    all_away_spread = []
+    all_total = []
+    all_over_odds = []
+    all_under_odds = []
+    book_lines = {}  # book_key -> {away_ml, home_ml, spread, total}
+
+    for bk in bookmakers:
+        bk_key = bk["key"]
+        bk_data = {}
+        for market in bk.get("markets", []):
+            if market["key"] == "h2h":
+                for o in market["outcomes"]:
+                    if o["name"] == away_team:
+                        all_away_ml.append(o["price"])
+                        bk_data["away_ml"] = o["price"]
+                    elif o["name"] == home_team:
+                        all_home_ml.append(o["price"])
+                        bk_data["home_ml"] = o["price"]
+            elif market["key"] == "spreads":
+                for o in market["outcomes"]:
+                    if o["name"] == home_team:
+                        all_home_spread.append(o.get("point", 0))
+                        bk_data["home_spread"] = o.get("point", 0)
+                    elif o["name"] == away_team:
+                        all_away_spread.append(o.get("point", 0))
+            elif market["key"] == "totals":
+                for o in market["outcomes"]:
+                    if o["name"] == "Over":
+                        all_total.append(o.get("point", 0))
+                        all_over_odds.append(o["price"])
+                        bk_data["total"] = o.get("point", 0)
+                    elif o["name"] == "Under":
+                        all_under_odds.append(o["price"])
+        if bk_data:
+            book_lines[bk_key] = bk_data
+
+    result = {
+        "book_count": len(book_lines),
+        "books": list(book_lines.keys()),
+    }
+
+    # === CONSENSUS LINES (average across all books) ===
+    if all_away_ml:
+        result["consensus_away_ml"] = round(sum(all_away_ml) / len(all_away_ml))
+        result["best_away_ml"] = max(all_away_ml)  # highest positive or least negative = best for bettor
+        result["best_away_ml_book"] = [k for k, v in book_lines.items() if v.get("away_ml") == result["best_away_ml"]][0] if book_lines else ""
+    if all_home_ml:
+        result["consensus_home_ml"] = round(sum(all_home_ml) / len(all_home_ml))
+        result["best_home_ml"] = max(all_home_ml)
+        result["best_home_ml_book"] = [k for k, v in book_lines.items() if v.get("home_ml") == result["best_home_ml"]][0] if book_lines else ""
+
+    if all_home_spread:
+        result["consensus_spread"] = round(sum(all_home_spread) / len(all_home_spread), 1)
+        # Best spread for home = most positive (or least negative)
+        result["spread_range"] = round(max(all_home_spread) - min(all_home_spread), 1)
+
+    if all_total:
+        result["consensus_total"] = round(sum(all_total) / len(all_total), 1)
+        result["total_range"] = round(max(all_total) - min(all_total), 1)
+
+    # === SHARP SIGNAL: Line disagreement ===
+    # If books disagree by > 2 points on spread or > 1.5 on total, something's moving
+    result["spread_disagreement"] = result.get("spread_range", 0) >= 2.0
+    result["total_disagreement"] = result.get("total_range", 0) >= 1.5
+
+    # === ML EDGE: best price vs consensus implied probability ===
+    if all_away_ml and all_home_ml:
+        def _ml_to_prob(ml):
+            ml = float(ml)
+            return abs(ml) / (abs(ml) + 100) if ml < 0 else 100 / (ml + 100)
+
+        # Consensus probabilities (from average ML)
+        cons_away_prob = _ml_to_prob(result["consensus_away_ml"])
+        cons_home_prob = _ml_to_prob(result["consensus_home_ml"])
+
+        # Best-price probabilities (what you actually pay)
+        best_away_prob = _ml_to_prob(result["best_away_ml"])
+        best_home_prob = _ml_to_prob(result["best_home_ml"])
+
+        # Edge = consensus thinks X% but best book offers a line implying Y% (Y < X = edge)
+        result["away_ml_edge"] = round((cons_away_prob - best_away_prob) * 100, 1)
+        result["home_ml_edge"] = round((cons_home_prob - best_home_prob) * 100, 1)
+
+        # True probabilities (vig-removed from consensus)
+        total_cons = cons_away_prob + cons_home_prob
+        result["away_true_prob"] = round(cons_away_prob / total_cons * 100, 1)
+        result["home_true_prob"] = round(cons_home_prob / total_cons * 100, 1)
+
+    # === REVERSE LINE MOVEMENT ===
+    # If majority of books have home as bigger fav but best away ML is improving = sharp on away
+    if all_home_ml and len(all_home_ml) >= 3:
+        median_home_ml = sorted(all_home_ml)[len(all_home_ml) // 2]
+        # If best away ML is significantly better than consensus, sharps may be on away
+        if result.get("away_ml_edge", 0) >= 3.0:
+            result["sharp_signal"] = f"Sharp on {away_team} — best ML {result.get('best_away_ml')} vs consensus {result.get('consensus_away_ml')} ({result['away_ml_edge']}% edge)"
+        elif result.get("home_ml_edge", 0) >= 3.0:
+            result["sharp_signal"] = f"Sharp on {home_team} — best ML {result.get('best_home_ml')} vs consensus {result.get('consensus_home_ml')} ({result['home_ml_edge']}% edge)"
+
+    return result
+
+
 @app.get("/api/odds/{sport}")
 async def get_odds(sport: str, markets: str = "h2h,spreads,totals"):
     """Fetch live odds — SharpAPI primary, The Odds API fallback."""
@@ -1592,27 +1744,23 @@ async def get_credits():
 
 @app.get("/api/edge/{sport}")
 async def get_edge(sport: str):
-    """Alyssa's Edge — Math + Lineups. No AI. Pure Edge.
+    """Alyssa's Edge v2 — All Books. Real Math. Pure Edge.
 
-    Contrarian value analysis calculated from odds + injury/roster data:
-    - Public fade: flag heavy favorites where ML implies >70% implied prob
-    - Line value: identify spreads that look off
-    - Upset score: underdog value rating 1-10 (adjusted for injuries)
-    - Sharp signals: when line movement doesn't match public direction
-    - Injury impact: star players OUT shift the edge math
+    Multi-book analysis:
+    - Consensus line across ALL bookmakers (not just one book)
+    - Best available price per side (shop the market)
+    - ML edge: consensus implied prob vs best-price implied prob
+    - Sharp signal: reverse line movement (best price diverges from consensus)
+    - Book disagreement: spread range across books (big range = uncertainty)
+    - Injury impact: star OUT adjustments with roster cross-check
+    - Spread/ML discrepancy detection
+    - Total lean from over/under odds
     """
     sport_lower = sport.lower()
-    odds_cache_key = f"{sport_lower}:h2h,spreads,totals"
-    odds_data = _get_cached(odds_cache_key)
-    if not odds_data:
-        odds_resp = await get_odds(sport)
-        if hasattr(odds_resp, 'body'):
-            odds_data = json.loads(odds_resp.body)
-        else:
-            odds_data = {"games": [], "count": 0}
 
-    games = odds_data.get("games", [])
-    if not games:
+    # Fetch RAW events with ALL bookmaker data
+    raw_events = await _fetch_raw_events(sport_lower)
+    if not raw_events:
         return JSONResponse({"sport": sport.upper(), "games": [], "generated_at": _now_ts()})
 
     # ===== FETCH INJURY + ROSTER DATA =====
@@ -1628,8 +1776,7 @@ async def get_edge(sport: str):
     except Exception as e:
         print(f"Edge injury fetch error: {e}")
 
-    # Build roster lookup: team_name -> [player names] (top 8 = starters/key rotation)
-    roster_top = {}  # team_name -> list of top player names
+    roster_top = {}
     try:
         roster_cache = _get_cached(f"rosters:{sport_lower}", ttl=14400)
         if not roster_cache:
@@ -1641,106 +1788,108 @@ async def get_edge(sport: str):
         if roster_cache:
             for abbr, info in roster_cache.get("rosters", {}).items():
                 team_name = info.get("team", "")
-                # Top 8 on roster = starters + key rotation (ESPN lists by importance)
                 top = [p["name"].lower() for p in info.get("players", [])[:8]]
                 roster_top[team_name.lower()] = top
                 roster_top[abbr.lower()] = top
     except Exception as e:
         print(f"Edge roster fetch error: {e}")
 
-    edge_games = []
-    for g in games:
-        away = g.get("away", "?")
-        home = g.get("home", "?")
-        away_ml = g.get("away_ml")
-        home_ml = g.get("home_ml")
-        home_spread = g.get("home_spread")
-        away_spread = g.get("away_spread")
-        total = g.get("total")
-        game_time = g.get("time", "")
+    def ml_to_prob(ml):
+        ml = float(ml)
+        return abs(ml) / (abs(ml) + 100) if ml < 0 else 100 / (ml + 100)
 
-        if not away_ml or not home_ml:
+    def _count_injuries(team_name):
+        out_players, gtd_players, out_stars = [], [], []
+        team_lower = team_name.lower()
+        matched_injuries = []
+        for inj_team, players in injuries_by_team.items():
+            inj_lower = inj_team.lower()
+            if inj_lower in team_lower or team_lower in inj_lower or any(w in inj_lower for w in team_lower.split() if len(w) > 3):
+                matched_injuries = players
+                break
+        top_roster = []
+        for rkey, rplayers in roster_top.items():
+            if rkey in team_lower or team_lower in rkey or any(w in rkey for w in team_lower.split() if len(w) > 3):
+                top_roster = rplayers
+                break
+        for p in matched_injuries:
+            pname = p.get("player", "").lower()
+            if p.get("status") == "OUT":
+                out_players.append(p["player"])
+                if any(pname in rp or rp in pname for rp in top_roster):
+                    out_stars.append(p["player"])
+            elif p.get("status") == "GTD":
+                gtd_players.append(p["player"])
+        return {"out": out_players, "gtd": gtd_players, "out_stars": out_stars, "out_count": len(out_players), "gtd_count": len(gtd_players)}
+
+    edge_games = []
+    for event in raw_events:
+        away = event.get("away_team", "?")
+        home = event.get("home_team", "?")
+        game_time = event.get("commence_time", "")
+
+        # === ALL-BOOK ANALYSIS ===
+        book_analysis = _analyze_all_books(event)
+        if book_analysis.get("book_count", 0) < 1:
             continue
 
-        # Convert ML to implied probability
-        def ml_to_prob(ml):
-            ml = float(ml)
-            if ml > 0:
-                return 100 / (ml + 100)
-            else:
-                return abs(ml) / (abs(ml) + 100)
+        # Use consensus values
+        away_ml_cons = book_analysis.get("consensus_away_ml")
+        home_ml_cons = book_analysis.get("consensus_home_ml")
+        best_away_ml = book_analysis.get("best_away_ml")
+        best_home_ml = book_analysis.get("best_home_ml")
+        consensus_spread = book_analysis.get("consensus_spread")
+        consensus_total = book_analysis.get("consensus_total")
 
-        away_prob = ml_to_prob(away_ml)
-        home_prob = ml_to_prob(home_ml)
+        if not away_ml_cons or not home_ml_cons:
+            continue
 
-        # Normalize so they sum to ~1 (remove vig)
-        total_prob = away_prob + home_prob
-        away_true = away_prob / total_prob
-        home_true = home_prob / total_prob
-        vig = (total_prob - 1) * 100  # vig percentage
+        # True probabilities from consensus (vig-removed)
+        away_true = book_analysis.get("away_true_prob", 50)
+        home_true = book_analysis.get("home_true_prob", 50)
 
-        # Determine favorite/underdog
+        # Vig from consensus
+        cons_away_prob = ml_to_prob(away_ml_cons)
+        cons_home_prob = ml_to_prob(home_ml_cons)
+        vig = (cons_away_prob + cons_home_prob - 1) * 100
+
+        # Determine favorite/underdog from consensus
         if home_true > away_true:
             fav, dog = home, away
-            fav_prob, dog_prob = home_true, away_true
-            fav_ml, dog_ml = home_ml, away_ml
-            fav_spread = home_spread
+            fav_prob, dog_prob = home_true / 100, away_true / 100
+            fav_ml, dog_ml = home_ml_cons, away_ml_cons
+            best_dog_ml = best_away_ml
+            best_dog_ml_book = book_analysis.get("best_away_ml_book", "")
+            dog_edge = book_analysis.get("away_ml_edge", 0)
         else:
             fav, dog = away, home
-            fav_prob, dog_prob = away_true, home_true
-            fav_ml, dog_ml = away_ml, home_ml
-            fav_spread = away_spread
+            fav_prob, dog_prob = away_true / 100, home_true / 100
+            fav_ml, dog_ml = away_ml_cons, home_ml_cons
+            best_dog_ml = best_home_ml
+            best_dog_ml_book = book_analysis.get("best_home_ml_book", "")
+            dog_edge = book_analysis.get("home_ml_edge", 0)
 
-        # --- INJURY ANALYSIS ---
-        # Check injuries for both teams. Star OUT on favorite = edge for dog.
-        def _count_injuries(team_name):
-            """Count OUT and GTD players for a team, check if any are key (top 8 roster)."""
-            out_players = []
-            gtd_players = []
-            out_stars = []
-            # Try matching team name in injuries_by_team (CBS uses city names, full names vary)
-            team_lower = team_name.lower()
-            matched_injuries = []
-            for inj_team, players in injuries_by_team.items():
-                # Fuzzy match: "Golden State" in "Golden State Warriors", or "Warriors" in team
-                inj_lower = inj_team.lower()
-                if inj_lower in team_lower or team_lower in inj_lower or any(w in inj_lower for w in team_lower.split() if len(w) > 3):
-                    matched_injuries = players
-                    break
-            # Get top roster players for this team
-            top_roster = []
-            for rkey, rplayers in roster_top.items():
-                if rkey in team_lower or team_lower in rkey or any(w in rkey for w in team_lower.split() if len(w) > 3):
-                    top_roster = rplayers
-                    break
-            for p in matched_injuries:
-                pname = p.get("player", "").lower()
-                if p.get("status") == "OUT":
-                    out_players.append(p["player"])
-                    if any(pname in rp or rp in pname for rp in top_roster):
-                        out_stars.append(p["player"])
-                elif p.get("status") == "GTD":
-                    gtd_players.append(p["player"])
-            return {"out": out_players, "gtd": gtd_players, "out_stars": out_stars, "out_count": len(out_players), "gtd_count": len(gtd_players)}
-
+        # === INJURY ANALYSIS ===
         fav_injuries = _count_injuries(fav)
         dog_injuries = _count_injuries(dog)
 
-        # --- UPSET SCORE (1-10) ---
-        # Base: dog implied probability. Adjusted by injuries.
+        # === UPSET SCORE (1-10) ===
         upset_score = min(10, max(1, round(dog_prob * 20)))
-
-        # Injury adjustments: star OUT on favorite = huge edge shift
         injury_boost = 0
         if fav_injuries["out_stars"]:
-            injury_boost += min(3, len(fav_injuries["out_stars"]) * 2)  # +2 per star OUT on fav
+            injury_boost += min(3, len(fav_injuries["out_stars"]) * 2)
         if fav_injuries["out_count"] >= 3:
-            injury_boost += 1  # Depth hit on favorite
+            injury_boost += 1
         if dog_injuries["out_stars"]:
-            injury_boost -= min(2, len(dog_injuries["out_stars"]))  # -1 per star OUT on dog
+            injury_boost -= min(2, len(dog_injuries["out_stars"]))
+        # Sharp money bonus: if best dog ML diverges from consensus by 3%+, sharps see something
+        if dog_edge >= 3.0:
+            injury_boost += 1
+        if dog_edge >= 5.0:
+            injury_boost += 1
         upset_score = min(10, max(1, upset_score + injury_boost))
 
-        # Build injury summary
+        # === INJURY FLAGS ===
         injury_flags = []
         if fav_injuries["out_stars"]:
             injury_flags.append(f"EDGE: {fav} missing {', '.join(fav_injuries['out_stars'])}")
@@ -1753,15 +1902,14 @@ async def get_edge(sport: str):
         if dog_injuries["gtd_count"] > 0:
             injury_flags.append(f"{dog}: {dog_injuries['gtd_count']} GTD — monitor")
 
-        # --- PUBLIC FADE FLAG ---
-        # If favorite has >72% implied prob, the public is heavy on them
+        # === PUBLIC FADE ===
         public_fade = fav_prob > 0.72
 
-        # --- VALUE RATING ---
-        # Dogs with >30% true prob are value plays
-        # Dogs with >40% are strong value
-        # Injury boost: if fav missing stars, lower the threshold
+        # === VALUE RATING ===
         value_threshold_shift = 0.03 if fav_injuries["out_stars"] else 0
+        # Additional shift for sharp signal
+        if dog_edge >= 3.0:
+            value_threshold_shift += 0.02
         value_tag = ""
         if dog_prob >= (0.42 - value_threshold_shift):
             value_tag = "STRONG VALUE"
@@ -1769,57 +1917,80 @@ async def get_edge(sport: str):
             value_tag = "VALUE"
         elif dog_prob >= (0.28 - value_threshold_shift):
             value_tag = "SLIGHT VALUE"
-        # Special: if fav missing 2+ stars and dog has decent prob, it's sharp value
         if len(fav_injuries["out_stars"]) >= 2 and dog_prob >= 0.25 and not value_tag:
             value_tag = "INJURY VALUE"
+        # Sharp value: books disagree and best price is way off consensus
+        if dog_edge >= 4.0 and not value_tag:
+            value_tag = "SHARP VALUE"
 
-        # --- SPREAD vs ML DISCREPANCY ---
-        # If spread is tight but ML is wide, there's a signal
+        # === SPREAD/ML DISCREPANCY ===
         spread_ml_flag = ""
-        if fav_spread is not None and fav_ml is not None:
+        if consensus_spread is not None and fav_ml is not None:
             try:
-                spread_val = abs(float(fav_spread))
+                spread_val = abs(float(consensus_spread))
                 ml_val = abs(float(fav_ml))
-                # Tight spread (<4) but heavy ML (>200) = trap game potential
                 if spread_val < 4 and ml_val > 180:
                     spread_ml_flag = "TRAP ALERT: Tight spread but heavy ML"
-                # Big spread (>8) but soft ML (<250) = blowout not priced in
                 elif spread_val > 8 and ml_val < 250:
                     spread_ml_flag = "BLOWOUT SIGNAL: Big spread, soft ML"
             except (ValueError, TypeError):
                 pass
 
-        # --- TOTAL LEAN ---
+        # === TOTAL LEAN ===
         total_lean = ""
-        if total:
-            try:
-                t = float(total)
-                over_odds = g.get("over_odds")
-                under_odds = g.get("under_odds")
-                if over_odds and under_odds:
+        # Use parsed single-book data for over/under odds as fallback
+        parsed = _parse_event(event, sport.upper())
+        if parsed.get("total"):
+            over_odds = parsed.get("over_odds")
+            under_odds = parsed.get("under_odds")
+            if over_odds and under_odds:
+                try:
                     over_prob = ml_to_prob(over_odds)
                     under_prob = ml_to_prob(under_odds)
                     total_p = over_prob + under_prob
                     if over_prob / total_p > 0.54:
-                        total_lean = f"LEAN OVER {t}"
+                        total_lean = f"LEAN OVER {consensus_total or parsed['total']}"
                     elif under_prob / total_p > 0.54:
-                        total_lean = f"LEAN UNDER {t}"
-            except (ValueError, TypeError):
-                pass
+                        total_lean = f"LEAN UNDER {consensus_total or parsed['total']}"
+                except (ValueError, TypeError):
+                    pass
 
         edge_game = {
             "away": away,
             "home": home,
             "time": game_time,
-            "away_ml": away_ml,
-            "home_ml": home_ml,
-            "home_spread": home_spread,
-            "total": total,
+            # Consensus lines (market average)
+            "away_ml": away_ml_cons,
+            "home_ml": home_ml_cons,
+            "home_spread": consensus_spread,
+            "total": consensus_total,
+            # Best available prices
+            "best_away_ml": best_away_ml,
+            "best_home_ml": best_home_ml,
+            "best_away_ml_book": book_analysis.get("best_away_ml_book", ""),
+            "best_home_ml_book": book_analysis.get("best_home_ml_book", ""),
+            "best_dog_ml": best_dog_ml,
+            "best_dog_ml_book": best_dog_ml_book,
+            # Book coverage
+            "book_count": book_analysis.get("book_count", 0),
+            "books": book_analysis.get("books", []),
+            # Edge math
             "favorite": fav,
             "underdog": dog,
             "fav_prob": round(fav_prob * 100, 1),
             "dog_prob": round(dog_prob * 100, 1),
             "vig": round(vig, 1),
+            "away_ml_edge": book_analysis.get("away_ml_edge", 0),
+            "home_ml_edge": book_analysis.get("home_ml_edge", 0),
+            "dog_edge": dog_edge,
+            # Line disagreement
+            "spread_range": book_analysis.get("spread_range", 0),
+            "total_range": book_analysis.get("total_range", 0),
+            "spread_disagreement": book_analysis.get("spread_disagreement", False),
+            "total_disagreement": book_analysis.get("total_disagreement", False),
+            # Sharp signal
+            "sharp_signal": book_analysis.get("sharp_signal", ""),
+            # Scores and flags
             "upset_score": upset_score,
             "injury_boost": injury_boost,
             "public_fade": public_fade,
@@ -1843,7 +2014,7 @@ async def get_edge(sport: str):
         "games": edge_games,
         "count": len(edge_games),
         "generated_at": _now_ts(),
-        "tag": "100% Math. No AI. Pure Edge.",
+        "tag": "All books. Real math. Pure edge.",
     })
 
 
