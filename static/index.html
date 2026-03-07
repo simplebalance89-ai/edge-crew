@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-title" content="Edge Crew">
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
-<title>Edge Crew — Your AI Sports Analyst</title>
+<title>Edge Crew — AI-Powered Sports Analytics</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -929,7 +929,8 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
     <div class="login-card">
         <img src="/static/logo.png" alt="Edge Crew" style="width:120px;border-radius:12px;margin:0 auto 12px;display:block;">
         <h1>Edge Crew</h1>
-        <div class="login-sub">Your AI Sports Analyst</div>
+        <div class="login-sub" style="font-size:12px;line-height:1.5;">AI-Powered Sports Analytics — 11 Sports, Real Edges, Full Transparency</div>
+        <div style="font-size:10px;color:var(--ec-text-tertiary);margin-top:4px;letter-spacing:0.5px;">No edge = no bet &bull; Built by the crew</div>
         <div class="login-tabs">
             <button class="login-tab active" onclick="switchLoginTab('signin')">Sign In</button>
             <button class="login-tab" onclick="switchLoginTab('register')">Join Crew</button>
@@ -3082,9 +3083,24 @@ function renderScoreboardGames() {
         container.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.3);padding:40px;font-size:16px;">No games for this filter.</div>';
         return;
     }
+    // Split into today and yesterday
+    var todayGames = games.filter(function(g) { return !g.is_yesterday; });
+    var yesterdayGames = games.filter(function(g) { return g.is_yesterday; });
     var html = '';
     var currentSport = '';
-    games.forEach(function(g) {
+
+    // Today's games first
+    if (todayGames.length > 0) {
+        html += '<div style="color:var(--ec-accent-light);font-weight:800;font-size:14px;letter-spacing:1px;margin:12px 0 4px;">TODAY</div>';
+    }
+    var allOrdered = todayGames.concat(yesterdayGames);
+    var showedYesterday = false;
+    allOrdered.forEach(function(g) {
+        if (g.is_yesterday && !showedYesterday) {
+            showedYesterday = true;
+            currentSport = '';
+            html += '<div style="color:var(--ec-warning);font-weight:800;font-size:14px;letter-spacing:1px;margin:24px 0 4px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06);">YESTERDAY — FINAL SCORES</div>';
+        }
         if (g.sport !== currentSport) {
             currentSport = g.sport;
             html += '<div style="color:#818cf8;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:1px;margin:20px 0 8px;padding-bottom:4px;border-bottom:1px solid rgba(99,102,241,0.2);">' + currentSport + '</div>';

@@ -9,7 +9,7 @@ import httpx
 import re
 import asyncio
 from openai import AzureOpenAI
-from datetime import datetime
+from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 logger = logging.getLogger("edge-crew")
@@ -2295,6 +2295,7 @@ async def grade_pick(request: Request):
 async def get_scores():
     """Live scoreboard — all sports, today's games with scores."""
     today_pst = datetime.now(PST).strftime("%Y-%m-%d")
+    yesterday_pst = (datetime.now(PST) - timedelta(days=1)).strftime("%Y-%m-%d")
     active_sports = ["nba", "nhl", "mlb", "wnba", "ncaab", "soccer", "mma", "boxing"]
     fetch_tasks = []
     fetch_sports = []
@@ -2317,7 +2318,10 @@ async def get_scores():
             except (ValueError, TypeError):
                 game_date = ""
                 game_time = ""
-            if game_date != today_pst:
+            # Show today's games + yesterday's completed (final scores)
+            is_today = game_date == today_pst
+            is_yesterday_final = game_date == yesterday_pst and g.get("completed", False)
+            if not is_today and not is_yesterday_final:
                 continue
             scores = g.get("scores") or []
             score_map = {}
@@ -2331,6 +2335,8 @@ async def get_scores():
                 "home_score": score_map.get(g.get("home_team", ""), ""),
                 "completed": g.get("completed", False),
                 "time": game_time,
+                "date": game_date,
+                "is_yesterday": game_date == yesterday_pst,
                 "commence_time": commence,
             })
 
