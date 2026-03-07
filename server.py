@@ -510,6 +510,9 @@ def _detect_arbitrage(event, sport_label):
                 ],
             })
 
+    if arbs:
+        logger.info(f"Arb found: {event.get('away_team')} @ {event.get('home_team')} — {len(arbs)} opportunities")
+
     return arbs
 
 
