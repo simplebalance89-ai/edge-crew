@@ -3150,26 +3150,31 @@ function renderBankroll() {
     document.getElementById('unitSize').value = unitSize;
 
     var wins = 0, losses = 0, pushes = 0, netUnits = 0;
+    var propW = 0, propL = 0, propP = 0;
     var personStats = {Peter:{w:0,l:0,p:0,u:0},Chinny:{w:0,l:0,p:0,u:0},Jimmy:{w:0,l:0,p:0,u:0},Alyssa:{w:0,l:0,p:0,u:0},'Sinton.ia':{w:0,l:0,p:0,u:0}};
 
     stored.forEach(function(pick) {
         if (!pick.result) return;
         var units = parseFloat(pick.units) || 1;
         var person = personStats[pick.name] || {w:0,l:0,p:0,u:0};
+        var isProp = (pick.type || '').toLowerCase() === 'prop';
 
         if (pick.result === 'W') {
             wins++;
+            if (isProp) propW++;
             var payout = calcPayout(pick.odds, units);
             netUnits += payout;
             person.w++;
             person.u += payout;
         } else if (pick.result === 'L') {
             losses++;
+            if (isProp) propL++;
             netUnits -= units;
             person.l++;
             person.u -= units;
         } else if (pick.result === 'P') {
             pushes++;
+            if (isProp) propP++;
             person.p++;
         }
 
@@ -3182,7 +3187,18 @@ function renderBankroll() {
 
     document.getElementById('brBalance').textContent = '$' + balance.toFixed(0);
     document.getElementById('brBalance').style.color = balance >= startBR ? '#10B981' : '#EF4444';
+    var gameW = wins - propW, gameL = losses - propL;
+    var propTotal = propW + propL + propP;
     document.getElementById('brRecord').textContent = wins + '-' + losses + '-' + pushes;
+    var brRecordEl = document.getElementById('brRecordBreakdown');
+    if (!brRecordEl) {
+        brRecordEl = document.createElement('div');
+        brRecordEl.id = 'brRecordBreakdown';
+        brRecordEl.style.cssText = 'font-size:11px;color:rgba(255,255,255,0.4);text-align:center;margin-top:2px;';
+        var recordParent = document.getElementById('brRecord');
+        if (recordParent) recordParent.parentNode.appendChild(brRecordEl);
+    }
+    brRecordEl.textContent = propTotal > 0 ? 'Games: ' + gameW + '-' + gameL + ' | Props: ' + propW + '-' + propL : '';
     document.getElementById('brUnits').textContent = (netUnits >= 0 ? '+' : '') + netUnits.toFixed(1) + 'u';
     document.getElementById('brUnits').style.color = netUnits >= 0 ? '#10B981' : '#EF4444';
     document.getElementById('brROI').textContent = (roi >= 0 ? '+' : '') + roi + '%';
