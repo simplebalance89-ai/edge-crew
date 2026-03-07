@@ -4214,8 +4214,25 @@ Keep it sharp, concise, no fluff. Bold important items. End with timestamp: {now
                 max_tokens=1200,
             )
             beat_report_html = response.choices[0].message.content
+            logger.info(f"Beat report generated: {len(beat_report_html)} chars")
         except Exception as e:
-            print(f"Beat report AI generation failed: {e}")
+            logger.error(f"Beat report AI generation failed: {e}")
+            # Fallback: generate a simple HTML summary from data
+            beat_report_html = "<h4>Beat Report — Data Only (AI unavailable)</h4>"
+            if all_shifts:
+                beat_report_html += "<h4>Top Line Moves</h4><ul>"
+                for s in all_shifts[:8]:
+                    sh = s["shifts"]
+                    parts = []
+                    if sh.get("spread"): parts.append(f"Spread {sh['spread']['open']} → {sh['spread']['now']}")
+                    if sh.get("total"): parts.append(f"Total {sh['total']['open']} → {sh['total']['now']}")
+                    beat_report_html += f"<li><b>{s['sport']}</b>: {s['matchup']} — {' | '.join(parts)}</li>"
+                beat_report_html += "</ul>"
+            if all_arbs:
+                beat_report_html += "<h4>Arb Opportunities</h4><ul>"
+                for a in all_arbs[:5]:
+                    beat_report_html += f"<li><b>{a['sport']}</b>: {a['matchup']} — {a['type']} {a.get('profit_pct',0)}%</li>"
+                beat_report_html += "</ul>"
 
     result = {
         "generated_at": _now_ts(),

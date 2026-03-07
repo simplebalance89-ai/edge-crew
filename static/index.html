@@ -1772,6 +1772,12 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
         </div>
     </div>
 
+    <!-- Date filter -->
+    <div id="dateFilterBar" style="display:flex;gap:6px;margin:12px 0;flex-wrap:wrap;justify-content:center;"></div>
+
+    <!-- Daily ROI cards -->
+    <div id="dailyROICards" style="margin:0 0 12px;"></div>
+
     <!-- Per-person breakdown -->
     <div class="bankroll-stats-3" style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:16px 0;">
         <div style="background:#0f1018;border:1px solid #2a2a5a;border-radius:8px;padding:12px;text-align:center;">
@@ -3529,6 +3535,49 @@ function updateHeroStats() {
     }
 }
 
+var _dateFilter = 'all'; // 'today', 'yesterday', '7days', 'all', or 'YYYY-MM-DD'
+
+function setDateFilter(filter, btn) {
+    _dateFilter = filter;
+    document.querySelectorAll('.date-filter-btn').forEach(function(b) {
+        b.style.background = 'transparent';
+        b.style.color = 'rgba(255,255,255,0.5)';
+        b.style.borderColor = 'rgba(255,255,255,0.15)';
+    });
+    if (btn) {
+        btn.style.background = 'rgba(99,102,241,0.2)';
+        btn.style.color = '#818cf8';
+        btn.style.borderColor = '#818cf8';
+    }
+    renderBankroll();
+}
+
+function _getDateFilterRange() {
+    var now = new Date();
+    var pstOffset = -7 * 60;
+    var pstNow = new Date(now.getTime() + (now.getTimezoneOffset() + pstOffset) * 60000);
+    var todayStr = pstNow.toISOString().split('T')[0];
+    var yesterdayDate = new Date(pstNow);
+    yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+    var yesterdayStr = yesterdayDate.toISOString().split('T')[0];
+    var weekAgoDate = new Date(pstNow);
+    weekAgoDate.setDate(weekAgoDate.getDate() - 7);
+    var weekAgoStr = weekAgoDate.toISOString().split('T')[0];
+
+    if (_dateFilter === 'today') return { start: todayStr, end: todayStr };
+    if (_dateFilter === 'yesterday') return { start: yesterdayStr, end: yesterdayStr };
+    if (_dateFilter === '7days') return { start: weekAgoStr, end: todayStr };
+    if (_dateFilter === 'all') return null;
+    // Custom date
+    return { start: _dateFilter, end: _dateFilter };
+}
+
+function _pickInDateRange(pick, range) {
+    if (!range) return true;
+    var d = pick.date || '';
+    return d >= range.start && d <= range.end;
+}
+
 function renderBankroll() {
     var stored = JSON.parse(safeLoad('edgePicks') || '[]');
     var startBR = parseFloat(safeLoad('edgeBankrollStart') || '1000');
@@ -3537,40 +3586,97 @@ function renderBankroll() {
     document.getElementById('bankrollStart').value = startBR;
     document.getElementById('unitSize').value = unitSize;
 
+    // Date filter UI
+    var dfBar = document.getElementById('dateFilterBar');
+    if (dfBar) {
+        var dfStyle = 'cursor:pointer;padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700;font-family:var(--ec-font-body);border:1px solid ';
+        var activeStyle = function(f) { return _dateFilter === f ? '#818cf8;background:rgba(99,102,241,0.2);color:#818cf8;' : 'rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.5);'; };
+        dfBar.innerHTML =
+            '<button class="date-filter-btn" onclick="setDateFilter(\'today\',this)" style="' + dfStyle + activeStyle('today') + '">Today</button>' +
+            '<button class="date-filter-btn" onclick="setDateFilter(\'yesterday\',this)" style="' + dfStyle + activeStyle('yesterday') + '">Yesterday</button>' +
+            '<button class="date-filter-btn" onclick="setDateFilter(\'7days\',this)" style="' + dfStyle + activeStyle('7days') + '">Last 7 Days</button>' +
+            '<button class="date-filter-btn" onclick="setDateFilter(\'all\',this)" style="' + dfStyle + activeStyle('all') + '">All Time</button>';
+    }
+
+    var dateRange = _getDateFilterRange();
+
     var wins = 0, losses = 0, pushes = 0, netUnits = 0;
     var propW = 0, propL = 0, propP = 0;
-    var personStats = {Peter:{w:0,l:0,p:0,u:0},Chinny:{w:0,l:0,p:0,u:0},Jimmy:{w:0,l:0,p:0,u:0},Alyssa:{w:0,l:0,p:0,u:0},'Sinton.ia':{w:0,l:0,p:0,u:0}};
+    var personStats = {Peter:{w:0,l:0,p:0,u:0},Chinny:{w:0,l:0,p:0,u:0},Jimmy:{w:0,l:0,p:0,u:0},Alyssa:{w:0,l:0,p:0,u:0},'Sinton.ia':{w:0,l:0,p:0,u:0},Willis:{w:0,l:0,p:0,u:0}};
+
+    // Daily stats accumulator
+    var dailyStats = {};
 
     stored.forEach(function(pick) {
         if (!pick.result) return;
+        if (!_pickInDateRange(pick, dateRange)) return;
         var units = parseFloat(pick.units) || 1;
         var person = personStats[pick.name] || {w:0,l:0,p:0,u:0};
         var isProp = (pick.type || '').toLowerCase() === 'prop';
+        var dateKey = pick.date || 'Unknown';
+
+        if (!dailyStats[dateKey]) dailyStats[dateKey] = {w:0,l:0,p:0,net:0,risked:0,propW:0,propL:0,gameW:0,gameL:0};
+        var ds = dailyStats[dateKey];
 
         if (pick.result === 'W') {
             wins++;
-            if (isProp) propW++;
+            if (isProp) { propW++; ds.propW++; } else { ds.gameW++; }
             var payout = calcPayout(pick.odds, units);
             netUnits += payout;
             person.w++;
             person.u += payout;
+            ds.w++; ds.net += payout; ds.risked += units;
         } else if (pick.result === 'L') {
             losses++;
-            if (isProp) propL++;
+            if (isProp) { propL++; ds.propL++; } else { ds.gameL++; }
             netUnits -= units;
             person.l++;
             person.u -= units;
+            ds.l++; ds.net -= units; ds.risked += units;
         } else if (pick.result === 'P') {
             pushes++;
             if (isProp) propP++;
             person.p++;
+            ds.p++;
         }
 
         if (personStats[pick.name]) personStats[pick.name] = person;
     });
 
+    // Render daily ROI cards
+    var dailyContainer = document.getElementById('dailyROICards');
+    if (dailyContainer) {
+        var dayKeys = Object.keys(dailyStats).sort(function(a,b) { return b.localeCompare(a); });
+        var dailyHTML = '';
+        dayKeys.forEach(function(dk) {
+            var ds = dailyStats[dk];
+            var dayROI = ds.risked > 0 ? ((ds.net / ds.risked) * 100).toFixed(1) : '0.0';
+            var roiColor = parseFloat(dayROI) >= 0 ? '#10B981' : '#EF4444';
+            var netColor = ds.net >= 0 ? '#10B981' : '#EF4444';
+            var displayDate = dk;
+            try {
+                var dp = new Date(dk + 'T12:00:00');
+                displayDate = dp.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+            } catch(e) {}
+            dailyHTML += '<div style="background:#0f1018;border:1px solid rgba(99,102,241,0.15);border-radius:10px;padding:12px 16px;margin-bottom:6px;">' +
+                '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+                    '<div style="color:#818cf8;font-weight:800;font-size:14px;">' + displayDate + '</div>' +
+                    '<div style="font-size:18px;font-weight:800;color:' + roiColor + ';">' + (parseFloat(dayROI) >= 0 ? '+' : '') + dayROI + '% ROI</div>' +
+                '</div>' +
+                '<div style="display:flex;gap:16px;margin-top:6px;font-size:12px;color:rgba(255,255,255,0.5);">' +
+                    '<span>Record: <strong style="color:#fff;">' + ds.w + '-' + ds.l + (ds.p > 0 ? '-' + ds.p : '') + '</strong></span>' +
+                    '<span>Units: <strong style="color:' + netColor + ';">' + (ds.net >= 0 ? '+' : '') + ds.net.toFixed(1) + 'u</strong></span>' +
+                    '<span>Risked: ' + ds.risked.toFixed(1) + 'u</span>' +
+                    (ds.propW + ds.propL > 0 ? '<span>Props: ' + ds.propW + '-' + ds.propL + '</span>' : '') +
+                    (ds.gameW + ds.gameL > 0 ? '<span>Games: ' + ds.gameW + '-' + ds.gameL + '</span>' : '') +
+                '</div>' +
+            '</div>';
+        });
+        dailyContainer.innerHTML = dayKeys.length > 0 ? dailyHTML : '';
+    }
+
     var balance = startBR + (netUnits * unitSize);
-    var totalRisked = stored.filter(function(p) { return p.result === 'W' || p.result === 'L'; }).reduce(function(sum, p) { return sum + (parseFloat(p.units) || 1); }, 0);
+    var totalRisked = stored.filter(function(p) { return p.result === 'W' || p.result === 'L'; }).filter(function(p) { return _pickInDateRange(p, dateRange); }).reduce(function(sum, p) { return sum + (parseFloat(p.units) || 1); }, 0);
     var roi = totalRisked > 0 ? ((netUnits / totalRisked) * 100).toFixed(1) : 0;
 
     document.getElementById('brBalance').textContent = '$' + balance.toFixed(0);
@@ -3644,10 +3750,11 @@ function renderBankroll() {
         '<button class="result-filter-btn" onclick="setResultFilter(\'regular\',this)" style="' + rfBtnStyle + (_resultFilter === 'regular' ? '#818cf8;background:rgba(99,102,241,0.2);color:#818cf8;' : 'rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.5);') + '">Regular Bets</button>' +
         '<button class="result-filter-btn" onclick="setResultFilter(\'props\',this)" style="' + rfBtnStyle + (_resultFilter === 'props' ? '#818cf8;background:rgba(99,102,241,0.2);color:#818cf8;' : 'rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.5);') + '">Player Props</button>';
 
-    // Swim lane + result type filter
+    // Swim lane + result type + date filter
     var filteredPicks = [];
     stored.forEach(function(pick, i) {
         if (activeSwimLane !== 'ALL' && pick.name !== activeSwimLane) return;
+        if (!_pickInDateRange(pick, dateRange)) return;
         var isProp = (pick.type || '').toLowerCase() === 'prop' || (pick.type || '').toLowerCase().indexOf('props parlay') !== -1;
         if (_resultFilter === 'regular' && isProp) return;
         if (_resultFilter === 'props' && !isProp) return;
@@ -3730,8 +3837,15 @@ function renderBankroll() {
             var dp = new Date(dateKey + 'T12:00:00');
             displayDate = dp.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
         } catch(e) {}
+        var dayS = dailyStats[dateKey];
+        var dayInfo = '';
+        if (dayS && dayS.risked > 0) {
+            var dROI = ((dayS.net / dayS.risked) * 100).toFixed(1);
+            var dColor = parseFloat(dROI) >= 0 ? '#10B981' : '#EF4444';
+            dayInfo = ' &mdash; ' + dayS.w + '-' + dayS.l + ' | <span style="color:' + dColor + ';">' + (parseFloat(dROI) >= 0 ? '+' : '') + dROI + '%</span>';
+        }
         header.style.cssText = 'color:#818cf8;font-weight:700;font-size:13px;padding:12px 0 6px;border-bottom:1px solid rgba(99,102,241,0.2);margin-top:8px;';
-        header.textContent = displayDate + ' (' + visible.length + ' pick' + (visible.length > 1 ? 's' : '') + ')';
+        header.innerHTML = displayDate + ' (' + visible.length + ' pick' + (visible.length > 1 ? 's' : '') + ')' + dayInfo;
         container.appendChild(header);
 
         visible.forEach(function(item) {
@@ -3769,9 +3883,15 @@ function renderBankroll() {
                 badge = '<span style="background:rgba(99,102,241,0.12);color:#818cf8;font-size:10px;font-weight:700;padding:2px 6px;border-radius:3px;margin-left:6px;">UNGRADED</span>';
             }
 
+            var unitVal = parseFloat(pick.units) || 1;
+            var unitBadge = '';
+            if (unitVal >= 4) unitBadge = '<span style="background:rgba(239,68,68,0.2);color:#EF4444;font-size:10px;font-weight:800;padding:2px 6px;border-radius:4px;margin-left:6px;">' + unitVal + 'u</span>';
+            else if (unitVal >= 2) unitBadge = '<span style="background:rgba(251,191,36,0.2);color:#FBB024;font-size:10px;font-weight:800;padding:2px 6px;border-radius:4px;margin-left:6px;">' + unitVal + 'u</span>';
+            var gradeBadge = pick.grade ? '<span style="background:rgba(99,102,241,0.15);color:#818cf8;font-size:10px;font-weight:700;padding:2px 5px;border-radius:3px;margin-left:4px;">' + pick.grade + '</span>' : '';
+
             div.innerHTML =
                 '<div style="flex:1;">' +
-                    '<div style="color:#fff;font-weight:600;">' + (pick.selection || pick.matchup) + badge + '</div>' +
+                    '<div style="color:#fff;font-weight:600;">' + (pick.selection || pick.matchup) + badge + unitBadge + gradeBadge + '</div>' +
                     '<div style="color:rgba(255,255,255,0.4);font-size:12px;">' +
                         pick.name + ' | ' + (pick.sport || '?') + ' | ' + (pick.matchup || '') + ' | ' + (pick.odds || '') + ' | ' + (pick.units || 1) + 'u' +
                         (pick.type === 'Parlay' || (pick.legs && pick.legs.length) ? ' | PARLAY' : '') +
