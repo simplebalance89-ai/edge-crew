@@ -230,6 +230,12 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
 .tag-trap{background:rgba(239,68,68,0.15);color:#EF4444;}
 .tag-home{background:rgba(16,185,129,0.15);color:#10B981;}
 .tag-upset{background:rgba(99,102,241,0.12);color:#818cf8;}
+.tag-injury{background:rgba(239,68,68,0.15);color:#EF4444;}
+.tag-home-edge{background:rgba(16,185,129,0.15);color:#10B981;}
+.tag-rest{background:rgba(245,158,11,0.15);color:#F59E0B;}
+.tag-moderate{background:rgba(99,102,241,0.12);color:#818cf8;}
+.tag-lean{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.5);}
+.tag-sharp{background:rgba(168,85,247,0.15);color:#A855F7;}
 
 /* ===== UPSET SPECIALS ===== */
 .upset-section{
@@ -3722,7 +3728,8 @@ function buildGameRowHTML(g) {
     var spread = g.home_spread || 0;
     var spreadStr = hasSpread ? ((spread > 0 ? '+' : '') + spread) : '--';
     var awaySpreadStr = hasSpread ? ((g.away_spread > 0 ? '+' : '') + (g.away_spread || 0)) : '--';
-    var total = g.total || 0;
+    var total = g.total || null;
+    var hasTotal = total !== null && total > 0;
     var gameDate = new Date(g.time);
     var time = formatGameTime(g.time);
     var dateStr = gameDate.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'});
@@ -3738,8 +3745,10 @@ function buildGameRowHTML(g) {
     liveOddsMap[matchup] = {};
     liveOddsMap[matchup][awayAbbr + ' ' + awaySpreadStr] = g.away_spread_odds || -110;
     liveOddsMap[matchup][homeAbbr + ' ' + spreadStr] = g.home_spread_odds || -110;
-    liveOddsMap[matchup]['OVER ' + total] = g.over_odds || -110;
-    liveOddsMap[matchup]['UNDER ' + total] = g.under_odds || -110;
+    if (hasTotal) {
+        liveOddsMap[matchup]['OVER ' + total] = g.over_odds || -110;
+        liveOddsMap[matchup]['UNDER ' + total] = g.under_odds || -110;
+    }
     liveOddsMap[matchup][awayAbbr + ' ML'] = awayML;
     liveOddsMap[matchup][homeAbbr + ' ML'] = homeML;
 
@@ -3808,14 +3817,14 @@ function buildGameRowHTML(g) {
                 '<div class="side-select">' +
                     (hasSpread ? '<div class="side-btn" onclick="pickSide(event,this,\'' + awayAbbr + ' ' + awaySpreadStr + '\')">' + awayAbbr + ' ' + awaySpreadStr + ' (' + (g.away_spread_odds||'-110') + ')</div>' +
                     '<div class="side-btn" onclick="pickSide(event,this,\'' + homeAbbr + ' ' + spreadStr + '\')">' + homeAbbr + ' ' + spreadStr + ' (' + (g.home_spread_odds||'-110') + ')</div>' : '') +
-                    '<div class="side-btn" onclick="pickSide(event,this,\'OVER ' + total + '\')">O ' + total + ' (' + (g.over_odds||'-110') + ')</div>' +
-                    '<div class="side-btn" onclick="pickSide(event,this,\'UNDER ' + total + '\')">U ' + total + ' (' + (g.under_odds||'-110') + ')</div>' +
+                    (hasTotal ? '<div class="side-btn" onclick="pickSide(event,this,\'OVER ' + total + '\')">O ' + total + ' (' + (g.over_odds||'-110') + ')</div>' +
+                    '<div class="side-btn" onclick="pickSide(event,this,\'UNDER ' + total + '\')">U ' + total + ' (' + (g.under_odds||'-110') + ')</div>' : '') +
                     '<div class="side-btn" onclick="pickSide(event,this,\'' + awayAbbr + ' ML\')">' + awayAbbr + ' ML (' + awayML + ')</div>' +
                     '<div class="side-btn" onclick="pickSide(event,this,\'' + homeAbbr + ' ML\')">' + homeAbbr + ' ML (' + homeML + ')</div>' +
                 '</div>' +
             '</div>' +
             '<div class="game-spread">' + (hasSpread ? ((fav || homeAbbr) + ' ' + (spread < 0 ? spreadStr : awaySpreadStr)) : 'ML') + '</div>' +
-            '<div class="game-total">O/U ' + total + '</div>' +
+            '<div class="game-total">' + (hasTotal ? 'O/U ' + total : 'ML') + '</div>' +
             '<div class="game-grade"><span class="grade ' + gradeClass + '">' + gradeDisplay + '</span></div>' +
             '<div class="game-edge">' + arbTag + shiftTag + dataTag + bookTag +
                 'ML: ' + awayAbbr + ' (' + awayML + ') / ' + homeAbbr + ' (' + homeML + ')' +
@@ -3825,7 +3834,7 @@ function buildGameRowHTML(g) {
             '<div class="detail-grid">' +
                 '<div class="detail-box peter"><h4>Lines (' + bookSource + ')</h4>' +
                     (hasSpread ? '<p>Spread: ' + awayAbbr + ' ' + awaySpreadStr + ' (' + (g.away_spread_odds||'--') + ') / ' + homeAbbr + ' ' + spreadStr + ' (' + (g.home_spread_odds||'--') + ')<br>' : '<p>Spread: N/A (ML game)<br>') +
-                    'Total: O ' + total + ' (' + (g.over_odds||'--') + ') / U ' + total + ' (' + (g.under_odds||'--') + ')<br>' +
+                    (hasTotal ? 'Total: O ' + total + ' (' + (g.over_odds||'--') + ') / U ' + total + ' (' + (g.under_odds||'--') + ')<br>' : '') +
                     'ML: ' + awayAbbr + ' ' + awayML + ' / ' + homeAbbr + ' ' + homeML + '</p>' +
                     (g.shifts ? '<p style="font-size:10px;color:#B0BEC5;margin-top:6px;font-weight:600;">\u21C5 Line Movement: ' +
                         (g.shifts.spread ? 'Spread ' + g.shifts.spread.open + ' \u2192 ' + g.shifts.spread.now + ' ' : '') +
@@ -4240,7 +4249,8 @@ function renderCombinedTable(data) {
         var homeAbbr = abbr(g.home);
         var spread = g.home_spread || 0;
         var spreadStr = (spread > 0 ? '+' : '') + spread;
-        var total = g.total || 0;
+        var total = g.total || null;
+        var hasTotal = total !== null && total > 0;
         var awayML = g.away_ml || '--';
         var homeML = g.home_ml || '--';
         var book = g.bookmaker || '--';
@@ -4251,8 +4261,6 @@ function renderCombinedTable(data) {
         var sportStyle = sportColors[g.sport] || 'background:rgba(255,255,255,0.1);color:#fff;';
         var statusTag = '';
         if (!g.lines_available) statusTag = '<span class="tag" style="background:rgba(239,68,68,0.2);color:#EF4444;">NO LINES</span>';
-        else if (!g.lines_complete && g.sport === 'SOCCER' && (g.away_ml || g.home_ml)) statusTag = '<span class="tag" style="background:rgba(16,185,129,0.2);color:#10B981;">ML ONLY</span>';
-        else if (!g.lines_complete) statusTag = '<span class="tag" style="background:rgba(251,191,36,0.2);color:#FBB024;">PARTIAL</span>';
         else statusTag = '<span class="tag" style="background:rgba(16,185,129,0.2);color:#10B981;">FULL</span>';
         var rowBg = isToday ? 'background:rgba(99,102,241,0.03);' : '';
 
@@ -4299,7 +4307,7 @@ function renderCombinedTable(data) {
         var homeA = abbr(g.home);
         var sp = g.home_spread || 0;
         var spStr = (sp > 0 ? '+' : '') + sp;
-        var tot = g.total || 0;
+        var tot = g.total || null;
         var aML = g.away_ml || '--';
         var hML = g.home_ml || '--';
         var bk = g.bookmaker || '--';
@@ -4310,8 +4318,6 @@ function renderCombinedTable(data) {
         var sStyle = sportColors[g.sport] || 'background:rgba(255,255,255,0.1);color:#fff;';
         var st = '';
         if (!g.lines_available) st = '<span class="tag" style="background:rgba(239,68,68,0.2);color:#EF4444;">NO LINES</span>';
-        else if (!g.lines_complete && g.sport === 'SOCCER' && (g.away_ml || g.home_ml)) st = '<span class="tag" style="background:rgba(16,185,129,0.2);color:#10B981;">ML ONLY</span>';
-        else if (!g.lines_complete) st = '<span class="tag" style="background:rgba(251,191,36,0.2);color:#FBB024;">PARTIAL</span>';
         else st = '<span class="tag" style="background:rgba(16,185,129,0.2);color:#10B981;">FULL</span>';
 
         // Mobile card analysis lookup
@@ -4603,10 +4609,20 @@ function fetchAnalysis(sport) {
                                 var tags = '';
                                 if (game.tags) { game.tags.forEach(function(t) {
                                     var tc = 'tag';
-                                    if (t==='B2B') tc+=' tag-b2b'; else if (t==='PASS'||t==='TRAP') tc+=' tag-trap'; else if (t==='UPSET'||t==='SHARP') tc+=' tag-upset'; else if (t==='BEST BET') tc+=' tag-home';
+                                    if (t==='B2B') tc+=' tag-b2b';
+                                    else if (t==='PASS'||t==='TRAP') tc+=' tag-trap';
+                                    else if (t==='UPSET') tc+=' tag-upset';
+                                    else if (t==='BEST BET') tc+=' tag-home';
+                                    else if (t.indexOf('INJURY')!==-1) tc+=' tag-injury';
+                                    else if (t.indexOf('HOME')!==-1) tc+=' tag-home-edge';
+                                    else if (t.indexOf('REST')!==-1) tc+=' tag-rest';
+                                    else if (t.indexOf('MODERATE')!==-1) tc+=' tag-moderate';
+                                    else if (t==='LEAN') tc+=' tag-lean';
+                                    else if (t==='SHARP') tc+=' tag-sharp';
                                     tags += '<span class="'+tc+'">'+t+'</span> ';
                                 }); }
-                                edgeEl.innerHTML = tags + game.edge_summary;
+                                edgeEl.innerHTML = '<div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin-bottom:4px;">' + tags + '</div>' +
+                                    '<div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.5;max-width:600px;">' + game.edge_summary + '</div>';
                             }
                             var detail = row.querySelector('.detail-grid');
                             if (detail) {

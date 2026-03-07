@@ -430,6 +430,8 @@ def _detect_arbitrage(event, sport_label):
     home_team = event["home_team"]
     best_away_ml = {"odds": None, "implied": 1.0, "book": None}
     best_home_ml = {"odds": None, "implied": 1.0, "book": None}
+    best_draw_ml = {"odds": None, "implied": 1.0, "book": None}
+    is_three_way = False
 
     for bk in bookmakers:
         for market in bk.get("markets", []):
@@ -443,8 +445,28 @@ def _detect_arbitrage(event, sport_label):
                         best_away_ml = {"odds": price, "implied": imp, "book": bk["key"]}
                     elif outcome["name"] == home_team and imp < best_home_ml["implied"]:
                         best_home_ml = {"odds": price, "implied": imp, "book": bk["key"]}
+                    elif outcome["name"] == "Draw":
+                        is_three_way = True
+                        if imp < best_draw_ml["implied"]:
+                            best_draw_ml = {"odds": price, "implied": imp, "book": bk["key"]}
 
-    if best_away_ml["book"] and best_home_ml["book"]:
+    if is_three_way:
+        # 3-way market (soccer): must include draw in arb calc
+        if best_away_ml["book"] and best_home_ml["book"] and best_draw_ml["book"]:
+            total_implied = best_away_ml["implied"] + best_home_ml["implied"] + best_draw_ml["implied"]
+            if total_implied < 1.0:
+                profit_pct = round((1.0 / total_implied - 1.0) * 100, 2)
+                arbs.append({
+                    "type": "ML (3-way)",
+                    "profit_pct": profit_pct,
+                    "legs": [
+                        {"side": away_team, "odds": best_away_ml["odds"], "book": best_away_ml["book"]},
+                        {"side": "Draw", "odds": best_draw_ml["odds"], "book": best_draw_ml["book"]},
+                        {"side": home_team, "odds": best_home_ml["odds"], "book": best_home_ml["book"]},
+                    ],
+                })
+    elif best_away_ml["book"] and best_home_ml["book"]:
+        # 2-way market (NBA, NHL, etc.)
         total_implied = best_away_ml["implied"] + best_home_ml["implied"]
         if total_implied < 1.0:
             profit_pct = round((1.0 / total_implied - 1.0) * 100, 2)
@@ -1116,6 +1138,8 @@ def _parse_event(event, sport_label):
                 game["over_odds"] = t.get("price", -110)
             elif t["name"] == "Under":
                 game["under_odds"] = t.get("price", -110)
+    else:
+        game["total"] = None
 
     if h2h:
         has_ml = True
@@ -1126,11 +1150,8 @@ def _parse_event(event, sport_label):
                 game["home_ml"] = h.get("price", 0)
 
     game["lines_available"] = has_spread or has_total or has_ml
-    # NHL/MMA/boxing: ML-only is considered "complete" for grading
-    if sport_label in ("NHL", "MMA", "BOXING") and has_ml:
-        game["lines_complete"] = True
-    else:
-        game["lines_complete"] = has_spread and has_total and has_ml
+    # Any sport with ML data is considered "complete" for grading
+    game["lines_complete"] = has_ml
 
     # Track line shifts (opening vs current)
     shifts = _track_opening_lines(game)
