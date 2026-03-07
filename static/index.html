@@ -1989,6 +1989,12 @@ function doLogout() {
 function onLoginSuccess() {
     document.getElementById('loginOverlay').classList.add('hidden');
     updateCrewUI();
+    // Bust SW cache on login to guarantee fresh code
+    if ('caches' in window) {
+        caches.keys().then(function(names) {
+            names.forEach(function(n) { caches.delete(n); });
+        }).catch(function() {});
+    }
     try { postLoginLoad(); } catch(e) { console.error('postLoginLoad error:', e); refreshSlate(); }
 }
 
