@@ -1247,6 +1247,166 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
 
 </div>
 
+<!-- ===== WNBA PANEL ===== -->
+<div class="sport-panel" id="panel-wnba">
+<div class="gotcha-banner">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h3>Gotcha Card &mdash; WNBA</h3>
+        <div style="display:flex;gap:6px;">
+            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(99,102,241,0.12);color:#818cf8;font-size:11px;font-weight:700;border:none;" onclick="toggleGotchaEdit('WNBA')">EDIT</button>
+            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(16,185,129,0.15);color:#10B981;font-size:11px;font-weight:700;border:none;" onclick="saveGotcha('WNBA')">SAVE</button>
+        </div>
+    </div>
+    <div id="gotchaDisplay-WNBA"><p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load today's gotcha card...</p></div>
+    <textarea id="gotchaEditor-WNBA" style="display:none;width:100%;min-height:150px;background:#08080c;color:#fff;border:1px solid #6366f1;border-radius:6px;padding:10px;font-family:var(--ec-font-body);font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line..."></textarea>
+</div>
+<div class="empty-state">No WNBA games loaded.<br><strong>Hit REFRESH SLATE</strong> to load live lines.</div>
+<div class="upset-section" id="upsetWNBA">
+    <h3>EV+ Money Specials</h3>
+    <form class="upset-submit-form" onsubmit="submitUpset('WNBA');return false;">
+        <select id="upsetTeamWNBA" required><option value="">-- Load slate first --</option></select>
+        <input type="text" id="upsetOddsWNBA" placeholder="Odds" required>
+        <input type="text" id="upsetThesisWNBA" placeholder="Thesis / reasoning">
+        <button type="submit">SUBMIT</button>
+    </form>
+    <div class="upset-cards" id="upsetCardsWNBA"></div>
+</div>
+<div class="analysis-toggle" style="display:flex;gap:0;margin:12px 0 4px;border-radius:8px;overflow:hidden;border:1px solid rgba(99,102,241,0.3);">
+    <div class="atoggle-btn atoggle-active" onclick="toggleAnalysis('wnba','sintonia',this)" style="flex:1;text-align:center;padding:8px;cursor:pointer;font-size:12px;font-weight:800;font-family:var(--ec-font-body);background:rgba(167,139,250,0.15);color:#A78BFA;transition:all 0.2s;">Sinton.ia's Card</div>
+    <div class="atoggle-btn" onclick="toggleAnalysis('wnba','alyssa',this)" style="flex:1;text-align:center;padding:8px;cursor:pointer;font-size:12px;font-weight:800;font-family:var(--ec-font-body);background:transparent;color:rgba(232,121,249,0.4);transition:all 0.2s;">Alyssa's Edge</div>
+</div>
+<div class="input-section analysis-card" id="peterGutWNBA" data-card="sintonia">
+    <h3 id="peterGutWNBATitle">Sinton.ia's Card &mdash; WNBA</h3>
+    <div id="peterGutWNBAContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;"><p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load...</p></div>
+    <div id="peterGutWNBATimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
+</div>
+<div class="input-section analysis-card" id="alyssaEdgeWNBA" data-card="alyssa" style="display:none;">
+    <h3 style="color:#E879F9;">Alyssa's Edge &mdash; WNBA</h3>
+    <div style="font-size:10px;color:rgba(232,121,249,0.5);font-weight:700;letter-spacing:1px;margin-bottom:8px;">100% MATH. NO AI. PURE EDGE.</div>
+    <div id="alyssaEdgeWNBAContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;"><p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load edge analysis...</p></div>
+</div>
+</div>
+
+<!-- ===== NCAAB PANEL ===== -->
+<div class="sport-panel" id="panel-ncaab">
+<div class="gotcha-banner" style="border-color:rgba(59,130,246,0.2);background:rgba(59,130,246,0.06);">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h3 style="color:#3b82f6;">Gotcha Card &mdash; NCAAB</h3>
+        <div style="display:flex;gap:6px;">
+            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(99,102,241,0.12);color:#818cf8;font-size:11px;font-weight:700;border:none;" onclick="toggleGotchaEdit('NCAAB')">EDIT</button>
+            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(16,185,129,0.15);color:#10B981;font-size:11px;font-weight:700;border:none;" onclick="saveGotcha('NCAAB')">SAVE</button>
+        </div>
+    </div>
+    <div id="gotchaDisplay-NCAAB"><p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load today's gotcha card...</p></div>
+    <textarea id="gotchaEditor-NCAAB" style="display:none;width:100%;min-height:150px;background:#08080c;color:#fff;border:1px solid #3b82f6;border-radius:6px;padding:10px;font-family:var(--ec-font-body);font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line..."></textarea>
+</div>
+<div class="empty-state">No NCAAB games loaded.<br><strong>Hit REFRESH SLATE</strong> to load live lines.</div>
+<div class="upset-section" id="upsetNCAAB">
+    <h3>EV+ Money Specials</h3>
+    <form class="upset-submit-form" onsubmit="submitUpset('NCAAB');return false;">
+        <select id="upsetTeamNCAAB" required><option value="">-- Load slate first --</option></select>
+        <input type="text" id="upsetOddsNCAAB" placeholder="Odds" required>
+        <input type="text" id="upsetThesisNCAAB" placeholder="Thesis / reasoning">
+        <button type="submit">SUBMIT</button>
+    </form>
+    <div class="upset-cards" id="upsetCardsNCAAB"></div>
+</div>
+<div class="analysis-toggle" style="display:flex;gap:0;margin:12px 0 4px;border-radius:8px;overflow:hidden;border:1px solid rgba(99,102,241,0.3);">
+    <div class="atoggle-btn atoggle-active" onclick="toggleAnalysis('ncaab','sintonia',this)" style="flex:1;text-align:center;padding:8px;cursor:pointer;font-size:12px;font-weight:800;font-family:var(--ec-font-body);background:rgba(167,139,250,0.15);color:#A78BFA;transition:all 0.2s;">Sinton.ia's Card</div>
+    <div class="atoggle-btn" onclick="toggleAnalysis('ncaab','alyssa',this)" style="flex:1;text-align:center;padding:8px;cursor:pointer;font-size:12px;font-weight:800;font-family:var(--ec-font-body);background:transparent;color:rgba(232,121,249,0.4);transition:all 0.2s;">Alyssa's Edge</div>
+</div>
+<div class="input-section analysis-card" id="peterGutNCAAB" data-card="sintonia">
+    <h3 id="peterGutNCAABTitle">Sinton.ia's Card &mdash; NCAAB</h3>
+    <div id="peterGutNCAABContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;"><p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load...</p></div>
+    <div id="peterGutNCAABTimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
+</div>
+<div class="input-section analysis-card" id="alyssaEdgeNCAAB" data-card="alyssa" style="display:none;">
+    <h3 style="color:#E879F9;">Alyssa's Edge &mdash; NCAAB</h3>
+    <div style="font-size:10px;color:rgba(232,121,249,0.5);font-weight:700;letter-spacing:1px;margin-bottom:8px;">100% MATH. NO AI. PURE EDGE.</div>
+    <div id="alyssaEdgeNCAABContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;"><p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load edge analysis...</p></div>
+</div>
+</div>
+
+<!-- ===== NCAAF PANEL ===== -->
+<div class="sport-panel" id="panel-ncaaf">
+<div class="gotcha-banner" style="border-color:rgba(168,85,247,0.2);background:rgba(168,85,247,0.06);">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h3 style="color:#a855f7;">Gotcha Card &mdash; NCAAF</h3>
+        <div style="display:flex;gap:6px;">
+            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(99,102,241,0.12);color:#818cf8;font-size:11px;font-weight:700;border:none;" onclick="toggleGotchaEdit('NCAAF')">EDIT</button>
+            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(16,185,129,0.15);color:#10B981;font-size:11px;font-weight:700;border:none;" onclick="saveGotcha('NCAAF')">SAVE</button>
+        </div>
+    </div>
+    <div id="gotchaDisplay-NCAAF"><p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load today's gotcha card...</p></div>
+    <textarea id="gotchaEditor-NCAAF" style="display:none;width:100%;min-height:150px;background:#08080c;color:#fff;border:1px solid #a855f7;border-radius:6px;padding:10px;font-family:var(--ec-font-body);font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line..."></textarea>
+</div>
+<div class="empty-state">No NCAAF games loaded.<br><strong>Hit REFRESH SLATE</strong> to load live lines.</div>
+<div class="upset-section" id="upsetNCAAF">
+    <h3>EV+ Money Specials</h3>
+    <form class="upset-submit-form" onsubmit="submitUpset('NCAAF');return false;">
+        <select id="upsetTeamNCAAF" required><option value="">-- Load slate first --</option></select>
+        <input type="text" id="upsetOddsNCAAF" placeholder="Odds" required>
+        <input type="text" id="upsetThesisNCAAF" placeholder="Thesis / reasoning">
+        <button type="submit">SUBMIT</button>
+    </form>
+    <div class="upset-cards" id="upsetCardsNCAAF"></div>
+</div>
+<div class="analysis-toggle" style="display:flex;gap:0;margin:12px 0 4px;border-radius:8px;overflow:hidden;border:1px solid rgba(99,102,241,0.3);">
+    <div class="atoggle-btn atoggle-active" onclick="toggleAnalysis('ncaaf','sintonia',this)" style="flex:1;text-align:center;padding:8px;cursor:pointer;font-size:12px;font-weight:800;font-family:var(--ec-font-body);background:rgba(167,139,250,0.15);color:#A78BFA;transition:all 0.2s;">Sinton.ia's Card</div>
+    <div class="atoggle-btn" onclick="toggleAnalysis('ncaaf','alyssa',this)" style="flex:1;text-align:center;padding:8px;cursor:pointer;font-size:12px;font-weight:800;font-family:var(--ec-font-body);background:transparent;color:rgba(232,121,249,0.4);transition:all 0.2s;">Alyssa's Edge</div>
+</div>
+<div class="input-section analysis-card" id="peterGutNCAAF" data-card="sintonia">
+    <h3 id="peterGutNCAAFTitle">Sinton.ia's Card &mdash; NCAAF</h3>
+    <div id="peterGutNCAAFContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;"><p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load...</p></div>
+    <div id="peterGutNCAAFTimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
+</div>
+<div class="input-section analysis-card" id="alyssaEdgeNCAAF" data-card="alyssa" style="display:none;">
+    <h3 style="color:#E879F9;">Alyssa's Edge &mdash; NCAAF</h3>
+    <div style="font-size:10px;color:rgba(232,121,249,0.5);font-weight:700;letter-spacing:1px;margin-bottom:8px;">100% MATH. NO AI. PURE EDGE.</div>
+    <div id="alyssaEdgeNCAAFContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;"><p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load edge analysis...</p></div>
+</div>
+</div>
+
+<!-- ===== TENNIS PANEL ===== -->
+<div class="sport-panel" id="panel-tennis">
+<div class="gotcha-banner" style="border-color:rgba(234,179,8,0.2);background:rgba(234,179,8,0.06);">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h3 style="color:#eab308;">Gotcha Card &mdash; Tennis</h3>
+        <div style="display:flex;gap:6px;">
+            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(99,102,241,0.12);color:#818cf8;font-size:11px;font-weight:700;border:none;" onclick="toggleGotchaEdit('TENNIS')">EDIT</button>
+            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(16,185,129,0.15);color:#10B981;font-size:11px;font-weight:700;border:none;" onclick="saveGotcha('TENNIS')">SAVE</button>
+        </div>
+    </div>
+    <div id="gotchaDisplay-TENNIS"><p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load today's gotcha card...</p></div>
+    <textarea id="gotchaEditor-TENNIS" style="display:none;width:100%;min-height:150px;background:#08080c;color:#fff;border:1px solid #eab308;border-radius:6px;padding:10px;font-family:var(--ec-font-body);font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line..."></textarea>
+</div>
+<div class="empty-state">No Tennis matches loaded.<br><strong>Hit REFRESH SLATE</strong> to load live lines.</div>
+<div class="upset-section" id="upsetTENNIS">
+    <h3>EV+ Money Specials</h3>
+    <form class="upset-submit-form" onsubmit="submitUpset('TENNIS');return false;">
+        <select id="upsetTeamTENNIS" required><option value="">-- Load slate first --</option></select>
+        <input type="text" id="upsetOddsTENNIS" placeholder="Odds" required>
+        <input type="text" id="upsetThesisTENNIS" placeholder="Thesis / reasoning">
+        <button type="submit">SUBMIT</button>
+    </form>
+    <div class="upset-cards" id="upsetCardsTENNIS"></div>
+</div>
+<div class="analysis-toggle" style="display:flex;gap:0;margin:12px 0 4px;border-radius:8px;overflow:hidden;border:1px solid rgba(99,102,241,0.3);">
+    <div class="atoggle-btn atoggle-active" onclick="toggleAnalysis('tennis','sintonia',this)" style="flex:1;text-align:center;padding:8px;cursor:pointer;font-size:12px;font-weight:800;font-family:var(--ec-font-body);background:rgba(167,139,250,0.15);color:#A78BFA;transition:all 0.2s;">Sinton.ia's Card</div>
+    <div class="atoggle-btn" onclick="toggleAnalysis('tennis','alyssa',this)" style="flex:1;text-align:center;padding:8px;cursor:pointer;font-size:12px;font-weight:800;font-family:var(--ec-font-body);background:transparent;color:rgba(232,121,249,0.4);transition:all 0.2s;">Alyssa's Edge</div>
+</div>
+<div class="input-section analysis-card" id="peterGutTENNIS" data-card="sintonia">
+    <h3 id="peterGutTENNISTitle">Sinton.ia's Card &mdash; Tennis</h3>
+    <div id="peterGutTENNISContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;"><p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load...</p></div>
+    <div id="peterGutTENNISTimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
+</div>
+<div class="input-section analysis-card" id="alyssaEdgeTENNIS" data-card="alyssa" style="display:none;">
+    <h3 style="color:#E879F9;">Alyssa's Edge &mdash; Tennis</h3>
+    <div style="font-size:10px;color:rgba(232,121,249,0.5);font-weight:700;letter-spacing:1px;margin-bottom:8px;">100% MATH. NO AI. PURE EDGE.</div>
+    <div id="alyssaEdgeTENNISContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;"><p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load edge analysis...</p></div>
+</div>
+</div>
+
 <!-- ===== SOCCER PANEL ===== -->
 <div class="sport-panel" id="panel-soccer">
 <div class="gotcha-banner" style="border-color:rgba(16,185,129,0.2);background:rgba(16,185,129,0.06);">
@@ -1258,7 +1418,7 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
         </div>
     </div>
     <div id="gotchaDisplay-SOCCER">
-        <p style="color:rgba(255,255,255,0.5);font-size:13px;">MLS, EPL, Champions League, La Liga. Moneylines + totals. No player props.</p>
+        <p style="color:rgba(255,255,255,0.5);font-size:13px;">17 leagues: MLS, EPL, La Liga, Serie A, Bundesliga, Ligue 1, Champions League, Europa League, Liga MX, Eredivisie, Primeira Liga + more. All markets.</p>
     </div>
     <textarea id="gotchaEditor-SOCCER" style="display:none;width:100%;min-height:150px;background:#08080c;color:#fff;border:1px solid #10B981;border-radius:6px;padding:10px;font-family:var(--ec-font-body);font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line..."></textarea>
 </div>
@@ -2170,7 +2330,7 @@ function refreshSlate() {
     if (sweepEl) sweepEl.textContent = 'LOADING';
     if (sweepDot) { sweepDot.style.background = '#F59E0B'; sweepDot.style.animation = 'edgePulse 1s ease-in-out infinite'; }
 
-    var sportsToLoad = ['nba','nhl','mlb','soccer','mma','boxing'];
+    var sportsToLoad = ['nba','wnba','ncaab','ncaaf','nhl','mlb','tennis','soccer','mma','boxing'];
     var loadedCount = 0;
     var analysisCount = 0;
     var oddsPhase = true;
@@ -2429,6 +2589,7 @@ function submitBetSlip() {
     var odds = document.getElementById('slipOdds').value || '-110';
     var note = document.getElementById('slipNoteArea').value || '';
 
+    var grade = getAnalysisGrade(slipState.sport, slipState.matchup);
     var pick = {
         name: who,
         sport: slipState.sport,
@@ -2439,6 +2600,7 @@ function submitBetSlip() {
         units: slipState.units,
         confidence: slipState.conf,
         notes: note,
+        grade: grade || '',
         date: toPSTDate(),
         time: toPSTShort(),
         created_at: new Date().toISOString()
@@ -2509,7 +2671,7 @@ function lockCard() {
         tr.appendChild(td2);
         tr.appendChild(td3);
         body.appendChild(tr);
-        if (side) lockedPicks.push({ matchup: g, selection: side });
+        lockedPicks.push({ matchup: g, selection: side || g });
     }
     document.getElementById('modalOverlay').classList.add('show');
 
@@ -2524,10 +2686,12 @@ function lockCard() {
         if (sel.indexOf('ML') !== -1) type = 'Moneyline';
         else if (sel.indexOf('OVER') !== -1 || sel.indexOf('UNDER') !== -1) type = 'Over/Under';
 
+        var grade = getAnalysisGrade(sport, lp.matchup);
         var pick = {
             name: name, sport: sport, type: type,
             matchup: lp.matchup, selection: lp.selection,
             odds: '-110', units: '1', confidence: 'Lean', notes: 'Lock card',
+            grade: grade || '',
             date: toPSTDate(), time: toPSTShort(), created_at: new Date().toISOString()
         };
         var stored = JSON.parse(safeLoad('edgePicks') || '[]');
@@ -2808,6 +2972,7 @@ function submitPick() {
         return;
     }
 
+    var grade = getAnalysisGrade(sport, matchup);
     var pick = {
         name: name,
         sport: sport,
@@ -2818,6 +2983,7 @@ function submitPick() {
         units: units,
         confidence: selectedConf || 'Lean',
         notes: notes,
+        grade: grade || '',
         date: toPSTDate(),
         time: toPSTShort(),
         created_at: new Date().toISOString()
@@ -3165,7 +3331,9 @@ function renderScoreboardGames() {
         var homeScore = g.home_score || (g.completed ? '0' : '-');
         var awayBold = g.completed && parseInt(g.away_score||0) > parseInt(g.home_score||0) ? 'font-weight:800;color:#fff;' : '';
         var homeBold = g.completed && parseInt(g.home_score||0) > parseInt(g.away_score||0) ? 'font-weight:800;color:#fff;' : '';
+        var leagueTag = g.league ? '<div style="grid-column:1/-1;font-size:9px;color:rgba(255,255,255,0.3);font-weight:600;letter-spacing:0.5px;text-transform:uppercase;">' + g.league + '</div>' : '';
         html += '<div style="display:grid;grid-template-columns:1fr 40px 20px 40px 1fr 60px;align-items:center;padding:10px 12px;background:rgba(255,255,255,0.02);border-radius:8px;margin:4px 0;gap:8px;">' +
+            leagueTag +
             '<div style="text-align:right;font-size:14px;color:rgba(255,255,255,0.7);' + awayBold + '">' + g.away + '</div>' +
             '<div style="text-align:center;font-size:18px;font-weight:800;color:#fff;' + awayBold + '">' + awayScore + '</div>' +
             '<div style="text-align:center;color:rgba(255,255,255,0.2);font-size:12px;">@</div>' +
@@ -4169,7 +4337,7 @@ function buildGameRowHTML(g) {
         '<div class="game-header">' +
             '<div class="pick-check" onclick="togglePick(event, this, \'' + matchup + '\')"></div>' +
             '<div class="game-time">' + dateStr + '<br>' + time + '</div>' +
-            '<div class="game-matchup"><span class="away">' + awayAbbr + '</span> @ <span class="home">' + homeAbbr + '</span>' +
+            '<div class="game-matchup">' + (g.league ? '<span style="font-size:9px;color:var(--ec-text-tertiary);font-weight:600;letter-spacing:0.5px;">' + g.league + '</span><br>' : '') + '<span class="away">' + awayAbbr + '</span> @ <span class="home">' + homeAbbr + '</span>' +
                 '<div class="side-select">' +
                     (hasSpread ? '<div class="side-btn" onclick="pickSide(event,this,\'' + awayAbbr + ' ' + awaySpreadStr + '\')">' + awayAbbr + ' ' + awaySpreadStr + ' (' + (g.away_spread_odds||'-110') + ')</div>' +
                     '<div class="side-btn" onclick="pickSide(event,this,\'' + homeAbbr + ' ' + spreadStr + '\')">' + homeAbbr + ' ' + spreadStr + ' (' + (g.home_spread_odds||'-110') + ')</div>' : '') +
@@ -4771,6 +4939,20 @@ function updatePeterGut(sport, analysisData) {
 
 // ===== ANALYSIS CACHE =====
 var _analysisCache = {};
+
+// Look up analysis grade for a matchup from cache
+function getAnalysisGrade(sport, matchup) {
+    var cached = _analysisCache[(sport || '').toUpperCase()];
+    if (!cached || !cached.games) return '';
+    var m = (matchup || '').replace(/\s/g,'').toUpperCase();
+    for (var i = 0; i < cached.games.length; i++) {
+        var gm = (cached.games[i].matchup || '').replace(/\s/g,'').toUpperCase();
+        if (gm === m || m.indexOf(gm) !== -1 || gm.indexOf(m) !== -1) {
+            return cached.games[i].grade || '';
+        }
+    }
+    return '';
+}
 
 // ===== ANALYSIS FETCH =====
 // ===== ANALYSIS TOGGLE (Sinton.ia vs Alyssa) =====

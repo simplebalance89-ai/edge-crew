@@ -1111,6 +1111,7 @@ def _parse_event(event, sport_label):
     game = {
         "id": event["id"],
         "sport": sport_label,
+        "league": event.get("sport_title", ""),
         "away": event["away_team"],
         "home": event["home_team"],
         "time": event["commence_time"],
@@ -1227,8 +1228,20 @@ SPORT_KEYS = {
         "soccer_usa_mls",
         "soccer_epl",
         "soccer_spain_la_liga",
+        "soccer_italy_serie_a",
+        "soccer_germany_bundesliga",
+        "soccer_france_ligue_one",
         "soccer_uefa_champs_league",
+        "soccer_uefa_europa_league",
         "soccer_mexico_ligamx",
+        "soccer_brazil_serie_a",
+        "soccer_argentina_primera_division",
+        "soccer_netherlands_eredivisie",
+        "soccer_portugal_primeira_liga",
+        "soccer_turkey_super_league",
+        "soccer_efl_champ",
+        "soccer_fa_cup",
+        "soccer_league_cup",
     ],
 }
 
@@ -1262,6 +1275,7 @@ async def _fetch_sport_odds(sport_key, markets, sport_label):
 
     Fetches from ALL available bookmakers (no bookmaker filter in request)
     so we always get games even if preferred book hasn't posted yet.
+    Also runs arb detection on each event.
     """
     url = f"{ODDS_API_BASE}/{sport_key}/odds/"
     params = {
@@ -1276,7 +1290,15 @@ async def _fetch_sport_odds(sport_key, markets, sport_label):
             resp = await client.get(url, params=params)
             if resp.status_code == 200:
                 for event in resp.json():
-                    games.append(_parse_event(event, sport_label))
+                    game = _parse_event(event, sport_label)
+                    # Run arb detection on raw event (needs all bookmakers)
+                    try:
+                        arbs = _detect_arbitrage(event, sport_label)
+                        if arbs:
+                            game["arbs"] = arbs
+                    except Exception:
+                        pass
+                    games.append(game)
     except Exception:
         pass
     return games
@@ -2698,6 +2720,7 @@ async def save_pick(request: Request):
         "units": _sanitize(body.get("units", "1")),
         "confidence": _sanitize(body.get("confidence", "Lean")),
         "notes": _sanitize(body.get("notes", "")),
+        "grade": _sanitize(body.get("grade", "")),
         "date": datetime.now(PST).strftime("%Y-%m-%d"),
         "time": datetime.now(PST).strftime("%I:%M %p"),
         "placed": True,
@@ -2807,6 +2830,7 @@ async def get_scores():
                 score_map[s["name"]] = s.get("score", "")
             games.append({
                 "sport": sport.upper(),
+                "league": g.get("sport_title", ""),
                 "away": g.get("away_team", ""),
                 "home": g.get("home_team", ""),
                 "away_score": score_map.get(g.get("away_team", ""), ""),
