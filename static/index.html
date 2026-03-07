@@ -2436,6 +2436,9 @@ function submitBetSlip() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(pick)
     }).then(function(r) {
+        if (!r.ok) {
+            return r.json().then(function(d) { throw new Error(d.error || 'Server error ' + r.status); });
+        }
         return r.json();
     }).then(function(data) {
         closeBetSlip();
@@ -2444,7 +2447,8 @@ function submitBetSlip() {
         renderBankroll();
     }).catch(function(err) {
         closeBetSlip();
-        showToast(pick.selection + ' locked (offline)!', 'warning');
+        console.error('Pick save failed:', err);
+        showToast('Pick save failed: ' + err.message, 'error');
         renderPicks();
         renderBankroll();
     });

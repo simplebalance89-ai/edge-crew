@@ -2495,6 +2495,17 @@ def _grade_pick_against_score(pick: dict, game: dict) -> str | None:
     if not scores or not game.get("completed"):
         return None
 
+    # Safety: don't grade if game hasn't actually started yet (commence_time in the future)
+    commence = game.get("commence_time", "")
+    if commence:
+        try:
+            game_start = datetime.fromisoformat(commence.replace("Z", "+00:00"))
+            if game_start > datetime.now(PST):
+                logger.warning(f"Skipping grade: game {game.get('home_team')} vs {game.get('away_team')} hasn't started (commence={commence})")
+                return None
+        except (ValueError, TypeError):
+            pass
+
     # Parse scores
     score_map = {}
     for s in scores:
