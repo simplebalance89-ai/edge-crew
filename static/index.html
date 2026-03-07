@@ -979,6 +979,7 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
 <div class="loading-overlay" id="loadingOverlay">
     <div class="loading-spinner"></div>
     <div class="loading-text" id="loadingText">Loading slate...</div>
+    <div id="loadingStack" style="margin-top:24px;max-width:400px;width:90%;max-height:50vh;overflow-y:auto;"></div>
 </div>
 
 <!-- TOP BAR -->
@@ -2138,6 +2139,7 @@ function refreshSlate() {
     var loadText = document.getElementById('loadingText');
     if (overlay) overlay.classList.add('active');
     if (loadText) loadText.textContent = 'Loading odds...';
+    renderLoadingStack();
 
     // Set sweep status to ANALYZING with spinner
     var sweepEl = document.getElementById('sweepTime');
@@ -3138,6 +3140,40 @@ function loadScoreboard() {
 function startScoreboardRefresh() {
     if (_scoreboardInterval) clearInterval(_scoreboardInterval);
     _scoreboardInterval = setInterval(loadScoreboard, 60000);
+}
+
+function renderLoadingStack() {
+    var el = document.getElementById('loadingStack');
+    if (!el) return;
+    var stored = JSON.parse(safeLoad('edgePicks') || '[]');
+    var today = new Date().toISOString().slice(0, 10);
+    var todayPicks = stored.filter(function(p) { return p.date === today; });
+    if (todayPicks.length === 0) {
+        el.innerHTML = '<div style="color:rgba(255,255,255,0.25);font-size:13px;text-align:center;">No picks yet today</div>';
+        return;
+    }
+    var w = todayPicks.filter(function(p) { return p.result === 'W'; }).length;
+    var l = todayPicks.filter(function(p) { return p.result === 'L'; }).length;
+    var pending = todayPicks.filter(function(p) { return !p.result; }).length;
+    var html = '<div style="text-align:center;margin-bottom:10px;">' +
+        '<div style="color:#818cf8;font-weight:800;font-size:13px;letter-spacing:1px;">YOUR STACK TODAY</div>' +
+        '<div style="color:rgba(255,255,255,0.5);font-size:12px;">' + todayPicks.length + ' picks' +
+        (w + l > 0 ? ' | ' + w + '-' + l : '') +
+        (pending > 0 ? ' | ' + pending + ' pending' : '') + '</div></div>';
+    todayPicks.forEach(function(p) {
+        var grade = '';
+        if (p.result === 'W') grade = '<span style="color:#10B981;font-weight:700;">W</span>';
+        else if (p.result === 'L') grade = '<span style="color:#EF4444;font-weight:700;">L</span>';
+        else grade = '<span style="color:rgba(255,255,255,0.3);font-size:10px;">PENDING</span>';
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:rgba(255,255,255,0.04);border-radius:6px;margin:3px 0;">' +
+            '<div style="flex:1;">' +
+                '<div style="color:#fff;font-weight:600;font-size:13px;">' + (p.selection || p.pick || p.matchup) + '</div>' +
+                '<div style="color:rgba(255,255,255,0.35);font-size:11px;">' + (p.name || '') + ' | ' + (p.matchup || '') + ' | ' + (p.odds || '') + '</div>' +
+            '</div>' +
+            '<div style="margin-left:8px;">' + grade + '</div>' +
+        '</div>';
+    });
+    el.innerHTML = html;
 }
 
 function updateHeroStats() {
