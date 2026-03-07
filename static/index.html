@@ -4627,6 +4627,52 @@ function fetchAnalysis(sport) {
                                     var nf = document.createElement('div'); nf.className = 'detail-box flags';
                                     var fh2 = '<h4>Flags</h4><ul>'; game.flags.forEach(function(f){fh2+='<li>'+f+'</li>';}); fh2+='</ul>'; nf.innerHTML = fh2; detail.appendChild(nf);
                                 }
+                                // === SCORE BREAKDOWN BOX ===
+                                if (game.matrix_scores || game.composite_score) {
+                                    var existingScoreBox = detail.querySelector('.detail-box.score-breakdown');
+                                    if (!existingScoreBox) {
+                                        var sb = document.createElement('div'); sb.className = 'detail-box score-breakdown';
+                                        sb.style.cssText = 'border-color:rgba(99,102,241,0.3);';
+                                        var sbh = '<h4 style="color:#818cf8;">Score Breakdown</h4>';
+                                        if (game.matrix_scores) {
+                                            sbh += '<table style="width:100%;font-size:11px;border-collapse:collapse;">';
+                                            sbh += '<tr style="color:rgba(255,255,255,0.4);text-align:left;"><th style="padding:3px 6px;">Variable</th><th style="padding:3px 6px;">Score</th><th style="padding:3px 6px;">Wt</th><th style="padding:3px 6px;">Total</th><th style="padding:3px 6px;">Note</th></tr>';
+                                            var totalWeighted = 0, maxPossible = 0;
+                                            for (var vk in game.matrix_scores) {
+                                                var v = game.matrix_scores[vk];
+                                                var sc = v.score || 0, wt = v.weight || 0, wd = v.weighted || (sc * wt);
+                                                totalWeighted += wd; maxPossible += (10 * wt);
+                                                var scoreColor = sc >= 7 ? '#22c55e' : sc >= 5 ? '#f59e0b' : '#ef4444';
+                                                sbh += '<tr style="border-top:1px solid rgba(255,255,255,0.04);">';
+                                                sbh += '<td style="padding:3px 6px;color:var(--ec-text-secondary);">' + vk.replace(/_/g,' ') + '</td>';
+                                                sbh += '<td style="padding:3px 6px;color:' + scoreColor + ';font-weight:700;">' + sc + '</td>';
+                                                sbh += '<td style="padding:3px 6px;color:rgba(255,255,255,0.3);">x' + wt + '</td>';
+                                                sbh += '<td style="padding:3px 6px;color:var(--ec-text-primary);font-weight:600;">' + wd + '</td>';
+                                                sbh += '<td style="padding:3px 6px;color:rgba(255,255,255,0.4);font-size:10px;">' + (v.note || '') + '</td>';
+                                                sbh += '</tr>';
+                                            }
+                                            sbh += '<tr style="border-top:2px solid rgba(99,102,241,0.3);">';
+                                            sbh += '<td colspan="3" style="padding:6px;color:var(--ec-text-primary);font-weight:700;">COMPOSITE</td>';
+                                            sbh += '<td style="padding:6px;color:#818cf8;font-weight:800;font-size:14px;">' + (game.composite_score || (maxPossible > 0 ? (totalWeighted / maxPossible * 10).toFixed(1) : '?')) + '</td>';
+                                            sbh += '<td style="padding:6px;color:rgba(255,255,255,0.4);font-size:10px;">' + totalWeighted + '/' + maxPossible + ' weighted pts</td>';
+                                            sbh += '</tr></table>';
+                                        } else if (game.composite_score) {
+                                            sbh += '<p style="font-size:14px;color:#818cf8;font-weight:800;">Composite: ' + game.composite_score + '/10</p>';
+                                        }
+                                        if (game.edge_question) {
+                                            sbh += '<div style="margin-top:8px;padding:8px;background:rgba(255,255,255,0.03);border-radius:6px;border-left:3px solid ' + (game.edge_question.indexOf('No clear edge') !== -1 ? '#ef4444' : '#22c55e') + ';">';
+                                            sbh += '<p style="font-size:10px;color:rgba(255,255,255,0.4);margin-bottom:2px;font-weight:600;">EDGE QUESTION</p>';
+                                            sbh += '<p style="font-size:12px;color:var(--ec-text-secondary);">' + game.edge_question + '</p></div>';
+                                        }
+                                        if (game.injury_impact) {
+                                            sbh += '<div style="margin-top:6px;padding:8px;background:rgba(239,68,68,0.05);border-radius:6px;border-left:3px solid #ef4444;">';
+                                            sbh += '<p style="font-size:10px;color:rgba(239,68,68,0.6);margin-bottom:2px;font-weight:600;">INJURY IMPACT</p>';
+                                            sbh += '<p style="font-size:12px;color:var(--ec-text-secondary);">' + game.injury_impact + '</p></div>';
+                                        }
+                                        sb.innerHTML = sbh;
+                                        detail.insertBefore(sb, detail.firstChild);
+                                    }
+                                }
                                 var chinnyBox = detail.querySelector('.detail-box.chinny');
                                 if (chinnyBox && game.chinny_props && game.chinny_props.length) {
                                     var ch = '<h4>Chinny\'s Props Zone</h4><ul>'; game.chinny_props.forEach(function(p){
