@@ -5970,10 +5970,13 @@ async function clearAllCache() {
         <button class="mqb-btn" ontouchend="event.preventDefault();switchSport('scores')" onclick="switchSport('scores',event)">
             <span class="mqb-icon">📈</span>Scores
         </button>
-        <button class="mqb-btn mqb-results" ontouchend="event.preventDefault();switchSport('bankroll')" onclick="switchSport('bankroll',event)">
+        <button class="mqb-btn" ontouchend="event.preventDefault();switchSport('submit',event)" onclick="switchSport('submit',event)">
+            <span class="mqb-icon">🎯</span>Picks
+        </button>
+        <button class="mqb-btn mqb-results" ontouchend="event.preventDefault();switchSport('results',event)" onclick="switchSport('results',event)">
             <span class="mqb-icon">📋</span>Results
         </button>
-        <button class="mqb-btn" ontouchend="event.preventDefault();switchSport('bankroll')" onclick="switchSport('bankroll',event)">
+        <button class="mqb-btn" ontouchend="event.preventDefault();switchSport('bankroll',event)" onclick="switchSport('bankroll',event)">
             <span class="mqb-icon">💰</span>Bank
         </button>
     </div>
