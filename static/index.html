@@ -1595,10 +1595,11 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
 <div class="pick-form">
     <h2 style="color:#818cf8;">Live Scoreboard</h2>
     <div class="form-sub">Today's games across all sports. Auto-refreshes every 60 seconds.</div>
-    <div style="display:flex;gap:8px;align-items:center;margin:12px 0;">
+    <div style="display:flex;gap:8px;align-items:center;margin:12px 0;flex-wrap:wrap;">
         <button onclick="loadScoreboard()" style="background:linear-gradient(135deg,#6366f1,#a78bfa);color:#fff;border:none;border-radius:8px;padding:10px 20px;font-family:var(--ec-font-body);font-weight:800;font-size:14px;cursor:pointer;">REFRESH</button>
         <span id="scoreboardStatus" style="color:rgba(255,255,255,0.4);font-size:12px;"></span>
     </div>
+    <div id="scoreboardFilters" style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;"></div>
     <div id="scoreboardGames"></div>
 </div>
 </div>
@@ -3034,50 +3035,100 @@ function calcPayout(odds, units) {
 
 // ===== LIVE SCOREBOARD =====
 var _scoreboardInterval = null;
+var _scoreboardFilter = 'ALL';
+var _scoreboardData = null;
+
+function setScoreFilter(sport) {
+    _scoreboardFilter = sport;
+    renderScoreboardGames();
+    renderScoreboardFilters();
+}
+
+function renderScoreboardFilters() {
+    var filtersEl = document.getElementById('scoreboardFilters');
+    if (!filtersEl || !_scoreboardData) return;
+    var sports = [];
+    _scoreboardData.games.forEach(function(g) {
+        if (sports.indexOf(g.sport) === -1) sports.push(g.sport);
+    });
+    var btnBase = 'border:none;border-radius:6px;padding:6px 14px;font-family:var(--ec-font-body);font-weight:700;font-size:12px;cursor:pointer;';
+    var html = '<button onclick="setScoreFilter(\'ALL\')" style="' + btnBase + (_scoreboardFilter === 'ALL' ? 'background:#6366f1;color:#fff;' : 'background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);') + '">ALL</button>';
+    var statusCounts = {};
+    _scoreboardData.games.forEach(function(g) {
+        if (!statusCounts[g.sport]) statusCounts[g.sport] = { live: 0, final: 0, total: 0 };
+        statusCounts[g.sport].total++;
+        if (g.completed) statusCounts[g.sport].final++;
+        else if (g.away_score || g.home_score) statusCounts[g.sport].live++;
+    });
+    sports.forEach(function(s) {
+        var c = statusCounts[s] || {};
+        var label = s + ' (' + c.total + ')';
+        if (c.live > 0) label = s + ' (' + c.live + ' LIVE)';
+        html += '<button onclick="setScoreFilter(\'' + s + '\')" style="' + btnBase + (_scoreboardFilter === s ? 'background:#6366f1;color:#fff;' : 'background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);') + '">' + label + '</button>';
+    });
+    filtersEl.innerHTML = html;
+}
+
+function renderScoreboardGames() {
+    var container = document.getElementById('scoreboardGames');
+    if (!container || !_scoreboardData) return;
+    var games = _scoreboardData.games;
+    if (_scoreboardFilter !== 'ALL') {
+        games = games.filter(function(g) { return g.sport === _scoreboardFilter; });
+    }
+    if (games.length === 0) {
+        container.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.3);padding:40px;font-size:16px;">No games for this filter.</div>';
+        return;
+    }
+    var html = '';
+    var currentSport = '';
+    games.forEach(function(g) {
+        if (g.sport !== currentSport) {
+            currentSport = g.sport;
+            html += '<div style="color:#818cf8;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:1px;margin:20px 0 8px;padding-bottom:4px;border-bottom:1px solid rgba(99,102,241,0.2);">' + currentSport + '</div>';
+        }
+        var statusText = '';
+        var statusColor = '';
+        if (g.completed) {
+            statusText = 'FINAL';
+            statusColor = '#10B981';
+        } else if (g.away_score || g.home_score) {
+            statusText = 'LIVE';
+            statusColor = '#EF4444';
+        } else {
+            statusText = g.time || 'TBD';
+            statusColor = 'rgba(255,255,255,0.4)';
+        }
+        var awayScore = g.away_score || (g.completed ? '0' : '-');
+        var homeScore = g.home_score || (g.completed ? '0' : '-');
+        var awayBold = g.completed && parseInt(g.away_score||0) > parseInt(g.home_score||0) ? 'font-weight:800;color:#fff;' : '';
+        var homeBold = g.completed && parseInt(g.home_score||0) > parseInt(g.away_score||0) ? 'font-weight:800;color:#fff;' : '';
+        html += '<div style="display:grid;grid-template-columns:1fr 40px 20px 40px 1fr 60px;align-items:center;padding:10px 12px;background:rgba(255,255,255,0.02);border-radius:8px;margin:4px 0;gap:8px;">' +
+            '<div style="text-align:right;font-size:14px;color:rgba(255,255,255,0.7);' + awayBold + '">' + g.away + '</div>' +
+            '<div style="text-align:center;font-size:18px;font-weight:800;color:#fff;' + awayBold + '">' + awayScore + '</div>' +
+            '<div style="text-align:center;color:rgba(255,255,255,0.2);font-size:12px;">@</div>' +
+            '<div style="text-align:center;font-size:18px;font-weight:800;color:#fff;' + homeBold + '">' + homeScore + '</div>' +
+            '<div style="font-size:14px;color:rgba(255,255,255,0.7);' + homeBold + '">' + g.home + '</div>' +
+            '<div style="text-align:right;font-size:11px;font-weight:700;color:' + statusColor + ';">' + statusText + '</div>' +
+        '</div>';
+    });
+    container.innerHTML = html;
+}
+
 function loadScoreboard() {
     var container = document.getElementById('scoreboardGames');
     var status = document.getElementById('scoreboardStatus');
     if (!container) return;
     status.textContent = 'Loading...';
     crewFetch('/api/scores').then(function(r) { return r.json(); }).then(function(data) {
+        _scoreboardData = data;
         status.textContent = data.count + ' games today — ' + data.timestamp;
         if (!data.games || data.games.length === 0) {
             container.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.3);padding:40px;font-size:16px;">No games scheduled today.</div>';
             return;
         }
-        var html = '';
-        var currentSport = '';
-        data.games.forEach(function(g) {
-            if (g.sport !== currentSport) {
-                currentSport = g.sport;
-                html += '<div style="color:#818cf8;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:1px;margin:20px 0 8px;padding-bottom:4px;border-bottom:1px solid rgba(99,102,241,0.2);">' + currentSport + '</div>';
-            }
-            var statusText = '';
-            var statusColor = '';
-            if (g.completed) {
-                statusText = 'FINAL';
-                statusColor = '#10B981';
-            } else if (g.away_score || g.home_score) {
-                statusText = 'LIVE';
-                statusColor = '#EF4444';
-            } else {
-                statusText = g.time || 'TBD';
-                statusColor = 'rgba(255,255,255,0.4)';
-            }
-            var awayScore = g.away_score || (g.completed ? '0' : '-');
-            var homeScore = g.home_score || (g.completed ? '0' : '-');
-            var awayBold = g.completed && parseInt(g.away_score||0) > parseInt(g.home_score||0) ? 'font-weight:800;color:#fff;' : '';
-            var homeBold = g.completed && parseInt(g.home_score||0) > parseInt(g.away_score||0) ? 'font-weight:800;color:#fff;' : '';
-            html += '<div style="display:grid;grid-template-columns:1fr 40px 20px 40px 1fr 60px;align-items:center;padding:10px 12px;background:rgba(255,255,255,0.02);border-radius:8px;margin:4px 0;gap:8px;">' +
-                '<div style="text-align:right;font-size:14px;color:rgba(255,255,255,0.7);' + awayBold + '">' + g.away + '</div>' +
-                '<div style="text-align:center;font-size:18px;font-weight:800;color:#fff;' + awayBold + '">' + awayScore + '</div>' +
-                '<div style="text-align:center;color:rgba(255,255,255,0.2);font-size:12px;">@</div>' +
-                '<div style="text-align:center;font-size:18px;font-weight:800;color:#fff;' + homeBold + '">' + homeScore + '</div>' +
-                '<div style="font-size:14px;color:rgba(255,255,255,0.7);' + homeBold + '">' + g.home + '</div>' +
-                '<div style="text-align:right;font-size:11px;font-weight:700;color:' + statusColor + ';">' + statusText + '</div>' +
-            '</div>';
-        });
-        container.innerHTML = html;
+        renderScoreboardFilters();
+        renderScoreboardGames();
     }).catch(function(err) {
         status.textContent = 'Error: ' + err.message;
         status.style.color = '#EF4444';
