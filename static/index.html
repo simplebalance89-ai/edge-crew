@@ -4892,6 +4892,20 @@ function fetchEdge(sport) {
                     html += '</div>';
                 }
 
+                // Arbitrage opportunities
+                if (g.arbs && g.arbs.length) {
+                    g.arbs.forEach(function(arb) {
+                        html += '<div style="margin:6px 0;padding:10px 12px;background:rgba(16,185,129,0.08);border:2px solid rgba(16,185,129,0.4);border-radius:8px;">';
+                        html += '<div style="font-size:12px;color:#10B981;font-weight:800;margin-bottom:4px;">ARB DETECTED: ' + arb.type + ' | +' + arb.profit_pct + '% guaranteed</div>';
+                        arb.legs.forEach(function(leg) {
+                            var odds = leg.odds > 0 ? '+' + leg.odds : leg.odds;
+                            html += '<div style="font-size:11px;color:rgba(255,255,255,0.6);margin-left:8px;">' + leg.side + ' ' + odds + ' <span style="color:rgba(255,255,255,0.3);">(' + leg.book + ')</span></div>';
+                        });
+                        html += '</div>';
+                    });
+                    flags.push('<span style="background:rgba(16,185,129,0.2);color:#10B981;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;">ARB</span>');
+                }
+
                 // Matchup flags (team stats context)
                 if (g.matchup_flags && g.matchup_flags.length) {
                     html += '<div style="margin:6px 0;padding:8px 10px;background:rgba(96,165,250,0.06);border:1px solid rgba(96,165,250,0.15);border-radius:8px;">';

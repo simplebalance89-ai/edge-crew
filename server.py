@@ -2272,6 +2272,12 @@ async def get_edge(sport: str):
                 matchup_flags.append(f"Net rating gap: {better} {max(home_net,away_net):+.1f} vs {min(home_net,away_net):+.1f}")
 
         edge_game["matchup_flags"] = matchup_flags
+
+        # === ARBITRAGE DETECTION (all sports) ===
+        arbs = _detect_arbitrage(event, sport.upper())
+        if arbs:
+            edge_game["arbs"] = arbs
+
         edge_games.append(edge_game)
 
     # Sort by upset score descending (best upset value first)
