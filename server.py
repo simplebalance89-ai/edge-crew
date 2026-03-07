@@ -1844,6 +1844,59 @@ async def _fetch_nba_team_stats():
     return stats
 
 
+# ===== ESPN INJURIES (FREE, NO AUTH) =====
+_ESPN_SPORT_MAP = {
+    "nba": "basketball/nba",
+    "nhl": "hockey/nhl",
+    "nfl": "football/nfl",
+    "mlb": "baseball/mlb",
+    "soccer": "soccer/usa.1",
+}
+
+async def _fetch_espn_injuries(sport_lower):
+    """Fetch injury data from ESPN's free API. No auth needed.
+    Returns dict keyed by team name -> list of injured players."""
+    cache_key = f"espn_injuries:{sport_lower}"
+    cached = _get_cached(cache_key, ttl=1800)  # 30min cache
+    if cached:
+        return cached
+
+    espn_sport = _ESPN_SPORT_MAP.get(sport_lower)
+    if not espn_sport:
+        return {}
+
+    injuries = {}
+    try:
+        url = f"https://site.api.espn.com/apis/site/v2/sports/{espn_sport}/injuries"
+        async with httpx.AsyncClient(timeout=10, follow_redirects=True) as client:
+            resp = await client.get(url)
+            if resp.status_code == 200:
+                data = resp.json()
+                for team_data in data.get("items", []):
+                    team_name = team_data.get("team", {}).get("displayName", "")
+                    team_abbr = team_data.get("team", {}).get("abbreviation", "")
+                    players = []
+                    for item in team_data.get("injuries", []):
+                        status = item.get("status", "")
+                        # Normalize: "Out" -> "OUT", "Day-To-Day" -> "GTD", "Questionable" -> "GTD"
+                        status_norm = "OUT" if status.lower() in ("out", "injured reserve", "ir") else "GTD" if status.lower() in ("day-to-day", "questionable", "doubtful", "probable") else status.upper()
+                        athlete = item.get("athlete", {})
+                        players.append({
+                            "player": athlete.get("displayName", "Unknown"),
+                            "position": athlete.get("position", {}).get("abbreviation", ""),
+                            "status": status_norm,
+                            "detail": item.get("details", {}).get("detail", ""),
+                        })
+                    if players:
+                        injuries[team_name] = players
+                        if team_abbr:
+                            injuries[team_abbr] = players
+        _set_cache(cache_key, injuries)
+    except Exception as e:
+        print(f"ESPN injuries fetch error for {sport_lower}: {e}")
+    return injuries
+
+
 # ===== TEAM CONTEXT FOR EDGE ENGINE =====
 async def _get_team_context(sport_lower, home, away):
     """Get team stats context for edge calculations.
@@ -1909,6 +1962,23 @@ async def get_edge(sport: str):
             injuries_by_team = inj_cache.get("injuries_by_team", {})
     except Exception as e:
         print(f"Edge injury fetch error: {e}")
+
+    # ESPN injuries (supplementary — free, no auth)
+    espn_injuries = {}
+    try:
+        espn_injuries = await _fetch_espn_injuries(sport_lower)
+        # Merge ESPN injuries into injuries_by_team (ESPN fills gaps)
+        for team_key, players in espn_injuries.items():
+            if team_key not in injuries_by_team:
+                injuries_by_team[team_key] = players
+            else:
+                # Add ESPN players not already in the existing list
+                existing_names = {p.get("player", "").lower() for p in injuries_by_team[team_key]}
+                for p in players:
+                    if p["player"].lower() not in existing_names:
+                        injuries_by_team[team_key].append(p)
+    except Exception as e:
+        print(f"ESPN injury merge error: {e}")
 
     roster_top = {}
     try:
