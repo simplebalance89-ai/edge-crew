@@ -38,13 +38,9 @@ async def _autograde_loop():
         try:
             now = datetime.now(PST)
             if now.hour >= 22 or now.hour < 6:
-                # Fetch ungraded picks from Supabase
-                if sb:
-                    res = sb.table("picks").select("*").is_("result", "null").execute()
-                    ungraded = res.data or []
-                else:
-                    data = _read_picks()
-                    ungraded = [p for p in data.get("picks", []) if not p.get("result")]
+                # Fetch ungraded picks from local file
+                data = _read_picks()
+                ungraded = [p for p in data.get("picks", []) if not p.get("result")]
 
                 if ungraded:
                     ungraded = _deduplicate_picks(ungraded)
@@ -80,15 +76,9 @@ async def _autograde_loop():
                                     grade = _grade_pick_against_score(pick, game)
                                     if grade:
                                         break
-                        if grade and sb:
-                            try:
-                                sb.table("picks").update({
-                                    "result": grade,
-                                    "graded_at": datetime.now(PST).isoformat(),
-                                }).eq("id", pick.get("id", "")).execute()
-                                graded += 1
-                            except Exception:
-                                pass
+                        if grade:
+                            _update_pick_result(pick.get("id", ""), grade)
+                            graded += 1
                     if graded:
                         print(f"[AUTOGRADE] Graded {graded}/{len(ungraded)} picks at {now.strftime('%I:%M %p PST')}")
         except Exception as e:
@@ -2147,18 +2137,25 @@ def _write_picks(data):
         json.dump(data, f, indent=2)
 
 
+def _update_pick_result(pick_id: str, result: str):
+    """Update a pick's result in local file storage."""
+    if not pick_id:
+        return
+    data = _read_picks()
+    for pick in data["picks"]:
+        if pick.get("id") == pick_id:
+            pick["result"] = result
+            pick["graded_at"] = datetime.now(PST).strftime("%Y-%m-%d %H:%M:%S")
+            data["updated_at"] = datetime.now(PST).strftime("%Y-%m-%d %H:%M:%S")
+            _write_picks(data)
+            return
+
+
 @app.get("/api/picks")
 async def get_picks(date: str = ""):
     """Return picks, optionally filtered by date (YYYY-MM-DD or 'today')."""
     if date == "today":
         date = datetime.now(PST).strftime("%Y-%m-%d")
-
-    if sb:
-        query = sb.table("picks").select("*").order("created_at", desc=True)
-        if date:
-            query = query.eq("date", date)
-        res = query.execute()
-        return JSONResponse({"picks": res.data, "count": len(res.data)})
 
     data = _read_picks()
     picks = data.get("picks", [])
@@ -2170,12 +2167,8 @@ async def get_picks(date: str = ""):
 @app.get("/api/picks/unique")
 async def get_unique_picks():
     """Return scored unique/contrarian picks from graded history."""
-    if sb:
-        res = sb.table("picks").select("*").eq("result", "W").execute()
-        wins = res.data or []
-    else:
-        data = _read_picks()
-        wins = [p for p in data.get("picks", []) if p.get("result") == "W"]
+    data = _read_picks()
+    wins = [p for p in data.get("picks", []) if p.get("result") == "W"]
 
     graded_results = [{"pick_id": p.get("id"), "result": "W"} for p in wins]
     unique = _score_unique_picks(graded_results, wins)
@@ -2217,17 +2210,14 @@ async def save_pick(request: Request):
         "created_at": datetime.now(PST).strftime("%Y-%m-%d %H:%M:%S"),
     }
 
-    if sb:
-        try:
-            sb.table("picks").insert(pick).execute()
-        except Exception as e:
-            logger.error(f"Supabase pick insert failed: {e}")
-            return JSONResponse({"error": f"Failed to save pick: {e}"}, status_code=500)
-    else:
+    try:
         data = _read_picks()
         data["picks"].insert(0, pick)
         data["updated_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         _write_picks(data)
+    except Exception as e:
+        logger.error(f"Pick save failed: {e}")
+        return JSONResponse({"error": f"Failed to save pick: {e}"}, status_code=500)
 
     return JSONResponse({"status": "ok", "pick": pick})
 
@@ -2241,16 +2231,6 @@ async def place_pick(request: Request):
 
     if not pick_id:
         return JSONResponse({"error": "id is required"}, status_code=400)
-
-    if sb:
-        update_data = {
-            "placed": placed,
-            "placed_at": datetime.now().isoformat() if placed else None,
-        }
-        res = sb.table("picks").update(update_data).eq("id", pick_id).execute()
-        if not res.data:
-            return JSONResponse({"error": "Pick not found"}, status_code=404)
-        return JSONResponse({"status": "ok", "pick": res.data[0]})
 
     data = _read_picks()
     for pick in data["picks"]:
@@ -2273,15 +2253,6 @@ async def grade_pick(request: Request):
 
     if not pick_id or result_val not in ("W", "L", "P"):
         return JSONResponse({"error": "id and result (W/L/P) required"}, status_code=400)
-
-    if sb:
-        res = sb.table("picks").update({
-            "result": result_val,
-            "graded_at": datetime.now().isoformat(),
-        }).eq("id", pick_id).execute()
-        if not res.data:
-            return JSONResponse({"error": "Pick not found"}, status_code=404)
-        return JSONResponse({"status": "ok", "pick": res.data[0]})
 
     data = _read_picks()
     for pick in data["picks"]:
@@ -2757,9 +2728,6 @@ async def autograde_picks(request: Request):
 
     if client_picks:
         ungraded = [p for p in client_picks if not p.get("result")]
-    elif sb:
-        res = sb.table("picks").select("*").is_("result", "null").execute()
-        ungraded = res.data or []
     else:
         data = _read_picks()
         ungraded = [p for p in data.get("picks", []) if not p.get("result")]
@@ -2832,14 +2800,7 @@ async def autograde_picks(request: Request):
             result = _grade_parlay(pick, completed)
             if result:
                 pick_id = pick.get("id", "")
-                if sb and pick_id:
-                    try:
-                        sb.table("picks").update({
-                            "result": result,
-                            "graded_at": datetime.now(PST).isoformat(),
-                        }).eq("id", pick_id).execute()
-                    except Exception:
-                        pass
+                _update_pick_result(pick_id, result)
                 graded_count += 1
                 legs = _parse_parlay_legs(pick)
                 results.append({
@@ -2870,15 +2831,7 @@ async def autograde_picks(request: Request):
             result = _grade_pick_against_score(pick, game)
             if result:
                 pick_id = pick.get("id", "")
-                # Update server-side storage if pick has ID
-                if sb and pick_id:
-                    try:
-                        sb.table("picks").update({
-                            "result": result,
-                            "graded_at": datetime.now(PST).isoformat(),
-                        }).eq("id", pick_id).execute()
-                    except Exception:
-                        pass
+                _update_pick_result(pick_id, result)
 
                 graded_count += 1
                 scores_info = game.get("scores", [])
@@ -2959,14 +2912,9 @@ async def agent_chat(request: Request):
     # Build context: include today's picks summary and current slate info
     context_parts = []
 
-    # Add picks context
-    if sb:
-        today = datetime.now(PST).strftime("%Y-%m-%d")
-        res = sb.table("picks").select("*").order("created_at", desc=True).limit(30).execute()
-        picks_data = res.data or []
-    else:
-        data = _read_picks()
-        picks_data = data.get("picks", [])[:30]
+    # Add picks context (local file storage)
+    data = _read_picks()
+    picks_data = data.get("picks", [])[:30]
 
     if picks_data:
         graded = [p for p in picks_data if p.get("result")]
@@ -3097,30 +3045,21 @@ async def update_pick(pick_id: str, request: Request):
     update_data = {k: _sanitize(str(v)) for k, v in body.items() if k in allowed and v is not None}
     if not update_data:
         return JSONResponse({"error": "No valid fields to update"}, status_code=400)
-    if sb:
-        res = sb.table("picks").update(update_data).eq("id", pick_id).execute()
-        if not res.data:
-            return JSONResponse({"error": "Pick not found"}, status_code=404)
-        return JSONResponse({"status": "ok", "pick": res.data[0]})
-    else:
-        data = _read_picks()
-        for pick in data["picks"]:
-            if pick["id"] == pick_id:
-                pick.update(update_data)
-                _write_picks(data)
-                return JSONResponse({"status": "ok", "pick": pick})
-        return JSONResponse({"error": "Pick not found"}, status_code=404)
+    data = _read_picks()
+    for pick in data["picks"]:
+        if pick["id"] == pick_id:
+            pick.update(update_data)
+            _write_picks(data)
+            return JSONResponse({"status": "ok", "pick": pick})
+    return JSONResponse({"error": "Pick not found"}, status_code=404)
 
 
 @app.delete("/api/picks/{pick_id}")
 async def delete_pick(pick_id: str):
     """Delete a pick by ID."""
-    if sb:
-        sb.table("picks").delete().eq("id", pick_id).execute()
-    else:
-        data = _read_picks()
-        data["picks"] = [p for p in data["picks"] if p["id"] != pick_id]
-        _write_picks(data)
+    data = _read_picks()
+    data["picks"] = [p for p in data["picks"] if p["id"] != pick_id]
+    _write_picks(data)
     return JSONResponse({"status": "deleted", "id": pick_id})
 
 
