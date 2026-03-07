@@ -2938,6 +2938,7 @@ function editPick(index) {
 }
 
 var activeSwimLane = 'ALL';
+var _resultFilter = 'all'; // 'all', 'regular', 'props'
 var CREW_COLORS = {Peter:'#818cf8',Chinny:'#10B981',Jimmy:'#5588EE',Alyssa:'#E879F9','Sinton.ia':'#A78BFA'};
 
 function setSwimLane(name, btn) {
@@ -2957,6 +2958,19 @@ function setSwimLane(name, btn) {
         btn.style.color = '#0A0A0A';
         btn.style.border = 'none';
     }
+    renderBankroll();
+}
+
+function setResultFilter(filter, btn) {
+    _resultFilter = filter;
+    document.querySelectorAll('.result-filter-btn').forEach(function(b) {
+        b.style.background = 'transparent';
+        b.style.color = 'rgba(255,255,255,0.5)';
+        b.style.borderColor = 'rgba(255,255,255,0.15)';
+    });
+    btn.style.background = 'rgba(99,102,241,0.2)';
+    btn.style.color = '#818cf8';
+    btn.style.borderColor = '#818cf8';
     renderBankroll();
 }
 
@@ -3317,7 +3331,11 @@ function renderBankroll() {
     document.getElementById('brBalance').style.color = balance >= startBR ? '#10B981' : '#EF4444';
     var gameW = wins - propW, gameL = losses - propL;
     var propTotal = propW + propL + propP;
-    document.getElementById('brRecord').textContent = wins + '-' + losses + '-' + pushes;
+    // Show record based on active result filter
+    var displayW = wins, displayL = losses, displayP = pushes;
+    if (_resultFilter === 'regular') { displayW = gameW; displayL = gameL; displayP = pushes - propP; }
+    else if (_resultFilter === 'props') { displayW = propW; displayL = propL; displayP = propP; }
+    document.getElementById('brRecord').textContent = displayW + '-' + displayL + '-' + displayP;
     var brRecordEl = document.getElementById('brRecordBreakdown');
     if (!brRecordEl) {
         brRecordEl = document.createElement('div');
@@ -3326,7 +3344,13 @@ function renderBankroll() {
         var recordParent = document.getElementById('brRecord');
         if (recordParent) recordParent.parentNode.appendChild(brRecordEl);
     }
-    brRecordEl.textContent = propTotal > 0 ? 'Games: ' + gameW + '-' + gameL + ' | Props: ' + propW + '-' + propL : '';
+    if (_resultFilter === 'all') {
+        brRecordEl.textContent = propTotal > 0 ? 'Games: ' + gameW + '-' + gameL + ' | Props: ' + propW + '-' + propL : '';
+    } else if (_resultFilter === 'regular') {
+        brRecordEl.textContent = 'Regular bets only';
+    } else {
+        brRecordEl.textContent = 'Player props only';
+    }
     document.getElementById('brUnits').textContent = (netUnits >= 0 ? '+' : '') + netUnits.toFixed(1) + 'u';
     document.getElementById('brUnits').style.color = netUnits >= 0 ? '#10B981' : '#EF4444';
     document.getElementById('brROI').textContent = (roi >= 0 ? '+' : '') + roi + '%';
@@ -3359,12 +3383,29 @@ function renderBankroll() {
         document.getElementById('brROI').style.color = 'rgba(255,255,255,0.3)';
     }
 
-    // Swim lane filter
+    // Result filter buttons
+    var rfContainer = document.getElementById('resultFilterBtns');
+    if (!rfContainer) {
+        rfContainer = document.createElement('div');
+        rfContainer.id = 'resultFilterBtns';
+        rfContainer.style.cssText = 'display:flex;gap:6px;margin-bottom:12px;justify-content:center;';
+        var bankrollPicks = document.getElementById('bankrollPicks');
+        if (bankrollPicks) bankrollPicks.parentNode.insertBefore(rfContainer, bankrollPicks);
+    }
+    var rfBtnStyle = 'cursor:pointer;padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700;font-family:var(--ec-font-body);border:1px solid ';
+    rfContainer.innerHTML =
+        '<button class="result-filter-btn" onclick="setResultFilter(\'all\',this)" style="' + rfBtnStyle + (_resultFilter === 'all' ? '#818cf8;background:rgba(99,102,241,0.2);color:#818cf8;' : 'rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.5);') + '">All</button>' +
+        '<button class="result-filter-btn" onclick="setResultFilter(\'regular\',this)" style="' + rfBtnStyle + (_resultFilter === 'regular' ? '#818cf8;background:rgba(99,102,241,0.2);color:#818cf8;' : 'rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.5);') + '">Regular Bets</button>' +
+        '<button class="result-filter-btn" onclick="setResultFilter(\'props\',this)" style="' + rfBtnStyle + (_resultFilter === 'props' ? '#818cf8;background:rgba(99,102,241,0.2);color:#818cf8;' : 'rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.5);') + '">Player Props</button>';
+
+    // Swim lane + result type filter
     var filteredPicks = [];
     stored.forEach(function(pick, i) {
-        if (activeSwimLane === 'ALL' || pick.name === activeSwimLane) {
-            filteredPicks.push({ pick: pick, originalIndex: i });
-        }
+        if (activeSwimLane !== 'ALL' && pick.name !== activeSwimLane) return;
+        var isProp = (pick.type || '').toLowerCase() === 'prop' || (pick.type || '').toLowerCase().indexOf('props parlay') !== -1;
+        if (_resultFilter === 'regular' && isProp) return;
+        if (_resultFilter === 'props' && !isProp) return;
+        filteredPicks.push({ pick: pick, originalIndex: i });
     });
 
     // FIX 2: Group picks by date, most recent first
@@ -5150,7 +5191,9 @@ function loadProps(sportFilter) {
             html += '<span class="grade ' + pGradeClass + '" style="font-size:10px;min-width:24px;text-align:center;">' + pGrade + '</span>';
             html += '<div style="flex:1;min-width:0;"><div style="font-size:12px;color:rgba(255,255,255,0.85);font-weight:600;overflow:hidden;text-overflow:ellipsis;">' + propText + '</div>';
             if (prop.edge) html += '<div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:1px;overflow:hidden;text-overflow:ellipsis;">' + prop.edge + '</div>';
-            html += '</div></div>';
+            html += '</div>';
+            html += '<div style="cursor:pointer;padding:4px 8px;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);border-radius:5px;color:#10B981;font-size:10px;font-weight:800;white-space:nowrap;flex-shrink:0;" onclick="addPropToPicks(\'' + propSel.replace(/'/g,"\\'") + '\',\'' + propOdds.replace(/'/g,"\\'") + '\',\'' + entry.matchup.replace(/'/g,"\\'") + '\',\'' + entry.sport + '\',\'Sinton.ia AI prop\')">LOCK</div>';
+            html += '</div>';
             propIdx++;
         });
 
@@ -5282,7 +5325,9 @@ function renderRealProps(props) {
             html += '<span style="font-weight:800;color:#fff;font-size:12px;">O ' + prop.line + '</span>';
             html += '<span style="font-weight:700;color:' + vc.color + ';font-size:11px;">' + oddsStr + '</span>';
             html += '<span style="font-size:8px;font-weight:800;padding:1px 4px;border-radius:3px;background:' + vc.bg + ';color:' + vc.color + ';border:1px solid ' + vc.border + ';white-space:nowrap;">' + prop.verdict + '</span>';
-            html += '</div></div></div></div>';
+            html += '</div></div></div>';
+            html += '<div style="cursor:pointer;padding:4px 8px;background:rgba(232,121,249,0.15);border:1px solid rgba(232,121,249,0.3);border-radius:5px;color:#E879F9;font-size:10px;font-weight:800;white-space:nowrap;flex-shrink:0;" onclick="event.stopPropagation();addPropToPicks(\'' + propSel.replace(/'/g,"\\'") + '\',\'' + oddsStr.replace(/'/g,"\\'") + '\',\'' + prop.matchup.replace(/'/g,"\\'") + '\',\'' + _realPropsSport.toUpperCase() + '\',\'Alyssa sharp prop — ' + (prop.verdict || '').replace(/'/g,"\\'") + '\')">LOCK</div>';
+            html += '</div>';
 
             // Detail (hidden)
             var edgeSign = prop.edge > 0 ? '+' : '';
@@ -5340,17 +5385,25 @@ function addPropToPicks(selection, odds, matchup, sport, notes) {
         created_at: new Date().toISOString()
     };
 
+    // Save to localStorage
+    var stored = JSON.parse(safeLoad('edgePicks') || '[]');
+    stored.unshift(pick);
+    safeSave('edgePicks', JSON.stringify(stored));
+
     crewFetch('/api/picks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(pick)
-    }).then(function(r) { return r.json(); }).then(function() {
-        showToast(selection + ' LOCKED!');
-        renderPicks();
-        renderBankroll();
-    }).catch(function() {
-        showToast(selection + ' locked (offline)!', 'warning');
-    });
+    }).then(function(r) { return r.json(); }).then(function(data) {
+        if (data.id) {
+            var s = JSON.parse(safeLoad('edgePicks') || '[]');
+            if (s.length > 0 && !s[0].id) { s[0].id = data.id; safeSave('edgePicks', JSON.stringify(s)); }
+        }
+    }).catch(function() {});
+
+    showToast(selection + ' LOCKED!');
+    renderPicks();
+    renderBankroll();
 }
 
 // ===== PROPS PARLAY BUILDER =====
