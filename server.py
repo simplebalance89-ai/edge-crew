@@ -30,6 +30,37 @@ def _sanitize(s):
 
 app = FastAPI()
 
+# ── Error Log ─────────────────────────────────────────────────────────────────
+from collections import deque
+_error_log = deque(maxlen=100)
+
+def log_error(source: str, message: str, detail: str = ""):
+    _error_log.appendleft({
+        "ts": datetime.now(PST).isoformat(),
+        "source": source,
+        "message": message,
+        "detail": str(detail)[:500],
+    })
+    logger.error("[%s] %s — %s", source, message, str(detail)[:200])
+
+@app.get("/api/errors")
+async def get_error_log(limit: int = 50):
+    return {"errors": list(_error_log)[:limit], "total": len(_error_log)}
+
+@app.post("/api/errors")
+async def post_error(request: Request):
+    """Accept error reports from frontend JS."""
+    try:
+        body = await request.json()
+        log_error(
+            body.get("source", "frontend"),
+            body.get("error", "unknown"),
+            body.get("stack", ""),
+        )
+    except Exception:
+        pass
+    return {"status": "ok"}
+
 
 async def _autograde_loop():
     """Background loop: auto-grade picks every 15 min between 10PM-6AM PST."""
@@ -2082,6 +2113,7 @@ Return ONLY valid JSON. No markdown. No explanation."""
         for idx, result in enumerate(batch_results):
             if isinstance(result, Exception):
                 logger.error(f"Analysis batch {idx} failed: {result}")
+                log_error("Analysis", f"Batch {idx} failed", str(result))
                 continue
             if idx == 0 and result.get("gotcha"):
                 gotcha_html = result["gotcha"]
@@ -2237,6 +2269,7 @@ async def save_pick(request: Request):
         _write_picks(data)
     except Exception as e:
         logger.error(f"Pick save failed: {e}")
+        log_error("Picks", f"Save failed for {name}", str(e))
         return JSONResponse({"error": f"Failed to save pick: {e}"}, status_code=500)
 
     return JSONResponse({"status": "ok", "pick": pick})
@@ -2373,6 +2406,7 @@ async def _fetch_scores(sport_key: str) -> list:
                 logger.warning(f"Scores fetch {sport_key}: HTTP {r.status_code}")
     except Exception as e:
         logger.warning(f"Scores fetch failed for {sport_key}: {type(e).__name__}: {e}")
+        log_error("Scores", f"Fetch failed: {sport_key}", str(e))
     return []
 
 
