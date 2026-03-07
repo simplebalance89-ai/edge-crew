@@ -437,6 +437,9 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
     pointer-events:all;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
 }
 .loading-overlay.active{display:flex;}
+body.loading .topbar,
+body.loading .content,
+body.loading .mobile-quick-bar{filter:blur(6px);pointer-events:none;user-select:none;transition:filter 0.3s;}
 .loading-overlay .loading-spinner{
     width:50px;height:50px;border:4px solid var(--ec-accent-glow);
     border-top:4px solid var(--ec-accent);border-radius:50%;animation:edgeSpin 0.8s linear infinite;
@@ -445,6 +448,51 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
     color:var(--ec-accent-light);font-size:14px;font-weight:600;font-family:var(--ec-font-body);
     letter-spacing:0.5px;text-transform:uppercase;
 }
+
+/* ===== BET REPORT TICKER ===== */
+.ticker-bar{
+    background:var(--ec-bg-secondary);border-bottom:1px solid var(--ec-border);
+    overflow:hidden;white-space:nowrap;position:relative;height:28px;
+    display:flex;align-items:center;
+}
+.ticker-track{
+    display:inline-flex;gap:32px;animation:tickerScroll 30s linear infinite;
+    padding-left:100%;
+}
+.ticker-track:hover{animation-play-state:paused;}
+@keyframes tickerScroll{
+    0%{transform:translateX(0);}
+    100%{transform:translateX(-50%);}
+}
+.ticker-item{
+    font-size:11px;font-weight:600;font-family:var(--ec-font-body);
+    letter-spacing:0.3px;color:var(--ec-text-secondary);white-space:nowrap;
+    display:inline-flex;align-items:center;gap:6px;
+}
+.ticker-item .tw{color:#10b981;}
+.ticker-item .tl{color:#ef4444;}
+.ticker-item .tp{color:#f59e0b;}
+.ticker-item .td{color:var(--ec-text-tertiary);font-size:10px;}
+
+/* ===== INTEL FEED ===== */
+.intel-bar{
+    background:rgba(99,102,241,0.04);border-bottom:1px solid var(--ec-border);
+    overflow:hidden;white-space:nowrap;position:relative;height:26px;
+    display:flex;align-items:center;
+}
+.intel-track{
+    display:inline-flex;gap:40px;animation:tickerScroll 45s linear infinite;
+    padding-left:100%;
+}
+.intel-track:hover{animation-play-state:paused;}
+.intel-item{
+    font-size:10px;font-weight:600;font-family:var(--ec-font-body);
+    color:var(--ec-text-tertiary);white-space:nowrap;
+    display:inline-flex;align-items:center;gap:4px;
+}
+.intel-item .it{color:rgba(255,255,255,0.25);font-size:9px;}
+.intel-item .ii{color:#ef4444;}
+.intel-item .il{color:#818cf8;}
 
 /* Loading button state */
 .btn-loading{pointer-events:none;opacity:0.7;position:relative;}
@@ -1018,6 +1066,16 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
             </div>
         </div>
     </div>
+</div>
+
+<!-- BET REPORT TICKER -->
+<div class="ticker-bar" id="betTicker" style="display:none;">
+    <div class="ticker-track" id="tickerTrack"></div>
+</div>
+
+<!-- LIVE INTEL FEED -->
+<div class="intel-bar" id="intelTicker" style="display:none;">
+    <div class="intel-track" id="intelTrack"></div>
 </div>
 
 <!-- SPORT TABS (2-Tier Nav) -->
@@ -2381,6 +2439,7 @@ function refreshSlate() {
     var overlay = document.getElementById('loadingOverlay');
     var loadText = document.getElementById('loadingText');
     if (overlay) overlay.classList.add('active');
+    document.body.classList.add('loading');
     var loadBanner = document.getElementById('loadingBanner');
     if (loadBanner) loadBanner.textContent = 'LOADING';
     if (loadText) loadText.textContent = 'Loading odds...';
@@ -2407,6 +2466,7 @@ function refreshSlate() {
         }
         if (analysisCount >= sportsToLoad.length) {
             if (overlay) overlay.classList.remove('active');
+            document.body.classList.remove('loading');
             // Sweep status back to LIVE
             if (sweepEl) sweepEl.textContent = 'LIVE';
             if (sweepDot) { sweepDot.style.background = 'var(--ec-success)'; sweepDot.style.animation = 'none'; }
@@ -2417,6 +2477,7 @@ function refreshSlate() {
     // Safety timeout — dismiss after 30s no matter what
     setTimeout(function() {
         if (overlay) overlay.classList.remove('active');
+        document.body.classList.remove('loading');
         if (sweepEl && sweepEl.textContent !== 'LIVE') { sweepEl.textContent = 'LIVE'; }
         if (sweepDot) { sweepDot.style.background = 'var(--ec-success)'; sweepDot.style.animation = 'none'; }
     }, 30000);
@@ -2820,6 +2881,7 @@ function switchSport(sport, e) {
     }
     if (sport === 'combined') fetchCombinedSlate();
     if (sport === 'scores') { loadScoreboard(); startScoreboardRefresh(); }
+    if (typeof populateIntel === 'function') populateIntel(sport);
     window.scrollTo(0, 0);
 }
 
@@ -3948,6 +4010,8 @@ function renderBankroll() {
 
     // Update hero stats
     updateHeroStats();
+    // Update ticker with latest picks
+    if (typeof populateTicker === 'function') populateTicker();
 }
 
 // Sync server picks into localStorage (merge, don't overwrite)
@@ -4336,6 +4400,127 @@ function renderSwimLane(container, name, picks, color) {
 
 // Load picks on page load
 renderPicks();
+
+// ===== BET REPORT TICKER =====
+function populateTicker() {
+    var stored = JSON.parse(safeLoad('edgePicks') || '[]');
+    var ticker = document.getElementById('betTicker');
+    var track = document.getElementById('tickerTrack');
+    if (!ticker || !track) return;
+
+    var items = [];
+    var today = toPSTDate();
+
+    // Recent graded picks (last 20)
+    var graded = stored.filter(function(p) { return p.result === 'W' || p.result === 'L'; });
+    var recent = graded.slice(-20).reverse();
+    recent.forEach(function(p) {
+        var cls = p.result === 'W' ? 'tw' : 'tl';
+        var units = parseFloat(p.units) || 1;
+        var uStr = p.result === 'W' ? '+' + calcPayout(p.odds, units).toFixed(1) + 'u' : '-' + units.toFixed(1) + 'u';
+        items.push('<span class="ticker-item"><span class="' + cls + '">' + p.result + '</span> ' +
+            (p.selection || p.matchup) + ' <span class="td">(' + (p.name || '') + ' ' + uStr + ')</span></span>');
+    });
+
+    // Today's ROI
+    var todayPicks = stored.filter(function(p) { return p.date === today && (p.result === 'W' || p.result === 'L'); });
+    if (todayPicks.length > 0) {
+        var tw = todayPicks.filter(function(p) { return p.result === 'W'; }).length;
+        var tl = todayPicks.filter(function(p) { return p.result === 'L'; }).length;
+        var tNet = 0;
+        var tRisked = 0;
+        todayPicks.forEach(function(p) {
+            var u = parseFloat(p.units) || 1;
+            tRisked += u;
+            tNet += p.result === 'W' ? calcPayout(p.odds, u) : -u;
+        });
+        var tROI = tRisked > 0 ? ((tNet / tRisked) * 100).toFixed(1) : '0.0';
+        var roiCls = parseFloat(tROI) >= 0 ? 'tw' : 'tl';
+        items.unshift('<span class="ticker-item"><span class="' + roiCls + '">TODAY ' + tw + '-' + tl + '</span> ' +
+            '<span class="td">' + (tNet >= 0 ? '+' : '') + tNet.toFixed(1) + 'u | ' + (parseFloat(tROI) >= 0 ? '+' : '') + tROI + '% ROI</span></span>');
+    }
+
+    // Streak
+    var streak = 0, streakType = '';
+    for (var i = stored.length - 1; i >= 0; i--) {
+        if (!stored[i].result || stored[i].result === 'P') continue;
+        if (!streakType) streakType = stored[i].result;
+        if (stored[i].result === streakType) streak++;
+        else break;
+    }
+    if (streak >= 3) {
+        var sCls = streakType === 'W' ? 'tw' : 'tl';
+        items.unshift('<span class="ticker-item"><span class="' + sCls + '">' + streakType + streak +
+            (streakType === 'W' ? ' HOT STREAK' : ' COLD STREAK') + '</span></span>');
+    }
+
+    // Pending count
+    var pending = stored.filter(function(p) { return p.date === today && !p.result; }).length;
+    if (pending > 0) {
+        items.push('<span class="ticker-item"><span class="tp">' + pending + ' PENDING</span> picks awaiting results</span>');
+    }
+
+    if (items.length === 0) {
+        ticker.style.display = 'none';
+        return;
+    }
+
+    // Duplicate items for seamless loop
+    var html = items.join('') + items.join('');
+    track.innerHTML = html;
+    ticker.style.display = 'flex';
+}
+populateTicker();
+
+// ===== LIVE INTEL FEED =====
+var _intelCache = {};
+function populateIntel(sport) {
+    var ticker = document.getElementById('intelTicker');
+    var track = document.getElementById('intelTrack');
+    if (!ticker || !track) return;
+    sport = sport || 'nba';
+
+    // Use cache if fresh (5 min)
+    if (_intelCache[sport] && Date.now() - _intelCache[sport].ts < 300000) {
+        renderIntelItems(_intelCache[sport].items);
+        return;
+    }
+
+    fetch('/api/injuries/' + sport).then(function(r) { return r.json(); }).then(function(data) {
+        var items = [];
+        var teams = data.injuries_by_team || {};
+        for (var team in teams) {
+            var players = teams[team];
+            if (!Array.isArray(players)) continue;
+            players.forEach(function(p) {
+                var status = (p.status || '').toLowerCase();
+                // Only show impactful statuses
+                if (status === 'out' || status === 'doubtful' || status === 'day-to-day') {
+                    var cls = status === 'out' ? 'ii' : (status === 'doubtful' ? 'ii' : 'il');
+                    var label = status === 'out' ? 'OUT' : (status === 'doubtful' ? 'DTD' : 'GTD');
+                    items.push('<span class="intel-item"><span class="it">' + team + '</span> ' +
+                        '<span class="' + cls + '">' + label + '</span> ' +
+                        (p.name || p.player || '') +
+                        (p.comment ? ' <span class="it">(' + p.comment + ')</span>' : '') + '</span>');
+                }
+            });
+        }
+
+        _intelCache[sport] = { items: items, ts: Date.now() };
+        renderIntelItems(items);
+    }).catch(function() {
+        ticker.style.display = 'none';
+    });
+}
+
+function renderIntelItems(items) {
+    var ticker = document.getElementById('intelTicker');
+    var track = document.getElementById('intelTrack');
+    if (!items.length) { ticker.style.display = 'none'; return; }
+    track.innerHTML = items.join('') + items.join('');
+    ticker.style.display = 'flex';
+}
+populateIntel('nba');
 
 // ===== LIVE ODDS FETCH =====
 var teamAbbr = {
@@ -6613,7 +6798,7 @@ async function clearAllCache() {
             background:linear-gradient(135deg,var(--ec-accent),#a78bfa);
             color:#fff;border-radius:16px;padding:8px 14px;
             box-shadow:0 4px 20px var(--ec-accent-glow);
-            margin-top:-8px;min-width:60px;min-height:52px;
+            min-width:60px;
             position:relative;z-index:2;
         ">
             <span class="mqb-icon" style="font-size:1.4rem;">🤖</span>
