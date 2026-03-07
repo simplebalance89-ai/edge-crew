@@ -1742,6 +1742,140 @@ async def get_credits():
     return JSONResponse(result)
 
 
+# ===== NHL STANDINGS + TEAM STATS (from NHL API) =====
+async def _fetch_nhl_standings():
+    """Fetch NHL standings with home/away records, L10, streaks, goal diff.
+    Returns dict keyed by team abbrev."""
+    cache_key = "nhl_standings"
+    cached = _get_cached(cache_key, ttl=3600)  # 1hr cache
+    if cached:
+        return cached
+
+    standings = {}
+    try:
+        async with httpx.AsyncClient(timeout=10, follow_redirects=True) as client:
+            resp = await client.get("https://api-web.nhle.com/v1/standings/now")
+            if resp.status_code == 200:
+                data = resp.json()
+                for t in data.get("standings", []):
+                    abbr = t.get("teamAbbrev", {}).get("default", "")
+                    if not abbr:
+                        continue
+                    standings[abbr] = {
+                        "name": t.get("teamName", {}).get("default", ""),
+                        "wins": t.get("wins", 0),
+                        "losses": t.get("losses", 0),
+                        "otl": t.get("otLosses", 0),
+                        "points": t.get("points", 0),
+                        "gf": t.get("goalFor", 0),
+                        "ga": t.get("goalAgainst", 0),
+                        "goal_diff": t.get("goalDifferential", 0),
+                        "home_w": t.get("homeWins", 0),
+                        "home_l": t.get("homeLosses", 0),
+                        "away_w": t.get("roadWins", 0),
+                        "away_l": t.get("roadLosses", 0),
+                        "l10_w": t.get("l10Wins", 0),
+                        "l10_l": t.get("l10Losses", 0),
+                        "l10_gf": t.get("l10GoalsFor", 0),
+                        "l10_ga": t.get("l10GoalsAgainst", 0),
+                        "streak": f"{t.get('streakCode', '?')}{t.get('streakCount', 0)}",
+                        "win_pct": t.get("winPctg", 0),
+                        "point_pct": t.get("pointPctg", 0),
+                    }
+        _set_cache(cache_key, standings)
+    except Exception as e:
+        print(f"NHL standings fetch error: {e}")
+    return standings
+
+
+# ===== NBA TEAM STATS (from NBA CDN + stats.nba.com) =====
+async def _fetch_nba_team_stats():
+    """Fetch NBA team stats — pace, offensive/defensive ratings.
+    Uses nba.com CDN endpoints that don't require auth."""
+    cache_key = "nba_team_stats"
+    cached = _get_cached(cache_key, ttl=3600)
+    if cached:
+        return cached
+
+    stats = {}
+    try:
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            "Referer": "https://www.nba.com/",
+            "Accept": "application/json",
+            "x-nba-stats-origin": "stats",
+            "x-nba-stats-token": "true",
+        }
+        # Try advanced team stats for pace + ratings
+        url = ("https://stats.nba.com/stats/leaguedashteamstats"
+               "?LastNGames=10&LeagueID=00&MeasureType=Advanced"
+               "&PerMode=PerGame&Season=2025-26&SeasonType=Regular+Season"
+               "&Conference=&DateFrom=&DateTo=&Division=&GameScope="
+               "&GameSegment=&Height=&ISTRound=&Location=&Month=0"
+               "&OpponentTeamID=0&Outcome=&PORound=0&PaceAdjust=N"
+               "&Period=0&PlayerExperience=&PlayerPosition=&PlusMinus=N"
+               "&Rank=N&ShotClockRange=&StarterBench=&TeamID=0&TwoWay=0"
+               "&VsConference=&VsDivision=")
+        async with httpx.AsyncClient(timeout=15, headers=headers) as client:
+            resp = await client.get(url)
+            if resp.status_code == 200:
+                data = resp.json()
+                rs = data.get("resultSets", [{}])[0]
+                hdrs = rs.get("headers", [])
+                rows = rs.get("rowSet", [])
+                for row in rows:
+                    rd = dict(zip(hdrs, row))
+                    team_name = rd.get("TEAM_NAME", "")
+                    team_abbr = rd.get("TEAM_ABBREVIATION", "")
+                    stats[team_abbr] = {
+                        "name": team_name,
+                        "pace": rd.get("PACE", 0),
+                        "off_rating": rd.get("OFF_RATING", 0),
+                        "def_rating": rd.get("DEF_RATING", 0),
+                        "net_rating": rd.get("NET_RATING", 0),
+                        "ts_pct": rd.get("TS_PCT", 0),
+                        "reb_pct": rd.get("REB_PCT", 0),
+                        "ast_ratio": rd.get("AST_RATIO", 0),
+                    }
+        if stats:
+            _set_cache(cache_key, stats)
+    except Exception as e:
+        print(f"NBA team stats fetch error: {e}")
+    return stats
+
+
+# ===== TEAM CONTEXT FOR EDGE ENGINE =====
+async def _get_team_context(sport_lower, home, away):
+    """Get team stats context for edge calculations.
+    Returns dict with home_stats, away_stats for the matchup."""
+    context = {"home": {}, "away": {}}
+
+    if sport_lower == "nhl":
+        standings = await _fetch_nhl_standings()
+        # Match team names to abbreviations
+        for abbr, data in standings.items():
+            full_name = data.get("name", "")
+            if abbr.lower() in home.lower() or any(w.lower() in home.lower() for w in full_name.split() if len(w) > 3):
+                context["home"] = data
+                context["home"]["abbr"] = abbr
+            if abbr.lower() in away.lower() or any(w.lower() in away.lower() for w in full_name.split() if len(w) > 3):
+                context["away"] = data
+                context["away"]["abbr"] = abbr
+
+    elif sport_lower == "nba":
+        team_stats = await _fetch_nba_team_stats()
+        for abbr, data in team_stats.items():
+            full_name = data.get("name", "")
+            if abbr.lower() in home.lower() or any(w.lower() in home.lower() for w in full_name.split() if len(w) > 3):
+                context["home"] = data
+                context["home"]["abbr"] = abbr
+            if abbr.lower() in away.lower() or any(w.lower() in away.lower() for w in full_name.split() if len(w) > 3):
+                context["away"] = data
+                context["away"]["abbr"] = abbr
+
+    return context
+
+
 @app.get("/api/edge/{sport}")
 async def get_edge(sport: str):
     """Alyssa's Edge v2 — All Books. Real Math. Pure Edge.
@@ -1827,6 +1961,9 @@ async def get_edge(sport: str):
         away = event.get("away_team", "?")
         home = event.get("home_team", "?")
         game_time = event.get("commence_time", "")
+
+        # === TEAM CONTEXT (NHL standings, NBA pace/ratings) ===
+        team_ctx = await _get_team_context(sport_lower, home, away)
 
         # === ALL-BOOK ANALYSIS ===
         book_analysis = _analyze_all_books(event)
@@ -2004,6 +2141,67 @@ async def get_edge(sport: str):
             "fav_stars_out": fav_injuries["out_stars"],
             "dog_stars_out": dog_injuries["out_stars"],
         }
+
+        # === TEAM STATS CONTEXT ===
+        matchup_flags = []
+        home_ctx = team_ctx.get("home", {})
+        away_ctx = team_ctx.get("away", {})
+
+        if sport_lower == "nhl" and home_ctx and away_ctx:
+            edge_game["home_record"] = f"{home_ctx.get('wins',0)}-{home_ctx.get('losses',0)}-{home_ctx.get('otl',0)}"
+            edge_game["away_record"] = f"{away_ctx.get('wins',0)}-{away_ctx.get('losses',0)}-{away_ctx.get('otl',0)}"
+            edge_game["home_l10"] = f"{home_ctx.get('l10_w',0)}-{home_ctx.get('l10_l',0)}"
+            edge_game["away_l10"] = f"{away_ctx.get('l10_w',0)}-{away_ctx.get('l10_l',0)}"
+            edge_game["home_streak"] = home_ctx.get("streak", "")
+            edge_game["away_streak"] = away_ctx.get("streak", "")
+            edge_game["home_goal_diff"] = home_ctx.get("goal_diff", 0)
+            edge_game["away_goal_diff"] = away_ctx.get("goal_diff", 0)
+            # Home/away specific records
+            edge_game["home_home_record"] = f"{home_ctx.get('home_w',0)}-{home_ctx.get('home_l',0)}"
+            edge_game["away_away_record"] = f"{away_ctx.get('away_w',0)}-{away_ctx.get('away_l',0)}"
+            # L10 goal differential
+            home_l10_gd = home_ctx.get("l10_gf", 0) - home_ctx.get("l10_ga", 0)
+            away_l10_gd = away_ctx.get("l10_gf", 0) - away_ctx.get("l10_ga", 0)
+            if home_l10_gd < -5:
+                matchup_flags.append(f"{home} struggling: L10 GD {home_l10_gd:+d}")
+            if away_l10_gd > 5:
+                matchup_flags.append(f"{away} hot: L10 GD {away_l10_gd:+d}")
+            # Streak flags
+            if home_ctx.get("streak", "").startswith("L") and int(home_ctx.get("streak", "L0")[1:] or 0) >= 3:
+                matchup_flags.append(f"{home} on {home_ctx['streak']} streak")
+            if away_ctx.get("streak", "").startswith("W") and int(away_ctx.get("streak", "W0")[1:] or 0) >= 3:
+                matchup_flags.append(f"{away} on {away_ctx['streak']} streak")
+
+        elif sport_lower == "nba" and home_ctx and away_ctx:
+            edge_game["home_pace"] = home_ctx.get("pace", 0)
+            edge_game["away_pace"] = away_ctx.get("pace", 0)
+            edge_game["home_off_rtg"] = home_ctx.get("off_rating", 0)
+            edge_game["home_def_rtg"] = home_ctx.get("def_rating", 0)
+            edge_game["away_off_rtg"] = away_ctx.get("off_rating", 0)
+            edge_game["away_def_rtg"] = away_ctx.get("def_rating", 0)
+            edge_game["home_net_rtg"] = home_ctx.get("net_rating", 0)
+            edge_game["away_net_rtg"] = away_ctx.get("net_rating", 0)
+            # Pace mismatch flag
+            home_pace = home_ctx.get("pace", 100)
+            away_pace = away_ctx.get("pace", 100)
+            if abs(home_pace - away_pace) > 3:
+                faster = home if home_pace > away_pace else away
+                matchup_flags.append(f"Pace mismatch: {faster} plays {abs(home_pace - away_pace):.1f} possessions faster")
+            # Defensive edge
+            home_def = home_ctx.get("def_rating", 110)
+            away_def = away_ctx.get("def_rating", 110)
+            if home_def < 108 and away_def > 112:
+                matchup_flags.append(f"{home} elite D ({home_def:.1f}) vs {away} poor D ({away_def:.1f})")
+            elif away_def < 108 and home_def > 112:
+                matchup_flags.append(f"{away} elite D ({away_def:.1f}) vs {home} poor D ({home_def:.1f})")
+            # Net rating gap
+            home_net = home_ctx.get("net_rating", 0)
+            away_net = away_ctx.get("net_rating", 0)
+            if abs(home_net - away_net) > 8:
+                better = home if home_net > away_net else away
+                matchup_flags.append(f"Net rating gap: {better} {max(home_net,away_net):+.1f} vs {min(home_net,away_net):+.1f}")
+
+        edge_game["matchup_flags"] = matchup_flags
         edge_games.append(edge_game)
 
     # Sort by upset score descending (best upset value first)

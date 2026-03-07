@@ -4892,6 +4892,15 @@ function fetchEdge(sport) {
                     html += '</div>';
                 }
 
+                // Matchup flags (team stats context)
+                if (g.matchup_flags && g.matchup_flags.length) {
+                    html += '<div style="margin:6px 0;padding:8px 10px;background:rgba(96,165,250,0.06);border:1px solid rgba(96,165,250,0.15);border-radius:8px;">';
+                    g.matchup_flags.forEach(function(f) {
+                        html += '<div style="font-size:11px;color:#60A5FA;font-weight:600;margin-bottom:2px;">' + f + '</div>';
+                    });
+                    html += '</div>';
+                }
+
                 // Flags
                 if (flags.length) {
                     html += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;">' + flags.join('') + '</div>';
