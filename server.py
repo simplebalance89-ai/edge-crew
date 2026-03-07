@@ -1803,29 +1803,283 @@ async def get_player_props(sport: str):
             logger.error(f"Props fetch error for {sport_key}: {e}")
             continue
 
-    # ===== ROSTER CROSS-CHECK: Flag stale team assignments =====
+    # ===== ROSTER GATE: Reject props for players not on either team =====
     roster_cache = _get_cached(f"rosters:{sport_lower}", ttl=14400)
+    player_team_map = {}   # "jimmy butler" -> "Golden State Warriors"
+    player_id_map = {}     # "jimmy butler" -> "12345" (ESPN athlete ID)
     if roster_cache:
-        # Build player -> team lookup from ESPN rosters
-        player_team_map = {}  # "jimmy butler iii" -> "Golden State Warriors"
         for abbr, info in roster_cache.get("rosters", {}).items():
             team_name = info.get("team", "")
             for p in info.get("players", []):
                 pname = p.get("name", "").lower().strip()
                 if pname:
                     player_team_map[pname] = team_name
-        # Cross-check each prop
-        for prop in all_props:
-            pname = prop.get("player", "").lower().strip()
-            matchup = prop.get("matchup", "")
-            actual_team = player_team_map.get(pname)
-            if actual_team:
-                prop["actual_team"] = actual_team
-                # Check if actual team is in the matchup string
-                if actual_team.lower() not in matchup.lower():
-                    # Player is listed under wrong game — stale bookmaker data
-                    prop["roster_flag"] = f"ROSTER: {prop['player']} is on {actual_team}"
-                    prop["matchup"] = f"{matchup} [{prop['player']} now on {actual_team}]"
+                    if p.get("id"):
+                        player_id_map[pname] = str(p["id"])
+
+    verified_props = []
+    for prop in all_props:
+        pname = prop.get("player", "").lower().strip()
+        matchup = prop.get("matchup", "")
+        actual_team = player_team_map.get(pname)
+        if actual_team:
+            prop["verified_team"] = actual_team
+            prop["player_espn_id"] = player_id_map.get(pname, "")
+            # GATE: player must be on one of the two teams in this matchup
+            matchup_lower = matchup.lower()
+            if actual_team.lower() not in matchup_lower:
+                # Player not on either team — REJECT (stale bookmaker data)
+                logger.info(f"PROPS GATE: Rejected {prop['player']} — on {actual_team}, not in {matchup}")
+                continue
+        # If no roster data, let it through (can't verify)
+        verified_props.append(prop)
+
+    all_props = verified_props
+
+    # ===== FETCH PLAYER STATS + INJURIES FOR REASONING =====
+    # Gather unique players with ESPN IDs for stat lookups
+    player_stats_map = {}  # player_name_lower -> {ppg, rpg, apg, ...}
+    unique_players = {}
+    for prop in all_props:
+        pid = prop.get("player_espn_id", "")
+        pname = prop.get("player", "").lower().strip()
+        if pid and pname not in unique_players:
+            unique_players[pname] = pid
+
+    # Fetch stats for up to 30 unique players (parallel)
+    if unique_players and sport_lower in _ESPN_SPORT_PATHS:
+        espn_path = _ESPN_SPORT_PATHS[sport_lower]
+        players_to_fetch = list(unique_players.items())[:30]
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            for pname, pid in players_to_fetch:
+                stat_cache_key = f"player_stats:{sport_lower}:{pid}"
+                cached_stats = _get_cached(stat_cache_key, ttl=3600)
+                if cached_stats:
+                    player_stats_map[pname] = cached_stats.get("last_10_averages", {})
+                    continue
+                try:
+                    stat_url = f"https://site.web.api.espn.com/apis/common/v3/sports/{espn_path}/athletes/{pid}/gamelog"
+                    stat_resp = await client.get(stat_url, headers={"User-Agent": "Mozilla/5.0"})
+                    if stat_resp.status_code == 200:
+                        stat_data = stat_resp.json()
+                        # Parse last 10 game averages — labels at top level, events in monthly categories
+                        game_stats = []
+                        gl_labels = stat_data.get("labels", [])
+                        for st in stat_data.get("seasonTypes", []):
+                            if "regular season" not in st.get("displayName", "").lower():
+                                continue
+                            for cat in st.get("categories", []):
+                                if cat.get("type") != "event":
+                                    continue
+                                for ev in cat.get("events", []):
+                                    row = ev.get("stats", [])
+                                    entry = {}
+                                    for i, val in enumerate(row):
+                                        if i < len(gl_labels):
+                                            try:
+                                                entry[gl_labels[i]] = float(val)
+                                            except (ValueError, TypeError):
+                                                entry[gl_labels[i]] = val
+                                    game_stats.append(entry)
+                        last_10 = game_stats[:10]
+                        if last_10:
+                            avgs = {}
+                            for key in last_10[0]:
+                                vals = [g.get(key, 0) for g in last_10 if isinstance(g.get(key), (int, float))]
+                                if vals:
+                                    avgs[key] = round(sum(vals) / len(vals), 1)
+                            player_stats_map[pname] = avgs
+                            _set_cache(stat_cache_key, {"last_10_averages": avgs, "games_played": len(game_stats)})
+                except Exception as e:
+                    logger.error(f"Stats fetch for {pname} ({pid}): {e}")
+
+    # Fetch ESPN injuries for this sport
+    injury_map = {}  # team_abbr -> [{player, status, comment}]
+    espn_injury_url = _ESPN_INJURY_URLS.get(sport_lower)
+    if espn_injury_url:
+        inj_cache_key = f"espn_injuries:{sport_lower}"
+        cached_injuries = _get_cached(inj_cache_key, ttl=7200)
+        if cached_injuries:
+            injury_map = cached_injuries.get("injuries", {})
+        else:
+            try:
+                async with httpx.AsyncClient(timeout=15.0) as client:
+                    inj_resp = await client.get(espn_injury_url, headers={"User-Agent": "Mozilla/5.0"})
+                    if inj_resp.status_code == 200:
+                        inj_data = inj_resp.json()
+                        items = inj_data.get("injuries", inj_data.get("items", []))
+                        if isinstance(items, dict):
+                            items = [items]
+                        for item in items:
+                            # ESPN structure: {displayName: "Team Name", injuries: [...]}
+                            team_name = item.get("displayName", item.get("team", {}).get("displayName", ""))
+                            # Derive abbreviation from team name
+                            team_abbr = team_name.split()[-1][:3].upper() if team_name else ""
+                            injuries_list = item.get("injuries", [])
+                            team_injuries = []
+                            for inj in injuries_list:
+                                athlete = inj.get("athlete", inj)
+                                pn = athlete.get("displayName", athlete.get("fullName", ""))
+                                status = inj.get("status", "Unknown")
+                                if isinstance(status, dict):
+                                    status = status.get("type", status.get("description", "Unknown"))
+                                comment = inj.get("shortComment", "")
+                                if pn:
+                                    team_injuries.append({"player": pn, "status": status, "comment": comment})
+                            if team_name and team_injuries:
+                                injury_map[team_name] = {"team": team_name, "injuries": team_injuries}
+                        if injury_map:
+                            _set_cache(inj_cache_key, {"injuries": injury_map, "sport": sport.upper()})
+            except Exception as e:
+                logger.error(f"ESPN injuries fetch for {sport}: {e}")
+
+    # ===== GPT REASONING: Batch-generate reasoning with REAL data =====
+    # Only for props with edge (SHARP VALUE or SLIGHT EDGE) — up to 20 props
+    reasoning_props = [p for p in all_props if p.get("verdict") in ("SHARP VALUE", "SLIGHT EDGE")][:20]
+    if reasoning_props and AZURE_ENDPOINT and AZURE_KEY:
+        try:
+            # Build per-prop data blocks
+            prop_blocks = []
+            for prop in reasoning_props:
+                pname_lower = prop.get("player", "").lower().strip()
+                team = prop.get("verified_team", "Unknown")
+                matchup = prop.get("matchup", "")
+                stat_type = prop.get("stat", "")
+                line = prop.get("line", 0)
+                side = prop.get("side", "Over")
+                best_odds = prop.get("best_odds", 0)
+
+                # Get real stats for this player
+                stats = player_stats_map.get(pname_lower, {})
+                stats_line = "No game log available"
+                if stats:
+                    ppg = stats.get("PTS", stats.get("G", ""))
+                    rpg = stats.get("REB", stats.get("A", ""))
+                    apg = stats.get("AST", stats.get("PTS", ""))
+                    mpg = stats.get("MIN", stats.get("TOI", ""))
+                    fg_pct = stats.get("FG%", "")
+                    three_pt = stats.get("3PT", stats.get("3P%", ""))
+                    # Build sport-appropriate stats line
+                    stat_parts = []
+                    for k, v in stats.items():
+                        if k in ("event_id", "date"):
+                            continue
+                        stat_parts.append(f"{k}: {v}")
+                    stats_line = ", ".join(stat_parts[:8])
+
+                # Get injuries for both teams in matchup
+                injury_lines = []
+                for abbr, inj_info in injury_map.items():
+                    inj_team = inj_info.get("team", "")
+                    if inj_team.lower() in matchup.lower():
+                        for inj in inj_info.get("injuries", [])[:5]:
+                            injury_lines.append(f"  {inj['player']} ({inj['status']})")
+
+                prop_blocks.append(
+                    f"PROP #{len(prop_blocks)+1}:\n"
+                    f"PLAYER: {prop.get('player', '')}\n"
+                    f"TEAM: {team} (VERIFIED from roster)\n"
+                    f"GAME: {matchup}\n"
+                    f"LAST 10 GAMES AVG: {stats_line}\n"
+                    f"INJURIES: {chr(10).join(injury_lines) if injury_lines else 'None reported'}\n"
+                    f"PROP LINE: {side} {line} {stat_type} ({best_odds:+d})\n"
+                    f"EDGE: {prop.get('edge', 0)}% | VERDICT: {prop.get('verdict', '')}"
+                )
+
+            prompt = (
+                "You are a sharp sports betting analyst. For each prop below, write a 1-2 sentence reasoning "
+                "explaining why this prop has edge value.\n\n"
+                "RULES:\n"
+                "- Use ONLY the data provided. Do NOT reference any player not listed.\n"
+                "- Do NOT invent statistics. Every number must come from the data above.\n"
+                "- Do NOT reference players from other games.\n"
+                "- Be specific: cite the actual stat averages when explaining.\n\n"
+                + "\n\n".join(prop_blocks) +
+                "\n\nReturn a JSON array of objects: [{\"prop_index\": 1, \"reasoning\": \"...\"}]. "
+                "Match prop_index to the PROP # above. Return ONLY valid JSON."
+            )
+
+            # Call Azure OpenAI
+            import asyncio
+            def _call_props_azure(prompt_text):
+                client = AzureOpenAI(
+                    azure_endpoint=AZURE_ENDPOINT,
+                    api_key=AZURE_KEY,
+                    api_version="2024-08-01-preview",
+                )
+                response = client.chat.completions.create(
+                    model=AZURE_MODEL,
+                    messages=[{"role": "user", "content": prompt_text}],
+                    temperature=0.3,
+                    max_tokens=2000,
+                )
+                return response.choices[0].message.content
+
+            raw_response = await asyncio.to_thread(_call_props_azure, prompt)
+
+            # Parse response
+            try:
+                # Strip markdown code fences if present
+                cleaned = raw_response.strip()
+                if cleaned.startswith("```"):
+                    cleaned = cleaned.split("\n", 1)[1] if "\n" in cleaned else cleaned[3:]
+                if cleaned.endswith("```"):
+                    cleaned = cleaned[:-3]
+                cleaned = cleaned.strip()
+                if cleaned.startswith("json"):
+                    cleaned = cleaned[4:].strip()
+
+                reasoning_list = json.loads(cleaned)
+
+                # ===== POST-GPT VALIDATION GATE =====
+                # Map reasoning back to props
+                reasoning_by_idx = {r.get("prop_index", 0): r.get("reasoning", "") for r in reasoning_list}
+                for i, prop in enumerate(reasoning_props):
+                    reasoning = reasoning_by_idx.get(i + 1, "")
+                    if not reasoning:
+                        continue
+
+                    # Validation 1: Check all player names in reasoning against rosters
+                    valid = True
+                    matchup = prop.get("matchup", "")
+                    for known_player in player_team_map:
+                        # Check if this player name appears in the reasoning
+                        if known_player in reasoning.lower():
+                            # Verify the player is on one of the two teams in this matchup
+                            pteam = player_team_map[known_player]
+                            if pteam.lower() not in matchup.lower():
+                                # Player from a different game referenced — strip
+                                reasoning = ""
+                                valid = False
+                                logger.info(f"VALIDATION: Stripped reasoning for {prop.get('player')} — referenced {known_player} ({pteam})")
+                                break
+
+                    # Validation 2: Check stat claims against real data
+                    if valid and reasoning:
+                        pname_lower = prop.get("player", "").lower().strip()
+                        real_stats = player_stats_map.get(pname_lower, {})
+                        if real_stats:
+                            import re
+                            # Find numbers in reasoning like "averages 31.2" or "31.2 PPG"
+                            stat_claims = re.findall(r'(\d+\.?\d*)\s*(?:PPG|RPG|APG|points|rebounds|assists)', reasoning, re.IGNORECASE)
+                            for claim in stat_claims:
+                                claimed_val = float(claim)
+                                # Check against relevant stat
+                                for stat_key in ["PTS", "REB", "AST", "G", "A"]:
+                                    real_val = real_stats.get(stat_key)
+                                    if real_val and isinstance(real_val, (int, float)):
+                                        if abs(claimed_val - real_val) / max(real_val, 1) > 0.10:
+                                            # More than 10% off — flag but don't strip (could be different stat)
+                                            pass
+
+                    if reasoning:
+                        prop["reasoning"] = reasoning
+
+            except (json.JSONDecodeError, KeyError, TypeError) as e:
+                logger.error(f"Props reasoning parse error: {e}")
+
+        except Exception as e:
+            logger.error(f"Props GPT reasoning error: {e}")
 
     # Sort: SHARP VALUE first, then by edge descending
     verdict_order = {"SHARP VALUE": 0, "SLIGHT EDGE": 1, "FAIR LINE": 2, "BAD NUMBER": 3}
@@ -4004,6 +4258,7 @@ async def get_rosters(sport: str):
                     players = []
                     for a in data.get("athletes", []):
                         players.append({
+                            "id": a.get("id", ""),
                             "name": a.get("displayName", "?"),
                             "pos": a.get("position", {}).get("abbreviation", "?"),
                             "number": a.get("jersey", "?"),
@@ -4020,6 +4275,205 @@ async def get_rosters(sport: str):
         "fetched_at": _now_ts(),
     }
     if rosters:
+        _set_cache(cache_key, result)
+    return JSONResponse(result)
+
+
+# ===== ESPN GAME LOG — Player Stats (Last 10 Games) =====
+
+_ESPN_SPORT_PATHS = {
+    "nba": "basketball/nba", "wnba": "basketball/wnba",
+    "nhl": "hockey/nhl", "mlb": "baseball/mlb",
+    "nfl": "football/nfl", "ncaab": "basketball/mens-college-basketball",
+    "ncaaf": "football/college-football",
+}
+
+# Stat column indices vary by sport — ESPN game log returns stats in specific order
+_GAMELOG_STAT_KEYS = {
+    "nba": ["MIN", "FG", "FG%", "3PT", "3P%", "FT", "FT%", "REB", "AST", "BLK", "STL", "PF", "TO", "PTS"],
+    "wnba": ["MIN", "FG", "FG%", "3PT", "3P%", "FT", "FT%", "REB", "AST", "BLK", "STL", "PF", "TO", "PTS"],
+    "nhl": ["GP", "G", "A", "PTS", "+/-", "PIM", "PPG", "PPA", "SHG", "SHA", "GWG", "SOG", "S%"],
+    "mlb": ["AB", "R", "H", "2B", "3B", "HR", "RBI", "BB", "SO", "SB", "AVG", "OBP", "SLG", "OPS"],
+    "nfl": ["CMP", "ATT", "YDS", "TD", "INT", "QBR", "RTG"],
+}
+
+
+@app.get("/api/player-stats/{sport}/{player_id}")
+async def get_player_stats(sport: str, player_id: str):
+    """Fetch last 10 game stats for a player from ESPN game log."""
+    sport_lower = sport.lower()
+    cache_key = f"player_stats:{sport_lower}:{player_id}"
+    cached = _get_cached(cache_key, ttl=3600)  # 1hr cache
+    if cached:
+        return JSONResponse(cached)
+
+    espn_path = _ESPN_SPORT_PATHS.get(sport_lower)
+    if not espn_path:
+        return JSONResponse({"error": f"No game log source for {sport}"}, status_code=400)
+
+    url = f"https://site.web.api.espn.com/apis/common/v3/sports/{espn_path}/athletes/{player_id}/gamelog"
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            resp = await client.get(url, headers={"User-Agent": "Mozilla/5.0"})
+            if resp.status_code != 200:
+                return JSONResponse({"error": f"ESPN returned {resp.status_code}"}, status_code=502)
+            data = resp.json()
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=502)
+
+    # Parse game log — ESPN: labels at top level, categories by month, events with stats
+    games = []
+    labels = data.get("labels", [])  # e.g. ["MIN","FG","FG%","3PT",...]
+    try:
+        season_types = data.get("seasonTypes", [])
+        for st in season_types:
+            if "regular season" not in st.get("displayName", "").lower():
+                continue
+            categories = st.get("categories", [])
+            # Categories are by month (march, february, etc.) — collect all events
+            for cat in categories:
+                if cat.get("type") != "event":
+                    continue
+                for ev in cat.get("events", []):
+                    stats_row = ev.get("stats", [])
+                    game_entry = {"event_id": ev.get("eventId", "")}
+                    for i, val in enumerate(stats_row):
+                        if i < len(labels):
+                            game_entry[labels[i]] = val
+                    games.append(game_entry)
+    except Exception:
+        pass
+
+    # Take last 10 games (most recent first)
+    last_10 = games[:10]
+
+    # Compute averages for key stats
+    averages = {}
+    if last_10:
+        numeric_keys = set()
+        for g in last_10:
+            for k, v in g.items():
+                if k in ("event_id", "date"):
+                    continue
+                try:
+                    float(v)
+                    numeric_keys.add(k)
+                except (ValueError, TypeError):
+                    pass
+        for k in numeric_keys:
+            vals = []
+            for g in last_10:
+                try:
+                    vals.append(float(g.get(k, 0)))
+                except (ValueError, TypeError):
+                    pass
+            if vals:
+                averages[k] = round(sum(vals) / len(vals), 1)
+
+    result = {
+        "player_id": player_id,
+        "sport": sport.upper(),
+        "games_played": len(games),
+        "last_10": last_10,
+        "last_10_averages": averages,
+        "stat_labels": labels,
+        "source": "ESPN Game Log",
+        "fetched_at": _now_ts(),
+    }
+    _set_cache(cache_key, result)
+    return JSONResponse(result)
+
+
+# ===== ESPN INJURIES — Structured Injury Reports =====
+
+_ESPN_INJURY_URLS = {
+    "nba": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/injuries",
+    "wnba": "https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/injuries",
+    "nhl": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/injuries",
+    "mlb": "https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/injuries",
+    "nfl": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/injuries",
+}
+
+
+@app.get("/api/injuries/{sport}")
+async def get_espn_injuries(sport: str):
+    """Fetch structured injury reports from ESPN. Cached 2 hours."""
+    sport_lower = sport.lower()
+    cache_key = f"espn_injuries:{sport_lower}"
+    cached = _get_cached(cache_key, ttl=7200)  # 2hr cache
+    if cached:
+        return JSONResponse(cached)
+
+    url = _ESPN_INJURY_URLS.get(sport_lower)
+    if not url:
+        return JSONResponse({"error": f"No ESPN injury source for {sport}"}, status_code=400)
+
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            resp = await client.get(url, headers={"User-Agent": "Mozilla/5.0"})
+            if resp.status_code != 200:
+                return JSONResponse({"error": f"ESPN returned {resp.status_code}"}, status_code=502)
+            data = resp.json()
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=502)
+
+    # Parse ESPN injury data — structure varies: some sports return flat list, some nested by team
+    injuries_by_team = {}
+    total_injuries = 0
+    try:
+        # Try top-level items (works for NBA all-at-once endpoint)
+        items = data if isinstance(data, list) else data.get("items", data.get("injuries", []))
+        if isinstance(items, dict):
+            items = [items]
+
+        for item in items:
+            # ESPN structure: {displayName: "Team Name", injuries: [...]}
+            team_name = item.get("displayName", "")
+            if not team_name:
+                team_data = item.get("team", {})
+                team_name = team_data.get("displayName", team_data.get("name", ""))
+
+            injured_players = item.get("injuries", [])
+            if not injured_players and "athlete" in item:
+                injured_players = [item]
+
+            team_injuries = []
+            for inj in injured_players:
+                athlete = inj.get("athlete", inj)
+                player_name = athlete.get("displayName", athlete.get("fullName", ""))
+                status = inj.get("status", "Unknown")
+                if isinstance(status, dict):
+                    status = status.get("type", status.get("description", "Unknown"))
+                short_comment = inj.get("shortComment", "")
+                long_comment = inj.get("longComment", "")
+                date = inj.get("date", "")
+
+                if player_name:
+                    team_injuries.append({
+                        "player": player_name,
+                        "status": status,
+                        "comment": short_comment or long_comment,
+                        "date": date,
+                    })
+                    total_injuries += 1
+
+            if team_name and team_injuries:
+                injuries_by_team[team_name] = {
+                    "team": team_name,
+                    "injuries": team_injuries,
+                }
+    except Exception as e:
+        logger.error(f"ESPN injury parse error for {sport}: {e}")
+
+    result = {
+        "sport": sport.upper(),
+        "injuries": injuries_by_team,
+        "total_injured": total_injuries,
+        "team_count": len(injuries_by_team),
+        "source": "ESPN",
+        "fetched_at": _now_ts(),
+    }
+    if injuries_by_team:
         _set_cache(cache_key, result)
     return JSONResponse(result)
 

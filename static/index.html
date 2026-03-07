@@ -5812,6 +5812,35 @@ function filterPropsByStat(stat, el) {
         el.style.color = '#fff';
     }
     filterProps();
+    // Also filter AI props lane
+    filterAIProps();
+}
+
+function filterAIProps() {
+    var container = document.getElementById('propsContainer');
+    if (!container) return;
+    var cards = container.querySelectorAll('[data-stat-type]');
+    if (cards.length === 0) {
+        // AI props don't have data-stat-type yet — filter by text content
+        var allItems = container.querySelectorAll('[style*="border-bottom"]');
+        allItems.forEach(function(item) {
+            var text = (item.textContent || '').toLowerCase();
+            if (_realPropsStatFilter === 'all') {
+                item.style.display = '';
+            } else {
+                var statLower = _realPropsStatFilter.toLowerCase();
+                item.style.display = text.indexOf(statLower) !== -1 ? '' : 'none';
+            }
+        });
+        return;
+    }
+    cards.forEach(function(card) {
+        if (_realPropsStatFilter === 'all') {
+            card.style.display = '';
+        } else {
+            card.style.display = card.getAttribute('data-stat-type') === _realPropsStatFilter ? '' : 'none';
+        }
+    });
 }
 
 function renderRealProps(props) {
@@ -5886,6 +5915,15 @@ function renderRealProps(props) {
             html += '<div><span style="color:rgba(255,255,255,0.4);">Best:</span> <strong style="color:#E879F9;">' + prop.best_book + '</strong></div>';
             html += '<div><span style="color:rgba(255,255,255,0.4);">Edge:</span> <strong style="color:' + vc.color + ';">' + edgeSign + prop.edge + '%</strong></div>';
             html += '</div>';
+            if (prop.reasoning) {
+                html += '<div style="margin-top:6px;padding:6px 8px;background:rgba(99,102,241,0.08);border-radius:5px;border-left:2px solid #6366f1;">';
+                html += '<div style="font-size:9px;color:#818cf8;font-weight:700;margin-bottom:2px;">AI REASONING</div>';
+                html += '<div style="font-size:11px;color:rgba(255,255,255,0.7);line-height:1.4;">' + prop.reasoning + '</div>';
+                html += '</div>';
+            }
+            if (prop.verified_team) {
+                html += '<div style="margin-top:4px;font-size:9px;color:rgba(255,255,255,0.3);">Team: ' + prop.verified_team + ' (ESPN verified)</div>';
+            }
             html += '</div>';
 
             html += '</div>';
