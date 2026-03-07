@@ -5576,7 +5576,10 @@ async function clearAllCache() {
 <div class="sport-picker-overlay" id="sportPickerOverlay" onclick="closeSportPicker(event)">
     <div class="sport-picker-sheet" onclick="event.stopPropagation()">
         <div class="sport-picker-handle"></div>
-        <div class="sport-picker-title">Pick a Sport</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div class="sport-picker-title" style="margin-bottom:0;">Pick a Sport</div>
+            <button onclick="closeSportPicker()" style="background:none;border:1px solid rgba(255,255,255,0.15);color:#fff;font-size:20px;width:36px;height:36px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">&times;</button>
+        </div>
         <div class="sport-picker-grid" style="grid-template-columns:repeat(4,1fr);max-width:400px;">
             <button class="sport-pick-btn" onclick="pickSport('nba')">
                 <span class="sp-icon">🏀</span>NBA
