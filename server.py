@@ -2188,7 +2188,10 @@ async def save_pick(request: Request):
     matchup = body.get("matchup", "")
     selection = body.get("selection", "")
 
+    logger.info(f"Pick submission: name={name}, matchup={matchup}, selection={selection}")
+
     if not name or not matchup or not selection:
+        logger.warning(f"Pick rejected — missing fields: name={bool(name)}, matchup={bool(matchup)}, selection={bool(selection)}")
         return JSONResponse({"error": "name, matchup, and selection are required"}, status_code=400)
 
     pick = {
@@ -2212,7 +2215,11 @@ async def save_pick(request: Request):
     }
 
     if sb:
-        sb.table("picks").insert(pick).execute()
+        try:
+            sb.table("picks").insert(pick).execute()
+        except Exception as e:
+            logger.error(f"Supabase pick insert failed: {e}")
+            return JSONResponse({"error": f"Failed to save pick: {e}"}, status_code=500)
     else:
         data = _read_picks()
         data["picks"].insert(0, pick)
@@ -2395,6 +2402,24 @@ _PROP_STATS = {"points", "assists", "rebounds", "steals", "blocks", "threes",
                "yards", "touchdowns", "completions", "receptions"}
 
 
+def _game_date_matches_pick(pick: dict, game: dict) -> bool:
+    """Check that a game's commence_time is on or after the pick's date (PST).
+
+    Prevents grading today's picks against yesterday's completed games.
+    A pick made on 2026-03-06 should only match games that start on 2026-03-06 or later.
+    """
+    pick_date_str = pick.get("date", "")
+    commence = game.get("commence_time", "")
+    if not pick_date_str or not commence:
+        return True  # can't verify, allow match (backward compat)
+    try:
+        game_dt = datetime.fromisoformat(commence.replace("Z", "+00:00"))
+        game_date_pst = game_dt.astimezone(PST).strftime("%Y-%m-%d")
+        return game_date_pst >= pick_date_str
+    except (ValueError, TypeError):
+        return True  # can't parse, allow match
+
+
 def _is_prop(pick: dict) -> bool:
     """Detect if a pick is a player prop (not a game-level bet)."""
     if pick.get("type", "").lower() == "prop":
@@ -2537,12 +2562,16 @@ def _grade_parlay(pick: dict, completed_games: list) -> str | None:
             away = game.get("away_team", "")
             # Try matching this leg to a game — only match on the leg's own selection,
             # NOT the full parlay matchup string (which contains all teams and causes false matches)
-            if _teams_match(leg["selection"], home, away):
-                result = _grade_pick_against_score(leg_pick, game)
-                if result:
-                    leg_results.append(result)
-                    graded = True
-                    break
+            if not _teams_match(leg["selection"], home, away):
+                continue
+            # Don't grade today's picks against yesterday's games
+            if not _game_date_matches_pick(pick, game):
+                continue
+            result = _grade_pick_against_score(leg_pick, game)
+            if result:
+                leg_results.append(result)
+                graded = True
+                break
         if not graded:
             leg_results.append(None)
 
@@ -2778,6 +2807,10 @@ async def autograde_picks(request: Request):
                 # Also try matching on selection text
                 if not _teams_match(selection, home, away):
                     continue
+
+            # Don't grade today's picks against yesterday's games
+            if not _game_date_matches_pick(pick, game):
+                continue
 
             result = _grade_pick_against_score(pick, game)
             if result:
