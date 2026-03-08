@@ -536,6 +536,7 @@ body.agent-alyssa .analysis-duo{grid-template-columns:1fr;}
     letter-spacing:0.5px;transition:all 0.2s;
 }
 .agent-switcher:hover{border-color:var(--ec-accent);color:var(--ec-accent-light);}
+.qp-link:hover{color:#E879F9 !important;border-bottom-color:#E879F9 !important;}
 body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 
 /* ===== BET REPORT TICKER ===== */
@@ -1167,7 +1168,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
             <span class="crew-badge crew-sintonia" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;padding:0;margin-left:-4px;" title="Sinton.ia"><svg viewBox="0 0 64 64" width="16" height="16"><circle cx="32" cy="32" r="28" fill="none" stroke="#A78BFA" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#A78BFA" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#A78BFA" stroke-width="2" stroke-linecap="round"/></svg></span>
         </div>
         <div class="agent-switcher" id="agentSwitcher" onclick="backToAgents()"><span id="agentSwitcherLabel">SWITCH AGENT</span></div>
-        <button class="topbar-refresh" onclick="refreshSlate()" style="padding:6px 14px;border-radius:var(--ec-radius-full);font-size:11px;font-weight:700;background:linear-gradient(135deg,var(--ec-accent),#a78bfa);color:#fff;border:none;cursor:pointer;transition:all 0.2s;letter-spacing:0.3px;">REFRESH</button>
+        <button class="topbar-refresh" onclick="window._isManualRefresh=true;refreshSlate()" style="padding:6px 14px;border-radius:var(--ec-radius-full);font-size:11px;font-weight:700;background:linear-gradient(135deg,var(--ec-accent),#a78bfa);color:#fff;border:none;cursor:pointer;transition:all 0.2s;letter-spacing:0.3px;">REFRESH</button>
         <div style="position:relative;">
             <button onclick="toggleGearMenu()" style="cursor:pointer;width:32px;height:32px;border-radius:50%;font-size:14px;background:var(--ec-bg-secondary);color:var(--ec-text-tertiary);border:1px solid var(--ec-border);font-family:var(--ec-font-body);display:flex;align-items:center;justify-content:center;transition:all 0.2s;">&#9881;</button>
             <div id="gearMenu" style="display:none;position:absolute;right:0;top:calc(100% + 8px);background:var(--ec-bg-elevated);border:1px solid var(--ec-border);border-radius:var(--ec-radius-md);min-width:180px;z-index:150;overflow:hidden;box-shadow:var(--ec-shadow-lg);">
@@ -2499,8 +2500,10 @@ function processToastQueue() {
 var picks = {}; // { gameName: { checked: bool, side: string } }
 
 function refreshSlate() {
-    // Force live API on manual refresh (bypass daily record cache)
-    window._forceRefreshOdds = true;
+    // _isManualRefresh controls overlay visibility and cache bypass
+    var isManual = window._isManualRefresh || false;
+    window._forceRefreshOdds = isManual;
+    window._isManualRefresh = false; // reset after use
     // Reset retry flags for cold-start resilience
     fetchLiveOdds._retried = {};
     // Reset all game row checks and side picks
@@ -2535,15 +2538,17 @@ function refreshSlate() {
     // Update submit bar
     updateSubmitBar();
 
-    // Show loading overlay
+    // Show loading overlay ONLY on manual refresh — initial load stays visible
     var overlay = document.getElementById('loadingOverlay');
     var loadText = document.getElementById('loadingText');
-    if (overlay) overlay.classList.add('active');
-    document.body.classList.add('loading');
-    var loadBanner = document.getElementById('loadingBanner');
-    if (loadBanner) loadBanner.textContent = 'LOADING';
-    if (loadText) loadText.textContent = 'Loading odds...';
-    renderLoadingStack();
+    if (isManual) {
+        if (overlay) overlay.classList.add('active');
+        document.body.classList.add('loading');
+        var loadBanner = document.getElementById('loadingBanner');
+        if (loadBanner) loadBanner.textContent = 'LOADING';
+        if (loadText) loadText.textContent = 'Loading odds...';
+        renderLoadingStack();
+    }
 
     // Set sweep status to ANALYZING with spinner
     var sweepEl = document.getElementById('sweepTime');
@@ -5699,6 +5704,42 @@ function toggleAnalysis(sport, who, btn) {
     return;
 }
 
+function quickPick(sport, matchup, selection, type) {
+    // Pre-fill pick form from analysis card tap
+    var sportEl = document.getElementById('pickSport');
+    var typeEl = document.getElementById('pickType');
+    var matchupEl = document.getElementById('pickMatchup');
+    var matchupCustom = document.getElementById('pickMatchupCustom');
+    var selectionEl = document.getElementById('pickSelection');
+    var selectionCustom = document.getElementById('pickSelectionCustom');
+    var oddsCustom = document.getElementById('pickOddsCustom');
+
+    if (sportEl) sportEl.value = sport.toUpperCase();
+    if (typeEl) typeEl.value = type || 'ML';
+
+    // Try to match in dropdown, otherwise use custom
+    if (matchupEl) {
+        var found = false;
+        for (var i = 0; i < matchupEl.options.length; i++) {
+            if (matchupEl.options[i].value === matchup) { matchupEl.value = matchup; found = true; break; }
+        }
+        if (!found) {
+            matchupEl.value = 'other';
+            if (matchupCustom) { matchupCustom.style.display = ''; matchupCustom.value = matchup; }
+        }
+        // Trigger change to populate pick dropdown
+        matchupEl.dispatchEvent(new Event('change'));
+    }
+
+    // Set selection in custom field
+    if (selectionCustom) { selectionCustom.style.display = ''; selectionCustom.value = selection; }
+    if (selectionEl) selectionEl.value = 'other';
+
+    // Scroll to pick form
+    var form = document.querySelector('.pick-form') || document.getElementById('pickSport');
+    if (form) form.scrollIntoView({behavior: 'smooth', block: 'center'});
+}
+
 function fetchEdge(sport) {
     var sportKey = sport.toUpperCase();
     var content = document.getElementById('alyssaEdge' + sportKey + 'Content');
@@ -5730,19 +5771,34 @@ function fetchEdge(sport) {
                 html += '<div style="border:1px solid rgba(232,121,249,0.15);border-radius:10px;padding:12px;margin-bottom:10px;background:rgba(232,121,249,0.03);">';
 
                 // Header: matchup + book count + vig
+                var _matchup = g.away + ' @ ' + g.home;
+                var _esc = function(s) { return s.replace(/'/g, "\\'"); };
                 html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">';
-                html += '<div style="color:#fff;font-weight:700;font-size:14px;">' + g.away + ' @ ' + g.home + '</div>';
+                html += '<div style="color:#fff;font-weight:700;font-size:14px;">';
+                html += '<span class="qp-link" onclick="event.stopPropagation();quickPick(\'' + _esc(sport) + '\',\'' + _esc(_matchup) + '\',\'' + _esc(g.away) + ' ML\',\'ML\')" style="cursor:pointer;border-bottom:1px dashed rgba(255,255,255,0.2);">' + g.away + '</span>';
+                html += ' @ ';
+                html += '<span class="qp-link" onclick="event.stopPropagation();quickPick(\'' + _esc(sport) + '\',\'' + _esc(_matchup) + '\',\'' + _esc(g.home) + ' ML\',\'ML\')" style="cursor:pointer;border-bottom:1px dashed rgba(255,255,255,0.2);">' + g.home + '</span>';
+                html += '</div>';
                 html += '<div style="font-size:10px;color:rgba(255,255,255,0.3);">' + (g.book_count || 0) + ' books | Vig: ' + g.vig + '%</div>';
                 html += '</div>';
 
-                // Consensus lines
+                // Consensus lines — clickable
                 html += '<div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:4px;">';
                 html += '<span style="color:rgba(232,121,249,0.5);font-weight:600;">CONSENSUS</span> ';
-                html += 'Spread: ' + g.home + ' ' + (g.home_spread != null ? g.home_spread : '—');
+                if (g.home_spread != null) {
+                    html += 'Spread: <span class="qp-link" onclick="event.stopPropagation();quickPick(\'' + _esc(sport) + '\',\'' + _esc(_matchup) + '\',\'' + _esc(g.home + ' ' + g.home_spread) + '\',\'Spread\')" style="cursor:pointer;border-bottom:1px dashed rgba(232,121,249,0.3);">' + g.home + ' ' + g.home_spread + '</span>';
+                } else {
+                    html += 'Spread: —';
+                }
                 if (g.spread_range > 0) html += ' <span style="color:rgba(255,255,255,0.25);">(range ' + g.spread_range + ')</span>';
-                html += ' | O/U: ' + (g.total != null ? g.total : '—');
+                if (g.total != null) {
+                    html += ' | O/U: <span class="qp-link" onclick="event.stopPropagation();quickPick(\'' + _esc(sport) + '\',\'' + _esc(_matchup) + '\',\'OVER ' + g.total + '\',\'Total\')" style="cursor:pointer;border-bottom:1px dashed rgba(232,121,249,0.3);">' + g.total + '</span>';
+                } else {
+                    html += ' | O/U: —';
+                }
                 if (g.total_range > 0) html += ' <span style="color:rgba(255,255,255,0.25);">(range ' + g.total_range + ')</span>';
-                html += ' | ML: ' + g.away + ' ' + g.away_ml + ' / ' + g.home + ' ' + g.home_ml;
+                html += ' | ML: <span class="qp-link" onclick="event.stopPropagation();quickPick(\'' + _esc(sport) + '\',\'' + _esc(_matchup) + '\',\'' + _esc(g.away) + ' ML (' + g.away_ml + ')\',\'ML\')" style="cursor:pointer;border-bottom:1px dashed rgba(232,121,249,0.3);">' + g.away + ' ' + g.away_ml + '</span>';
+                html += ' / <span class="qp-link" onclick="event.stopPropagation();quickPick(\'' + _esc(sport) + '\',\'' + _esc(_matchup) + '\',\'' + _esc(g.home) + ' ML (' + g.home_ml + ')\',\'ML\')" style="cursor:pointer;border-bottom:1px dashed rgba(232,121,249,0.3);">' + g.home + ' ' + g.home_ml + '</span>';
                 html += '</div>';
 
                 // Best available prices

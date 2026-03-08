@@ -3605,16 +3605,26 @@ def _expand_abbrevs(text: str, sport: str = "") -> str:
     return " ".join(expanded)
 
 
-def _teams_match(pick_text: str, home: str, away: str) -> bool:
+def _teams_match(pick_text: str, home: str, away: str, sport: str = "") -> bool:
     """Check if a pick's matchup references this game."""
-    pt = _expand_abbrevs(_normalize_team(pick_text))
-    h = _normalize_team(home)
-    a = _normalize_team(away)
-    # Check if both team names (or significant parts) appear in the pick matchup
+    pt = _expand_abbrevs(_normalize_team(pick_text), sport)
+    h = _expand_abbrevs(_normalize_team(home), sport)
+    a = _expand_abbrevs(_normalize_team(away), sport)
+
     h_parts = h.split()
     a_parts = a.split()
-    h_match = any(p in pt for p in h_parts if len(p) > 3) or h in pt
-    a_match = any(p in pt for p in a_parts if len(p) > 3) or a in pt
+    pt_parts = pt.split()
+
+    # Forward: game team parts in pick text
+    h_match = any(p in pt for p in h_parts if len(p) > 2) or h in pt
+    a_match = any(p in pt for p in a_parts if len(p) > 2) or a in pt
+
+    # Reverse: pick parts in game team names
+    if not h_match:
+        h_match = any(p in h for p in pt_parts if len(p) > 2)
+    if not a_match:
+        a_match = any(p in a for p in pt_parts if len(p) > 2)
+
     return h_match and a_match
 
 
