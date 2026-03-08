@@ -5100,22 +5100,35 @@ function fetchLiveOdds(sport, onDone) {
     var gotcha = panel.querySelector('.gotcha-banner');
 
     // Layer 0: Try cached daily record first, fall back to live API
-    // On manual REFRESH (_forceRefreshOdds=true), skip cache and hit live API
     var _oddsFetch;
+    var _fetchUrl = window._forceRefreshOdds ? '/api/odds/' + sport : '/api/slate/cached/' + sport;
+    console.log('[ODDS] Fetching ' + sport + ' from ' + _fetchUrl);
     if (window._forceRefreshOdds) {
-        _oddsFetch = fetch('/api/odds/' + sport).then(function(r) { return r.json(); });
+        _oddsFetch = fetch('/api/odds/' + sport).then(function(r) {
+            console.log('[ODDS] ' + sport + ' live response:', r.status);
+            return r.json();
+        });
     } else {
         _oddsFetch = fetch('/api/slate/cached/' + sport)
-            .then(function(r) { return r.json(); })
+            .then(function(r) {
+                console.log('[ODDS] ' + sport + ' cached response:', r.status);
+                return r.json();
+            })
             .then(function(data) {
+                console.log('[ODDS] ' + sport + ' cached games:', (data.games||[]).length);
                 if (data.games && data.games.length > 0) return data;
                 throw new Error('empty cache');
             })
-            .catch(function() {
-                return fetch('/api/odds/' + sport).then(function(r) { return r.json(); });
+            .catch(function(cacheErr) {
+                console.log('[ODDS] ' + sport + ' cache miss, trying live. Error:', cacheErr.message);
+                return fetch('/api/odds/' + sport).then(function(r) {
+                    console.log('[ODDS] ' + sport + ' live fallback response:', r.status);
+                    return r.json();
+                });
             });
     }
     _oddsFetch.then(function(data) {
+            console.log('[ODDS] ' + sport + ' SUCCESS — games:', (data.games||[]).length);
             panel.classList.remove('panel-loading');
             if (data.error) {
                 var errMsg = document.createElement('div');
@@ -5220,6 +5233,9 @@ function fetchLiveOdds(sport, onDone) {
             if (typeof onDone === 'function') onDone(sport);
         })
         .catch(function(err) {
+            console.error('[ODDS] ' + sport + ' FAILED:', err.message, err.stack);
+            // Send error to server for debugging
+            fetch('/api/errors', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({source:'fetchLiveOdds', sport:sport, error:err.message, stack:err.stack})}).catch(function(){});
             // Retry up to 3 times with spaced delays (5s, 10s, 15s)
             if (!fetchLiveOdds._retried) fetchLiveOdds._retried = {};
             var retryCount = fetchLiveOdds._retried[sport] || 0;
@@ -8110,8 +8126,12 @@ if (window.visualViewport) {
 </script>
 
 <script>
+// Service worker DISABLED — was interfering with API fetches
+// Unregister any lingering SW on every page load
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js').catch(() => {});
+  navigator.serviceWorker.getRegistrations().then(function(regs) {
+    regs.forEach(function(r) { r.unregister(); console.log('[SW] Unregistered:', r.scope); });
+  });
 }
 </script>
 </body>
