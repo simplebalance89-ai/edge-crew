@@ -2499,6 +2499,8 @@ function processToastQueue() {
 var picks = {}; // { gameName: { checked: bool, side: string } }
 
 function refreshSlate() {
+    // Reset retry flags for cold-start resilience
+    fetchLiveOdds._retried = {};
     // Reset all game row checks and side picks
     picks = {};
     safeRemove('edgeLockedPicks');
@@ -5157,11 +5159,20 @@ function fetchLiveOdds(sport, onDone) {
             if (typeof onDone === 'function') onDone(sport);
         })
         .catch(function(err) {
+            // Retry once after 3s on failure (cold start resilience)
+            if (!fetchLiveOdds._retried) fetchLiveOdds._retried = {};
+            if (!fetchLiveOdds._retried[sport]) {
+                fetchLiveOdds._retried[sport] = true;
+                setTimeout(function() { fetchLiveOdds(sport, onDone); }, 3000);
+                return;
+            }
             panel.classList.remove('panel-loading');
             if (typeof onDone === 'function') onDone(sport);
+            // Fire analysis callback so lockdown doesn't hang
+            if (typeof window._analysisLoadCallback === 'function') window._analysisLoadCallback(sport);
             var errMsg = document.createElement('div');
             errMsg.className = 'panel-error';
-            errMsg.textContent = 'Failed to load ' + sport.toUpperCase() + ' odds. Check connection and try again.';
+            errMsg.textContent = 'Failed to load ' + sport.toUpperCase() + ' odds. Hit REFRESH to retry.';
             panel.appendChild(errMsg);
         });
 }
@@ -5649,6 +5660,8 @@ function selectAgent(who) {
     screen.classList.remove('active');
     screen.style.display = 'none';
     applyAgentFilter(who);
+    // Ensure game rows are visible (safety)
+    document.querySelectorAll('.game-row').forEach(function(r) { r.style.display = ''; });
     window.scrollTo(0, 0);
 }
 
