@@ -1599,6 +1599,23 @@ async def get_odds(sport: str, markets: str = "h2h,spreads,totals"):
     if not all_games and not SHARPAPI_KEY and not ODDS_API_KEY:
         return JSONResponse({"error": "No odds API configured (set SHARPAPI_KEY or ODDS_API_KEY)"}, status_code=500)
 
+    # Filter out speculative/future games — only show confirmed within 48 hours
+    from datetime import timedelta
+    cutoff = datetime.now(PST) + timedelta(hours=48)
+    filtered_games = []
+    for g in all_games:
+        game_time_str = g.get('time', '')
+        has_book = g.get('bookmaker') not in (None, 'None', '')
+        if not game_time_str or not has_book:
+            continue  # Skip: no confirmed time or no real bookmaker
+        try:
+            gt = datetime.fromisoformat(game_time_str.replace('Z', '+00:00')).astimezone(PST)
+            if gt <= cutoff:
+                filtered_games.append(g)
+        except Exception:
+            continue  # Skip unparseable times
+    all_games = filtered_games
+
     # Count games with complete vs incomplete lines
     complete = sum(1 for g in all_games if g.get("lines_complete"))
     incomplete = sum(1 for g in all_games if g.get("lines_available") and not g.get("lines_complete"))
@@ -2337,6 +2354,22 @@ async def get_edge(sport: str):
     raw_events = await _fetch_raw_events(sport_lower)
     if not raw_events:
         return JSONResponse({"sport": sport.upper(), "games": [], "generated_at": _now_ts()})
+
+    # Filter speculative/future events — only confirmed within 48 hours
+    from datetime import timedelta as _td
+    _cutoff = datetime.now(PST) + _td(hours=48)
+    _filtered = []
+    for ev in raw_events:
+        ct = ev.get('commence_time', '')
+        if not ct:
+            continue
+        try:
+            _gt = datetime.fromisoformat(ct.replace('Z', '+00:00')).astimezone(PST)
+            if _gt <= _cutoff:
+                _filtered.append(ev)
+        except Exception:
+            continue
+    raw_events = _filtered
 
     # ===== FETCH INJURY + ROSTER DATA =====
     injuries_by_team = {}
