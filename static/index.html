@@ -118,7 +118,7 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
 /* ===== GAME ROWS ===== */
 .game-row{
     background:var(--ec-bg-secondary);border:1px solid var(--ec-border);
-    border-radius:14px;padding:0;margin-bottom:16px;overflow:hidden;
+    border-radius:14px;padding:0;margin-bottom:12px;overflow:hidden;
     transition:all 0.25s ease;cursor:pointer;
 }
 .game-row:hover{border-color:var(--ec-border-hover);background:var(--ec-bg-elevated);transform:translateY(-1px);box-shadow:0 8px 32px rgba(0,0,0,0.2);}
@@ -194,12 +194,12 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
 .modal-close:hover{border-color:var(--ec-border-hover);}
 
 .game-header{
-    display:flex;flex-direction:column;padding:16px 18px;gap:6px;
+    display:flex;flex-direction:column;padding:14px 16px;gap:4px;
 }
-.card-r1{display:flex;align-items:center;gap:10px;}
-.card-r2{padding:4px 0 4px 30px;font-family:var(--ec-font-heading);font-size:18px;font-weight:800;color:var(--ec-accent-light);}
-.card-r3{display:flex;flex-wrap:wrap;gap:6px;padding:4px 0 2px 30px;align-items:center;}
-.card-r3 .spread-ref,.card-r3 .total-ref{font-size:11px;color:var(--ec-text-tertiary);font-family:var(--ec-font-mono);font-weight:600;background:rgba(255,255,255,0.05);padding:3px 10px;border-radius:4px;}
+.card-r1{display:flex;align-items:center;gap:8px;}
+.card-r2{padding:2px 0 2px 30px;font-family:var(--ec-font-heading);font-size:18px;font-weight:800;color:var(--ec-accent-light);}
+.card-r3{display:flex;flex-wrap:wrap;gap:4px;padding-left:30px;align-items:center;}
+.card-r3 .spread-ref,.card-r3 .total-ref{font-size:11px;color:var(--ec-text-tertiary);font-family:var(--ec-font-mono);font-weight:600;background:rgba(255,255,255,0.05);padding:2px 8px;border-radius:4px;}
 .card-r4{padding-left:30px;font-size:12px;color:var(--ec-text-secondary);line-height:1.4;display:none;}
 .game-row.has-analysis .card-r4{display:block;}
 .game-time{font-size:12px;color:var(--ec-text-tertiary);font-weight:500;font-family:var(--ec-font-mono);white-space:nowrap;}
