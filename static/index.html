@@ -5962,10 +5962,75 @@ function fetchEdge(sport) {
                 html += '</div>';
             });
             content.innerHTML = html;
+            // Inject edge data into game cards (same as Sinton.ia does with analysis)
+            injectEdgeIntoCards(sport, games);
         })
         .catch(function(err) {
             content.innerHTML = '<p style="color:#EF4444;">Failed to load edge data.</p>';
         });
+}
+
+function injectEdgeIntoCards(sport, edgeGames) {
+    if (!edgeGames || !edgeGames.length) return;
+    edgeGames.forEach(function(g) {
+        // Match edge game to card by matchup text
+        var matchKey = (g.away + g.home).replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+        var rows = document.querySelectorAll('#panel-' + sport + ' .game-row');
+        rows.forEach(function(row) {
+            var matchup = row.querySelector('.game-matchup');
+            if (!matchup) return;
+            var rowKey = matchup.textContent.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+            if (rowKey.indexOf(matchKey) === -1 && matchKey.indexOf(rowKey) === -1) return;
+
+            // Derive grade from upset_score + dog_edge
+            var grade = 'C';
+            var score = g.upset_score || 0;
+            var edge = g.dog_edge || 0;
+            if (score >= 8 || edge >= 10) grade = 'A';
+            else if (score >= 7 || edge >= 7) grade = 'A-';
+            else if (score >= 6 || edge >= 5) grade = 'B+';
+            else if (score >= 5 || edge >= 3) grade = 'B';
+            else if (score >= 4) grade = 'B-';
+            else if (score >= 3) grade = 'C+';
+            else grade = 'C';
+            if (g.sharp_signal) { // Sharp signal bumps grade
+                if (grade === 'B+') grade = 'A-';
+                else if (grade === 'B') grade = 'B+';
+            }
+
+            // Update grade badge on card
+            var gradeEl = row.querySelector('.grade');
+            if (gradeEl) {
+                var gc = grade.replace(/[+-]/g, '').toLowerCase();
+                gradeEl.className = 'grade g' + gc;
+                gradeEl.textContent = grade;
+            }
+
+            // Build pick text
+            var pick = '';
+            if (g.value_tag) pick = g.value_tag;
+            else if (g.dog_edge > 0) pick = g.underdog + ' ML (edge ' + g.dog_edge + '%)';
+            else if (g.total_lean) pick = g.total_lean;
+            else pick = g.favorite + ' (fav ' + g.fav_prob + '%)';
+
+            // Inject pick into card row 4
+            var pickEl = row.querySelector('[id^="pick-"]');
+            if (pickEl) pickEl.textContent = pick;
+
+            // Edge summary
+            var reasonEl = row.querySelector('[id^="reason-"]');
+            if (reasonEl) {
+                var summary = [];
+                if (g.dog_edge > 0) summary.push(g.underdog + ' ' + g.dog_edge + '% edge');
+                if (g.sharp_signal) summary.push(g.sharp_signal);
+                if (g.public_fade) summary.push('Public fade');
+                if (g.spread_disagreement) summary.push('Books split on spread');
+                reasonEl.textContent = summary.join(' | ') || 'Pure math analysis';
+            }
+
+            row.classList.add('has-analysis');
+        });
+    });
 }
 
 function fetchAnalysis(sport) {
