@@ -470,10 +470,10 @@ body.loading .mobile-quick-bar{filter:blur(6px);pointer-events:none;user-select:
 
 /* ===== AGENT SELECTION SCREEN ===== */
 .agent-select-screen{
-    display:none;position:fixed;inset:0;z-index:9998;
+    display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:9998;
     background:var(--ec-bg-primary);
     flex-direction:column;align-items:center;justify-content:center;gap:32px;
-    padding:24px;
+    padding:24px;overflow-y:auto;
 }
 .agent-select-screen.active{display:flex;}
 .agent-select-title{
@@ -5637,14 +5637,19 @@ function getAnalysisGrade(sport, matchup) {
 
 // ===== AGENT SELECTION SYSTEM =====
 function showAgentSelect() {
-    document.getElementById('agentSelectScreen').classList.add('active');
+    var screen = document.getElementById('agentSelectScreen');
+    screen.classList.add('active');
+    screen.style.display = 'flex';
 }
 
 function selectAgent(who) {
     if (who === 'custom') return; // disabled
     sessionStorage.setItem('edgeCrewAgent', who);
-    document.getElementById('agentSelectScreen').classList.remove('active');
+    var screen = document.getElementById('agentSelectScreen');
+    screen.classList.remove('active');
+    screen.style.display = 'none';
     applyAgentFilter(who);
+    window.scrollTo(0, 0);
 }
 
 function applyAgentFilter(who) {
@@ -5654,6 +5659,13 @@ function applyAgentFilter(who) {
     if (label) {
         var names = {sintonia: "Sinton.ia", alyssa: "Alyssa"};
         label.textContent = (names[who] || who.toUpperCase()) + " \u25BC";
+    }
+    // Auto-fetch Alyssa's edge data for all sports when she's selected
+    if (who === 'alyssa') {
+        ['nba','wnba','ncaab','ncaaf','nhl','mlb','tennis','soccer','mma','boxing'].forEach(function(s) {
+            var el = document.getElementById('alyssaEdge' + s.toUpperCase() + 'Content');
+            if (el && el.querySelector('p[style*="italic"]')) fetchEdge(s);
+        });
     }
 }
 
