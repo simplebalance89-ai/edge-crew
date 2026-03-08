@@ -3761,6 +3761,27 @@ async def picks_page():
     return FileResponse("static/picks.html", headers=NO_CACHE_HEADERS)
 
 
+@app.get("/api/arb-scan")
+async def arb_scan():
+    """Scan all active sports for arbitrage opportunities."""
+    all_arbs = []
+    for sport in _in_season_sports():
+        odds_data = _get_cached(f"{sport}:h2h,spreads,totals")
+        if not odds_data or not odds_data.get("games"):
+            continue
+        for g in odds_data["games"]:
+            if g.get("arbs"):
+                for arb in g["arbs"]:
+                    all_arbs.append({
+                        "sport": sport.upper(),
+                        "matchup": f"{g.get('away', '?')} @ {g.get('home', '?')}",
+                        "time": g.get("time", ""),
+                        **arb,
+                    })
+    all_arbs.sort(key=lambda a: a.get("profit_pct", 0), reverse=True)
+    return JSONResponse({"arbs": all_arbs, "count": len(all_arbs), "scanned_at": _now_ts()})
+
+
 @app.get("/")
 async def root():
     return FileResponse("static/index.html", headers=NO_CACHE_HEADERS)

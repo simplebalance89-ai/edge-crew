@@ -3987,7 +3987,8 @@ function renderBankroll() {
         var s = personStats[name];
         var el = document.getElementById('br' + name);
         if (el) {
-            el.textContent = s.w + '-' + s.l + '-' + s.p + ' | ' + (s.u >= 0 ? '+' : '') + s.u.toFixed(1) + 'u';
+            var dollars = s.u * unitSize;
+            el.textContent = s.w + '-' + s.l + '-' + s.p + ' | ' + (s.u >= 0 ? '+' : '') + s.u.toFixed(1) + 'u ($' + (dollars >= 0 ? '+' : '') + dollars.toFixed(0) + ')';
             el.style.color = s.u >= 0 ? '#10B981' : '#EF4444';
         }
     }
