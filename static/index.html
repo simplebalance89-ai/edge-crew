@@ -5161,11 +5161,15 @@ function fetchLiveOdds(sport, onDone) {
             if (typeof onDone === 'function') onDone(sport);
         })
         .catch(function(err) {
-            // Retry once after 3s on failure (cold start resilience)
+            // Retry up to 3 times with increasing delay (cold start resilience)
             if (!fetchLiveOdds._retried) fetchLiveOdds._retried = {};
-            if (!fetchLiveOdds._retried[sport]) {
-                fetchLiveOdds._retried[sport] = true;
-                setTimeout(function() { fetchLiveOdds(sport, onDone); }, 3000);
+            var retryCount = fetchLiveOdds._retried[sport] || 0;
+            if (retryCount < 3) {
+                fetchLiveOdds._retried[sport] = retryCount + 1;
+                var delay = (retryCount + 1) * 3000;
+                var loadText = document.getElementById('loadingText');
+                if (loadText) loadText.textContent = sport.toUpperCase() + ' loading... retry ' + (retryCount + 1) + '/3';
+                setTimeout(function() { fetchLiveOdds(sport, onDone); }, delay);
                 return;
             }
             panel.classList.remove('panel-loading');
@@ -5887,10 +5891,18 @@ function fetchAnalysis(sport) {
     var panel = document.getElementById('panel-' + sport);
     if (!panel) return;
 
+    // Show analyzing state
+    var gutContent = document.getElementById('peterGut' + sport.toUpperCase() + 'Content');
+    if (gutContent) gutContent.innerHTML = '<p style="color:rgba(167,139,250,0.6);font-style:italic;">Analyzing ' + sport.toUpperCase() + ' slate...</p>';
+
     fetch('/api/analysis/' + sport)
         .then(function(r) { return r.json(); })
         .then(function(data) {
-            if (data.error) { console.error('Analysis error:', data.error); return; }
+            if (data.error) {
+                console.error('Analysis error:', data.error);
+                if (gutContent) gutContent.innerHTML = '<p style="color:rgba(239,68,68,0.6);font-style:italic;">Analysis unavailable — ' + data.error + '</p>';
+                return;
+            }
 
             // Cache analysis data for props
             _analysisCache[sport.toUpperCase()] = data;
