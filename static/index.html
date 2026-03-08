@@ -1081,6 +1081,19 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
                 <label>PIN (4 digits)</label>
                 <input type="tel" id="loginPin" maxlength="4" pattern="[0-9]{4}" inputmode="numeric" placeholder="Enter your 4-digit PIN" autocomplete="off">
             </div>
+            <div class="login-field">
+                <label style="margin-bottom:8px;">Pick Your Agent</label>
+                <div id="loginAgentPick" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                    <div class="login-agent-btn active" data-agent="sintonia" onclick="pickLoginAgent(this,'sintonia')" style="padding:10px 8px;border-radius:10px;border:2px solid #D4A843;background:rgba(212,168,67,0.1);cursor:pointer;text-align:center;transition:all 0.2s;">
+                        <div style="font-size:13px;font-weight:800;color:#D4A843;">Sinton.ia</div>
+                        <div style="font-size:9px;color:rgba(255,255,255,0.4);margin-top:2px;">AI Analysis</div>
+                    </div>
+                    <div class="login-agent-btn" data-agent="alyssa" onclick="pickLoginAgent(this,'alyssa')" style="padding:10px 8px;border-radius:10px;border:2px solid rgba(78,205,196,0.3);background:transparent;cursor:pointer;text-align:center;transition:all 0.2s;">
+                        <div style="font-size:13px;font-weight:800;color:#4ECDC4;">Alyssa</div>
+                        <div style="font-size:9px;color:rgba(255,255,255,0.4);margin-top:2px;">Pure Math</div>
+                    </div>
+                </div>
+            </div>
             <button class="login-submit" onclick="doLogin()">Sign In</button>
         </div>
         <div id="loginRegister" style="display:none;">
@@ -1121,28 +1134,8 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     <div id="loadingStack" style="margin-top:24px;max-width:400px;width:90%;max-height:50vh;overflow-y:auto;"></div>
 </div>
 
-<!-- AGENT SELECTION SCREEN -->
-<div class="agent-select-screen" id="agentSelectScreen">
-    <div class="agent-select-title">Choose Your Agent</div>
-    <div class="agent-select-subtitle">Each agent brings a different perspective to the slate.</div>
-    <div class="agent-cards">
-        <div class="agent-card" data-agent="sintonia" onclick="selectAgent('sintonia')">
-            <span class="agent-icon"><svg viewBox="0 0 64 64" width="36" height="36"><circle cx="32" cy="32" r="28" fill="none" stroke="#D4A843" stroke-width="2"/><circle cx="32" cy="22" r="8" fill="none" stroke="#D4A843" stroke-width="1.5"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#D4A843" stroke-width="1.5" stroke-linecap="round"/><circle cx="24" cy="42" r="3" fill="#D4A843" opacity="0.4"/><circle cx="40" cy="42" r="3" fill="#D4A843" opacity="0.4"/><line x1="32" y1="14" x2="32" y2="8" stroke="#D4A843" stroke-width="1.5" stroke-linecap="round"/><line x1="20" y1="18" x2="16" y2="14" stroke="#D4A843" stroke-width="1" stroke-linecap="round" opacity="0.5"/><line x1="44" y1="18" x2="48" y2="14" stroke="#D4A843" stroke-width="1" stroke-linecap="round" opacity="0.5"/></svg></span>
-            <div class="agent-name">Sinton.ia's Card</div>
-            <div class="agent-desc">AI-driven analysis with grades, reasoning, badges, and trends. GPT-powered game breakdowns with context.</div>
-        </div>
-        <div class="agent-card" data-agent="alyssa" onclick="selectAgent('alyssa')">
-            <span class="agent-icon"><svg viewBox="0 0 64 64" width="36" height="36"><polygon points="32,6 38,24 58,24 42,36 48,54 32,44 16,54 22,36 6,24 26,24" fill="none" stroke="#4ECDC4" stroke-width="2" stroke-linejoin="round"/><circle cx="32" cy="30" r="6" fill="#4ECDC4" opacity="0.3"/><line x1="32" y1="24" x2="32" y2="36" stroke="#4ECDC4" stroke-width="1.5"/><line x1="26" y1="30" x2="38" y2="30" stroke="#4ECDC4" stroke-width="1.5"/></svg></span>
-            <div class="agent-name">Alyssa's Edge</div>
-            <div class="agent-desc">Pure math. Expected value, line movement, sharp signals. No AI opinions — just numbers.</div>
-        </div>
-        <div class="agent-card disabled" data-agent="custom">
-            <span class="agent-icon"><svg viewBox="0 0 64 64" width="36" height="36"><rect x="14" y="14" width="36" height="36" rx="8" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-dasharray="4,4"/><text x="32" y="38" text-anchor="middle" fill="rgba(255,255,255,0.3)" font-size="20" font-weight="700" font-family="sans-serif">?</text></svg></span>
-            <div class="agent-name">Make Your Own</div>
-            <div class="agent-desc">Build your own analysis lane. Coming soon.</div>
-        </div>
-    </div>
-</div>
+<!-- AGENT SELECTION SCREEN (merged into login — kept as hidden fallback) -->
+<div class="agent-select-screen" id="agentSelectScreen" style="display:none !important;"></div>
 
 <!-- TOP BAR -->
 <div class="topbar">
@@ -2376,9 +2369,32 @@ function doLogout() {
     showLoginOverlay();
 }
 
+// Agent picked at login — highlight selected button
+var _loginAgent = 'sintonia'; // default
+function pickLoginAgent(el, who) {
+    _loginAgent = who;
+    document.querySelectorAll('.login-agent-btn').forEach(function(b) {
+        b.classList.remove('active');
+        var isThis = b.getAttribute('data-agent') === who;
+        var color = who === 'sintonia' ? '#D4A843' : '#4ECDC4';
+        var colorRgb = who === 'sintonia' ? '212,168,67' : '78,205,196';
+        if (isThis) {
+            b.style.borderColor = color;
+            b.style.background = 'rgba(' + colorRgb + ',0.1)';
+            b.classList.add('active');
+        } else {
+            b.style.borderColor = 'rgba(255,255,255,0.1)';
+            b.style.background = 'transparent';
+        }
+    });
+}
+
 function onLoginSuccess() {
     document.getElementById('loginOverlay').classList.add('hidden');
     updateCrewUI();
+    // Apply agent choice from login — go straight to cards
+    sessionStorage.setItem('edgeCrewAgent', _loginAgent);
+    applyAgentFilter(_loginAgent);
     // Bust SW cache on login to guarantee fresh code
     if ('caches' in window) {
         caches.keys().then(function(names) {
@@ -5653,20 +5669,18 @@ function getAnalysisGrade(sport, matchup) {
 }
 
 // ===== AGENT SELECTION SYSTEM =====
+// Agent is now picked at login — these are no-ops / fallbacks
 function showAgentSelect() {
-    var screen = document.getElementById('agentSelectScreen');
-    screen.classList.add('active');
-    screen.style.display = 'flex';
+    // No separate screen — agent picked at login. Auto-apply saved or default.
+    var saved = sessionStorage.getItem('edgeCrewAgent') || 'sintonia';
+    sessionStorage.setItem('edgeCrewAgent', saved);
+    applyAgentFilter(saved);
 }
 
 function selectAgent(who) {
-    if (who === 'custom') return; // disabled
+    if (who === 'custom') return;
     sessionStorage.setItem('edgeCrewAgent', who);
-    var screen = document.getElementById('agentSelectScreen');
-    screen.classList.remove('active');
-    screen.style.display = 'none';
     applyAgentFilter(who);
-    // Ensure game rows are visible (safety)
     document.querySelectorAll('.game-row').forEach(function(r) { r.style.display = ''; });
     window.scrollTo(0, 0);
 }
@@ -5696,9 +5710,11 @@ function applyAgentFilter(who, forceRefresh) {
 }
 
 function backToAgents() {
-    sessionStorage.removeItem('edgeCrewAgent');
-    document.body.classList.remove('agent-sintonia', 'agent-alyssa', 'agent-active');
-    showAgentSelect();
+    // Toggle to the other agent
+    var current = sessionStorage.getItem('edgeCrewAgent') || 'sintonia';
+    var next = current === 'sintonia' ? 'alyssa' : 'sintonia';
+    sessionStorage.setItem('edgeCrewAgent', next);
+    applyAgentFilter(next, true);
 }
 
 // ===== ANALYSIS FETCH =====
