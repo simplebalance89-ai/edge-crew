@@ -5180,26 +5180,11 @@ function fetchLiveOdds(sport, onDone) {
                 html += buildGameRowHTML(g);
             });
 
-            // Insert after upset section (upsets stay at top), before gut picks
+            // Insert game rows into panel
             var temp = document.createElement('div');
             temp.innerHTML = html;
-            var upsetSection = panel.querySelector('.upset-section');
-            var gutSection = panel.querySelector('.input-section');
-            var insertBefore = gutSection || null;
-            // If no gut section, append after upset section
-            if (!insertBefore && upsetSection && upsetSection.nextElementSibling) {
-                insertBefore = upsetSection.nextElementSibling;
-                // Skip if next sibling is also an upset section or ML filter
-                while (insertBefore && (insertBefore.classList.contains('upset-section') || insertBefore.classList.contains('ml-filter'))) {
-                    insertBefore = insertBefore.nextElementSibling;
-                }
-            }
             while (temp.firstChild) {
-                if (insertBefore) {
-                    panel.insertBefore(temp.firstChild, insertBefore);
-                } else {
-                    panel.appendChild(temp.firstChild);
-                }
+                panel.appendChild(temp.firstChild);
             }
 
             // Update tab count (pregame only)
