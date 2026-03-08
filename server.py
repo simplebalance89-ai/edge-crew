@@ -117,9 +117,81 @@ async def _autograde_loop():
         await asyncio.sleep(900)  # 15 minutes
 
 
+ALL_SPORTS = ["nba", "wnba", "ncaab", "ncaaf", "nhl", "mlb", "tennis", "soccer", "mma", "boxing"]
+
+async def _daily_slate_pull():
+    """Background loop: pull daily slate at 11PM and 6AM PST, analysis at 8AM/2PM/6PM PST."""
+    await asyncio.sleep(30)  # Wait for app startup
+    last_slate_pull = None
+    last_analysis_run = None
+    while True:
+        try:
+            now = datetime.now(PST)
+            hour = now.hour
+            today = now.strftime("%Y-%m-%d")
+
+            # Slate pull: 11PM or 6AM (or on first boot if no slate exists)
+            should_pull_slate = False
+            if hour in (23, 6) and last_slate_pull != f"{today}:{hour}":
+                should_pull_slate = True
+                last_slate_pull = f"{today}:{hour}"
+            # Also pull on first boot if no slate exists for today
+            elif last_slate_pull is None:
+                test_path = _slate_path("nba")
+                if not os.path.exists(test_path):
+                    should_pull_slate = True
+                    last_slate_pull = f"{today}:boot"
+
+            if should_pull_slate:
+                print(f"[SLATE] Pulling daily slate at {now.strftime('%I:%M %p PST')}")
+                for sport in ALL_SPORTS:
+                    try:
+                        resp = await get_odds(sport)
+                        if hasattr(resp, 'body'):
+                            data = json.loads(resp.body)
+                            if data.get("games"):
+                                _save_daily_slate(sport, data["games"])
+                                print(f"[SLATE] Saved {len(data['games'])} {sport.upper()} games")
+                    except Exception as e:
+                        print(f"[SLATE] Error pulling {sport}: {e}")
+                    await asyncio.sleep(2)  # Don't hammer the API
+
+            # Analysis runs: 8AM, 2PM, 6PM PST
+            should_run_analysis = False
+            if hour in (8, 14, 18) and last_analysis_run != f"{today}:{hour}":
+                should_run_analysis = True
+                last_analysis_run = f"{today}:{hour}"
+
+            if should_run_analysis:
+                print(f"[ANALYSIS] Running scheduled analysis at {now.strftime('%I:%M %p PST')}")
+                for sport in ALL_SPORTS:
+                    try:
+                        # Trigger analysis and cache result
+                        resp = await get_analysis(sport)
+                        if hasattr(resp, 'body'):
+                            data = json.loads(resp.body)
+                            if data.get("games"):
+                                _save_analysis_cache(sport, data)
+                                print(f"[ANALYSIS] Cached {len(data['games'])} {sport.upper()} analysis results")
+                        # Also compute and cache edge
+                        edge_resp = await get_edge(sport)
+                        if hasattr(edge_resp, 'body'):
+                            edge_data = json.loads(edge_resp.body)
+                            if edge_data.get("games"):
+                                _save_edge_cache(sport, edge_data["games"])
+                    except Exception as e:
+                        print(f"[ANALYSIS] Error analyzing {sport}: {e}")
+                    await asyncio.sleep(5)  # Azure rate limits
+
+        except Exception as e:
+            print(f"[SLATE] Loop error: {e}")
+        await asyncio.sleep(300)  # Check every 5 minutes
+
+
 @app.on_event("startup")
 async def start_background_tasks():
     asyncio.create_task(_autograde_loop())
+    asyncio.create_task(_daily_slate_pull())
 
 
 @app.get("/health")
@@ -403,6 +475,67 @@ def _odds_cache_key(sport_lower):
     if sport_lower == "soccer":
         return f"{sport_lower}:h2h,spreads,totals,btts,draw_no_bet"
     return f"{sport_lower}:h2h,spreads,totals"
+
+
+# ── Daily Record (Layer 0) ──────────────────────────────────────────────────
+SLATE_DIR = os.path.join(DATA_DIR, "slates")
+ANALYSIS_DIR = os.path.join(DATA_DIR, "analysis_cache")
+EDGE_DIR = os.path.join(DATA_DIR, "edge_cache")
+os.makedirs(SLATE_DIR, exist_ok=True)
+os.makedirs(ANALYSIS_DIR, exist_ok=True)
+os.makedirs(EDGE_DIR, exist_ok=True)
+
+def _slate_path(sport, date_str=None):
+    if not date_str:
+        date_str = datetime.now(PST).strftime("%Y-%m-%d")
+    return os.path.join(SLATE_DIR, f"slate_{sport}_{date_str}.json")
+
+def _analysis_cache_path(sport, date_str=None, run="latest"):
+    if not date_str:
+        date_str = datetime.now(PST).strftime("%Y-%m-%d")
+    return os.path.join(ANALYSIS_DIR, f"analysis_{sport}_{date_str}_{run}.json")
+
+def _edge_cache_path(sport, date_str=None):
+    if not date_str:
+        date_str = datetime.now(PST).strftime("%Y-%m-%d")
+    return os.path.join(EDGE_DIR, f"edge_{sport}_{date_str}.json")
+
+def _save_daily_slate(sport, games_data):
+    path = _slate_path(sport)
+    with open(path, "w") as f:
+        json.dump({"sport": sport.upper(), "games": games_data, "fetched_at": _now_ts(), "date": datetime.now(PST).strftime("%Y-%m-%d")}, f)
+    return path
+
+def _load_daily_slate(sport):
+    path = _slate_path(sport)
+    if os.path.exists(path):
+        with open(path) as f:
+            return json.load(f)
+    return None
+
+def _save_analysis_cache(sport, analysis_data):
+    path = _analysis_cache_path(sport)
+    with open(path, "w") as f:
+        json.dump({"sport": sport.upper(), **analysis_data, "cached_at": _now_ts()}, f)
+
+def _load_analysis_cache(sport):
+    path = _analysis_cache_path(sport)
+    if os.path.exists(path):
+        with open(path) as f:
+            return json.load(f)
+    return None
+
+def _save_edge_cache(sport, edge_data):
+    path = _edge_cache_path(sport)
+    with open(path, "w") as f:
+        json.dump({"sport": sport.upper(), "games": edge_data, "cached_at": _now_ts()}, f)
+
+def _load_edge_cache(sport):
+    path = _edge_cache_path(sport)
+    if os.path.exists(path):
+        with open(path) as f:
+            return json.load(f)
+    return None
 
 
 def _track_opening_lines(game):
@@ -1637,8 +1770,77 @@ async def get_odds(sport: str, markets: str = "h2h,spreads,totals"):
         "cached": False,
     }
 
+    # Save to daily record
+    if all_games:
+        _save_daily_slate(sport_lower, all_games)
+
     _set_cache(cache_key, result)
     return JSONResponse(result)
+
+
+@app.get("/api/slate/cached")
+async def get_cached_slate():
+    """Serve full slate from daily record — ZERO API calls."""
+    all_games = []
+    for sport in ALL_SPORTS:
+        slate = _load_daily_slate(sport)
+        if slate and slate.get("games"):
+            all_games.extend(slate["games"])
+    return JSONResponse({
+        "games": all_games,
+        "count": len(all_games),
+        "source": "daily_record",
+        "fetched_at": _now_ts(),
+        "cached": True,
+    })
+
+@app.get("/api/slate/cached/{sport}")
+async def get_cached_sport_slate(sport: str):
+    """Serve single sport from daily record."""
+    slate = _load_daily_slate(sport.lower())
+    if slate:
+        slate["cached"] = True
+        return JSONResponse(slate)
+    # Fallback: pull live if no cache
+    return await get_odds(sport)
+
+@app.post("/api/slate/refresh")
+async def refresh_slate():
+    """Manual trigger: pull fresh odds into daily record."""
+    results = {}
+    for sport in ALL_SPORTS:
+        try:
+            resp = await get_odds(sport)
+            if hasattr(resp, 'body'):
+                data = json.loads(resp.body)
+                if data.get("games"):
+                    _save_daily_slate(sport, data["games"])
+                    results[sport] = len(data["games"])
+                else:
+                    results[sport] = 0
+        except Exception as e:
+            results[sport] = f"error: {str(e)}"
+        await asyncio.sleep(1)
+    return JSONResponse({"status": "refreshed", "results": results, "ts": _now_ts()})
+
+@app.post("/api/analysis/schedule")
+async def trigger_analysis():
+    """Manual trigger: run analysis NOW for all sports."""
+    results = {}
+    for sport in ALL_SPORTS:
+        try:
+            resp = await get_analysis(sport)
+            if hasattr(resp, 'body'):
+                data = json.loads(resp.body)
+                if data.get("games"):
+                    _save_analysis_cache(sport, data)
+                    results[sport] = len(data["games"])
+                else:
+                    results[sport] = 0
+        except Exception as e:
+            results[sport] = f"error: {str(e)}"
+        await asyncio.sleep(3)
+    return JSONResponse({"status": "analyzed", "results": results, "ts": _now_ts()})
 
 
 @app.get("/api/slate")
@@ -2350,6 +2552,12 @@ async def get_edge(sport: str):
     """
     sport_lower = sport.lower()
 
+    # Serve from cache if available
+    cached_edge = _load_edge_cache(sport_lower)
+    if cached_edge:
+        cached_edge["cached"] = True
+        return JSONResponse(cached_edge)
+
     # Fetch RAW events with ALL bookmaker data
     raw_events = await _fetch_raw_events(sport_lower)
     if not raw_events:
@@ -2728,6 +2936,12 @@ async def get_analysis(sport: str):
     cached = _get_cached(cache_key, ttl=ANALYSIS_CACHE_TTL)
     if cached:
         return JSONResponse(cached)
+
+    # Serve from cache if available
+    cached_analysis = _load_analysis_cache(sport_lower)
+    if cached_analysis and cached_analysis.get("games"):
+        cached_analysis["cached"] = True
+        return JSONResponse(cached_analysis)
 
     # Get current odds for context
     odds_cache_key = _odds_cache_key(sport_lower)
