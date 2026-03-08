@@ -129,7 +129,7 @@ async def _daily_slate_pull():
             today = now.strftime("%Y-%m-%d")
 
             should_pull_slate = False
-            if hour in (23, 6) and last_slate_pull != f"{today}:{hour}":
+            if hour in (0, 6, 23) and last_slate_pull != f"{today}:{hour}":
                 should_pull_slate = True
                 last_slate_pull = f"{today}:{hour}"
             elif last_slate_pull is None:
@@ -139,8 +139,9 @@ async def _daily_slate_pull():
                     last_slate_pull = f"{today}:boot"
 
             if should_pull_slate:
-                print(f"[SLATE] Pulling daily slate at {now.strftime('%I:%M %p PST')}")
-                for sport in ALL_SPORTS:
+                active_sports = _in_season_sports()
+                print(f"[SLATE] Pulling daily slate at {now.strftime('%I:%M %p PST')} — {len(active_sports)} sports in season")
+                for sport in active_sports:
                     try:
                         resp = await get_odds(sport)
                         if hasattr(resp, 'body'):
@@ -150,6 +151,19 @@ async def _daily_slate_pull():
                     except Exception as e:
                         print(f"[SLATE] Error pulling {sport}: {e}")
                     await asyncio.sleep(2)
+                # Auto-grade after midnight slate pull — cards ready with analysis by morning
+                if hour == 0:
+                    print(f"[ANALYSIS] Midnight auto-grade — building tomorrow's cards")
+                    for sport in active_sports:
+                        try:
+                            resp = await get_analysis(sport)
+                            if hasattr(resp, 'body'):
+                                data = json.loads(resp.body)
+                                if data.get("games"):
+                                    _save_analysis_cache(sport, data)
+                        except Exception as e:
+                            print(f"[ANALYSIS] Midnight error {sport}: {e}")
+                        await asyncio.sleep(5)
 
             should_run_analysis = False
             if hour in (8, 14, 18) and last_analysis_run != f"{today}:{hour}":
@@ -157,8 +171,9 @@ async def _daily_slate_pull():
                 last_analysis_run = f"{today}:{hour}"
 
             if should_run_analysis:
-                print(f"[ANALYSIS] Running scheduled analysis")
-                for sport in ALL_SPORTS:
+                active_sports = _in_season_sports()
+                print(f"[ANALYSIS] Running scheduled analysis — {len(active_sports)} sports")
+                for sport in active_sports:
                     try:
                         resp = await get_analysis(sport)
                         if hasattr(resp, 'body'):
@@ -366,6 +381,25 @@ UPSETS_FILE = os.path.join(DATA_DIR, "upsets.json")
 PICKS_FILE = os.path.join(DATA_DIR, "picks.json")
 
 ALL_SPORTS = ["nba", "wnba", "ncaab", "ncaaf", "nhl", "mlb", "tennis", "soccer", "mma", "boxing"]
+
+# Season map — which months each sport is active
+_SEASON_MONTHS = {
+    "nba": {10,11,12,1,2,3,4,5,6},
+    "wnba": {5,6,7,8,9,10},
+    "ncaab": {11,12,1,2,3,4},
+    "ncaaf": {8,9,10,11,12,1},
+    "nhl": {10,11,12,1,2,3,4,5,6},
+    "mlb": {3,4,5,6,7,8,9,10,11},
+    "tennis": {1,2,3,4,5,6,7,8,9,10,11},
+    "soccer": {1,2,3,4,5,6,7,8,9,10,11,12},
+    "mma": {1,2,3,4,5,6,7,8,9,10,11,12},
+    "boxing": {1,2,3,4,5,6,7,8,9,10,11,12},
+}
+
+def _in_season_sports():
+    """Return only sports currently in season."""
+    month = datetime.now(PST).month
+    return [s for s in ALL_SPORTS if month in _SEASON_MONTHS.get(s, set())]
 
 # ── Daily Record (Layer 0) ──────────────────────────────────────────────────
 SLATE_DIR = os.path.join(DATA_DIR, "slates")
