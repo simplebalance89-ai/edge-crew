@@ -459,6 +459,7 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
     border:2px solid rgba(0,0,0,0.2);border-top:2px solid currentColor;
     border-radius:50%;animation:edgeSpin 0.8s linear infinite;
 }
+.qp-link:hover{color:#E879F9 !important;border-bottom-color:#E879F9 !important;}
 .panel-error{
     text-align:center;padding:20px;color:#EF4444;font-size:13px;font-weight:700;
     background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);
@@ -1016,7 +1017,7 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
             <span class="crew-badge crew-sintonia" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0;margin-left:-4px;">S</span>
         </div>
         <a href="/bets" style="text-decoration:none;padding:6px 14px;border-radius:var(--ec-radius-full);font-size:11px;font-weight:700;background:var(--ec-accent-subtle);color:var(--ec-accent-light);border:1px solid var(--ec-border-accent);transition:all 0.2s;">BETS</a>
-        <button class="topbar-refresh" onclick="refreshSlate()" style="padding:6px 14px;border-radius:var(--ec-radius-full);font-size:11px;font-weight:700;background:linear-gradient(135deg,var(--ec-accent),#a78bfa);color:#fff;border:none;cursor:pointer;transition:all 0.2s;letter-spacing:0.3px;">REFRESH</button>
+        <button class="topbar-refresh" onclick="window._isManualRefresh=true;refreshSlate()" style="padding:6px 14px;border-radius:var(--ec-radius-full);font-size:11px;font-weight:700;background:linear-gradient(135deg,var(--ec-accent),#a78bfa);color:#fff;border:none;cursor:pointer;transition:all 0.2s;letter-spacing:0.3px;">REFRESH</button>
         <div style="position:relative;">
             <button onclick="toggleGearMenu()" style="cursor:pointer;width:32px;height:32px;border-radius:50%;font-size:14px;background:var(--ec-bg-secondary);color:var(--ec-text-tertiary);border:1px solid var(--ec-border);font-family:var(--ec-font-body);display:flex;align-items:center;justify-content:center;transition:all 0.2s;">&#9881;</button>
             <div id="gearMenu" style="display:none;position:absolute;right:0;top:calc(100% + 8px);background:var(--ec-bg-elevated);border:1px solid var(--ec-border);border-radius:var(--ec-radius-md);min-width:180px;z-index:150;overflow:hidden;box-shadow:var(--ec-shadow-lg);">
@@ -2200,6 +2201,9 @@ var picks = {}; // { gameName: { checked: bool, side: string } }
 function refreshSlate() {
     // Reset retry flags for cold-start resilience
     fetchLiveOdds._retried = {};
+    var isManual = window._isManualRefresh || false;
+    window._forceRefreshOdds = isManual;
+    window._isManualRefresh = false;
     // Reset all game row checks and side picks
     picks = {};
     safeRemove('edgeLockedPicks');
@@ -2232,14 +2236,16 @@ function refreshSlate() {
     // Update submit bar
     updateSubmitBar();
 
-    // Show loading overlay
+    // Show loading overlay (only on manual refresh)
     var overlay = document.getElementById('loadingOverlay');
     var loadText = document.getElementById('loadingText');
-    if (overlay) overlay.classList.add('active');
     var loadBanner = document.getElementById('loadingBanner');
-    if (loadBanner) loadBanner.textContent = 'LOADING';
-    if (loadText) loadText.textContent = 'Loading odds...';
-    renderLoadingStack();
+    if (isManual) {
+        if (overlay) overlay.classList.add('active');
+        if (loadBanner) loadBanner.textContent = 'LOADING';
+        if (loadText) loadText.textContent = 'Loading odds...';
+        renderLoadingStack();
+    }
 
     // Set sweep status to ANALYZING with spinner
     var sweepEl = document.getElementById('sweepTime');
@@ -2249,25 +2255,8 @@ function refreshSlate() {
 
     var sportsToLoad = ['nba','wnba','ncaab','ncaaf','nhl','mlb','tennis','soccer','mma','boxing'];
     var loadedCount = 0;
-    var analysisCount = 0;
-    var oddsPhase = true;
     window._analysisLoadCallback = function(sport) {
-        analysisCount++;
-        // Update sweep status to show analyzing progress
-        if (sweepEl) sweepEl.textContent = 'ANALYZING ' + analysisCount + '/' + sportsToLoad.length;
-        var loadBanner = document.getElementById('loadingBanner');
-        if (loadBanner) loadBanner.textContent = 'ANALYZING';
-        if (loadText && overlay && overlay.classList.contains('active')) {
-            loadText.textContent = 'Analyzing ' + sport.toUpperCase() + '... (' + analysisCount + '/' + sportsToLoad.length + ')';
-        }
-        if (analysisCount >= sportsToLoad.length) {
-            if (overlay) overlay.classList.remove('active');
-            // Sweep status back to LIVE
-            if (sweepEl) sweepEl.textContent = 'LIVE';
-            if (sweepDot) { sweepDot.style.background = 'var(--ec-success)'; sweepDot.style.animation = 'none'; }
-            // Reload props AFTER all analysis is done — not on a timer
-            loadProps();
-        }
+        // No-op — overlay dismissal handled by onSportLoaded
     };
     // Safety timeout — dismiss after 30s no matter what
     setTimeout(function() {
@@ -2280,11 +2269,18 @@ function refreshSlate() {
         loadedCount++;
         if (loadText) loadText.textContent = 'Loading ' + sport.toUpperCase() + '... (' + loadedCount + '/' + sportsToLoad.length + ')';
         if (loadedCount >= sportsToLoad.length) {
-            var loadBanner = document.getElementById('loadingBanner');
-            if (loadBanner) loadBanner.textContent = 'ANALYZING';
-            if (loadText) loadText.textContent = 'Analyzing games...';
-            if (sweepEl) sweepEl.textContent = 'ANALYZING';
-            oddsPhase = false;
+            if (overlay) overlay.classList.remove('active');
+            if (sweepEl) sweepEl.textContent = 'LIVE';
+            if (sweepDot) { sweepDot.style.background = 'var(--ec-success)'; sweepDot.style.animation = 'none'; }
+            loadProps();
+            var _wasManual = window._forceRefreshOdds;
+            window._forceRefreshOdds = false;
+            var savedAgent = sessionStorage.getItem('edgeCrewAgent');
+            if (savedAgent) {
+                applyAgentFilter(savedAgent, _wasManual);
+            } else {
+                if (typeof showAgentSelect === 'function') showAgentSelect();
+            }
         }
     }
 
@@ -4306,9 +4302,22 @@ function fetchLiveOdds(sport, onDone) {
 
     var gotcha = panel.querySelector('.gotcha-banner');
 
-    fetch('/api/odds/' + sport)
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
+    // Layer 0: Try cached daily record first, fall back to live API
+    var _oddsFetch;
+    if (window._forceRefreshOdds) {
+        _oddsFetch = fetch('/api/odds/' + sport).then(function(r) { return r.json(); });
+    } else {
+        _oddsFetch = fetch('/api/slate/cached/' + sport)
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.games && data.games.length > 0) return data;
+                throw new Error('empty cache');
+            })
+            .catch(function() {
+                return fetch('/api/odds/' + sport).then(function(r) { return r.json(); });
+            });
+    }
+    _oddsFetch.then(function(data) {
             panel.classList.remove('panel-loading');
             if (data.error) {
                 // Widget handles odds display — suppress visible API error, log only
@@ -4349,12 +4358,8 @@ function fetchLiveOdds(sport, onDone) {
                         if (count) count.textContent = '0';
                     }
                 });
-                // Still fetch analysis for gotcha card even with 0 pregame games
-                if (data.games && data.games.length > 0) {
-                    fetchAnalysis(sport);
-                } else {
-                    if (typeof window._analysisLoadCallback === 'function') window._analysisLoadCallback(sport);
-                }
+                // Analysis deferred to agent selection — fire callback so overlay doesn't hang
+                if (typeof window._analysisLoadCallback === 'function') window._analysisLoadCallback(sport);
                 if (typeof onDone === 'function') onDone(sport);
                 return;
             }
@@ -4414,14 +4419,9 @@ function fetchLiveOdds(sport, onDone) {
             // Re-apply saved picks after DOM rebuild
             if (typeof restoreLockedPicks === 'function') restoreLockedPicks();
 
-            // Trigger analysis + edge AFTER game rows are rendered (not on a timer)
+            // Fetch injuries inline (lightweight). Analysis + edge deferred to agent selection.
             if (pregameGames.length > 0) {
-                fetchAnalysis(sport);
-                fetchEdge(sport);
                 fetchInjuries(sport);
-            } else {
-                // No pregame games — still fire analysis callback for loading overlay
-                if (typeof window._analysisLoadCallback === 'function') window._analysisLoadCallback(sport);
             }
             if (typeof onDone === 'function') onDone(sport);
         })
@@ -4906,21 +4906,30 @@ function fetchEdge(sport) {
                 if (g.spread_ml_flag) flags.push('<span style="background:rgba(99,102,241,0.12);color:#818cf8;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;">' + g.spread_ml_flag + '</span>');
                 if (g.total_lean) flags.push('<span style="background:rgba(96,165,250,0.15);color:#B0BEC5;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;">' + g.total_lean + '</span>');
 
+                // quickPick helpers
+                var _matchup = g.away + ' @ ' + g.home;
+                var _esc = function(s) { return s.replace(/'/g, "\\'"); };
+
                 // Upset score bar
                 var barColor = g.upset_score >= 7 ? '#10B981' : (g.upset_score >= 4 ? '#818cf8' : '#EF4444');
                 var barWidth = g.upset_score * 10;
 
                 html += '<div style="border:1px solid rgba(232,121,249,0.15);border-radius:10px;padding:12px;margin-bottom:10px;background:rgba(232,121,249,0.03);">';
                 html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">';
-                html += '<div style="color:#fff;font-weight:700;font-size:14px;">' + g.away + ' @ ' + g.home + '</div>';
+                html += '<div style="color:#fff;font-weight:700;font-size:14px;">';
+                html += '<span class="qp-link" style="cursor:pointer;border-bottom:1px dashed rgba(255,255,255,0.2);" onclick="event.stopPropagation();quickPick(\'' + _esc(sport) + '\',\'' + _esc(_matchup) + '\',\'' + _esc(g.away) + ' ML\',\'ML\')">' + g.away + '</span>';
+                html += ' @ ';
+                html += '<span class="qp-link" style="cursor:pointer;border-bottom:1px dashed rgba(255,255,255,0.2);" onclick="event.stopPropagation();quickPick(\'' + _esc(sport) + '\',\'' + _esc(_matchup) + '\',\'' + _esc(g.home) + ' ML\',\'ML\')">' + g.home + '</span>';
+                html += '</div>';
                 html += '<div style="font-size:11px;color:rgba(255,255,255,0.3);">Vig: ' + g.vig + '%</div>';
                 html += '</div>';
 
-                // Lines
+                // Lines (clickable spread + ML)
                 html += '<div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:8px;">';
-                html += 'Spread: ' + g.home + ' ' + (g.home_spread || '—');
-                html += ' | O/U: ' + (g.total || '—');
-                html += ' | ML: ' + g.away + ' ' + g.away_ml + ' / ' + g.home + ' ' + g.home_ml;
+                html += 'Spread: <span class="qp-link" style="cursor:pointer;border-bottom:1px dashed rgba(255,255,255,0.2);" onclick="event.stopPropagation();quickPick(\'' + _esc(sport) + '\',\'' + _esc(_matchup) + '\',\'' + _esc(g.home) + ' ' + _esc(g.home_spread || '') + '\',\'SPREAD\')">' + g.home + ' ' + (g.home_spread || '\u2014') + '</span>';
+                html += ' | O/U: ' + (g.total || '\u2014');
+                html += ' | ML: <span class="qp-link" style="cursor:pointer;border-bottom:1px dashed rgba(255,255,255,0.2);" onclick="event.stopPropagation();quickPick(\'' + _esc(sport) + '\',\'' + _esc(_matchup) + '\',\'' + _esc(g.away) + ' ML\',\'ML\')">' + g.away + ' ' + g.away_ml + '</span>';
+                html += ' / <span class="qp-link" style="cursor:pointer;border-bottom:1px dashed rgba(255,255,255,0.2);" onclick="event.stopPropagation();quickPick(\'' + _esc(sport) + '\',\'' + _esc(_matchup) + '\',\'' + _esc(g.home) + ' ML\',\'ML\')">' + g.home + ' ' + g.home_ml + '</span>';
                 html += '</div>';
 
                 // Favorite/Underdog breakdown
@@ -4959,6 +4968,60 @@ function fetchEdge(sport) {
         .catch(function(err) {
             content.innerHTML = '<p style="color:#EF4444;">Failed to load edge data.</p>';
         });
+}
+
+// ===== AGENT FILTER (deferred analysis) =====
+function applyAgentFilter(who, forceRefresh) {
+    sessionStorage.setItem('edgeCrewAgent', who);
+    document.body.classList.remove('agent-sintonia', 'agent-alyssa');
+    document.body.classList.add('agent-' + who);
+    var allSports = ['nba','wnba','ncaab','ncaaf','nhl','mlb','tennis','soccer','mma','boxing'];
+    if (who === 'sintonia') {
+        allSports.forEach(function(s) {
+            var el = document.getElementById('peterGut' + s.toUpperCase() + 'Content');
+            if (el && (forceRefresh || el.querySelector('p[style*="italic"]'))) fetchAnalysis(s);
+        });
+    } else if (who === 'alyssa') {
+        allSports.forEach(function(s) {
+            var el = document.getElementById('alyssaEdge' + s.toUpperCase() + 'Content');
+            if (el && (forceRefresh || el.querySelector('p[style*="italic"]'))) fetchEdge(s);
+        });
+    }
+}
+
+function showAgentSelect() {
+    // If no agent saved, default to sintonia
+    applyAgentFilter('sintonia', false);
+}
+
+function populateTicker() {
+    // Stub — ticker population for future use
+}
+
+function quickPick(sport, matchup, selection, type) {
+    var sportEl = document.getElementById('pickSport');
+    var typeEl = document.getElementById('pickType');
+    var matchupEl = document.getElementById('pickMatchup');
+    var matchupCustom = document.getElementById('pickMatchupCustom');
+    var selectionEl = document.getElementById('pickSelection');
+    var selectionCustom = document.getElementById('pickSelectionCustom');
+    if (sportEl) sportEl.value = sport.toUpperCase();
+    if (typeEl) typeEl.value = type || 'ML';
+    if (matchupEl) {
+        var found = false;
+        for (var i = 0; i < matchupEl.options.length; i++) {
+            if (matchupEl.options[i].value === matchup) { matchupEl.value = matchup; found = true; break; }
+        }
+        if (!found) {
+            matchupEl.value = 'other';
+            if (matchupCustom) { matchupCustom.style.display = ''; matchupCustom.value = matchup; }
+        }
+        matchupEl.dispatchEvent(new Event('change'));
+    }
+    if (selectionCustom) { selectionCustom.style.display = ''; selectionCustom.value = selection; }
+    if (selectionEl) selectionEl.value = 'other';
+    var form = document.querySelector('.pick-form') || document.getElementById('pickSport');
+    if (form) form.scrollIntoView({behavior: 'smooth', block: 'center'});
 }
 
 function fetchAnalysis(sport) {

@@ -117,9 +117,66 @@ async def _autograde_loop():
         await asyncio.sleep(900)  # 15 minutes
 
 
+async def _daily_slate_pull():
+    """Background loop: pull daily slate at scheduled times."""
+    await asyncio.sleep(30)
+    last_slate_pull = None
+    last_analysis_run = None
+    while True:
+        try:
+            now = datetime.now(PST)
+            hour = now.hour
+            today = now.strftime("%Y-%m-%d")
+
+            should_pull_slate = False
+            if hour in (23, 6) and last_slate_pull != f"{today}:{hour}":
+                should_pull_slate = True
+                last_slate_pull = f"{today}:{hour}"
+            elif last_slate_pull is None:
+                test_path = _slate_path("nba")
+                if not os.path.exists(test_path):
+                    should_pull_slate = True
+                    last_slate_pull = f"{today}:boot"
+
+            if should_pull_slate:
+                print(f"[SLATE] Pulling daily slate at {now.strftime('%I:%M %p PST')}")
+                for sport in ALL_SPORTS:
+                    try:
+                        resp = await get_odds(sport)
+                        if hasattr(resp, 'body'):
+                            data = json.loads(resp.body)
+                            if data.get("games"):
+                                _save_daily_slate(sport, data["games"])
+                    except Exception as e:
+                        print(f"[SLATE] Error pulling {sport}: {e}")
+                    await asyncio.sleep(2)
+
+            should_run_analysis = False
+            if hour in (8, 14, 18) and last_analysis_run != f"{today}:{hour}":
+                should_run_analysis = True
+                last_analysis_run = f"{today}:{hour}"
+
+            if should_run_analysis:
+                print(f"[ANALYSIS] Running scheduled analysis")
+                for sport in ALL_SPORTS:
+                    try:
+                        resp = await get_analysis(sport)
+                        if hasattr(resp, 'body'):
+                            data = json.loads(resp.body)
+                            if data.get("games"):
+                                _save_analysis_cache(sport, data)
+                    except Exception as e:
+                        print(f"[ANALYSIS] Error: {e}")
+                    await asyncio.sleep(5)
+        except Exception as e:
+            print(f"[SLATE] Loop error: {e}")
+        await asyncio.sleep(300)
+
+
 @app.on_event("startup")
 async def start_background_tasks():
     asyncio.create_task(_autograde_loop())
+    asyncio.create_task(_daily_slate_pull())
 
 
 @app.get("/health")
@@ -308,6 +365,48 @@ DATA_DIR = "/data" if os.path.isdir("/data") else os.path.join(os.path.dirname(_
 UPSETS_FILE = os.path.join(DATA_DIR, "upsets.json")
 PICKS_FILE = os.path.join(DATA_DIR, "picks.json")
 
+ALL_SPORTS = ["nba", "wnba", "ncaab", "ncaaf", "nhl", "mlb", "tennis", "soccer", "mma", "boxing"]
+
+# ── Daily Record (Layer 0) ──────────────────────────────────────────────────
+SLATE_DIR = os.path.join(DATA_DIR, "slates")
+ANALYSIS_DIR = os.path.join(DATA_DIR, "analysis_cache")
+os.makedirs(SLATE_DIR, exist_ok=True)
+os.makedirs(ANALYSIS_DIR, exist_ok=True)
+
+def _slate_path(sport, date_str=None):
+    if not date_str:
+        date_str = datetime.now(PST).strftime("%Y-%m-%d")
+    return os.path.join(SLATE_DIR, f"slate_{sport}_{date_str}.json")
+
+def _analysis_cache_path(sport, date_str=None, run="latest"):
+    if not date_str:
+        date_str = datetime.now(PST).strftime("%Y-%m-%d")
+    return os.path.join(ANALYSIS_DIR, f"analysis_{sport}_{date_str}_{run}.json")
+
+def _save_daily_slate(sport, games_data):
+    path = _slate_path(sport)
+    with open(path, "w") as f:
+        json.dump({"sport": sport.upper(), "games": games_data, "fetched_at": _now_ts(), "date": datetime.now(PST).strftime("%Y-%m-%d")}, f)
+
+def _load_daily_slate(sport):
+    path = _slate_path(sport)
+    if os.path.exists(path):
+        with open(path) as f:
+            return json.load(f)
+    return None
+
+def _save_analysis_cache(sport, analysis_data):
+    path = _analysis_cache_path(sport)
+    with open(path, "w") as f:
+        json.dump({"sport": sport.upper(), **analysis_data, "cached_at": _now_ts()}, f)
+
+def _load_analysis_cache(sport):
+    path = _analysis_cache_path(sport)
+    if os.path.exists(path):
+        with open(path) as f:
+            return json.load(f)
+    return None
+
 # SharpAPI config (primary odds source)
 SHARPAPI_KEY = os.environ.get("SHARPAPI_KEY", "")
 SHARPAPI_BASE = "https://api.sharpapi.io/api/v1"
@@ -384,6 +483,30 @@ def _now_ts():
     """Return current timestamp string for API responses (PST)."""
     return datetime.now(PST).strftime("%I:%M %p PST — %b %d, %Y")
 
+
+def _game_not_started(game, now=None):
+    """Return True if game hasn't started yet."""
+    if now is None:
+        now = datetime.now(PST)
+    game_time_str = game.get('time', '')
+    if not game_time_str:
+        return False
+    try:
+        gt = datetime.fromisoformat(game_time_str.replace('Z', '+00:00')).astimezone(PST)
+        return gt > now
+    except Exception:
+        return False
+
+def _game_within_cutoff(game, cutoff):
+    """Return True if game is within the cutoff time."""
+    game_time_str = game.get('time', '')
+    if not game_time_str:
+        return False
+    try:
+        gt = datetime.fromisoformat(game_time_str.replace('Z', '+00:00')).astimezone(PST)
+        return gt <= cutoff
+    except Exception:
+        return False
 
 def _get_cached(key, ttl=None):
     if key in _cache:
@@ -1316,6 +1439,27 @@ async def get_odds(sport: str, markets: str = "h2h,spreads,totals"):
     if not all_games and not SHARPAPI_KEY and not ODDS_API_KEY:
         return JSONResponse({"error": "No odds API configured (set SHARPAPI_KEY or ODDS_API_KEY)"}, status_code=500)
 
+    # Filter: only future games within 24h window
+    now = datetime.now(PST)
+    cutoff = now + timedelta(hours=24)
+    filtered_games = []
+    for g in all_games:
+        game_time_str = g.get('time', '')
+        has_book = g.get('bookmaker') not in (None, 'None', '')
+        if not game_time_str or not has_book:
+            continue
+        try:
+            gt = datetime.fromisoformat(game_time_str.replace('Z', '+00:00')).astimezone(PST)
+            if gt > now and gt <= cutoff:
+                filtered_games.append(g)
+        except Exception:
+            continue
+    all_games = filtered_games
+
+    # Save to daily record
+    if all_games:
+        _save_daily_slate(sport_lower, all_games)
+
     # Count games with complete vs incomplete lines
     complete = sum(1 for g in all_games if g.get("lines_complete"))
     incomplete = sum(1 for g in all_games if g.get("lines_available") and not g.get("lines_complete"))
@@ -1361,6 +1505,29 @@ async def get_slate():
         "source": "SharpAPI + The Odds API (multi-source)",
         "fetched_at": _now_ts(),
     })
+
+
+@app.get("/api/slate/cached")
+async def get_cached_slate():
+    now = datetime.now(PST)
+    all_games = []
+    for sport in ALL_SPORTS:
+        slate = _load_daily_slate(sport)
+        if slate and slate.get("games"):
+            all_games.extend([g for g in slate["games"] if _game_not_started(g, now)])
+    return JSONResponse({"games": all_games, "count": len(all_games), "source": "daily_record", "fetched_at": _now_ts(), "cached": True})
+
+@app.get("/api/slate/cached/{sport}")
+async def get_cached_sport_slate(sport: str):
+    slate = _load_daily_slate(sport.lower())
+    if slate and slate.get("games"):
+        now = datetime.now(PST)
+        slate["games"] = [g for g in slate["games"] if _game_not_started(g, now)]
+        if slate["games"]:
+            slate["cached"] = True
+            slate["count"] = len(slate["games"])
+            return JSONResponse(slate)
+    return await get_odds(sport)
 
 
 # ===== PLAYER PROPS — Real Lines from The Odds API =====
@@ -1863,6 +2030,12 @@ async def get_analysis(sport: str):
     if cached:
         return JSONResponse(cached)
 
+    # Check file-based analysis cache
+    cached_analysis = _load_analysis_cache(sport_lower)
+    if cached_analysis and cached_analysis.get("games"):
+        cached_analysis["cached"] = True
+        return JSONResponse(cached_analysis)
+
     # Get current odds for context
     odds_cache_key = f"{sport_lower}:h2h,spreads,totals"
     odds_data = _get_cached(odds_cache_key)
@@ -1873,6 +2046,15 @@ async def get_analysis(sport: str):
             odds_data = json.loads(odds_resp.body)
         else:
             odds_data = {"games": [], "count": 0}
+
+    # Filter out started games
+    if odds_data.get("games"):
+        now = datetime.now(PST)
+        cutoff = now + timedelta(hours=24)
+        odds_data["games"] = [
+            g for g in odds_data["games"]
+            if _game_not_started(g, now) and _game_within_cutoff(g, cutoff)
+        ]
 
     if not odds_data.get("games"):
         return JSONResponse({
@@ -2477,16 +2659,21 @@ def _expand_abbrevs(text: str, sport: str = "") -> str:
     return " ".join(expanded)
 
 
-def _teams_match(pick_text: str, home: str, away: str) -> bool:
+def _teams_match(pick_text: str, home: str, away: str, sport: str = "") -> bool:
     """Check if a pick's matchup references this game."""
-    pt = _expand_abbrevs(_normalize_team(pick_text))
-    h = _normalize_team(home)
-    a = _normalize_team(away)
-    # Check if both team names (or significant parts) appear in the pick matchup
+    pt = _expand_abbrevs(_normalize_team(pick_text), sport)
+    h = _expand_abbrevs(_normalize_team(home), sport)
+    a = _expand_abbrevs(_normalize_team(away), sport)
     h_parts = h.split()
     a_parts = a.split()
-    h_match = any(p in pt for p in h_parts if len(p) > 3) or h in pt
-    a_match = any(p in pt for p in a_parts if len(p) > 3) or a in pt
+    pt_parts = pt.split()
+    h_match = any(p in pt for p in h_parts if len(p) > 2) or h in pt
+    a_match = any(p in pt for p in a_parts if len(p) > 2) or a in pt
+    # Reverse matching: check pick text parts against team names
+    if not h_match:
+        h_match = any(p in h for p in pt_parts if len(p) > 2)
+    if not a_match:
+        a_match = any(p in a for p in pt_parts if len(p) > 2)
     return h_match and a_match
 
 
