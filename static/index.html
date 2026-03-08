@@ -782,10 +782,12 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     /* Game cards fill width on desktop */
     .game-row{width:100%;}
     .game-header{
-        display:grid !important;
-        grid-template-columns:30px 80px 1fr auto auto auto auto !important;
-        align-items:center;gap:12px;
+        display:flex !important;flex-direction:column;
+        padding:16px 20px;gap:6px;
     }
+    .card-r1{gap:12px;}
+    .game-matchup{font-size:17px;}
+    .card-r2{font-size:20px;}
     .game-detail{width:100%;}
     .detail-grid{grid-template-columns:1fr 1fr !important;}
     .detail-box p,.detail-box li{word-wrap:break-word;overflow-wrap:break-word;}
