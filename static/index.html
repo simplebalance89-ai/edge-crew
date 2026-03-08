@@ -2580,7 +2580,24 @@ function refreshSlate() {
     if (sweepEl) sweepEl.textContent = 'LOADING';
     if (sweepDot) { sweepDot.style.background = '#F59E0B'; sweepDot.style.animation = 'edgePulse 1s ease-in-out infinite'; }
 
-    var sportsToLoad = ['nba','wnba','ncaab','ncaaf','nhl','mlb','tennis','soccer','mma','boxing'];
+    // Only load sports that are in season — don't waste API calls on dead sports
+    var month = new Date().getMonth() + 1; // 1-12
+    var allSports = ['nba','wnba','ncaab','ncaaf','nhl','mlb','tennis','soccer','mma','boxing'];
+    var seasonMap = {
+        nba: [10,11,12,1,2,3,4,5,6],       // Oct-Jun
+        wnba: [5,6,7,8,9,10],               // May-Oct
+        ncaab: [11,12,1,2,3,4],             // Nov-Apr (March Madness)
+        ncaaf: [8,9,10,11,12,1],            // Aug-Jan (bowls)
+        nhl: [10,11,12,1,2,3,4,5,6],       // Oct-Jun
+        mlb: [3,4,5,6,7,8,9,10,11],        // Mar-Nov (spring training+postseason)
+        tennis: [1,2,3,4,5,6,7,8,9,10,11], // Year-round basically
+        soccer: [1,2,3,4,5,6,7,8,9,10,11,12], // Year-round
+        mma: [1,2,3,4,5,6,7,8,9,10,11,12],    // Year-round
+        boxing: [1,2,3,4,5,6,7,8,9,10,11,12]   // Year-round
+    };
+    var sportsToLoad = allSports.filter(function(s) {
+        return seasonMap[s] && seasonMap[s].indexOf(month) !== -1;
+    });
     var loadedCount = 0;
     var analysisCount = 0;
     var oddsPhase = true;
@@ -2655,6 +2672,29 @@ function refreshSlate() {
 
     // Fetch combined slate after odds batches have time to complete
     setTimeout(function() { fetchCombinedSlate(); }, 10000);
+
+    // Mark off-season sports
+    var offSeason = allSports.filter(function(s) { return sportsToLoad.indexOf(s) === -1; });
+    offSeason.forEach(function(sport) {
+        var panel = document.getElementById('panel-' + sport);
+        if (panel) {
+            panel.querySelectorAll('.game-row').forEach(function(r) { r.remove(); });
+            var existing = panel.querySelector('.no-games');
+            if (existing) existing.remove();
+            var msg = document.createElement('div');
+            msg.className = 'no-games';
+            msg.style.cssText = 'text-align:center;padding:40px;color:rgba(255,255,255,0.3);';
+            msg.textContent = sport.toUpperCase() + ' is off-season.';
+            panel.appendChild(msg);
+        }
+        // Zero out tab count
+        document.querySelectorAll('.sport-tab').forEach(function(tab) {
+            if (tab.textContent.indexOf(sport.toUpperCase()) === 0) {
+                var count = tab.querySelector('.tab-count');
+                if (count) count.textContent = '—';
+            }
+        });
+    });
 
     // Reload all upset picks
     loadAllUpsets();
