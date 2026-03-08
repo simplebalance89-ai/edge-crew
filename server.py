@@ -1377,7 +1377,7 @@ SPORT_KEYS = {
     "ncaaf": ["americanfootball_ncaaf"],
     "nhl": ["icehockey_nhl"],
     "nfl": ["americanfootball_nfl"],
-    "mlb": ["baseball_mlb"],
+    "mlb": ["baseball_mlb", "baseball_mlb_preseason"],
     "mma": ["mma_mixed_martial_arts"],
     "boxing": ["boxing_boxing"],
     "tennis": [
