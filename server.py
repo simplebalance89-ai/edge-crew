@@ -63,58 +63,79 @@ async def post_error(request: Request):
 
 
 async def _autograde_loop():
-    """Background loop: auto-grade picks every 15 min between 10PM-6AM PST."""
+    """Background loop: auto-grade picks every 2 hours, by game."""
     await asyncio.sleep(60)  # Wait 60s after startup before first check
     while True:
         try:
             now = datetime.now(PST)
-            if now.hour >= 22 or now.hour < 6:
-                # Fetch ungraded picks from local file
-                data = _read_picks()
-                ungraded = [p for p in data.get("picks", []) if not p.get("result")]
+            # Fetch ungraded picks from local file
+            data = _read_picks()
+            ungraded = [p for p in data.get("picks", []) if not p.get("result")]
 
-                if ungraded:
-                    ungraded = _deduplicate_picks(ungraded)
-                    sports_needed = set()
-                    for p in ungraded:
-                        sport = p.get("sport", "").lower()
-                        if sport in SPORT_KEYS:
-                            sports_needed.add(sport)
-                    if not sports_needed:
-                        sports_needed = {"nba", "wnba", "nhl"}
+            if ungraded:
+                ungraded = _deduplicate_picks(ungraded)
+                sports_needed = set()
+                for p in ungraded:
+                    sport = p.get("sport", "").lower()
+                    if sport in SPORT_KEYS:
+                        sports_needed.add(sport)
+                if not sports_needed:
+                    sports_needed = {"nba", "wnba", "nhl"}
 
-                    fetch_tasks = []
-                    for sport in sports_needed:
-                        for key in SPORT_KEYS.get(sport, []):
-                            fetch_tasks.append(_fetch_scores(key))
+                fetch_tasks = []
+                for sport in sports_needed:
+                    for key in SPORT_KEYS.get(sport, []):
+                        fetch_tasks.append(_fetch_scores(key))
 
-                    all_scores = []
-                    results = await asyncio.gather(*fetch_tasks, return_exceptions=True)
-                    for result in results:
-                        if not isinstance(result, Exception) and result:
-                            all_scores.extend(result)
+                all_scores = []
+                results = await asyncio.gather(*fetch_tasks, return_exceptions=True)
+                for result in results:
+                    if not isinstance(result, Exception) and result:
+                        all_scores.extend(result)
 
-                    completed = [g for g in all_scores if g.get("completed")]
-                    graded = 0
+                completed = [g for g in all_scores if g.get("completed")]
+
+                # Grade by game: iterate completed games, find matching picks
+                graded = 0
+                for game in completed:
+                    home = game.get("home_team", "")
+                    away = game.get("away_team", "")
                     for pick in ungraded:
+                        if pick.get("result"):
+                            continue  # Already graded in this pass
                         pick_type = pick.get("type", "").lower()
                         if pick_type == "parlay":
-                            grade = _grade_parlay(pick, completed)
-                        else:
-                            grade = None
-                            for game in completed:
-                                if _teams_match(pick.get("matchup", ""), game.get("home_team", ""), game.get("away_team", "")):
-                                    grade = _grade_pick_against_score(pick, game)
-                                    if grade:
-                                        break
+                            continue  # Handle parlays after singles
+
+                        if not _teams_match(pick.get("matchup", ""), home, away):
+                            if not _teams_match(pick.get("selection", ""), home, away):
+                                continue
+
+                        if not _game_date_matches_pick(pick, game):
+                            continue
+
+                        grade = _grade_pick_against_score(pick, game)
                         if grade:
                             _update_pick_result(pick.get("id", ""), grade)
+                            pick["result"] = grade  # Mark so we skip it
                             graded += 1
-                    if graded:
-                        print(f"[AUTOGRADE] Graded {graded}/{len(ungraded)} picks at {now.strftime('%I:%M %p PST')}")
+
+                # Parlays after singles (legs may reference multiple games)
+                for pick in ungraded:
+                    if pick.get("result"):
+                        continue
+                    if pick.get("type", "").lower() == "parlay":
+                        grade = _grade_parlay(pick, completed)
+                        if grade:
+                            _update_pick_result(pick.get("id", ""), grade)
+                            pick["result"] = grade
+                            graded += 1
+
+                if graded:
+                    print(f"[AUTOGRADE] Graded {graded}/{len(ungraded)} picks at {now.strftime('%I:%M %p PST')}")
         except Exception as e:
             print(f"[AUTOGRADE] Error: {e}")
-        await asyncio.sleep(900)  # 15 minutes
+        await asyncio.sleep(7200)  # Every 2 hours
 
 
 async def _daily_slate_pull():
@@ -379,7 +400,7 @@ DATA_DIR = "/data" if os.path.isdir("/data") else os.path.join(os.path.dirname(_
 UPSETS_FILE = os.path.join(DATA_DIR, "upsets.json")
 PICKS_FILE = os.path.join(DATA_DIR, "picks.json")
 
-ALL_SPORTS = ["nba", "wnba", "ncaab", "ncaaf", "nhl", "mlb", "tennis", "soccer", "mma", "boxing"]
+ALL_SPORTS = ["nba", "wnba", "ncaab", "ncaaf", "nhl", "mlb", "wbc", "tennis", "soccer", "mma", "boxing"]
 
 # Season map — which months each sport is active
 _SEASON_MONTHS = {
@@ -389,6 +410,7 @@ _SEASON_MONTHS = {
     "ncaaf": {8,9,10,11,12,1},
     "nhl": {10,11,12,1,2,3,4,5,6},
     "mlb": {3,4,5,6,7,8,9,10,11},
+    "wbc": {3,4},
     "tennis": {1,2,3,4,5,6,7,8,9,10,11},
     "soccer": {1,2,3,4,5,6,7,8,9,10,11,12},
     "mma": {1,2,3,4,5,6,7,8,9,10,11,12},
@@ -1378,6 +1400,7 @@ SPORT_KEYS = {
     "nhl": ["icehockey_nhl"],
     "nfl": ["americanfootball_nfl"],
     "mlb": ["baseball_mlb", "baseball_mlb_preseason"],
+    "wbc": ["baseball_wbc"],
     "mma": ["mma_mixed_martial_arts"],
     "boxing": ["boxing_boxing"],
     "tennis": [
@@ -2576,6 +2599,12 @@ async def save_pick(request: Request):
 
     try:
         data = _read_picks()
+        # Dedup check: reject if same name+date+selection+matchup already exists
+        new_key = _pick_key(pick)
+        for existing in data.get("picks", []):
+            if _pick_key(existing) == new_key:
+                logger.info(f"Duplicate pick rejected: {new_key}")
+                return JSONResponse({"status": "ok", "pick": existing, "duplicate": True})
         data["picks"].insert(0, pick)
         data["updated_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         _write_picks(data)

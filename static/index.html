@@ -1196,6 +1196,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     <div class="sport-tab" onclick="switchSport('ncaaf', event)"><span class="tab-icon">🏈</span><span class="tab-label">NCAAF</span> <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('nhl', event)"><span class="tab-icon">🏒</span><span class="tab-label">NHL</span> <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('mlb', event)"><span class="tab-icon">⚾</span><span class="tab-label">MLB</span> <span class="tab-count">0</span></div>
+    <div class="sport-tab" onclick="switchSport('wbc', event)"><span class="tab-icon">🌎</span><span class="tab-label">WBC</span> <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('tennis', event)"><span class="tab-icon">🎾</span><span class="tab-label">Tennis</span> <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('soccer', event)"><span class="tab-icon">⚽</span><span class="tab-label">Soccer</span> <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('mma', event)"><span class="tab-icon">🥊</span><span class="tab-label">MMA</span> <span class="tab-count">0</span></div>
@@ -1401,6 +1402,60 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     <div id="alyssaEdgeMLBContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
         <p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load edge analysis...</p>
     </div>
+</div>
+</div>
+
+</div>
+
+<!-- ===== WBC PANEL ===== -->
+<div class="sport-panel" id="panel-wbc">
+
+<div class="gotcha-banner" style="border-color:rgba(34,197,94,0.2);background:rgba(34,197,94,0.06);">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h3 style="color:#22c55e;" id="gotchaWBCTitle">Gotcha Card &mdash; WBC</h3>
+        <div style="display:flex;gap:6px;">
+            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(99,102,241,0.12);color:#818cf8;font-size:11px;font-weight:700;border:none;" onclick="toggleGotchaEdit('WBC')">EDIT</button>
+            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(16,185,129,0.15);color:#10B981;font-size:11px;font-weight:700;border:none;" onclick="saveGotcha('WBC')">SAVE</button>
+        </div>
+    </div>
+    <div id="gotchaDisplay-WBC">
+        <p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load today's gotcha card...</p>
+    </div>
+    <textarea id="gotchaEditor-WBC" style="display:none;width:100%;min-height:150px;background:#08080c;color:#fff;border:1px solid #22c55e;border-radius:6px;padding:10px;font-family:var(--ec-font-body);font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line..."></textarea>
+</div>
+
+<div class="empty-state">No WBC games loaded.<br><strong>Hit REFRESH SLATE</strong> to load live lines.</div>
+
+<!-- WBC UPSET SPECIALS -->
+<div class="upset-section" id="upsetWBC">
+    <h3>EV+ Money Specials</h3>
+    <form class="upset-submit-form" onsubmit="submitUpset('WBC');return false;">
+        <select id="upsetTeamWBC" required><option value="">-- Load slate first --</option></select>
+        <input type="text" id="upsetOddsWBC" placeholder="Odds" required>
+        <input type="text" id="upsetThesisWBC" placeholder="Thesis / reasoning">
+        <button type="submit">SUBMIT</button>
+    </form>
+    <div class="upset-cards" id="upsetCardsWBC"></div>
+</div>
+
+<!-- ML+ Filter -->
+<div class="ml-filter" style="display:flex;gap:8px;margin:10px 0;">
+    <div class="ml-filter-btn" onclick="toggleMLFilter('wbc')" style="cursor:pointer;padding:6px 14px;border-radius:6px;background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.3);color:#818cf8;font-size:12px;font-weight:700;transition:all 0.2s;">ML+ Only</div>
+</div>
+
+<!-- WBC ANALYSIS — SIDE BY SIDE -->
+<div class="analysis-duo">
+<div class="input-section analysis-card" id="peterGutWBC" data-card="sintonia">
+    <h3 id="peterGutWBCTitle" style="color:#F72585;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#F72585" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#F72585" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#F72585" stroke-width="2" stroke-linecap="round"/></svg>Sinton.ia's Card &mdash; WBC</h3>
+    <div id="peterGutWBCContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
+        <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate or click WBC tab to load Sinton.ia's analysis card...</p>
+    </div>
+    <div id="peterGutWBCTimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
+</div>
+<div class="input-section analysis-card" id="alyssaEdgeWBC" data-card="alyssa">
+    <h3 style="color:#41EAD4;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><polygon points="32,6 38,24 58,24 42,36 48,54 32,44 16,54 22,36 6,24 26,24" fill="none" stroke="#41EAD4" stroke-width="3" stroke-linejoin="round"/></svg>Alyssa's Edge &mdash; WBC</h3>
+    <div style="font-size:10px;color:rgba(65,234,212,0.5);font-weight:700;letter-spacing:1px;margin-bottom:8px;">100% MATH. NO AI. PURE EDGE.</div>
+    <div id="alyssaEdgeWBCContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;"><p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load edge analysis...</p></div>
 </div>
 </div>
 
@@ -1841,7 +1896,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
             <input type="text" id="customPropOdds" placeholder="Odds (-110)" style="padding:8px 10px;background:#08080c;border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#fff;font-size:13px;font-family:var(--ec-font-body);">
             <input type="text" id="customPropMatchup" placeholder="Matchup (NYK @ BOS)" style="padding:8px 10px;background:#08080c;border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#fff;font-size:13px;font-family:var(--ec-font-body);">
             <select id="customPropSport" style="padding:8px 10px;background:#08080c;border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#fff;font-size:13px;font-family:var(--ec-font-body);">
-                <option value="NBA">NBA</option><option value="WNBA">WNBA</option><option value="NCAAB">NCAAB</option><option value="NCAAF">NCAAF</option><option value="NHL">NHL</option><option value="NFL">NFL</option><option value="MLB">MLB</option><option value="TENNIS">Tennis</option><option value="SOCCER">Soccer</option><option value="MMA">MMA</option><option value="BOXING">Boxing</option>
+                <option value="NBA">NBA</option><option value="WNBA">WNBA</option><option value="NCAAB">NCAAB</option><option value="NCAAF">NCAAF</option><option value="NHL">NHL</option><option value="NFL">NFL</option><option value="MLB">MLB</option><option value="WBC">WBC</option><option value="TENNIS">Tennis</option><option value="SOCCER">Soccer</option><option value="MMA">MMA</option><option value="BOXING">Boxing</option>
             </select>
         </div>
         <div style="display:flex;gap:8px;">
@@ -2026,6 +2081,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
                 <option value="NHL">NHL</option>
                 <option value="NFL">NFL</option>
                 <option value="MLB">MLB</option>
+                <option value="WBC">WBC</option>
                 <option value="Tennis">Tennis</option>
                 <option value="Soccer">Soccer</option>
                 <option value="MMA">MMA/UFC</option>
@@ -2575,7 +2631,7 @@ function refreshSlate() {
 
     // Only load sports that are in season — don't waste API calls on dead sports
     var month = new Date().getMonth() + 1; // 1-12
-    var allSports = ['nba','wnba','ncaab','ncaaf','nhl','mlb','tennis','soccer','mma','boxing'];
+    var allSports = ['nba','wnba','ncaab','ncaaf','nhl','mlb','wbc','tennis','soccer','mma','boxing'];
     var seasonMap = {
         nba: [10,11,12,1,2,3,4,5,6],       // Oct-Jun
         wnba: [5,6,7,8,9,10],               // May-Oct
@@ -2997,7 +3053,13 @@ function lockCard() {
             grade: grade || '',
             date: toPSTDate(), time: toPSTShort(), created_at: new Date().toISOString()
         };
+        // Dedup check: skip if same name+date+matchup+selection already in localStorage
         var stored = JSON.parse(safeLoad('edgePicks') || '[]');
+        var dupKey = (pick.name + '|' + pick.date + '|' + pick.selection + '|' + pick.matchup).toLowerCase();
+        var isDup = stored.some(function(p) {
+            return (p.name + '|' + p.date + '|' + p.selection + '|' + p.matchup).toLowerCase() === dupKey;
+        });
+        if (isDup) { return; }
         stored.unshift(pick);
         safeSave('edgePicks', JSON.stringify(stored));
 
@@ -3071,7 +3133,7 @@ function switchSport(sport, e) {
     if (sport === 'scores') { loadScoreboard(); startScoreboardRefresh(); }
     if (typeof populateIntel === 'function') populateIntel(sport);
     // Auto-fetch Alyssa edge data for side-by-side view
-    var sportList = ['nba','wnba','ncaab','ncaaf','nhl','mlb','tennis','soccer','mma','boxing'];
+    var sportList = ['nba','wnba','ncaab','ncaaf','nhl','mlb','wbc','tennis','soccer','mma','boxing'];
     if (sportList.indexOf(sport) !== -1) {
         var edgeContent = document.getElementById('alyssaEdge' + sport.toUpperCase() + 'Content');
         if (edgeContent && edgeContent.querySelector('p[style*="italic"]')) {
@@ -3318,8 +3380,16 @@ function submitPick() {
         created_at: new Date().toISOString()
     };
 
-    // Save to localStorage
+    // Save to localStorage (with dedup check)
     var stored = JSON.parse(safeLoad('edgePicks') || '[]');
+    var dupKey = (pick.name + '|' + pick.date + '|' + pick.selection + '|' + pick.matchup).toLowerCase();
+    var isDup = stored.some(function(p) {
+        return (p.name + '|' + p.date + '|' + p.selection + '|' + p.matchup).toLowerCase() === dupKey;
+    });
+    if (isDup) {
+        showToast('Duplicate pick - already submitted.', true);
+        return;
+    }
     stored.unshift(pick);
     safeSave('edgePicks', JSON.stringify(stored));
 
@@ -5768,7 +5838,7 @@ function applyAgentFilter(who, forceRefresh) {
     // Fetch agent data — batched 3 at a time, skip off-season
     var month = new Date().getMonth() + 1;
     var _seasonMap = {nba:[10,11,12,1,2,3,4,5,6],wnba:[5,6,7,8,9,10],ncaab:[11,12,1,2,3,4],ncaaf:[8,9,10,11,12,1],nhl:[10,11,12,1,2,3,4,5,6],mlb:[3,4,5,6,7,8,9,10,11],tennis:[1,2,3,4,5,6,7,8,9,10,11],soccer:[1,2,3,4,5,6,7,8,9,10,11,12],mma:[1,2,3,4,5,6,7,8,9,10,11,12],boxing:[1,2,3,4,5,6,7,8,9,10,11,12]};
-    var activeSports = ['nba','wnba','ncaab','ncaaf','nhl','mlb','tennis','soccer','mma','boxing'].filter(function(s) {
+    var activeSports = ['nba','wnba','ncaab','ncaaf','nhl','mlb','wbc','tennis','soccer','mma','boxing'].filter(function(s) {
         return _seasonMap[s] && _seasonMap[s].indexOf(month) !== -1;
     });
     var fetchFn = who === 'sintonia' ? fetchAnalysis : fetchEdge;
@@ -6340,7 +6410,7 @@ function loadProps(sportFilter) {
     var allProps = [];
 
     // Only load for the selected sport
-    var sportsToScan = filterKey ? [filterKey] : ['NBA','WNBA','NCAAB','NCAAF','NHL','MLB','TENNIS','SOCCER','MMA','BOXING'];
+    var sportsToScan = filterKey ? [filterKey] : ['NBA','WNBA','NCAAB','NCAAF','NHL','MLB','WBC','TENNIS','SOCCER','MMA','BOXING'];
     sportsToScan.forEach(function(sport) {
         var cached = _analysisCache[sport];
         if (!cached || !cached.games) return;
@@ -6845,7 +6915,7 @@ function lockCustomPropCard() {
 }
 
 // ===== UPSET SPECIALS — CREW PICKS =====
-var UPSET_SPORTS = ['NBA', 'WNBA', 'NCAAB', 'NCAAF', 'NHL', 'MLB', 'TENNIS', 'SOCCER', 'MMA', 'BOXING'];
+var UPSET_SPORTS = ['NBA', 'WNBA', 'NCAAB', 'NCAAF', 'NHL', 'MLB', 'WBC', 'TENNIS', 'SOCCER', 'MMA', 'BOXING'];
 var NAME_COLORS = {peter: 'peter', jimmy: 'jimmy', alyssa: 'alyssa', 'sinton.ia': 'sintonia'};
 
 function getUpsetName() {
@@ -7338,6 +7408,10 @@ async function clearAllCache() {
                 <span class="sp-icon">⚾</span>MLB
                 <span class="sp-count" id="sp-count-mlb"></span>
             </button>
+            <button class="sport-pick-btn" onclick="pickSport('wbc')">
+                <span class="sp-icon">🌎</span>WBC
+                <span class="sp-count" id="sp-count-wbc"></span>
+            </button>
             <button class="sport-pick-btn" onclick="pickSport('tennis')">
                 <span class="sp-icon">🎾</span>Tennis
                 <span class="sp-count" id="sp-count-tennis"></span>
@@ -7694,7 +7768,7 @@ var _evSpeaking = false;
 /* ---- Sport Picker ---- */
 function openSportPicker() {
     // Update counts from existing badge data
-    ['nba','wnba','ncaab','ncaaf','nhl','mlb','tennis','soccer','mma','boxing'].forEach(function(s) {
+    ['nba','wnba','ncaab','ncaaf','nhl','mlb','wbc','tennis','soccer','mma','boxing'].forEach(function(s) {
         var tab = document.querySelector(".sport-tab[onclick*=\"" + s + "\"]");
         var badge = tab ? tab.querySelector('.tab-badge') : null;
         var el = document.getElementById('sp-count-' + s);
