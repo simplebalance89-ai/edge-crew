@@ -468,6 +468,76 @@ body.loading .mobile-quick-bar{filter:blur(6px);pointer-events:none;user-select:
     letter-spacing:0.5px;text-transform:uppercase;
 }
 
+/* ===== AGENT SELECTION SCREEN ===== */
+.agent-select-screen{
+    display:none;position:fixed;inset:0;z-index:9998;
+    background:var(--ec-bg-primary);
+    flex-direction:column;align-items:center;justify-content:center;gap:32px;
+    padding:24px;
+}
+.agent-select-screen.active{display:flex;}
+.agent-select-title{
+    font-size:24px;font-weight:900;color:var(--ec-text-primary);
+    font-family:var(--ec-font-body);letter-spacing:1px;text-transform:uppercase;
+    text-align:center;
+}
+.agent-select-subtitle{
+    font-size:14px;color:var(--ec-text-tertiary);text-align:center;margin-top:-16px;
+}
+.agent-cards{
+    display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;
+    max-width:720px;width:100%;
+}
+@media(max-width:768px){.agent-cards{grid-template-columns:1fr;max-width:360px;}}
+.agent-card{
+    background:var(--ec-bg-secondary);border:2px solid var(--ec-border);
+    border-radius:16px;padding:28px 20px;text-align:center;cursor:pointer;
+    transition:all 0.3s ease;position:relative;overflow:hidden;
+}
+.agent-card:hover:not(.disabled){
+    border-color:var(--ec-accent);transform:translateY(-4px);
+    box-shadow:0 12px 40px rgba(99,102,241,0.2);
+}
+.agent-card.disabled{
+    opacity:0.35;cursor:not-allowed;
+}
+.agent-card .agent-icon{
+    font-size:28px;font-weight:900;margin-bottom:12px;display:flex;
+    width:64px;height:64px;border-radius:50%;align-items:center;justify-content:center;
+    margin-left:auto;margin-right:auto;
+    font-family:var(--ec-font-body);letter-spacing:1px;
+}
+.agent-card[data-agent="sintonia"] .agent-icon{background:rgba(167,139,250,0.15);color:#A78BFA;border:2px solid rgba(167,139,250,0.3);}
+.agent-card[data-agent="alyssa"] .agent-icon{background:rgba(232,121,249,0.15);color:#E879F9;border:2px solid rgba(232,121,249,0.3);}
+.agent-card[data-agent="custom"] .agent-icon{background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.3);border:2px solid rgba(255,255,255,0.1);}
+.agent-card .agent-name{
+    font-size:18px;font-weight:800;color:var(--ec-text-primary);
+    margin-bottom:8px;letter-spacing:0.5px;
+}
+.agent-card .agent-desc{
+    font-size:12px;color:var(--ec-text-tertiary);line-height:1.6;
+}
+.agent-card[data-agent="sintonia"]:hover:not(.disabled){border-color:#A78BFA;box-shadow:0 12px 40px rgba(167,139,250,0.2);}
+.agent-card[data-agent="sintonia"] .agent-name{color:#A78BFA;}
+.agent-card[data-agent="alyssa"]:hover:not(.disabled){border-color:#E879F9;box-shadow:0 12px 40px rgba(232,121,249,0.2);}
+.agent-card[data-agent="alyssa"] .agent-name{color:#E879F9;}
+
+/* Agent filter: hide opposite agent's analysis cards */
+body.agent-sintonia .analysis-card[data-card="alyssa"]{display:none !important;}
+body.agent-alyssa .analysis-card[data-card="sintonia"]{display:none !important;}
+body.agent-sintonia .analysis-duo,
+body.agent-alyssa .analysis-duo{grid-template-columns:1fr;}
+
+/* Agent switcher button in topbar */
+.agent-switcher{
+    display:none;cursor:pointer;padding:6px 12px;border-radius:var(--ec-radius-full);
+    background:var(--ec-bg-secondary);border:1px solid var(--ec-border);
+    font-size:10px;font-weight:700;color:var(--ec-text-tertiary);
+    letter-spacing:0.5px;transition:all 0.2s;
+}
+.agent-switcher:hover{border-color:var(--ec-accent);color:var(--ec-accent-light);}
+body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
+
 /* ===== BET REPORT TICKER ===== */
 .ticker-bar{
     background:var(--ec-bg-secondary);border-bottom:1px solid var(--ec-border);
@@ -1050,6 +1120,29 @@ body.loading .mobile-quick-bar{filter:blur(6px);pointer-events:none;user-select:
     <div id="loadingStack" style="margin-top:24px;max-width:400px;width:90%;max-height:50vh;overflow-y:auto;"></div>
 </div>
 
+<!-- AGENT SELECTION SCREEN -->
+<div class="agent-select-screen" id="agentSelectScreen">
+    <div class="agent-select-title">Choose Your Agent</div>
+    <div class="agent-select-subtitle">Each agent brings a different perspective to the slate.</div>
+    <div class="agent-cards">
+        <div class="agent-card" data-agent="sintonia" onclick="selectAgent('sintonia')">
+            <span class="agent-icon">S</span>
+            <div class="agent-name">Sinton.ia's Card</div>
+            <div class="agent-desc">AI-driven analysis with grades, reasoning, badges, and trends. GPT-powered game breakdowns with context.</div>
+        </div>
+        <div class="agent-card" data-agent="alyssa" onclick="selectAgent('alyssa')">
+            <span class="agent-icon">A</span>
+            <div class="agent-name">Alyssa's Edge</div>
+            <div class="agent-desc">Pure math. Expected value, line movement, sharp signals. No AI opinions — just numbers.</div>
+        </div>
+        <div class="agent-card disabled" data-agent="custom">
+            <span class="agent-icon">?</span>
+            <div class="agent-name">Make Your Own</div>
+            <div class="agent-desc">Build your own analysis lane. Coming soon.</div>
+        </div>
+    </div>
+</div>
+
 <!-- TOP BAR -->
 <div class="topbar">
     <div class="topbar-left" style="display:flex;align-items:center;gap:12px;">
@@ -1073,6 +1166,7 @@ body.loading .mobile-quick-bar{filter:blur(6px);pointer-events:none;user-select:
             <span class="crew-badge crew-alyssa" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0;margin-left:-4px;">A</span>
             <span class="crew-badge crew-sintonia" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0;margin-left:-4px;">S</span>
         </div>
+        <div class="agent-switcher" id="agentSwitcher" onclick="backToAgents()"><span id="agentSwitcherLabel">SWITCH AGENT</span></div>
         <button class="topbar-refresh" onclick="refreshSlate()" style="padding:6px 14px;border-radius:var(--ec-radius-full);font-size:11px;font-weight:700;background:linear-gradient(135deg,var(--ec-accent),#a78bfa);color:#fff;border:none;cursor:pointer;transition:all 0.2s;letter-spacing:0.3px;">REFRESH</button>
         <div style="position:relative;">
             <button onclick="toggleGearMenu()" style="cursor:pointer;width:32px;height:32px;border-radius:50%;font-size:14px;background:var(--ec-bg-secondary);color:var(--ec-text-tertiary);border:1px solid var(--ec-border);font-family:var(--ec-font-body);display:flex;align-items:center;justify-content:center;transition:all 0.2s;">&#9881;</button>
@@ -2480,6 +2574,13 @@ function refreshSlate() {
             if (sweepDot) { sweepDot.style.background = 'var(--ec-success)'; sweepDot.style.animation = 'none'; }
             loadProps();
             populateTicker();
+            // Agent selection: show picker or auto-apply saved choice
+            var savedAgent = sessionStorage.getItem('edgeCrewAgent');
+            if (savedAgent) {
+                applyAgentFilter(savedAgent);
+            } else {
+                showAgentSelect();
+            }
         }
     };
     // Safety timeout — dismiss after 30s no matter what
@@ -2488,6 +2589,12 @@ function refreshSlate() {
         document.body.classList.remove('loading');
         if (sweepEl && sweepEl.textContent !== 'LIVE') { sweepEl.textContent = 'LIVE'; }
         if (sweepDot) { sweepDot.style.background = 'var(--ec-success)'; sweepDot.style.animation = 'none'; }
+        // Also trigger agent selection if not already resolved
+        if (!document.body.classList.contains('agent-active')) {
+            var savedAgent = sessionStorage.getItem('edgeCrewAgent');
+            if (savedAgent) { applyAgentFilter(savedAgent); }
+            else { showAgentSelect(); }
+        }
     }, 30000);
 
     function onSportLoaded(sport) {
@@ -5526,6 +5633,34 @@ function getAnalysisGrade(sport, matchup) {
         }
     }
     return '';
+}
+
+// ===== AGENT SELECTION SYSTEM =====
+function showAgentSelect() {
+    document.getElementById('agentSelectScreen').classList.add('active');
+}
+
+function selectAgent(who) {
+    if (who === 'custom') return; // disabled
+    sessionStorage.setItem('edgeCrewAgent', who);
+    document.getElementById('agentSelectScreen').classList.remove('active');
+    applyAgentFilter(who);
+}
+
+function applyAgentFilter(who) {
+    document.body.classList.remove('agent-sintonia', 'agent-alyssa');
+    document.body.classList.add('agent-' + who, 'agent-active');
+    var label = document.getElementById('agentSwitcherLabel');
+    if (label) {
+        var names = {sintonia: "Sinton.ia", alyssa: "Alyssa"};
+        label.textContent = (names[who] || who.toUpperCase()) + " \u25BC";
+    }
+}
+
+function backToAgents() {
+    sessionStorage.removeItem('edgeCrewAgent');
+    document.body.classList.remove('agent-sintonia', 'agent-alyssa', 'agent-active');
+    showAgentSelect();
 }
 
 // ===== ANALYSIS FETCH =====
