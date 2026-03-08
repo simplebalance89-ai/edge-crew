@@ -3125,7 +3125,8 @@ async def autograde_picks(request: Request):
         matched = False
 
         # --- PARLAY GRADING ---
-        if pick_type == "parlay" or "+" in selection and selection.count("+") >= 1 and "+" not in selection[:2]:
+        # Only route to parlay if explicitly typed as parlay (not spreads like "BOS +1")
+        if pick_type == "parlay":
             result = _grade_parlay(pick, completed)
             if result:
                 pick_id = pick.get("id", "")
