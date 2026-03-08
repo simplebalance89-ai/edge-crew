@@ -1161,6 +1161,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
             <span class="crew-badge crew-sintonia" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;padding:0;margin-left:-4px;" title="Sinton.ia"><svg viewBox="0 0 64 64" width="16" height="16"><circle cx="32" cy="32" r="28" fill="none" stroke="#F72585" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#F72585" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#F72585" stroke-width="2" stroke-linecap="round"/></svg></span>
         </div>
         <div class="agent-switcher" id="agentSwitcher" onclick="backToAgents()"><span id="agentSwitcherLabel">SWITCH AGENT</span></div>
+        <button id="analyzeBtn" onclick="runAnalysis()" style="padding:6px 14px;border-radius:var(--ec-radius-full);font-size:11px;font-weight:700;background:linear-gradient(135deg,#F72585,#41EAD4);color:#fff;border:none;cursor:pointer;transition:all 0.2s;letter-spacing:0.3px;">ANALYZE</button>
         <button class="topbar-refresh" onclick="window._isManualRefresh=true;refreshSlate()" style="padding:6px 14px;border-radius:var(--ec-radius-full);font-size:11px;font-weight:700;background:linear-gradient(135deg,var(--ec-accent),#F72585);color:#fff;border:none;cursor:pointer;transition:all 0.2s;letter-spacing:0.3px;">REFRESH</button>
         <div style="position:relative;">
             <button onclick="toggleGearMenu()" style="cursor:pointer;width:32px;height:32px;border-radius:50%;font-size:14px;background:var(--ec-bg-secondary);color:var(--ec-text-tertiary);border:1px solid var(--ec-border);font-family:var(--ec-font-body);display:flex;align-items:center;justify-content:center;transition:all 0.2s;">&#9881;</button>
@@ -2392,15 +2393,16 @@ function pickLoginAgent(el, who) {
 function onLoginSuccess() {
     document.getElementById('loginOverlay').classList.add('hidden');
     updateCrewUI();
-    // Apply agent choice from login
+    // Apply agent choice from login — but DON'T fetch analysis yet
     sessionStorage.setItem('edgeCrewAgent', _loginAgent);
-    applyAgentFilter(_loginAgent);
-    // Show loading overlay — user sees progress until everything's graded
-    var overlay = document.getElementById('loadingOverlay');
-    var loadText = document.getElementById('loadingText');
-    if (overlay) overlay.classList.add('active');
-    document.body.classList.add('loading');
-    if (loadText) loadText.textContent = 'Loading odds...';
+    document.body.classList.remove('agent-sintonia', 'agent-alyssa');
+    document.body.classList.add('agent-' + _loginAgent, 'agent-active');
+    var label = document.getElementById('agentSwitcherLabel');
+    if (label) {
+        var names = {sintonia: "Sinton.ia", alyssa: "Alyssa"};
+        label.textContent = (names[_loginAgent] || _loginAgent) + " \u25BC";
+    }
+    // NO loading overlay — cards render as each sport loads
     // Bust SW cache on login to guarantee fresh code
     if ('caches' in window) {
         caches.keys().then(function(names) {
@@ -2592,43 +2594,29 @@ function refreshSlate() {
     window._analysisLoadCallback = function(sport) {
         // No-op in new architecture — overlay dismissal handled by onSportLoaded
     };
-    // Safety timeout — dismiss after 30s no matter what
+    // Safety timeout — dismiss after 15s no matter what
     setTimeout(function() {
         if (overlay) overlay.classList.remove('active');
         document.body.classList.remove('loading');
         if (sweepEl && sweepEl.textContent !== 'LIVE') { sweepEl.textContent = 'LIVE'; }
         if (sweepDot) { sweepDot.style.background = 'var(--ec-success)'; sweepDot.style.animation = 'none'; }
-        // Also trigger agent selection if not already resolved
-        if (!document.body.classList.contains('agent-active')) {
-            var savedAgent = sessionStorage.getItem('edgeCrewAgent');
-            if (savedAgent) { applyAgentFilter(savedAgent); }
-            else { showAgentSelect(); }
-        }
-    }, 30000);
+    }, 15000);
 
     function onSportLoaded(sport) {
         loadedCount++;
         updateProgress();
         if (loadText) loadText.textContent = 'Loading ' + sport.toUpperCase() + '... (' + loadedCount + '/' + sportsToLoad.length + ')';
         if (loadedCount >= sportsToLoad.length) {
-            // All odds loaded — now load analysis for selected agent
-            if (progressBar) progressBar.style.width = '80%';
-            if (loadText) loadText.textContent = 'Grading games...';
+            // All odds loaded — dismiss overlay, show cards
+            if (progressBar) progressBar.style.width = '100%';
+            if (overlay) overlay.classList.remove('active');
+            document.body.classList.remove('loading');
+            if (sweepEl) sweepEl.textContent = 'LIVE';
+            if (sweepDot) { sweepDot.style.background = 'var(--ec-success)'; sweepDot.style.animation = 'none'; }
             loadProps();
             populateTicker();
-            // Trigger agent analysis then dismiss overlay
-            var savedAgent = sessionStorage.getItem('edgeCrewAgent') || 'sintonia';
-            var wasForceRefresh = window._forceRefreshOdds;
             window._forceRefreshOdds = false;
-            applyAgentFilter(savedAgent, wasForceRefresh);
-            // Dismiss overlay after analysis has time to load (analysis is async)
-            setTimeout(function() {
-                if (progressBar) progressBar.style.width = '100%';
-                if (overlay) overlay.classList.remove('active');
-                document.body.classList.remove('loading');
-                if (sweepEl) sweepEl.textContent = 'LIVE';
-                if (sweepDot) { sweepDot.style.background = 'var(--ec-success)'; sweepDot.style.animation = 'none'; }
-            }, 3000);
+            // DON'T auto-trigger analysis — user clicks ANALYZE button
         }
     }
 
@@ -5169,12 +5157,12 @@ function fetchLiveOdds(sport, onDone) {
             if (typeof onDone === 'function') onDone(sport);
         })
         .catch(function(err) {
-            // Retry up to 3 times with increasing delay (cold start resilience)
+            // Retry once with short delay (cold start resilience)
             if (!fetchLiveOdds._retried) fetchLiveOdds._retried = {};
             var retryCount = fetchLiveOdds._retried[sport] || 0;
-            if (retryCount < 3) {
+            if (retryCount < 1) {
                 fetchLiveOdds._retried[sport] = retryCount + 1;
-                var delay = (retryCount + 1) * 3000;
+                var delay = 2000;
                 var loadText = document.getElementById('loadingText');
                 if (loadText) loadText.textContent = sport.toUpperCase() + ' loading... retry ' + (retryCount + 1) + '/3';
                 setTimeout(function() { fetchLiveOdds(sport, onDone); }, delay);
@@ -5702,11 +5690,23 @@ function applyAgentFilter(who, forceRefresh) {
 }
 
 function backToAgents() {
-    // Toggle to the other agent
+    // Toggle to the other agent and re-analyze
     var current = sessionStorage.getItem('edgeCrewAgent') || 'sintonia';
     var next = current === 'sintonia' ? 'alyssa' : 'sintonia';
     sessionStorage.setItem('edgeCrewAgent', next);
     applyAgentFilter(next, true);
+}
+
+function runAnalysis() {
+    // User clicked ANALYZE — load analysis for selected agent
+    var btn = document.getElementById('analyzeBtn');
+    if (btn) { btn.textContent = 'GRADING...'; btn.disabled = true; }
+    var agent = sessionStorage.getItem('edgeCrewAgent') || 'sintonia';
+    applyAgentFilter(agent, true);
+    // Re-enable button after analysis loads
+    setTimeout(function() {
+        if (btn) { btn.textContent = 'ANALYZE'; btn.disabled = false; }
+    }, 15000);
 }
 
 // ===== ANALYSIS FETCH =====
