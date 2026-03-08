@@ -2499,6 +2499,8 @@ function processToastQueue() {
 var picks = {}; // { gameName: { checked: bool, side: string } }
 
 function refreshSlate() {
+    // Force live API on manual refresh (bypass daily record cache)
+    window._forceRefreshOdds = true;
     // Reset retry flags for cold-start resilience
     fetchLiveOdds._retried = {};
     // Reset all game row checks and side picks
@@ -2553,27 +2555,15 @@ function refreshSlate() {
     var loadedCount = 0;
     var analysisCount = 0;
     var oddsPhase = true;
-    var totalSteps = sportsToLoad.length * 2; // odds + analysis per sport
+    var totalSteps = sportsToLoad.length; // odds only — analysis deferred to agent selection
     var progressBar = document.getElementById('loadingProgress');
     function updateProgress() {
-        var pct = Math.min(100, Math.round(((loadedCount + analysisCount) / totalSteps) * 100));
+        var pct = Math.min(100, Math.round((loadedCount / totalSteps) * 100));
         if (progressBar) progressBar.style.width = pct + '%';
     }
+    // Legacy callback — still fired from edge cases in fetchLiveOdds catch handlers
     window._analysisLoadCallback = function(sport) {
-        analysisCount++;
-        updateProgress();
-        if (sweepEl) sweepEl.textContent = 'ANALYZING ' + analysisCount + '/' + sportsToLoad.length;
-        var loadBanner = document.getElementById('loadingBanner');
-        if (loadBanner) loadBanner.textContent = 'ANALYZING';
-        if (loadText && overlay && overlay.classList.contains('active')) {
-            loadText.textContent = 'Analyzing ' + sport.toUpperCase() + '... (' + analysisCount + '/' + sportsToLoad.length + ')';
-        }
-        if (analysisCount >= sportsToLoad.length) {
-            // All analysis done — update status to LIVE
-            if (progressBar) progressBar.style.width = '100%';
-            if (sweepEl) sweepEl.textContent = 'LIVE';
-            if (sweepDot) { sweepDot.style.background = 'var(--ec-success)'; sweepDot.style.animation = 'none'; }
-        }
+        // No-op in new architecture — overlay dismissal handled by onSportLoaded
     };
     // Safety timeout — dismiss after 30s no matter what
     setTimeout(function() {
@@ -2594,23 +2584,23 @@ function refreshSlate() {
         updateProgress();
         if (loadText) loadText.textContent = 'Loading ' + sport.toUpperCase() + '... (' + loadedCount + '/' + sportsToLoad.length + ')';
         if (loadedCount >= sportsToLoad.length) {
-            // Odds all loaded — unlock the page, show agent selection
+            // All sports loaded from cache/API — dismiss overlay immediately
+            if (progressBar) progressBar.style.width = '100%';
             if (overlay) overlay.classList.remove('active');
             document.body.classList.remove('loading');
-            if (sweepEl) sweepEl.textContent = 'ANALYZING';
-            if (sweepDot) { sweepDot.style.background = '#F59E0B'; sweepDot.style.animation = 'edgePulse 1s ease-in-out infinite'; }
+            if (sweepEl) sweepEl.textContent = 'LIVE';
+            if (sweepDot) { sweepDot.style.background = 'var(--ec-success)'; sweepDot.style.animation = 'none'; }
             loadProps();
             populateTicker();
+            // Agent selection: show picker or auto-apply saved choice
             var savedAgent = sessionStorage.getItem('edgeCrewAgent');
+            var wasForceRefresh = window._forceRefreshOdds;
+            window._forceRefreshOdds = false; // Clear flag after use
             if (savedAgent) {
-                applyAgentFilter(savedAgent);
+                applyAgentFilter(savedAgent, wasForceRefresh);
             } else {
                 showAgentSelect();
             }
-            var loadBanner = document.getElementById('loadingBanner');
-            if (loadBanner) loadBanner.textContent = 'ANALYZING';
-            if (loadText) loadText.textContent = 'Analyzing games...';
-            oddsPhase = false;
         }
     }
 
@@ -5041,9 +5031,23 @@ function fetchLiveOdds(sport, onDone) {
 
     var gotcha = panel.querySelector('.gotcha-banner');
 
-    fetch('/api/odds/' + sport)
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
+    // Layer 0: Try cached daily record first, fall back to live API
+    // On manual REFRESH (_forceRefreshOdds=true), skip cache and hit live API
+    var _oddsFetch;
+    if (window._forceRefreshOdds) {
+        _oddsFetch = fetch('/api/odds/' + sport).then(function(r) { return r.json(); });
+    } else {
+        _oddsFetch = fetch('/api/slate/cached/' + sport)
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.games && data.games.length > 0) return data;
+                throw new Error('empty cache');
+            })
+            .catch(function() {
+                return fetch('/api/odds/' + sport).then(function(r) { return r.json(); });
+            });
+    }
+    _oddsFetch.then(function(data) {
             panel.classList.remove('panel-loading');
             if (data.error) {
                 var errMsg = document.createElement('div');
@@ -5084,12 +5088,7 @@ function fetchLiveOdds(sport, onDone) {
                         if (count) count.textContent = '0';
                     }
                 });
-                // Still fetch analysis for gotcha card even with 0 pregame games
-                if (data.games && data.games.length > 0) {
-                    fetchAnalysis(sport);
-                } else {
-                    if (typeof window._analysisLoadCallback === 'function') window._analysisLoadCallback(sport);
-                }
+                // Analysis deferred to agent selection (Layer 0 architecture)
                 if (typeof onDone === 'function') onDone(sport);
                 return;
             }
@@ -5149,14 +5148,10 @@ function fetchLiveOdds(sport, onDone) {
             // Re-apply saved picks after DOM rebuild
             if (typeof restoreLockedPicks === 'function') restoreLockedPicks();
 
-            // Trigger analysis + edge AFTER game rows are rendered (not on a timer)
+            // Layer 0 architecture: analysis/edge deferred to agent selection
+            // Only fetch injuries (standalone, not agent-dependent)
             if (pregameGames.length > 0) {
-                fetchAnalysis(sport);
-                fetchEdge(sport);
                 fetchInjuries(sport);
-            } else {
-                // No pregame games — still fire analysis callback for loading overlay
-                if (typeof window._analysisLoadCallback === 'function') window._analysisLoadCallback(sport);
             }
             if (typeof onDone === 'function') onDone(sport);
         })
@@ -5667,7 +5662,7 @@ function selectAgent(who) {
     window.scrollTo(0, 0);
 }
 
-function applyAgentFilter(who) {
+function applyAgentFilter(who, forceRefresh) {
     document.body.classList.remove('agent-sintonia', 'agent-alyssa');
     document.body.classList.add('agent-' + who, 'agent-active');
     var label = document.getElementById('agentSwitcherLabel');
@@ -5675,11 +5670,18 @@ function applyAgentFilter(who) {
         var names = {sintonia: "Sinton.ia", alyssa: "Alyssa"};
         label.textContent = (names[who] || who.toUpperCase()) + " \u25BC";
     }
-    // Auto-fetch Alyssa's edge data for all sports when she's selected
-    if (who === 'alyssa') {
-        ['nba','wnba','ncaab','ncaaf','nhl','mlb','tennis','soccer','mma','boxing'].forEach(function(s) {
+    // Fetch agent data on selection — deferred from page load (Layer 0 architecture)
+    var allSports = ['nba','wnba','ncaab','ncaaf','nhl','mlb','tennis','soccer','mma','boxing'];
+    if (who === 'sintonia') {
+        allSports.forEach(function(s) {
+            var el = document.getElementById('peterGut' + s.toUpperCase() + 'Content');
+            // Fetch if not loaded yet (placeholder) or on force refresh
+            if (el && (forceRefresh || el.querySelector('p[style*="italic"]'))) fetchAnalysis(s);
+        });
+    } else if (who === 'alyssa') {
+        allSports.forEach(function(s) {
             var el = document.getElementById('alyssaEdge' + s.toUpperCase() + 'Content');
-            if (el && el.querySelector('p[style*="italic"]')) fetchEdge(s);
+            if (el && (forceRefresh || el.querySelector('p[style*="italic"]'))) fetchEdge(s);
         });
     }
 }
