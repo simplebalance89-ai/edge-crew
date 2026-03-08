@@ -2212,12 +2212,52 @@ async def get_analysis(sport: str):
     # ===== BUILD WEIGHTED MATRIX SECTION =====
     matrix_section = _build_matrix_section(sport_lower)
 
+    # ===== FETCH REAL PROP LINES (from The Odds API) =====
+    prop_lines_text = ""
+    prop_sports_with_markets = {"nba", "nhl", "nfl", "mlb"}  # Sports that have prop markets
+    if sport_lower in prop_sports_with_markets:
+        try:
+            prop_cache_key = f"props:{sport_lower}"
+            prop_data = _get_cached(prop_cache_key, ttl=PROPS_CACHE_TTL)
+            if not prop_data:
+                # Fetch fresh props (reuses the same logic as /api/props/{sport})
+                prop_resp = await get_player_props(sport)
+                if hasattr(prop_resp, 'body'):
+                    prop_data = json.loads(prop_resp.body)
+                else:
+                    prop_data = None
+            if prop_data and prop_data.get("props"):
+                # Group props by matchup for easy batch filtering
+                props_by_matchup = {}
+                for prop in prop_data["props"]:
+                    m = prop.get("matchup", "unknown")
+                    if m not in props_by_matchup:
+                        props_by_matchup[m] = []
+                    side = prop.get("side", "Over")
+                    line = prop.get("line", "?")
+                    stat = prop.get("stat", "?")
+                    player = prop.get("player", "?")
+                    best_odds = prop.get("best_odds", "?")
+                    best_book = prop.get("best_book", "?")
+                    props_by_matchup[m].append(f"{player} {side} {line} {stat} ({best_odds}) [{best_book}]")
+                # Build text grouped by matchup
+                prop_lines = []
+                for matchup, lines in props_by_matchup.items():
+                    prop_lines.append(f"\n{matchup}:")
+                    for l in lines[:20]:  # Cap per game to keep prompt manageable
+                        prop_lines.append(f"  - {l}")
+                prop_lines_text = "\n".join(prop_lines)
+                logger.info(f"Analysis {sport}: injected {len(prop_data['props'])} real prop lines")
+        except Exception as e:
+            logger.warning(f"Prop lines fetch for analysis failed: {e}")
+            prop_lines_text = ""
+
     # ===== BATCH ANALYSIS — split games into groups of 4 for parallel Azure calls =====
     BATCH_SIZE = 4
     MAX_BATCHES = 6  # Cap at 6 batches (24 games) to avoid excessive Azure calls
     MAX_GAMES = BATCH_SIZE * MAX_BATCHES
 
-    def _build_batch_prompt(batch_games_text, batch_incomplete_note, is_first_batch):
+    def _build_batch_prompt(batch_games_text, batch_incomplete_note, is_first_batch, batch_prop_lines=""):
         """Build the Azure prompt for a batch of games."""
         gotcha_instruction = ""
         if is_first_batch:
@@ -2244,6 +2284,9 @@ Today's {sport.upper()} slate - {today} (pulled at {now_time}):
 {roster_context}
 
 {matrix_section}
+
+=== REAL PLAYER PROP LINES (FROM SPORTSBOOKS) ===
+{batch_prop_lines if batch_prop_lines else "No real prop lines available — skip player_props for this batch."}
 
 === EDGE QUESTION (MANDATORY for every game) ===
 Before grading: "Why is the market wrong here?" If you cannot answer, grade D or F.
@@ -2297,7 +2340,7 @@ GRADING RULES:
 - injury_impact is MANDATORY. Check the RotoWire data above. Name specific players.
 - If RotoWire data is unavailable, flag it: "Injury data not confirmed - grade with caution."
 - rest_schedule is MANDATORY. Check game times for B2B detection.
-- Player props: top 3-5 per game, B+ grade minimum. Skip for INCOMPLETE or TBD. Each prop MUST have player name, prop line, odds estimate, individual grade (A/B+/B/C), and 1-sentence edge explanation. EVERY prop must note games played this season if available. < 20 games = auto-flag.
+- Player props: Select ONLY from the REAL PLAYER PROP LINES section above. Do NOT invent or estimate prop lines — use the exact lines and odds from sportsbooks. If no real prop lines are available for a game, set player_props to empty array []. Top 3-5 per game, B+ grade minimum. Skip for INCOMPLETE or TBD. Each prop MUST have player name, exact prop line from the data, actual odds from the data, individual grade (A/B+/B/C), and 1-sentence edge explanation. EVERY prop must note games played this season if available. < 20 games = auto-flag.
 - ABSOLUTE ROSTER LOCK: A player prop can ONLY be suggested for a player who appears in the CURRENT ROSTERS data for one of the two teams in that specific game. If "Jayson Tatum" is in the BOS roster and the game is NYK @ DEN, you CANNOT suggest a Tatum prop on that game — he is NOT playing in it. This is non-negotiable. Check the roster list, find the player, confirm the team matches the game. If the player is not in either team's roster for that game, DO NOT suggest the prop. Period.
 - PASS games get grade D or F with explicit reason.
 - Be brutally honest. C means marginal. D means no edge. F means trap. "Slight edge" with no specifics = D grade, not B.
@@ -2345,7 +2388,32 @@ Return ONLY valid JSON. No markdown. No explanation."""
             batch_text = "\n".join(batch) if batch else "(no complete games in this batch)"
             # Only include incomplete note in first batch
             batch_inc = incomplete_note if idx == 0 else ""
-            batch_prompts.append(_build_batch_prompt(batch_text, batch_inc, is_first_batch=(idx == 0)))
+            # Filter prop lines to only include matchups in this batch
+            batch_props = ""
+            if prop_lines_text:
+                # Extract team names from batch games to filter props
+                batch_teams = set()
+                for game_line in batch:
+                    # Game line format: "AWAY @ HOME | Spread: ..."
+                    parts = game_line.split("|")[0].strip()
+                    for team in parts.replace(" @ ", "|").split("|"):
+                        batch_teams.add(team.strip().lower())
+                # Filter prop lines by matching teams
+                if batch_teams:
+                    filtered_props = []
+                    current_matchup = ""
+                    include_matchup = False
+                    for line in prop_lines_text.split("\n"):
+                        if line.strip() and not line.startswith("  "):
+                            # Matchup header line
+                            current_matchup = line.strip().rstrip(":")
+                            include_matchup = any(t in current_matchup.lower() for t in batch_teams if len(t) > 3)
+                            if include_matchup:
+                                filtered_props.append(line)
+                        elif include_matchup and line.strip():
+                            filtered_props.append(line)
+                    batch_props = "\n".join(filtered_props) if filtered_props else ""
+            batch_prompts.append(_build_batch_prompt(batch_text, batch_inc, is_first_batch=(idx == 0), batch_prop_lines=batch_props))
 
         # Run all batches in parallel via asyncio threads
         tasks = [asyncio.to_thread(_call_azure_batch, p) for p in batch_prompts]
@@ -2719,6 +2787,232 @@ def _expand_abbrevs(text: str, sport: str = "") -> str:
         else:
             expanded.append(clean)
     return " ".join(expanded)
+
+
+# ===== ESPN BOX SCORE FETCHER + PROP GRADING =====
+_ESPN_SPORT_PATHS = {
+    "nba": "basketball/nba",
+    "wnba": "basketball/wnba",
+    "nhl": "hockey/nhl",
+    "nfl": "football/nfl",
+    "mlb": "baseball/mlb",
+}
+
+# Map prop stat keywords to ESPN stat header names
+_PROP_STAT_TO_ESPN = {
+    # NBA
+    "points": "PTS", "pts": "PTS",
+    "rebounds": "REB", "reb": "REB",
+    "assists": "AST", "ast": "AST",
+    "threes": "3PM", "3pm": "3PM", "three pointers": "3PM", "3pt": "3PM",
+    "steals": "STL", "stl": "STL",
+    "blocks": "BLK", "blk": "BLK",
+    "turnovers": "TO", "to": "TO",
+    # NHL
+    "goals": "G", "saves": "SV", "shots": "SOG",
+    # MLB
+    "strikeouts": "K", "hits": "H", "runs": "R", "rbi": "RBI",
+    "total bases": "TB", "hrs": "HR", "home runs": "HR",
+    "walks": "BB",
+    # NFL
+    "pass yds": "YDS", "passing yards": "YDS",
+    "rush yds": "YDS", "rushing yards": "YDS",
+    "reception yds": "YDS", "receiving yards": "YDS",
+    "touchdowns": "TD", "pass tds": "TD",
+    "completions": "CMP", "receptions": "REC",
+}
+
+
+async def _fetch_espn_box_score(sport: str, home_team: str, away_team: str, game_date: str) -> dict | None:
+    """Fetch player stats from ESPN game summary.
+
+    Returns {normalized_player_name: {stat_name: value, ...}} or None on failure.
+    """
+    espn_path = _ESPN_SPORT_PATHS.get(sport.lower())
+    if not espn_path:
+        return None
+
+    cache_key = f"espn_box:{sport}:{home_team}:{away_team}:{game_date}"
+    cached = _get_cached(cache_key, ttl=3600)  # Cache 1 hour
+    if cached is not None:
+        return cached
+
+    date_fmt = game_date.replace("-", "")  # YYYYMMDD
+
+    try:
+        async with httpx.AsyncClient(timeout=15, headers={"User-Agent": "Mozilla/5.0"}) as client:
+            # Step 1: Get scoreboard for the date
+            scoreboard_url = f"https://site.api.espn.com/apis/site/v2/sports/{espn_path}/scoreboard?dates={date_fmt}"
+            resp = await client.get(scoreboard_url)
+            if resp.status_code != 200:
+                logger.warning(f"ESPN scoreboard fetch failed: {resp.status_code}")
+                return None
+
+            scoreboard = resp.json()
+            events = scoreboard.get("events", [])
+
+            # Step 2: Find the matching game
+            game_id = None
+            home_norm = _normalize_team(home_team)
+            away_norm = _normalize_team(away_team)
+            for event in events:
+                competitors = event.get("competitions", [{}])[0].get("competitors", [])
+                if len(competitors) < 2:
+                    continue
+                teams_in_event = [_normalize_team(c.get("team", {}).get("displayName", "")) for c in competitors]
+                # Check if both teams match
+                home_match = any(t in home_norm or home_norm in t for t in teams_in_event)
+                away_match = any(t in away_norm or away_norm in t for t in teams_in_event)
+                if home_match and away_match:
+                    game_id = event.get("id")
+                    break
+
+            if not game_id:
+                logger.info(f"ESPN: No matching game for {away_team} @ {home_team} on {game_date}")
+                _set_cache(cache_key, {})  # Cache empty to avoid re-fetching
+                return {}
+
+            # Step 3: Fetch game summary with box score
+            summary_url = f"https://site.api.espn.com/apis/site/v2/sports/{espn_path}/summary?event={game_id}"
+            summary_resp = await client.get(summary_url)
+            if summary_resp.status_code != 200:
+                logger.warning(f"ESPN summary fetch failed: {summary_resp.status_code}")
+                return None
+
+            summary = summary_resp.json()
+
+            # Step 4: Parse player stats from boxscore
+            player_stats = {}
+            boxscore = summary.get("boxscore", {})
+            for team_group in boxscore.get("players", []):
+                for stat_group in team_group.get("statistics", []):
+                    stat_names = stat_group.get("names", [])  # ["MIN", "FG", "3PT", ... "PTS"]
+                    for athlete in stat_group.get("athletes", []):
+                        player_name = athlete.get("athlete", {}).get("displayName", "")
+                        if not player_name:
+                            continue
+                        stats_arr = athlete.get("stats", [])
+                        # Build stat dict mapping header name -> value
+                        pstats = {}
+                        for i, name in enumerate(stat_names):
+                            if i < len(stats_arr):
+                                # Try to parse as float
+                                try:
+                                    val = stats_arr[i]
+                                    # Handle fractional stats like "5-10" (FG made-attempted)
+                                    if "-" in str(val) and not str(val).startswith("-"):
+                                        pstats[name] = float(str(val).split("-")[0])
+                                    else:
+                                        pstats[name] = float(val)
+                                except (ValueError, TypeError):
+                                    pstats[name] = str(stats_arr[i])
+                        player_stats[player_name.lower()] = pstats
+
+            logger.info(f"ESPN box score: {away_team} @ {home_team} — {len(player_stats)} players")
+            _set_cache(cache_key, player_stats)
+            return player_stats
+
+    except Exception as e:
+        logger.warning(f"ESPN box score fetch failed: {e}")
+        return None
+
+
+def _grade_prop_pick(pick: dict, player_stats: dict) -> str | None:
+    """Grade a player prop pick against actual ESPN box score stats.
+
+    Returns 'W', 'L', 'P' (push), or None if can't grade.
+    """
+    selection = pick.get("selection", "")
+    if not selection:
+        return None
+
+    sel_lower = selection.lower().strip()
+
+    # Parse: "Player Name Over/Under XX.X Stat"
+    # Patterns: "Tatum Over 20.5 Points", "Over 20.5 Points - Tatum", "Jayson Tatum O 20.5 Pts"
+    over_under = None
+    if "over" in sel_lower or " o " in f" {sel_lower} ":
+        over_under = "over"
+    elif "under" in sel_lower or " u " in f" {sel_lower} ":
+        over_under = "under"
+
+    if not over_under:
+        return None
+
+    # Extract the line number
+    line_match = re.search(r'(\d+\.?\d*)', selection)
+    if not line_match:
+        return None
+    line = float(line_match.group(1))
+
+    # Determine stat type from selection text
+    espn_stat = None
+    for keyword, espn_key in _PROP_STAT_TO_ESPN.items():
+        if keyword in sel_lower:
+            espn_stat = espn_key
+            break
+
+    if not espn_stat:
+        # Try common abbreviations in the selection
+        for abbr in ["pts", "reb", "ast", "stl", "blk", "3pm"]:
+            if abbr in sel_lower:
+                espn_stat = _PROP_STAT_TO_ESPN.get(abbr)
+                break
+
+    if not espn_stat:
+        return None
+
+    # Find the player in box score — fuzzy last name match
+    # Strip the over/under and number from selection to isolate player name
+    player_text = re.sub(r'\b(over|under|o|u)\b', '', sel_lower, flags=re.IGNORECASE)
+    player_text = re.sub(r'\d+\.?\d*', '', player_text)
+    # Remove stat keywords
+    for keyword in list(_PROP_STAT_TO_ESPN.keys()) + ["pts", "reb", "ast", "stl", "blk", "3pm", "pra"]:
+        player_text = player_text.replace(keyword, "")
+    player_text = re.sub(r'[()+-]', '', player_text).strip()
+    player_words = [w for w in player_text.split() if len(w) > 1]
+
+    if not player_words:
+        return None
+
+    # Try to match player: exact match first, then last name
+    matched_player = None
+    for pname in player_stats:
+        # Exact name match
+        if all(w in pname for w in player_words):
+            matched_player = pname
+            break
+    if not matched_player:
+        # Last name match (last word of player_words)
+        last_name = player_words[-1]
+        candidates = [p for p in player_stats if last_name in p]
+        if len(candidates) == 1:
+            matched_player = candidates[0]
+        elif len(candidates) > 1:
+            # Multiple matches — try first + last
+            if len(player_words) >= 2:
+                first = player_words[0]
+                better = [p for p in candidates if first in p]
+                if len(better) == 1:
+                    matched_player = better[0]
+
+    if not matched_player:
+        logger.info(f"Prop grade: player not found in box score — words={player_words}")
+        return None
+
+    stats = player_stats[matched_player]
+    actual_value = stats.get(espn_stat)
+    if actual_value is None or not isinstance(actual_value, (int, float)):
+        logger.info(f"Prop grade: stat {espn_stat} not found for {matched_player}")
+        return None
+
+    # Grade
+    if actual_value == line:
+        return "P"
+    if over_under == "over":
+        return "W" if actual_value > line else "L"
+    else:  # under
+        return "W" if actual_value < line else "L"
 
 
 def _teams_match(pick_text: str, home: str, away: str, sport: str = "") -> bool:
@@ -3159,6 +3453,21 @@ async def autograde_picks(request: Request):
                 continue
 
             result = _grade_pick_against_score(pick, game)
+
+            # --- PROP GRADING via ESPN Box Score ---
+            if result is None and _is_prop(pick) and game.get("completed"):
+                pick_sport = pick.get("sport", "").lower()
+                if pick_sport in _ESPN_SPORT_PATHS:
+                    pick_date = pick.get("date", datetime.now(PST).strftime("%Y-%m-%d"))
+                    try:
+                        box_score = await _fetch_espn_box_score(pick_sport, home, away, pick_date)
+                        if box_score:
+                            result = _grade_prop_pick(pick, box_score)
+                            if result:
+                                logger.info(f"Prop graded via ESPN: {selection} = {result}")
+                    except Exception as e:
+                        logger.warning(f"ESPN prop grade failed: {e}")
+
             if result:
                 pick_id = pick.get("id", "")
                 _update_pick_result(pick_id, result)
