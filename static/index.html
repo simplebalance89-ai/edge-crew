@@ -5058,8 +5058,9 @@ function fetchLiveOdds(sport, onDone) {
 
     var gotcha = panel.querySelector('.gotcha-banner');
 
-    // Always hit live API — simple and reliable
-    var _oddsFetch = fetch('/api/odds/' + sport).then(function(r) {
+    // Try cached slate first (instant from disk), fall back to live API
+    var oddsUrl = window._forceRefreshOdds ? '/api/odds/' + sport : '/api/slate/cached/' + sport;
+    var _oddsFetch = fetch(oddsUrl).then(function(r) {
         if (!r.ok) throw new Error('HTTP ' + r.status);
         return r.json();
     });
