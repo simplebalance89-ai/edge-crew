@@ -468,77 +468,6 @@ body.loading .mobile-quick-bar{filter:blur(6px);pointer-events:none;user-select:
     letter-spacing:0.5px;text-transform:uppercase;
 }
 
-/* ===== AGENT SELECTION SCREEN ===== */
-.agent-select-screen{
-    display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:9998;
-    background:var(--ec-bg-primary);
-    flex-direction:column;align-items:center;justify-content:center;gap:32px;
-    padding:24px;overflow-y:auto;
-}
-.agent-select-screen.active{display:flex;}
-.agent-select-title{
-    font-size:24px;font-weight:900;color:var(--ec-text-primary);
-    font-family:var(--ec-font-body);letter-spacing:1px;text-transform:uppercase;
-    text-align:center;
-}
-.agent-select-subtitle{
-    font-size:14px;color:var(--ec-text-tertiary);text-align:center;margin-top:-16px;
-}
-.agent-cards{
-    display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;
-    max-width:720px;width:100%;
-}
-@media(max-width:768px){.agent-cards{grid-template-columns:1fr;max-width:360px;}}
-.agent-card{
-    background:var(--ec-bg-secondary);border:2px solid var(--ec-border);
-    border-radius:16px;padding:28px 20px;text-align:center;cursor:pointer;
-    transition:all 0.3s ease;position:relative;overflow:hidden;
-}
-.agent-card:hover:not(.disabled){
-    border-color:var(--ec-accent);transform:translateY(-4px);
-    box-shadow:0 12px 40px rgba(99,102,241,0.2);
-}
-.agent-card.disabled{
-    opacity:0.35;cursor:not-allowed;
-}
-.agent-card .agent-icon{
-    font-size:28px;font-weight:900;margin-bottom:12px;display:flex;
-    width:64px;height:64px;border-radius:50%;align-items:center;justify-content:center;
-    margin-left:auto;margin-right:auto;
-    font-family:var(--ec-font-body);letter-spacing:1px;
-}
-.agent-card[data-agent="sintonia"] .agent-icon{background:rgba(167,139,250,0.15);color:#A78BFA;border:2px solid rgba(167,139,250,0.3);}
-.agent-card[data-agent="alyssa"] .agent-icon{background:rgba(232,121,249,0.15);color:#E879F9;border:2px solid rgba(232,121,249,0.3);}
-.agent-card[data-agent="custom"] .agent-icon{background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.3);border:2px solid rgba(255,255,255,0.1);}
-.agent-card .agent-name{
-    font-size:18px;font-weight:800;color:var(--ec-text-primary);
-    margin-bottom:8px;letter-spacing:0.5px;
-}
-.agent-card .agent-desc{
-    font-size:12px;color:var(--ec-text-tertiary);line-height:1.6;
-}
-.agent-card[data-agent="sintonia"]:hover:not(.disabled){border-color:#A78BFA;box-shadow:0 12px 40px rgba(167,139,250,0.2);}
-.agent-card[data-agent="sintonia"] .agent-name{color:#A78BFA;}
-.agent-card[data-agent="alyssa"]:hover:not(.disabled){border-color:#E879F9;box-shadow:0 12px 40px rgba(232,121,249,0.2);}
-.agent-card[data-agent="alyssa"] .agent-name{color:#E879F9;}
-
-/* Agent filter: hide opposite agent's analysis cards */
-body.agent-sintonia .analysis-card[data-card="alyssa"]{display:none !important;}
-body.agent-alyssa .analysis-card[data-card="sintonia"]{display:none !important;}
-body.agent-sintonia .analysis-duo,
-body.agent-alyssa .analysis-duo{grid-template-columns:1fr;}
-
-/* Agent switcher button in topbar */
-.agent-switcher{
-    display:none;cursor:pointer;padding:6px 12px;border-radius:var(--ec-radius-full);
-    background:var(--ec-bg-secondary);border:1px solid var(--ec-border);
-    font-size:10px;font-weight:700;color:var(--ec-text-tertiary);
-    letter-spacing:0.5px;transition:all 0.2s;
-}
-.agent-switcher:hover{border-color:var(--ec-accent);color:var(--ec-accent-light);}
-.qp-link:hover{color:#E879F9 !important;border-bottom-color:#E879F9 !important;}
-body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
-
 /* ===== BET REPORT TICKER ===== */
 .ticker-bar{
     background:var(--ec-bg-secondary);border-bottom:1px solid var(--ec-border);
@@ -1121,29 +1050,6 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     <div id="loadingStack" style="margin-top:24px;max-width:400px;width:90%;max-height:50vh;overflow-y:auto;"></div>
 </div>
 
-<!-- AGENT SELECTION SCREEN -->
-<div class="agent-select-screen" id="agentSelectScreen">
-    <div class="agent-select-title">Choose Your Agent</div>
-    <div class="agent-select-subtitle">Each agent brings a different perspective to the slate.</div>
-    <div class="agent-cards">
-        <div class="agent-card" data-agent="sintonia" onclick="selectAgent('sintonia')">
-            <span class="agent-icon"><svg viewBox="0 0 64 64" width="36" height="36"><circle cx="32" cy="32" r="28" fill="none" stroke="#A78BFA" stroke-width="2"/><circle cx="32" cy="22" r="8" fill="none" stroke="#A78BFA" stroke-width="1.5"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#A78BFA" stroke-width="1.5" stroke-linecap="round"/><circle cx="24" cy="42" r="3" fill="#A78BFA" opacity="0.4"/><circle cx="40" cy="42" r="3" fill="#A78BFA" opacity="0.4"/><line x1="32" y1="14" x2="32" y2="8" stroke="#A78BFA" stroke-width="1.5" stroke-linecap="round"/><line x1="20" y1="18" x2="16" y2="14" stroke="#A78BFA" stroke-width="1" stroke-linecap="round" opacity="0.5"/><line x1="44" y1="18" x2="48" y2="14" stroke="#A78BFA" stroke-width="1" stroke-linecap="round" opacity="0.5"/></svg></span>
-            <div class="agent-name">Sinton.ia's Card</div>
-            <div class="agent-desc">AI-driven analysis with grades, reasoning, badges, and trends. GPT-powered game breakdowns with context.</div>
-        </div>
-        <div class="agent-card" data-agent="alyssa" onclick="selectAgent('alyssa')">
-            <span class="agent-icon"><svg viewBox="0 0 64 64" width="36" height="36"><polygon points="32,6 38,24 58,24 42,36 48,54 32,44 16,54 22,36 6,24 26,24" fill="none" stroke="#E879F9" stroke-width="2" stroke-linejoin="round"/><circle cx="32" cy="30" r="6" fill="#E879F9" opacity="0.3"/><line x1="32" y1="24" x2="32" y2="36" stroke="#E879F9" stroke-width="1.5"/><line x1="26" y1="30" x2="38" y2="30" stroke="#E879F9" stroke-width="1.5"/></svg></span>
-            <div class="agent-name">Alyssa's Edge</div>
-            <div class="agent-desc">Pure math. Expected value, line movement, sharp signals. No AI opinions — just numbers.</div>
-        </div>
-        <div class="agent-card disabled" data-agent="custom">
-            <span class="agent-icon"><svg viewBox="0 0 64 64" width="36" height="36"><rect x="14" y="14" width="36" height="36" rx="8" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-dasharray="4,4"/><text x="32" y="38" text-anchor="middle" fill="rgba(255,255,255,0.3)" font-size="20" font-weight="700" font-family="sans-serif">?</text></svg></span>
-            <div class="agent-name">Make Your Own</div>
-            <div class="agent-desc">Build your own analysis lane. Coming soon.</div>
-        </div>
-    </div>
-</div>
-
 <!-- TOP BAR -->
 <div class="topbar">
     <div class="topbar-left" style="display:flex;align-items:center;gap:12px;">
@@ -1164,11 +1070,10 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
             <span class="crew-badge crew-peter" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0;">P</span>
             <span class="crew-badge crew-chinny" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0;margin-left:-4px;">C</span>
             <span class="crew-badge crew-jimmy" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0;margin-left:-4px;">J</span>
-            <span class="crew-badge crew-alyssa" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;padding:0;margin-left:-4px;" title="Alyssa"><svg viewBox="0 0 64 64" width="16" height="16"><polygon points="32,6 38,24 58,24 42,36 48,54 32,44 16,54 22,36 6,24 26,24" fill="none" stroke="#E879F9" stroke-width="3" stroke-linejoin="round"/></svg></span>
-            <span class="crew-badge crew-sintonia" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;padding:0;margin-left:-4px;" title="Sinton.ia"><svg viewBox="0 0 64 64" width="16" height="16"><circle cx="32" cy="32" r="28" fill="none" stroke="#A78BFA" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#A78BFA" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#A78BFA" stroke-width="2" stroke-linecap="round"/></svg></span>
+            <span class="crew-badge crew-alyssa" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0;margin-left:-4px;">A</span>
+            <span class="crew-badge crew-sintonia" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0;margin-left:-4px;">S</span>
         </div>
-        <div class="agent-switcher" id="agentSwitcher" onclick="backToAgents()"><span id="agentSwitcherLabel">SWITCH AGENT</span></div>
-        <button class="topbar-refresh" onclick="window._isManualRefresh=true;refreshSlate()" style="padding:6px 14px;border-radius:var(--ec-radius-full);font-size:11px;font-weight:700;background:linear-gradient(135deg,var(--ec-accent),#a78bfa);color:#fff;border:none;cursor:pointer;transition:all 0.2s;letter-spacing:0.3px;">REFRESH</button>
+        <button class="topbar-refresh" onclick="refreshSlate()" style="padding:6px 14px;border-radius:var(--ec-radius-full);font-size:11px;font-weight:700;background:linear-gradient(135deg,var(--ec-accent),#a78bfa);color:#fff;border:none;cursor:pointer;transition:all 0.2s;letter-spacing:0.3px;">REFRESH</button>
         <div style="position:relative;">
             <button onclick="toggleGearMenu()" style="cursor:pointer;width:32px;height:32px;border-radius:50%;font-size:14px;background:var(--ec-bg-secondary);color:var(--ec-text-tertiary);border:1px solid var(--ec-border);font-family:var(--ec-font-body);display:flex;align-items:center;justify-content:center;transition:all 0.2s;">&#9881;</button>
             <div id="gearMenu" style="display:none;position:absolute;right:0;top:calc(100% + 8px);background:var(--ec-bg-elevated);border:1px solid var(--ec-border);border-radius:var(--ec-radius-md);min-width:180px;z-index:150;overflow:hidden;box-shadow:var(--ec-shadow-lg);">
@@ -1285,14 +1190,14 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <!-- NBA ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutNBA" data-card="sintonia">
-    <h3 id="peterGutNBATitle" style="color:#A78BFA;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#A78BFA" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#A78BFA" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#A78BFA" stroke-width="2" stroke-linecap="round"/></svg>Sinton.ia's Card &mdash; NBA</h3>
+    <h3 id="peterGutNBATitle" style="color:#A78BFA;font-size:13px;">Sinton.ia's Card &mdash; NBA</h3>
     <div id="peterGutNBAContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
         <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load...</p>
     </div>
     <div id="peterGutNBATimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
 </div>
 <div class="input-section analysis-card" id="alyssaEdgeNBA" data-card="alyssa">
-    <h3 style="color:#E879F9;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><polygon points="32,6 38,24 58,24 42,36 48,54 32,44 16,54 22,36 6,24 26,24" fill="none" stroke="#E879F9" stroke-width="3" stroke-linejoin="round"/></svg>Alyssa's Edge &mdash; NBA</h3>
+    <h3 style="color:#E879F9;font-size:13px;">Alyssa's Edge &mdash; NBA</h3>
     <div style="font-size:10px;color:rgba(232,121,249,0.5);font-weight:700;letter-spacing:1px;margin-bottom:8px;">100% MATH. NO AI. PURE EDGE.</div>
     <div id="alyssaEdgeNBAContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
         <p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load edge analysis...</p>
@@ -1341,14 +1246,14 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <!-- NHL ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutNHL" data-card="sintonia">
-    <h3 id="peterGutNHLTitle" style="color:#A78BFA;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#A78BFA" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#A78BFA" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#A78BFA" stroke-width="2" stroke-linecap="round"/></svg>Sinton.ia's Card &mdash; NHL</h3>
+    <h3 id="peterGutNHLTitle" style="color:#A78BFA;font-size:13px;">Sinton.ia's Card &mdash; NHL</h3>
     <div id="peterGutNHLContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
         <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load...</p>
     </div>
     <div id="peterGutNHLTimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
 </div>
 <div class="input-section analysis-card" id="alyssaEdgeNHL" data-card="alyssa">
-    <h3 style="color:#E879F9;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><polygon points="32,6 38,24 58,24 42,36 48,54 32,44 16,54 22,36 6,24 26,24" fill="none" stroke="#E879F9" stroke-width="3" stroke-linejoin="round"/></svg>Alyssa's Edge &mdash; NHL</h3>
+    <h3 style="color:#E879F9;font-size:13px;">Alyssa's Edge &mdash; NHL</h3>
     <div style="font-size:10px;color:rgba(232,121,249,0.5);font-weight:700;letter-spacing:1px;margin-bottom:8px;">100% MATH. NO AI. PURE EDGE.</div>
     <div id="alyssaEdgeNHLContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
         <p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load edge analysis...</p>
@@ -1397,14 +1302,14 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <!-- MLB ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutMLB" data-card="sintonia">
-    <h3 id="peterGutMLBTitle" style="color:#A78BFA;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#A78BFA" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#A78BFA" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#A78BFA" stroke-width="2" stroke-linecap="round"/></svg>Sinton.ia's Card &mdash; MLB</h3>
+    <h3 id="peterGutMLBTitle" style="color:#A78BFA;font-size:13px;">Sinton.ia's Card &mdash; MLB</h3>
     <div id="peterGutMLBContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
         <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate or click MLB tab to load Sinton.ia's analysis card...</p>
     </div>
     <div id="peterGutMLBTimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
 </div>
 <div class="input-section analysis-card" id="alyssaEdgeMLB" data-card="alyssa">
-    <h3 style="color:#E879F9;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><polygon points="32,6 38,24 58,24 42,36 48,54 32,44 16,54 22,36 6,24 26,24" fill="none" stroke="#E879F9" stroke-width="3" stroke-linejoin="round"/></svg>Alyssa's Edge &mdash; MLB</h3>
+    <h3 style="color:#E879F9;font-size:13px;">Alyssa's Edge &mdash; MLB</h3>
     <div style="font-size:10px;color:rgba(232,121,249,0.5);font-weight:700;letter-spacing:1px;margin-bottom:8px;">100% MATH. NO AI. PURE EDGE.</div>
     <div id="alyssaEdgeMLBContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
         <p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load edge analysis...</p>
@@ -1441,12 +1346,12 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <!-- WNBA ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutWNBA" data-card="sintonia">
-    <h3 id="peterGutWNBATitle" style="color:#A78BFA;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#A78BFA" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#A78BFA" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#A78BFA" stroke-width="2" stroke-linecap="round"/></svg>Sinton.ia's Card &mdash; WNBA</h3>
+    <h3 id="peterGutWNBATitle" style="color:#A78BFA;font-size:13px;">Sinton.ia's Card &mdash; WNBA</h3>
     <div id="peterGutWNBAContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;"><p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load...</p></div>
     <div id="peterGutWNBATimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
 </div>
 <div class="input-section analysis-card" id="alyssaEdgeWNBA" data-card="alyssa">
-    <h3 style="color:#E879F9;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><polygon points="32,6 38,24 58,24 42,36 48,54 32,44 16,54 22,36 6,24 26,24" fill="none" stroke="#E879F9" stroke-width="3" stroke-linejoin="round"/></svg>Alyssa's Edge &mdash; WNBA</h3>
+    <h3 style="color:#E879F9;font-size:13px;">Alyssa's Edge &mdash; WNBA</h3>
     <div style="font-size:10px;color:rgba(232,121,249,0.5);font-weight:700;letter-spacing:1px;margin-bottom:8px;">100% MATH. NO AI. PURE EDGE.</div>
     <div id="alyssaEdgeWNBAContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;"><p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load edge analysis...</p></div>
 </div>
@@ -1480,12 +1385,12 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <!-- NCAAB ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutNCAAB" data-card="sintonia">
-    <h3 id="peterGutNCAABTitle" style="color:#A78BFA;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#A78BFA" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#A78BFA" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#A78BFA" stroke-width="2" stroke-linecap="round"/></svg>Sinton.ia's Card &mdash; NCAAB</h3>
+    <h3 id="peterGutNCAABTitle" style="color:#A78BFA;font-size:13px;">Sinton.ia's Card &mdash; NCAAB</h3>
     <div id="peterGutNCAABContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;"><p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load...</p></div>
     <div id="peterGutNCAABTimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
 </div>
 <div class="input-section analysis-card" id="alyssaEdgeNCAAB" data-card="alyssa">
-    <h3 style="color:#E879F9;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><polygon points="32,6 38,24 58,24 42,36 48,54 32,44 16,54 22,36 6,24 26,24" fill="none" stroke="#E879F9" stroke-width="3" stroke-linejoin="round"/></svg>Alyssa's Edge &mdash; NCAAB</h3>
+    <h3 style="color:#E879F9;font-size:13px;">Alyssa's Edge &mdash; NCAAB</h3>
     <div style="font-size:10px;color:rgba(232,121,249,0.5);font-weight:700;letter-spacing:1px;margin-bottom:8px;">100% MATH. NO AI. PURE EDGE.</div>
     <div id="alyssaEdgeNCAABContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;"><p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load edge analysis...</p></div>
 </div>
@@ -1519,12 +1424,12 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <!-- NCAAF ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutNCAAF" data-card="sintonia">
-    <h3 id="peterGutNCAAFTitle" style="color:#A78BFA;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#A78BFA" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#A78BFA" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#A78BFA" stroke-width="2" stroke-linecap="round"/></svg>Sinton.ia's Card &mdash; NCAAF</h3>
+    <h3 id="peterGutNCAAFTitle" style="color:#A78BFA;font-size:13px;">Sinton.ia's Card &mdash; NCAAF</h3>
     <div id="peterGutNCAAFContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;"><p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load...</p></div>
     <div id="peterGutNCAAFTimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
 </div>
 <div class="input-section analysis-card" id="alyssaEdgeNCAAF" data-card="alyssa">
-    <h3 style="color:#E879F9;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><polygon points="32,6 38,24 58,24 42,36 48,54 32,44 16,54 22,36 6,24 26,24" fill="none" stroke="#E879F9" stroke-width="3" stroke-linejoin="round"/></svg>Alyssa's Edge &mdash; NCAAF</h3>
+    <h3 style="color:#E879F9;font-size:13px;">Alyssa's Edge &mdash; NCAAF</h3>
     <div style="font-size:10px;color:rgba(232,121,249,0.5);font-weight:700;letter-spacing:1px;margin-bottom:8px;">100% MATH. NO AI. PURE EDGE.</div>
     <div id="alyssaEdgeNCAAFContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;"><p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load edge analysis...</p></div>
 </div>
@@ -1558,12 +1463,12 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <!-- TENNIS ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutTENNIS" data-card="sintonia">
-    <h3 id="peterGutTENNISTitle" style="color:#A78BFA;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#A78BFA" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#A78BFA" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#A78BFA" stroke-width="2" stroke-linecap="round"/></svg>Sinton.ia's Card &mdash; Tennis</h3>
+    <h3 id="peterGutTENNISTitle" style="color:#A78BFA;font-size:13px;">Sinton.ia's Card &mdash; Tennis</h3>
     <div id="peterGutTENNISContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;"><p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load...</p></div>
     <div id="peterGutTENNISTimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
 </div>
 <div class="input-section analysis-card" id="alyssaEdgeTENNIS" data-card="alyssa">
-    <h3 style="color:#E879F9;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><polygon points="32,6 38,24 58,24 42,36 48,54 32,44 16,54 22,36 6,24 26,24" fill="none" stroke="#E879F9" stroke-width="3" stroke-linejoin="round"/></svg>Alyssa's Edge &mdash; Tennis</h3>
+    <h3 style="color:#E879F9;font-size:13px;">Alyssa's Edge &mdash; Tennis</h3>
     <div style="font-size:10px;color:rgba(232,121,249,0.5);font-weight:700;letter-spacing:1px;margin-bottom:8px;">100% MATH. NO AI. PURE EDGE.</div>
     <div id="alyssaEdgeTENNISContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;"><p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load edge analysis...</p></div>
 </div>
@@ -1601,14 +1506,14 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <!-- SOCCER ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutSOCCER" data-card="sintonia">
-    <h3 id="peterGutSOCCERTitle" style="color:#A78BFA;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#A78BFA" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#A78BFA" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#A78BFA" stroke-width="2" stroke-linecap="round"/></svg>Sinton.ia's Card &mdash; Soccer</h3>
+    <h3 id="peterGutSOCCERTitle" style="color:#A78BFA;font-size:13px;">Sinton.ia's Card &mdash; Soccer</h3>
     <div id="peterGutSOCCERContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
         <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load Sinton.ia's analysis card...</p>
     </div>
     <div id="peterGutSOCCERTimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
 </div>
 <div class="input-section analysis-card" id="alyssaEdgeSOCCER" data-card="alyssa">
-    <h3 style="color:#E879F9;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><polygon points="32,6 38,24 58,24 42,36 48,54 32,44 16,54 22,36 6,24 26,24" fill="none" stroke="#E879F9" stroke-width="3" stroke-linejoin="round"/></svg>Alyssa's Edge &mdash; Soccer</h3>
+    <h3 style="color:#E879F9;font-size:13px;">Alyssa's Edge &mdash; Soccer</h3>
     <div style="font-size:10px;color:rgba(232,121,249,0.5);font-weight:700;letter-spacing:1px;margin-bottom:8px;">100% MATH. NO AI. PURE EDGE.</div>
     <div id="alyssaEdgeSOCCERContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
         <p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load edge analysis...</p>
@@ -1649,14 +1554,14 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <!-- MMA ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutMMA" data-card="sintonia">
-    <h3 id="peterGutMMATitle" style="color:#A78BFA;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#A78BFA" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#A78BFA" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#A78BFA" stroke-width="2" stroke-linecap="round"/></svg>Sinton.ia's Card &mdash; MMA</h3>
+    <h3 id="peterGutMMATitle" style="color:#A78BFA;font-size:13px;">Sinton.ia's Card &mdash; MMA</h3>
     <div id="peterGutMMAContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
         <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load Sinton.ia's analysis card...</p>
     </div>
     <div id="peterGutMMATimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
 </div>
 <div class="input-section analysis-card" id="alyssaEdgeMMA" data-card="alyssa">
-    <h3 style="color:#E879F9;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><polygon points="32,6 38,24 58,24 42,36 48,54 32,44 16,54 22,36 6,24 26,24" fill="none" stroke="#E879F9" stroke-width="3" stroke-linejoin="round"/></svg>Alyssa's Edge &mdash; MMA</h3>
+    <h3 style="color:#E879F9;font-size:13px;">Alyssa's Edge &mdash; MMA</h3>
     <div style="font-size:10px;color:rgba(232,121,249,0.5);font-weight:700;letter-spacing:1px;margin-bottom:8px;">100% MATH. NO AI. PURE EDGE.</div>
     <div id="alyssaEdgeMMAContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
         <p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load edge analysis...</p>
@@ -1697,14 +1602,14 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <!-- BOXING ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutBOXING" data-card="sintonia">
-    <h3 id="peterGutBOXINGTitle" style="color:#A78BFA;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#A78BFA" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#A78BFA" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#A78BFA" stroke-width="2" stroke-linecap="round"/></svg>Sinton.ia's Card &mdash; Boxing</h3>
+    <h3 id="peterGutBOXINGTitle" style="color:#A78BFA;font-size:13px;">Sinton.ia's Card &mdash; Boxing</h3>
     <div id="peterGutBOXINGContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
         <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load Sinton.ia's analysis card...</p>
     </div>
     <div id="peterGutBOXINGTimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
 </div>
 <div class="input-section analysis-card" id="alyssaEdgeBOXING" data-card="alyssa">
-    <h3 style="color:#E879F9;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><polygon points="32,6 38,24 58,24 42,36 48,54 32,44 16,54 22,36 6,24 26,24" fill="none" stroke="#E879F9" stroke-width="3" stroke-linejoin="round"/></svg>Alyssa's Edge &mdash; Boxing</h3>
+    <h3 style="color:#E879F9;font-size:13px;">Alyssa's Edge &mdash; Boxing</h3>
     <div style="font-size:10px;color:rgba(232,121,249,0.5);font-weight:700;letter-spacing:1px;margin-bottom:8px;">100% MATH. NO AI. PURE EDGE.</div>
     <div id="alyssaEdgeBOXINGContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
         <p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load edge analysis...</p>
@@ -2500,12 +2405,6 @@ function processToastQueue() {
 var picks = {}; // { gameName: { checked: bool, side: string } }
 
 function refreshSlate() {
-    // _isManualRefresh controls overlay visibility and cache bypass
-    var isManual = window._isManualRefresh || false;
-    window._forceRefreshOdds = isManual;
-    window._isManualRefresh = false; // reset after use
-    // Reset retry flags for cold-start resilience
-    fetchLiveOdds._retried = {};
     // Reset all game row checks and side picks
     picks = {};
     safeRemove('edgeLockedPicks');
@@ -2538,17 +2437,15 @@ function refreshSlate() {
     // Update submit bar
     updateSubmitBar();
 
-    // Show loading overlay ONLY on manual refresh — initial load stays visible
+    // Show loading overlay
     var overlay = document.getElementById('loadingOverlay');
     var loadText = document.getElementById('loadingText');
-    if (isManual) {
-        if (overlay) overlay.classList.add('active');
-        document.body.classList.add('loading');
-        var loadBanner = document.getElementById('loadingBanner');
-        if (loadBanner) loadBanner.textContent = 'LOADING';
-        if (loadText) loadText.textContent = 'Loading odds...';
-        renderLoadingStack();
-    }
+    if (overlay) overlay.classList.add('active');
+    document.body.classList.add('loading');
+    var loadBanner = document.getElementById('loadingBanner');
+    if (loadBanner) loadBanner.textContent = 'LOADING';
+    if (loadText) loadText.textContent = 'Loading odds...';
+    renderLoadingStack();
 
     // Set sweep status to ANALYZING with spinner
     var sweepEl = document.getElementById('sweepTime');
@@ -2560,36 +2457,22 @@ function refreshSlate() {
     var loadedCount = 0;
     var analysisCount = 0;
     var oddsPhase = true;
-    var totalSteps = sportsToLoad.length; // odds only — analysis deferred to agent selection
+    var totalSteps = sportsToLoad.length * 2; // odds + analysis per sport
     var progressBar = document.getElementById('loadingProgress');
     function updateProgress() {
-        var pct = Math.min(100, Math.round((loadedCount / totalSteps) * 100));
+        var pct = Math.min(100, Math.round(((loadedCount + analysisCount) / totalSteps) * 100));
         if (progressBar) progressBar.style.width = pct + '%';
     }
-    // Legacy callback — still fired from edge cases in fetchLiveOdds catch handlers
     window._analysisLoadCallback = function(sport) {
-        // No-op in new architecture — overlay dismissal handled by onSportLoaded
-    };
-    // Safety timeout — dismiss after 30s no matter what
-    setTimeout(function() {
-        if (overlay) overlay.classList.remove('active');
-        document.body.classList.remove('loading');
-        if (sweepEl && sweepEl.textContent !== 'LIVE') { sweepEl.textContent = 'LIVE'; }
-        if (sweepDot) { sweepDot.style.background = 'var(--ec-success)'; sweepDot.style.animation = 'none'; }
-        // Also trigger agent selection if not already resolved
-        if (!document.body.classList.contains('agent-active')) {
-            var savedAgent = sessionStorage.getItem('edgeCrewAgent');
-            if (savedAgent) { applyAgentFilter(savedAgent); }
-            else { showAgentSelect(); }
-        }
-    }, 30000);
-
-    function onSportLoaded(sport) {
-        loadedCount++;
+        analysisCount++;
         updateProgress();
-        if (loadText) loadText.textContent = 'Loading ' + sport.toUpperCase() + '... (' + loadedCount + '/' + sportsToLoad.length + ')';
-        if (loadedCount >= sportsToLoad.length) {
-            // All sports loaded from cache/API — dismiss overlay immediately
+        if (sweepEl) sweepEl.textContent = 'ANALYZING ' + analysisCount + '/' + sportsToLoad.length;
+        var loadBanner = document.getElementById('loadingBanner');
+        if (loadBanner) loadBanner.textContent = 'ANALYZING';
+        if (loadText && overlay && overlay.classList.contains('active')) {
+            loadText.textContent = 'Analyzing ' + sport.toUpperCase() + '... (' + analysisCount + '/' + sportsToLoad.length + ')';
+        }
+        if (analysisCount >= sportsToLoad.length) {
             if (progressBar) progressBar.style.width = '100%';
             if (overlay) overlay.classList.remove('active');
             document.body.classList.remove('loading');
@@ -2597,15 +2480,26 @@ function refreshSlate() {
             if (sweepDot) { sweepDot.style.background = 'var(--ec-success)'; sweepDot.style.animation = 'none'; }
             loadProps();
             populateTicker();
-            // Agent selection: show picker or auto-apply saved choice
-            var savedAgent = sessionStorage.getItem('edgeCrewAgent');
-            var wasForceRefresh = window._forceRefreshOdds;
-            window._forceRefreshOdds = false; // Clear flag after use
-            if (savedAgent) {
-                applyAgentFilter(savedAgent, wasForceRefresh);
-            } else {
-                showAgentSelect();
-            }
+        }
+    };
+    // Safety timeout — dismiss after 30s no matter what
+    setTimeout(function() {
+        if (overlay) overlay.classList.remove('active');
+        document.body.classList.remove('loading');
+        if (sweepEl && sweepEl.textContent !== 'LIVE') { sweepEl.textContent = 'LIVE'; }
+        if (sweepDot) { sweepDot.style.background = 'var(--ec-success)'; sweepDot.style.animation = 'none'; }
+    }, 30000);
+
+    function onSportLoaded(sport) {
+        loadedCount++;
+        updateProgress();
+        if (loadText) loadText.textContent = 'Loading ' + sport.toUpperCase() + '... (' + loadedCount + '/' + sportsToLoad.length + ')';
+        if (loadedCount >= sportsToLoad.length) {
+            var loadBanner = document.getElementById('loadingBanner');
+            if (loadBanner) loadBanner.textContent = 'ANALYZING';
+            if (loadText) loadText.textContent = 'Analyzing games...';
+            if (sweepEl) sweepEl.textContent = 'ANALYZING';
+            oddsPhase = false;
         }
     }
 
@@ -5036,23 +4930,9 @@ function fetchLiveOdds(sport, onDone) {
 
     var gotcha = panel.querySelector('.gotcha-banner');
 
-    // Layer 0: Try cached daily record first, fall back to live API
-    // On manual REFRESH (_forceRefreshOdds=true), skip cache and hit live API
-    var _oddsFetch;
-    if (window._forceRefreshOdds) {
-        _oddsFetch = fetch('/api/odds/' + sport).then(function(r) { return r.json(); });
-    } else {
-        _oddsFetch = fetch('/api/slate/cached/' + sport)
-            .then(function(r) { return r.json(); })
-            .then(function(data) {
-                if (data.games && data.games.length > 0) return data;
-                throw new Error('empty cache');
-            })
-            .catch(function() {
-                return fetch('/api/odds/' + sport).then(function(r) { return r.json(); });
-            });
-    }
-    _oddsFetch.then(function(data) {
+    fetch('/api/odds/' + sport)
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
             panel.classList.remove('panel-loading');
             if (data.error) {
                 var errMsg = document.createElement('div');
@@ -5093,7 +4973,12 @@ function fetchLiveOdds(sport, onDone) {
                         if (count) count.textContent = '0';
                     }
                 });
-                // Analysis deferred to agent selection (Layer 0 architecture)
+                // Still fetch analysis for gotcha card even with 0 pregame games
+                if (data.games && data.games.length > 0) {
+                    fetchAnalysis(sport);
+                } else {
+                    if (typeof window._analysisLoadCallback === 'function') window._analysisLoadCallback(sport);
+                }
                 if (typeof onDone === 'function') onDone(sport);
                 return;
             }
@@ -5153,32 +5038,23 @@ function fetchLiveOdds(sport, onDone) {
             // Re-apply saved picks after DOM rebuild
             if (typeof restoreLockedPicks === 'function') restoreLockedPicks();
 
-            // Layer 0 architecture: analysis/edge deferred to agent selection
-            // Only fetch injuries (standalone, not agent-dependent)
+            // Trigger analysis + edge AFTER game rows are rendered (not on a timer)
             if (pregameGames.length > 0) {
+                fetchAnalysis(sport);
+                fetchEdge(sport);
                 fetchInjuries(sport);
+            } else {
+                // No pregame games — still fire analysis callback for loading overlay
+                if (typeof window._analysisLoadCallback === 'function') window._analysisLoadCallback(sport);
             }
             if (typeof onDone === 'function') onDone(sport);
         })
         .catch(function(err) {
-            // Retry up to 3 times with increasing delay (cold start resilience)
-            if (!fetchLiveOdds._retried) fetchLiveOdds._retried = {};
-            var retryCount = fetchLiveOdds._retried[sport] || 0;
-            if (retryCount < 3) {
-                fetchLiveOdds._retried[sport] = retryCount + 1;
-                var delay = (retryCount + 1) * 3000;
-                var loadText = document.getElementById('loadingText');
-                if (loadText) loadText.textContent = sport.toUpperCase() + ' loading... retry ' + (retryCount + 1) + '/3';
-                setTimeout(function() { fetchLiveOdds(sport, onDone); }, delay);
-                return;
-            }
             panel.classList.remove('panel-loading');
             if (typeof onDone === 'function') onDone(sport);
-            // Fire analysis callback so lockdown doesn't hang
-            if (typeof window._analysisLoadCallback === 'function') window._analysisLoadCallback(sport);
             var errMsg = document.createElement('div');
             errMsg.className = 'panel-error';
-            errMsg.textContent = 'Failed to load ' + sport.toUpperCase() + ' odds. Hit REFRESH to retry.';
+            errMsg.textContent = 'Failed to load ' + sport.toUpperCase() + ' odds. Check connection and try again.';
             panel.appendChild(errMsg);
         });
 }
@@ -5652,96 +5528,11 @@ function getAnalysisGrade(sport, matchup) {
     return '';
 }
 
-// ===== AGENT SELECTION SYSTEM =====
-function showAgentSelect() {
-    var screen = document.getElementById('agentSelectScreen');
-    screen.classList.add('active');
-    screen.style.display = 'flex';
-}
-
-function selectAgent(who) {
-    if (who === 'custom') return; // disabled
-    sessionStorage.setItem('edgeCrewAgent', who);
-    var screen = document.getElementById('agentSelectScreen');
-    screen.classList.remove('active');
-    screen.style.display = 'none';
-    applyAgentFilter(who);
-    // Ensure game rows are visible (safety)
-    document.querySelectorAll('.game-row').forEach(function(r) { r.style.display = ''; });
-    window.scrollTo(0, 0);
-}
-
-function applyAgentFilter(who, forceRefresh) {
-    document.body.classList.remove('agent-sintonia', 'agent-alyssa');
-    document.body.classList.add('agent-' + who, 'agent-active');
-    var label = document.getElementById('agentSwitcherLabel');
-    if (label) {
-        var names = {sintonia: "Sinton.ia", alyssa: "Alyssa"};
-        label.textContent = (names[who] || who.toUpperCase()) + " \u25BC";
-    }
-    // Fetch agent data on selection — deferred from page load (Layer 0 architecture)
-    var allSports = ['nba','wnba','ncaab','ncaaf','nhl','mlb','tennis','soccer','mma','boxing'];
-    if (who === 'sintonia') {
-        allSports.forEach(function(s) {
-            var el = document.getElementById('peterGut' + s.toUpperCase() + 'Content');
-            // Fetch if not loaded yet (placeholder) or on force refresh
-            if (el && (forceRefresh || el.querySelector('p[style*="italic"]'))) fetchAnalysis(s);
-        });
-    } else if (who === 'alyssa') {
-        allSports.forEach(function(s) {
-            var el = document.getElementById('alyssaEdge' + s.toUpperCase() + 'Content');
-            if (el && (forceRefresh || el.querySelector('p[style*="italic"]'))) fetchEdge(s);
-        });
-    }
-}
-
-function backToAgents() {
-    sessionStorage.removeItem('edgeCrewAgent');
-    document.body.classList.remove('agent-sintonia', 'agent-alyssa', 'agent-active');
-    showAgentSelect();
-}
-
 // ===== ANALYSIS FETCH =====
 // ===== ANALYSIS TOGGLE (Sinton.ia vs Alyssa) =====
 function toggleAnalysis(sport, who, btn) {
     // No-op: both cards now displayed side-by-side via analysis-duo
     return;
-}
-
-function quickPick(sport, matchup, selection, type) {
-    // Pre-fill pick form from analysis card tap
-    var sportEl = document.getElementById('pickSport');
-    var typeEl = document.getElementById('pickType');
-    var matchupEl = document.getElementById('pickMatchup');
-    var matchupCustom = document.getElementById('pickMatchupCustom');
-    var selectionEl = document.getElementById('pickSelection');
-    var selectionCustom = document.getElementById('pickSelectionCustom');
-    var oddsCustom = document.getElementById('pickOddsCustom');
-
-    if (sportEl) sportEl.value = sport.toUpperCase();
-    if (typeEl) typeEl.value = type || 'ML';
-
-    // Try to match in dropdown, otherwise use custom
-    if (matchupEl) {
-        var found = false;
-        for (var i = 0; i < matchupEl.options.length; i++) {
-            if (matchupEl.options[i].value === matchup) { matchupEl.value = matchup; found = true; break; }
-        }
-        if (!found) {
-            matchupEl.value = 'other';
-            if (matchupCustom) { matchupCustom.style.display = ''; matchupCustom.value = matchup; }
-        }
-        // Trigger change to populate pick dropdown
-        matchupEl.dispatchEvent(new Event('change'));
-    }
-
-    // Set selection in custom field
-    if (selectionCustom) { selectionCustom.style.display = ''; selectionCustom.value = selection; }
-    if (selectionEl) selectionEl.value = 'other';
-
-    // Scroll to pick form
-    var form = document.querySelector('.pick-form') || document.getElementById('pickSport');
-    if (form) form.scrollIntoView({behavior: 'smooth', block: 'center'});
 }
 
 function fetchEdge(sport) {
@@ -5775,34 +5566,19 @@ function fetchEdge(sport) {
                 html += '<div style="border:1px solid rgba(232,121,249,0.15);border-radius:10px;padding:12px;margin-bottom:10px;background:rgba(232,121,249,0.03);">';
 
                 // Header: matchup + book count + vig
-                var _matchup = g.away + ' @ ' + g.home;
-                var _esc = function(s) { return s.replace(/'/g, "\\'"); };
                 html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">';
-                html += '<div style="color:#fff;font-weight:700;font-size:14px;">';
-                html += '<span class="qp-link" onclick="event.stopPropagation();quickPick(\'' + _esc(sport) + '\',\'' + _esc(_matchup) + '\',\'' + _esc(g.away) + ' ML\',\'ML\')" style="cursor:pointer;border-bottom:1px dashed rgba(255,255,255,0.2);">' + g.away + '</span>';
-                html += ' @ ';
-                html += '<span class="qp-link" onclick="event.stopPropagation();quickPick(\'' + _esc(sport) + '\',\'' + _esc(_matchup) + '\',\'' + _esc(g.home) + ' ML\',\'ML\')" style="cursor:pointer;border-bottom:1px dashed rgba(255,255,255,0.2);">' + g.home + '</span>';
-                html += '</div>';
+                html += '<div style="color:#fff;font-weight:700;font-size:14px;">' + g.away + ' @ ' + g.home + '</div>';
                 html += '<div style="font-size:10px;color:rgba(255,255,255,0.3);">' + (g.book_count || 0) + ' books | Vig: ' + g.vig + '%</div>';
                 html += '</div>';
 
-                // Consensus lines — clickable
+                // Consensus lines
                 html += '<div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:4px;">';
                 html += '<span style="color:rgba(232,121,249,0.5);font-weight:600;">CONSENSUS</span> ';
-                if (g.home_spread != null) {
-                    html += 'Spread: <span class="qp-link" onclick="event.stopPropagation();quickPick(\'' + _esc(sport) + '\',\'' + _esc(_matchup) + '\',\'' + _esc(g.home + ' ' + g.home_spread) + '\',\'Spread\')" style="cursor:pointer;border-bottom:1px dashed rgba(232,121,249,0.3);">' + g.home + ' ' + g.home_spread + '</span>';
-                } else {
-                    html += 'Spread: —';
-                }
+                html += 'Spread: ' + g.home + ' ' + (g.home_spread != null ? g.home_spread : '—');
                 if (g.spread_range > 0) html += ' <span style="color:rgba(255,255,255,0.25);">(range ' + g.spread_range + ')</span>';
-                if (g.total != null) {
-                    html += ' | O/U: <span class="qp-link" onclick="event.stopPropagation();quickPick(\'' + _esc(sport) + '\',\'' + _esc(_matchup) + '\',\'OVER ' + g.total + '\',\'Total\')" style="cursor:pointer;border-bottom:1px dashed rgba(232,121,249,0.3);">' + g.total + '</span>';
-                } else {
-                    html += ' | O/U: —';
-                }
+                html += ' | O/U: ' + (g.total != null ? g.total : '—');
                 if (g.total_range > 0) html += ' <span style="color:rgba(255,255,255,0.25);">(range ' + g.total_range + ')</span>';
-                html += ' | ML: <span class="qp-link" onclick="event.stopPropagation();quickPick(\'' + _esc(sport) + '\',\'' + _esc(_matchup) + '\',\'' + _esc(g.away) + ' ML (' + g.away_ml + ')\',\'ML\')" style="cursor:pointer;border-bottom:1px dashed rgba(232,121,249,0.3);">' + g.away + ' ' + g.away_ml + '</span>';
-                html += ' / <span class="qp-link" onclick="event.stopPropagation();quickPick(\'' + _esc(sport) + '\',\'' + _esc(_matchup) + '\',\'' + _esc(g.home) + ' ML (' + g.home_ml + ')\',\'ML\')" style="cursor:pointer;border-bottom:1px dashed rgba(232,121,249,0.3);">' + g.home + ' ' + g.home_ml + '</span>';
+                html += ' | ML: ' + g.away + ' ' + g.away_ml + ' / ' + g.home + ' ' + g.home_ml;
                 html += '</div>';
 
                 // Best available prices
@@ -5891,18 +5667,10 @@ function fetchAnalysis(sport) {
     var panel = document.getElementById('panel-' + sport);
     if (!panel) return;
 
-    // Show analyzing state
-    var gutContent = document.getElementById('peterGut' + sport.toUpperCase() + 'Content');
-    if (gutContent) gutContent.innerHTML = '<p style="color:rgba(167,139,250,0.6);font-style:italic;">Analyzing ' + sport.toUpperCase() + ' slate...</p>';
-
     fetch('/api/analysis/' + sport)
         .then(function(r) { return r.json(); })
         .then(function(data) {
-            if (data.error) {
-                console.error('Analysis error:', data.error);
-                if (gutContent) gutContent.innerHTML = '<p style="color:rgba(239,68,68,0.6);font-style:italic;">Analysis unavailable — ' + data.error + '</p>';
-                return;
-            }
+            if (data.error) { console.error('Analysis error:', data.error); return; }
 
             // Cache analysis data for props
             _analysisCache[sport.toUpperCase()] = data;
