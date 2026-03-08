@@ -1424,7 +1424,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     <textarea id="gotchaEditor-WBC" style="display:none;width:100%;min-height:150px;background:#08080c;color:#fff;border:1px solid #22c55e;border-radius:6px;padding:10px;font-family:var(--ec-font-body);font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line..."></textarea>
 </div>
 
-<div class="empty-state">No WBC games loaded.<br><strong>Hit REFRESH SLATE</strong> to load live lines.</div>
+<div class="empty-state">WBC not available on The Odds API.<br>Use <strong>Add Pick</strong> form to enter WBC bets manually.</div>
 
 <!-- WBC UPSET SPECIALS -->
 <div class="upset-section" id="upsetWBC">
@@ -3043,6 +3043,7 @@ function lockCard() {
         var type = 'Spread';
         var sel = lp.selection.toUpperCase();
         if (sel.indexOf('ML') !== -1) type = 'Moneyline';
+        else if ((sel.indexOf('OVER ') !== -1 || sel.indexOf('UNDER ') !== -1) && /[A-Z]{2,}\s+(OVER|UNDER)\s+\d/.test(sel)) type = 'Prop';
         else if (sel.indexOf('OVER') !== -1 || sel.indexOf('UNDER') !== -1) type = 'Over/Under';
 
         var grade = getAnalysisGrade(sport, lp.matchup);
@@ -3130,6 +3131,7 @@ function switchSport(sport, e) {
         });
     }
     if (sport === 'combined') fetchCombinedSlate();
+    if (sport === 'props') { loadPropsForSport(_currentPropsSport || 'nba'); }
     if (sport === 'scores') { loadScoreboard(); startScoreboardRefresh(); }
     if (typeof populateIntel === 'function') populateIntel(sport);
     // Auto-fetch Alyssa edge data for side-by-side view
@@ -3364,10 +3366,17 @@ function submitPick() {
     }
 
     var grade = getAnalysisGrade(sport, matchup);
+    // Auto-detect prop type from selection text
+    var detectedType = type || 'Spread';
+    var selCheck = selection.toLowerCase();
+    if ((selCheck.indexOf('over ') !== -1 || selCheck.indexOf('under ') !== -1) &&
+        /[a-z]{2,}\s+(over|under)\s+\d/i.test(selection)) {
+        detectedType = 'Prop';
+    }
     var pick = {
         name: name,
         sport: sport,
-        type: type || 'Spread',
+        type: detectedType,
         matchup: matchup,
         selection: selection,
         odds: odds || 'N/A',
@@ -6709,8 +6718,13 @@ function addPropToPicks(selection, odds, matchup, sport, notes) {
         created_at: new Date().toISOString()
     };
 
-    // Save to localStorage
+    // Save to localStorage (with dedup check)
     var stored = JSON.parse(safeLoad('edgePicks') || '[]');
+    var dupKey = (pick.name + '|' + pick.date + '|' + pick.selection + '|' + pick.matchup).toLowerCase();
+    var isDup = stored.some(function(p) {
+        return (p.name + '|' + p.date + '|' + p.selection + '|' + p.matchup).toLowerCase() === dupKey;
+    });
+    if (isDup) { showToast('Duplicate prop - already locked.', true); return; }
     stored.unshift(pick);
     safeSave('edgePicks', JSON.stringify(stored));
 

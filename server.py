@@ -1400,7 +1400,7 @@ SPORT_KEYS = {
     "nhl": ["icehockey_nhl"],
     "nfl": ["americanfootball_nfl"],
     "mlb": ["baseball_mlb", "baseball_mlb_preseason"],
-    "wbc": ["baseball_wbc"],
+    "wbc": [],  # WBC not available on The Odds API — manual picks only
     "mma": ["mma_mixed_martial_arts"],
     "boxing": ["boxing_boxing"],
     "tennis": [
