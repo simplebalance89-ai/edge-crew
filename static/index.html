@@ -5099,7 +5099,11 @@ function fetchLiveOdds(sport, onDone) {
     var gotcha = panel.querySelector('.gotcha-banner');
 
     // Try cached slate first (instant from disk), fall back to live API
-    var oddsUrl = window._forceRefreshOdds ? '/api/odds/' + sport : '/api/slate/cached/' + sport;
+    // _forceRefreshOdds = manual REFRESH button; _retryLive[sport] = retry after cache miss
+    if (!fetchLiveOdds._retryLive) fetchLiveOdds._retryLive = {};
+    var useLive = window._forceRefreshOdds || fetchLiveOdds._retryLive[sport];
+    var oddsUrl = useLive ? '/api/odds/' + sport : '/api/slate/cached/' + sport;
+    if (fetchLiveOdds._retryLive[sport]) delete fetchLiveOdds._retryLive[sport];
     var _oddsFetch = fetch(oddsUrl).then(function(r) {
         if (!r.ok) throw new Error('HTTP ' + r.status);
         return r.json();
@@ -5213,15 +5217,17 @@ function fetchLiveOdds(sport, onDone) {
             if (typeof onDone === 'function') onDone(sport);
         })
         .catch(function(err) {
-            // Retry once with short delay (cold start resilience)
+            // Retry once after 10s — don't hammer the API
             if (!fetchLiveOdds._retried) fetchLiveOdds._retried = {};
             var retryCount = fetchLiveOdds._retried[sport] || 0;
             if (retryCount < 1) {
                 fetchLiveOdds._retried[sport] = retryCount + 1;
-                var delay = 2000;
                 var loadText = document.getElementById('loadingText');
-                if (loadText) loadText.textContent = sport.toUpperCase() + ' retrying...';
-                setTimeout(function() { fetchLiveOdds(sport, onDone); }, delay);
+                if (loadText) loadText.textContent = sport.toUpperCase() + ' — retrying in 10s...';
+                // On retry, hit live API directly (cached slate was empty/failed)
+                if (!fetchLiveOdds._retryLive) fetchLiveOdds._retryLive = {};
+                fetchLiveOdds._retryLive[sport] = true;
+                setTimeout(function() { fetchLiveOdds(sport, onDone); }, 10000);
                 return;
             }
             panel.classList.remove('panel-loading');
