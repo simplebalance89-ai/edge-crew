@@ -207,7 +207,6 @@ _sessions = {}  # token -> {id, display_name, color, is_admin}
 
 DEFAULT_CREW = [
     {"id": "peter", "display_name": "Peter", "color": "#D4A017", "is_admin": True},
-    {"id": "chinny", "display_name": "Chinny", "color": "#10B981", "is_admin": False},
     {"id": "jimmy", "display_name": "Jimmy", "color": "#60A5FA", "is_admin": False},
     {"id": "alyssa", "display_name": "Alyssa", "color": "#41EAD4", "is_admin": False},
     {"id": "sintonia", "display_name": "Sinton.ia", "color": "#F72585", "is_admin": False},
@@ -2230,7 +2229,7 @@ async def get_analysis(sport: str):
 
 CRITICAL ROSTER RULE: Your training data is STALE. Players have been traded. DO NOT reference any player unless they appear in the CURRENT ROSTERS section below. Key 2025-26 trades: Luka→LAL, KD→HOU, Butler→GS, AD→WSH, Fox→SA, Bane→ORL, Ingram→TOR. If a player is NOT in the roster data below, DO NOT mention them for that team. This is non-negotiable.
 
-CREW: Peter (heavy/value/sharp, sizes up on conviction), Chinny (props/NHL/soccer master), Jimmy (new, learning), Sinton.ia (card builder/grader).
+CREW: Peter (heavy/value/sharp, sizes up on conviction), Jimmy (new, learning), Alyssa (pure math/EV edge), Sinton.ia (card builder/grader).
 RULES: "Why is the market wrong?" = required for every grade. No answer = NO BET (grade D/F). Valid edges: news not priced in, public overreaction, rest/schedule, matchup-specific, sharp vs public, situational. Invalid: "better team", "should win", "volume play".
 
 Today's {sport.upper()} slate - {today} (pulled at {now_time}):
@@ -2269,7 +2268,7 @@ Generate analysis in this EXACT JSON format:
       "peter_zone": "2-3 sentences. Peter's play: conviction level, sizing suggestion (full unit / half / small / pass), line value assessment.",
       "trends": ["ATS trend", "O/U trend", "H2H trend"],
       "flags": ["injury flag 1", "schedule flag", "sharp money flag"],
-      "chinny_props": [
+      "player_props": [
         {{"player": "Player Name", "prop": "Over 24.5 Points", "line": "-115", "grade": "A/B+/B/C", "edge": "why this prop hits"}}
       ],
       "data_status": "COMPLETE or INCOMPLETE or TBD - state exactly what is missing or pending (lineups, injury report, etc.)",
@@ -2298,7 +2297,7 @@ GRADING RULES:
 - injury_impact is MANDATORY. Check the RotoWire data above. Name specific players.
 - If RotoWire data is unavailable, flag it: "Injury data not confirmed - grade with caution."
 - rest_schedule is MANDATORY. Check game times for B2B detection.
-- Chinny props: top 3-5 per game, B+ grade minimum. Skip for INCOMPLETE or TBD. Each prop MUST have player name, prop line, odds estimate, individual grade (A/B+/B/C), and 1-sentence edge explanation. EVERY prop must note games played this season if available. < 20 games = auto-flag.
+- Player props: top 3-5 per game, B+ grade minimum. Skip for INCOMPLETE or TBD. Each prop MUST have player name, prop line, odds estimate, individual grade (A/B+/B/C), and 1-sentence edge explanation. EVERY prop must note games played this season if available. < 20 games = auto-flag.
 - ABSOLUTE ROSTER LOCK: A player prop can ONLY be suggested for a player who appears in the CURRENT ROSTERS data for one of the two teams in that specific game. If "Jayson Tatum" is in the BOS roster and the game is NYK @ DEN, you CANNOT suggest a Tatum prop on that game — he is NOT playing in it. This is non-negotiable. Check the roster list, find the player, confirm the team matches the game. If the player is not in either team's roster for that game, DO NOT suggest the prop. Period.
 - PASS games get grade D or F with explicit reason.
 - Be brutally honest. C means marginal. D means no edge. F means trap. "Slight edge" with no specifics = D grade, not B.

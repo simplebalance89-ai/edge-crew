@@ -74,7 +74,6 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
 .crew{display:flex;gap:8px;}
 .crew-badge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:0.5px;}
 .crew-peter{background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.3);}
-.crew-chinny{background:rgba(16,185,129,0.15);color:#10B981;border:1px solid rgba(16,185,129,0.3);}
 .crew-jimmy{background:rgba(96,165,250,0.15);color:#60A5FA;border:1px solid rgba(96,165,250,0.3);}
 .crew-alyssa{background:rgba(65,234,212,0.15);color:#41EAD4;border:1px solid rgba(65,234,212,0.3);}
 .crew-sintonia{background:rgba(247,37,133,0.15);color:#F72585;border:1px solid rgba(247,37,133,0.3);}
@@ -235,7 +234,6 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
 .detail-box{background:var(--ec-bg-elevated);border:1px solid var(--ec-border);border-radius:12px;padding:16px;}
 .detail-box h4{font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;font-weight:600;}
 .detail-box.peter h4{color:var(--ec-accent-light);}
-.detail-box.chinny h4{color:var(--ec-success);}
 .detail-box.trends h4{color:#a78bfa;}
 .detail-box.flags h4{color:var(--ec-danger);}
 .detail-box li,.detail-box p{font-size:13px;color:var(--ec-text-secondary);margin-bottom:4px;line-height:1.6;}
@@ -270,7 +268,6 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
 .upset-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:12px 14px;display:flex;align-items:center;gap:12px;}
 .upset-card-name{font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;min-width:60px;}
 .upset-card-name.peter{color:var(--ec-accent-light);}
-.upset-card-name.chinny{color:#10B981;}
 .upset-card-name.jimmy{color:#A855F7;}
 .upset-card-team{font-weight:700;font-size:14px;min-width:80px;}
 .upset-card-odds{color:#10B981;font-weight:800;font-size:14px;min-width:60px;}
@@ -1157,7 +1154,6 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
         <!-- Crew avatars (compact) -->
         <div class="crew" style="display:flex;gap:-4px;">
             <span class="crew-badge crew-peter" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0;">P</span>
-            <span class="crew-badge crew-chinny" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0;margin-left:-4px;">C</span>
             <span class="crew-badge crew-jimmy" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0;margin-left:-4px;">J</span>
             <span class="crew-badge crew-alyssa" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;padding:0;margin-left:-4px;" title="Alyssa"><svg viewBox="0 0 64 64" width="16" height="16"><polygon points="32,6 38,24 58,24 42,36 48,54 32,44 16,54 22,36 6,24 26,24" fill="none" stroke="#41EAD4" stroke-width="3" stroke-linejoin="round"/></svg></span>
             <span class="crew-badge crew-sintonia" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;padding:0;margin-left:-4px;" title="Sinton.ia"><svg viewBox="0 0 64 64" width="16" height="16"><circle cx="32" cy="32" r="28" fill="none" stroke="#F72585" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#F72585" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#F72585" stroke-width="2" stroke-linecap="round"/></svg></span>
@@ -1937,10 +1933,6 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
             <div id="brPeter" style="color:#fff;font-size:14px;">0-0-0 | 0u</div>
         </div>
         <div style="background:#0f1018;border:1px solid #2a2a5a;border-radius:8px;padding:12px;text-align:center;">
-            <div style="color:#10B981;font-weight:700;margin-bottom:4px;">Chinny</div>
-            <div id="brChinny" style="color:#fff;font-size:14px;">0-0-0 | 0u</div>
-        </div>
-        <div style="background:#0f1018;border:1px solid #2a2a5a;border-radius:8px;padding:12px;text-align:center;">
             <div style="color:#5588EE;font-weight:700;margin-bottom:4px;">Jimmy</div>
             <div id="brJimmy" style="color:#fff;font-size:14px;">0-0-0 | 0u</div>
         </div>
@@ -1994,7 +1986,6 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     <div id="swimLaneBar" style="display:flex;gap:6px;margin:12px 0;flex-wrap:wrap;">
         <button class="swim-btn swim-active" onclick="setSwimLane('ALL',this)" style="background:#6366f1;color:#fff;border:none;border-radius:6px;padding:6px 14px;font-family:var(--ec-font-body);font-weight:800;font-size:12px;cursor:pointer;">ALL</button>
         <button class="swim-btn" onclick="setSwimLane('Peter',this)" style="background:transparent;border:1px solid #6366f1;color:#818cf8;border-radius:6px;padding:6px 14px;font-family:var(--ec-font-body);font-weight:700;font-size:12px;cursor:pointer;">Peter</button>
-        <button class="swim-btn" onclick="setSwimLane('Chinny',this)" style="background:transparent;border:1px solid #10B981;color:#10B981;border-radius:6px;padding:6px 14px;font-family:var(--ec-font-body);font-weight:700;font-size:12px;cursor:pointer;">Chinny</button>
         <button class="swim-btn" onclick="setSwimLane('Jimmy',this)" style="background:transparent;border:1px solid #5588EE;color:#5588EE;border-radius:6px;padding:6px 14px;font-family:var(--ec-font-body);font-weight:700;font-size:12px;cursor:pointer;">Jimmy</button>
         <button class="swim-btn" onclick="setSwimLane('Alyssa',this)" style="background:transparent;border:1px solid #41EAD4;color:#41EAD4;border-radius:6px;padding:6px 14px;font-family:var(--ec-font-body);font-weight:700;font-size:12px;cursor:pointer;">Alyssa</button>
         <button class="swim-btn" onclick="setSwimLane('Sinton.ia',this)" style="background:transparent;border:1px solid #F72585;color:#F72585;border-radius:6px;padding:6px 14px;font-family:var(--ec-font-body);font-weight:700;font-size:12px;cursor:pointer;">Sinton.ia</button>
@@ -3449,7 +3440,7 @@ function editPick(index) {
 
 var activeSwimLane = 'ALL';
 var _resultFilter = 'all'; // 'all', 'regular', 'props'
-var CREW_COLORS = {Peter:'#818cf8',Chinny:'#10B981',Jimmy:'#5588EE',Alyssa:'#41EAD4','Sinton.ia':'#F72585'};
+var CREW_COLORS = {Peter:'#818cf8',Jimmy:'#5588EE',Alyssa:'#41EAD4','Sinton.ia':'#F72585'};
 
 function setSwimLane(name, btn) {
     activeSwimLane = name;
@@ -3879,7 +3870,7 @@ function renderBankroll() {
 
     var wins = 0, losses = 0, pushes = 0, netUnits = 0;
     var propW = 0, propL = 0, propP = 0;
-    var personStats = {Peter:{w:0,l:0,p:0,u:0},Chinny:{w:0,l:0,p:0,u:0},Jimmy:{w:0,l:0,p:0,u:0},Alyssa:{w:0,l:0,p:0,u:0},'Sinton.ia':{w:0,l:0,p:0,u:0},Willis:{w:0,l:0,p:0,u:0}};
+    var personStats = {Peter:{w:0,l:0,p:0,u:0},Jimmy:{w:0,l:0,p:0,u:0},Alyssa:{w:0,l:0,p:0,u:0},'Sinton.ia':{w:0,l:0,p:0,u:0},Willis:{w:0,l:0,p:0,u:0}};
 
     // Daily stats accumulator
     var dailyStats = {};
@@ -4549,8 +4540,8 @@ function renderPicks() {
         return;
     }
     // Group by crew member
-    var crewOrder = ['Peter','Chinny','Jimmy','Alyssa','Sinton.ia'];
-    var crewColors = {Peter:'#fff',Chinny:'#10B981',Jimmy:'#60A5FA',Alyssa:'#41EAD4','Sinton.ia':'#F72585'};
+    var crewOrder = ['Peter','Jimmy','Alyssa','Sinton.ia'];
+    var crewColors = {Peter:'#fff',Jimmy:'#60A5FA',Alyssa:'#41EAD4','Sinton.ia':'#F72585'};
     var grouped = {};
     todayPicks.forEach(function(p) {
         var name = p.name || 'Unknown';
@@ -5522,9 +5513,9 @@ function renderCombinedTable(data) {
             if (msToG > 90 * 60 * 1000) {
                 gradeHtml += '<div style="font-size:8px;color:#FBB024;font-weight:600;margin-top:1px;">\u26A0 Lineups Open</div>';
             }
-            if (analysis.chinny_props && analysis.chinny_props.length) {
-                var propTitles = analysis.chinny_props.map(function(p) { return typeof p === 'string' ? p : (p.player + ' ' + p.prop); }).join(' | ');
-                propsHtml = '<span class="tag" style="background:rgba(16,185,129,0.15);color:#10B981;cursor:help;" title="' + propTitles.replace(/"/g,'&quot;') + '">' + analysis.chinny_props.length + ' props</span>';
+            if (analysis.player_props && analysis.player_props.length) {
+                var propTitles = analysis.player_props.map(function(p) { return typeof p === 'string' ? p : (p.player + ' ' + p.prop); }).join(' | ');
+                propsHtml = '<span class="tag" style="background:rgba(16,185,129,0.15);color:#10B981;cursor:help;" title="' + propTitles.replace(/"/g,'&quot;') + '">' + analysis.player_props.length + ' props</span>';
             }
         }
 
@@ -5573,10 +5564,10 @@ function renderCombinedTable(data) {
             if (mAnalysis.grade === 'INCOMPLETE') mgc = 'gc';
             if (mAnalysis.grade === 'TBD') mgc = 'gc';
             mGrade = '<span class="grade ' + mgc + '" style="font-size:12px;">' + (mAnalysis.grade || '') + '</span>';
-            if (mAnalysis.chinny_props && mAnalysis.chinny_props.length) {
+            if (mAnalysis.player_props && mAnalysis.player_props.length) {
                 mProps = '<div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.06);">';
                 mProps += '<div style="font-size:10px;color:#10B981;font-weight:700;margin-bottom:4px;">PROPS</div>';
-                mAnalysis.chinny_props.forEach(function(p) {
+                mAnalysis.player_props.forEach(function(p) {
                     mProps += '<div style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:2px;">' + p + '</div>';
                 });
                 mProps += '</div>';
@@ -6118,13 +6109,13 @@ function fetchAnalysis(sport) {
                                 }
                             }
                             // Add props count badge next to grade
-                            if (gradeContainer && game.chinny_props && game.chinny_props.length) {
+                            if (gradeContainer && game.player_props && game.player_props.length) {
                                 var existingBadge = gradeContainer.querySelector('.props-badge');
                                 if (!existingBadge) {
                                     var badge = document.createElement('span');
                                     badge.className = 'props-badge';
                                     badge.style.cssText = 'display:inline-block;font-size:9px;color:#10B981;background:rgba(16,185,129,0.15);padding:2px 5px;border-radius:4px;margin-left:4px;';
-                                    badge.textContent = game.chinny_props.length + 'P';
+                                    badge.textContent = game.player_props.length + 'P';
                                     gradeContainer.appendChild(badge);
                                 }
                             }
@@ -6218,16 +6209,16 @@ function fetchAnalysis(sport) {
                                         detail.insertBefore(sb, detail.firstChild);
                                     }
                                 }
-                                var chinnyBox = detail.querySelector('.detail-box.chinny');
-                                if (chinnyBox && game.chinny_props && game.chinny_props.length) {
-                                    var ch = '<h4>Chinny\'s Props Zone</h4><ul>'; game.chinny_props.forEach(function(p){
+                                var propsBox = detail.querySelector('.detail-box.props');
+                                if (propsBox && game.player_props && game.player_props.length) {
+                                    var ch = '<h4>Player Props</h4><ul>'; game.player_props.forEach(function(p){
                                         var txt = typeof p === 'string' ? p : '<strong>' + (p.player||'') + '</strong> ' + (p.prop||'') + (p.line ? ' ('+p.line+')' : '') + (p.edge ? ' — <em>'+p.edge+'</em>' : '');
                                         var pg = typeof p === 'object' && p.grade ? ' <span class="grade g'+p.grade.toLowerCase().replace(/[^a-z]/g,'')+'" style="font-size:9px;padding:2px 5px;">'+p.grade+'</span>' : '';
                                         ch+='<li>'+txt+pg+'</li>';
-                                    }); ch+='</ul>'; chinnyBox.innerHTML = ch;
-                                } else if (!chinnyBox && game.chinny_props && game.chinny_props.length) {
-                                    var nc = document.createElement('div'); nc.className = 'detail-box chinny';
-                                    var ch2 = '<h4>Chinny\'s Props Zone</h4><ul>'; game.chinny_props.forEach(function(p){
+                                    }); ch+='</ul>'; propsBox.innerHTML = ch;
+                                } else if (!propsBox && game.player_props && game.player_props.length) {
+                                    var nc = document.createElement('div'); nc.className = 'detail-box props';
+                                    var ch2 = '<h4>Player Props</h4><ul>'; game.player_props.forEach(function(p){
                                         var txt2 = typeof p === 'string' ? p : '<strong>' + (p.player||'') + '</strong> ' + (p.prop||'') + (p.line ? ' ('+p.line+')' : '') + (p.edge ? ' — <em>'+p.edge+'</em>' : '');
                                         ch2+='<li>'+txt2+'</li>';
                                     }); ch2+='</ul>'; nc.innerHTML = ch2; detail.appendChild(nc);
@@ -6320,8 +6311,8 @@ function loadProps(sportFilter) {
         var cached = _analysisCache[sport];
         if (!cached || !cached.games) return;
         cached.games.forEach(function(game) {
-            if (game.chinny_props && game.chinny_props.length) {
-                var normalizedProps = game.chinny_props.map(function(p) {
+            if (game.player_props && game.player_props.length) {
+                var normalizedProps = game.player_props.map(function(p) {
                     if (typeof p === 'string') {
                         return { player: '', prop: p, line: '', grade: game.grade || '--', edge: '' };
                     }
@@ -6821,7 +6812,7 @@ function lockCustomPropCard() {
 
 // ===== UPSET SPECIALS — CREW PICKS =====
 var UPSET_SPORTS = ['NBA', 'WNBA', 'NCAAB', 'NCAAF', 'NHL', 'MLB', 'TENNIS', 'SOCCER', 'MMA', 'BOXING'];
-var NAME_COLORS = {peter: 'peter', chinny: 'chinny', jimmy: 'jimmy', alyssa: 'alyssa', 'sinton.ia': 'sintonia'};
+var NAME_COLORS = {peter: 'peter', jimmy: 'jimmy', alyssa: 'alyssa', 'sinton.ia': 'sintonia'};
 
 function getUpsetName() {
     return crewProfile ? crewProfile.display_name : (safeLoad('edgeSlipWho') || 'Peter');
