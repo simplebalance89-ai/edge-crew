@@ -5735,20 +5735,28 @@ function applyAgentFilter(who, forceRefresh) {
         var names = {sintonia: "Sinton.ia", alyssa: "Alyssa"};
         label.textContent = (names[who] || who.toUpperCase()) + " \u25BC";
     }
-    // Fetch agent data on selection — deferred from page load (Layer 0 architecture)
-    var allSports = ['nba','wnba','ncaab','ncaaf','nhl','mlb','tennis','soccer','mma','boxing'];
-    if (who === 'sintonia') {
-        allSports.forEach(function(s) {
-            var el = document.getElementById('peterGut' + s.toUpperCase() + 'Content');
-            // Fetch if not loaded yet (placeholder) or on force refresh
-            if (el && (forceRefresh || el.querySelector('p[style*="italic"]'))) fetchAnalysis(s);
-        });
-    } else if (who === 'alyssa') {
-        allSports.forEach(function(s) {
-            var el = document.getElementById('alyssaEdge' + s.toUpperCase() + 'Content');
-            if (el && (forceRefresh || el.querySelector('p[style*="italic"]'))) fetchEdge(s);
-        });
-    }
+    // Fetch agent data — batched 3 at a time, skip off-season
+    var month = new Date().getMonth() + 1;
+    var _seasonMap = {nba:[10,11,12,1,2,3,4,5,6],wnba:[5,6,7,8,9,10],ncaab:[11,12,1,2,3,4],ncaaf:[8,9,10,11,12,1],nhl:[10,11,12,1,2,3,4,5,6],mlb:[3,4,5,6,7,8,9,10,11],tennis:[1,2,3,4,5,6,7,8,9,10,11],soccer:[1,2,3,4,5,6,7,8,9,10,11,12],mma:[1,2,3,4,5,6,7,8,9,10,11,12],boxing:[1,2,3,4,5,6,7,8,9,10,11,12]};
+    var activeSports = ['nba','wnba','ncaab','ncaaf','nhl','mlb','tennis','soccer','mma','boxing'].filter(function(s) {
+        return _seasonMap[s] && _seasonMap[s].indexOf(month) !== -1;
+    });
+    var fetchFn = who === 'sintonia' ? fetchAnalysis : fetchEdge;
+    var checkId = who === 'sintonia' ? 'peterGut' : 'alyssaEdge';
+    // Filter to sports that need fetching
+    var toFetch = activeSports.filter(function(s) {
+        var el = document.getElementById(checkId + s.toUpperCase() + 'Content');
+        return el && (forceRefresh || el.querySelector('p[style*="italic"]'));
+    });
+    // Batch 3 at a time with 2s gap between batches
+    (function batchAnalysis(idx) {
+        var batch = toFetch.slice(idx, idx + 3);
+        if (!batch.length) return;
+        batch.forEach(function(s) { fetchFn(s); });
+        if (idx + 3 < toFetch.length) {
+            setTimeout(function() { batchAnalysis(idx + 3); }, 2000);
+        }
+    })(0);
 }
 
 function backToAgents() {
@@ -5765,10 +5773,10 @@ function runAnalysis() {
     if (btn) { btn.textContent = 'GRADING...'; btn.disabled = true; }
     var agent = sessionStorage.getItem('edgeCrewAgent') || 'sintonia';
     applyAgentFilter(agent, true);
-    // Re-enable button after analysis loads
+    // Re-enable button after analysis loads (batched, takes longer)
     setTimeout(function() {
         if (btn) { btn.textContent = 'ANALYZE'; btn.disabled = false; }
-    }, 15000);
+    }, 45000);
 }
 
 // ===== ANALYSIS FETCH =====
