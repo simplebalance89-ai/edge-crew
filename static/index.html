@@ -107,12 +107,6 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
 .sport-panel{display:none;}
 .sport-panel.active{display:block;}
 
-/* ===== ODDS WIDGET ===== */
-.odds-widget-container{margin:0 0 20px;border-radius:12px;overflow:hidden;border:1px solid rgba(99,102,241,0.2);background:rgba(99,102,241,0.04);}
-.odds-widget-container .widget-header{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;background:rgba(99,102,241,0.08);}
-.odds-widget-container .widget-header h4{margin:0;font-size:12px;font-weight:800;color:#818cf8;letter-spacing:1px;text-transform:uppercase;}
-.odds-widget-container .widget-header .widget-badge{font-size:10px;color:rgba(255,255,255,0.4);font-weight:600;}
-.odds-widget-container iframe{width:100%;height:480px;border:none;background:#0a0a0f;}
 
 /* ===== GOTCHA BANNER ===== */
 .gotcha-banner{
@@ -1094,14 +1088,6 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
     <textarea id="gotchaEditor-NBA" style="display:none;width:100%;min-height:150px;background:#08080c;color:#fff;border:1px solid #6366f1;border-radius:6px;padding:10px;font-family:var(--ec-font-body);font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line. Use for injuries, traps, edges, B2B flags..."></textarea>
 </div>
 
-<!-- NBA ODDS WIDGET -->
-<div class="odds-widget-container" id="widget-nba">
-    <div class="widget-header">
-        <h4>Live Odds &mdash; NBA</h4>
-        <span class="widget-badge">DraftKings &bull; BetMGM &bull; FanDuel &bull; Hard Rock</span>
-    </div>
-    <iframe title="NBA Odds" src="https://widget.the-odds-api.com/v1/sports/basketball_nba/events/?accessKey=wk_ef52dac9ab1a60055b65480bad62b7a0&bookmakerKeys=draftkings,betmgm,hardrockbet,fanduel&oddsFormat=american&markets=h2h%2Cspreads%2Ctotals&marketNames=h2h%3AMoneyline%2Cspreads%3ASpreads%2Ctotals%3AOver%2FUnder"></iframe>
-</div>
 
 <div class="empty-state">No NBA games loaded.<br><strong>Hit REFRESH SLATE</strong> to load live lines.</div>
 
@@ -1165,14 +1151,6 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
     <textarea id="gotchaEditor-NHL" style="display:none;width:100%;min-height:150px;background:#08080c;color:#fff;border:1px solid #6366f1;border-radius:6px;padding:10px;font-family:var(--ec-font-body);font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line..."></textarea>
 </div>
 
-<!-- NHL ODDS WIDGET -->
-<div class="odds-widget-container" id="widget-nhl">
-    <div class="widget-header">
-        <h4>Live Odds &mdash; NHL</h4>
-        <span class="widget-badge">DraftKings &bull; BetMGM &bull; FanDuel &bull; Hard Rock</span>
-    </div>
-    <iframe title="NHL Odds" src="https://widget.the-odds-api.com/v1/sports/icehockey_nhl/events/?accessKey=wk_ef52dac9ab1a60055b65480bad62b7a0&bookmakerKeys=draftkings,betmgm,hardrockbet,fanduel&oddsFormat=american&markets=h2h%2Cspreads%2Ctotals&marketNames=h2h%3AMoneyline%2Cspreads%3ASpreads%2Ctotals%3AOver%2FUnder"></iframe>
-</div>
 
 <div class="empty-state">No NHL games loaded.<br><strong>Hit REFRESH SLATE</strong> to load live lines.</div>
 
@@ -1232,14 +1210,6 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
     <textarea id="gotchaEditor-MLB" style="display:none;width:100%;min-height:150px;background:#08080c;color:#fff;border:1px solid #6366f1;border-radius:6px;padding:10px;font-family:var(--ec-font-body);font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line. Use for pitching matchups, bullpen notes, weather, B2B flags..."></textarea>
 </div>
 
-<!-- MLB ODDS WIDGET -->
-<div class="odds-widget-container" id="widget-mlb">
-    <div class="widget-header">
-        <h4>Live Odds &mdash; MLB</h4>
-        <span class="widget-badge">DraftKings &bull; BetMGM &bull; FanDuel &bull; Hard Rock</span>
-    </div>
-    <iframe title="MLB Odds" src="https://widget.the-odds-api.com/v1/sports/baseball_mlb/events/?accessKey=wk_ef52dac9ab1a60055b65480bad62b7a0&bookmakerKeys=draftkings,betmgm,hardrockbet,fanduel&oddsFormat=american&markets=h2h%2Cspreads%2Ctotals&marketNames=h2h%3AMoneyline%2Cspreads%3ASpreads%2Ctotals%3AOver%2FUnder"></iframe>
-</div>
 
 <div class="empty-state">No MLB games loaded.<br><strong>Hit REFRESH SLATE</strong> to load live lines.</div>
 
@@ -1297,28 +1267,6 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
     </div>
     <textarea id="gotchaEditor-SOCCER" style="display:none;width:100%;min-height:150px;background:#08080c;color:#fff;border:1px solid #10B981;border-radius:6px;padding:10px;font-family:var(--ec-font-body);font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line..."></textarea>
 </div>
-<!-- SOCCER ODDS WIDGETS (multiple leagues) -->
-<div class="odds-widget-container" id="widget-soccer">
-    <div class="widget-header">
-        <h4>Live Odds &mdash; Soccer (MLS)</h4>
-        <span class="widget-badge">DraftKings &bull; BetMGM &bull; FanDuel &bull; Hard Rock</span>
-    </div>
-    <iframe title="Soccer MLS Odds" src="https://widget.the-odds-api.com/v1/sports/soccer_usa_mls/events/?accessKey=wk_ef52dac9ab1a60055b65480bad62b7a0&bookmakerKeys=draftkings,betmgm,hardrockbet,fanduel&oddsFormat=american&markets=h2h%2Cspreads%2Ctotals&marketNames=h2h%3AMoneyline%2Cspreads%3ASpreads%2Ctotals%3AOver%2FUnder"></iframe>
-</div>
-<div class="odds-widget-container" id="widget-soccer-epl" style="margin-top:-10px;">
-    <div class="widget-header">
-        <h4>Live Odds &mdash; Soccer (EPL)</h4>
-        <span class="widget-badge">DraftKings &bull; BetMGM &bull; FanDuel &bull; Hard Rock</span>
-    </div>
-    <iframe title="Soccer EPL Odds" src="https://widget.the-odds-api.com/v1/sports/soccer_epl/events/?accessKey=wk_ef52dac9ab1a60055b65480bad62b7a0&bookmakerKeys=draftkings,betmgm,hardrockbet,fanduel&oddsFormat=american&markets=h2h%2Cspreads%2Ctotals&marketNames=h2h%3AMoneyline%2Cspreads%3ASpreads%2Ctotals%3AOver%2FUnder"></iframe>
-</div>
-<div class="odds-widget-container" id="widget-soccer-ucl" style="margin-top:-10px;">
-    <div class="widget-header">
-        <h4>Live Odds &mdash; Champions League</h4>
-        <span class="widget-badge">DraftKings &bull; BetMGM &bull; FanDuel &bull; Hard Rock</span>
-    </div>
-    <iframe title="Soccer UCL Odds" src="https://widget.the-odds-api.com/v1/sports/soccer_uefa_champs_league/events/?accessKey=wk_ef52dac9ab1a60055b65480bad62b7a0&bookmakerKeys=draftkings,betmgm,hardrockbet,fanduel&oddsFormat=american&markets=h2h%2Cspreads%2Ctotals&marketNames=h2h%3AMoneyline%2Cspreads%3ASpreads%2Ctotals%3AOver%2FUnder"></iframe>
-</div>
 
 <div class="empty-state">No games on the slate.<br><strong>Hit REFRESH SLATE</strong> to check for live lines.</div>
 <!-- SOCCER UPSET SPECIALS -->
@@ -1370,14 +1318,6 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
     </div>
     <textarea id="gotchaEditor-MMA" style="display:none;width:100%;min-height:150px;background:#08080c;color:#fff;border:1px solid #EF4444;border-radius:6px;padding:10px;font-family:var(--ec-font-body);font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line..."></textarea>
 </div>
-<!-- MMA ODDS WIDGET -->
-<div class="odds-widget-container" id="widget-mma">
-    <div class="widget-header">
-        <h4>Live Odds &mdash; MMA / UFC</h4>
-        <span class="widget-badge">DraftKings &bull; BetMGM &bull; FanDuel &bull; Hard Rock</span>
-    </div>
-    <iframe title="MMA Odds" src="https://widget.the-odds-api.com/v1/sports/mma_mixed_martial_arts/events/?accessKey=wk_ef52dac9ab1a60055b65480bad62b7a0&bookmakerKeys=draftkings,betmgm,hardrockbet,fanduel&oddsFormat=american&markets=h2h%2Cspreads%2Ctotals&marketNames=h2h%3AMoneyline%2Cspreads%3ASpreads%2Ctotals%3AOver%2FUnder"></iframe>
-</div>
 
 <div class="empty-state">No fights on the slate.<br><strong>Hit REFRESH SLATE</strong> to check for live lines.</div>
 <!-- MMA UPSET SPECIALS -->
@@ -1428,14 +1368,6 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
         <p style="color:rgba(255,255,255,0.5);font-size:13px;">Moneylines + totals (rounds).</p>
     </div>
     <textarea id="gotchaEditor-BOXING" style="display:none;width:100%;min-height:150px;background:#08080c;color:#fff;border:1px solid #A855F7;border-radius:6px;padding:10px;font-family:var(--ec-font-body);font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line..."></textarea>
-</div>
-<!-- BOXING ODDS WIDGET -->
-<div class="odds-widget-container" id="widget-boxing">
-    <div class="widget-header">
-        <h4>Live Odds &mdash; Boxing</h4>
-        <span class="widget-badge">DraftKings &bull; BetMGM &bull; FanDuel &bull; Hard Rock</span>
-    </div>
-    <iframe title="Boxing Odds" src="https://widget.the-odds-api.com/v1/sports/boxing_boxing/events/?accessKey=wk_ef52dac9ab1a60055b65480bad62b7a0&bookmakerKeys=draftkings,betmgm,hardrockbet,fanduel&oddsFormat=american&markets=h2h%2Cspreads%2Ctotals&marketNames=h2h%3AMoneyline%2Cspreads%3ASpreads%2Ctotals%3AOver%2FUnder"></iframe>
 </div>
 
 <div class="empty-state">No fights on the slate.<br><strong>Hit REFRESH SLATE</strong> to check for live lines.</div>
@@ -4320,8 +4252,10 @@ function fetchLiveOdds(sport, onDone) {
     _oddsFetch.then(function(data) {
             panel.classList.remove('panel-loading');
             if (data.error) {
-                // Widget handles odds display — suppress visible API error, log only
-                console.warn(sport.toUpperCase() + ' API error (widget covers display):', data.error);
+                var errMsg = document.createElement('div');
+                errMsg.className = 'panel-error';
+                errMsg.textContent = sport.toUpperCase() + ' API error: ' + data.error;
+                panel.appendChild(errMsg);
                 if (typeof window._analysisLoadCallback === 'function') window._analysisLoadCallback(sport);
                 if (typeof onDone === 'function') onDone(sport);
                 return;
@@ -4435,8 +4369,10 @@ function fetchLiveOdds(sport, onDone) {
             }
             panel.classList.remove('panel-loading');
             if (typeof onDone === 'function') onDone(sport);
-            // Widget handles odds display — suppress visible error, log only
-            console.warn('API odds fetch failed for ' + sport + ' (widget covers display):', err.message || err);
+            var errMsg = document.createElement('div');
+            errMsg.className = 'panel-error';
+            errMsg.textContent = sport.toUpperCase() + ' API error: ' + (err.message || err);
+            panel.appendChild(errMsg);
             if (typeof window._analysisLoadCallback === 'function') window._analysisLoadCallback(sport);
         });
 }
