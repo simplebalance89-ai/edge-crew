@@ -1330,6 +1330,30 @@ def _parse_event(event, sport_label):
             elif h["name"] == event["home_team"]:
                 game["home_ml"] = h.get("price", 0)
 
+    # BTTS (Both Teams to Score) — soccer
+    btts = game["markets"].get("btts", [])
+    if btts:
+        for b in btts:
+            if b["name"] == "Yes":
+                game["btts_yes"] = b.get("price", 0)
+            elif b["name"] == "No":
+                game["btts_no"] = b.get("price", 0)
+
+    # Draw No Bet — soccer
+    dnb = game["markets"].get("draw_no_bet", [])
+    if dnb:
+        for d in dnb:
+            if d["name"] == event["away_team"]:
+                game["dnb_away"] = d.get("price", 0)
+            elif d["name"] == event["home_team"]:
+                game["dnb_home"] = d.get("price", 0)
+
+    # Draw ML (3-way h2h) — soccer
+    if h2h:
+        for h in h2h:
+            if h["name"] == "Draw":
+                game["draw_ml"] = h.get("price", 0)
+
     game["lines_available"] = has_spread or has_total or has_ml
     # Any sport with ML data is considered "complete" for grading
     game["lines_complete"] = has_ml
@@ -1443,6 +1467,9 @@ async def _fetch_sport_odds(sport_key, markets, sport_label):
 async def get_odds(sport: str, markets: str = "h2h,spreads,totals"):
     """Fetch live odds — SharpAPI primary, The Odds API fallback."""
     sport_lower = sport.lower()
+    # Soccer gets extra markets: BTTS, draw no bet
+    if sport_lower == "soccer" and markets == "h2h,spreads,totals":
+        markets = "h2h,spreads,totals,btts,draw_no_bet"
     cache_key = f"{sport_lower}:{markets}"
     cached = _get_cached(cache_key)
     if cached:

@@ -130,11 +130,11 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
 
 /* ===== CHECKBOXES ===== */
 .pick-check{
-    width:24px;height:24px;border-radius:6px;border:2px solid rgba(255,255,255,0.25);
-    background:rgba(255,255,255,0.04);cursor:pointer;transition:all 0.2s;flex-shrink:0;
-    display:flex;align-items:center;justify-content:center;min-width:24px;
+    width:22px;height:22px;border-radius:6px;border:2px solid rgba(255,255,255,0.15);
+    background:transparent;cursor:pointer;transition:all 0.2s;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
 }
-.pick-check:hover{border-color:var(--ec-accent);background:rgba(99,102,241,0.1);}
+.pick-check:hover{border-color:var(--ec-accent);}
 .pick-check.on{background:var(--ec-accent);border-color:var(--ec-accent);}
 .pick-check.on::after{content:'';display:block;width:6px;height:10px;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:rotate(45deg);margin-top:-2px;}
 
@@ -202,7 +202,7 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
 .card-r3 .spread-ref,.card-r3 .total-ref{font-size:11px;color:var(--ec-text-tertiary);font-family:var(--ec-font-mono);font-weight:600;background:rgba(255,255,255,0.05);padding:2px 8px;border-radius:4px;}
 .card-r4{padding-left:30px;font-size:12px;color:var(--ec-text-secondary);line-height:1.4;display:none;}
 .game-row.has-analysis .card-r4{display:block;}
-.game-time{font-size:11px;color:var(--ec-text-tertiary);font-weight:500;font-family:var(--ec-font-mono);white-space:nowrap;min-width:fit-content;}
+.game-time{font-size:12px;color:var(--ec-text-tertiary);font-weight:500;font-family:var(--ec-font-mono);white-space:nowrap;}
 .game-matchup{font-family:var(--ec-font-heading);font-size:16px;font-weight:700;flex:1;}
 .game-matchup .away{color:var(--ec-text-secondary);}
 .game-matchup .home{color:var(--ec-text-primary);}
@@ -702,14 +702,13 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     .hero-stats{padding:8px 12px 4px;margin-top:0;}
 
     /* Game header — card rows */
-    .game-header{padding:12px 14px;gap:6px;}
-    .card-r1{flex-wrap:nowrap;align-items:center;}
+    .game-header{padding:12px 14px;gap:4px;}
+    .card-r1{flex-wrap:wrap;}
     .card-r2{padding-left:0;font-size:16px;}
-    .card-r3{padding-left:0;flex-wrap:wrap;gap:4px;}
+    .card-r3{padding-left:0;flex-wrap:wrap;}
     .card-r4{padding-left:0;}
-    .game-matchup{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .game-matchup{font-size:15px;}
     .game-edge{padding-left:0 !important;}
-    .game-time{font-size:10px;}
 
     /* Touch targets: 44px minimum */
     .side-btn{min-height:44px;padding:10px 12px;font-size:12px;display:flex;align-items:center;justify-content:center;}
