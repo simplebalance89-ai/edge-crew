@@ -1126,17 +1126,17 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     <div class="agent-select-subtitle">Each agent brings a different perspective to the slate.</div>
     <div class="agent-cards">
         <div class="agent-card" data-agent="sintonia" onclick="selectAgent('sintonia')">
-            <span class="agent-icon">S</span>
+            <span class="agent-icon"><svg viewBox="0 0 64 64" width="36" height="36"><circle cx="32" cy="32" r="28" fill="none" stroke="#A78BFA" stroke-width="2"/><circle cx="32" cy="22" r="8" fill="none" stroke="#A78BFA" stroke-width="1.5"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#A78BFA" stroke-width="1.5" stroke-linecap="round"/><circle cx="24" cy="42" r="3" fill="#A78BFA" opacity="0.4"/><circle cx="40" cy="42" r="3" fill="#A78BFA" opacity="0.4"/><line x1="32" y1="14" x2="32" y2="8" stroke="#A78BFA" stroke-width="1.5" stroke-linecap="round"/><line x1="20" y1="18" x2="16" y2="14" stroke="#A78BFA" stroke-width="1" stroke-linecap="round" opacity="0.5"/><line x1="44" y1="18" x2="48" y2="14" stroke="#A78BFA" stroke-width="1" stroke-linecap="round" opacity="0.5"/></svg></span>
             <div class="agent-name">Sinton.ia's Card</div>
             <div class="agent-desc">AI-driven analysis with grades, reasoning, badges, and trends. GPT-powered game breakdowns with context.</div>
         </div>
         <div class="agent-card" data-agent="alyssa" onclick="selectAgent('alyssa')">
-            <span class="agent-icon">A</span>
+            <span class="agent-icon"><svg viewBox="0 0 64 64" width="36" height="36"><polygon points="32,6 38,24 58,24 42,36 48,54 32,44 16,54 22,36 6,24 26,24" fill="none" stroke="#E879F9" stroke-width="2" stroke-linejoin="round"/><circle cx="32" cy="30" r="6" fill="#E879F9" opacity="0.3"/><line x1="32" y1="24" x2="32" y2="36" stroke="#E879F9" stroke-width="1.5"/><line x1="26" y1="30" x2="38" y2="30" stroke="#E879F9" stroke-width="1.5"/></svg></span>
             <div class="agent-name">Alyssa's Edge</div>
             <div class="agent-desc">Pure math. Expected value, line movement, sharp signals. No AI opinions — just numbers.</div>
         </div>
         <div class="agent-card disabled" data-agent="custom">
-            <span class="agent-icon">?</span>
+            <span class="agent-icon"><svg viewBox="0 0 64 64" width="36" height="36"><rect x="14" y="14" width="36" height="36" rx="8" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-dasharray="4,4"/><text x="32" y="38" text-anchor="middle" fill="rgba(255,255,255,0.3)" font-size="20" font-weight="700" font-family="sans-serif">?</text></svg></span>
             <div class="agent-name">Make Your Own</div>
             <div class="agent-desc">Build your own analysis lane. Coming soon.</div>
         </div>
@@ -1163,8 +1163,8 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
             <span class="crew-badge crew-peter" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0;">P</span>
             <span class="crew-badge crew-chinny" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0;margin-left:-4px;">C</span>
             <span class="crew-badge crew-jimmy" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0;margin-left:-4px;">J</span>
-            <span class="crew-badge crew-alyssa" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0;margin-left:-4px;">A</span>
-            <span class="crew-badge crew-sintonia" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0;margin-left:-4px;">S</span>
+            <span class="crew-badge crew-alyssa" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;padding:0;margin-left:-4px;" title="Alyssa"><svg viewBox="0 0 64 64" width="16" height="16"><polygon points="32,6 38,24 58,24 42,36 48,54 32,44 16,54 22,36 6,24 26,24" fill="none" stroke="#E879F9" stroke-width="3" stroke-linejoin="round"/></svg></span>
+            <span class="crew-badge crew-sintonia" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;padding:0;margin-left:-4px;" title="Sinton.ia"><svg viewBox="0 0 64 64" width="16" height="16"><circle cx="32" cy="32" r="28" fill="none" stroke="#A78BFA" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#A78BFA" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#A78BFA" stroke-width="2" stroke-linecap="round"/></svg></span>
         </div>
         <div class="agent-switcher" id="agentSwitcher" onclick="backToAgents()"><span id="agentSwitcherLabel">SWITCH AGENT</span></div>
         <button class="topbar-refresh" onclick="refreshSlate()" style="padding:6px 14px;border-radius:var(--ec-radius-full);font-size:11px;font-weight:700;background:linear-gradient(135deg,var(--ec-accent),#a78bfa);color:#fff;border:none;cursor:pointer;transition:all 0.2s;letter-spacing:0.3px;">REFRESH</button>
@@ -1284,14 +1284,14 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <!-- NBA ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutNBA" data-card="sintonia">
-    <h3 id="peterGutNBATitle" style="color:#A78BFA;font-size:13px;">Sinton.ia's Card &mdash; NBA</h3>
+    <h3 id="peterGutNBATitle" style="color:#A78BFA;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#A78BFA" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#A78BFA" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#A78BFA" stroke-width="2" stroke-linecap="round"/></svg>Sinton.ia's Card &mdash; NBA</h3>
     <div id="peterGutNBAContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
         <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load...</p>
     </div>
     <div id="peterGutNBATimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
 </div>
 <div class="input-section analysis-card" id="alyssaEdgeNBA" data-card="alyssa">
-    <h3 style="color:#E879F9;font-size:13px;">Alyssa's Edge &mdash; NBA</h3>
+    <h3 style="color:#E879F9;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><polygon points="32,6 38,24 58,24 42,36 48,54 32,44 16,54 22,36 6,24 26,24" fill="none" stroke="#E879F9" stroke-width="3" stroke-linejoin="round"/></svg>Alyssa's Edge &mdash; NBA</h3>
     <div style="font-size:10px;color:rgba(232,121,249,0.5);font-weight:700;letter-spacing:1px;margin-bottom:8px;">100% MATH. NO AI. PURE EDGE.</div>
     <div id="alyssaEdgeNBAContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
         <p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load edge analysis...</p>
@@ -1340,14 +1340,14 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <!-- NHL ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutNHL" data-card="sintonia">
-    <h3 id="peterGutNHLTitle" style="color:#A78BFA;font-size:13px;">Sinton.ia's Card &mdash; NHL</h3>
+    <h3 id="peterGutNHLTitle" style="color:#A78BFA;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#A78BFA" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#A78BFA" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#A78BFA" stroke-width="2" stroke-linecap="round"/></svg>Sinton.ia's Card &mdash; NHL</h3>
     <div id="peterGutNHLContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
         <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load...</p>
     </div>
     <div id="peterGutNHLTimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
 </div>
 <div class="input-section analysis-card" id="alyssaEdgeNHL" data-card="alyssa">
-    <h3 style="color:#E879F9;font-size:13px;">Alyssa's Edge &mdash; NHL</h3>
+    <h3 style="color:#E879F9;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><polygon points="32,6 38,24 58,24 42,36 48,54 32,44 16,54 22,36 6,24 26,24" fill="none" stroke="#E879F9" stroke-width="3" stroke-linejoin="round"/></svg>Alyssa's Edge &mdash; NHL</h3>
     <div style="font-size:10px;color:rgba(232,121,249,0.5);font-weight:700;letter-spacing:1px;margin-bottom:8px;">100% MATH. NO AI. PURE EDGE.</div>
     <div id="alyssaEdgeNHLContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
         <p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load edge analysis...</p>
@@ -1396,14 +1396,14 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <!-- MLB ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutMLB" data-card="sintonia">
-    <h3 id="peterGutMLBTitle" style="color:#A78BFA;font-size:13px;">Sinton.ia's Card &mdash; MLB</h3>
+    <h3 id="peterGutMLBTitle" style="color:#A78BFA;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#A78BFA" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#A78BFA" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#A78BFA" stroke-width="2" stroke-linecap="round"/></svg>Sinton.ia's Card &mdash; MLB</h3>
     <div id="peterGutMLBContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
         <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate or click MLB tab to load Sinton.ia's analysis card...</p>
     </div>
     <div id="peterGutMLBTimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
 </div>
 <div class="input-section analysis-card" id="alyssaEdgeMLB" data-card="alyssa">
-    <h3 style="color:#E879F9;font-size:13px;">Alyssa's Edge &mdash; MLB</h3>
+    <h3 style="color:#E879F9;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><polygon points="32,6 38,24 58,24 42,36 48,54 32,44 16,54 22,36 6,24 26,24" fill="none" stroke="#E879F9" stroke-width="3" stroke-linejoin="round"/></svg>Alyssa's Edge &mdash; MLB</h3>
     <div style="font-size:10px;color:rgba(232,121,249,0.5);font-weight:700;letter-spacing:1px;margin-bottom:8px;">100% MATH. NO AI. PURE EDGE.</div>
     <div id="alyssaEdgeMLBContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
         <p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load edge analysis...</p>
@@ -1440,12 +1440,12 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <!-- WNBA ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutWNBA" data-card="sintonia">
-    <h3 id="peterGutWNBATitle" style="color:#A78BFA;font-size:13px;">Sinton.ia's Card &mdash; WNBA</h3>
+    <h3 id="peterGutWNBATitle" style="color:#A78BFA;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#A78BFA" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#A78BFA" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#A78BFA" stroke-width="2" stroke-linecap="round"/></svg>Sinton.ia's Card &mdash; WNBA</h3>
     <div id="peterGutWNBAContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;"><p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load...</p></div>
     <div id="peterGutWNBATimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
 </div>
 <div class="input-section analysis-card" id="alyssaEdgeWNBA" data-card="alyssa">
-    <h3 style="color:#E879F9;font-size:13px;">Alyssa's Edge &mdash; WNBA</h3>
+    <h3 style="color:#E879F9;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><polygon points="32,6 38,24 58,24 42,36 48,54 32,44 16,54 22,36 6,24 26,24" fill="none" stroke="#E879F9" stroke-width="3" stroke-linejoin="round"/></svg>Alyssa's Edge &mdash; WNBA</h3>
     <div style="font-size:10px;color:rgba(232,121,249,0.5);font-weight:700;letter-spacing:1px;margin-bottom:8px;">100% MATH. NO AI. PURE EDGE.</div>
     <div id="alyssaEdgeWNBAContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;"><p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load edge analysis...</p></div>
 </div>
@@ -1479,12 +1479,12 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <!-- NCAAB ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutNCAAB" data-card="sintonia">
-    <h3 id="peterGutNCAABTitle" style="color:#A78BFA;font-size:13px;">Sinton.ia's Card &mdash; NCAAB</h3>
+    <h3 id="peterGutNCAABTitle" style="color:#A78BFA;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#A78BFA" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#A78BFA" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#A78BFA" stroke-width="2" stroke-linecap="round"/></svg>Sinton.ia's Card &mdash; NCAAB</h3>
     <div id="peterGutNCAABContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;"><p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load...</p></div>
     <div id="peterGutNCAABTimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
 </div>
 <div class="input-section analysis-card" id="alyssaEdgeNCAAB" data-card="alyssa">
-    <h3 style="color:#E879F9;font-size:13px;">Alyssa's Edge &mdash; NCAAB</h3>
+    <h3 style="color:#E879F9;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><polygon points="32,6 38,24 58,24 42,36 48,54 32,44 16,54 22,36 6,24 26,24" fill="none" stroke="#E879F9" stroke-width="3" stroke-linejoin="round"/></svg>Alyssa's Edge &mdash; NCAAB</h3>
     <div style="font-size:10px;color:rgba(232,121,249,0.5);font-weight:700;letter-spacing:1px;margin-bottom:8px;">100% MATH. NO AI. PURE EDGE.</div>
     <div id="alyssaEdgeNCAABContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;"><p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load edge analysis...</p></div>
 </div>
@@ -1518,12 +1518,12 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <!-- NCAAF ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutNCAAF" data-card="sintonia">
-    <h3 id="peterGutNCAAFTitle" style="color:#A78BFA;font-size:13px;">Sinton.ia's Card &mdash; NCAAF</h3>
+    <h3 id="peterGutNCAAFTitle" style="color:#A78BFA;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#A78BFA" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#A78BFA" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#A78BFA" stroke-width="2" stroke-linecap="round"/></svg>Sinton.ia's Card &mdash; NCAAF</h3>
     <div id="peterGutNCAAFContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;"><p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load...</p></div>
     <div id="peterGutNCAAFTimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
 </div>
 <div class="input-section analysis-card" id="alyssaEdgeNCAAF" data-card="alyssa">
-    <h3 style="color:#E879F9;font-size:13px;">Alyssa's Edge &mdash; NCAAF</h3>
+    <h3 style="color:#E879F9;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><polygon points="32,6 38,24 58,24 42,36 48,54 32,44 16,54 22,36 6,24 26,24" fill="none" stroke="#E879F9" stroke-width="3" stroke-linejoin="round"/></svg>Alyssa's Edge &mdash; NCAAF</h3>
     <div style="font-size:10px;color:rgba(232,121,249,0.5);font-weight:700;letter-spacing:1px;margin-bottom:8px;">100% MATH. NO AI. PURE EDGE.</div>
     <div id="alyssaEdgeNCAAFContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;"><p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load edge analysis...</p></div>
 </div>
@@ -1557,12 +1557,12 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <!-- TENNIS ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutTENNIS" data-card="sintonia">
-    <h3 id="peterGutTENNISTitle" style="color:#A78BFA;font-size:13px;">Sinton.ia's Card &mdash; Tennis</h3>
+    <h3 id="peterGutTENNISTitle" style="color:#A78BFA;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#A78BFA" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#A78BFA" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#A78BFA" stroke-width="2" stroke-linecap="round"/></svg>Sinton.ia's Card &mdash; Tennis</h3>
     <div id="peterGutTENNISContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;"><p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load...</p></div>
     <div id="peterGutTENNISTimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
 </div>
 <div class="input-section analysis-card" id="alyssaEdgeTENNIS" data-card="alyssa">
-    <h3 style="color:#E879F9;font-size:13px;">Alyssa's Edge &mdash; Tennis</h3>
+    <h3 style="color:#E879F9;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><polygon points="32,6 38,24 58,24 42,36 48,54 32,44 16,54 22,36 6,24 26,24" fill="none" stroke="#E879F9" stroke-width="3" stroke-linejoin="round"/></svg>Alyssa's Edge &mdash; Tennis</h3>
     <div style="font-size:10px;color:rgba(232,121,249,0.5);font-weight:700;letter-spacing:1px;margin-bottom:8px;">100% MATH. NO AI. PURE EDGE.</div>
     <div id="alyssaEdgeTENNISContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;"><p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load edge analysis...</p></div>
 </div>
@@ -1600,14 +1600,14 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <!-- SOCCER ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutSOCCER" data-card="sintonia">
-    <h3 id="peterGutSOCCERTitle" style="color:#A78BFA;font-size:13px;">Sinton.ia's Card &mdash; Soccer</h3>
+    <h3 id="peterGutSOCCERTitle" style="color:#A78BFA;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#A78BFA" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#A78BFA" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#A78BFA" stroke-width="2" stroke-linecap="round"/></svg>Sinton.ia's Card &mdash; Soccer</h3>
     <div id="peterGutSOCCERContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
         <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load Sinton.ia's analysis card...</p>
     </div>
     <div id="peterGutSOCCERTimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
 </div>
 <div class="input-section analysis-card" id="alyssaEdgeSOCCER" data-card="alyssa">
-    <h3 style="color:#E879F9;font-size:13px;">Alyssa's Edge &mdash; Soccer</h3>
+    <h3 style="color:#E879F9;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><polygon points="32,6 38,24 58,24 42,36 48,54 32,44 16,54 22,36 6,24 26,24" fill="none" stroke="#E879F9" stroke-width="3" stroke-linejoin="round"/></svg>Alyssa's Edge &mdash; Soccer</h3>
     <div style="font-size:10px;color:rgba(232,121,249,0.5);font-weight:700;letter-spacing:1px;margin-bottom:8px;">100% MATH. NO AI. PURE EDGE.</div>
     <div id="alyssaEdgeSOCCERContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
         <p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load edge analysis...</p>
@@ -1648,14 +1648,14 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <!-- MMA ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutMMA" data-card="sintonia">
-    <h3 id="peterGutMMATitle" style="color:#A78BFA;font-size:13px;">Sinton.ia's Card &mdash; MMA</h3>
+    <h3 id="peterGutMMATitle" style="color:#A78BFA;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#A78BFA" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#A78BFA" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#A78BFA" stroke-width="2" stroke-linecap="round"/></svg>Sinton.ia's Card &mdash; MMA</h3>
     <div id="peterGutMMAContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
         <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load Sinton.ia's analysis card...</p>
     </div>
     <div id="peterGutMMATimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
 </div>
 <div class="input-section analysis-card" id="alyssaEdgeMMA" data-card="alyssa">
-    <h3 style="color:#E879F9;font-size:13px;">Alyssa's Edge &mdash; MMA</h3>
+    <h3 style="color:#E879F9;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><polygon points="32,6 38,24 58,24 42,36 48,54 32,44 16,54 22,36 6,24 26,24" fill="none" stroke="#E879F9" stroke-width="3" stroke-linejoin="round"/></svg>Alyssa's Edge &mdash; MMA</h3>
     <div style="font-size:10px;color:rgba(232,121,249,0.5);font-weight:700;letter-spacing:1px;margin-bottom:8px;">100% MATH. NO AI. PURE EDGE.</div>
     <div id="alyssaEdgeMMAContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
         <p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load edge analysis...</p>
@@ -1696,14 +1696,14 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <!-- BOXING ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutBOXING" data-card="sintonia">
-    <h3 id="peterGutBOXINGTitle" style="color:#A78BFA;font-size:13px;">Sinton.ia's Card &mdash; Boxing</h3>
+    <h3 id="peterGutBOXINGTitle" style="color:#A78BFA;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#A78BFA" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#A78BFA" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#A78BFA" stroke-width="2" stroke-linecap="round"/></svg>Sinton.ia's Card &mdash; Boxing</h3>
     <div id="peterGutBOXINGContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
         <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load Sinton.ia's analysis card...</p>
     </div>
     <div id="peterGutBOXINGTimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
 </div>
 <div class="input-section analysis-card" id="alyssaEdgeBOXING" data-card="alyssa">
-    <h3 style="color:#E879F9;font-size:13px;">Alyssa's Edge &mdash; Boxing</h3>
+    <h3 style="color:#E879F9;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><polygon points="32,6 38,24 58,24 42,36 48,54 32,44 16,54 22,36 6,24 26,24" fill="none" stroke="#E879F9" stroke-width="3" stroke-linejoin="round"/></svg>Alyssa's Edge &mdash; Boxing</h3>
     <div style="font-size:10px;color:rgba(232,121,249,0.5);font-weight:700;letter-spacing:1px;margin-bottom:8px;">100% MATH. NO AI. PURE EDGE.</div>
     <div id="alyssaEdgeBOXINGContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
         <p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load edge analysis...</p>
