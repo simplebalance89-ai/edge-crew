@@ -2569,20 +2569,10 @@ function refreshSlate() {
             loadText.textContent = 'Analyzing ' + sport.toUpperCase() + '... (' + analysisCount + '/' + sportsToLoad.length + ')';
         }
         if (analysisCount >= sportsToLoad.length) {
+            // All analysis done — update status to LIVE
             if (progressBar) progressBar.style.width = '100%';
-            if (overlay) overlay.classList.remove('active');
-            document.body.classList.remove('loading');
             if (sweepEl) sweepEl.textContent = 'LIVE';
             if (sweepDot) { sweepDot.style.background = 'var(--ec-success)'; sweepDot.style.animation = 'none'; }
-            loadProps();
-            populateTicker();
-            // Agent selection: show picker or auto-apply saved choice
-            var savedAgent = sessionStorage.getItem('edgeCrewAgent');
-            if (savedAgent) {
-                applyAgentFilter(savedAgent);
-            } else {
-                showAgentSelect();
-            }
         }
     };
     // Safety timeout — dismiss after 30s no matter what
@@ -2604,10 +2594,22 @@ function refreshSlate() {
         updateProgress();
         if (loadText) loadText.textContent = 'Loading ' + sport.toUpperCase() + '... (' + loadedCount + '/' + sportsToLoad.length + ')';
         if (loadedCount >= sportsToLoad.length) {
+            // Odds all loaded — unlock the page, show agent selection
+            if (overlay) overlay.classList.remove('active');
+            document.body.classList.remove('loading');
+            if (sweepEl) sweepEl.textContent = 'ANALYZING';
+            if (sweepDot) { sweepDot.style.background = '#F59E0B'; sweepDot.style.animation = 'edgePulse 1s ease-in-out infinite'; }
+            loadProps();
+            populateTicker();
+            var savedAgent = sessionStorage.getItem('edgeCrewAgent');
+            if (savedAgent) {
+                applyAgentFilter(savedAgent);
+            } else {
+                showAgentSelect();
+            }
             var loadBanner = document.getElementById('loadingBanner');
             if (loadBanner) loadBanner.textContent = 'ANALYZING';
             if (loadText) loadText.textContent = 'Analyzing games...';
-            if (sweepEl) sweepEl.textContent = 'ANALYZING';
             oddsPhase = false;
         }
     }
