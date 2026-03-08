@@ -5099,16 +5099,22 @@ function fetchLiveOdds(sport, onDone) {
 
     var gotcha = panel.querySelector('.gotcha-banner');
 
-    // Try cached slate first (instant from disk), fall back to live API
-    // _forceRefreshOdds = manual REFRESH button; _retryLive[sport] = retry after cache miss
-    if (!fetchLiveOdds._retryLive) fetchLiveOdds._retryLive = {};
-    var useLive = window._forceRefreshOdds || fetchLiveOdds._retryLive[sport];
-    var oddsUrl = useLive ? '/api/odds/' + sport : '/api/slate/cached/' + sport;
-    if (fetchLiveOdds._retryLive[sport]) delete fetchLiveOdds._retryLive[sport];
-    var _oddsFetch = fetch(oddsUrl).then(function(r) {
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        return r.json();
-    });
+    // Layer 0: Try cached daily record first, fall back to live API
+    // On manual REFRESH (_forceRefreshOdds=true), skip cache and hit live API
+    var _oddsFetch;
+    if (window._forceRefreshOdds) {
+        _oddsFetch = fetch('/api/odds/' + sport).then(function(r) { return r.json(); });
+    } else {
+        _oddsFetch = fetch('/api/slate/cached/' + sport)
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.games && data.games.length > 0) return data;
+                throw new Error('empty cache');
+            })
+            .catch(function() {
+                return fetch('/api/odds/' + sport).then(function(r) { return r.json(); });
+            });
+    }
     _oddsFetch.then(function(data) {
             panel.classList.remove('panel-loading');
             if (data.error) {
@@ -5214,17 +5220,15 @@ function fetchLiveOdds(sport, onDone) {
             if (typeof onDone === 'function') onDone(sport);
         })
         .catch(function(err) {
-            // Retry once after 10s — don't hammer the API
+            // Retry up to 3 times with spaced delays (5s, 10s, 15s)
             if (!fetchLiveOdds._retried) fetchLiveOdds._retried = {};
             var retryCount = fetchLiveOdds._retried[sport] || 0;
-            if (retryCount < 1) {
+            if (retryCount < 3) {
                 fetchLiveOdds._retried[sport] = retryCount + 1;
+                var delay = (retryCount + 1) * 5000;
                 var loadText = document.getElementById('loadingText');
-                if (loadText) loadText.textContent = sport.toUpperCase() + ' — retrying in 10s...';
-                // On retry, hit live API directly (cached slate was empty/failed)
-                if (!fetchLiveOdds._retryLive) fetchLiveOdds._retryLive = {};
-                fetchLiveOdds._retryLive[sport] = true;
-                setTimeout(function() { fetchLiveOdds(sport, onDone); }, 10000);
+                if (loadText) loadText.textContent = sport.toUpperCase() + ' retrying... (' + (retryCount + 1) + '/3)';
+                setTimeout(function() { fetchLiveOdds(sport, onDone); }, delay);
                 return;
             }
             panel.classList.remove('panel-loading');
