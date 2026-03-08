@@ -3008,7 +3008,24 @@ function lockCard() {
         }).then(function(r) {
             if (!r.ok) return r.json().then(function(d) { throw new Error(d.error || 'Server error'); });
             return r.json();
-        }).then(function() { saved++; }).catch(function(err) {
+        }).then(function(data) {
+            saved++;
+            // Capture server-assigned ID back into localStorage
+            if (data && data.pick && data.pick.id) {
+                var st = JSON.parse(safeLoad('edgePicks') || '[]');
+                for (var i = 0; i < st.length; i++) {
+                    if (!st[i].id && st[i].matchup === pick.matchup && st[i].selection === pick.selection && st[i].name === pick.name) {
+                        st[i].id = data.pick.id;
+                        break;
+                    }
+                }
+                safeSave('edgePicks', JSON.stringify(st));
+            }
+            // Re-sync from server after all picks saved to catch everyone's picks
+            if (saved >= lockedPicks.length) {
+                syncPicksFromServer();
+            }
+        }).catch(function(err) {
             console.error('Lock card pick save failed:', err);
             showToast('Warning: Some picks failed to sync to server', true);
         });
@@ -3318,6 +3335,19 @@ function submitPick() {
         return r.json();
     }).then(function(data) {
         console.log('Pick saved to server:', data);
+        // Capture server-assigned ID
+        if (data && data.pick && data.pick.id) {
+            var st = JSON.parse(safeLoad('edgePicks') || '[]');
+            for (var i = 0; i < st.length; i++) {
+                if (!st[i].id && st[i].matchup === pick.matchup && st[i].selection === pick.selection && st[i].name === pick.name) {
+                    st[i].id = data.pick.id;
+                    break;
+                }
+            }
+            safeSave('edgePicks', JSON.stringify(st));
+        }
+        // Re-sync to pull everyone else's picks too
+        syncPicksFromServer();
     }).catch(function(err) {
         console.error('Pick save failed:', err);
         showToast('WARNING: Pick saved locally but failed to sync to server. Try again.', true);
@@ -3695,8 +3725,9 @@ function renderLoadingStack() {
     var el = document.getElementById('loadingStack');
     if (!el) return;
     var stored = JSON.parse(safeLoad('edgePicks') || '[]');
-    var today = new Date().toISOString().slice(0, 10);
-    var todayPicks = stored.filter(function(p) { return p.date === today; });
+    var todayPST = toPSTDate();
+    var todayISO = new Date().toISOString().slice(0, 10);
+    var todayPicks = stored.filter(function(p) { return p.date === todayPST || p.date === todayISO; });
     // Deduplicate: same player + prop + line + game = show once
     var seen = {};
     todayPicks = todayPicks.filter(function(p) {
@@ -4264,6 +4295,8 @@ function syncPicksFromServer() {
 // Load bankroll on page load
 renderBankroll();
 syncPicksFromServer();
+// Re-sync picks every 60s to pull picks from other crew members
+setInterval(syncPicksFromServer, 60000);
 
 // ===== GOTCHA CARD (All Sports) =====
 function toggleGotchaEdit(sport) {
@@ -4529,11 +4562,12 @@ function submitParlay() {
 
 function renderPicks() {
     var stored = JSON.parse(safeLoad('edgePicks') || '[]');
-    // Match today in both YYYY-MM-DD and locale format
+    // Match today in PST (same as how picks are saved)
+    var todayPST = toPSTDate();
     var now = new Date();
     var todayISO = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
     var todayLocale = now.toLocaleDateString();
-    var todayPicks = stored.filter(function(p) { return p.date === todayISO || p.date === todayLocale; });
+    var todayPicks = stored.filter(function(p) { return p.date === todayPST || p.date === todayISO || p.date === todayLocale; });
     var list = document.getElementById('pickList');
     if (!todayPicks.length) {
         list.innerHTML = '<div style="color:rgba(255,255,255,0.3);font-size:13px;padding:12px;">No picks submitted today yet.</div>';
