@@ -2594,13 +2594,13 @@ function refreshSlate() {
     window._analysisLoadCallback = function(sport) {
         // No-op in new architecture — overlay dismissal handled by onSportLoaded
     };
-    // Safety timeout — dismiss after 15s no matter what
+    // Safety timeout — dismiss after 60s no matter what
     setTimeout(function() {
         if (overlay) overlay.classList.remove('active');
         document.body.classList.remove('loading');
         if (sweepEl && sweepEl.textContent !== 'LIVE') { sweepEl.textContent = 'LIVE'; }
         if (sweepDot) { sweepDot.style.background = 'var(--ec-success)'; sweepDot.style.animation = 'none'; }
-    }, 15000);
+    }, 60000);
 
     function onSportLoaded(sport) {
         loadedCount++;
@@ -2626,20 +2626,35 @@ function refreshSlate() {
         : Promise.resolve();
 
     clearDone.then(function() {
-        // Fetch rosters in background
-        sportsToLoad.forEach(function(sport) {
-            crewFetch('/api/rosters/' + sport).catch(function(){});
-        });
-        // Fetch odds for all sports
-        sportsToLoad.forEach(function(sport) {
-            fetchLiveOdds(sport, onSportLoaded);
-        });
+        // Batch odds fetches — 3 at a time, wait for batch to finish before next
+        // This prevents Render proxy from choking on 10+ concurrent requests
+        var batchSize = 3;
+        function loadBatch(startIdx) {
+            var batch = sportsToLoad.slice(startIdx, startIdx + batchSize);
+            if (batch.length === 0) return;
+            var batchDone = 0;
+            batch.forEach(function(sport) {
+                fetchLiveOdds(sport, function(s) {
+                    onSportLoaded(s);
+                    batchDone++;
+                    if (batchDone >= batch.length) {
+                        // This batch done — fire next batch
+                        loadBatch(startIdx + batchSize);
+                    }
+                });
+            });
+        }
+        loadBatch(0);
+        // Rosters load AFTER all odds — don't clog the pipe
+        setTimeout(function() {
+            sportsToLoad.forEach(function(sport, i) {
+                setTimeout(function() { crewFetch('/api/rosters/' + sport).catch(function(){}); }, i * 500);
+            });
+        }, 8000);
     });
 
-    // Props now reload in _analysisLoadCallback after ALL analysis completes
-
-    // Fetch combined slate
-    setTimeout(function() { fetchCombinedSlate(); }, 3000);
+    // Fetch combined slate after odds batches have time to complete
+    setTimeout(function() { fetchCombinedSlate(); }, 10000);
 
     // Reload all upset picks
     loadAllUpsets();
@@ -5164,7 +5179,7 @@ function fetchLiveOdds(sport, onDone) {
                 fetchLiveOdds._retried[sport] = retryCount + 1;
                 var delay = 2000;
                 var loadText = document.getElementById('loadingText');
-                if (loadText) loadText.textContent = sport.toUpperCase() + ' loading... retry ' + (retryCount + 1) + '/3';
+                if (loadText) loadText.textContent = sport.toUpperCase() + ' retrying...';
                 setTimeout(function() { fetchLiveOdds(sport, onDone); }, delay);
                 return;
             }
