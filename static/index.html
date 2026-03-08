@@ -2123,6 +2123,8 @@ function processToastQueue() {
 var picks = {}; // { gameName: { checked: bool, side: string } }
 
 function refreshSlate() {
+    // Reset retry flags for cold-start resilience
+    fetchLiveOdds._retried = {};
     // Reset all game row checks and side picks
     picks = {};
     safeRemove('edgeLockedPicks');
@@ -2170,7 +2172,7 @@ function refreshSlate() {
     if (sweepEl) sweepEl.textContent = 'LOADING';
     if (sweepDot) { sweepDot.style.background = '#F59E0B'; sweepDot.style.animation = 'edgePulse 1s ease-in-out infinite'; }
 
-    var sportsToLoad = ['nba','nhl','mlb','soccer','mma','boxing'];
+    var sportsToLoad = ['nba','wnba','ncaab','ncaaf','nhl','mlb','tennis','soccer','mma','boxing'];
     var loadedCount = 0;
     var analysisCount = 0;
     var oddsPhase = true;
@@ -4238,6 +4240,8 @@ function fetchLiveOdds(sport, onDone) {
                 errMsg.className = 'panel-error';
                 errMsg.textContent = sport.toUpperCase() + ' API error: ' + data.error;
                 panel.appendChild(errMsg);
+                if (typeof window._analysisLoadCallback === 'function') window._analysisLoadCallback(sport);
+                if (typeof onDone === 'function') onDone(sport);
                 return;
             }
 
@@ -4349,11 +4353,20 @@ function fetchLiveOdds(sport, onDone) {
             if (typeof onDone === 'function') onDone(sport);
         })
         .catch(function(err) {
+            // Retry once after 3s on failure (cold start resilience)
+            if (!fetchLiveOdds._retried) fetchLiveOdds._retried = {};
+            if (!fetchLiveOdds._retried[sport]) {
+                fetchLiveOdds._retried[sport] = true;
+                setTimeout(function() { fetchLiveOdds(sport, onDone); }, 3000);
+                return;
+            }
             panel.classList.remove('panel-loading');
             if (typeof onDone === 'function') onDone(sport);
+            // Fire analysis callback so overlay doesn't hang
+            if (typeof window._analysisLoadCallback === 'function') window._analysisLoadCallback(sport);
             var errMsg = document.createElement('div');
             errMsg.className = 'panel-error';
-            errMsg.textContent = 'Failed to load ' + sport.toUpperCase() + ' odds. Check connection and try again.';
+            errMsg.textContent = 'Failed to load ' + sport.toUpperCase() + ' odds. Hit REFRESH to retry.';
             panel.appendChild(errMsg);
         });
 }
