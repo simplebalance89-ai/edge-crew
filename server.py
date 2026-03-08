@@ -538,6 +538,32 @@ def _load_edge_cache(sport):
     return None
 
 
+def _game_not_started(game, now=None):
+    """Return True if game hasn't started yet."""
+    if now is None:
+        now = datetime.now(PST)
+    game_time_str = game.get('time', '')
+    if not game_time_str:
+        return False
+    try:
+        gt = datetime.fromisoformat(game_time_str.replace('Z', '+00:00')).astimezone(PST)
+        return gt > now
+    except Exception:
+        return False
+
+
+def _game_within_cutoff(game, cutoff):
+    """Return True if game is within the cutoff time."""
+    game_time_str = game.get('time', '')
+    if not game_time_str:
+        return False
+    try:
+        gt = datetime.fromisoformat(game_time_str.replace('Z', '+00:00')).astimezone(PST)
+        return gt <= cutoff
+    except Exception:
+        return False
+
+
 def _track_opening_lines(game):
     """Store opening lines for a game (first time seen today). Returns shift data."""
     today = datetime.now(PST).strftime("%Y-%m-%d")
@@ -1732,9 +1758,10 @@ async def get_odds(sport: str, markets: str = "h2h,spreads,totals"):
     if not all_games and not SHARPAPI_KEY and not ODDS_API_KEY:
         return JSONResponse({"error": "No odds API configured (set SHARPAPI_KEY or ODDS_API_KEY)"}, status_code=500)
 
-    # Filter out speculative/future games — only show confirmed within 48 hours
+    # Filter: only show games within 24 hours that haven't started
     from datetime import timedelta
-    cutoff = datetime.now(PST) + timedelta(hours=48)
+    now = datetime.now(PST)
+    cutoff = now + timedelta(hours=24)
     filtered_games = []
     for g in all_games:
         game_time_str = g.get('time', '')
@@ -1743,7 +1770,7 @@ async def get_odds(sport: str, markets: str = "h2h,spreads,totals"):
             continue  # Skip: no confirmed time or no real bookmaker
         try:
             gt = datetime.fromisoformat(game_time_str.replace('Z', '+00:00')).astimezone(PST)
-            if gt <= cutoff:
+            if gt > now and gt <= cutoff:
                 filtered_games.append(g)
         except Exception:
             continue  # Skip unparseable times
@@ -1780,12 +1807,13 @@ async def get_odds(sport: str, markets: str = "h2h,spreads,totals"):
 
 @app.get("/api/slate/cached")
 async def get_cached_slate():
-    """Serve full slate from daily record — ZERO API calls."""
+    """Serve full slate from daily record — ZERO API calls. Filter started games."""
+    now = datetime.now(PST)
     all_games = []
     for sport in ALL_SPORTS:
         slate = _load_daily_slate(sport)
         if slate and slate.get("games"):
-            all_games.extend(slate["games"])
+            all_games.extend([g for g in slate["games"] if _game_not_started(g, now)])
     return JSONResponse({
         "games": all_games,
         "count": len(all_games),
@@ -1796,12 +1824,16 @@ async def get_cached_slate():
 
 @app.get("/api/slate/cached/{sport}")
 async def get_cached_sport_slate(sport: str):
-    """Serve single sport from daily record."""
+    """Serve single sport from daily record — filter out started games."""
     slate = _load_daily_slate(sport.lower())
-    if slate:
-        slate["cached"] = True
-        return JSONResponse(slate)
-    # Fallback: pull live if no cache
+    if slate and slate.get("games"):
+        now = datetime.now(PST)
+        slate["games"] = [g for g in slate["games"] if _game_not_started(g, now)]
+        if slate["games"]:
+            slate["cached"] = True
+            slate["count"] = len(slate["games"])
+            return JSONResponse(slate)
+    # Fallback: pull live if no cache or all games started
     return await get_odds(sport)
 
 @app.post("/api/slate/refresh")
@@ -2953,6 +2985,16 @@ async def get_analysis(sport: str):
             odds_data = json.loads(odds_resp.body)
         else:
             odds_data = {"games": [], "count": 0}
+
+    # Filter out started games and games beyond 24 hours
+    if odds_data.get("games"):
+        from datetime import timedelta
+        now = datetime.now(PST)
+        cutoff = now + timedelta(hours=24)
+        odds_data["games"] = [
+            g for g in odds_data["games"]
+            if _game_not_started(g, now) and _game_within_cutoff(g, cutoff)
+        ]
 
     if not odds_data.get("games"):
         return JSONResponse({
