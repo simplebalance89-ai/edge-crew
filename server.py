@@ -194,8 +194,8 @@ DEFAULT_CREW = [
     {"id": "peter", "display_name": "Peter", "color": "#D4A017", "is_admin": True},
     {"id": "chinny", "display_name": "Chinny", "color": "#10B981", "is_admin": False},
     {"id": "jimmy", "display_name": "Jimmy", "color": "#60A5FA", "is_admin": False},
-    {"id": "alyssa", "display_name": "Alyssa", "color": "#4ECDC4", "is_admin": False},
-    {"id": "sintonia", "display_name": "Sinton.ia", "color": "#D4A843", "is_admin": False},
+    {"id": "alyssa", "display_name": "Alyssa", "color": "#41EAD4", "is_admin": False},
+    {"id": "sintonia", "display_name": "Sinton.ia", "color": "#F72585", "is_admin": False},
 ]
 
 
