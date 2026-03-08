@@ -2630,9 +2630,15 @@ function refreshSlate() {
             document.body.classList.remove('loading');
             if (sweepEl) sweepEl.textContent = 'LIVE';
             if (sweepDot) { sweepDot.style.background = 'var(--ec-success)'; sweepDot.style.animation = 'none'; }
-            loadProps();
             populateTicker();
             window._forceRefreshOdds = false;
+            // Injuries + props: batched AFTER odds done, 3 at a time, 2s gap
+            (function batchInjuries(idx) {
+                var batch = sportsToLoad.slice(idx, idx + 3);
+                if (!batch.length) { loadProps(); return; }
+                batch.forEach(function(s) { fetchInjuries(s); });
+                setTimeout(function() { batchInjuries(idx + 3); }, 2000);
+            })(0);
             // DON'T auto-trigger analysis — user clicks ANALYZE button
         }
     }
@@ -2662,16 +2668,11 @@ function refreshSlate() {
             });
         }
         loadBatch(0);
-        // Rosters load AFTER all odds — don't clog the pipe
-        setTimeout(function() {
-            sportsToLoad.forEach(function(sport, i) {
-                setTimeout(function() { crewFetch('/api/rosters/' + sport).catch(function(){}); }, i * 500);
-            });
-        }, 8000);
+        // Rosters: only needed for analysis — defer to ANALYZE button, don't pre-fetch
     });
 
-    // Fetch combined slate after odds batches have time to complete
-    setTimeout(function() { fetchCombinedSlate(); }, 10000);
+    // Combined slate: defer until odds are done (no rush)
+    setTimeout(function() { fetchCombinedSlate(); }, 30000);
 
     // Mark off-season sports
     var offSeason = allSports.filter(function(s) { return sportsToLoad.indexOf(s) === -1; });
@@ -5209,11 +5210,7 @@ function fetchLiveOdds(sport, onDone) {
             // Re-apply saved picks after DOM rebuild
             if (typeof restoreLockedPicks === 'function') restoreLockedPicks();
 
-            // Layer 0 architecture: analysis/edge deferred to agent selection
-            // Only fetch injuries (standalone, not agent-dependent)
-            if (pregameGames.length > 0) {
-                fetchInjuries(sport);
-            }
+            // Injuries deferred — loaded in batch AFTER all odds complete (don't clog pipe)
             if (typeof onDone === 'function') onDone(sport);
         })
         .catch(function(err) {
