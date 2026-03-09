@@ -4959,7 +4959,7 @@ function buildGameRowHTML(g) {
     // Check if game is today
     var now = new Date();
     var isToday = gameDate.toDateString() === now.toDateString();
-    var todayStyle = isToday ? 'border-left:3px solid #6366f1;background:rgba(99,102,241,0.04);' : 'border-left:3px solid transparent;opacity:0.75;';
+    var todayStyle = isToday ? 'border-left:3px solid #6366f1;background:rgba(99,102,241,0.04);' : 'border-left:3px solid rgba(255,255,255,0.06);opacity:0.5;background:rgba(255,255,255,0.01);';
 
     // Store odds in liveOddsMap for auto-select in form
     liveOddsMap[matchup] = {};
@@ -5245,8 +5245,8 @@ function fetchLiveOdds(sport, onDone) {
                 return;
             }
 
-            // Remove ALL current game rows at render time (not at fetch time) to prevent duplicates
-            panel.querySelectorAll('.game-row').forEach(function(row) { row.remove(); });
+            // Remove ALL current game rows and date headers at render time to prevent duplicates
+            panel.querySelectorAll('.game-row, .date-header').forEach(function(row) { row.remove(); });
 
             // Remove old "no games" / empty state messages
             var noGames = panel.querySelector('.no-games');
@@ -5281,11 +5281,32 @@ function fetchLiveOdds(sport, onDone) {
                 return;
             }
 
-            // Build new rows
+            // Sort games: today first, then tomorrow+
+            var todayStr = now.toDateString();
+            var todayGames = pregameGames.filter(function(g) { return new Date(g.time).toDateString() === todayStr; });
+            var futureGames = pregameGames.filter(function(g) { return new Date(g.time).toDateString() !== todayStr; });
+
+            // Build new rows with date headers
             var html = '';
-            pregameGames.forEach(function(g) {
-                html += buildGameRowHTML(g);
-            });
+            if (todayGames.length > 0) {
+                html += '<div class="date-header" style="padding:8px 14px;margin:8px 0 4px;font-size:11px;font-weight:800;color:#6366f1;letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid rgba(99,102,241,0.2);">TODAY &mdash; ' + now.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'}) + '</div>';
+                todayGames.forEach(function(g) { html += buildGameRowHTML(g); });
+            }
+            if (futureGames.length > 0) {
+                // Group by date
+                var futDates = {};
+                futureGames.forEach(function(g) {
+                    var ds = new Date(g.time).toDateString();
+                    if (!futDates[ds]) futDates[ds] = [];
+                    futDates[ds].push(g);
+                });
+                Object.keys(futDates).forEach(function(ds) {
+                    var d = new Date(ds);
+                    var label = d.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});
+                    html += '<div class="date-header" style="padding:8px 14px;margin:12px 0 4px;font-size:11px;font-weight:800;color:rgba(255,255,255,0.3);letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,0.06);">TOMORROW &mdash; ' + label + '</div>';
+                    futDates[ds].forEach(function(g) { html += buildGameRowHTML(g); });
+                });
+            }
 
             // Insert game rows into panel
             var temp = document.createElement('div');
@@ -5294,12 +5315,12 @@ function fetchLiveOdds(sport, onDone) {
                 panel.appendChild(temp.firstChild);
             }
 
-            // Update tab count (pregame only)
+            // Update tab count (today's games only)
             var tabs = document.querySelectorAll('.sport-tab');
             tabs.forEach(function(tab) {
                 if (tab.textContent.indexOf(sport.toUpperCase()) === 0) {
                     var count = tab.querySelector('.tab-count');
-                    if (count) count.textContent = pregameGames.length;
+                    if (count) count.textContent = todayGames.length + (futureGames.length > 0 ? '+' + futureGames.length : '');
                 }
             });
 
