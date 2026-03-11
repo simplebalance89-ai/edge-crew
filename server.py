@@ -1575,9 +1575,13 @@ async def get_odds(sport: str, markets: str = "h2h,spreads,totals"):
             continue
     all_games = filtered_games
 
-    # Save to daily record
+    # Save to daily record + invalidate stale analysis cache
     if all_games:
         _save_daily_slate(sport_lower, all_games)
+        # Clear analysis caches so next analysis uses fresh odds
+        analysis_key = f"analysis:{sport_lower}"
+        if analysis_key in _cache:
+            del _cache[analysis_key]
 
     # Count games with complete vs incomplete lines
     complete = sum(1 for g in all_games if g.get("lines_complete"))
@@ -2149,11 +2153,15 @@ async def get_analysis(sport: str):
     if cached:
         return JSONResponse(cached)
 
-    # Check file-based analysis cache
+    # Check file-based analysis cache — only use if odds haven't been refreshed since
     cached_analysis = _load_analysis_cache(sport_lower)
     if cached_analysis and cached_analysis.get("games"):
-        cached_analysis["cached"] = True
-        return JSONResponse(cached_analysis)
+        # If fresh odds exist in memory cache (from a recent REFRESH), skip stale analysis
+        odds_cache_key_check = f"{sport_lower}:h2h,spreads,totals"
+        fresh_odds = _get_cached(odds_cache_key_check)
+        if not fresh_odds:
+            cached_analysis["cached"] = True
+            return JSONResponse(cached_analysis)
 
     # Get current odds for context
     odds_cache_key = f"{sport_lower}:h2h,spreads,totals"
