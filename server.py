@@ -74,6 +74,7 @@ async def _autograde_loop():
 
             if ungraded:
                 ungraded = _deduplicate_picks(ungraded)
+                days_needed = _days_from_oldest_pick(ungraded)
                 sports_needed = set()
                 for p in ungraded:
                     sport = p.get("sport", "").lower()
@@ -85,7 +86,7 @@ async def _autograde_loop():
                 fetch_tasks = []
                 for sport in sports_needed:
                     for key in SPORT_KEYS.get(sport, []):
-                        fetch_tasks.append(_fetch_scores(key))
+                        fetch_tasks.append(_fetch_scores(key, days_from=days_needed))
 
                 all_scores = []
                 results = await asyncio.gather(*fetch_tasks, return_exceptions=True)
@@ -399,6 +400,7 @@ REGIONS = "us,us2"
 DATA_DIR = "/data" if os.path.isdir("/data") else os.path.join(os.path.dirname(__file__), "data")
 UPSETS_FILE = os.path.join(DATA_DIR, "upsets.json")
 PICKS_FILE = os.path.join(DATA_DIR, "picks.json")
+SCORES_ARCHIVE_FILE = os.path.join(DATA_DIR, "scores_archive.json")
 
 ALL_SPORTS = ["nba", "wnba", "ncaab", "ncaaf", "nhl", "mlb", "wbc", "tennis", "soccer", "mma", "boxing"]
 
@@ -573,6 +575,59 @@ def _get_cached(key, ttl=None):
 
 def _set_cache(key, data):
     _cache[key] = (data, time.time())
+
+
+# ── Scores Archive — persist completed game scores locally ────────────────
+def _read_scores_archive() -> dict:
+    """Read archived completed scores. Keyed by game ID."""
+    try:
+        if os.path.exists(SCORES_ARCHIVE_FILE):
+            with open(SCORES_ARCHIVE_FILE, "r") as f:
+                return json.load(f)
+    except Exception:
+        pass
+    return {}
+
+
+def _save_scores_archive(archive: dict):
+    """Write scores archive. Prune games older than 14 days."""
+    cutoff = (datetime.now(PST) - timedelta(days=14)).isoformat()
+    pruned = {gid: g for gid, g in archive.items() if g.get("commence_time", "") >= cutoff}
+    try:
+        with open(SCORES_ARCHIVE_FILE, "w") as f:
+            json.dump(pruned, f)
+    except Exception as e:
+        logger.warning(f"Scores archive save failed: {e}")
+
+
+def _archive_completed_games(games: list):
+    """Save completed games to local archive so we never re-fetch them."""
+    completed = [g for g in games if g.get("completed") and g.get("id")]
+    if not completed:
+        return
+    archive = _read_scores_archive()
+    for g in completed:
+        archive[g["id"]] = g
+    _save_scores_archive(archive)
+
+
+def _days_from_oldest_pick(picks: list) -> int:
+    """Calculate daysFrom needed to cover the oldest ungraded pick, min 3, max 14."""
+    if not picks:
+        return 3
+    oldest = None
+    for p in picks:
+        d = p.get("date", "")
+        if d and (oldest is None or d < oldest):
+            oldest = d
+    if not oldest:
+        return 3
+    try:
+        oldest_dt = datetime.strptime(oldest, "%Y-%m-%d").replace(tzinfo=PST)
+        delta = (datetime.now(PST) - oldest_dt).days + 1  # +1 for same-day
+        return max(3, min(delta, 14))
+    except (ValueError, TypeError):
+        return 3
 
 
 def _track_opening_lines(game):
@@ -2723,32 +2778,64 @@ async def get_scores():
     })
 
 
-async def _fetch_scores(sport_key: str) -> list:
-    """Fetch completed game scores from The Odds API. Cached 5 min."""
-    if not ODDS_API_KEY:
-        logger.warning("No ODDS_API_KEY configured for scores fetch")
-        return []
-    cache_key = f"scores:{sport_key}"
+async def _fetch_scores(sport_key: str, days_from: int = 3) -> list:
+    """Fetch game scores from The Odds API + local archive. Cached 5 min.
+
+    1. Load archived completed scores (free — local file)
+    2. Fetch fresh scores from API (daysFrom = dynamic based on oldest pick)
+    3. Archive any newly completed games
+    4. Merge and dedupe by game ID
+    """
+    cache_key = f"scores:{sport_key}:{days_from}"
     cached = _get_cached(cache_key)
     if cached is not None:
         return cached
-    url = f"{ODDS_API_BASE}/{sport_key}/scores/"
-    params = {"apiKey": ODDS_API_KEY, "daysFrom": 7}
-    try:
-        async with httpx.AsyncClient(timeout=15) as client:
-            r = await client.get(url, params=params)
-            logger.info(f"Scores fetch {sport_key}: status={r.status_code}")
-            if r.status_code == 200:
-                data = r.json()
-                logger.info(f"Scores fetch {sport_key}: got {len(data)} games")
-                _set_cache(cache_key, data)
-                return data
-            else:
-                logger.warning(f"Scores fetch {sport_key}: HTTP {r.status_code}")
-    except Exception as e:
-        logger.warning(f"Scores fetch failed for {sport_key}: {type(e).__name__}: {e}")
-        log_error("Scores", f"Fetch failed: {sport_key}", str(e))
-    return []
+
+    # Step 1: Pull archived completed games for this sport
+    archive = _read_scores_archive()
+    archived_games = [g for g in archive.values()
+                      if g.get("sport_key", "") == sport_key or sport_key in g.get("sport_key", "")]
+
+    # Step 2: Fetch fresh from API
+    api_games = []
+    if ODDS_API_KEY:
+        url = f"{ODDS_API_BASE}/{sport_key}/scores/"
+        params = {"apiKey": ODDS_API_KEY, "daysFrom": days_from}
+        try:
+            async with httpx.AsyncClient(timeout=15) as client:
+                r = await client.get(url, params=params)
+                logger.info(f"Scores fetch {sport_key} (daysFrom={days_from}): status={r.status_code}")
+                if r.status_code == 200:
+                    api_games = r.json()
+                    # Tag with sport_key for archive filtering
+                    for g in api_games:
+                        if "sport_key" not in g:
+                            g["sport_key"] = sport_key
+                    logger.info(f"Scores fetch {sport_key}: got {len(api_games)} games")
+                    # Step 3: Archive newly completed games
+                    _archive_completed_games(api_games)
+                else:
+                    logger.warning(f"Scores fetch {sport_key}: HTTP {r.status_code}")
+        except Exception as e:
+            logger.warning(f"Scores fetch failed for {sport_key}: {type(e).__name__}: {e}")
+            log_error("Scores", f"Fetch failed: {sport_key}", str(e))
+    else:
+        logger.warning("No ODDS_API_KEY configured for scores fetch")
+
+    # Step 4: Merge API + archive, dedupe by game ID (API wins on conflicts)
+    merged = {}
+    for g in archived_games:
+        gid = g.get("id")
+        if gid:
+            merged[gid] = g
+    for g in api_games:
+        gid = g.get("id")
+        if gid:
+            merged[gid] = g  # API data is fresher
+
+    result = list(merged.values())
+    _set_cache(cache_key, result)
+    return result
 
 
 def _normalize_team(name: str) -> str:
@@ -3390,7 +3477,8 @@ async def autograde_picks(request: Request):
     # Deduplicate picks by key fields (name + date + selection + matchup)
     ungraded = _deduplicate_picks(ungraded)
 
-    # Determine which sports need scores
+    # Determine which sports need scores and how far back to look
+    days_needed = _days_from_oldest_pick(ungraded)
     sports_needed = set()
     for p in ungraded:
         sport = p.get("sport", "").lower()
@@ -3401,12 +3489,12 @@ async def autograde_picks(request: Request):
     if not sports_needed:
         sports_needed = {"nba", "wnba", "nhl"}  # fallback only if zero sports detected
 
-    # Fetch scores for all sports IN PARALLEL (was sequential — very slow)
+    # Fetch scores for all sports IN PARALLEL, with dynamic daysFrom window
     fetch_tasks = []
     fetch_labels = []
     for sport in sports_needed:
         for key in SPORT_KEYS.get(sport, []):
-            fetch_tasks.append(_fetch_scores(key))
+            fetch_tasks.append(_fetch_scores(key, days_from=days_needed))
             fetch_labels.append(f"{sport}/{key}")
 
     all_scores = []
