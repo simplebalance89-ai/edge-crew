@@ -2617,6 +2617,32 @@ async def get_unique_picks():
     return JSONResponse({"unique_picks": unique, "count": len(unique)})
 
 
+def _normalize_pick_type(raw: str) -> str:
+    """Normalize pick type to canonical values: Moneyline, Spread, Over/Under, Prop, Parlay."""
+    t = raw.strip().lower()
+    if t in ("ml", "moneyline", "money line", "money_line"):
+        return "Moneyline"
+    if t in ("spread", "ats", "point spread"):
+        return "Spread"
+    if t in ("o/u", "over/under", "total", "totals", "over", "under"):
+        return "Over/Under"
+    if t in ("prop", "props", "player prop", "player_prop"):
+        return "Prop"
+    if t in ("parlay", "parlays"):
+        return "Parlay"
+    return "Spread"  # default
+
+
+def _normalize_sport(raw: str) -> str:
+    """Normalize sport to uppercase canonical values."""
+    s = raw.strip().upper()
+    # Map common variants
+    aliases = {"PROPS": "NBA", "BASKETBALL": "NBA", "HOCKEY": "NHL", "FOOTBALL": "NFL",
+               "COLLEGE BASKETBALL": "NCAAB", "COLLEGE FOOTBALL": "NCAAF", "UFC": "MMA",
+               "FIGHT": "MMA", "FIGHTS": "MMA", "FÚTBOL": "SOCCER"}
+    return aliases.get(s, s)
+
+
 @app.post("/api/picks")
 async def save_pick(request: Request):
     """Save a new pick from the bet slip popup."""
@@ -2635,8 +2661,8 @@ async def save_pick(request: Request):
     pick = {
         "id": str(uuid.uuid4())[:8],
         "name": _sanitize(name),
-        "sport": _sanitize(body.get("sport", "")),
-        "type": _sanitize(body.get("type", "Spread")),
+        "sport": _normalize_sport(body.get("sport", "")),
+        "type": _normalize_pick_type(body.get("type", "Spread")),
         "matchup": _sanitize(matchup),
         "selection": _sanitize(selection),
         "odds": _sanitize(body.get("odds", "-110")),
@@ -2669,6 +2695,28 @@ async def save_pick(request: Request):
         return JSONResponse({"error": f"Failed to save pick: {e}"}, status_code=500)
 
     return JSONResponse({"status": "ok", "pick": pick})
+
+
+@app.post("/api/picks/normalize")
+async def normalize_picks():
+    """One-time cleanup: normalize all pick types and sports in historical data."""
+    data = _read_picks()
+    fixed_type = 0
+    fixed_sport = 0
+    for pick in data.get("picks", []):
+        old_type = pick.get("type", "")
+        new_type = _normalize_pick_type(old_type)
+        if old_type != new_type:
+            pick["type"] = new_type
+            fixed_type += 1
+        old_sport = pick.get("sport", "")
+        new_sport = _normalize_sport(old_sport)
+        if old_sport != new_sport:
+            pick["sport"] = new_sport
+            fixed_sport += 1
+    if fixed_type or fixed_sport:
+        _write_picks(data)
+    return JSONResponse({"status": "ok", "fixed_type": fixed_type, "fixed_sport": fixed_sport, "total_picks": len(data.get("picks", []))})
 
 
 @app.post("/api/picks/place")
