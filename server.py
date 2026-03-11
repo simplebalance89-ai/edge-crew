@@ -255,22 +255,25 @@ def _write_profiles(data):
 
 
 def _seed_profiles():
-    """Pre-seed default crew if profiles file is empty. Default PIN: 0000."""
+    """Ensure all DEFAULT_CREW members exist in profiles. Adds missing members."""
     data = _read_profiles()
-    if data.get("profiles"):
-        return
+    existing_ids = {p["id"] for p in data.get("profiles", [])}
     default_pin_hash = _hash_pin("0000")
+    added = False
     for member in DEFAULT_CREW:
-        data.setdefault("profiles", []).append({
-            "id": member["id"],
-            "display_name": member["display_name"],
-            "pin_hash": default_pin_hash,
-            "color": member["color"],
-            "is_admin": member["is_admin"],
-            "created_at": datetime.now(PST).strftime("%Y-%m-%d %H:%M:%S"),
-            "last_login": None,
-        })
-    _write_profiles(data)
+        if member["id"] not in existing_ids:
+            data.setdefault("profiles", []).append({
+                "id": member["id"],
+                "display_name": member["display_name"],
+                "pin_hash": default_pin_hash,
+                "color": member["color"],
+                "is_admin": member["is_admin"],
+                "created_at": datetime.now(PST).strftime("%Y-%m-%d %H:%M:%S"),
+                "last_login": None,
+            })
+            added = True
+    if added:
+        _write_profiles(data)
 
 
 _seed_profiles()
