@@ -188,7 +188,7 @@ async def _daily_slate_pull():
                         await asyncio.sleep(5)
 
             should_run_analysis = False
-            if hour in (8, 16, 18) and last_analysis_run != f"{today}:{hour}":
+            if hour == 16 and last_analysis_run != f"{today}:{hour}":
                 should_run_analysis = True
                 last_analysis_run = f"{today}:{hour}"
 
@@ -2407,8 +2407,15 @@ GRADING RULES:
 - injury_impact is MANDATORY. Check the RotoWire data above. Name specific players.
 - If RotoWire data is unavailable, flag it: "Injury data not confirmed - grade with caution."
 - rest_schedule is MANDATORY. Check game times for B2B detection.
-- Player props: Select ONLY from the REAL PLAYER PROP LINES section above. Do NOT invent or estimate prop lines — use the exact lines and odds from sportsbooks. If no real prop lines are available for a game, set player_props to empty array []. Top 3-5 per game, B+ grade minimum. Skip for INCOMPLETE or TBD. Each prop MUST have player name, exact prop line from the data, actual odds from the data, individual grade (A/B+/B/C), and 1-sentence edge explanation. EVERY prop must note games played this season if available. < 20 games = auto-flag.
+- Player props: Select ONLY from the REAL PLAYER PROP LINES section above. Do NOT invent or estimate prop lines — use the exact lines and odds from sportsbooks. If no real prop lines are available for a game, set player_props to empty array []. Top 2-3 per game, A- grade minimum. Skip for INCOMPLETE or TBD. Each prop MUST have player name, exact prop line from the data, actual odds from the data, individual grade (A/B+/B/C), and 1-sentence edge explanation. EVERY prop must note games played this season if available. < 20 games = auto-flag.
 - ABSOLUTE ROSTER LOCK: A player prop can ONLY be suggested for a player who appears in the CURRENT ROSTERS data for one of the two teams in that specific game. If "Jayson Tatum" is in the BOS roster and the game is NYK @ DEN, you CANNOT suggest a Tatum prop on that game — he is NOT playing in it. This is non-negotiable. Check the roster list, find the player, confirm the team matches the game. If the player is not in either team's roster for that game, DO NOT suggest the prop. Period.
+- PROP QUALITY RULES (NON-NEGOTIABLE):
+  1. NO NHL goal props. They hit at <25%. Not +EV at any line. Skip them entirely.
+  2. NO soccer assist props unless the player averages 0.3+ assists per game AND is a confirmed starter. Bench/sub = auto-skip.
+  3. MAX 2 props per player per game. Do not stack 4 props on one role player.
+  4. ROLE PLAYER FILTER: If a player averages under 15 MPG or under 8 PPG, their stat lines are too volatile. Skip unless the edge is overwhelming (A grade only).
+  5. STICK TO HIGH-VOLUME STATS: Points for scorers, rebounds for bigs, assists for playmakers. Do NOT pick rebounds for a guard who averages 3 RPG or assists for a center who averages 1 APG — the variance is too high.
+  6. Odds range for props: -200 to +250. Outside that range = too juiced or too unlikely. Skip it.
 - PASS games get grade D or F with explicit reason.
 - Be brutally honest. C means marginal. D means no edge. F means trap. "Slight edge" with no specifics = D grade, not B.
 
