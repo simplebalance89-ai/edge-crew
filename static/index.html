@@ -3956,6 +3956,15 @@ function _pickInDateRange(pick, range) {
     return d >= range.start && d <= range.end;
 }
 
+function _isPropPick(pick) {
+    var t = (pick.type || '').toLowerCase();
+    if (t === 'prop' || t.indexOf('props parlay') !== -1) return true;
+    var sel = (pick.selection || '').toLowerCase();
+    if (/\b(over|under)\b/.test(sel)) return true;
+    if (/\b(points|rebounds|assists|threes|goals|shots|saves|strikeouts|hits|blocks|steals|tackles|aces|sacks)\b/.test(sel)) return true;
+    return false;
+}
+
 function renderBankroll() {
     var stored = JSON.parse(safeLoad('edgePicks') || '[]');
     var startBR = parseFloat(safeLoad('edgeBankrollStart') || '1000');
@@ -3990,7 +3999,7 @@ function renderBankroll() {
         if (!_pickInDateRange(pick, dateRange)) return;
         var units = parseFloat(pick.units) || 1;
         var person = personStats[pick.name] || {w:0,l:0,p:0,u:0};
-        var isProp = (pick.type || '').toLowerCase() === 'prop';
+        var isProp = _isPropPick(pick);
         var dateKey = pick.date || 'Unknown';
 
         if (!dailyStats[dateKey]) dailyStats[dateKey] = {w:0,l:0,p:0,net:0,risked:0,propW:0,propL:0,gameW:0,gameL:0};
@@ -4134,7 +4143,7 @@ function renderBankroll() {
     stored.forEach(function(pick, i) {
         if (activeSwimLane !== 'ALL' && pick.name !== activeSwimLane) return;
         if (!_pickInDateRange(pick, dateRange)) return;
-        var isProp = (pick.type || '').toLowerCase() === 'prop' || (pick.type || '').toLowerCase().indexOf('props parlay') !== -1;
+        var isProp = _isPropPick(pick);
         if (_resultFilter === 'regular' && isProp) return;
         if (_resultFilter === 'props' && !isProp) return;
         filteredPicks.push({ pick: pick, originalIndex: i });
