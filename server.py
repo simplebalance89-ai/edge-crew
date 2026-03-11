@@ -2733,7 +2733,7 @@ async def _fetch_scores(sport_key: str) -> list:
     if cached is not None:
         return cached
     url = f"{ODDS_API_BASE}/{sport_key}/scores/"
-    params = {"apiKey": ODDS_API_KEY, "daysFrom": 3}
+    params = {"apiKey": ODDS_API_KEY, "daysFrom": 7}
     try:
         async with httpx.AsyncClient(timeout=15) as client:
             r = await client.get(url, params=params)
