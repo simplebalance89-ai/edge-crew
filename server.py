@@ -230,6 +230,7 @@ _sessions = {}  # token -> {id, display_name, color, is_admin}
 DEFAULT_CREW = [
     {"id": "peter", "display_name": "Peter", "color": "#D4A017", "is_admin": True},
     {"id": "jimmy", "display_name": "Jimmy", "color": "#60A5FA", "is_admin": False},
+    {"id": "chinny", "display_name": "Chinny", "color": "#FF6B35", "is_admin": False},
     {"id": "alyssa", "display_name": "Alyssa", "color": "#41EAD4", "is_admin": False},
     {"id": "sintonia", "display_name": "Sinton.ia", "color": "#F72585", "is_admin": False},
 ]
