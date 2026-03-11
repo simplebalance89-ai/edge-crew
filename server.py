@@ -224,7 +224,8 @@ async def health_check():
 
 # ===== CREW AUTH =====
 CREW_PIN_SALT = os.environ.get("CREW_PIN_SALT", "edge-crew-default-salt-change-me")
-PROFILES_FILE = os.path.join(DATA_DIR, "crew_profiles.json")  # persistent disk — survives deploys
+_CREW_DATA_DIR = "/data" if os.path.isdir("/data") else os.path.join(os.path.dirname(__file__), "data")
+PROFILES_FILE = os.path.join(_CREW_DATA_DIR, "crew_profiles.json")  # persistent disk — survives deploys
 _sessions = {}  # token -> {id, display_name, color, is_admin}
 
 DEFAULT_CREW = [
