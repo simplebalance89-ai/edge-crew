@@ -404,7 +404,7 @@ SCORES_ARCHIVE_FILE = os.path.join(DATA_DIR, "scores_archive.json")
 BANKROLL_FILE = os.path.join(DATA_DIR, "bankroll.json")
 GOTCHA_FILE = os.path.join(DATA_DIR, "gotcha_notes.json")
 
-ALL_SPORTS = ["nba", "wnba", "ncaab", "ncaaf", "nhl", "mlb", "wbc", "tennis", "soccer", "mma", "boxing"]
+ALL_SPORTS = ["nba", "wnba", "ncaab", "ncaaf", "nhl", "mlb", "tennis", "soccer", "mma", "boxing"]
 
 # Season map — which months each sport is active
 _SEASON_MONTHS = {
@@ -414,7 +414,6 @@ _SEASON_MONTHS = {
     "ncaaf": {8,9,10,11,12,1},
     "nhl": {10,11,12,1,2,3,4,5,6},
     "mlb": {3,4,5,6,7,8,9,10,11},
-    "wbc": {3,4},
     "tennis": {1,2,3,4,5,6,7,8,9,10,11},
     "soccer": {1,2,3,4,5,6,7,8,9,10,11,12},
     "mma": {1,2,3,4,5,6,7,8,9,10,11,12},
@@ -1437,7 +1436,6 @@ SPORT_KEYS = {
     "nhl": ["icehockey_nhl"],
     "nfl": ["americanfootball_nfl"],
     "mlb": ["baseball_mlb", "baseball_mlb_preseason"],
-    "wbc": [],  # WBC not available on The Odds API — manual picks only
     "mma": ["mma_mixed_martial_arts"],
     "boxing": ["boxing_boxing"],
     "tennis": [
@@ -2368,7 +2366,7 @@ Generate analysis in this EXACT JSON format:
       "injury_impact": "Which key players are OUT/GTD and how it changes the line. Be specific.",
       "rest_schedule": "B2B? Days rest for each team? Travel? 3-in-5?",
       "edge_summary": "One line: the edge in plain English",
-      "peter_zone": "2-3 sentences. Peter's play: conviction level, sizing suggestion (full unit / half / small / pass), line value assessment.",
+      "peter_zone": "2-3 sentences. The play: conviction level, sizing suggestion (full unit / half / small / pass), line value assessment.",
       "trends": ["ATS trend", "O/U trend", "H2H trend"],
       "flags": ["injury flag 1", "schedule flag", "sharp money flag"],
       "player_props": [

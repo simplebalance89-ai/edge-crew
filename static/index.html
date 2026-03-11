@@ -252,29 +252,6 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
 .tag-lean{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.5);}
 .tag-sharp{background:rgba(168,85,247,0.15);color:#A855F7;}
 
-/* ===== UPSET SPECIALS ===== */
-.upset-section{
-    margin-top:24px;background:var(--ec-accent-subtle);border:1px solid var(--ec-border-accent);
-    border-radius:14px;padding:20px;
-}
-.upset-section h3{font-family:var(--ec-font-heading);color:var(--ec-accent-light);font-size:15px;font-weight:700;margin-bottom:12px;}
-.upset-submit-form{display:grid;grid-template-columns:1fr;gap:8px;align-items:center;margin-bottom:16px;}
-.upset-submit-form input,.upset-submit-form select{background:#08080c;color:#fff;border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:8px 10px;font-family:var(--ec-font-body);font-size:13px;}
-.upset-submit-form input:focus,.upset-submit-form select:focus{border-color:#818cf8;outline:none;}
-.upset-submit-form select option{background:#08080c;color:#fff;}
-.upset-submit-form button{background:var(--ec-accent-subtle);color:var(--ec-accent-light);border:1px solid var(--ec-border-accent);border-radius:8px;padding:8px 16px;font-weight:600;font-size:12px;cursor:pointer;white-space:nowrap;transition:all 0.2s;}
-.upset-submit-form button:hover{background:var(--ec-accent);color:#fff;}
-.upset-cards{display:flex;flex-direction:column;gap:8px;}
-.upset-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:12px 14px;display:flex;align-items:center;gap:12px;}
-.upset-card-name{font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;min-width:60px;}
-.upset-card-name.peter{color:var(--ec-accent-light);}
-.upset-card-name.jimmy{color:#A855F7;}
-.upset-card-team{font-weight:700;font-size:14px;min-width:80px;}
-.upset-card-odds{color:#10B981;font-weight:800;font-size:14px;min-width:60px;}
-.upset-card-thesis{font-size:13px;color:rgba(255,255,255,0.5);flex:1;}
-.upset-card-time{font-size:10px;color:rgba(255,255,255,0.2);min-width:50px;text-align:right;}
-.upset-card-delete{background:none;border:none;color:rgba(255,255,255,0.15);cursor:pointer;font-size:16px;padding:4px 6px;border-radius:4px;line-height:1;}
-.upset-card-delete:hover{color:#EF4444;background:rgba(239,68,68,0.1);}
 
 /* ===== PETER INPUT ===== */
 .input-section{
@@ -715,7 +692,6 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     .conf-btn{min-height:44px;display:flex;align-items:center;justify-content:center;}
 
     .detail-grid{grid-template-columns:1fr;}
-    .upset-submit-form{grid-template-columns:1fr;}.upset-card{flex-wrap:wrap;gap:6px;}
 
     /* Content tighter on mobile */
     .content{padding:16px 12px;}
@@ -727,9 +703,6 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     /* Gotcha banner tighter */
     .gotcha-banner{padding:12px 14px;margin-bottom:16px;}
     .gotcha-banner h3{font-size:14px;}
-
-    /* Upset section tighter */
-    .upset-section{padding:14px;margin-top:16px;}
 
     /* Submit bar sits above mobile quick bar */
     .submit-bar{bottom:60px;}
@@ -960,15 +933,6 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 }
 .input-section:hover{border-color:var(--ec-border-hover);}
 
-/* ===== V3 UPSET SECTION ===== */
-.upset-section{
-    margin-top:16px;background:var(--ec-bg-secondary);border:1px solid var(--ec-border-accent);
-    border-radius:var(--ec-radius-lg);padding:20px;position:relative;overflow:hidden;
-}
-.upset-section::before{
-    content:'';position:absolute;top:0;left:0;right:0;height:2px;
-    background:linear-gradient(90deg,var(--ec-accent),#a78bfa);
-}
 
 /* ===== V3 AGENT PANEL GLASS ===== */
 #agentPanel{
@@ -1190,13 +1154,13 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <!-- SPORT TABS (2-Tier Nav) -->
 <div class="tabs-wrapper">
 <div class="sport-tabs sport-row">
-    <div class="sport-tab active" onclick="switchSport('nba', event)"><span class="tab-icon">🏀</span><span class="tab-label">NBA</span> <span class="tab-count">0</span></div>
+    <div class="sport-tab active" onclick="switchSport('landing', event)"><span class="tab-icon">🏠</span><span class="tab-label">Home</span></div>
+    <div class="sport-tab" onclick="switchSport('nba', event)"><span class="tab-icon">🏀</span><span class="tab-label">NBA</span> <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('wnba', event)"><span class="tab-icon">🏀</span><span class="tab-label">WNBA</span> <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('ncaab', event)"><span class="tab-icon">🎓</span><span class="tab-label">NCAAB</span> <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('ncaaf', event)"><span class="tab-icon">🏈</span><span class="tab-label">NCAAF</span> <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('nhl', event)"><span class="tab-icon">🏒</span><span class="tab-label">NHL</span> <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('mlb', event)"><span class="tab-icon">⚾</span><span class="tab-label">MLB</span> <span class="tab-count">0</span></div>
-    <div class="sport-tab" onclick="switchSport('wbc', event)"><span class="tab-icon">🌎</span><span class="tab-label">WBC</span> <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('tennis', event)"><span class="tab-icon">🎾</span><span class="tab-label">Tennis</span> <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('soccer', event)"><span class="tab-icon">⚽</span><span class="tab-label">Soccer</span> <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('mma', event)"><span class="tab-icon">🥊</span><span class="tab-label">MMA</span> <span class="tab-count">0</span></div>
@@ -1239,8 +1203,40 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <!-- CONTENT -->
 <div class="content">
 
+<!-- ===== LANDING PAGE ===== -->
+<div class="sport-panel active" id="panel-landing">
+<div style="text-align:center;padding:40px 20px 20px;">
+    <div style="font-size:48px;margin-bottom:12px;">🎯</div>
+    <h1 style="font-family:var(--ec-font-heading);font-size:28px;font-weight:900;color:#fff;margin:0 0 8px;letter-spacing:-0.5px;">Edge Crew</h1>
+    <p style="color:rgba(255,255,255,0.5);font-size:14px;margin:0 0 24px;max-width:400px;margin-left:auto;margin-right:auto;">AI-powered sports analysis. Grade-based picks across 10 sports. Find the edge, take the edge.</p>
+</div>
+
+<!-- Today's Top Edges -->
+<div style="padding:0 16px 20px;">
+    <h2 style="font-family:var(--ec-font-heading);font-size:16px;font-weight:800;color:var(--ec-accent-light);margin:0 0 12px;text-transform:uppercase;letter-spacing:1px;">Today's Top Edges</h2>
+    <div id="landingEdgeList" style="display:flex;flex-direction:column;gap:8px;">
+        <div style="text-align:center;color:rgba(255,255,255,0.3);font-size:13px;padding:20px;border:1px dashed rgba(255,255,255,0.1);border-radius:8px;">Refresh a sport slate to load today's edges</div>
+    </div>
+</div>
+
+<!-- Quick Nav -->
+<div style="padding:0 16px 30px;">
+    <h2 style="font-family:var(--ec-font-heading);font-size:16px;font-weight:800;color:var(--ec-accent-light);margin:0 0 12px;text-transform:uppercase;letter-spacing:1px;">Jump In</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px;">
+        <div onclick="switchSport('nba',event)" style="cursor:pointer;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:16px 8px;text-align:center;transition:all 0.2s;"><div style="font-size:24px;">🏀</div><div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.6);margin-top:4px;">NBA</div></div>
+        <div onclick="switchSport('nhl',event)" style="cursor:pointer;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:16px 8px;text-align:center;transition:all 0.2s;"><div style="font-size:24px;">🏒</div><div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.6);margin-top:4px;">NHL</div></div>
+        <div onclick="switchSport('mlb',event)" style="cursor:pointer;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:16px 8px;text-align:center;transition:all 0.2s;"><div style="font-size:24px;">⚾</div><div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.6);margin-top:4px;">MLB</div></div>
+        <div onclick="switchSport('soccer',event)" style="cursor:pointer;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:16px 8px;text-align:center;transition:all 0.2s;"><div style="font-size:24px;">⚽</div><div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.6);margin-top:4px;">Soccer</div></div>
+        <div onclick="switchSport('tennis',event)" style="cursor:pointer;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:16px 8px;text-align:center;transition:all 0.2s;"><div style="font-size:24px;">🎾</div><div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.6);margin-top:4px;">Tennis</div></div>
+        <div onclick="switchSport('mma',event)" style="cursor:pointer;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:16px 8px;text-align:center;transition:all 0.2s;"><div style="font-size:24px;">🥊</div><div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.6);margin-top:4px;">MMA</div></div>
+        <div onclick="switchSport('props',event)" style="cursor:pointer;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:16px 8px;text-align:center;transition:all 0.2s;"><div style="font-size:24px;">📊</div><div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.6);margin-top:4px;">Props</div></div>
+        <div onclick="switchSport('bankroll',event)" style="cursor:pointer;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:16px 8px;text-align:center;transition:all 0.2s;"><div style="font-size:24px;">💰</div><div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.6);margin-top:4px;">Bank</div></div>
+    </div>
+</div>
+</div>
+
 <!-- ===== NBA PANEL ===== -->
-<div class="sport-panel active" id="panel-nba">
+<div class="sport-panel" id="panel-nba">
 
 <div class="gotcha-banner" id="gotchaCard">
     <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -1257,18 +1253,6 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 </div>
 
 <div class="empty-state">No NBA games loaded.<br><strong>Hit REFRESH SLATE</strong> to load live lines.</div>
-
-<!-- NBA UPSET SPECIALS (top of panel — Peter's territory) -->
-<div class="upset-section" id="upsetNBA">
-    <h3>EV+ Money Specials</h3>
-    <form class="upset-submit-form" onsubmit="submitUpset('NBA');return false;">
-        <select id="upsetTeamNBA" required><option value="">-- Load slate first --</option></select>
-        <input type="text" id="upsetOddsNBA" placeholder="Odds" required>
-        <input type="text" id="upsetThesisNBA" placeholder="Thesis / reasoning">
-        <button type="submit">SUBMIT</button>
-    </form>
-    <div class="upset-cards" id="upsetCardsNBA"></div>
-</div>
 
 <!-- ML+ Filter -->
 <div class="ml-filter" style="display:flex;gap:8px;margin:10px 0;">
@@ -1314,18 +1298,6 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 
 <div class="empty-state">No NHL games loaded.<br><strong>Hit REFRESH SLATE</strong> to load live lines.</div>
 
-<!-- NHL UPSET SPECIALS -->
-<div class="upset-section" id="upsetNHL">
-    <h3>EV+ Money Specials</h3>
-    <form class="upset-submit-form" onsubmit="submitUpset('NHL');return false;">
-        <select id="upsetTeamNHL" required><option value="">-- Load slate first --</option></select>
-        <input type="text" id="upsetOddsNHL" placeholder="Odds" required>
-        <input type="text" id="upsetThesisNHL" placeholder="Thesis / reasoning">
-        <button type="submit">SUBMIT</button>
-    </form>
-    <div class="upset-cards" id="upsetCardsNHL"></div>
-</div>
-
 <!-- ML+ Filter -->
 <div class="ml-filter" style="display:flex;gap:8px;margin:10px 0;">
     <div class="ml-filter-btn" onclick="toggleMLFilter('nhl')" style="cursor:pointer;padding:6px 14px;border-radius:6px;background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.3);color:#818cf8;font-size:12px;font-weight:700;transition:all 0.2s;">ML+ Only</div>
@@ -1370,18 +1342,6 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 
 <div class="empty-state">No MLB games loaded.<br><strong>Hit REFRESH SLATE</strong> to load live lines.</div>
 
-<!-- MLB UPSET SPECIALS -->
-<div class="upset-section" id="upsetMLB">
-    <h3>EV+ Money Specials</h3>
-    <form class="upset-submit-form" onsubmit="submitUpset('MLB');return false;">
-        <select id="upsetTeamMLB" required><option value="">-- Load slate first --</option></select>
-        <input type="text" id="upsetOddsMLB" placeholder="Odds" required>
-        <input type="text" id="upsetThesisMLB" placeholder="Thesis / reasoning">
-        <button type="submit">SUBMIT</button>
-    </form>
-    <div class="upset-cards" id="upsetCardsMLB"></div>
-</div>
-
 <!-- ML+ Filter -->
 <div class="ml-filter" style="display:flex;gap:8px;margin:10px 0;">
     <div class="ml-filter-btn" onclick="toggleMLFilter('mlb')" style="cursor:pointer;padding:6px 14px;border-radius:6px;background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.3);color:#818cf8;font-size:12px;font-weight:700;transition:all 0.2s;">ML+ Only</div>
@@ -1407,60 +1367,6 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 
 </div>
 
-<!-- ===== WBC PANEL ===== -->
-<div class="sport-panel" id="panel-wbc">
-
-<div class="gotcha-banner" style="border-color:rgba(34,197,94,0.2);background:rgba(34,197,94,0.06);">
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-        <h3 style="color:#22c55e;" id="gotchaWBCTitle">Gotcha Card &mdash; WBC</h3>
-        <div style="display:flex;gap:6px;">
-            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(99,102,241,0.12);color:#818cf8;font-size:11px;font-weight:700;border:none;" onclick="toggleGotchaEdit('WBC')">EDIT</button>
-            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(16,185,129,0.15);color:#10B981;font-size:11px;font-weight:700;border:none;" onclick="saveGotcha('WBC')">SAVE</button>
-        </div>
-    </div>
-    <div id="gotchaDisplay-WBC">
-        <p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load today's gotcha card...</p>
-    </div>
-    <textarea id="gotchaEditor-WBC" style="display:none;width:100%;min-height:150px;background:#08080c;color:#fff;border:1px solid #22c55e;border-radius:6px;padding:10px;font-family:var(--ec-font-body);font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line..."></textarea>
-</div>
-
-<div class="empty-state">WBC not available on The Odds API.<br>Use <strong>Add Pick</strong> form to enter WBC bets manually.</div>
-
-<!-- WBC UPSET SPECIALS -->
-<div class="upset-section" id="upsetWBC">
-    <h3>EV+ Money Specials</h3>
-    <form class="upset-submit-form" onsubmit="submitUpset('WBC');return false;">
-        <select id="upsetTeamWBC" required><option value="">-- Load slate first --</option></select>
-        <input type="text" id="upsetOddsWBC" placeholder="Odds" required>
-        <input type="text" id="upsetThesisWBC" placeholder="Thesis / reasoning">
-        <button type="submit">SUBMIT</button>
-    </form>
-    <div class="upset-cards" id="upsetCardsWBC"></div>
-</div>
-
-<!-- ML+ Filter -->
-<div class="ml-filter" style="display:flex;gap:8px;margin:10px 0;">
-    <div class="ml-filter-btn" onclick="toggleMLFilter('wbc')" style="cursor:pointer;padding:6px 14px;border-radius:6px;background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.3);color:#818cf8;font-size:12px;font-weight:700;transition:all 0.2s;">ML+ Only</div>
-</div>
-
-<!-- WBC ANALYSIS — SIDE BY SIDE -->
-<div class="analysis-duo">
-<div class="input-section analysis-card" id="peterGutWBC" data-card="sintonia">
-    <h3 id="peterGutWBCTitle" style="color:#F72585;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#F72585" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#F72585" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#F72585" stroke-width="2" stroke-linecap="round"/></svg>Sinton.ia's Card &mdash; WBC</h3>
-    <div id="peterGutWBCContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
-        <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate or click WBC tab to load Sinton.ia's analysis card...</p>
-    </div>
-    <div id="peterGutWBCTimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
-</div>
-<div class="input-section analysis-card" id="alyssaEdgeWBC" data-card="alyssa">
-    <h3 style="color:#41EAD4;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><polygon points="32,6 38,24 58,24 42,36 48,54 32,44 16,54 22,36 6,24 26,24" fill="none" stroke="#41EAD4" stroke-width="3" stroke-linejoin="round"/></svg>Alyssa's Edge &mdash; WBC</h3>
-    <div style="font-size:10px;color:rgba(65,234,212,0.5);font-weight:700;letter-spacing:1px;margin-bottom:8px;">100% MATH. NO AI. PURE EDGE.</div>
-    <div id="alyssaEdgeWBCContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;"><p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load edge analysis...</p></div>
-</div>
-</div>
-
-</div>
-
 <!-- ===== WNBA PANEL ===== -->
 <div class="sport-panel" id="panel-wnba">
 <div class="gotcha-banner">
@@ -1475,16 +1381,6 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     <textarea id="gotchaEditor-WNBA" style="display:none;width:100%;min-height:150px;background:#08080c;color:#fff;border:1px solid #6366f1;border-radius:6px;padding:10px;font-family:var(--ec-font-body);font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line..."></textarea>
 </div>
 <div class="empty-state">No WNBA games loaded.<br><strong>Hit REFRESH SLATE</strong> to load live lines.</div>
-<div class="upset-section" id="upsetWNBA">
-    <h3>EV+ Money Specials</h3>
-    <form class="upset-submit-form" onsubmit="submitUpset('WNBA');return false;">
-        <select id="upsetTeamWNBA" required><option value="">-- Load slate first --</option></select>
-        <input type="text" id="upsetOddsWNBA" placeholder="Odds" required>
-        <input type="text" id="upsetThesisWNBA" placeholder="Thesis / reasoning">
-        <button type="submit">SUBMIT</button>
-    </form>
-    <div class="upset-cards" id="upsetCardsWNBA"></div>
-</div>
 <!-- WNBA ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutWNBA" data-card="sintonia">
@@ -1514,16 +1410,6 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     <textarea id="gotchaEditor-NCAAB" style="display:none;width:100%;min-height:150px;background:#08080c;color:#fff;border:1px solid #3b82f6;border-radius:6px;padding:10px;font-family:var(--ec-font-body);font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line..."></textarea>
 </div>
 <div class="empty-state">No NCAAB games loaded.<br><strong>Hit REFRESH SLATE</strong> to load live lines.</div>
-<div class="upset-section" id="upsetNCAAB">
-    <h3>EV+ Money Specials</h3>
-    <form class="upset-submit-form" onsubmit="submitUpset('NCAAB');return false;">
-        <select id="upsetTeamNCAAB" required><option value="">-- Load slate first --</option></select>
-        <input type="text" id="upsetOddsNCAAB" placeholder="Odds" required>
-        <input type="text" id="upsetThesisNCAAB" placeholder="Thesis / reasoning">
-        <button type="submit">SUBMIT</button>
-    </form>
-    <div class="upset-cards" id="upsetCardsNCAAB"></div>
-</div>
 <!-- NCAAB ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutNCAAB" data-card="sintonia">
@@ -1553,16 +1439,6 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     <textarea id="gotchaEditor-NCAAF" style="display:none;width:100%;min-height:150px;background:#08080c;color:#fff;border:1px solid #a855f7;border-radius:6px;padding:10px;font-family:var(--ec-font-body);font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line..."></textarea>
 </div>
 <div class="empty-state">No NCAAF games loaded.<br><strong>Hit REFRESH SLATE</strong> to load live lines.</div>
-<div class="upset-section" id="upsetNCAAF">
-    <h3>EV+ Money Specials</h3>
-    <form class="upset-submit-form" onsubmit="submitUpset('NCAAF');return false;">
-        <select id="upsetTeamNCAAF" required><option value="">-- Load slate first --</option></select>
-        <input type="text" id="upsetOddsNCAAF" placeholder="Odds" required>
-        <input type="text" id="upsetThesisNCAAF" placeholder="Thesis / reasoning">
-        <button type="submit">SUBMIT</button>
-    </form>
-    <div class="upset-cards" id="upsetCardsNCAAF"></div>
-</div>
 <!-- NCAAF ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutNCAAF" data-card="sintonia">
@@ -1592,16 +1468,6 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     <textarea id="gotchaEditor-TENNIS" style="display:none;width:100%;min-height:150px;background:#08080c;color:#fff;border:1px solid #eab308;border-radius:6px;padding:10px;font-family:var(--ec-font-body);font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line..."></textarea>
 </div>
 <div class="empty-state">No Tennis matches loaded.<br><strong>Hit REFRESH SLATE</strong> to load live lines.</div>
-<div class="upset-section" id="upsetTENNIS">
-    <h3>EV+ Money Specials</h3>
-    <form class="upset-submit-form" onsubmit="submitUpset('TENNIS');return false;">
-        <select id="upsetTeamTENNIS" required><option value="">-- Load slate first --</option></select>
-        <input type="text" id="upsetOddsTENNIS" placeholder="Odds" required>
-        <input type="text" id="upsetThesisTENNIS" placeholder="Thesis / reasoning">
-        <button type="submit">SUBMIT</button>
-    </form>
-    <div class="upset-cards" id="upsetCardsTENNIS"></div>
-</div>
 <!-- TENNIS ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutTENNIS" data-card="sintonia">
@@ -1633,17 +1499,6 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     <textarea id="gotchaEditor-SOCCER" style="display:none;width:100%;min-height:150px;background:#08080c;color:#fff;border:1px solid #10B981;border-radius:6px;padding:10px;font-family:var(--ec-font-body);font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line..."></textarea>
 </div>
 <div class="empty-state">No games on the slate.<br><strong>Hit REFRESH SLATE</strong> to check for live lines.</div>
-<!-- SOCCER UPSET SPECIALS -->
-<div class="upset-section" id="upsetSOCCER">
-    <h3>EV+ Money Specials</h3>
-    <form class="upset-submit-form" onsubmit="submitUpset('SOCCER');return false;">
-        <select id="upsetTeamSOCCER" required><option value="">-- Load slate first --</option></select>
-        <input type="text" id="upsetOddsSOCCER" placeholder="Odds" required>
-        <input type="text" id="upsetThesisSOCCER" placeholder="Thesis / reasoning">
-        <button type="submit">SUBMIT</button>
-    </form>
-    <div class="upset-cards" id="upsetCardsSOCCER"></div>
-</div>
 
 <!-- SOCCER ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
@@ -1681,17 +1536,6 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     <textarea id="gotchaEditor-MMA" style="display:none;width:100%;min-height:150px;background:#08080c;color:#fff;border:1px solid #EF4444;border-radius:6px;padding:10px;font-family:var(--ec-font-body);font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line..."></textarea>
 </div>
 <div class="empty-state">No fights on the slate.<br><strong>Hit REFRESH SLATE</strong> to check for live lines.</div>
-<!-- MMA UPSET SPECIALS -->
-<div class="upset-section" id="upsetMMA">
-    <h3>EV+ Money Specials</h3>
-    <form class="upset-submit-form" onsubmit="submitUpset('MMA');return false;">
-        <select id="upsetTeamMMA" required><option value="">-- Load slate first --</option></select>
-        <input type="text" id="upsetOddsMMA" placeholder="Odds" required>
-        <input type="text" id="upsetThesisMMA" placeholder="Thesis / reasoning">
-        <button type="submit">SUBMIT</button>
-    </form>
-    <div class="upset-cards" id="upsetCardsMMA"></div>
-</div>
 
 <!-- MMA ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
@@ -1729,17 +1573,6 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     <textarea id="gotchaEditor-BOXING" style="display:none;width:100%;min-height:150px;background:#08080c;color:#fff;border:1px solid #A855F7;border-radius:6px;padding:10px;font-family:var(--ec-font-body);font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line..."></textarea>
 </div>
 <div class="empty-state">No fights on the slate.<br><strong>Hit REFRESH SLATE</strong> to check for live lines.</div>
-<!-- BOXING UPSET SPECIALS -->
-<div class="upset-section" id="upsetBOXING">
-    <h3>EV+ Money Specials</h3>
-    <form class="upset-submit-form" onsubmit="submitUpset('BOXING');return false;">
-        <select id="upsetTeamBOXING" required><option value="">-- Load slate first --</option></select>
-        <input type="text" id="upsetOddsBOXING" placeholder="Odds" required>
-        <input type="text" id="upsetThesisBOXING" placeholder="Thesis / reasoning">
-        <button type="submit">SUBMIT</button>
-    </form>
-    <div class="upset-cards" id="upsetCardsBOXING"></div>
-</div>
 
 <!-- BOXING ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
@@ -1896,7 +1729,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
             <input type="text" id="customPropOdds" placeholder="Odds (-110)" style="padding:8px 10px;background:#08080c;border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#fff;font-size:13px;font-family:var(--ec-font-body);">
             <input type="text" id="customPropMatchup" placeholder="Matchup (NYK @ BOS)" style="padding:8px 10px;background:#08080c;border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#fff;font-size:13px;font-family:var(--ec-font-body);">
             <select id="customPropSport" style="padding:8px 10px;background:#08080c;border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#fff;font-size:13px;font-family:var(--ec-font-body);">
-                <option value="NBA">NBA</option><option value="WNBA">WNBA</option><option value="NCAAB">NCAAB</option><option value="NCAAF">NCAAF</option><option value="NHL">NHL</option><option value="NFL">NFL</option><option value="MLB">MLB</option><option value="WBC">WBC</option><option value="TENNIS">Tennis</option><option value="SOCCER">Soccer</option><option value="MMA">MMA</option><option value="BOXING">Boxing</option>
+                <option value="NBA">NBA</option><option value="WNBA">WNBA</option><option value="NCAAB">NCAAB</option><option value="NCAAF">NCAAF</option><option value="NHL">NHL</option><option value="NFL">NFL</option><option value="MLB">MLB</option><option value="TENNIS">Tennis</option><option value="SOCCER">Soccer</option><option value="MMA">MMA</option><option value="BOXING">Boxing</option>
             </select>
         </div>
         <div style="display:flex;gap:8px;">
@@ -1923,12 +1756,6 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 
 <div id="combinedTableContainer">
     <div style="text-align:center;padding:40px;color:rgba(255,255,255,0.4);">Click to load or hit REFRESH SLATE</div>
-</div>
-
-<!-- FULL SLATE UPSET SPECIALS (all sports combined) -->
-<div class="upset-section" id="upsetCOMBINED">
-    <h3>EV+ Money Specials — All Sports</h3>
-    <div class="upset-cards" id="upsetCardsCOMBINED"></div>
 </div>
 
 </div>
@@ -2081,7 +1908,6 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
                 <option value="NHL">NHL</option>
                 <option value="NFL">NFL</option>
                 <option value="MLB">MLB</option>
-                <option value="WBC">WBC</option>
                 <option value="Tennis">Tennis</option>
                 <option value="Soccer">Soccer</option>
                 <option value="MMA">MMA/UFC</option>
@@ -2631,7 +2457,7 @@ function refreshSlate() {
 
     // Only load sports that are in season — don't waste API calls on dead sports
     var month = new Date().getMonth() + 1; // 1-12
-    var allSports = ['nba','wnba','ncaab','ncaaf','nhl','mlb','wbc','tennis','soccer','mma','boxing'];
+    var allSports = ['nba','wnba','ncaab','ncaaf','nhl','mlb','tennis','soccer','mma','boxing'];
     var seasonMap = {
         nba: [10,11,12,1,2,3,4,5,6],       // Oct-Jun
         wnba: [5,6,7,8,9,10],               // May-Oct
@@ -3135,7 +2961,7 @@ function switchSport(sport, e) {
     if (sport === 'scores') { loadScoreboard(); startScoreboardRefresh(); }
     if (typeof populateIntel === 'function') populateIntel(sport);
     // Auto-fetch Alyssa edge data for side-by-side view
-    var sportList = ['nba','wnba','ncaab','ncaaf','nhl','mlb','wbc','tennis','soccer','mma','boxing'];
+    var sportList = ['nba','wnba','ncaab','ncaaf','nhl','mlb','tennis','soccer','mma','boxing'];
     if (sportList.indexOf(sport) !== -1) {
         var edgeContent = document.getElementById('alyssaEdge' + sport.toUpperCase() + 'Content');
         if (edgeContent && edgeContent.querySelector('p[style*="italic"]')) {
@@ -3843,6 +3669,23 @@ function renderLoadingStack() {
     el.innerHTML = html;
 }
 
+function populateLandingEdges(edges) {
+    var el = document.getElementById('landingEdgeList');
+    if (!el) return;
+    if (!edges || edges.length === 0) {
+        el.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.3);font-size:13px;padding:20px;border:1px dashed rgba(255,255,255,0.1);border-radius:8px;">No A-grade edges yet. Refresh slates to load.</div>';
+        return;
+    }
+    el.innerHTML = edges.map(function(e) {
+        var sportIcon = {NBA:'🏀',NHL:'🏒',MLB:'⚾',SOCCER:'⚽',TENNIS:'🎾',MMA:'🥊',BOXING:'🥋',WNBA:'🏀',NCAAB:'🎓',NCAAF:'🏈'}[e.sport] || '🎯';
+        return '<div onclick="switchSport(\'' + e.sport.toLowerCase() + '\')" style="cursor:pointer;display:flex;align-items:center;gap:12px;background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.15);border-radius:10px;padding:12px 16px;transition:all 0.2s;">' +
+            '<div style="font-size:20px;">' + sportIcon + '</div>' +
+            '<div style="flex:1;"><div style="font-size:14px;font-weight:700;color:#fff;">' + e.matchup + '</div><div style="font-size:11px;color:rgba(255,255,255,0.4);">' + e.sport + '</div></div>' +
+            '<div style="font-size:16px;font-weight:900;color:#22c55e;">' + e.grade + '</div>' +
+            '</div>';
+    }).join('');
+}
+
 function updateHeroStats() {
     var stored = JSON.parse(safeLoad('edgePicks') || '[]');
     var today = toPSTDate();
@@ -3898,19 +3741,30 @@ function updateHeroStats() {
         heroStreakSub.className = 'hero-sub ' + (streak === 0 ? 'neutral' : (streakType === 'W' ? 'positive' : 'negative'));
     }
 
-    // Top edge — find highest grade game from current data
+    // Top edges — scan ALL sport panels for A/A- grades
     var heroTopEdge = document.getElementById('heroTopEdge');
     var heroTopEdgeSub = document.getElementById('heroTopEdgeSub');
-    var bestGrade = document.querySelector('.ga, .gam');
-    if (bestGrade && heroTopEdge) {
-        var row = bestGrade.closest('.game-row');
+    var allGradeAs = document.querySelectorAll('.sport-panel .ga, .sport-panel .gam');
+    var topEdges = [];
+    allGradeAs.forEach(function(el) {
+        var row = el.closest('.game-row');
         if (row) {
             var matchup = row.querySelector('.game-matchup');
-            heroTopEdge.textContent = matchup ? matchup.textContent.trim().substring(0, 12) : 'A+';
-            heroTopEdgeSub.textContent = 'Grade A edge';
-            heroTopEdgeSub.className = 'hero-sub positive';
+            var panel = row.closest('.sport-panel');
+            var sport = panel ? panel.id.replace('panel-', '').toUpperCase() : '';
+            var grade = el.textContent.trim();
+            if (matchup) topEdges.push({ matchup: matchup.textContent.trim(), sport: sport, grade: grade });
         }
+    });
+    if (topEdges.length > 0 && heroTopEdge) {
+        heroTopEdge.textContent = topEdges.length + ' Edge' + (topEdges.length > 1 ? 's' : '');
+        heroTopEdgeSub.innerHTML = topEdges.slice(0, 3).map(function(e) {
+            return '<span style="display:block;font-size:11px;">' + e.sport + ': ' + e.matchup.substring(0, 18) + ' <strong style="color:#22c55e;">' + e.grade + '</strong></span>';
+        }).join('');
+        heroTopEdgeSub.className = 'hero-sub positive';
     }
+    // Populate landing page edges
+    if (typeof populateLandingEdges === 'function') populateLandingEdges(topEdges);
 }
 
 var _dateFilter = 'all'; // 'today', 'yesterday', '7days', 'all', or 'YYYY-MM-DD'
@@ -4691,10 +4545,11 @@ function renderSwimLane(container, name, picks, color) {
         var confClass = p.confidence === 'Fire' ? 'fire' : p.confidence === 'Strong' ? 'strong' : 'lean';
         var typeTag = p.type === 'Parlay' ? '<span style="background:#6366f1;color:#fff;font-size:10px;font-weight:800;padding:2px 6px;border-radius:4px;margin-left:6px;">PARLAY</span>' :
                       p.type === 'Prop' ? '<span style="background:#F72585;color:#fff;font-size:10px;font-weight:800;padding:2px 6px;border-radius:4px;margin-left:6px;">PROP</span>' : '';
+        var upsetTag = String(p.odds).charAt(0) === '+' ? '<span style="background:rgba(16,185,129,0.2);color:#10B981;font-size:10px;font-weight:800;padding:2px 6px;border-radius:4px;margin-left:6px;">UPSET SPECIAL</span>' : '';
         var card = document.createElement('div');
         card.style.cssText = 'padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;justify-content:space-between;align-items:center;';
         card.innerHTML = '<div style="flex:1;">' +
-            '<div style="font-size:14px;font-weight:700;color:#fff;">' + p.selection + typeTag + '</div>' +
+            '<div style="font-size:14px;font-weight:700;color:#fff;">' + p.selection + typeTag + upsetTag + '</div>' +
             '<div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:2px;">' + (p.sport || '') + ' | ' + (p.matchup || '') + '</div>' +
             (p.notes ? '<div style="font-size:11px;color:rgba(255,255,255,0.25);margin-top:2px;font-style:italic;">' + p.notes + '</div>' : '') +
             '</div>' +
@@ -5877,7 +5732,7 @@ function applyAgentFilter(who, forceRefresh) {
     // Fetch agent data — batched 3 at a time, skip off-season
     var month = new Date().getMonth() + 1;
     var _seasonMap = {nba:[10,11,12,1,2,3,4,5,6],wnba:[5,6,7,8,9,10],ncaab:[11,12,1,2,3,4],ncaaf:[8,9,10,11,12,1],nhl:[10,11,12,1,2,3,4,5,6],mlb:[3,4,5,6,7,8,9,10,11],tennis:[1,2,3,4,5,6,7,8,9,10,11],soccer:[1,2,3,4,5,6,7,8,9,10,11,12],mma:[1,2,3,4,5,6,7,8,9,10,11,12],boxing:[1,2,3,4,5,6,7,8,9,10,11,12]};
-    var activeSports = ['nba','wnba','ncaab','ncaaf','nhl','mlb','wbc','tennis','soccer','mma','boxing'].filter(function(s) {
+    var activeSports = ['nba','wnba','ncaab','ncaaf','nhl','mlb','tennis','soccer','mma','boxing'].filter(function(s) {
         return _seasonMap[s] && _seasonMap[s].indexOf(month) !== -1;
     });
     var fetchFn = who === 'sintonia' ? fetchAnalysis : fetchEdge;
@@ -6285,7 +6140,7 @@ function fetchAnalysis(sport) {
                             var detail = row.querySelector('.detail-grid');
                             if (detail) {
                                 var peterBox = detail.querySelector('.detail-box.peter');
-                                if (peterBox && game.peter_zone) peterBox.innerHTML = '<h4>Peter\'s Zone</h4><p>' + game.peter_zone + '</p>';
+                                if (peterBox && game.peter_zone) peterBox.innerHTML = '<h4>The Play</h4><p>' + game.peter_zone + '</p>';
                                 var trendsBox = detail.querySelector('.detail-box.trends');
                                 if (trendsBox && game.trends && game.trends.length) {
                                     var th = '<h4>Trends</h4><ul>'; game.trends.forEach(function(t){th+='<li>'+t+'</li>';}); th+='</ul>';
@@ -6449,7 +6304,7 @@ function loadProps(sportFilter) {
     var allProps = [];
 
     // Only load for the selected sport
-    var sportsToScan = filterKey ? [filterKey] : ['NBA','WNBA','NCAAB','NCAAF','NHL','MLB','WBC','TENNIS','SOCCER','MMA','BOXING'];
+    var sportsToScan = filterKey ? [filterKey] : ['NBA','WNBA','NCAAB','NCAAF','NHL','MLB','TENNIS','SOCCER','MMA','BOXING'];
     sportsToScan.forEach(function(sport) {
         var cached = _analysisCache[sport];
         if (!cached || !cached.games) return;
@@ -6959,7 +6814,7 @@ function lockCustomPropCard() {
 }
 
 // ===== UPSET SPECIALS — CREW PICKS =====
-var UPSET_SPORTS = ['NBA', 'WNBA', 'NCAAB', 'NCAAF', 'NHL', 'MLB', 'WBC', 'TENNIS', 'SOCCER', 'MMA', 'BOXING'];
+var UPSET_SPORTS = ['NBA', 'WNBA', 'NCAAB', 'NCAAF', 'NHL', 'MLB', 'TENNIS', 'SOCCER', 'MMA', 'BOXING'];
 var NAME_COLORS = {peter: 'peter', jimmy: 'jimmy', alyssa: 'alyssa', 'sinton.ia': 'sintonia'};
 
 function getUpsetName() {
@@ -7391,6 +7246,9 @@ async function clearAllCache() {
         <button class="mqb-btn" ontouchend="event.preventDefault();switchSport('props')" onclick="switchSport('props',event)">
             <span class="mqb-icon">📊</span>Props
         </button>
+        <button class="mqb-btn" ontouchend="event.preventDefault();switchSport('scores')" onclick="switchSport('scores',event)">
+            <span class="mqb-icon">📈</span>Scores
+        </button>
         <button class="mqb-btn mqb-ai-hero" onclick="toggleAgentChat()" style="
             background:linear-gradient(135deg,var(--ec-accent),#F72585);
             color:#fff;border-radius:16px;padding:8px 14px;
@@ -7400,9 +7258,6 @@ async function clearAllCache() {
         ">
             <span class="mqb-icon" style="font-size:1.4rem;">🤖</span>
             <span style="font-size:0.55rem;font-weight:800;letter-spacing:0.3px;">EV AGENT</span>
-        </button>
-        <button class="mqb-btn" ontouchend="event.preventDefault();switchSport('scores')" onclick="switchSport('scores',event)">
-            <span class="mqb-icon">📈</span>Scores
         </button>
         <button class="mqb-btn" ontouchend="event.preventDefault();switchSport('submit',event)" onclick="switchSport('submit',event)">
             <span class="mqb-icon">🎯</span>Picks
@@ -7451,10 +7306,6 @@ async function clearAllCache() {
             <button class="sport-pick-btn" onclick="pickSport('mlb')">
                 <span class="sp-icon">⚾</span>MLB
                 <span class="sp-count" id="sp-count-mlb"></span>
-            </button>
-            <button class="sport-pick-btn" onclick="pickSport('wbc')">
-                <span class="sp-icon">🌎</span>WBC
-                <span class="sp-count" id="sp-count-wbc"></span>
             </button>
             <button class="sport-pick-btn" onclick="pickSport('tennis')">
                 <span class="sp-icon">🎾</span>Tennis
@@ -7812,7 +7663,7 @@ var _evSpeaking = false;
 /* ---- Sport Picker ---- */
 function openSportPicker() {
     // Update counts from existing badge data
-    ['nba','wnba','ncaab','ncaaf','nhl','mlb','wbc','tennis','soccer','mma','boxing'].forEach(function(s) {
+    ['nba','wnba','ncaab','ncaaf','nhl','mlb','tennis','soccer','mma','boxing'].forEach(function(s) {
         var tab = document.querySelector(".sport-tab[onclick*=\"" + s + "\"]");
         var badge = tab ? tab.querySelector('.tab-badge') : null;
         var el = document.getElementById('sp-count-' + s);
