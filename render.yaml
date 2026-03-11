@@ -27,7 +27,3 @@ services:
         sync: false
       - key: API_SPORTS_KEY
         sync: false
-      - key: SUPABASE_URL
-        sync: false
-      - key: SUPABASE_KEY
-        sync: false
