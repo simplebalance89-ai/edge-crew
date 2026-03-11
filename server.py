@@ -224,7 +224,7 @@ async def health_check():
 
 # ===== CREW AUTH =====
 CREW_PIN_SALT = os.environ.get("CREW_PIN_SALT", "edge-crew-default-salt-change-me")
-PROFILES_FILE = os.path.join(os.path.dirname(__file__), "data", "crew_profiles.json")  # stays in app dir (not persistent — profiles are small + seeded)
+PROFILES_FILE = os.path.join(DATA_DIR, "crew_profiles.json")  # persistent disk — survives deploys
 _sessions = {}  # token -> {id, display_name, color, is_admin}
 
 DEFAULT_CREW = [
@@ -401,6 +401,8 @@ DATA_DIR = "/data" if os.path.isdir("/data") else os.path.join(os.path.dirname(_
 UPSETS_FILE = os.path.join(DATA_DIR, "upsets.json")
 PICKS_FILE = os.path.join(DATA_DIR, "picks.json")
 SCORES_ARCHIVE_FILE = os.path.join(DATA_DIR, "scores_archive.json")
+BANKROLL_FILE = os.path.join(DATA_DIR, "bankroll.json")
+GOTCHA_FILE = os.path.join(DATA_DIR, "gotcha_notes.json")
 
 ALL_SPORTS = ["nba", "wnba", "ncaab", "ncaaf", "nhl", "mlb", "wbc", "tennis", "soccer", "mma", "boxing"]
 
@@ -516,16 +518,7 @@ When asked about picks: give the edge percentage, the why, and the confidence le
 Keep responses under 3 sentences for voice. Be the sharpest analyst in the room."""
 }
 
-# Supabase config (persistent storage — replaces file-based picks/upsets)
-SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
-SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "")
-sb = None
-if SUPABASE_URL and SUPABASE_KEY:
-    try:
-        from supabase import create_client
-        sb = create_client(SUPABASE_URL, SUPABASE_KEY)
-    except Exception:
-        sb = None
+# Supabase removed — all storage on Render persistent disk (/data/)
 
 # Simple in-memory cache to save API credits
 _cache = {}
@@ -3818,17 +3811,9 @@ async def delete_pick(pick_id: str):
 @app.get("/api/upsets")
 async def get_upsets(sport: str = "", date: str = ""):
     """Return upset picks, optionally filtered by sport and date."""
-    if sb:
-        filter_date = date if date and date != "today" else datetime.now().strftime("%Y-%m-%d")
-        query = sb.table("upsets").select("*").eq("date", filter_date).order("created_at", desc=True)
-        if sport:
-            query = query.ilike("sport", sport)
-        res = query.execute()
-        return JSONResponse({"picks": res.data, "count": len(res.data)})
-
     data = _read_upsets()
     picks = data.get("picks", [])
-    filter_date = date if date and date != "today" else datetime.now().strftime("%Y-%m-%d")
+    filter_date = date if date and date != "today" else datetime.now(PST).strftime("%Y-%m-%d")
     picks = [p for p in picks if p.get("date", "") == filter_date]
     if sport:
         picks = [p for p in picks if p.get("sport", "").upper() == sport.upper()]
@@ -3854,16 +3839,13 @@ async def save_upset(request: Request):
         "team": team,
         "odds": odds,
         "thesis": body.get("thesis", ""),
-        "date": datetime.now().strftime("%Y-%m-%d"),
+        "date": datetime.now(PST).strftime("%Y-%m-%d"),
         "created_at": datetime.now(PST).strftime("%Y-%m-%d %H:%M:%S"),
     }
 
-    if sb:
-        sb.table("upsets").insert(pick).execute()
-    else:
-        data = _read_upsets()
-        data["picks"].insert(0, pick)
-        _write_upsets(data)
+    data = _read_upsets()
+    data["picks"].insert(0, pick)
+    _write_upsets(data)
 
     return JSONResponse({"status": "ok", "pick": pick})
 
@@ -3871,12 +3853,6 @@ async def save_upset(request: Request):
 @app.delete("/api/upsets/{pick_id}")
 async def delete_upset(pick_id: str):
     """Delete an upset pick by ID."""
-    if sb:
-        res = sb.table("upsets").delete().eq("id", pick_id).execute()
-        if not res.data:
-            return JSONResponse({"error": "Pick not found"}, status_code=404)
-        return JSONResponse({"status": "ok"})
-
     data = _read_upsets()
     original_len = len(data["picks"])
     data["picks"] = [p for p in data["picks"] if p.get("id") != pick_id]
@@ -3888,67 +3864,72 @@ async def delete_upset(pick_id: str):
 
 @app.get("/api/bankroll")
 async def get_bankroll():
-    """Get shared bankroll settings."""
-    if sb:
-        res = sb.table("bankroll_settings").select("*").limit(1).execute()
-        if res.data:
-            row = res.data[0]
-            return JSONResponse({
-                "starting_balance": float(row.get("starting_balance", 1000)),
-                "unit_size": float(row.get("unit_size", 25)),
-                "updated_by": row.get("updated_by", ""),
-            })
-    return JSONResponse({"starting_balance": 1000, "unit_size": 25})
+    """Get shared bankroll settings from disk."""
+    try:
+        with open(BANKROLL_FILE, "r") as f:
+            data = json.load(f)
+        return JSONResponse({
+            "starting_balance": float(data.get("starting_balance", 1000)),
+            "unit_size": float(data.get("unit_size", 25)),
+            "updated_by": data.get("updated_by", ""),
+        })
+    except (FileNotFoundError, json.JSONDecodeError):
+        return JSONResponse({"starting_balance": 1000, "unit_size": 25})
 
 
 @app.post("/api/bankroll")
 async def save_bankroll(request: Request):
-    """Save shared bankroll settings."""
+    """Save shared bankroll settings to disk."""
     body = await request.json()
-    if sb:
-        data = {
-            "id": 1,
-            "starting_balance": body.get("starting_balance", 1000),
-            "unit_size": body.get("unit_size", 25),
-            "updated_at": datetime.now().isoformat(),
-            "updated_by": body.get("updated_by", ""),
-        }
-        sb.table("bankroll_settings").upsert(data).execute()
-        return JSONResponse({"status": "ok", **data})
-    return JSONResponse({"status": "ok", "note": "no database configured"})
+    data = {
+        "starting_balance": body.get("starting_balance", 1000),
+        "unit_size": body.get("unit_size", 25),
+        "updated_at": datetime.now(PST).isoformat(),
+        "updated_by": body.get("updated_by", ""),
+    }
+    try:
+        with open(BANKROLL_FILE, "w") as f:
+            json.dump(data, f, indent=2)
+    except Exception as e:
+        logger.warning(f"Bankroll save failed: {e}")
+        return JSONResponse({"status": "error", "detail": str(e)}, status_code=500)
+    return JSONResponse({"status": "ok", **data})
 
 
 @app.get("/api/gotcha")
 async def get_gotcha():
-    """Get gotcha notes (per sport)."""
-    if sb:
-        res = sb.table("gotcha_notes").select("*").execute()
+    """Get gotcha notes (per sport) from disk."""
+    try:
+        with open(GOTCHA_FILE, "r") as f:
+            notes = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
         notes = {}
-        for row in res.data:
-            notes[row["sport"]] = {
-                "notes": row.get("notes", ""),
-                "updated_by": row.get("updated_by", ""),
-            }
-        return JSONResponse({"notes": notes})
-    return JSONResponse({"notes": {}})
+    return JSONResponse({"notes": notes})
 
 
 @app.post("/api/gotcha")
 async def save_gotcha_notes(request: Request):
-    """Save gotcha notes for a sport."""
+    """Save gotcha notes for a sport to disk."""
     body = await request.json()
     sport = body.get("sport", "NBA")
     notes_text = body.get("notes", "")
-    if sb:
-        data = {
-            "sport": sport,
-            "notes": notes_text,
-            "updated_at": datetime.now().isoformat(),
-            "updated_by": body.get("updated_by", ""),
-        }
-        sb.table("gotcha_notes").upsert(data, on_conflict="sport").execute()
-        return JSONResponse({"status": "ok", **data})
-    return JSONResponse({"status": "ok", "note": "no database configured"})
+    try:
+        with open(GOTCHA_FILE, "r") as f:
+            all_notes = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        all_notes = {}
+    all_notes[sport] = {
+        "notes": notes_text,
+        "updated_by": body.get("updated_by", ""),
+        "updated_at": datetime.now(PST).isoformat(),
+    }
+    try:
+        with open(GOTCHA_FILE, "w") as f:
+            json.dump(all_notes, f, indent=2)
+    except Exception as e:
+        logger.warning(f"Gotcha save failed: {e}")
+        return JSONResponse({"status": "error", "detail": str(e)}, status_code=500)
+    return JSONResponse({"status": "ok", "sport": sport, "notes": notes_text})
 
 
 @app.get("/sw.js")
