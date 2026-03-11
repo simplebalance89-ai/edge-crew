@@ -612,22 +612,11 @@ def _archive_completed_games(games: list):
 
 
 def _days_from_oldest_pick(picks: list) -> int:
-    """Calculate daysFrom needed to cover the oldest ungraded pick, min 3, max 14."""
-    if not picks:
-        return 3
-    oldest = None
-    for p in picks:
-        d = p.get("date", "")
-        if d and (oldest is None or d < oldest):
-            oldest = d
-    if not oldest:
-        return 3
-    try:
-        oldest_dt = datetime.strptime(oldest, "%Y-%m-%d").replace(tzinfo=PST)
-        delta = (datetime.now(PST) - oldest_dt).days + 1  # +1 for same-day
-        return max(3, min(delta, 14))
-    except (ValueError, TypeError):
-        return 3
+    """Calculate daysFrom for Odds API. Always returns 3 — the API max.
+
+    Picks older than 3 days are covered by the local scores archive instead.
+    """
+    return 3
 
 
 def _track_opening_lines(game):
