@@ -2632,7 +2632,7 @@ async def save_pick(request: Request):
         "units": _sanitize(body.get("units", "1")),
         "confidence": _sanitize(body.get("confidence", "Lean")),
         "notes": _sanitize(body.get("notes", "")),
-        "date": datetime.now(PST).strftime("%Y-%m-%d"),
+        "date": _sanitize(body.get("date", "")) or datetime.now(PST).strftime("%Y-%m-%d"),
         "time": datetime.now(PST).strftime("%I:%M %p"),
         "placed": True,
         "placed_at": datetime.now(PST).strftime("%Y-%m-%d %H:%M:%S"),
@@ -3786,7 +3786,7 @@ def _migrate_upsets(old_data):
 async def update_pick(pick_id: str, request: Request):
     """Update a pick's fields (selection, odds, units, etc.)."""
     body = await request.json()
-    allowed = {"selection", "odds", "units", "matchup", "notes", "confidence", "sport", "type"}
+    allowed = {"selection", "odds", "units", "matchup", "notes", "confidence", "sport", "type", "date", "name"}
     update_data = {k: _sanitize(str(v)) for k, v in body.items() if k in allowed and v is not None}
     if not update_data:
         return JSONResponse({"error": "No valid fields to update"}, status_code=400)
