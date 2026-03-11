@@ -188,7 +188,7 @@ async def _daily_slate_pull():
                         await asyncio.sleep(5)
 
             should_run_analysis = False
-            if hour in (8, 14, 18) and last_analysis_run != f"{today}:{hour}":
+            if hour in (8, 16, 18) and last_analysis_run != f"{today}:{hour}":
                 should_run_analysis = True
                 last_analysis_run = f"{today}:{hour}"
 
