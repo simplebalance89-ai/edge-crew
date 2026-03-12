@@ -7050,21 +7050,10 @@ function postLoginLoad() {
     crewFetch('/api/picks').then(function(r) { return r.json(); }).then(function(data) {
         try {
             if (data.picks && data.picks.length) {
-                var local = JSON.parse(safeLoad('edgePicks') || '[]');
-                var localIds = {};
-                local.forEach(function(p) { localIds[p.id] = true; });
-                var added = 0;
-                data.picks.forEach(function(p) {
-                    if (!localIds[p.id]) {
-                        local.unshift(p);
-                        added++;
-                    }
-                });
-                if (added > 0) {
-                    safeSave('edgePicks', JSON.stringify(local));
-                    renderPicks();
-                    renderBankroll();
-                }
+                // Server is authoritative — replace localStorage with server data
+                safeSave('edgePicks', JSON.stringify(data.picks));
+                renderPicks();
+                renderBankroll();
             }
         } catch(e) { console.error('Pick sync processing error:', e); }
         // Step 2: AFTER picks synced, load odds + analysis
