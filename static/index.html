@@ -2601,6 +2601,8 @@ function refreshSlate() {
     window._isManualRefresh = false; // reset after use
     // Reset retry flags for cold-start resilience
     fetchLiveOdds._retried = {};
+    // Clear stale analysis cache so fresh data is fetched
+    _analysisCache = {};
     // Reset all game row checks and side picks
     picks = {};
     safeRemove('edgeLockedPicks');
