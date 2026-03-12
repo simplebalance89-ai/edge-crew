@@ -2411,6 +2411,7 @@ function processToastQueue() {
 var picks = {}; // { gameName: { checked: bool, side: string } }
 
 function refreshSlate() {
+    _analysisCache = {}; // Clear stale analysis on refresh
     // _isManualRefresh controls overlay visibility and cache bypass
     var isManual = window._isManualRefresh || false;
     window._forceRefreshOdds = isManual;
@@ -7204,6 +7205,7 @@ document.addEventListener('click', function(e) {
 // ===== CLEAR CACHE =====
 async function clearAllCache() {
     if (!confirm('Nuclear clear: kills all cached data, picks, settings. Reload fresh from server.')) return;
+    _analysisCache = {}; // Clear in-memory analysis cache
     // 1. Unregister ALL service workers
     if ('serviceWorker' in navigator) {
         try {
