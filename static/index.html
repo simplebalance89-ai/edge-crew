@@ -2803,15 +2803,7 @@ function submitBetSlip() {
         created_at: new Date().toISOString()
     };
 
-    // Save to localStorage for bankroll tracker compatibility (with dedup check)
-    var stored = JSON.parse(safeLoad('edgePicks') || '[]');
-    var dupKey = (pick.name + '|' + pick.date + '|' + pick.selection + '|' + pick.matchup).toLowerCase();
-    var isDup = stored.some(function(p) { return (p.name + '|' + p.date + '|' + p.selection + '|' + p.matchup).toLowerCase() === dupKey; });
-    if (isDup) { closeBetSlip(); showToast('Already locked!'); btn.disabled = false; btn.textContent = 'LOCK THIS PICK'; return; }
-    stored.unshift(pick);
-    safeSave('edgePicks', JSON.stringify(stored));
-
-    // POST to server with auth
+    // Server is source of truth — POST first, update localStorage on success
     crewFetch('/api/picks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -2822,16 +2814,20 @@ function submitBetSlip() {
         }
         return r.json();
     }).then(function(data) {
+        if (data.duplicate) {
+            closeBetSlip();
+            showToast('Already locked!');
+            btn.disabled = false; btn.textContent = 'LOCK THIS PICK';
+            return;
+        }
         closeBetSlip();
         showToast(pick.selection + ' locked!');
-        renderPicks();
-        renderBankroll();
+        syncPicksFromServer(); // Server → localStorage
     }).catch(function(err) {
         closeBetSlip();
         console.error('Pick save failed:', err);
         showToast('Pick save failed: ' + err.message, 'error');
-        renderPicks();
-        renderBankroll();
+        btn.disabled = false; btn.textContent = 'LOCK THIS PICK';
     });
 }
 
@@ -2896,16 +2892,7 @@ function lockCard() {
             grade: grade || '',
             date: toPSTDate(), time: toPSTShort(), created_at: new Date().toISOString()
         };
-        // Dedup check: skip if same name+date+matchup+selection already in localStorage
-        var stored = JSON.parse(safeLoad('edgePicks') || '[]');
-        var dupKey = (pick.name + '|' + pick.date + '|' + pick.selection + '|' + pick.matchup).toLowerCase();
-        var isDup = stored.some(function(p) {
-            return (p.name + '|' + p.date + '|' + p.selection + '|' + p.matchup).toLowerCase() === dupKey;
-        });
-        if (isDup) { return; }
-        stored.unshift(pick);
-        safeSave('edgePicks', JSON.stringify(stored));
-
+        // Server is source of truth — POST first, sync localStorage on success
         crewFetch('/api/picks', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -2915,18 +2902,7 @@ function lockCard() {
             return r.json();
         }).then(function(data) {
             saved++;
-            // Capture server-assigned ID back into localStorage
-            if (data && data.pick && data.pick.id) {
-                var st = JSON.parse(safeLoad('edgePicks') || '[]');
-                for (var i = 0; i < st.length; i++) {
-                    if (!st[i].id && st[i].matchup === pick.matchup && st[i].selection === pick.selection && st[i].name === pick.name) {
-                        st[i].id = data.pick.id;
-                        break;
-                    }
-                }
-                safeSave('edgePicks', JSON.stringify(st));
-            }
-            // Re-sync from server after all picks saved to catch everyone's picks
+            // Re-sync from server after all picks saved
             if (saved >= lockedPicks.length) {
                 syncPicksFromServer();
             }
@@ -3231,20 +3207,7 @@ function submitPick() {
         created_at: new Date().toISOString()
     };
 
-    // Save to localStorage (with dedup check)
-    var stored = JSON.parse(safeLoad('edgePicks') || '[]');
-    var dupKey = (pick.name + '|' + pick.date + '|' + pick.selection + '|' + pick.matchup).toLowerCase();
-    var isDup = stored.some(function(p) {
-        return (p.name + '|' + p.date + '|' + p.selection + '|' + p.matchup).toLowerCase() === dupKey;
-    });
-    if (isDup) {
-        showToast('Duplicate pick - already submitted.', true);
-        return;
-    }
-    stored.unshift(pick);
-    safeSave('edgePicks', JSON.stringify(stored));
-
-    // POST to server with auth
+    // Server is source of truth — POST first, sync localStorage on success
     crewFetch('/api/picks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -3255,26 +3218,16 @@ function submitPick() {
         }
         return r.json();
     }).then(function(data) {
-        console.log('Pick saved to server:', data);
-        // Capture server-assigned ID
-        if (data && data.pick && data.pick.id) {
-            var st = JSON.parse(safeLoad('edgePicks') || '[]');
-            for (var i = 0; i < st.length; i++) {
-                if (!st[i].id && st[i].matchup === pick.matchup && st[i].selection === pick.selection && st[i].name === pick.name) {
-                    st[i].id = data.pick.id;
-                    break;
-                }
-            }
-            safeSave('edgePicks', JSON.stringify(st));
+        if (data.duplicate) {
+            showToast('Duplicate pick - already submitted.', true);
+            return;
         }
-        // Re-sync to pull everyone else's picks too
-        syncPicksFromServer();
+        showToast(pick.name + "'s pick locked!");
+        syncPicksFromServer(); // Server → localStorage
     }).catch(function(err) {
         console.error('Pick save failed:', err);
-        showToast('WARNING: Pick saved locally but failed to sync to server. Try again.', true);
+        showToast('Pick failed to save: ' + err.message, true);
     });
-
-    showToast(pick.name + "'s pick locked!");
 
     // Reset form
     document.getElementById('pickMatchup').value = '';
