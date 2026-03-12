@@ -3557,6 +3557,7 @@ function setConf(el, level) {
 
 function submitPick() {
     var btn = document.querySelector('.submit-pick-btn');
+    if (btn && btn.disabled) return;
     if (btn) { btn.disabled = true; btn.textContent = 'LOCKING...'; }
 
     var name = crewProfile ? crewProfile.display_name : document.getElementById('pickName').value;
