@@ -3199,6 +3199,9 @@ function setConf(el, level) {
 }
 
 function submitPick() {
+    var submitBtn = document.querySelector('.submit-pick-btn[onclick*="submitPick"]');
+    if (submitBtn && submitBtn.disabled) return;
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'LOCKING...'; }
     var name = crewProfile ? crewProfile.display_name : document.getElementById('pickName').value;
     var sport = document.getElementById('pickSport').value;
     var type = document.getElementById('pickType').value;
@@ -3213,6 +3216,7 @@ function submitPick() {
 
     if (!name || !sport || !matchup || !selection) {
         showToast('Fill in name, sport, matchup, and your pick.', true);
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Lock This Pick'; }
         return;
     }
 
@@ -3248,6 +3252,7 @@ function submitPick() {
     });
     if (isDup) {
         showToast('Duplicate pick - already submitted.', true);
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Lock This Pick'; }
         return;
     }
     stored.unshift(pick);
@@ -3281,6 +3286,8 @@ function submitPick() {
     }).catch(function(err) {
         console.error('Pick save failed:', err);
         showToast('WARNING: Pick saved locally but failed to sync to server. Try again.', true);
+    }).finally(function() {
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Lock This Pick'; }
     });
 
     showToast(pick.name + "'s pick locked!");
