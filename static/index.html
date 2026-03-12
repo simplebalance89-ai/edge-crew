@@ -4618,14 +4618,12 @@ renderBankroll();
 syncPicksFromServer();
 // Re-sync picks every 60s to pull picks from other crew members
 setInterval(syncPicksFromServer, 60000);
-// Remove tipped-off games from DOM every 60s
+// Periodic DOM cleanup: remove tipped-off games every 60s
 setInterval(function() {
-    var now = new Date();
+    var nowMs = Date.now();
     document.querySelectorAll('.game-row[data-time]').forEach(function(row) {
-        try {
-            var gt = new Date(row.getAttribute('data-time'));
-            if (gt <= now) { row.style.display = 'none'; }
-        } catch(e) {}
+        var gameTime = new Date(row.getAttribute('data-time')).getTime();
+        if (gameTime <= nowMs) row.remove();
     });
 }, 60000);
 
@@ -8390,7 +8388,9 @@ async function clearAllCache() {
             await Promise.all(names.map(function(n) { return caches.delete(n); }));
         } catch(e) { console.log('Cache delete error:', e); }
     }
-    // 3. Nuke localStorage (preserve crew token)
+    // 3. Clear in-memory analysis cache
+    _analysisCache = {};
+    // 4. Nuke localStorage (preserve crew token)
     var savedToken = safeLoad('edgeCrewToken');
     try { localStorage.clear(); } catch(e) {}
     if (savedToken) safeSave('edgeCrewToken', savedToken);
