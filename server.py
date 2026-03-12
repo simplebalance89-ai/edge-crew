@@ -821,6 +821,87 @@ SOCCER_MATRIX = [
 SPORT_MATRICES = {"nba": NBA_MATRIX, "nhl": NHL_MATRIX, "soccer": SOCCER_MATRIX}
 
 
+def _recalculate_grade(game, sport):
+    """Server-side grade recalculation from matrix scores. Overrides GPT's grade.
+
+    GPT provides the individual variable scores (1-10). We do the math.
+    For sports without matrices, GPT's grade stands.
+    """
+    if game.get("grade") in ("TBD", "INCOMPLETE"):
+        return  # Don't override special grades
+
+    matrix = SPORT_MATRICES.get(sport.lower())
+    if not matrix:
+        return  # No matrix for this sport, GPT's grade stands
+
+    matrix_scores = game.get("matrix_scores", {})
+    if not matrix_scores:
+        return  # GPT didn't return matrix scores, skip
+
+    # Calculate max possible weighted score
+    max_possible = sum(w for _, w, _ in matrix) * 10
+
+    # Calculate actual weighted sum from GPT's individual scores
+    total_weighted = 0
+    for var_name, weight, _ in matrix:
+        if var_name in matrix_scores:
+            score_data = matrix_scores[var_name]
+            score = score_data.get("score", 5) if isinstance(score_data, dict) else 5
+            score = max(1, min(10, int(score)))  # Clamp 1-10
+            weighted = score * weight
+            # Override GPT's weighted value with our calculation
+            if isinstance(score_data, dict):
+                score_data["weighted"] = weighted
+            total_weighted += weighted
+
+    # Recalculate composite
+    recalculated = round((total_weighted / max_possible) * 10, 1) if max_possible > 0 else 5.0
+
+    # Log if GPT's score differs significantly
+    gpt_score = game.get("composite_score", 0)
+    if isinstance(gpt_score, (int, float)) and abs(gpt_score - recalculated) > 0.5:
+        print(f"[GRADE OVERRIDE] {game.get('matchup')} — GPT said {gpt_score}, actual is {recalculated}")
+
+    # Override composite_score with our math
+    game["composite_score"] = recalculated
+    game["gpt_original_score"] = gpt_score
+
+    # Apply grade from thresholds — WE decide the grade, not GPT
+    gpt_grade = game.get("grade", "")
+    if recalculated >= 9.0:
+        game["grade"] = "A+"
+    elif recalculated >= 8.5:
+        game["grade"] = "A"
+    elif recalculated >= 7.5:
+        game["grade"] = "A-"
+    elif recalculated >= 7.0:
+        game["grade"] = "B+"
+    elif recalculated >= 6.5:
+        game["grade"] = "B"
+    elif recalculated >= 6.0:
+        game["grade"] = "B-"
+    elif recalculated >= 5.5:
+        game["grade"] = "C+"
+    elif recalculated >= 4.5:
+        game["grade"] = "C"
+    elif recalculated >= 3.0:
+        game["grade"] = "D"
+    else:
+        game["grade"] = "F"
+
+    if gpt_grade and gpt_grade != game["grade"]:
+        print(f"[GRADE CHANGED] {game.get('matchup')} — GPT said {gpt_grade}, we say {game['grade']} (score: {recalculated})")
+
+    game["gpt_original_grade"] = gpt_grade
+
+    # Check if GPT returned all variables
+    expected_vars = [name for name, _, _ in matrix]
+    missing = [v for v in expected_vars if v not in matrix_scores]
+    if missing:
+        game["matrix_warning"] = f"Missing variables: {', '.join(missing)}"
+        print(f"[MATRIX INCOMPLETE] {game.get('matchup')} missing {missing}")
+
+
 async def _fetch_api_sports(sport_lower):
     """Fetch today's games + lineups from API-Sports. Returns structured text for AI prompt."""
     if not API_SPORTS_KEY:
@@ -2562,6 +2643,10 @@ Return ONLY valid JSON. No markdown. No explanation."""
             if result.get("games"):
                 all_analyzed_games.extend(result["games"])
 
+        # ===== SERVER-SIDE GRADE RECALCULATION — we grade, not GPT =====
+        for game in all_analyzed_games:
+            _recalculate_grade(game, sport_lower)
+
         # ===== CROSS-VALIDATION GATE (WS4) — validate players before caching =====
         validation_log = []
         if all_analyzed_games:
@@ -2593,6 +2678,7 @@ Return ONLY valid JSON. No markdown. No explanation."""
             "matrix": sport_lower in SPORT_MATRICES,
             "player_validation": len(validation_log),
             "game_logs_injected": bool(game_log_context),
+            "grade_overrides": sum(1 for g in all_analyzed_games if g.get("gpt_original_grade") and g.get("gpt_original_grade") != g.get("grade")),
         }
 
         _set_cache(cache_key, analysis)
