@@ -779,11 +779,12 @@ ROTOWIRE_URLS = {
 NBA_MATRIX = [
     ("injuries_lineup", 10, "Injuries / lineup changes"),
     ("rest_advantage", 9, "Rest advantage (B2B, 3-in-5)"),
-    ("sharp_vs_public", 8, "Where the money is (sharp vs public)"),
     ("def_ranking", 8, "Defensive ranking vs position"),
     ("pace_matchup", 7, "Pace matchup"),
     ("travel", 7, "Travel (road trip length)"),
+    ("recent_form", 7, "Recent form / streak (last 5-10 games)"),
     ("ats_trend", 6, "ATS trend (last 7/14 days)"),
+    ("sharp_vs_public", 5, "Where the money is (sharp vs public)"),
     ("home_away", 5, "Home/away record"),
     ("coach", 4, "Coach tendencies"),
     ("revenge_rivalry", 3, "Revenge / rivalry"),
@@ -794,11 +795,12 @@ NHL_MATRIX = [
     ("injuries_lineup", 9, "Injuries / lineup changes"),
     ("b2b_fatigue", 8, "Back-to-back / schedule fatigue"),
     ("home_away", 7, "Home/away record"),
-    ("sharp_vs_public", 7, "Where the money is"),
     ("pp_pk", 7, "Power play / penalty kill rankings"),
+    ("recent_form", 7, "Recent form / streak (last 5-10 games)"),
     ("save_pct_trend", 6, "Save percentage trend (last 5)"),
     ("division_rivalry", 5, "Division / rivalry"),
     ("corsi_xg", 5, "Corsi / expected goals"),
+    ("sharp_vs_public", 5, "Where the money is"),
     ("travel_tz", 4, "Travel / time zone"),
 ]
 
@@ -809,9 +811,10 @@ SOCCER_MATRIX = [
     ("goals_avg", 8, "Goals scored/conceded avg"),
     ("h2h", 7, "Head-to-head record"),
     ("league_position", 7, "League position / motivation"),
+    ("recent_form", 7, "Recent form / streak (last 5-10 games)"),
     ("xg_trend", 6, "xG (expected goals) trend"),
-    ("sharp_vs_public", 6, "Where the money is"),
     ("clean_sheet", 5, "Clean sheet pct"),
+    ("sharp_vs_public", 5, "Where the money is"),
     ("travel_congestion", 4, "Travel / fixture congestion"),
 ]
 
