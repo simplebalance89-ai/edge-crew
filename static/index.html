@@ -4284,6 +4284,14 @@ renderBankroll();
 syncPicksFromServer();
 // Re-sync picks every 60s to pull picks from other crew members
 setInterval(syncPicksFromServer, 60000);
+// Periodic DOM cleanup: remove tipped-off games every 60s
+setInterval(function() {
+    var nowMs = Date.now();
+    document.querySelectorAll('.game-row[data-time]').forEach(function(row) {
+        var gameTime = new Date(row.getAttribute('data-time')).getTime();
+        if (gameTime <= nowMs) row.remove();
+    });
+}, 60000);
 
 // ===== GOTCHA CARD (All Sports) =====
 function toggleGotchaEdit(sport) {
@@ -7273,7 +7281,9 @@ async function clearAllCache() {
             await Promise.all(names.map(function(n) { return caches.delete(n); }));
         } catch(e) { console.log('Cache delete error:', e); }
     }
-    // 3. Nuke localStorage (preserve crew token)
+    // 3. Clear in-memory analysis cache
+    _analysisCache = {};
+    // 4. Nuke localStorage (preserve crew token)
     var savedToken = safeLoad('edgeCrewToken');
     try { localStorage.clear(); } catch(e) {}
     if (savedToken) safeSave('edgeCrewToken', savedToken);
