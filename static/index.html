@@ -2417,6 +2417,8 @@ function refreshSlate() {
     window._isManualRefresh = false; // reset after use
     // Reset retry flags for cold-start resilience
     fetchLiveOdds._retried = {};
+    // Clear stale analysis cache so fresh data is fetched
+    _analysisCache = {};
     // Reset all game row checks and side picks
     picks = {};
     safeRemove('edgeLockedPicks');
@@ -2803,15 +2805,13 @@ function submitBetSlip() {
         created_at: new Date().toISOString()
     };
 
-    // Save to localStorage for bankroll tracker compatibility (with dedup check)
+    // Client-side dedup check (server also deduplicates)
     var stored = JSON.parse(safeLoad('edgePicks') || '[]');
     var dupKey = (pick.name + '|' + pick.date + '|' + pick.selection + '|' + pick.matchup).toLowerCase();
     var isDup = stored.some(function(p) { return (p.name + '|' + p.date + '|' + p.selection + '|' + p.matchup).toLowerCase() === dupKey; });
     if (isDup) { closeBetSlip(); showToast('Already locked!'); btn.disabled = false; btn.textContent = 'LOCK THIS PICK'; return; }
-    stored.unshift(pick);
-    safeSave('edgePicks', JSON.stringify(stored));
 
-    // POST to server with auth
+    // Server-first: POST to server, then sync localStorage from server
     crewFetch('/api/picks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -2824,14 +2824,11 @@ function submitBetSlip() {
     }).then(function(data) {
         closeBetSlip();
         showToast(pick.selection + ' locked!');
-        renderPicks();
-        renderBankroll();
+        syncPicksFromServer();
     }).catch(function(err) {
         closeBetSlip();
         console.error('Pick save failed:', err);
         showToast('Pick save failed: ' + err.message, 'error');
-        renderPicks();
-        renderBankroll();
     });
 }
 
@@ -2850,6 +2847,9 @@ function updateSubmitBar() {
 }
 
 function lockCard() {
+    var lockBtn = document.querySelector('.submit-btn[onclick*="lockCard"]');
+    if (lockBtn && lockBtn.disabled) return;
+    if (lockBtn) { lockBtn.disabled = true; lockBtn.textContent = 'LOCKING...'; }
     var body = document.getElementById('modalBody');
     body.innerHTML = '';
     var n = 0;
@@ -2882,11 +2882,8 @@ function lockCard() {
     var sport = panel ? panel.id.replace('panel-', '').toUpperCase() : '';
     var saved = 0;
     lockedPicks.forEach(function(lp) {
-        var type = 'Spread';
         var sel = lp.selection.toUpperCase();
-        if (sel.indexOf('ML') !== -1) type = 'Moneyline';
-        else if ((sel.indexOf('OVER ') !== -1 || sel.indexOf('UNDER ') !== -1) && /[A-Z]{2,}\s+(OVER|UNDER)\s+\d/.test(sel)) type = 'Prop';
-        else if (sel.indexOf('OVER') !== -1 || sel.indexOf('UNDER') !== -1) type = 'Over/Under';
+        var type = detectPickType(sel);
 
         var grade = getAnalysisGrade(sport, lp.matchup);
         var pick = {
@@ -2896,16 +2893,15 @@ function lockCard() {
             grade: grade || '',
             date: toPSTDate(), time: toPSTShort(), created_at: new Date().toISOString()
         };
-        // Dedup check: skip if same name+date+matchup+selection already in localStorage
+        // Client-side dedup check (server also deduplicates)
         var stored = JSON.parse(safeLoad('edgePicks') || '[]');
         var dupKey = (pick.name + '|' + pick.date + '|' + pick.selection + '|' + pick.matchup).toLowerCase();
         var isDup = stored.some(function(p) {
             return (p.name + '|' + p.date + '|' + p.selection + '|' + p.matchup).toLowerCase() === dupKey;
         });
         if (isDup) { return; }
-        stored.unshift(pick);
-        safeSave('edgePicks', JSON.stringify(stored));
 
+        // Server-first: POST to server, sync on completion
         crewFetch('/api/picks', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -2915,18 +2911,7 @@ function lockCard() {
             return r.json();
         }).then(function(data) {
             saved++;
-            // Capture server-assigned ID back into localStorage
-            if (data && data.pick && data.pick.id) {
-                var st = JSON.parse(safeLoad('edgePicks') || '[]');
-                for (var i = 0; i < st.length; i++) {
-                    if (!st[i].id && st[i].matchup === pick.matchup && st[i].selection === pick.selection && st[i].name === pick.name) {
-                        st[i].id = data.pick.id;
-                        break;
-                    }
-                }
-                safeSave('edgePicks', JSON.stringify(st));
-            }
-            // Re-sync from server after all picks saved to catch everyone's picks
+            // Sync from server after all picks saved
             if (saved >= lockedPicks.length) {
                 syncPicksFromServer();
             }
@@ -2946,6 +2931,8 @@ function lockCard() {
         updateSubmitBar();
         renderPicks();
     }
+    // Re-enable lock button
+    if (lockBtn) { lockBtn.disabled = false; lockBtn.textContent = 'Lock Card'; }
 }
 
 function closeModal() {
@@ -2983,6 +2970,26 @@ function switchSport(sport, e) {
         if (edgeContent && edgeContent.querySelector('p[style*="italic"]')) {
             fetchEdge(sport);
         }
+    }
+    // Initialize pick name from crew profile when opening submit panel
+    if (sport === 'submit' && crewProfile) {
+        var pnd = document.getElementById('pickNameDisplay');
+        var pni = document.getElementById('pickName');
+        if (pnd && pnd.textContent === '--') {
+            pnd.textContent = crewProfile.display_name;
+            pnd.style.color = crewProfile.color;
+            pnd.style.borderColor = crewProfile.color;
+        }
+        if (pni && !pni.value) pni.value = crewProfile.display_name;
+    }
+    // Re-filter tipped-off games from DOM on sport switch
+    var sportPanelEl = document.getElementById('panel-' + sport);
+    if (sportPanelEl) {
+        var nowMs = Date.now();
+        sportPanelEl.querySelectorAll('.game-row[data-time]').forEach(function(row) {
+            var gameTime = new Date(row.getAttribute('data-time')).getTime();
+            if (gameTime <= nowMs) row.remove();
+        });
     }
     window.scrollTo(0, 0);
 }
@@ -3190,6 +3197,9 @@ function setConf(el, level) {
 }
 
 function submitPick() {
+    var submitBtn = document.querySelector('.submit-pick-btn[onclick*="submitPick"]');
+    if (submitBtn && submitBtn.disabled) return;
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'LOCKING...'; }
     var name = crewProfile ? crewProfile.display_name : document.getElementById('pickName').value;
     var sport = document.getElementById('pickSport').value;
     var type = document.getElementById('pickType').value;
@@ -3204,6 +3214,7 @@ function submitPick() {
 
     if (!name || !sport || !matchup || !selection) {
         showToast('Fill in name, sport, matchup, and your pick.', true);
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Lock This Pick'; }
         return;
     }
 
@@ -3231,7 +3242,7 @@ function submitPick() {
         created_at: new Date().toISOString()
     };
 
-    // Save to localStorage (with dedup check)
+    // Client-side dedup check (server also deduplicates)
     var stored = JSON.parse(safeLoad('edgePicks') || '[]');
     var dupKey = (pick.name + '|' + pick.date + '|' + pick.selection + '|' + pick.matchup).toLowerCase();
     var isDup = stored.some(function(p) {
@@ -3239,12 +3250,11 @@ function submitPick() {
     });
     if (isDup) {
         showToast('Duplicate pick - already submitted.', true);
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Lock This Pick'; }
         return;
     }
-    stored.unshift(pick);
-    safeSave('edgePicks', JSON.stringify(stored));
 
-    // POST to server with auth
+    // Server-first: POST to server, then sync localStorage from server
     crewFetch('/api/picks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -3256,22 +3266,12 @@ function submitPick() {
         return r.json();
     }).then(function(data) {
         console.log('Pick saved to server:', data);
-        // Capture server-assigned ID
-        if (data && data.pick && data.pick.id) {
-            var st = JSON.parse(safeLoad('edgePicks') || '[]');
-            for (var i = 0; i < st.length; i++) {
-                if (!st[i].id && st[i].matchup === pick.matchup && st[i].selection === pick.selection && st[i].name === pick.name) {
-                    st[i].id = data.pick.id;
-                    break;
-                }
-            }
-            safeSave('edgePicks', JSON.stringify(st));
-        }
-        // Re-sync to pull everyone else's picks too
         syncPicksFromServer();
     }).catch(function(err) {
         console.error('Pick save failed:', err);
-        showToast('WARNING: Pick saved locally but failed to sync to server. Try again.', true);
+        showToast('Pick failed to save to server: ' + err.message, true);
+    }).finally(function() {
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Lock This Pick'; }
     });
 
     showToast(pick.name + "'s pick locked!");
@@ -3312,34 +3312,39 @@ function saveBankrollSettings() {
 function gradePick(index, result) {
     var stored = JSON.parse(safeLoad('edgePicks') || '[]');
     if (stored[index]) {
-        stored[index].result = result;
-        safeSave('edgePicks', JSON.stringify(stored));
         if (stored[index].id) {
+            // Server-first: grade on server, then sync
             fetch('/api/picks/grade', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id: stored[index].id, result: result })
-            }).catch(function() {});
+            }).then(function() { syncPicksFromServer(); }).catch(function() {});
+        } else {
+            // No server ID — update local only
+            stored[index].result = result;
+            safeSave('edgePicks', JSON.stringify(stored));
+            renderBankroll();
         }
-        renderBankroll();
     }
 }
 
 function ungradePick(index) {
     var stored = JSON.parse(safeLoad('edgePicks') || '[]');
     if (stored[index]) {
-        stored[index].result = null;
-        stored[index].graded_at = null;
-        safeSave('edgePicks', JSON.stringify(stored));
         if (stored[index].id) {
+            // Server-first: ungrade on server, then sync
             fetch('/api/picks/grade', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id: stored[index].id, result: '' })
-            }).catch(function() {});
+            }).then(function() { syncPicksFromServer(); showToast('Pick ungraded'); }).catch(function() {});
+        } else {
+            stored[index].result = null;
+            stored[index].graded_at = null;
+            safeSave('edgePicks', JSON.stringify(stored));
+            showToast('Pick ungraded');
+            renderBankroll();
         }
-        showToast('Pick ungraded');
-        renderBankroll();
     }
 }
 
@@ -3348,15 +3353,19 @@ function deletePick(index) {
     var stored = JSON.parse(safeLoad('edgePicks') || '[]');
     if (stored[index]) {
         var pick = stored[index];
-        // Delete from server if it has an ID
         if (pick.id) {
-            crewFetch('/api/picks/' + pick.id, { method: 'DELETE' }).catch(function() {});
+            // Server-first: delete on server, then sync
+            crewFetch('/api/picks/' + pick.id, { method: 'DELETE' })
+                .then(function() { syncPicksFromServer(); showToast('Pick deleted'); })
+                .catch(function() { showToast('Delete failed', true); });
+        } else {
+            // No server ID — remove locally only
+            stored.splice(index, 1);
+            safeSave('edgePicks', JSON.stringify(stored));
+            renderBankroll();
+            renderPicks();
+            showToast('Pick deleted');
         }
-        stored.splice(index, 1);
-        safeSave('edgePicks', JSON.stringify(stored));
-        renderBankroll();
-        renderPicks();
-        showToast('Pick deleted');
     }
 }
 
@@ -3371,22 +3380,24 @@ function editPick(index) {
     var newUnits = prompt('Edit units:', pick.units || '1');
     if (newUnits === null) return;
 
-    stored[index].selection = newSelection;
-    stored[index].odds = newOdds;
-    stored[index].units = newUnits;
-    safeSave('edgePicks', JSON.stringify(stored));
-
-    // Update server if it has an ID
     if (pick.id) {
+        // Server-first: update on server, then sync
         crewFetch('/api/picks/' + pick.id, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ selection: newSelection, odds: newOdds, units: newUnits })
-        }).catch(function() {});
+        }).then(function() { syncPicksFromServer(); showToast('Pick updated'); })
+          .catch(function() { showToast('Update failed', true); });
+    } else {
+        // No server ID — update locally only
+        stored[index].selection = newSelection;
+        stored[index].odds = newOdds;
+        stored[index].units = newUnits;
+        safeSave('edgePicks', JSON.stringify(stored));
+        renderBankroll();
+        renderPicks();
+        showToast('Pick updated');
     }
-    renderBankroll();
-    renderPicks();
-    showToast('Pick updated');
 }
 
 var activeSwimLane = 'ALL';
@@ -3472,18 +3483,8 @@ function autoGradePicks() {
             btn.classList.remove('btn-loading');
             btn.textContent = 'AUTO-GRADE PICKS';
             if (data.graded > 0) {
-                // Update localStorage picks with server results
-                data.results.forEach(function(r) {
-                    for (var i = 0; i < stored.length; i++) {
-                        var p = stored[i];
-                        if (!p.result && (p.id === r.pick_id || (p.matchup === r.matchup && p.selection === r.selection))) {
-                            stored[i].result = r.result;
-                            break;
-                        }
-                    }
-                });
-                safeSave('edgePicks', JSON.stringify(stored));
-                renderBankroll();
+                // Server already graded — sync localStorage from server
+                syncPicksFromServer();
                 status.textContent = data.graded + '/' + ungraded.length + ' graded! ' + (data.debug || '');
                 status.style.color = '#10B981';
                 showToast(data.graded + ' picks auto-graded!');
@@ -4255,6 +4256,14 @@ renderBankroll();
 syncPicksFromServer();
 // Re-sync picks every 60s to pull picks from other crew members
 setInterval(syncPicksFromServer, 60000);
+// Periodic DOM cleanup: remove tipped-off games every 60s
+setInterval(function() {
+    var nowMs = Date.now();
+    document.querySelectorAll('.game-row[data-time]').forEach(function(row) {
+        var gameTime = new Date(row.getAttribute('data-time')).getTime();
+        if (gameTime <= nowMs) row.remove();
+    });
+}, 60000);
 
 // ===== GOTCHA CARD (All Sports) =====
 function toggleGotchaEdit(sport) {
@@ -4492,17 +4501,14 @@ function submitParlay() {
         legs: parlayLegs.slice(),
     };
 
-    // Save to localStorage
-    var stored = JSON.parse(safeLoad('edgePicks') || '[]');
-    stored.unshift(pick);
-    safeSave('edgePicks', JSON.stringify(stored));
-
-    // POST to server with auth
+    // Server-first: POST to server, then sync localStorage
     crewFetch('/api/picks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(pick)
-    }).then(function(r) { return r.json(); }).catch(function() {});
+    }).then(function(r) { return r.json(); })
+      .then(function() { syncPicksFromServer(); })
+      .catch(function(err) { showToast('Parlay failed to save: ' + err.message, true); });
 
     showToast(name + "'s " + parlayLegs.length + '-leg parlay locked! ' + combinedAmerican);
 
@@ -6634,30 +6640,24 @@ function addPropToPicks(selection, odds, matchup, sport, notes) {
         created_at: new Date().toISOString()
     };
 
-    // Save to localStorage (with dedup check)
+    // Client-side dedup check (server also deduplicates)
     var stored = JSON.parse(safeLoad('edgePicks') || '[]');
     var dupKey = (pick.name + '|' + pick.date + '|' + pick.selection + '|' + pick.matchup).toLowerCase();
     var isDup = stored.some(function(p) {
         return (p.name + '|' + p.date + '|' + p.selection + '|' + p.matchup).toLowerCase() === dupKey;
     });
     if (isDup) { showToast('Duplicate prop - already locked.', true); return; }
-    stored.unshift(pick);
-    safeSave('edgePicks', JSON.stringify(stored));
 
+    // Server-first: POST to server, then sync localStorage
     crewFetch('/api/picks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(pick)
     }).then(function(r) { return r.json(); }).then(function(data) {
-        if (data.id) {
-            var s = JSON.parse(safeLoad('edgePicks') || '[]');
-            if (s.length > 0 && !s[0].id) { s[0].id = data.id; safeSave('edgePicks', JSON.stringify(s)); }
-        }
-    }).catch(function() {});
+        syncPicksFromServer();
+    }).catch(function(err) { showToast('Prop save failed', true); });
 
     showToast(selection + ' LOCKED!');
-    renderPicks();
-    renderBankroll();
 }
 
 // ===== PROPS PARLAY BUILDER =====
@@ -7244,7 +7244,9 @@ async function clearAllCache() {
             await Promise.all(names.map(function(n) { return caches.delete(n); }));
         } catch(e) { console.log('Cache delete error:', e); }
     }
-    // 3. Nuke localStorage (preserve crew token)
+    // 3. Clear in-memory analysis cache
+    _analysisCache = {};
+    // 4. Nuke localStorage (preserve crew token)
     var savedToken = safeLoad('edgeCrewToken');
     try { localStorage.clear(); } catch(e) {}
     if (savedToken) safeSave('edgeCrewToken', savedToken);
@@ -8017,7 +8019,18 @@ function collapseWelcomeChrome() {
 
 function detectPickType(selection) {
     var sel = (selection || '').toLowerCase();
-    if (sel.includes('over') || sel.includes('under')) return 'Over/Under';
+    // Prop detection: player stat keywords or "Name Over/Under X.X" pattern
+    var propStats = ['points','rebounds','assists','threes','steals','blocks','strikeouts',
+        'goals','saves','shots','hits','yards','touchdowns','completions','receptions',
+        'pts','ast','reb','stl','blk','pra','rbi','hrs'];
+    var hasOverUnder = sel.includes('over') || sel.includes('under');
+    if (hasOverUnder) {
+        // Check if it's a player prop (has a name before over/under or stat keyword)
+        var hasPropStat = propStats.some(function(s) { return sel.includes(s); });
+        var hasPlayerName = /[a-z]{2,}\s+(over|under)\s+\d/i.test(sel);
+        if (hasPropStat || hasPlayerName) return 'Prop';
+        return 'Over/Under';
+    }
     if (sel.includes('ml') || sel.includes('money')) return 'Moneyline';
     if (/[+-]\d/.test(sel)) return 'Spread';
     return 'Moneyline';
@@ -8137,18 +8150,16 @@ function agentLockPick(encodedAction) {
         created_at: new Date().toISOString()
     };
 
-    var stored = JSON.parse(safeLoad('edgePicks') || '[]');
-    stored.unshift(pick);
-    safeSave('edgePicks', JSON.stringify(stored));
-
+    // Server-first: POST to server, then sync localStorage
     crewFetch('/api/picks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(pick)
-    }).then(function(r) { return r.json(); }).catch(function() {});
+    }).then(function(r) { return r.json(); })
+      .then(function() { syncPicksFromServer(); })
+      .catch(function(err) { showToast('EV pick failed to save', true); });
 
     addAgentMsg('agent', '&#10003; <strong>' + pick.selection + '</strong> locked! ' + pick.odds + ' ' + pick.units + 'u');
-    renderBankroll();
     showToast(pick.selection + ' locked via EV!');
 }
 
