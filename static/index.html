@@ -3162,6 +3162,15 @@ function switchSport(sport, e) {
             fetchEdge(sport);
         }
     }
+    // Re-filter tipped-off games from DOM on sport switch
+    var sportPanelEl = document.getElementById('panel-' + sport);
+    if (sportPanelEl) {
+        var nowMs = Date.now();
+        sportPanelEl.querySelectorAll('.game-row[data-time]').forEach(function(row) {
+            var gameTime = new Date(row.getAttribute('data-time')).getTime();
+            if (gameTime <= nowMs) row.remove();
+        });
+    }
     window.scrollTo(0, 0);
 }
 
