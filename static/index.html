@@ -6310,10 +6310,25 @@ function loadProps(sportFilter) {
     if (!container) return;
 
     var filterKey = (sportFilter || _currentPropsSport || '').toUpperCase();
+
+    // Auto-fetch analysis if not cached — props come from analysis data
+    var sportsToScan = filterKey ? [filterKey] : ['NBA','WNBA','NCAAB','NCAAF','NHL','MLB','TENNIS','SOCCER','MMA','BOXING'];
+    sportsToScan.forEach(function(sport) {
+        if (!_analysisCache[sport]) {
+            fetch('/api/analysis/' + sport.toLowerCase())
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data && data.games && data.games.length) {
+                        _analysisCache[sport] = data;
+                        loadProps(sportFilter); // Re-render once data arrives
+                    }
+                }).catch(function() {});
+        }
+    });
+
     var allProps = [];
 
     // Only load for the selected sport
-    var sportsToScan = filterKey ? [filterKey] : ['NBA','WNBA','NCAAB','NCAAF','NHL','MLB','TENNIS','SOCCER','MMA','BOXING'];
     sportsToScan.forEach(function(sport) {
         var cached = _analysisCache[sport];
         if (!cached || !cached.games) return;
