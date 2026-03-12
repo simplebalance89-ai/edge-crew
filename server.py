@@ -1535,6 +1535,11 @@ async def get_odds(sport: str, markets: str = "h2h,spreads,totals"):
     cache_key = f"{sport_lower}:{markets}"
     cached = _get_cached(cache_key)
     if cached:
+        # Filter out games that have started since cache was built
+        now = datetime.now(PST)
+        if cached.get("games"):
+            cached["games"] = [g for g in cached["games"] if _game_not_started(g, now)]
+            cached["count"] = len(cached["games"])
         return JSONResponse(cached)
 
     label = sport.upper()
