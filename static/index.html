@@ -3164,6 +3164,17 @@ function switchSport(sport, e) {
             fetchEdge(sport);
         }
     }
+    // Initialize pick name from crew profile when opening submit panel
+    if (sport === 'submit' && crewProfile) {
+        var pnd = document.getElementById('pickNameDisplay');
+        var pni = document.getElementById('pickName');
+        if (pnd && pnd.textContent === '--') {
+            pnd.textContent = crewProfile.display_name;
+            pnd.style.color = crewProfile.color;
+            pnd.style.borderColor = crewProfile.color;
+        }
+        if (pni && !pni.value) pni.value = crewProfile.display_name;
+    }
     // Re-filter tipped-off games from DOM on sport switch
     var sportPanelEl = document.getElementById('panel-' + sport);
     if (sportPanelEl) {
