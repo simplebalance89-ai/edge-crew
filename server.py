@@ -234,6 +234,7 @@ DEFAULT_CREW = [
     {"id": "chinny", "display_name": "Chinny", "color": "#FF6B35", "is_admin": False},
     {"id": "alyssa", "display_name": "Alyssa", "color": "#41EAD4", "is_admin": False},
     {"id": "sintonia", "display_name": "Sinton.ia", "color": "#F72585", "is_admin": False},
+    {"id": "leon", "display_name": "Leon", "color": "#22C55E", "is_admin": False},
 ]
 
 
