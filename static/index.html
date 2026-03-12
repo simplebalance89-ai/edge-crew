@@ -2796,8 +2796,11 @@ function submitBetSlip() {
         created_at: new Date().toISOString()
     };
 
-    // Save to localStorage for bankroll tracker compatibility
+    // Save to localStorage for bankroll tracker compatibility (with dedup check)
     var stored = JSON.parse(safeLoad('edgePicks') || '[]');
+    var dupKey = (pick.name + '|' + pick.date + '|' + pick.selection + '|' + pick.matchup).toLowerCase();
+    var isDup = stored.some(function(p) { return (p.name + '|' + p.date + '|' + p.selection + '|' + p.matchup).toLowerCase() === dupKey; });
+    if (isDup) { closeBetSlip(); showToast('Already locked!'); btn.disabled = false; btn.textContent = 'LOCK THIS PICK'; return; }
     stored.unshift(pick);
     safeSave('edgePicks', JSON.stringify(stored));
 
@@ -2861,7 +2864,8 @@ function lockCard() {
         tr.appendChild(td2);
         tr.appendChild(td3);
         body.appendChild(tr);
-        lockedPicks.push({ matchup: g, selection: side || g });
+        if (!side) { td3.textContent = 'NO SIDE — skipped'; td3.style.color = '#EF4444'; continue; }
+        lockedPicks.push({ matchup: g, selection: side });
     }
     document.getElementById('modalOverlay').classList.add('show');
 
