@@ -2852,6 +2852,9 @@ function updateSubmitBar() {
 }
 
 function lockCard() {
+    var lockBtn = document.querySelector('.submit-btn[onclick*="lockCard"]');
+    if (lockBtn && lockBtn.disabled) return;
+    if (lockBtn) { lockBtn.disabled = true; lockBtn.textContent = 'LOCKING...'; }
     var body = document.getElementById('modalBody');
     body.innerHTML = '';
     var n = 0;
@@ -2948,6 +2951,8 @@ function lockCard() {
         updateSubmitBar();
         renderPicks();
     }
+    // Re-enable lock button
+    if (lockBtn) { lockBtn.disabled = false; lockBtn.textContent = 'Lock Card'; }
 }
 
 function closeModal() {
