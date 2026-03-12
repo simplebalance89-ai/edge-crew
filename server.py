@@ -2519,6 +2519,85 @@ Return ONLY valid JSON. No markdown. No explanation."""
             if result.get("games"):
                 all_analyzed_games.extend(result["games"])
 
+        # ===== GPT GRADE VALIDATION GATE =====
+        # Server-side verification: recalculate composite_score from matrix_scores,
+        # then map to correct grade using thresholds. Override GPT if math doesn't match.
+        grade_overrides = 0
+        score_overrides = 0
+        matrix = SPORT_MATRICES.get(sport_lower, [])
+        if matrix:
+            max_possible = sum(w for _, w, _ in matrix) * 10
+            for game in all_analyzed_games:
+                ms = game.get("matrix_scores", {})
+                if not ms:
+                    continue
+
+                # Step 1: Recalculate composite_score from matrix_scores
+                recalc_sum = 0
+                valid_scores = 0
+                for var_key, var_data in ms.items():
+                    if isinstance(var_data, dict):
+                        w = var_data.get("weight", 0)
+                        s = var_data.get("score", 0)
+                        weighted = w * s
+                        # Also fix "weighted" field if GPT got that wrong
+                        if var_data.get("weighted") != weighted:
+                            var_data["weighted"] = weighted
+                        recalc_sum += weighted
+                        valid_scores += 1
+
+                if valid_scores == 0:
+                    continue
+
+                recalc_composite = round(recalc_sum / max_possible * 10, 1)
+                gpt_composite = game.get("composite_score", 0)
+
+                # Override composite_score if GPT's math is off by > 0.2
+                if abs(recalc_composite - gpt_composite) > 0.2:
+                    logger.warning(f"Grade gate [{sport_lower}] {game.get('matchup','?')}: "
+                                   f"GPT score {gpt_composite} → recalculated {recalc_composite}")
+                    game["composite_score"] = recalc_composite
+                    game["_score_override"] = {"gpt_claimed": gpt_composite, "server_calculated": recalc_composite}
+                    score_overrides += 1
+
+                # Step 2: Map verified composite_score → correct grade
+                verified_score = game["composite_score"]
+                if game.get("grade") in ("TBD", "INCOMPLETE"):
+                    continue  # Don't override non-grades
+
+                if verified_score >= 9.0:
+                    correct_grade = "A+"
+                elif verified_score >= 8.2:
+                    correct_grade = "A"
+                elif verified_score >= 7.5:
+                    correct_grade = "A-"
+                elif verified_score >= 7.0:
+                    correct_grade = "B+"
+                elif verified_score >= 6.5:
+                    correct_grade = "B"
+                elif verified_score >= 6.0:
+                    correct_grade = "B-"
+                elif verified_score >= 5.5:
+                    correct_grade = "C+"
+                elif verified_score >= 4.5:
+                    correct_grade = "C"
+                elif verified_score >= 3.0:
+                    correct_grade = "D"
+                else:
+                    correct_grade = "F"
+
+                gpt_grade = game.get("grade", "")
+                if gpt_grade != correct_grade:
+                    logger.warning(f"Grade gate [{sport_lower}] {game.get('matchup','?')}: "
+                                   f"GPT grade '{gpt_grade}' → corrected '{correct_grade}' (score: {verified_score})")
+                    game["grade"] = correct_grade
+                    game["_grade_override"] = {"gpt_claimed": gpt_grade, "server_assigned": correct_grade}
+                    grade_overrides += 1
+
+        if grade_overrides or score_overrides:
+            logger.info(f"Grade gate [{sport_lower}]: {score_overrides} score overrides, {grade_overrides} grade overrides across {len(all_analyzed_games)} games")
+        # ===== END GRADE VALIDATION GATE =====
+
         analysis = {
             "gotcha": gotcha_html or "Analysis partially generated. Some batches may have failed.",
             "games": all_analyzed_games,
@@ -2533,6 +2612,7 @@ Return ONLY valid JSON. No markdown. No explanation."""
             "injury_source": "CBS Sports + RotoWire + API-Sports" if injury_context else "none",
             "injury_data_length": len(injury_context),
             "matrix": sport_lower in SPORT_MATRICES,
+            "grade_gate": {"score_overrides": score_overrides, "grade_overrides": grade_overrides},
         }
 
         _set_cache(cache_key, analysis)
