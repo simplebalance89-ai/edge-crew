@@ -3043,6 +3043,7 @@ function updateSubmitBar() {
 
 function lockCard() {
     var lockBtn = document.querySelector('.submit-btn');
+    if (lockBtn && lockBtn.disabled) return;
     if (lockBtn) { lockBtn.disabled = true; lockBtn.textContent = 'LOCKING...'; }
 
     var body = document.getElementById('modalBody');
@@ -3125,6 +3126,8 @@ function lockCard() {
         updateSubmitBar();
         renderPicks();
     }
+    // Re-enable lock button
+    if (lockBtn) { lockBtn.disabled = false; lockBtn.textContent = 'Lock Card'; }
 }
 
 function closeModal() {
