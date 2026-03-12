@@ -2149,6 +2149,23 @@ function safeClear() {
     catch(e) { console.warn('localStorage clear failed:', e); }
 }
 
+// ===== PICK TYPE DETECTION =====
+function _detectPickType(selection) {
+    var sel = (selection || '').toUpperCase();
+    // Moneyline: contains "ML" as standalone
+    if (/\bML\b/.test(sel)) return 'Moneyline';
+    // Prop: player name + over/under + number (e.g. "Tatum OVER 26.5 PTS")
+    if (/[A-Z]{2,}\s+(OVER|UNDER)\s+\d/.test(sel)) return 'Prop';
+    // Prop: "PLAYER PROPS" or stat keywords with over/under
+    if (/\b(PTS|REB|AST|3PM|STL|BLK|GOALS|SAVES|SHOTS|STRIKEOUTS|HITS)\b/.test(sel) &&
+        (sel.indexOf('OVER') !== -1 || sel.indexOf('UNDER') !== -1)) return 'Prop';
+    // Over/Under (game total): "OVER" or "UNDER" without player name pattern
+    if (sel.indexOf('OVER') !== -1 || sel.indexOf('UNDER') !== -1) return 'Over/Under';
+    // Spread: contains +/- number (e.g. "+3.5", "-7")
+    if (/[+-]\d+\.?\d*/.test(sel) && sel.indexOf('ML') === -1) return 'Spread';
+    return 'Spread'; // default
+}
+
 // ===== CREW AUTH =====
 var crewToken = safeLoad('edgeCrewToken') || '';
 var crewProfile = null;  // {id, display_name, color, is_admin}
@@ -2882,11 +2899,7 @@ function lockCard() {
     var sport = panel ? panel.id.replace('panel-', '').toUpperCase() : '';
     var saved = 0;
     lockedPicks.forEach(function(lp) {
-        var type = 'Spread';
-        var sel = lp.selection.toUpperCase();
-        if (sel.indexOf('ML') !== -1) type = 'Moneyline';
-        else if ((sel.indexOf('OVER ') !== -1 || sel.indexOf('UNDER ') !== -1) && /[A-Z]{2,}\s+(OVER|UNDER)\s+\d/.test(sel)) type = 'Prop';
-        else if (sel.indexOf('OVER') !== -1 || sel.indexOf('UNDER') !== -1) type = 'Over/Under';
+        var type = _detectPickType(lp.selection);
 
         var grade = getAnalysisGrade(sport, lp.matchup);
         var pick = {
