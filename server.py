@@ -1715,7 +1715,7 @@ async def get_player_props(sport: str):
         return JSONResponse({"error": "No ODDS_API_KEY configured"}, status_code=500)
 
     # Pre-fetch rosters for cross-check (if not cached)
-    if not _get_cached(f"rosters:{sport_lower}", ttl=14400):
+    if not _get_cached(f"rosters:{sport_lower}", ttl=3600):
         try:
             await get_rosters(sport)
         except Exception:
@@ -1821,7 +1821,7 @@ async def get_player_props(sport: str):
             continue
 
     # ===== ROSTER CROSS-CHECK: Flag stale team assignments =====
-    roster_cache = _get_cached(f"rosters:{sport_lower}", ttl=14400)
+    roster_cache = _get_cached(f"rosters:{sport_lower}", ttl=3600)
     if roster_cache:
         # Build player -> team lookup from ESPN rosters
         player_team_map = {}  # "jimmy butler iii" -> "Golden State Warriors"
@@ -1934,11 +1934,11 @@ async def get_edge(sport: str):
     # Build roster lookup: team_name -> [player names] (top 8 = starters/key rotation)
     roster_top = {}  # team_name -> list of top player names
     try:
-        roster_cache = _get_cached(f"rosters:{sport_lower}", ttl=14400)
+        roster_cache = _get_cached(f"rosters:{sport_lower}", ttl=3600)
         if not roster_cache:
             try:
                 await get_rosters(sport)
-                roster_cache = _get_cached(f"rosters:{sport_lower}", ttl=14400)
+                roster_cache = _get_cached(f"rosters:{sport_lower}", ttl=3600)
             except Exception:
                 pass
         if roster_cache:
@@ -2263,12 +2263,12 @@ async def get_analysis(sport: str):
     # ===== FETCH ROSTER CONTEXT (verify who's on which team) =====
     roster_context = ""
     try:
-        roster_cache = _get_cached(f"rosters:{sport_lower}", ttl=14400)
+        roster_cache = _get_cached(f"rosters:{sport_lower}", ttl=3600)
         if not roster_cache:
             # Trigger ESPN roster fetch if not cached
             try:
                 await get_rosters(sport)
-                roster_cache = _get_cached(f"rosters:{sport_lower}", ttl=14400)
+                roster_cache = _get_cached(f"rosters:{sport_lower}", ttl=3600)
             except Exception:
                 pass
         if roster_cache:
@@ -2288,6 +2288,28 @@ async def get_analysis(sport: str):
                 roster_context = "\n".join(roster_lines)
     except Exception as e:
         print(f"Roster context error: {e}")
+
+    # ===== FETCH ESPN INJURIES (supplement CBS/RotoWire) =====
+    espn_injury_text = ""
+    try:
+        espn_injury_text = await _fetch_espn_injuries(sport_lower)
+        if espn_injury_text:
+            injury_context += "\n" + espn_injury_text
+    except Exception as e:
+        print(f"ESPN injury fetch error: {e}")
+
+    # ===== FETCH PLAYER GAME LOGS (L10 data for prompt) =====
+    game_log_context = ""
+    try:
+        today_teams = set()
+        for g in odds_data.get("games", []):
+            today_teams.add(g.get("away", ""))
+            today_teams.add(g.get("home", ""))
+        if today_teams:
+            player_logs = await _fetch_player_game_logs(sport_lower, list(today_teams))
+            game_log_context = _format_game_logs_for_prompt(player_logs)
+    except Exception as e:
+        print(f"Game log fetch error: {e}")
 
     # ===== BUILD WEIGHTED MATRIX SECTION =====
     matrix_section = _build_matrix_section(sport_lower)
@@ -2341,13 +2363,15 @@ async def get_analysis(sport: str):
         """Build the Azure prompt for a batch of games."""
         gotcha_instruction = ""
         if is_first_batch:
-            gotcha_instruction = f'"gotcha": "HTML unordered list (<ul><li>...</li></ul>). 4-8 bullet points covering: KEY INJURIES affecting tonight\'s lines (star players OUT/GTD), B2B/rest flags, line movement alerts, traps to avoid, weather (outdoor), sharp money indicators. Bold critical items with <strong>. End with: <li><em>Analysis generated {now_time} | Data: The Odds API + CBS Sports + RotoWire</em></li>",'
+            gotcha_instruction = f'"gotcha": "HTML unordered list (<ul><li>...</li></ul>). 4-8 bullet points covering: KEY INJURIES affecting tonight\'s lines (star players OUT/GTD), B2B/rest flags, line movement alerts, traps to avoid, weather (outdoor), sharp money indicators. Bold critical items with <strong>. End with: <li><em>Analysis generated {now_time} | Data: The Odds API + ESPN + CBS Sports + RotoWire</em></li>",'
         else:
             gotcha_instruction = '"gotcha": "",'
 
-        return f"""You are Edge Finder v2, a sharp sports betting analyst. You have access to REAL injury data and a weighted scoring matrix.
+        return f"""You are Edge Finder v2, a sharp sports betting analyst. You have access to REAL injury data, REAL player game logs, and a weighted scoring matrix.
 
-CRITICAL ROSTER RULE: Your training data is STALE. Players have been traded. DO NOT reference any player unless they appear in the CURRENT ROSTERS section below. Key 2025-26 trades: Luka→LAL, KD→HOU, Butler→GS, AD→WSH, Fox→SA, Bane→ORL, Ingram→TOR. If a player is NOT in the roster data below, DO NOT mention them for that team. This is non-negotiable.
+CRITICAL ROSTER RULE: Your training data is STALE. ONLY reference players who appear in the CURRENT ROSTERS and PLAYER GAME LOGS sections below. If a player is NOT in the data below, DO NOT mention them. Do NOT guess team rosters from memory. This is non-negotiable.
+
+NO STALE DATA RULE: Do NOT reference any statistics, records, or player performance data from before the current 2025-26 season. ONLY use data provided in the PLAYER GAME LOGS and INJURY sections below. If you don't have current data for a claim, say "data not available" instead of guessing.
 
 CREW: Peter (heavy/value/sharp, sizes up on conviction), Jimmy (new, learning), Alyssa (pure math/EV edge), Sinton.ia (card builder/grader).
 RULES: "Why is the market wrong?" = required for every grade. No answer = NO BET (grade D/F). Valid edges: news not priced in, public overreaction, rest/schedule, matchup-specific, sharp vs public, situational. Invalid: "better team", "should win", "volume play".
@@ -2358,10 +2382,12 @@ Today's {sport.upper()} slate - {today} (pulled at {now_time}):
 {batch_games_text}
 {batch_incomplete_note}
 
-=== INJURY & LINEUP INTELLIGENCE (CBS Sports + RotoWire + API-Sports) ===
+=== INJURY & LINEUP INTELLIGENCE (CBS Sports + RotoWire + ESPN + API-Sports) ===
 {injury_context}
 
 {roster_context}
+
+{game_log_context}
 
 {matrix_section}
 
@@ -2391,8 +2417,25 @@ Generate analysis in this EXACT JSON format:
       "peter_zone": "2-3 sentences. The play: conviction level, sizing suggestion (full unit / half / small / pass), line value assessment.",
       "trends": ["ATS trend", "O/U trend", "H2H trend"],
       "flags": ["injury flag 1", "schedule flag", "sharp money flag"],
+      "edge_pick": {{
+        "team": "TEAM NAME or PASS",
+        "bet_type": "SPREAD / ML / TOTAL OVER / TOTAL UNDER / PASS",
+        "line": "The specific line (e.g. -3.5, +150, O 218.5)",
+        "confidence": "A+/A/A-/B+/B/B-/C/D/F",
+        "reasoning": "One sentence: why this is THE play on this game."
+      }},
       "player_props": [
-        {{"player": "Player Name", "prop": "Over 24.5 Points", "line": "-115", "grade": "A/B+/B/C", "edge": "why this prop hits"}}
+        {{
+          "player": "Player Name",
+          "prop": "OVER/UNDER 24.5 Points",
+          "line": "-115",
+          "grade": "A/B+/B/C",
+          "l10_avg": "28.1 PTS (from PLAYER GAME LOGS data)",
+          "season_avg": "27.4 PTS",
+          "games_played": 58,
+          "status": "Active / GTD / Questionable",
+          "edge": "+1.6 pts over line | why this prop hits"
+        }}
       ],
       "data_status": "COMPLETE or INCOMPLETE or TBD - state exactly what is missing or pending (lineups, injury report, etc.)",
       "book_source": "which sportsbook"
@@ -2404,7 +2447,7 @@ HARD RULES — NEVER BREAK THESE:
 1. VALUE RANGE: -180 to +400. This is where we find edges. ML worse than -180 = too juiced, take the spread instead. ML past +400 = longshot, not a value play. If a game's best ML play falls outside -180 to +400, flag it and redirect to spread/total.
 8. If lineups are NOT confirmed (game hasn't posted starters, injury report pending, lineups TBD), grade the game "TBD" — not a letter grade. We do not grade games without confirmed lineups. Period.
 2. NEVER suggest a player prop without considering games played this season. If a player has < 20 games, FLAG IT: "Returning from injury / limited sample / possible minutes restriction." Grade that prop C or lower regardless of the line.
-3. ALL player prop analysis uses LAST 10 GAME averages, not season averages. Season stats lie for guys who missed time. If you don't have last 10 data, say so: "No recent game log available."
+3. ALL player prop analysis uses LAST 10 GAME averages from the PLAYER GAME LOGS table above, not season averages. Season stats lie for guys who missed time. Reference the L10 PTS/REB/AST columns. If a player is NOT in the game logs table, say: "No recent game log available" — do NOT estimate or guess stats.
 4. FULL LINEUP CONTEXT before grading ANY game. If a star player is OUT, LIMITED, or returning from injury, the ENTIRE team analysis changes — scoring output, pace, defensive matchups, everything. The spread already prices this in — your analysis must too. Don't grade a team as if they have their full roster when they don't.
 5. If you don't have current injury/lineup data, SAY SO. "Injury report not confirmed" is better than a confident wrong analysis. Do not fabricate injury status.
 6. Be SPECIFIC in injury_impact. Name the player, their status (OUT/GTD/QUESTIONABLE), and exactly how it changes the line. "Key players may be out" is garbage. "Jimmy Butler OUT — Heat lose 20 PPG, 6 APG, primary creator" is analysis.
@@ -2417,10 +2460,10 @@ GRADING RULES:
 - For NHL: totals-only or ML-only ARE gradeable. Only INCOMPLETE if NO data at all.
 - For MMA/Boxing: ML-only IS gradeable.
 - For NBA/Soccer: missing spread, total, OR ML = INCOMPLETE.
-- injury_impact is MANDATORY. Check the RotoWire data above. Name specific players.
-- If RotoWire data is unavailable, flag it: "Injury data not confirmed - grade with caution."
+- injury_impact is MANDATORY. Check the CBS Sports + ESPN + RotoWire data above. Name specific players.
+- If injury data is unavailable from all sources, flag it: "Injury data not confirmed - grade with caution."
 - rest_schedule is MANDATORY. Check game times for B2B detection.
-- Player props: Select ONLY from the REAL PLAYER PROP LINES section above. Do NOT invent or estimate prop lines — use the exact lines and odds from sportsbooks. If no real prop lines are available for a game, set player_props to empty array []. Top 2-3 per game, A- grade minimum. Skip for INCOMPLETE or TBD. Each prop MUST have player name, exact prop line from the data, actual odds from the data, individual grade (A/B+/B/C), and 1-sentence edge explanation. EVERY prop must note games played this season if available. < 20 games = auto-flag.
+- Player props: Select ONLY from the REAL PLAYER PROP LINES section above. Do NOT invent or estimate prop lines — use the exact lines and odds from sportsbooks. If no real prop lines are available for a game, set player_props to empty array []. Top 2-3 per game, A- grade minimum. Skip for INCOMPLETE or TBD. Each prop MUST include: player name, exact prop line, actual odds, individual grade, L10 average from PLAYER GAME LOGS table (l10_avg field), season average (season_avg field), games_played count, player status, and edge explanation showing the differential between L10 avg and the prop line. EVERY prop must note games played this season. < 20 games = auto-flag.
 - ABSOLUTE ROSTER LOCK: A player prop can ONLY be suggested for a player who appears in the CURRENT ROSTERS data for one of the two teams in that specific game. If "Jayson Tatum" is in the BOS roster and the game is NYK @ DEN, you CANNOT suggest a Tatum prop on that game — he is NOT playing in it. This is non-negotiable. Check the roster list, find the player, confirm the team matches the game. If the player is not in either team's roster for that game, DO NOT suggest the prop. Period.
 - PROP QUALITY RULES (NON-NEGOTIABLE):
   1. NO NHL goal props. They hit at <25%. Not +EV at any line. Skip them entirely.
@@ -2519,6 +2562,21 @@ Return ONLY valid JSON. No markdown. No explanation."""
             if result.get("games"):
                 all_analyzed_games.extend(result["games"])
 
+        # ===== CROSS-VALIDATION GATE (WS4) — validate players before caching =====
+        validation_log = []
+        if all_analyzed_games:
+            try:
+                roster_data = _get_cached(f"rosters:{sport_lower}", ttl=3600)
+                all_analyzed_games, validation_log = _validate_analysis_players(
+                    all_analyzed_games, roster_data, injury_context
+                )
+                if validation_log:
+                    logger.info(f"Analysis {sport}: Player validation — {len(validation_log)} exclusions")
+                    for vlog in validation_log[:10]:
+                        logger.info(f"  {vlog}")
+            except Exception as e:
+                logger.warning(f"Player validation error: {e}")
+
         analysis = {
             "gotcha": gotcha_html or "Analysis partially generated. Some batches may have failed.",
             "games": all_analyzed_games,
@@ -2530,9 +2588,11 @@ Return ONLY valid JSON. No markdown. No explanation."""
             "games_incomplete": len(incomplete_games),
             "games_analyzed": len(all_analyzed_games),
             "batches": len(game_batches),
-            "injury_source": "CBS Sports + RotoWire + API-Sports" if injury_context else "none",
+            "injury_source": "CBS Sports + ESPN + RotoWire + API-Sports" if injury_context else "none",
             "injury_data_length": len(injury_context),
             "matrix": sport_lower in SPORT_MATRICES,
+            "player_validation": len(validation_log),
+            "game_logs_injected": bool(game_log_context),
         }
 
         _set_cache(cache_key, analysis)
@@ -4112,10 +4172,10 @@ _ESPN_TEAM_IDS = {
 
 @app.get("/api/rosters/{sport}")
 async def get_rosters(sport: str):
-    """Fetch current team rosters from ESPN. Cached 24 hours."""
+    """Fetch current team rosters from ESPN. Cached 1 hour."""
     sport_lower = sport.lower()
     cache_key = f"rosters:{sport_lower}"
-    cached = _get_cached(cache_key, ttl=14400)
+    cached = _get_cached(cache_key, ttl=3600)
     if cached:
         return JSONResponse(cached)
 
@@ -4139,6 +4199,7 @@ async def get_rosters(sport: str):
                     players = []
                     for a in data.get("athletes", []):
                         players.append({
+                            "id": a.get("id", ""),
                             "name": a.get("displayName", "?"),
                             "pos": a.get("position", {}).get("abbreviation", "?"),
                             "number": a.get("jersey", "?"),
@@ -4157,6 +4218,348 @@ async def get_rosters(sport: str):
     if rosters:
         _set_cache(cache_key, result)
     return JSONResponse(result)
+
+
+# ── ESPN Game Logs (WS1) ──────────────────────────────────────────────────────
+async def _fetch_player_game_logs(sport, team_abbrevs):
+    """Fetch last 10 game logs for top 8 players per team from ESPN.
+
+    Returns a structured dict: {player_name: {team, gp, l10_pts, l10_reb, l10_ast,
+    l10_min, season_pts, season_reb, season_ast, games_missed_last_30, minutes_trend, status}}
+    """
+    espn_sport = _ESPN_SPORT_PATHS.get(sport.lower())
+    if not espn_sport:
+        return {}
+
+    # Get roster data with athlete IDs
+    roster_cache = _get_cached(f"rosters:{sport.lower()}", ttl=3600)
+    if not roster_cache:
+        try:
+            await get_rosters(sport)
+            roster_cache = _get_cached(f"rosters:{sport.lower()}", ttl=3600)
+        except Exception:
+            pass
+    if not roster_cache:
+        return {}
+
+    rosters = roster_cache.get("rosters", {})
+    # Filter to only teams playing tonight
+    target_teams = {}
+    for abbr, info in rosters.items():
+        team_full = info.get("team", "")
+        if abbr.lower() in [t.lower() for t in team_abbrevs] or \
+           team_full.lower() in [t.lower() for t in team_abbrevs]:
+            target_teams[abbr] = info
+
+    game_log_cache_key = f"gamelogs:{sport.lower()}:{','.join(sorted(t.lower() for t in team_abbrevs))}"
+    cached = _get_cached(game_log_cache_key, ttl=7200)  # 2h TTL
+    if cached:
+        return cached
+
+    player_logs = {}
+    async with httpx.AsyncClient(timeout=15.0) as client:
+        for abbr, info in target_teams.items():
+            top_players = info.get("players", [])[:8]
+            for player in top_players:
+                pid = player.get("id", "")
+                pname = player.get("name", "?")
+                if not pid:
+                    continue
+                try:
+                    url = f"https://site.web.api.espn.com/apis/common/v3/sports/{espn_sport}/athletes/{pid}/gamelog"
+                    resp = await client.get(url, headers={"User-Agent": "Mozilla/5.0"})
+                    if resp.status_code != 200:
+                        continue
+                    data = resp.json()
+
+                    # Parse labels to find stat indices dynamically
+                    labels = [l.upper() for l in data.get("labels", [])]
+                    dynamic_indices = {}
+                    for i, label in enumerate(labels):
+                        if label == "MIN":
+                            dynamic_indices["min"] = i
+                        elif label == "PTS":
+                            dynamic_indices["pts"] = i
+                        elif label == "REB":
+                            dynamic_indices["reb"] = i
+                        elif label == "AST":
+                            dynamic_indices["ast"] = i
+
+                    # Parse game log entries — categories are months (most recent first)
+                    season_stats = data.get("seasonTypes", [])
+                    games = []
+                    # Only use regular season (first seasonType)
+                    if season_stats:
+                        for cat in season_stats[0].get("categories", []):
+                            for event in cat.get("events", []):
+                                stats_row = event.get("stats", [])
+                                if stats_row:
+                                    games.append(stats_row)
+
+                    gp = len(games)
+                    if gp == 0:
+                        player_logs[pname] = {
+                            "team": abbr, "gp": 0,
+                            "note": "No game log data available"
+                        }
+                        continue
+
+                    # Use dynamically parsed labels if available, fall back to NBA defaults
+                    if dynamic_indices:
+                        stat_indices = {
+                            "min": dynamic_indices.get("min", 0),
+                            "pts": dynamic_indices.get("pts", 13),
+                            "reb": dynamic_indices.get("reb", 7),
+                            "ast": dynamic_indices.get("ast", 8),
+                        }
+                    else:
+                        # NBA default: MIN(0), FG(1), FG%(2), 3PT(3), 3P%(4), FT(5), FT%(6), REB(7), AST(8), BLK(9), STL(10), PF(11), TO(12), PTS(13)
+                        stat_indices = {"min": 0, "pts": 13, "reb": 7, "ast": 8}
+
+                    def _safe_float(row, idx):
+                        try:
+                            if idx < 0 or idx >= len(row):
+                                return 0.0
+                            val = row[idx]
+                            if isinstance(val, str):
+                                val = val.replace("--", "0").replace("-", "0")
+                            return float(val)
+                        except (ValueError, IndexError):
+                            return 0.0
+
+                    l10 = games[:10]
+                    l10_pts = sum(_safe_float(g, stat_indices.get("pts", -1)) for g in l10) / len(l10) if l10 else 0
+                    l10_reb = sum(_safe_float(g, stat_indices.get("reb", 10)) for g in l10) / len(l10) if l10 else 0
+                    l10_ast = sum(_safe_float(g, stat_indices.get("ast", 11)) for g in l10) / len(l10) if l10 else 0
+                    l10_min = sum(_safe_float(g, stat_indices.get("min", 0)) for g in l10) / len(l10) if l10 else 0
+
+                    season_pts = sum(_safe_float(g, stat_indices.get("pts", -1)) for g in games) / gp if gp else 0
+                    season_reb = sum(_safe_float(g, stat_indices.get("reb", 10)) for g in games) / gp if gp else 0
+                    season_ast = sum(_safe_float(g, stat_indices.get("ast", 11)) for g in games) / gp if gp else 0
+
+                    # Minutes trend: compare L5 avg to L10 avg
+                    l5_min = sum(_safe_float(g, stat_indices.get("min", 0)) for g in games[:5]) / min(5, len(games)) if games else 0
+                    min_trend = "stable"
+                    if l10_min > 0:
+                        diff = (l5_min - l10_min) / l10_min
+                        if diff > 0.1:
+                            min_trend = "UP"
+                        elif diff < -0.1:
+                            min_trend = "DOWN"
+
+                    player_logs[pname] = {
+                        "team": abbr,
+                        "gp": gp,
+                        "l10_pts": round(l10_pts, 1),
+                        "l10_reb": round(l10_reb, 1),
+                        "l10_ast": round(l10_ast, 1),
+                        "l10_min": round(l10_min, 1),
+                        "season_pts": round(season_pts, 1),
+                        "season_reb": round(season_reb, 1),
+                        "season_ast": round(season_ast, 1),
+                        "minutes_trend": min_trend,
+                    }
+                except Exception as e:
+                    logger.debug(f"Game log fetch failed for {pname} ({pid}): {e}")
+                    continue
+
+    if player_logs:
+        _set_cache(game_log_cache_key, player_logs)
+    return player_logs
+
+
+def _format_game_logs_for_prompt(player_logs):
+    """Format game log data as a structured table for the analysis prompt."""
+    if not player_logs:
+        return ""
+    lines = ["\n=== PLAYER GAME LOGS (ESPN - verified, current season) ==="]
+    lines.append(f"{'PLAYER':<22} {'TEAM':<5} {'GP':<4} {'L10 PTS':<9} {'L10 REB':<9} {'L10 AST':<9} {'L10 MIN':<9} {'SZN PTS':<9} {'MIN TREND':<10}")
+    lines.append("-" * 95)
+    # Sort by team then by L10 pts descending
+    sorted_players = sorted(player_logs.items(), key=lambda x: (-x[1].get("l10_pts", 0),))
+    for name, stats in sorted_players:
+        if stats.get("note"):
+            lines.append(f"{name:<22} {stats.get('team', '?'):<5} {'N/A':<4} {stats['note']}")
+            continue
+        lines.append(
+            f"{name:<22} {stats.get('team', '?'):<5} {stats.get('gp', 0):<4} "
+            f"{stats.get('l10_pts', 0):<9} {stats.get('l10_reb', 0):<9} "
+            f"{stats.get('l10_ast', 0):<9} {stats.get('l10_min', 0):<9} "
+            f"{stats.get('season_pts', 0):<9} {stats.get('minutes_trend', '?'):<10}"
+        )
+    return "\n".join(lines)
+
+
+@app.get("/api/gamelogs/{sport}")
+async def get_game_logs(sport: str):
+    """Fetch player game logs for tonight's slate teams."""
+    sport_lower = sport.lower()
+    # Get today's teams from odds
+    odds_cache_key = f"{sport_lower}:h2h,spreads,totals"
+    odds_data = _get_cached(odds_cache_key)
+    if not odds_data:
+        odds_resp = await get_odds(sport)
+        if hasattr(odds_resp, 'body'):
+            odds_data = json.loads(odds_resp.body)
+        else:
+            odds_data = {"games": []}
+
+    team_names = set()
+    for g in odds_data.get("games", []):
+        team_names.add(g.get("away", ""))
+        team_names.add(g.get("home", ""))
+
+    if not team_names:
+        return JSONResponse({"sport": sport.upper(), "players": {}, "message": "No games on slate"})
+
+    logs = await _fetch_player_game_logs(sport, list(team_names))
+    return JSONResponse({
+        "sport": sport.upper(),
+        "players": logs,
+        "count": len(logs),
+        "teams": list(team_names),
+        "fetched_at": _now_ts(),
+    })
+
+
+# ── ESPN Injuries API (WS2) ──────────────────────────────────────────────────
+async def _fetch_espn_injuries(sport):
+    """Fetch injuries from ESPN's official API. Returns structured text for prompt injection."""
+    espn_sport = _ESPN_SPORT_PATHS.get(sport.lower())
+    if not espn_sport:
+        return ""
+
+    cache_key = f"espn_injuries:{sport.lower()}"
+    cached = _get_cached(cache_key, ttl=1800)  # 30min TTL
+    if cached:
+        return cached
+
+    try:
+        url = f"https://site.api.espn.com/apis/site/v2/sports/{espn_sport}/injuries"
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            resp = await client.get(url, headers={"User-Agent": "Mozilla/5.0"})
+            if resp.status_code != 200:
+                return ""
+            data = resp.json()
+
+        injury_lines = [f"\nESPN INJURY REPORT ({sport.upper()}):\n"]
+        injury_count = 0
+        for team_data in data.get("injuries", data.get("items", [])):
+            team_name = team_data.get("displayName", team_data.get("team", {}).get("displayName", "?"))
+            team_abbr = team_data.get("abbreviation", team_data.get("team", {}).get("abbreviation", "?"))
+            team_injuries = []
+            for injury in team_data.get("injuries", []):
+                athlete = injury.get("athlete", {})
+                pname = athlete.get("displayName", "?") if isinstance(athlete, dict) else "?"
+                status = injury.get("status", "Unknown")
+                # Details may be nested or flat
+                details = injury.get("details", {})
+                if isinstance(details, dict):
+                    injury_type = details.get("type", "?")
+                    detail = details.get("detail", "")
+                    side = details.get("side", "")
+                else:
+                    injury_type = "?"
+                    detail = str(details) if details else ""
+                    side = ""
+                desc = f"{injury_type}"
+                if side:
+                    desc = f"{side} {desc}"
+                if detail:
+                    desc += f" — {detail}"
+                # Also grab short comment for context
+                short = injury.get("shortComment", "")
+                if short and len(short) < 100:
+                    desc += f" ({short})"
+                team_injuries.append(f"    {pname} | {status} | {desc}")
+                injury_count += 1
+            if team_injuries:
+                injury_lines.append(f"  {team_abbr} ({team_name}):")
+                injury_lines.extend(team_injuries)
+
+        if injury_count == 0:
+            return ""
+
+        result = "\n".join(injury_lines)
+        _set_cache(cache_key, result)
+        return result
+    except Exception as e:
+        logger.warning(f"ESPN injuries fetch failed for {sport}: {e}")
+        return ""
+
+
+# ── Cross-Validation Gate (WS4) ──────────────────────────────────────────────
+def _validate_analysis_players(analysis_games, roster_cache, injury_text=""):
+    """Post-GPT validation: ensure every player mentioned exists in roster data.
+    Exclude OUT players from prop suggestions. Returns cleaned games + validation log."""
+    if not roster_cache:
+        return analysis_games, ["WARN: No roster data available for validation"]
+
+    rosters = roster_cache.get("rosters", {})
+    # Build lookup: player_name (lowered) -> {team_abbr, team_name}
+    all_players = {}
+    for abbr, info in rosters.items():
+        team_name = info.get("team", "")
+        for p in info.get("players", []):
+            all_players[p["name"].lower()] = {"abbr": abbr, "team": team_name}
+
+    # Build OUT player set from injury text
+    out_players = set()
+    if injury_text:
+        for line in injury_text.split("\n"):
+            line_lower = line.lower()
+            if "| out" in line_lower or "|out" in line_lower:
+                # Extract player name (first part before |)
+                parts = line.strip().split("|")
+                if parts:
+                    name = parts[0].strip().lstrip("- ").strip()
+                    if len(name) > 3:
+                        out_players.add(name.lower())
+
+    validation_log = []
+    for game in analysis_games:
+        game["_player_validation"] = {"valid": [], "invalid": [], "out_excluded": []}
+        props = game.get("player_props", [])
+        valid_props = []
+        for prop in props:
+            player_name = prop.get("player", "")
+            pname_lower = player_name.lower()
+
+            # Check if player exists in any roster
+            if pname_lower not in all_players:
+                game["_player_validation"]["invalid"].append(player_name)
+                validation_log.append(f"EXCLUDED prop: {player_name} — not found in any roster")
+                continue
+
+            # Check if player is OUT
+            if pname_lower in out_players:
+                game["_player_validation"]["out_excluded"].append(player_name)
+                validation_log.append(f"EXCLUDED prop: {player_name} — listed as OUT")
+                continue
+
+            # Check player's team matches one of the two game teams
+            matchup = game.get("matchup", "").lower()
+            player_team = all_players[pname_lower]["team"].lower()
+            player_abbr = all_players[pname_lower]["abbr"].lower()
+            if player_abbr not in matchup and player_team not in matchup:
+                # Try partial match (e.g. "76ers" in "New York Knicks @ Philadelphia 76ers")
+                team_words = player_team.split()
+                if not any(w.lower() in matchup for w in team_words if len(w) > 3):
+                    game["_player_validation"]["invalid"].append(
+                        f"{player_name} (on {all_players[pname_lower]['team']}, not in {game.get('matchup', '?')})"
+                    )
+                    validation_log.append(
+                        f"EXCLUDED prop: {player_name} — plays for {all_players[pname_lower]['team']}, "
+                        f"not in matchup {game.get('matchup', '?')}"
+                    )
+                    continue
+
+            game["_player_validation"]["valid"].append(player_name)
+            valid_props.append(prop)
+
+        game["player_props"] = valid_props
+
+    return analysis_games, validation_log
 
 
 @app.post("/api/cache/clear")
