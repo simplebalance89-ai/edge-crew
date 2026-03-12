@@ -187,24 +187,51 @@ async def _daily_slate_pull():
                             print(f"[ANALYSIS] Midnight error {sport}: {e}")
                         await asyncio.sleep(5)
 
+            # Scheduled analysis: 12PM, 3PM, 6PM PST (plus existing midnight run above)
             should_run_analysis = False
-            if hour == 16 and last_analysis_run != f"{today}:{hour}":
+            if hour in (12, 15, 18) and last_analysis_run != f"{today}:{hour}":
                 should_run_analysis = True
                 last_analysis_run = f"{today}:{hour}"
 
             if should_run_analysis:
                 active_sports = _in_season_sports()
-                print(f"[ANALYSIS] Running scheduled analysis — {len(active_sports)} sports")
+                print(f"[ANALYSIS] Scheduled analysis at {now.strftime('%I:%M %p PST')} — {len(active_sports)} sports")
+                failed_sports = []
                 for sport in active_sports:
                     try:
+                        # Force fresh odds before analysis
+                        odds_key = f"{sport}:h2h,spreads,totals"
+                        if odds_key in _cache:
+                            del _cache[odds_key]
                         resp = await get_analysis(sport)
                         if hasattr(resp, 'body'):
                             data = json.loads(resp.body)
                             if data.get("games"):
                                 _save_analysis_cache(sport, data)
+                                print(f"[ANALYSIS] {sport.upper()}: {len(data['games'])} games analyzed")
+                            else:
+                                print(f"[ANALYSIS] {sport.upper()}: No games on slate")
+                        else:
+                            failed_sports.append(sport)
                     except Exception as e:
-                        print(f"[ANALYSIS] Error: {e}")
+                        print(f"[ANALYSIS] {sport.upper()} failed: {e}")
+                        failed_sports.append(sport)
                     await asyncio.sleep(5)
+                # Retry failed sports once after 30min
+                if failed_sports:
+                    print(f"[ANALYSIS] Retrying {len(failed_sports)} failed sports in 30min: {failed_sports}")
+                    await asyncio.sleep(1800)
+                    for sport in failed_sports:
+                        try:
+                            resp = await get_analysis(sport)
+                            if hasattr(resp, 'body'):
+                                data = json.loads(resp.body)
+                                if data.get("games"):
+                                    _save_analysis_cache(sport, data)
+                                    print(f"[ANALYSIS] Retry {sport.upper()}: {len(data['games'])} games")
+                        except Exception as e:
+                            print(f"[ANALYSIS] Retry {sport.upper()} failed again: {e}")
+                        await asyncio.sleep(5)
         except Exception as e:
             print(f"[SLATE] Loop error: {e}")
         await asyncio.sleep(300)
@@ -528,7 +555,7 @@ Keep responses under 3 sentences for voice. Be the sharpest analyst in the room.
 # Simple in-memory cache to save API credits
 _cache = {}
 CACHE_TTL = 300  # 5 minutes
-ANALYSIS_CACHE_TTL = 900  # 15 minutes for analysis
+ANALYSIS_CACHE_TTL = 10800  # 3 hours — scheduled analysis runs at 12/3/6 PM PST
 
 # Opening lines tracker — stores first-seen odds per game per day
 _opening_lines = {}  # key: "YYYY-MM-DD:{game_id}" -> {spread, total, away_ml, home_ml}
@@ -2232,8 +2259,13 @@ async def get_edge(sport: str):
 
 
 @app.get("/api/analysis/{sport}")
-async def get_analysis(sport: str):
+async def get_analysis(sport: str, cached_only: bool = False, force: bool = False):
     """Generate AI analysis for a sport based on current live odds.
+
+    Params:
+        cached_only: If True, return cached results only (never trigger new GPT call).
+                     Used by autopicker to read scheduled analysis without burning API tokens.
+        force: If True, bypass all caches and run fresh analysis. Used by manual Analyze button.
 
     RULE: Do NOT grade any game without complete line data.
     Games missing spread, total, or ML get grade "INCOMPLETE".
@@ -2243,19 +2275,37 @@ async def get_analysis(sport: str):
 
     sport_lower = sport.lower()
     cache_key = f"analysis:{sport_lower}"
-    cached = _get_cached(cache_key, ttl=ANALYSIS_CACHE_TTL)
-    if cached:
-        return JSONResponse(cached)
 
-    # Check file-based analysis cache — only use if odds haven't been refreshed since
-    cached_analysis = _load_analysis_cache(sport_lower)
-    if cached_analysis and cached_analysis.get("games"):
-        # If fresh odds exist in memory cache (from a recent REFRESH), skip stale analysis
-        odds_cache_key_check = f"{sport_lower}:h2h,spreads,totals"
-        fresh_odds = _get_cached(odds_cache_key_check)
-        if not fresh_odds:
+    # cached_only mode: return whatever we have, never trigger GPT
+    if cached_only:
+        cached = _get_cached(cache_key, ttl=ANALYSIS_CACHE_TTL)
+        if cached:
+            cached["cached"] = True
+            return JSONResponse(cached)
+        cached_analysis = _load_analysis_cache(sport_lower)
+        if cached_analysis and cached_analysis.get("games"):
             cached_analysis["cached"] = True
             return JSONResponse(cached_analysis)
+        return JSONResponse({
+            "sport": sport.upper(), "games": [], "cached": True,
+            "gotcha": "No cached analysis available. Wait for next scheduled run.",
+            "generated_at": _now_ts(),
+        })
+
+    # Normal flow: check caches unless force=True
+    if not force:
+        cached = _get_cached(cache_key, ttl=ANALYSIS_CACHE_TTL)
+        if cached:
+            return JSONResponse(cached)
+
+        # Check file-based analysis cache
+        cached_analysis = _load_analysis_cache(sport_lower)
+        if cached_analysis and cached_analysis.get("games"):
+            odds_cache_key_check = f"{sport_lower}:h2h,spreads,totals"
+            fresh_odds = _get_cached(odds_cache_key_check)
+            if not fresh_odds:
+                cached_analysis["cached"] = True
+                return JSONResponse(cached_analysis)
 
     # Get current odds for context
     odds_cache_key = f"{sport_lower}:h2h,spreads,totals"
