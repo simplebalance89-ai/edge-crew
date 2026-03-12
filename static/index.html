@@ -2846,6 +2846,9 @@ function updateSubmitBar() {
 }
 
 function lockCard() {
+    var lockBtn = document.querySelector('.submit-btn');
+    if (lockBtn) { lockBtn.disabled = true; lockBtn.textContent = 'LOCKING...'; }
+
     var body = document.getElementById('modalBody');
     body.innerHTML = '';
     var n = 0;
@@ -2905,10 +2908,12 @@ function lockCard() {
             // Re-sync from server after all picks saved
             if (saved >= lockedPicks.length) {
                 syncPicksFromServer();
+                if (lockBtn) { lockBtn.disabled = false; lockBtn.textContent = 'Lock Card'; }
             }
         }).catch(function(err) {
             console.error('Lock card pick save failed:', err);
             showToast('Warning: Some picks failed to sync to server', true);
+            if (lockBtn) { lockBtn.disabled = false; lockBtn.textContent = 'Lock Card'; }
         });
     });
 
@@ -3166,6 +3171,9 @@ function setConf(el, level) {
 }
 
 function submitPick() {
+    var btn = document.querySelector('.submit-pick-btn');
+    if (btn) { btn.disabled = true; btn.textContent = 'LOCKING...'; }
+
     var name = crewProfile ? crewProfile.display_name : document.getElementById('pickName').value;
     var sport = document.getElementById('pickSport').value;
     var type = document.getElementById('pickType').value;
@@ -3180,6 +3188,7 @@ function submitPick() {
 
     if (!name || !sport || !matchup || !selection) {
         showToast('Fill in name, sport, matchup, and your pick.', true);
+        if (btn) { btn.disabled = false; btn.textContent = 'Lock This Pick'; }
         return;
     }
 
@@ -3218,6 +3227,7 @@ function submitPick() {
         }
         return r.json();
     }).then(function(data) {
+        if (btn) { btn.disabled = false; btn.textContent = 'Lock This Pick'; }
         if (data.duplicate) {
             showToast('Duplicate pick - already submitted.', true);
             return;
@@ -3225,6 +3235,7 @@ function submitPick() {
         showToast(pick.name + "'s pick locked!");
         syncPicksFromServer(); // Server → localStorage
     }).catch(function(err) {
+        if (btn) { btn.disabled = false; btn.textContent = 'Lock This Pick'; }
         console.error('Pick save failed:', err);
         showToast('Pick failed to save: ' + err.message, true);
     });
