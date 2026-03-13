@@ -1110,6 +1110,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
         <h1>Edge Crew</h1>
         <div class="login-sub" style="font-size:12px;line-height:1.5;">AI-Powered Sports Analytics — 11 Sports, Real Edges, Full Transparency</div>
         <div style="font-size:10px;color:var(--ec-text-tertiary);margin-top:4px;letter-spacing:0.5px;">No edge = no bet &bull; Build your crew</div>
+        <div id="buildVersion" style="font-size:9px;color:rgba(255,255,255,0.2);margin-top:6px;font-family:monospace;letter-spacing:0.3px;"></div>
         <div class="login-tabs">
             <button class="login-tab active" onclick="switchLoginTab('signin')">Sign In</button>
             <button class="login-tab" onclick="switchLoginTab('register')">Join Crew</button>
@@ -2491,6 +2492,13 @@ function loadLoginProfiles() {
         var select = document.getElementById('loginName');
         select.innerHTML = '<option value="">Server offline</option>';
     });
+    // Fetch and display build version on login screen
+    fetch('/api/version').then(function(r) { return r.json(); }).then(function(data) {
+        var el = document.getElementById('buildVersion');
+        if (el && data.version) {
+            el.textContent = data.version + ' | ' + data.mode + ' (' + (data.thinker || '').split('-')[0] + '+' + (data.formatter || '').split('-')[0] + ')';
+        }
+    }).catch(function() {});
 }
 
 // Check session on page load
@@ -8778,6 +8786,31 @@ if ('serviceWorker' in navigator) {
     regs.forEach(function(r) { r.unregister(); console.log('[SW] Unregistered:', r.scope); });
   });
 }
+
+// Auto-reload on new deploy — check build version every 60s and on page show
+var _localBuildVersion = null;
+function _checkBuildVersion() {
+    fetch('/api/version?_t=' + Date.now()).then(function(r) { return r.json(); }).then(function(data) {
+        if (!data.version) return;
+        if (!_localBuildVersion) {
+            _localBuildVersion = data.version;
+            console.log('[VERSION] ' + data.version);
+        } else if (_localBuildVersion !== data.version) {
+            console.log('[VERSION] New build detected: ' + data.version + ' (was ' + _localBuildVersion + ') — reloading');
+            window.location.reload(true);
+        }
+    }).catch(function() {});
+}
+_checkBuildVersion();
+setInterval(_checkBuildVersion, 60000);
+// Also check on page visibility change (returning to tab/app)
+document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) _checkBuildVersion();
+});
+// bfcache: force reload when restored from back-forward cache
+window.addEventListener('pageshow', function(e) {
+    if (e.persisted) window.location.reload(true);
+});
 </script>
 
 <script>

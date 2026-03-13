@@ -303,7 +303,11 @@ async def shutdown():
 @app.get("/health")
 async def health_check():
     """Health check for Render auto-restart."""
-    return JSONResponse({"status": "ok", "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ")})
+    return JSONResponse({"status": "ok", "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ"), "version": BUILD_VERSION})
+
+@app.get("/api/version")
+async def get_version():
+    return JSONResponse({"version": BUILD_VERSION, "built": BUILD_TS, "mode": ANALYSIS_MODE, "thinker": ANALYSIS_THINKER, "formatter": ANALYSIS_FORMATTER})
 
 
 # ===== CREW AUTH =====
@@ -599,6 +603,16 @@ AZURE_BASE = AZURE_ENDPOINT.rstrip("/")
 ANALYSIS_THINKER = os.environ.get("ANALYSIS_THINKER", "grok-4-1-fast-reasoning")
 ANALYSIS_FORMATTER = os.environ.get("ANALYSIS_FORMATTER", "DeepSeek-V3.2")
 ANALYSIS_MODE = os.environ.get("ANALYSIS_MODE", "twomodel")  # "twomodel" or "single"
+
+# Build version — auto-set at server startup for cache busting
+import subprocess as _sp
+try:
+    _git_hash = _sp.check_output(["git", "rev-parse", "--short", "HEAD"], stderr=_sp.DEVNULL).decode().strip()
+except Exception:
+    _git_hash = "unknown"
+BUILD_VERSION = f"v2.{datetime.now(PST).strftime('%m%d.%H%M')}.{_git_hash}"
+BUILD_TS = datetime.now(PST).strftime("%Y-%m-%d %I:%M %p PST")
+logger.info(f"[BUILD] {BUILD_VERSION} — {BUILD_TS}")
 
 # EV Agent character config for voice
 EV_AGENT_VOICE = {
