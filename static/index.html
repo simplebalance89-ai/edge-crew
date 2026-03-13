@@ -4910,7 +4910,14 @@ var rotowireUrls = {
     BOXING: {lineups:'https://www.rotowire.com/boxing/schedule.php',injuries:'https://www.rotowire.com/boxing/news.php'}
 };
 
-function abbr(name) {
+function abbr(name, sport) {
+    // MMA/Boxing: show full fighter name (last name), not 3-char abbreviation
+    if (sport && (sport.toUpperCase() === 'MMA' || sport.toUpperCase() === 'BOXING')) {
+        var clean = name.replace(/\s*[\[\(][^\]\)]*[\]\)]\s*$/g, '').trim();
+        var parts = clean.split(' ').filter(function(p) { return p.length > 0; });
+        if (parts.length > 1) return parts[parts.length - 1];
+        return clean;
+    }
     if (teamAbbr[name]) return teamAbbr[name];
     // Strip bracketed suffixes like [W], [ECU], (W) etc.
     var clean = name.replace(/\s*[\[\(][^\]\)]*[\]\)]\s*$/g, '').trim();
@@ -4952,9 +4959,11 @@ function toPSTShort(dateStr) {
 }
 
 function buildGameRowHTML(g) {
-    var awayAbbr = abbr(g.away);
-    var homeAbbr = abbr(g.home);
-    var matchup = awayAbbr + ' @ ' + homeAbbr;
+    var isFight = g.sport && (g.sport.toUpperCase() === 'MMA' || g.sport.toUpperCase() === 'BOXING');
+    var awayAbbr = abbr(g.away, g.sport);
+    var homeAbbr = abbr(g.home, g.sport);
+    var matchupSep = isFight ? ' vs ' : ' @ ';
+    var matchup = awayAbbr + matchupSep + homeAbbr;
     var hasSpread = (g.home_spread !== undefined && g.home_spread !== null && g.home_spread !== 0) || (g.away_spread !== undefined && g.away_spread !== null && g.away_spread !== 0);
     var spread = g.home_spread || 0;
     var spreadStr = hasSpread ? ((spread > 0 ? '+' : '') + spread) : '--';
@@ -5050,7 +5059,7 @@ function buildGameRowHTML(g) {
             '<div class="card-r1">' +
                 '<div class="pick-check" onclick="togglePick(event, this, \'' + matchup + '\')"></div>' +
                 '<div class="game-time">' + time + '</div>' +
-                '<div class="game-matchup">' + (g.league ? '<span style="font-size:9px;color:var(--ec-text-tertiary);font-weight:600;letter-spacing:0.5px;">' + g.league + '</span> ' : '') + '<span class="away">' + awayAbbr + '</span> @ <span class="home">' + homeAbbr + '</span></div>' +
+                '<div class="game-matchup">' + (g.league ? '<span style="font-size:9px;color:var(--ec-text-tertiary);font-weight:600;letter-spacing:0.5px;">' + g.league + '</span> ' : '') + '<span class="away">' + awayAbbr + '</span>' + matchupSep + '<span class="home">' + homeAbbr + '</span></div>' +
                 '<div class="game-grade"><span class="grade ' + gradeClass + '">' + gradeDisplay + '</span></div>' +
             '</div>' +
             /* Row 2: OUR PICK — prominent */
@@ -6268,33 +6277,46 @@ function backToAgents() {
 
 var _analysisPending = 0;
 function runAnalysis() {
-    // User clicked ANALYZE — load analysis for selected agent
+    // Detect active sport panel — only analyze that one sport
+    var activePanel = document.querySelector('.sport-panel.active');
+    var currentSport = activePanel ? activePanel.id.replace('panel-', '') : '';
+    var validSports = ['nba','wnba','ncaab','ncaaf','nhl','mlb','tennis','soccer','mma','boxing'];
+    if (!currentSport || validSports.indexOf(currentSport) === -1) {
+        showToast('Select a sport tab first', 'warning');
+        return;
+    }
+
     var btn = document.getElementById('analyzeBtn');
-    if (btn) { btn.textContent = 'GRADING...'; btn.disabled = true; }
+    var sportLabel = currentSport.toUpperCase();
+    if (btn) { btn.textContent = 'GRADING ' + sportLabel + '...'; btn.disabled = true; }
     var agent = sessionStorage.getItem('edgeCrewAgent') || 'sintonia';
-    // Track pending sport fetches — sweep ungraded when all done
+    var fetchFn = agent === 'sintonia' ? fetchAnalysis : fetchEdge;
+
+    // Only 1 sport pending
+    _analysisPending = 1;
     window._analysisLoadCallback = function(sport) {
         _analysisPending--;
         if (_analysisPending <= 0) {
             _analysisPending = 0;
             if (btn) { btn.textContent = 'ANALYZE'; btn.disabled = false; }
-            // Sweep: mark any game card that still has no grade as N/A
-            document.querySelectorAll('.game-row').forEach(function(row) {
-                if (row.closest('.sport-panel') && row.offsetParent !== null) {
+            // Sweep: mark ungraded cards in this panel as N/A
+            if (activePanel) {
+                activePanel.querySelectorAll('.game-row').forEach(function(row) {
                     var gradeEl = row.querySelector('.game-grade .grade');
                     if (gradeEl && (!gradeEl.textContent || gradeEl.textContent === '--' || gradeEl.textContent.trim() === '')) {
                         gradeEl.className = 'grade gc';
                         gradeEl.textContent = 'N/A';
                         gradeEl.style.cssText = 'background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.4);';
                     }
-                }
-            });
+                });
+            }
         }
     };
-    applyAgentFilter(agent, true);
-    // Fallback timeout in case callbacks don't fire
+    // Fetch analysis for current sport only
+    fetchFn(currentSport);
+    // Fallback timeout
     setTimeout(function() {
-        if (btn && btn.textContent === 'GRADING...') { btn.textContent = 'ANALYZE'; btn.disabled = false; }
+        if (btn && btn.textContent.indexOf('GRADING') !== -1) { btn.textContent = 'ANALYZE'; btn.disabled = false; }
     }, 60000);
 }
 

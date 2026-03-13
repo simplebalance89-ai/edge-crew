@@ -2280,6 +2280,31 @@ SPORT_KEYS = {
 }
 
 
+_active_baseball_cache = {"keys": [], "fetched_at": 0}
+
+
+async def _get_active_baseball_keys():
+    """Fetch currently active baseball keys from The Odds API (MLB, WBC, etc). Cached 1 hour."""
+    now = time.time()
+    if _active_baseball_cache["keys"] and now - _active_baseball_cache["fetched_at"] < 3600:
+        return _active_baseball_cache["keys"]
+    try:
+        url = f"{ODDS_API_BASE}/"
+        params = {"apiKey": ODDS_API_KEY}
+        async with httpx.AsyncClient(timeout=10) as client:
+            r = await client.get(url, params=params)
+            if r.status_code == 200:
+                sports = r.json()
+                keys = [s["key"] for s in sports if s["key"].startswith("baseball_") and s.get("active")]
+                if keys:
+                    _active_baseball_cache["keys"] = keys
+                    _active_baseball_cache["fetched_at"] = now
+                    return keys
+    except Exception:
+        pass
+    return SPORT_KEYS.get("mlb", ["baseball_mlb"])  # fallback to hardcoded
+
+
 _active_tennis_cache = {"keys": [], "fetched_at": 0}
 
 
@@ -2354,6 +2379,8 @@ async def get_odds(sport: str, markets: str = "h2h,spreads,totals"):
     if ODDS_API_KEY:
         if sport_lower == "tennis":
             keys = await _get_active_tennis_keys()
+        elif sport_lower == "mlb":
+            keys = await _get_active_baseball_keys()
         else:
             keys = SPORT_KEYS.get(sport_lower, [sport_lower])
         for key in keys:
