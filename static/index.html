@@ -8682,13 +8682,24 @@ if ('serviceWorker' in navigator) {
 </script>
 
 <script>
-// ===== SNOWFALL EFFECT — runs during analysis =====
+// ===== SNOWFALL EFFECT — Miami Vice particles during analysis =====
 (function() {
     var canvas = document.getElementById('snowCanvas');
     var ctx = canvas.getContext('2d');
     var flakes = [];
     var animId = null;
     var running = false;
+    var _snowRefCount = 0; // Track how many sport fetches are active
+
+    // Miami Vice color palette
+    var miamiColors = [
+        [255, 107, 157], // hot pink
+        [0, 212, 255],   // cyan
+        [255, 71, 133],  // deep pink
+        [0, 188, 255],   // bright cyan
+        [190, 75, 219],  // purple blend
+        [0, 255, 213],   // teal
+    ];
 
     function resize() {
         canvas.width = window.innerWidth;
@@ -8700,13 +8711,15 @@ if ('serviceWorker' in navigator) {
     function createFlakes(count) {
         flakes = [];
         for (var i = 0; i < count; i++) {
+            var color = miamiColors[Math.floor(Math.random() * miamiColors.length)];
             flakes.push({
                 x: Math.random() * canvas.width,
                 y: Math.random() * canvas.height,
                 r: Math.random() * 3.5 + 1,
                 speed: Math.random() * 1.2 + 0.3,
                 wind: Math.random() * 0.4 - 0.2,
-                opacity: Math.random() * 0.5 + 0.3
+                opacity: Math.random() * 0.5 + 0.3,
+                color: color
             });
         }
     }
@@ -8718,7 +8731,7 @@ if ('serviceWorker' in navigator) {
             var f = flakes[i];
             ctx.beginPath();
             ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(235,240,255,' + f.opacity + ')';
+            ctx.fillStyle = 'rgba(' + f.color[0] + ',' + f.color[1] + ',' + f.color[2] + ',' + f.opacity + ')';
             ctx.fill();
             f.y += f.speed;
             f.x += f.wind + Math.sin(f.y * 0.01) * 0.3;
@@ -8730,15 +8743,19 @@ if ('serviceWorker' in navigator) {
     }
 
     window.startSnowfall = function() {
-        if (running) return;
+        _snowRefCount++;
+        if (running) return; // Already animating, just bump the ref count
         running = true;
         resize();
-        createFlakes(120);
+        createFlakes(150);
         canvas.classList.add('active');
         draw();
     };
 
     window.stopSnowfall = function() {
+        _snowRefCount--;
+        if (_snowRefCount > 0) return; // Other sport fetches still pending
+        _snowRefCount = 0;
         running = false;
         canvas.classList.remove('active');
         if (animId) { cancelAnimationFrame(animId); animId = null; }
