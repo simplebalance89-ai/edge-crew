@@ -5650,7 +5650,16 @@ function renderCombinedTable(data) {
             var gc = 'g' + (analysis.grade || '').toLowerCase().replace(/[^a-z]/g,'');
             if (analysis.grade === 'INCOMPLETE') gc = 'gc';
             if (analysis.grade === 'TBD') gc = 'gc';
-            gradeHtml = '<span class="grade ' + gc + '"' + (analysis.grade === 'TBD' ? ' style="background:rgba(251,176,36,0.15);color:#FBB024;"' : '') + '>' + (analysis.grade || '--') + '</span>';
+            var dualGrade = analysis.dual_grade || analysis.grade || '--';
+            var gptGrade = analysis.gpt_original_grade || '';
+            if (gptGrade && gptGrade !== analysis.grade && analysis.grade !== 'TBD' && analysis.grade !== 'INCOMPLETE') {
+                var gc2 = 'g' + gptGrade.toLowerCase().replace(/[^a-z]/g,'');
+                gradeHtml = '<span class="grade ' + gc + '"' + (analysis.grade === 'TBD' ? ' style="background:rgba(251,176,36,0.15);color:#FBB024;"' : '') + '>' + (analysis.grade || '--') + '</span>' +
+                    '<span style="font-size:9px;color:rgba(255,255,255,0.35);margin:0 2px;">/</span>' +
+                    '<span class="grade ' + gc2 + '" style="opacity:0.6;font-size:10px;" title="GPT gut grade">' + gptGrade + '</span>';
+            } else {
+                gradeHtml = '<span class="grade ' + gc + '"' + (analysis.grade === 'TBD' ? ' style="background:rgba(251,176,36,0.15);color:#FBB024;"' : '') + '>' + (analysis.grade || '--') + '</span>';
+            }
             // Add lineup warning if game is >90min away
             var msToG = g.time ? (new Date(g.time).getTime() - Date.now()) : 0;
             if (msToG > 90 * 60 * 1000) {

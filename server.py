@@ -1067,6 +1067,11 @@ def _recalculate_grade(game, sport):
         print(f"[GRADE CHANGED] {game.get('matchup')} — GPT said {gpt_grade}, we say {game['grade']} (score: {recalculated})")
 
     game["gpt_original_grade"] = gpt_grade
+    # Dual grade display: "Matrix: B+ / GPT: A-" side by side
+    if gpt_grade and gpt_grade != game["grade"]:
+        game["dual_grade"] = f"{game['grade']} / {gpt_grade}"
+    else:
+        game["dual_grade"] = game["grade"]
 
     # Check if GPT returned all variables
     expected_vars = [name for name, _, _ in matrix]
