@@ -93,8 +93,9 @@ async def _autograde_loop():
                         for pick in ungraded:
                             if pick.get("result") or pick.get("type", "").lower() == "parlay":
                                 continue
-                            if not _teams_match(pick.get("matchup", ""), home, away):
-                                if not _teams_match(pick.get("selection", ""), home, away):
+                            pick_sport = pick.get("sport", "").lower()
+                            if not _teams_match(pick.get("matchup", ""), home, away, pick_sport):
+                                if not _teams_match(pick.get("selection", ""), home, away, pick_sport):
                                     continue
                             if not _game_date_matches_pick(pick, game):
                                 continue
@@ -142,8 +143,9 @@ async def _autograde_loop():
                         for pick in still_ungraded:
                             if pick.get("result"):
                                 continue
-                            if not _teams_match(pick.get("matchup", ""), home, away):
-                                if not _teams_match(pick.get("selection", ""), home, away):
+                            pick_sport = pick.get("sport", "").lower()
+                            if not _teams_match(pick.get("matchup", ""), home, away, pick_sport):
+                                if not _teams_match(pick.get("selection", ""), home, away, pick_sport):
                                     continue
                             if not _game_date_matches_pick(pick, game):
                                 continue
@@ -3788,8 +3790,9 @@ async def autograde_picks(request: Request):
         for pick in ungraded:
             if pick.get("result") or pick.get("type", "").lower() == "parlay":
                 continue
-            if not _teams_match(pick.get("matchup", ""), home, away):
-                if not _teams_match(pick.get("selection", ""), home, away):
+            pick_sport = pick.get("sport", "").lower()
+            if not _teams_match(pick.get("matchup", ""), home, away, pick_sport):
+                if not _teams_match(pick.get("selection", ""), home, away, pick_sport):
                     continue
             if not _game_date_matches_pick(pick, game):
                 continue
@@ -3893,12 +3896,13 @@ async def autograde_picks(request: Request):
             continue
 
         # --- SINGLE PICK GRADING ---
+        pick_sport = pick.get("sport", "").lower()
         for game in completed:
             home = game.get("home_team", "")
             away = game.get("away_team", "")
-            if not _teams_match(matchup, home, away):
+            if not _teams_match(matchup, home, away, pick_sport):
                 # Also try matching on selection text
-                if not _teams_match(selection, home, away):
+                if not _teams_match(selection, home, away, pick_sport):
                     continue
 
             # Don't grade today's picks against yesterday's games
