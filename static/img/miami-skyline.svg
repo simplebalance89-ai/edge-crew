@@ -1,47 +1,86 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 300" fill="rgba(255,255,255,0.5)">
-  <!-- South Beach / left side -->
-  <rect x="20" y="180" width="25" height="120" rx="1"/>
-  <rect x="50" y="140" width="20" height="160" rx="1"/>
-  <rect x="75" y="160" width="30" height="140" rx="1"/>
-  <rect x="110" y="120" width="18" height="180" rx="1"/>
-  <rect x="135" y="100" width="22" height="200" rx="1"/>
-  <rect x="162" y="130" width="28" height="170" rx="1"/>
-  <rect x="195" y="80" width="20" height="220" rx="1"/>
-  <rect x="220" y="150" width="25" height="150" rx="1"/>
-  <!-- Palm trees -->
-  <line x1="260" y1="300" x2="265" y2="200" stroke="rgba(255,255,255,0.3)" stroke-width="3"/>
-  <ellipse cx="275" cy="195" rx="25" ry="10" fill="rgba(255,255,255,0.2)"/>
-  <line x1="290" y1="300" x2="288" y2="210" stroke="rgba(255,255,255,0.3)" stroke-width="3"/>
-  <ellipse cx="298" cy="205" rx="22" ry="9" fill="rgba(255,255,255,0.2)"/>
-  <!-- Downtown / center -->
-  <rect x="350" y="120" width="30" height="180" rx="1"/>
-  <rect x="385" y="60" width="25" height="240" rx="1"/>
-  <rect x="415" y="90" width="35" height="210" rx="1"/>
-  <rect x="455" y="40" width="28" height="260" rx="1"/>
-  <rect x="488" y="20" width="22" height="280" rx="1"/><!-- tallest - Panorama Tower -->
-  <rect x="515" y="50" width="30" height="250" rx="1"/>
-  <rect x="550" y="70" width="25" height="230" rx="1"/>
-  <rect x="580" y="30" width="20" height="270" rx="1"/>
-  <rect x="605" y="80" width="32" height="220" rx="1"/>
-  <rect x="642" y="55" width="24" height="245" rx="1"/>
-  <rect x="670" y="100" width="28" height="200" rx="1"/>
-  <!-- Brickell -->
-  <rect x="720" y="60" width="22" height="240" rx="1"/>
-  <rect x="747" y="45" width="26" height="255" rx="1"/>
-  <rect x="778" y="75" width="20" height="225" rx="1"/>
-  <rect x="803" y="90" width="30" height="210" rx="1"/>
-  <rect x="838" y="110" width="24" height="190" rx="1"/>
-  <rect x="867" y="130" width="18" height="170" rx="1"/>
-  <!-- Right side / Key Biscayne -->
-  <rect x="920" y="170" width="22" height="130" rx="1"/>
-  <rect x="947" y="190" width="18" height="110" rx="1"/>
-  <rect x="970" y="200" width="25" height="100" rx="1"/>
-  <rect x="1000" y="210" width="20" height="90" rx="1"/>
-  <!-- More palms right -->
-  <line x1="1050" y1="300" x2="1055" y2="210" stroke="rgba(255,255,255,0.3)" stroke-width="3"/>
-  <ellipse cx="1065" cy="205" rx="22" ry="9" fill="rgba(255,255,255,0.2)"/>
-  <line x1="1090" y1="300" x2="1088" y2="220" stroke="rgba(255,255,255,0.3)" stroke-width="3"/>
-  <ellipse cx="1098" cy="215" rx="20" ry="8" fill="rgba(255,255,255,0.2)"/>
-  <!-- Water line -->
-  <rect x="0" y="295" width="1200" height="5" fill="rgba(255,255,255,0.15)" rx="2"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 200" fill="none">
+  <defs>
+    <linearGradient id="neon1" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#ff2d95"/>
+      <stop offset="50%" stop-color="#00f0ff"/>
+      <stop offset="100%" stop-color="#ff2d95"/>
+    </linearGradient>
+    <linearGradient id="neon2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#00f0ff"/>
+      <stop offset="100%" stop-color="#ff2d95" stop-opacity="0.3"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glow2">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <!-- Skyline outline - single path -->
+  <path d="M0,200 L0,160 40,160 40,120 60,120 60,140 90,140 90,100 110,100 110,130
+           140,130 140,70 160,70 160,110 185,110 185,50 205,50 205,90 225,90 225,120
+           260,120 260,60 280,60 280,40 295,40 295,55 310,55 310,30 325,30 325,50
+           345,50 345,20 360,15 375,20 375,45 395,45 395,25 410,20 425,25 425,55
+           445,55 445,35 460,35 460,10 475,5 490,10 490,40 510,40 510,55 530,55
+           530,30 545,30 545,50 565,50 565,15 580,10 595,15 595,45 615,45 615,60
+           640,60 640,35 655,35 655,55 675,55 675,25 690,20 705,25 705,50 720,50
+           720,70 745,70 745,45 760,45 760,65 780,65 780,40 795,35 810,40 810,65
+           835,65 835,80 860,80 860,55 875,55 875,75 900,75 900,90 920,90 920,110
+           950,110 950,85 970,85 970,105 995,105 995,130 1020,130 1020,110 1045,110
+           1045,140 1075,140 1075,120 1100,120 1100,150 1130,150 1130,160 1160,160
+           1160,170 1200,170 1200,200 Z"
+        stroke="url(#neon1)" stroke-width="1.5" fill="none" filter="url(#glow)"/>
+  <!-- Glow duplicate for intensity -->
+  <path d="M0,200 L0,160 40,160 40,120 60,120 60,140 90,140 90,100 110,100 110,130
+           140,130 140,70 160,70 160,110 185,110 185,50 205,50 205,90 225,90 225,120
+           260,120 260,60 280,60 280,40 295,40 295,55 310,55 310,30 325,30 325,50
+           345,50 345,20 360,15 375,20 375,45 395,45 395,25 410,20 425,25 425,55
+           445,55 445,35 460,35 460,10 475,5 490,10 490,40 510,40 510,55 530,55
+           530,30 545,30 545,50 565,50 565,15 580,10 595,15 595,45 615,45 615,60
+           640,60 640,35 655,35 655,55 675,55 675,25 690,20 705,25 705,50 720,50
+           720,70 745,70 745,45 760,45 760,65 780,65 780,40 795,35 810,40 810,65
+           835,65 835,80 860,80 860,55 875,55 875,75 900,75 900,90 920,90 920,110
+           950,110 950,85 970,85 970,105 995,105 995,130 1020,130 1020,110 1045,110
+           1045,140 1075,140 1075,120 1100,120 1100,150 1130,150 1130,160 1160,160
+           1160,170 1200,170 1200,200 Z"
+        stroke="url(#neon1)" stroke-width="0.5" fill="none" filter="url(#glow2)" opacity="0.6"/>
+  <!-- Water reflection line -->
+  <line x1="0" y1="198" x2="1200" y2="198" stroke="#00f0ff" stroke-width="1" opacity="0.4" filter="url(#glow)"/>
+  <!-- Window lights - cyan dots scattered on buildings -->
+  <g fill="#00f0ff" opacity="0.5" filter="url(#glow)">
+    <rect x="348" y="30" width="2" height="2" rx="1"/>
+    <rect x="355" y="38" width="2" height="2" rx="1"/>
+    <rect x="365" y="28" width="2" height="2" rx="1"/>
+    <rect x="463" y="18" width="2" height="2" rx="1"/>
+    <rect x="472" y="25" width="2" height="2" rx="1"/>
+    <rect x="480" y="15" width="2" height="2" rx="1"/>
+    <rect x="568" y="22" width="2" height="2" rx="1"/>
+    <rect x="578" y="30" width="2" height="2" rx="1"/>
+    <rect x="585" y="18" width="2" height="2" rx="1"/>
+    <rect x="678" y="32" width="2" height="2" rx="1"/>
+    <rect x="688" y="40" width="2" height="2" rx="1"/>
+    <rect x="695" y="28" width="2" height="2" rx="1"/>
+    <rect x="785" y="45" width="2" height="2" rx="1"/>
+    <rect x="795" y="52" width="2" height="2" rx="1"/>
+  </g>
+  <!-- Window lights - pink dots -->
+  <g fill="#ff2d95" opacity="0.4" filter="url(#glow)">
+    <rect x="352" y="45" width="2" height="2" rx="1"/>
+    <rect x="468" y="32" width="2" height="2" rx="1"/>
+    <rect x="575" y="38" width="2" height="2" rx="1"/>
+    <rect x="683" y="48" width="2" height="2" rx="1"/>
+    <rect x="398" y="35" width="2" height="2" rx="1"/>
+    <rect x="535" y="42" width="2" height="2" rx="1"/>
+    <rect x="640" y="45" width="2" height="2" rx="1"/>
+    <rect x="750" y="55" width="2" height="2" rx="1"/>
+  </g>
+  <!-- Palm tree silhouettes -->
+  <g stroke="#ff2d95" stroke-width="1.5" fill="none" opacity="0.5" filter="url(#glow)">
+    <line x1="240" y1="200" x2="245" y2="130"/>
+    <path d="M245,130 Q235,120 220,125 M245,130 Q255,118 270,122 M245,130 Q242,115 238,108"/>
+    <line x1="950" y1="200" x2="948" y2="115"/>
+    <path d="M948,115 Q938,105 925,110 M948,115 Q958,103 972,108 M948,115 Q946,100 942,93"/>
+  </g>
 </svg>
