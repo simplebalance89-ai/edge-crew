@@ -914,6 +914,32 @@ def _recalculate_grade(game, sport):
     if not matrix_scores:
         return  # GPT didn't return matrix scores, skip
 
+    # Normalize GPT's keys to snake_case (GPT may return human-readable keys)
+    # Build lookup: normalized_key -> score_data, plus label-to-key reverse map
+    label_to_key = {label.lower(): key for key, _, label in matrix}
+    normalized_scores = {}
+    for k, v in matrix_scores.items():
+        # Direct match first
+        if k in {name for name, _, _ in matrix}:
+            normalized_scores[k] = v
+            continue
+        # Normalize: lowercase, replace separators with underscores
+        norm = k.lower().replace(" / ", "_").replace(" ", "_").replace("-", "_").replace("(", "").replace(")", "")
+        # Check if normalized key matches a matrix key
+        matched = False
+        for var_name, _, _ in matrix:
+            if norm == var_name or norm.startswith(var_name) or var_name.startswith(norm):
+                normalized_scores[var_name] = v
+                matched = True
+                break
+        if not matched:
+            # Try matching against label descriptions
+            for label_lower, var_key in label_to_key.items():
+                if norm in label_lower.replace(" / ", "_").replace(" ", "_").replace("-", "_") or label_lower.replace(" / ", "_").replace(" ", "_").replace("-", "_").startswith(norm):
+                    normalized_scores[var_key] = v
+                    break
+    matrix_scores = normalized_scores
+
     # Calculate max possible weighted score
     max_possible = sum(w for _, w, _ in matrix) * 10
 
@@ -1309,7 +1335,7 @@ def _build_matrix_section(sport):
     lines.append(f"Score each variable 1-10 for EACH game. Weight x Score = Weighted.")
     lines.append(f"Max possible: {max_score}. Composite = sum / {max_score} x 10.\n")
     for i, (key, weight, label) in enumerate(matrix, 1):
-        lines.append(f"  {i}. {label} (weight: {weight})")
+        lines.append(f"  {i}. KEY: \"{key}\" — {label} (weight: {weight})")
     lines.append("\nCOMPOSITE THRESHOLDS:")
     lines.append("  9.0-10.0 = BEST BET (load up, full unit)")
     lines.append("  7.5-8.9  = STRONG PLAY (A-/B+)")
@@ -2588,8 +2614,8 @@ Generate analysis in this EXACT JSON format:
       "edge_question": "Why is the market wrong? 1-2 sentences. If no answer: 'No clear edge identified.'",
       "tags": ["B2B", "SHARP", "TRAP", "UPSET", "PASS", "BEST BET", "REST-EDGE", "INJURY-IMPACT", "INCOMPLETE"],
       "matrix_scores": {{
-        "var1_name": {{"score": 7, "weight": 10, "weighted": 70, "note": "why this score"}},
-        "var2_name": {{"score": 5, "weight": 9, "weighted": 45, "note": "why this score"}}
+        "injuries_lineup": {{"score": 7, "weight": 10, "weighted": 70, "note": "why this score"}},
+        "rest_advantage": {{"score": 5, "weight": 9, "weighted": 45, "note": "why this score"}}
       }},
       "injury_impact": "Which key players are OUT/GTD and how it changes the line. Be specific.",
       "rest_schedule": "B2B? Days rest for each team? Travel? 3-in-5?",
