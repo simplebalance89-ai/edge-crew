@@ -238,9 +238,9 @@ async def _daily_slate_pull():
                             print(f"[ANALYSIS] Midnight error {sport}: {e}")
                         await asyncio.sleep(5)
 
-            # Scheduled analysis: 12PM, 3PM, 6PM PST (plus existing midnight run above)
+            # Scheduled analysis: 4PM PST only — right before tip when lineups confirmed
             should_run_analysis = False
-            if hour in (12, 15, 18) and last_analysis_run != f"{today}:{hour}":
+            if hour == 16 and last_analysis_run != f"{today}:{hour}":
                 should_run_analysis = True
                 last_analysis_run = f"{today}:{hour}"
 
