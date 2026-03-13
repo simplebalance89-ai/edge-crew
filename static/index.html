@@ -6129,21 +6129,27 @@ function injectPicksIntoCards(sport, analysisData) {
 
         if (row) {
             row.classList.add('has-analysis');
-            // Update grade if analysis has one — show Matrix grade / Grok grade
+            // Update grade if analysis has one — show Matrix grade / Grok grade on card badge
             if (game.grade) {
                 var gradeContainer = row.querySelector('.game-grade');
                 if (gradeContainer) {
                     var gc = game.grade.replace(/[+-]/g,'').toLowerCase();
                     var gptGradeVal = game.gpt_original_grade || '';
                     var thinkerLabel = (game._thinker || 'gpt').match(/grok/i) ? 'Grok' : (game._thinker || 'gpt').match(/deepseek/i) ? 'DeepSeek' : 'GPT';
-                    var dualHtml = '<span class="grade g' + gc + '">' + game.grade + '</span>';
+                    var dualHtml = '';
                     if (gptGradeVal && gptGradeVal !== game.grade && game.grade !== 'TBD' && game.grade !== 'INCOMPLETE') {
                         var gc2 = gptGradeVal.replace(/[+-]/g,'').toLowerCase();
-                        dualHtml += '<span style="font-size:9px;color:rgba(255,255,255,0.35);margin:0 2px;">/</span>' +
-                            '<span class="grade g' + gc2 + '" style="opacity:0.6;font-size:10px;" title="' + thinkerLabel + ' grade">' + gptGradeVal + '</span>';
+                        dualHtml = '<div style="display:flex;flex-direction:column;align-items:center;gap:1px;">' +
+                            '<span class="grade g' + gc + '" style="font-size:18px;">' + game.grade + '</span>' +
+                            '<span style="font-size:7px;color:rgba(255,255,255,0.35);letter-spacing:0.3px;">MATRIX</span>' +
+                            '<span class="grade g' + gc2 + '" style="font-size:12px;opacity:0.6;">' + gptGradeVal + '</span>' +
+                            '<span style="font-size:7px;color:rgba(255,255,255,0.35);letter-spacing:0.3px;">' + thinkerLabel.toUpperCase() + '</span>' +
+                            '</div>';
+                    } else {
+                        dualHtml = '<span class="grade g' + gc + '">' + game.grade + '</span>';
                     }
                     if (game.grade_source === 'gpt_composite_fallback') {
-                        dualHtml += '<span style="font-size:7px;color:#F59E0B;display:block;margin-top:1px;" title="No matrix scores — graded from ' + thinkerLabel + ' composite">fallback</span>';
+                        dualHtml += '<span style="font-size:7px;color:#F59E0B;display:block;margin-top:1px;">fallback</span>';
                     }
                     gradeContainer.innerHTML = dualHtml;
                 }

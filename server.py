@@ -3808,6 +3808,66 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
                     all_analyzed_games.extend(result["games"])
                     logger.info(f"Analysis batch {idx} retry succeeded: {len(result['games'])} games recovered")
 
+        # ===== MATCHUP NORMALIZATION — ensure model output matches odds format =====
+        # Build expected matchup set from odds data (e.g., "NYK @ IND")
+        expected_matchups = set()
+        for g in odds_data.get("games", []):
+            m = f"{g.get('away', '?')} @ {g.get('home', '?')}"
+            expected_matchups.add(m)
+        # Build reverse lookup: team name fragments → abbreviation
+        # Extract all team names from odds games for fuzzy matching
+        _team_lookup = {}
+        for g in odds_data.get("games", []):
+            away_abbr = g.get("away", "")
+            home_abbr = g.get("home", "")
+            if away_abbr:
+                _team_lookup[away_abbr.lower()] = away_abbr
+                # Add common fragments (e.g., "knicks" → "NYK")
+                for word in away_abbr.lower().split():
+                    if len(word) > 2:
+                        _team_lookup[word] = away_abbr
+            if home_abbr:
+                _team_lookup[home_abbr.lower()] = home_abbr
+                for word in home_abbr.lower().split():
+                    if len(word) > 2:
+                        _team_lookup[word] = home_abbr
+            # Also map full team names if available
+            away_full = g.get("away_full", "")
+            home_full = g.get("home_full", "")
+            if away_full:
+                _team_lookup[away_full.lower()] = away_abbr
+                for word in away_full.lower().split():
+                    if len(word) > 3:
+                        _team_lookup[word] = away_abbr
+            if home_full:
+                _team_lookup[home_full.lower()] = home_abbr
+                for word in home_full.lower().split():
+                    if len(word) > 3:
+                        _team_lookup[word] = home_abbr
+
+        for game in all_analyzed_games:
+            raw_matchup = game.get("matchup", "")
+            if raw_matchup in expected_matchups:
+                continue  # Already matches
+            # Try to resolve full team names → abbreviations
+            parts = raw_matchup.split(" @ ") if " @ " in raw_matchup else raw_matchup.split(" vs ")
+            if len(parts) == 2:
+                away_raw, home_raw = parts[0].strip(), parts[1].strip()
+                away_resolved = _team_lookup.get(away_raw.lower())
+                home_resolved = _team_lookup.get(home_raw.lower())
+                # Try last word (usually the team name: "New York Knicks" → "Knicks")
+                if not away_resolved:
+                    last_word = away_raw.split()[-1].lower() if away_raw.split() else ""
+                    away_resolved = _team_lookup.get(last_word)
+                if not home_resolved:
+                    last_word = home_raw.split()[-1].lower() if home_raw.split() else ""
+                    home_resolved = _team_lookup.get(last_word)
+                if away_resolved and home_resolved:
+                    fixed = f"{away_resolved} @ {home_resolved}"
+                    if fixed in expected_matchups:
+                        logger.info(f"[MATCHUP FIX] '{raw_matchup}' → '{fixed}'")
+                        game["matchup"] = fixed
+
         # ===== LOG: Raw model output before our grading =====
         for game in all_analyzed_games:
             gpt_g = game.get("grade", "NONE")
