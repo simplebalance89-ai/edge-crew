@@ -1175,11 +1175,12 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <!-- TOP BAR -->
 <div class="topbar">
     <div class="topbar-left" style="display:flex;align-items:center;gap:12px;">
-        <img src="/static/logo.png" alt="Edge Crew" style="height:32px;border-radius:8px;">
+        <img src="/static/logo.png" alt="Edge Crew" style="height:32px;border-radius:8px;cursor:pointer;" onclick="switchSport('landing')">
         <div>
-            <div class="topbar-title" style="font-size:17px;line-height:1.2;">Edge Crew</div>
+            <div class="topbar-title" style="font-size:17px;line-height:1.2;cursor:pointer;" onclick="switchSport('landing')">Edge Crew</div>
             <div class="topbar-date" id="topbarDate" style="font-size:10px;color:var(--ec-text-tertiary);font-weight:500;"></div>
         </div>
+        <button onclick="switchSport('landing')" style="padding:4px 10px;border-radius:var(--ec-radius-full);font-size:11px;font-weight:700;background:rgba(99,102,241,0.1);color:var(--ec-accent-light);border:1px solid rgba(99,102,241,0.25);cursor:pointer;transition:all 0.2s;margin-left:4px;" title="Dashboard Home">HOME</button>
     </div>
     <div style="display:flex;align-items:center;gap:8px;">
         <!-- Status dot -->
@@ -1318,6 +1319,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <!-- Bankroll Summary -->
 <div class="dash-section">
     <h2>Bankroll</h2>
+    <div id="dashTodayRecord" style="font-size:12px;font-weight:700;margin-bottom:8px;color:var(--ec-text-tertiary);"></div>
     <div id="dashBankroll">
         <div class="bankroll-strip">
             <div class="bankroll-stat"><div class="stat-val" id="dashBalance">--</div><div class="stat-label">Balance</div></div>
@@ -5634,6 +5636,7 @@ function refreshDashboard() {
     var bestBets = [];
     var edgeAlerts = [];
     var slateGames = [];
+    var currentUser = (typeof crewProfile !== 'undefined' && crewProfile) ? crewProfile.display_name : (safeLoad('edgeCrewName') || 'Peter');
 
     // Scan all cached analysis data
     Object.keys(_analysisCache).forEach(function(sportKey) {
@@ -5642,27 +5645,24 @@ function refreshDashboard() {
         cached.games.forEach(function(g) {
             var grade = g.grade || '';
             var entry = {matchup: g.matchup || '', grade: grade, sport: sportKey, composite: g.composite_score || 0, chains: g.chains || [], chain_bonus: g.chain_bonus || 0, edge_summary: g.edge_summary || '', pick: g.pick || ''};
-            // Best bets: B+ or higher
-            if (gradeOrder[grade] !== undefined && gradeOrder[grade] <= 3) {
-                bestBets.push(entry);
-            }
-            // Edge alerts: any chain triggered
-            if (g.chains && g.chains.length) {
-                edgeAlerts.push(entry);
-            }
-            // Slate: all games
+            if (gradeOrder[grade] !== undefined && gradeOrder[grade] <= 3) bestBets.push(entry);
+            if (g.chains && g.chains.length) edgeAlerts.push(entry);
             slateGames.push(entry);
         });
     });
 
-    // Sort best bets by grade then composite
     bestBets.sort(function(a, b) { return (gradeOrder[a.grade] || 99) - (gradeOrder[b.grade] || 99) || b.composite - a.composite; });
 
     // Render Best Bets
     var bbEl = document.getElementById('dashBestBets');
     if (bbEl) {
         if (!bestBets.length) {
-            bbEl.innerHTML = '<div class="dash-empty">No B+ or higher picks yet. Run analysis to populate.</div>';
+            var noDataHtml = '<div class="dash-empty">Run analysis to see best bets<div style="display:flex;gap:6px;justify-content:center;margin-top:10px;">';
+            ['nba','nhl','soccer','mlb'].forEach(function(s) {
+                noDataHtml += '<span onclick="switchSport(\'' + s + '\')" style="cursor:pointer;padding:4px 10px;border-radius:var(--ec-radius-full);background:rgba(99,102,241,0.1);color:var(--ec-accent-light);font-size:10px;font-weight:700;border:1px solid rgba(99,102,241,0.2);">' + s.toUpperCase() + '</span>';
+            });
+            noDataHtml += '</div></div>';
+            bbEl.innerHTML = noDataHtml;
         } else {
             var html = '';
             bestBets.forEach(function(b) {
@@ -5682,7 +5682,7 @@ function refreshDashboard() {
     var eaEl = document.getElementById('dashEdgeAlerts');
     if (eaEl) {
         if (!edgeAlerts.length) {
-            eaEl.innerHTML = '<div class="dash-empty">No chain alerts triggered yet</div>';
+            eaEl.innerHTML = '<div class="dash-empty">No chain signals detected</div>';
         } else {
             var html = '';
             edgeAlerts.forEach(function(e) {
@@ -5720,32 +5720,86 @@ function refreshDashboard() {
         }
     }
 
-    // Fetch crew picks + bankroll for dashboard
-    fetch('/api/picks').then(function(r){return r.json();}).then(function(picks) {
-        var cpEl = document.getElementById('dashCrewPicks');
-        if (cpEl && picks && picks.length) {
-            var recent = picks.slice(-8).reverse();
-            var html = '';
-            recent.forEach(function(p) {
-                var result = p.result || '';
-                var resColor = result === 'W' ? '#10B981' : result === 'L' ? '#EF4444' : 'rgba(255,255,255,0.3)';
-                html += '<div class="dash-card"><div class="dash-matchup"><div class="teams" style="font-size:13px;">' + (p.matchup || p.game || '') + '</div>' +
-                    '<div class="sport-tag">' + (p.sport || '') + ' &mdash; ' + (p.who || '') + ' &mdash; ' + (p.selection || p.pick || '') + '</div></div>' +
-                    '<span style="font-size:13px;font-weight:800;color:' + resColor + ';">' + (result || '--') + '</span></div>';
-            });
-            cpEl.innerHTML = html;
-        }
-    }).catch(function(){});
+    // Fetch picks — crew picks (all) + user-specific stats
+    var today = new Date().toISOString().split('T')[0];
+    fetch('/api/picks').then(function(r){return r.json();}).then(function(data) {
+        var allPicks = data.picks || [];
 
-    fetch('/api/bankroll').then(function(r){return r.json();}).then(function(b) {
-        var bal = document.getElementById('dashBalance');
-        var exp = document.getElementById('dashExposure');
-        var str = document.getElementById('dashStreak');
-        var roi = document.getElementById('dashROI');
-        if (bal && b.balance !== undefined) bal.textContent = '$' + (b.balance || 0).toFixed(0);
-        if (exp && b.exposure !== undefined) exp.textContent = '$' + (b.exposure || 0).toFixed(0);
-        if (str && b.streak !== undefined) str.textContent = b.streak || '--';
-        if (roi && b.roi !== undefined) roi.textContent = (b.roi || 0).toFixed(1) + '%';
+        // Crew Picks — show recent from ALL crew members
+        var cpEl = document.getElementById('dashCrewPicks');
+        if (cpEl) {
+            var recent = allPicks.slice(-10).reverse();
+            if (!recent.length) {
+                cpEl.innerHTML = '<div class="dash-empty">No picks submitted yet</div>';
+            } else {
+                var html = '';
+                recent.forEach(function(p) {
+                    var result = p.result || '';
+                    var resColor = result === 'W' ? '#10B981' : result === 'L' ? '#EF4444' : 'rgba(255,255,255,0.3)';
+                    html += '<div class="dash-card"><div class="dash-matchup"><div class="teams" style="font-size:13px;">' + (p.matchup || p.game || '') + '</div>' +
+                        '<div class="sport-tag">' + (p.sport || '') + ' &mdash; ' + (p.who || p.submitted_by || '') + ' &mdash; ' + (p.selection || p.pick || '') + '</div></div>' +
+                        '<span style="font-size:13px;font-weight:800;color:' + resColor + ';">' + (result || '--') + '</span></div>';
+                });
+                cpEl.innerHTML = html;
+            }
+        }
+
+        // User-specific bankroll stats — compute from picks
+        var userPicks = allPicks.filter(function(p) {
+            var who = (p.who || p.submitted_by || '').toLowerCase();
+            return who === currentUser.toLowerCase();
+        });
+        var todayPicks = userPicks.filter(function(p) { return (p.date || '').startsWith(today); });
+        var gradedToday = todayPicks.filter(function(p) { return p.result === 'W' || p.result === 'L'; });
+        var todayW = gradedToday.filter(function(p) { return p.result === 'W'; }).length;
+        var todayL = gradedToday.filter(function(p) { return p.result === 'L'; }).length;
+
+        // Streak — most recent consecutive W or L
+        var graded = userPicks.filter(function(p) { return p.result === 'W' || p.result === 'L'; });
+        graded.sort(function(a, b) { return (a.date || '').localeCompare(b.date || '') || (a.created_at || '').localeCompare(b.created_at || ''); });
+        var streak = '--';
+        if (graded.length) {
+            var lastResult = graded[graded.length - 1].result;
+            var count = 0;
+            for (var si = graded.length - 1; si >= 0; si--) {
+                if (graded[si].result === lastResult) count++;
+                else break;
+            }
+            streak = count + lastResult;
+        }
+
+        // ROI — total graded picks
+        var totalW = graded.filter(function(p) { return p.result === 'W'; }).length;
+        var totalGraded = graded.length;
+        var roi = totalGraded > 0 ? ((totalW / totalGraded) * 100).toFixed(1) : '0.0';
+
+        // Exposure — today's pending (ungraded) picks count * unit size
+        var pendingToday = todayPicks.filter(function(p) { return !p.result; }).length;
+
+        // Update bankroll display
+        fetch('/api/bankroll').then(function(r){return r.json();}).then(function(b) {
+            var unitSize = b.unit_size || 25;
+            var startBal = b.starting_balance || 1000;
+            var bal = document.getElementById('dashBalance');
+            var exp = document.getElementById('dashExposure');
+            var str = document.getElementById('dashStreak');
+            var roiEl = document.getElementById('dashROI');
+            if (bal) bal.textContent = '$' + startBal.toFixed(0);
+            if (exp) exp.textContent = pendingToday + 'u ($' + (pendingToday * unitSize).toFixed(0) + ')';
+            if (str) str.textContent = streak;
+            if (roiEl) roiEl.textContent = roi + '%';
+
+            // Today's record line above bankroll
+            var todayRec = document.getElementById('dashTodayRecord');
+            if (todayRec) {
+                if (gradedToday.length) {
+                    todayRec.textContent = currentUser + '\'s Today: ' + todayW + 'W-' + todayL + 'L';
+                    todayRec.style.color = todayW > todayL ? '#10B981' : todayL > todayW ? '#EF4444' : 'var(--ec-text-tertiary)';
+                } else {
+                    todayRec.textContent = currentUser + ' — no graded picks today';
+                }
+            }
+        }).catch(function(){});
     }).catch(function(){});
 }
 
