@@ -8681,10 +8681,10 @@ if ('serviceWorker' in navigator) {
             flakes.push({
                 x: Math.random() * canvas.width,
                 y: Math.random() * canvas.height,
-                r: Math.random() * 3 + 1,
-                speed: Math.random() * 1.5 + 0.5,
-                wind: Math.random() * 0.5 - 0.25,
-                opacity: Math.random() * 0.6 + 0.2
+                r: Math.random() * 3.5 + 1,
+                speed: Math.random() * 1.2 + 0.3,
+                wind: Math.random() * 0.4 - 0.2,
+                opacity: Math.random() * 0.5 + 0.3
             });
         }
     }
@@ -8696,11 +8696,11 @@ if ('serviceWorker' in navigator) {
             var f = flakes[i];
             ctx.beginPath();
             ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(129,140,248,' + f.opacity + ')';
+            ctx.fillStyle = 'rgba(235,240,255,' + f.opacity + ')';
             ctx.fill();
             f.y += f.speed;
             f.x += f.wind + Math.sin(f.y * 0.01) * 0.3;
-            if (f.y > canvas.height) { f.y = -5; f.x = Math.random() * canvas.width; }
+            if (f.y > canvas.height + 20) { f.y = -(Math.random() * 40 + 10); f.x = Math.random() * canvas.width; }
             if (f.x > canvas.width) f.x = 0;
             if (f.x < 0) f.x = canvas.width;
         }
@@ -8711,7 +8711,7 @@ if ('serviceWorker' in navigator) {
         if (running) return;
         running = true;
         resize();
-        createFlakes(80);
+        createFlakes(120);
         canvas.classList.add('active');
         draw();
     };

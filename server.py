@@ -986,13 +986,13 @@ CHAINS = {
             "name": "FATIGUE FADE",
             "desc": "Rested team vs tired squad on long road trip with depth issues",
             "bonus": 1.0,
-            "vars": {"rest_advantage": (">=", 8), "road_trip_length": (">=", 7), "depth_injuries": (">=", 7)},
+            "vars": {"rest_advantage": (">=", 8), "road_trip_length": (">=", 7), "depth_injuries": (">=", 6)},
         },
         {
             "name": "FORM WAVE",
             "desc": "Hot team firing on all cylinders — offense, ATS, H2H all aligned",
             "bonus": 1.5,
-            "vars": {"recent_form": (">=", 8), "off_ranking": (">=", 8), "ats_trend": (">=", 7), "h2h_season": (">=", 7)},
+            "vars": {"recent_form": (">=", 8), "off_ranking": (">=", 7), "ats_trend": (">=", 7), "h2h_season": (">=", 6)},
         },
         {
             "name": "TRAP GAME",
@@ -1024,7 +1024,7 @@ CHAINS = {
             "name": "FATIGUE FADE",
             "desc": "B2B fatigue + long road trip + depth issues — fade the tired team",
             "bonus": 1.0,
-            "vars": {"b2b_fatigue": (">=", 8), "road_trip_length": (">=", 7), "depth_injuries": (">=", 7)},
+            "vars": {"b2b_fatigue": (">=", 8), "road_trip_length": (">=", 7), "depth_injuries": (">=", 6)},
         },
         {
             "name": "TRAP GAME",
@@ -1056,7 +1056,7 @@ CHAINS = {
             "name": "FORM WAVE",
             "desc": "Hot team with xG backing it up — form, ATS, H2H all aligned",
             "bonus": 1.5,
-            "vars": {"recent_form": (">=", 8), "xg_trend": (">=", 8), "ats_trend": (">=", 7), "h2h_season": (">=", 7)},
+            "vars": {"recent_form": (">=", 8), "xg_trend": (">=", 7), "ats_trend": (">=", 7), "h2h_season": (">=", 6)},
         },
     ],
 }
@@ -1178,21 +1178,21 @@ def _recalculate_grade(game, sport):
 
     # Apply grade from thresholds — WE decide the grade, not GPT
     gpt_grade = game.get("grade", "")
-    if recalculated >= 9.0:
+    if recalculated >= 8.5:
         game["grade"] = "A+"
-    elif recalculated >= 8.5:
+    elif recalculated >= 7.8:
         game["grade"] = "A"
-    elif recalculated >= 7.5:
-        game["grade"] = "A-"
     elif recalculated >= 7.0:
-        game["grade"] = "B+"
+        game["grade"] = "A-"
     elif recalculated >= 6.5:
-        game["grade"] = "B"
+        game["grade"] = "B+"
     elif recalculated >= 6.0:
-        game["grade"] = "B-"
+        game["grade"] = "B"
     elif recalculated >= 5.5:
+        game["grade"] = "B-"
+    elif recalculated >= 5.0:
         game["grade"] = "C+"
-    elif recalculated >= 4.5:
+    elif recalculated >= 4.0:
         game["grade"] = "C"
     elif recalculated >= 3.0:
         game["grade"] = "D"
