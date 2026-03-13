@@ -4289,6 +4289,10 @@ async def serve_sw():
     return FileResponse("static/sw.js", media_type="application/javascript",
                         headers={"Service-Worker-Allowed": "/", "Cache-Control": "no-cache"})
 
+@app.get("/favicon.ico")
+async def serve_favicon():
+    return FileResponse("static/favicon.ico", media_type="image/x-icon", headers={"Cache-Control": "public, max-age=86400"})
+
 @app.get("/manifest.json")
 async def serve_manifest():
     return FileResponse("static/manifest.json", media_type="application/json", headers={"Cache-Control": "no-cache"})
