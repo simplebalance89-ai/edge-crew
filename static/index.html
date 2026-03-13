@@ -2496,7 +2496,7 @@ function loadLoginProfiles() {
     fetch('/api/version').then(function(r) { return r.json(); }).then(function(data) {
         var el = document.getElementById('buildVersion');
         if (el && data.version) {
-            el.textContent = data.version + ' | ' + data.mode + ' (' + (data.thinker || '').split('-')[0] + '+' + (data.formatter || '').split('-')[0] + ')';
+            el.textContent = data.version + ' | ' + (data.built || '') + ' | ' + data.mode + ' (' + (data.thinker || '').split('-')[0] + '+' + (data.formatter || '').split('-')[0] + ')';
         }
     }).catch(function() {});
 }
