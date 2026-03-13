@@ -247,7 +247,7 @@ body::before{content:'';position:fixed;bottom:0;left:0;right:0;height:35vh;backg
 .refresh-btn{position:absolute;top:8px;right:8px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.6);border-radius:4px;padding:2px 8px;font-size:12px;cursor:pointer;}
 .refresh-btn:hover{background:rgba(255,255,255,0.2);color:#fff;}
 .detail-box{position:relative;}
-.data-card-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;}
+.data-card-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px;}
 @media (max-width:600px){.data-card-grid{grid-template-columns:1fr;}}
 
 /* ===== TAGS ===== */
@@ -5123,11 +5123,6 @@ function buildGameRowHTML(g) {
                         '<div class="records-data" id="records-' + mid + '">Loading...</div>' +
                         '<button class="refresh-btn" onclick="event.stopPropagation();refreshCard(\'records\',\'' + mid + '\',\'' + sp + '\')">\u21BB</button>' +
                     '</div>' +
-                    '<div class="detail-box" style="border-color:rgba(168,85,247,0.3);">' +
-                        '<h4 style="color:#A855F7;">\u2694\uFE0F H2H</h4>' +
-                        '<div class="h2h-data" id="h2h-' + mid + '">Loading...</div>' +
-                        '<button class="refresh-btn" onclick="event.stopPropagation();refreshCard(\'h2h\',\'' + mid + '\',\'' + sp + '\')">\u21BB</button>' +
-                    '</div>' +
                     '<div class="detail-box" style="border-color:rgba(16,185,129,0.3);">' +
                         '<h4 style="color:#10B981;">\uD83D\uDCCB Lineups</h4>' +
                         '<div class="lineup-data" id="lineup-' + mid + '">Loading...</div>' +
@@ -5145,7 +5140,7 @@ function toggleGameExpand(el, matchupId, sport) {
     el.classList.toggle('expanded');
     if (!wasExpanded) {
         // Auto-load data cards on first expand
-        ['injuries', 'records', 'lineup', 'h2h'].forEach(function(type) {
+        ['injuries', 'records', 'lineup'].forEach(function(type) {
             var cardEl = document.getElementById(type + '-' + matchupId);
             if (cardEl && cardEl.textContent === 'Loading...') {
                 refreshCard(type, matchupId, sport);
@@ -6634,25 +6629,40 @@ function fetchAnalysis(sport) {
                             if (detail) {
                                 var peterBox = detail.querySelector('.detail-box.peter');
                                 if (peterBox && game.peter_zone) peterBox.innerHTML = '<h4>The Play</h4><p>' + game.peter_zone + '</p>';
-                                var trendsBox = detail.querySelector('.detail-box.trends');
-                                if (trendsBox && game.trends && game.trends.length) {
-                                    var th = '<h4>Trends</h4><ul>'; game.trends.forEach(function(t){th+='<li>'+t+'</li>';}); th+='</ul>';
-                                    var gameSport = (row.closest('.sport-panel') || {}).id || '';
-                                    var sp = gameSport.replace('panel-','').toUpperCase();
-                                    if (rotowireUrls[sp]) {
-                                        th += '<div style="margin-top:8px;display:flex;gap:6px;">' +
-                                            '<a href="' + rotowireUrls[sp].lineups + '" target="_blank" onclick="event.stopPropagation()" style="display:inline-block;padding:4px 10px;background:rgba(99,102,241,0.12);color:#818cf8;border-radius:4px;text-decoration:none;font-size:11px;font-weight:600;">Lineups</a>' +
-                                            '<a href="' + rotowireUrls[sp].injuries + '" target="_blank" onclick="event.stopPropagation()" style="display:inline-block;padding:4px 10px;background:rgba(239,68,68,0.15);color:#EF4444;border-radius:4px;text-decoration:none;font-size:11px;font-weight:600;">Injuries</a>' +
-                                            '</div>';
+                                // === KEY FACTORS — merged Trends + Flags + Injury Impact ===
+                                var hasKeyFactors = (game.trends && game.trends.length) || (game.flags && game.flags.length) || game.injury_impact;
+                                if (hasKeyFactors) {
+                                    // Remove old separate boxes if they exist
+                                    var oldTrends = detail.querySelector('.detail-box.trends');
+                                    var oldFlags = detail.querySelector('.detail-box.flags');
+                                    if (oldTrends) oldTrends.remove();
+                                    if (oldFlags) oldFlags.remove();
+                                    var existingKF = detail.querySelector('.detail-box.key-factors');
+                                    if (!existingKF) {
+                                        var kf = document.createElement('div'); kf.className = 'detail-box key-factors';
+                                        kf.style.cssText = 'border-color:rgba(168,85,247,0.3);';
+                                        var kfh = '<h4 style="color:#A855F7;">Key Factors</h4><ul style="margin:0;padding-left:16px;">';
+                                        if (game.injury_impact) {
+                                            kfh += '<li style="color:#EF4444;margin-bottom:4px;"><strong>Injury:</strong> ' + game.injury_impact + '</li>';
+                                        }
+                                        if (game.flags && game.flags.length) {
+                                            game.flags.forEach(function(f) { kfh += '<li style="margin-bottom:2px;">' + f + '</li>'; });
+                                        }
+                                        if (game.trends && game.trends.length) {
+                                            game.trends.forEach(function(t) { kfh += '<li style="color:rgba(255,255,255,0.5);margin-bottom:2px;">' + t + '</li>'; });
+                                        }
+                                        kfh += '</ul>';
+                                        var gameSport = (row.closest('.sport-panel') || {}).id || '';
+                                        var sp = gameSport.replace('panel-','').toUpperCase();
+                                        if (rotowireUrls[sp]) {
+                                            kfh += '<div style="margin-top:8px;display:flex;gap:6px;">' +
+                                                '<a href="' + rotowireUrls[sp].lineups + '" target="_blank" onclick="event.stopPropagation()" style="display:inline-block;padding:4px 10px;background:rgba(99,102,241,0.12);color:#818cf8;border-radius:4px;text-decoration:none;font-size:11px;font-weight:600;">Lineups</a>' +
+                                                '<a href="' + rotowireUrls[sp].injuries + '" target="_blank" onclick="event.stopPropagation()" style="display:inline-block;padding:4px 10px;background:rgba(239,68,68,0.15);color:#EF4444;border-radius:4px;text-decoration:none;font-size:11px;font-weight:600;">Injuries</a>' +
+                                                '</div>';
+                                        }
+                                        kf.innerHTML = kfh;
+                                        detail.appendChild(kf);
                                     }
-                                    trendsBox.innerHTML = th;
-                                }
-                                var flagsBox = detail.querySelector('.detail-box.flags');
-                                if (flagsBox && game.flags && game.flags.length) {
-                                    var fh = '<h4>Flags</h4><ul>'; game.flags.forEach(function(f){fh+='<li>'+f+'</li>';}); fh+='</ul>'; flagsBox.innerHTML = fh;
-                                } else if (!flagsBox && game.flags && game.flags.length) {
-                                    var nf = document.createElement('div'); nf.className = 'detail-box flags';
-                                    var fh2 = '<h4>Flags</h4><ul>'; game.flags.forEach(function(f){fh2+='<li>'+f+'</li>';}); fh2+='</ul>'; nf.innerHTML = fh2; detail.appendChild(nf);
                                 }
                                 // === SCORE BREAKDOWN BOX ===
                                 if (game.matrix_scores || game.composite_score) {
@@ -6690,11 +6700,6 @@ function fetchAnalysis(sport) {
                                             sbh += '<div style="margin-top:8px;padding:8px;background:rgba(255,255,255,0.03);border-radius:6px;border-left:3px solid ' + (game.edge_question.indexOf('No clear edge') !== -1 ? '#ef4444' : '#22c55e') + ';">';
                                             sbh += '<p style="font-size:10px;color:rgba(255,255,255,0.4);margin-bottom:2px;font-weight:600;">EDGE QUESTION</p>';
                                             sbh += '<p style="font-size:12px;color:var(--ec-text-secondary);">' + game.edge_question + '</p></div>';
-                                        }
-                                        if (game.injury_impact) {
-                                            sbh += '<div style="margin-top:6px;padding:8px;background:rgba(239,68,68,0.05);border-radius:6px;border-left:3px solid #ef4444;">';
-                                            sbh += '<p style="font-size:10px;color:rgba(239,68,68,0.6);margin-bottom:2px;font-weight:600;">INJURY IMPACT</p>';
-                                            sbh += '<p style="font-size:12px;color:var(--ec-text-secondary);">' + game.injury_impact + '</p></div>';
                                         }
                                         sb.innerHTML = sbh;
                                         detail.insertBefore(sb, detail.firstChild);
