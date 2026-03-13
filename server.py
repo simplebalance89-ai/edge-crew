@@ -3036,6 +3036,18 @@ Return ONLY valid JSON. No markdown. No explanation."""
             except Exception as e:
                 logger.warning(f"Player validation error: {e}")
 
+        # Add incomplete games to the response so frontend can display them
+        for ig in incomplete_games:
+            all_analyzed_games.append({
+                "matchup": ig["matchup"],
+                "grade": "INCOMPLETE",
+                "data_status": f"MISSING: {', '.join(ig['missing'])}",
+                "edge_summary": f"Cannot grade — missing {', '.join(ig['missing'])} data.",
+                "peter_zone": "Waiting for complete line data before grading.",
+                "composite_score": 0,
+                "tags": ["INCOMPLETE"],
+            })
+
         analysis = {
             "gotcha": gotcha_html or "Analysis partially generated. Some batches may have failed.",
             "games": all_analyzed_games,

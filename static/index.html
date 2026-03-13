@@ -6182,6 +6182,8 @@ function applyAgentFilter(who, forceRefresh) {
         var el = document.getElementById(checkId + s.toUpperCase() + 'Content');
         return el && (forceRefresh || el.querySelector('p[style*="italic"]'));
     });
+    // Track pending count for analysis completion sweep
+    if (typeof _analysisPending !== 'undefined') _analysisPending += toFetch.length;
     // Batch 3 at a time with 2s gap between batches
     (function batchAnalysis(idx) {
         var batch = toFetch.slice(idx, idx + 3);
@@ -6201,16 +6203,36 @@ function backToAgents() {
     applyAgentFilter(next, true);
 }
 
+var _analysisPending = 0;
 function runAnalysis() {
     // User clicked ANALYZE — load analysis for selected agent
     var btn = document.getElementById('analyzeBtn');
     if (btn) { btn.textContent = 'GRADING...'; btn.disabled = true; }
     var agent = sessionStorage.getItem('edgeCrewAgent') || 'sintonia';
+    // Track pending sport fetches — sweep ungraded when all done
+    window._analysisLoadCallback = function(sport) {
+        _analysisPending--;
+        if (_analysisPending <= 0) {
+            _analysisPending = 0;
+            if (btn) { btn.textContent = 'ANALYZE'; btn.disabled = false; }
+            // Sweep: mark any game card that still has no grade as N/A
+            document.querySelectorAll('.game-row').forEach(function(row) {
+                if (row.closest('.sport-panel') && row.offsetParent !== null) {
+                    var gradeEl = row.querySelector('.game-grade .grade');
+                    if (gradeEl && (!gradeEl.textContent || gradeEl.textContent === '--' || gradeEl.textContent.trim() === '')) {
+                        gradeEl.className = 'grade gc';
+                        gradeEl.textContent = 'N/A';
+                        gradeEl.style.cssText = 'background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.4);';
+                    }
+                }
+            });
+        }
+    };
     applyAgentFilter(agent, true);
-    // Re-enable button after analysis loads (batched, takes longer)
+    // Fallback timeout in case callbacks don't fire
     setTimeout(function() {
-        if (btn) { btn.textContent = 'ANALYZE'; btn.disabled = false; }
-    }, 45000);
+        if (btn && btn.textContent === 'GRADING...') { btn.textContent = 'ANALYZE'; btn.disabled = false; }
+    }, 60000);
 }
 
 // ===== ANALYSIS FETCH =====
