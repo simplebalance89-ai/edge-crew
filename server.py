@@ -8,6 +8,7 @@ import logging
 import httpx
 import re
 import asyncio
+import statistics
 import db
 from openai import AzureOpenAI
 from datetime import datetime, timedelta
@@ -590,9 +591,14 @@ API_SPORTS_LEAGUES = {
 # Azure OpenAI config
 AZURE_ENDPOINT = os.environ.get("AZURE_OPENAI_ENDPOINT", "")
 AZURE_KEY = os.environ.get("AZURE_OPENAI_KEY", "")
-AZURE_MODEL = os.environ.get("AZURE_OPENAI_MODEL", "gpt-4o")
+AZURE_MODEL = os.environ.get("AZURE_OPENAI_MODEL", "gpt-4.1")
 REALTIME_DEPLOYMENT = "gpt-4o-realtime"
 AZURE_BASE = AZURE_ENDPOINT.rstrip("/")
+
+# Two-model analysis engine: Grok reasons, DeepSeek formats
+ANALYSIS_THINKER = os.environ.get("ANALYSIS_THINKER", "grok-4-1-fast-reasoning")
+ANALYSIS_FORMATTER = os.environ.get("ANALYSIS_FORMATTER", "DeepSeek-V3.2")
+ANALYSIS_MODE = os.environ.get("ANALYSIS_MODE", "twomodel")  # "twomodel" or "single"
 
 # EV Agent character config for voice
 EV_AGENT_VOICE = {
@@ -966,7 +972,173 @@ SOCCER_MATRIX = [
     ("depth_injuries", 4, "Bench / rotation injuries"),
 ]
 
-SPORT_MATRICES = {"nba": NBA_MATRIX, "nhl": NHL_MATRIX, "soccer": SOCCER_MATRIX}
+NCAAB_MATRIX = [
+    ("tempo_matchup", 9, "Pace / tempo matchup — fast vs slow, possessions per game"),
+    ("three_pt_reliance", 8, "3PT shooting reliance vs opponent 3PT defense"),
+    ("sharp_vs_public", 8, "Sharp money vs public betting split"),
+    ("line_movement", 8, "Line movement since open — sharp action, reverse moves"),
+    ("ats_trend", 8, "ATS trend (last 7/14 days)"),
+    ("defensive_efficiency", 8, "KenPom adjusted defensive efficiency"),
+    ("offensive_efficiency", 8, "KenPom adjusted offensive efficiency"),
+    ("star_player_status", 7, "Key player out or limited"),
+    ("bench_depth", 7, "Bench depth — minutes distribution, bench scoring"),
+    ("conference_strength", 7, "Conference strength of schedule adjustment"),
+    ("turnover_margin", 7, "Turnover margin — live ball turnovers, steals"),
+    ("rebounding", 7, "Offensive + defensive rebounding differential"),
+    ("recent_form", 7, "Recent form / streak (last 5-10 games)"),
+    ("home_court", 6, "Home court advantage — elevation, crowd, venue factor"),
+    ("coaching_matchup", 6, "Coaching matchup — timeout usage, in-game adjustments"),
+    ("ft_shooting", 6, "Free throw shooting % and FTA rate"),
+    ("rivalry_motivation", 6, "Rivalry / motivation factor — tourney implications"),
+    ("b2b_fatigue", 6, "Back-to-back or 3-in-5 schedule fatigue"),
+    ("travel_distance", 5, "Travel distance / time zone adjustment"),
+    ("line_vs_model", 5, "Our composite vs the line spread — meta-edge signal"),
+]
+
+MLB_MATRIX = [
+    ("starting_pitcher", 9, "Starting pitcher quality — ERA, WHIP, K/9, recent form"),
+    ("bullpen_strength", 9, "Bullpen strength — ERA, leverage usage, rest"),
+    ("lineup_vs_hand", 8, "Lineup vs LHP/RHP splits — wOBA, OPS"),
+    ("sharp_vs_public", 8, "Sharp money vs public betting split"),
+    ("line_movement", 8, "Line movement since open — sharp action, reverse moves"),
+    ("park_factor", 7, "Park factor — HR, runs, dimensions"),
+    ("recent_form", 7, "Recent form / streak (last 10 games)"),
+    ("ats_trend", 7, "ATS / run line trend (last 7/14 days)"),
+    ("platoon_advantage", 7, "Platoon advantage — batter handedness vs pitcher"),
+    ("defensive_metrics", 7, "Defensive metrics — DRS, OAA, error rate"),
+    ("weather_conditions", 6, "Weather — wind, temperature, humidity, roof"),
+    ("umpire_tendencies", 6, "Home plate umpire — strike zone size, run totals"),
+    ("travel_rest", 6, "Travel / rest days — cross-country, day game after night"),
+    ("home_away_splits", 6, "Home/away performance splits"),
+    ("injuries", 6, "Key injuries — IL, DTD, lineup changes"),
+    ("run_line_value", 6, "Run line value — margin of victory trends"),
+    ("stolen_base_potential", 5, "Stolen base potential — team speed vs catcher pop time"),
+    ("clutch_hitting", 5, "Clutch hitting — RISP, late/close situations"),
+    ("manager_tendencies", 5, "Manager tendencies — bullpen usage, lineup decisions"),
+    ("line_vs_model", 5, "Our composite vs the line — meta-edge signal"),
+]
+
+WNBA_MATRIX = [
+    ("star_player_status", 9, "Star player (top 2) out or limited"),
+    ("rest_advantage", 9, "B2B, 3-in-5, rest days between games"),
+    ("line_movement", 9, "Line movement since open — sharp action, reverse moves"),
+    ("off_ranking", 8, "Offensive efficiency rating"),
+    ("def_ranking", 8, "Defensive efficiency rating"),
+    ("three_pt_matchup", 7, "3PT shooting matchup (attempt rate, %, defense vs 3)"),
+    ("sharp_vs_public", 7, "Where the money is (sharp vs public)"),
+    ("pace_matchup", 7, "Pace matchup — possessions per game"),
+    ("recent_form", 7, "Recent form / streak (last 5-10 games)"),
+    ("turnover_gap", 7, "Turnover differential — possession control edge"),
+    ("rebounding_edge", 7, "Offensive + defensive rebounding gap"),
+    ("h2h_season", 6, "Head-to-head this season (record, margins, trends)"),
+    ("paint_scoring", 6, "Points in the paint matchup"),
+    ("fast_break", 6, "Fast break / transition points"),
+    ("ats_trend", 6, "ATS trend (last 7/14 days)"),
+    ("bench_depth", 6, "Bench scoring and depth"),
+    ("ft_shooting", 6, "Free throw rate and percentage"),
+    ("home_away", 5, "Home/away record"),
+    ("travel_fatigue", 5, "Travel distance / schedule congestion"),
+    ("line_vs_model", 5, "Our composite vs the line spread — meta-edge signal"),
+]
+
+NCAAF_MATRIX = [
+    ("sharp_vs_public", 9, "Sharp money vs public betting split"),
+    ("line_movement", 9, "Line movement since open — sharp action, reverse moves"),
+    ("offensive_efficiency", 8, "Offensive yards/play, points/drive, EPA"),
+    ("defensive_efficiency", 8, "Defensive yards/play, points/drive allowed"),
+    ("star_player_status", 8, "Key player out or limited — QB, top RB/WR"),
+    ("recruiting_rankings", 7, "Recruiting talent — composite rankings, blue chip ratio"),
+    ("transfer_portal", 7, "Transfer portal impact — key additions/losses"),
+    ("recent_form", 7, "Recent form / streak (last 3-5 games)"),
+    ("ats_trend", 7, "ATS trend (last 7/14 days)"),
+    ("turnover_margin", 7, "Turnover margin — takeaways vs giveaways"),
+    ("rivalry_factor", 7, "Rivalry / motivation — conference title, bowl implications"),
+    ("home_crowd", 6, "Home field advantage — stadium capacity, noise factor"),
+    ("coaching_matchup", 6, "Coaching matchup — scheme, play-calling tendencies"),
+    ("rushing_attack", 6, "Rushing offense vs run defense matchup"),
+    ("passing_attack", 6, "Passing offense vs pass defense matchup"),
+    ("special_teams", 6, "Special teams — return game, kicking, punt coverage"),
+    ("red_zone", 5, "Red zone efficiency — offense and defense"),
+    ("weather_conditions", 5, "Weather — wind, rain, cold, altitude"),
+    ("rest_days", 5, "Rest days / bye week advantage"),
+    ("line_vs_model", 5, "Our composite vs the line spread — meta-edge signal"),
+]
+
+TENNIS_MATRIX = [
+    ("surface_advantage", 9, "Surface win % — clay, hard, grass specialization"),
+    ("h2h_record", 9, "Head-to-head record and recent matchup trends"),
+    ("recent_form", 8, "Recent form — wins/losses last 5-10 matches"),
+    ("serve_stats", 8, "Serve — ace rate, 1st serve %, hold rate"),
+    ("return_game", 8, "Return game — break point conversion, return points won"),
+    ("sharp_vs_public", 7, "Sharp money vs public betting split"),
+    ("line_movement", 7, "Line movement since open"),
+    ("ranking_gap", 7, "ATP/WTA ranking gap — form-adjusted"),
+    ("fitness_injury", 7, "Fitness / injury status — MTO, retirement risk"),
+    ("break_point_conversion", 7, "Break point conversion rate — clutch factor"),
+    ("mental_toughness", 7, "Mental toughness — tiebreak record, deciding sets"),
+    ("fatigue_schedule", 6, "Fatigue — tournament schedule, travel, consecutive matches"),
+    ("set_handicap_value", 6, "Set handicap value — how tight are sets"),
+    ("match_length_trend", 6, "Match length trend — fitness advantage in long matches"),
+    ("clutch_performance", 6, "Clutch performance — deciding set record, deuce games"),
+    ("surface_win_pct", 6, "Surface-specific win % this season"),
+    ("travel_adjustment", 5, "Travel / time zone adjustment"),
+    ("weather_conditions", 5, "Weather — wind, heat, indoor/outdoor"),
+    ("motivation", 5, "Motivation — ranking points defense, Slam pressure"),
+    ("coaching", 5, "Coaching changes / new tactics"),
+]
+
+MMA_MATRIX = [
+    ("style_matchup", 9, "Style matchup — striker vs grappler, range fighter vs pressure"),
+    ("recent_form", 8, "Recent form — wins, finishes, decision losses"),
+    ("sharp_vs_public", 8, "Sharp money vs public betting split"),
+    ("line_movement", 8, "Line movement since open"),
+    ("grappling_advantage", 8, "Grappling — wrestling credentials, submission threat, TDD"),
+    ("striking_advantage", 8, "Striking — volume, accuracy, power, defense"),
+    ("cardio_endurance", 7, "Cardio / gas tank — late-round performance"),
+    ("reach_advantage", 7, "Reach / height advantage — range management"),
+    ("chin_durability", 7, "Chin durability — absorption rate, knockdown history"),
+    ("takedown_defense", 7, "Takedown defense % — ability to keep fight standing"),
+    ("fight_iq", 7, "Fight IQ — cage control, adjustments, game planning"),
+    ("camp_quality", 6, "Camp quality — training partners, coaching"),
+    ("weight_cut", 6, "Weight cut — missed weight history, size at weigh-in"),
+    ("finishing_rate", 6, "Finishing rate — KO/TKO/SUB vs decisions"),
+    ("injury_history", 6, "Injury history — layoff, surgery, chronic issues"),
+    ("motivation", 6, "Motivation — title shot, rivalry, contract fight"),
+    ("octagon_control", 5, "Octagon control — center positioning, cage pressure"),
+    ("experience_gap", 5, "Experience gap — UFC fights, five-round experience"),
+    ("method_of_victory_lean", 5, "Method of victory lean — KO, SUB, or DEC value"),
+    ("line_vs_model", 5, "Our composite vs the line — meta-edge signal"),
+]
+
+BOXING_MATRIX = [
+    ("style_matchup", 9, "Style matchup — counter-puncher vs pressure, southpaw vs orthodox"),
+    ("recent_form", 8, "Recent form — wins, stoppages, level of opposition"),
+    ("sharp_vs_public", 8, "Sharp money vs public betting split"),
+    ("line_movement", 8, "Line movement since open"),
+    ("punch_output", 8, "Punch output — volume, connect rate, jab effectiveness"),
+    ("power_advantage", 8, "Power — KO %, one-punch ability, body work"),
+    ("ring_generalship", 7, "Ring generalship — cutting off ring, controlling distance"),
+    ("counter_punching", 7, "Counter-punching ability — timing, accuracy on counters"),
+    ("cardio_endurance", 7, "Cardio / gas tank — late-round performance"),
+    ("reach_advantage", 7, "Reach / height advantage — range management"),
+    ("chin_durability", 7, "Chin durability — been hurt/dropped, recovery"),
+    ("defensive_skill", 7, "Defensive skill — head movement, guard, footwork"),
+    ("body_attack", 6, "Body attack effectiveness — breaking down opponents"),
+    ("camp_quality", 6, "Camp quality — trainer, sparring partners"),
+    ("weight_management", 6, "Weight management — rehydration, size advantage"),
+    ("motivation", 6, "Motivation — title shot, legacy, redemption"),
+    ("injury_history", 6, "Injury history — cuts, hand issues, layoff"),
+    ("experience_gap", 5, "Experience gap — rounds fought, championship experience"),
+    ("judges_location", 5, "Judges / location — home advantage, scoring tendencies"),
+    ("line_vs_model", 5, "Our composite vs the line — meta-edge signal"),
+]
+
+SPORT_MATRICES = {
+    "nba": NBA_MATRIX, "nhl": NHL_MATRIX, "soccer": SOCCER_MATRIX,
+    "ncaab": NCAAB_MATRIX, "mlb": MLB_MATRIX, "wnba": WNBA_MATRIX,
+    "ncaaf": NCAAF_MATRIX, "tennis": TENNIS_MATRIX, "mma": MMA_MATRIX,
+    "boxing": BOXING_MATRIX,
+}
 
 # ============================================================
 # CHAIN DETECTION ENGINE — Compound signal bonuses
@@ -1065,6 +1237,146 @@ CHAINS = {
             "vars": {"recent_form": (">=", 8), "xg_trend": (">=", 7), "ats_trend": (">=", 7), "h2h_season": (">=", 6)},
         },
     ],
+    "ncaab": [
+        {
+            "name": "TEMPO TRAP",
+            "desc": "Pace mismatch + sharps on the slow side + opponent relies on 3PT",
+            "bonus": 1.0,
+            "vars": {"tempo_matchup": (">=", 8), "sharp_vs_public": (">=", 7), "three_pt_reliance": (">=", 7)},
+        },
+        {
+            "name": "TOURNEY FADE",
+            "desc": "Fatigued team on B2B + weak bench + opponent has home crowd",
+            "bonus": 1.0,
+            "vars": {"b2b_fatigue": (">=", 7), "bench_depth": ("<=", 4), "home_court": (">=", 7)},
+        },
+        {
+            "name": "FORM WAVE",
+            "desc": "Hot team firing — ATS, form, efficiency all aligned",
+            "bonus": 1.5,
+            "vars": {"recent_form": (">=", 8), "ats_trend": (">=", 7), "offensive_efficiency": (">=", 7)},
+        },
+    ],
+    "mlb": [
+        {
+            "name": "ACE MISMATCH",
+            "desc": "Elite SP vs weak lineup + park suppresses runs + sharps agree",
+            "bonus": 1.5,
+            "vars": {"starting_pitcher": (">=", 8), "lineup_vs_hand": ("<=", 4), "park_factor": ("<=", 4)},
+        },
+        {
+            "name": "BULLPEN FADE",
+            "desc": "Overworked bullpen + recent form dropping + travel fatigue",
+            "bonus": 1.0,
+            "vars": {"bullpen_strength": ("<=", 4), "recent_form": ("<=", 4), "travel_rest": (">=", 7)},
+        },
+        {
+            "name": "SHARP STEAM",
+            "desc": "Sharp money pouring in + line moving + platoon advantage",
+            "bonus": 1.0,
+            "vars": {"sharp_vs_public": (">=", 8), "line_movement": (">=", 7), "platoon_advantage": (">=", 7)},
+        },
+    ],
+    "wnba": [
+        {
+            "name": "FATIGUE FADE",
+            "desc": "Rested team vs tired squad with travel + depth issues",
+            "bonus": 1.0,
+            "vars": {"rest_advantage": (">=", 8), "travel_fatigue": (">=", 7), "bench_depth": ("<=", 4)},
+        },
+        {
+            "name": "FORM WAVE",
+            "desc": "Hot team — offense, ATS, H2H all aligned",
+            "bonus": 1.5,
+            "vars": {"recent_form": (">=", 8), "off_ranking": (">=", 7), "ats_trend": (">=", 7)},
+        },
+        {
+            "name": "THE MISPRICING",
+            "desc": "Star out + sharp money + line hasn't moved",
+            "bonus": 1.0,
+            "vars": {"star_player_status": (">=", 8), "line_movement": ("<=", 4), "sharp_vs_public": (">=", 7)},
+        },
+    ],
+    "ncaaf": [
+        {
+            "name": "RIVALRY TRAP",
+            "desc": "Rivalry game + sharps on underdog + recent ATS trend supports",
+            "bonus": 1.0,
+            "vars": {"rivalry_factor": (">=", 8), "sharp_vs_public": (">=", 7), "ats_trend": (">=", 7)},
+        },
+        {
+            "name": "TALENT GAP",
+            "desc": "Recruiting edge + transfers bolster + defense dominates",
+            "bonus": 1.5,
+            "vars": {"recruiting_rankings": (">=", 8), "transfer_portal": (">=", 7), "defensive_efficiency": (">=", 7)},
+        },
+        {
+            "name": "FORM WAVE",
+            "desc": "Hot team with momentum — offense, ATS, rushing all clicking",
+            "bonus": 1.0,
+            "vars": {"recent_form": (">=", 8), "ats_trend": (">=", 7), "rushing_attack": (">=", 7)},
+        },
+    ],
+    "tennis": [
+        {
+            "name": "SURFACE KING",
+            "desc": "Surface specialist + strong H2H + serve firing",
+            "bonus": 1.5,
+            "vars": {"surface_advantage": (">=", 8), "h2h_record": (">=", 7), "serve_stats": (">=", 7)},
+        },
+        {
+            "name": "FATIGUE FADE",
+            "desc": "Opponent fatigued + long matches piling up + fitness edge",
+            "bonus": 1.0,
+            "vars": {"fatigue_schedule": (">=", 7), "match_length_trend": (">=", 7), "fitness_injury": (">=", 7)},
+        },
+        {
+            "name": "CLUTCH MASTER",
+            "desc": "Mental toughness + break point conversion + tiebreak record",
+            "bonus": 1.0,
+            "vars": {"mental_toughness": (">=", 8), "break_point_conversion": (">=", 7), "clutch_performance": (">=", 7)},
+        },
+    ],
+    "mma": [
+        {
+            "name": "STYLE CLASH",
+            "desc": "Dominant style matchup + reach controls range + TDD nullifies grappling",
+            "bonus": 1.5,
+            "vars": {"style_matchup": (">=", 8), "reach_advantage": (">=", 7), "takedown_defense": (">=", 7)},
+        },
+        {
+            "name": "CARDIO KILLER",
+            "desc": "Superior gas tank + fight IQ + opponent fades late",
+            "bonus": 1.0,
+            "vars": {"cardio_endurance": (">=", 8), "fight_iq": (">=", 7), "chin_durability": (">=", 7)},
+        },
+        {
+            "name": "CAMP EDGE",
+            "desc": "Elite camp + sharp money + motivation factor",
+            "bonus": 1.0,
+            "vars": {"camp_quality": (">=", 7), "sharp_vs_public": (">=", 7), "motivation": (">=", 7)},
+        },
+    ],
+    "boxing": [
+        {
+            "name": "STYLE CLASH",
+            "desc": "Dominant style matchup + reach controls range + power advantage",
+            "bonus": 1.5,
+            "vars": {"style_matchup": (">=", 8), "reach_advantage": (">=", 7), "power_advantage": (">=", 7)},
+        },
+        {
+            "name": "BODY BREAKER",
+            "desc": "Body attack + cardio edge + opponent fades in late rounds",
+            "bonus": 1.0,
+            "vars": {"body_attack": (">=", 7), "cardio_endurance": (">=", 7), "punch_output": (">=", 7)},
+        },
+        {
+            "name": "RING GENERAL",
+            "desc": "Ring generalship + defensive skill + counter-punching = points machine",
+            "bonus": 1.0,
+            "vars": {"ring_generalship": (">=", 8), "defensive_skill": (">=", 7), "counter_punching": (">=", 7)},
+        },
+    ],
 }
 
 
@@ -1115,7 +1427,36 @@ def _recalculate_grade(game, sport):
 
     matrix_scores = game.get("matrix_scores", {})
     if not matrix_scores:
-        return  # GPT didn't return matrix scores, skip
+        # GPT didn't return matrix scores — fall back to GPT's composite_score for grading
+        gpt_score = game.get("composite_score")
+        if isinstance(gpt_score, (int, float)) and gpt_score > 0:
+            if gpt_score >= 8.5:
+                game["grade"] = "A+"
+            elif gpt_score >= 7.8:
+                game["grade"] = "A"
+            elif gpt_score >= 7.0:
+                game["grade"] = "A-"
+            elif gpt_score >= 6.5:
+                game["grade"] = "B+"
+            elif gpt_score >= 6.0:
+                game["grade"] = "B"
+            elif gpt_score >= 5.5:
+                game["grade"] = "B-"
+            elif gpt_score >= 5.0:
+                game["grade"] = "C+"
+            elif gpt_score >= 4.0:
+                game["grade"] = "C"
+            elif gpt_score >= 3.0:
+                game["grade"] = "D"
+            else:
+                game["grade"] = "F"
+            game["grade_source"] = "gpt_composite_fallback"
+            print(f"[GRADE FALLBACK] {game.get('matchup')} — no matrix_scores, used GPT composite {gpt_score} → {game['grade']}")
+        elif not game.get("grade") or game.get("grade") == "--":
+            game["grade"] = "N/A"
+            game["grade_source"] = "no_data"
+            print(f"[GRADE MISSING] {game.get('matchup')} — no matrix_scores, no composite, grade set to N/A")
+        return
 
     # Normalize GPT's keys to snake_case (GPT may return human-readable keys)
     # Build lookup: normalized_key -> score_data, plus label-to-key reverse map
@@ -2114,8 +2455,9 @@ def _calc_edge(best_prob, consensus_prob):
 
 
 @app.get("/api/props/{sport}")
-async def get_player_props(sport: str):
-    """Fetch real player prop lines from The Odds API with edge analysis."""
+async def get_player_props(sport: str, game: str = None):
+    """Fetch real player prop lines from The Odds API with edge analysis.
+    Optional game filter: ?game=event_id to show only one matchup."""
     sport_lower = sport.lower()
     if sport_lower not in PROP_MARKETS:
         return JSONResponse({"sport": sport.upper(), "props": [], "count": 0, "fetched_at": _now_ts(), "message": f"No prop markets configured for {sport}"})
@@ -2257,6 +2599,33 @@ async def get_player_props(sport: str):
                     # Player is listed under wrong game — stale bookmaker data
                     prop["roster_flag"] = f"ROSTER: {prop['player']} is on {actual_team}"
                     prop["matchup"] = f"{matchup} [{prop['player']} now on {actual_team}]"
+
+    # ===== FILTER: Remove garbage props =====
+    _odd_even_re = re.compile(r'\b(odd|even)\b', re.IGNORECASE)
+    filtered_props = []
+    for prop in all_props:
+        stat = prop.get("stat", "")
+        # Remove even/odd props
+        if _odd_even_re.search(stat):
+            continue
+        # Game filter — only show props for a specific event
+        if game and prop.get("event_id") and prop.get("event_id") != game:
+            continue
+        filtered_props.append(prop)
+
+    # Quality gate: filter out low-production player props
+    quality_filtered = []
+    for prop in filtered_props:
+        stat_lower = prop.get("stat", "").lower()
+        line = prop.get("line", 0)
+        # NHL: skip goal props for players with line < 0.5 (averaging < 0.3 goals/game)
+        if sport_lower == "nhl" and "goal" in stat_lower and line is not None and float(line) < 0.5:
+            continue
+        # Soccer: skip assist props for players with line < 0.5
+        if sport_lower == "soccer" and "assist" in stat_lower and line is not None and float(line) < 0.5:
+            continue
+        quality_filtered.append(prop)
+    all_props = quality_filtered
 
     # Sort: SHARP VALUE first, then by edge descending
     verdict_order = {"SHARP VALUE": 0, "SLIGHT EDGE": 1, "FAIR LINE": 2, "BAD NUMBER": 3}
@@ -2914,20 +3283,9 @@ GRADING RULES:
 
 Return ONLY valid JSON. No markdown. No explanation."""
 
-    def _call_azure_batch(prompt_text):
-        """Synchronous Azure call for one batch. Runs in thread via asyncio."""
-        client = AzureOpenAI(
-            azure_endpoint=AZURE_ENDPOINT,
-            api_key=AZURE_KEY,
-            api_version="2024-10-21",
-        )
-        response = client.chat.completions.create(
-            model=AZURE_MODEL,
-            messages=[{"role": "user", "content": prompt_text}],
-            temperature=0.7,
-            max_tokens=6000,
-        )
-        raw = response.choices[0].message.content.strip()
+    def _clean_json(raw):
+        """Strip markdown fences and parse JSON from model output."""
+        raw = raw.strip()
         if raw.startswith("```"):
             raw = raw.split("\n", 1)[1] if "\n" in raw else raw[3:]
         if raw.endswith("```"):
@@ -2935,6 +3293,390 @@ Return ONLY valid JSON. No markdown. No explanation."""
         if raw.startswith("json"):
             raw = raw[4:].strip()
         return json.loads(raw)
+
+    # ── Raw analysis persistence ──
+    def _save_raw_analysis(raw_text, batch_idx):
+        """Save Grok's raw analysis to disk so it's never lost if DeepSeek fails."""
+        try:
+            today_str = datetime.now(PST).strftime("%Y-%m-%d")
+            raw_dir = os.path.join("data", "raw_analysis")
+            os.makedirs(raw_dir, exist_ok=True)
+            path = os.path.join(raw_dir, f"{sport_lower}_{today_str}_{batch_idx}.txt")
+            with open(path, "w", encoding="utf-8") as f:
+                f.write(raw_text)
+            logger.info(f"[RAW SAVED] {path} ({len(raw_text)} chars)")
+            # Cleanup files > 7 days old
+            cutoff = datetime.now(PST) - timedelta(days=7)
+            for fname in os.listdir(raw_dir):
+                fpath = os.path.join(raw_dir, fname)
+                if os.path.isfile(fpath):
+                    mtime = datetime.fromtimestamp(os.path.getmtime(fpath), tz=PST)
+                    if mtime < cutoff:
+                        os.remove(fpath)
+        except Exception as e:
+            logger.warning(f"[RAW SAVE FAILED] {e}")
+
+    # ── Build thinker prompt (no JSON pressure) ──
+    def _build_thinker_prompt(batch_games_text, batch_incomplete_note, is_first_batch, batch_prop_lines=""):
+        """Build prompt for the reasoning model — data + questions, no JSON schema."""
+        matrix = SPORT_MATRICES.get(sport_lower, [])
+        var_list = "\n".join(
+            f"  {i}. \"{key}\" (weight {weight}) — {desc}"
+            for i, (key, weight, desc) in enumerate(matrix, 1)
+        )
+        total_weight = sum(w for _, w, _ in matrix)
+        max_score = total_weight * 10
+
+        gotcha_task = ""
+        if is_first_batch:
+            gotcha_task = f"""
+GOTCHA SECTION (first batch only):
+Before the game analysis, write a "Gotcha" briefing covering:
+- KEY INJURIES affecting tonight's lines (star players OUT/GTD)
+- B2B/rest flags
+- Line movement alerts
+- Traps to avoid
+- Weather (if outdoor)
+- Sharp money indicators
+(Analysis generated {now_time} | Data: The Odds API + ESPN + CBS Sports + RotoWire)
+"""
+
+        return f"""You are a sharp sports betting analyst with access to REAL-TIME injury data, player game logs, and a weighted scoring matrix.
+
+CRITICAL ROSTER RULE: Your training data is STALE. ONLY reference players who appear in the CURRENT ROSTERS and PLAYER GAME LOGS sections below. If a player is NOT in the data below, DO NOT mention them.
+
+NO STALE DATA RULE: Do NOT reference any statistics from before the current 2025-26 season. ONLY use data provided below.
+
+CREW: Peter (heavy/value/sharp), Jimmy (new, learning), Alyssa (pure math/EV), Sinton.ia (card builder/grader).
+
+Today's {sport.upper()} slate - {today} (pulled at {now_time}):
+
+=== ODDS DATA (THIS BATCH) ===
+{batch_games_text}
+{batch_incomplete_note}
+
+=== INJURY & LINEUP INTELLIGENCE (CBS Sports + RotoWire + ESPN + API-Sports) ===
+{injury_context}
+
+{roster_context}
+
+{game_log_context}
+
+=== REAL PLAYER PROP LINES (FROM SPORTSBOOKS) ===
+{batch_prop_lines if batch_prop_lines else "No real prop lines available — skip player props for this batch."}
+{gotcha_task}
+=== {sport.upper()} SCORING MATRIX ({len(matrix)} Variables) ===
+Score each variable 1-10 for EACH game. Use the FULL 1-10 range — do NOT cluster 5-7.
+1-2 = Strong negative | 3-4 = Moderate negative | 5 = Neutral | 6-7 = Moderate positive | 8-9 = Strong positive | 10 = Extreme edge
+Max possible weighted score: {max_score}. Composite = sum of weighted / {max_score} x 10.
+
+{var_list}
+
+COMPOSITE THRESHOLDS:
+  9.0-10.0 = BEST BET (A+, load up)
+  7.5-8.9  = STRONG PLAY (A-/B+)
+  6.0-7.4  = MODERATE EDGE (B/B-)
+  4.5-5.9  = LEAN (C, small or pass)
+  Below 4.5 = NO EDGE (D/F, pass)
+
+=== YOUR TASK FOR EACH GAME ===
+1. EDGE QUESTION: "Why is the market wrong here?" If no answer → grade D/F.
+2. INJURY IMPACT: Name specific players OUT/GTD and how it changes the line.
+3. REST/SCHEDULE: B2B? Days rest? Travel? 3-in-5?
+4. Score ALL {len(matrix)} variables by their KEY NAME (e.g. "star_player_status": 8 because...). Show reasoning for each.
+5. Compute composite score using the weights above.
+6. EDGE PICK: team, bet type (spread/ML/total), specific line, confidence grade, one-sentence reasoning.
+7. PLAYER PROPS: Top 2-3 from the real prop lines above. Use L10 averages from game logs. No props if no real lines available.
+8. FLAGS: injury flags, schedule flags, sharp money flags.
+9. PETER ZONE: The play — conviction, sizing (full unit / half / small / pass), line value.
+10. VALUE RANGE: -180 to +400 for ML. Outside that, redirect to spread/total.
+
+HARD RULES:
+- If lineups NOT confirmed, grade TBD — not a letter grade.
+- All prop analysis uses LAST 10 GAME averages, not season averages.
+- If a player has < 20 games this season, flag it.
+- Be brutally honest. "Slight edge" with no specifics = D grade.
+- PASS games get D or F with explicit reason.
+
+Think step by step. Be thorough. The next model will format your output into structured JSON."""
+
+    # ── Build formatter prompt (sport-specific variable keys) ──
+    def _build_formatter_prompt(raw_analysis, is_first_batch):
+        """Build prompt for the formatting model — raw analysis + exact JSON schema + variable keys."""
+        matrix = SPORT_MATRICES.get(sport_lower, [])
+        var_key_list = "\n".join(
+            f'  - "{key}" (weight: {weight}) — {desc}'
+            for key, weight, desc in matrix
+        )
+        total_weight = sum(w for _, w, _ in matrix)
+        max_score = total_weight * 10
+
+        gotcha_instruction = ""
+        if is_first_batch:
+            gotcha_instruction = '"gotcha": "Extract the Gotcha briefing from the analysis and format as HTML: <ul><li>...</li></ul>. Bold critical items with <strong>.",'
+        else:
+            gotcha_instruction = '"gotcha": "",'
+
+        return f"""You are a precise JSON formatter. Convert the sports betting analysis below into our exact JSON schema.
+
+=== RAW ANALYSIS FROM REASONING MODEL ===
+{raw_analysis}
+
+=== {sport.upper()} MATRIX VARIABLE KEYS (you MUST use these exact keys) ===
+{var_key_list}
+
+Max weighted score: {max_score}. Composite = sum of all weighted / {max_score} * 10, round to 1 decimal.
+
+=== MAPPING RULES ===
+- Match the analyst's variable scores to the correct key by MEANING, not exact wording.
+- "weighted" = score * weight for that variable.
+- If the analyst scored a variable but used different wording, map it to the closest key.
+- If a variable was NOT analyzed, use score 5 (neutral) with note "Not explicitly analyzed".
+- ALL {len(matrix)} variables MUST appear in matrix_scores for every game.
+
+=== GRADE THRESHOLDS ===
+  9.0-10.0 = A+ | 7.5-8.9 = A-/B+ | 6.0-7.4 = B/B- | 4.5-5.9 = C | Below 4.5 = D/F
+
+=== OUTPUT FORMAT (return ONLY this JSON, no markdown, no explanation) ===
+{{
+  {gotcha_instruction}
+  "games": [
+    {{
+      "matchup": "AWAY @ HOME",
+      "composite_score": 7.2,
+      "grade": "A+/A/A-/B+/B/B-/C+/C/D/F/TBD/INCOMPLETE",
+      "edge_question": "Why is the market wrong? 1-2 sentences.",
+      "tags": ["B2B", "SHARP", "TRAP", "UPSET", "PASS", "BEST BET", "REST-EDGE", "INJURY-IMPACT", "INCOMPLETE"],
+      "matrix_scores": {{
+        "variable_key": {{"score": 7, "weight": 9, "weighted": 63, "note": "reason"}}
+      }},
+      "injury_impact": "specific injury analysis",
+      "rest_schedule": "B2B and rest info",
+      "edge_summary": "one line edge in plain English",
+      "peter_zone": "2-3 sentences. The play: conviction, sizing, line value.",
+      "trends": ["ATS trend", "O/U trend", "H2H trend"],
+      "flags": ["injury flag", "schedule flag", "sharp money flag"],
+      "edge_pick": {{
+        "team": "TEAM NAME or PASS",
+        "bet_type": "SPREAD / ML / TOTAL OVER / TOTAL UNDER / PASS",
+        "line": "specific line (e.g. -3.5, +150, O 218.5)",
+        "confidence": "A+/A/A-/B+/B/B-/C/D/F",
+        "reasoning": "one sentence"
+      }},
+      "player_props": [
+        {{
+          "player": "Player Name",
+          "prop": "OVER/UNDER 24.5 Points",
+          "line": "-115",
+          "grade": "A/B+/B/C",
+          "l10_avg": "28.1 PTS",
+          "season_avg": "27.4 PTS",
+          "games_played": 58,
+          "status": "Active / GTD / Questionable",
+          "edge": "+1.6 pts over line | reason"
+        }}
+      ],
+      "data_status": "COMPLETE or INCOMPLETE or TBD",
+      "book_source": "sportsbook name"
+    }}
+  ]
+}}
+
+Return ONLY valid JSON. No markdown fences. No explanation."""
+
+    # ── Core model call functions ──
+    def _call_thinker(prompt_text, batch_idx=0):
+        """Call the reasoning model (Grok). Returns (raw_analysis_text, metadata)."""
+        client = AzureOpenAI(
+            azure_endpoint=AZURE_ENDPOINT,
+            api_key=AZURE_KEY,
+            api_version="2024-10-21",
+        )
+        logger.info(f"[THINKER] Batch {batch_idx} ({sport.upper()}) → {ANALYSIS_THINKER}")
+        think_start = time.time()
+        think_response = client.chat.completions.create(
+            model=ANALYSIS_THINKER,
+            messages=[{"role": "user", "content": prompt_text}],
+            max_tokens=16000,
+        )
+        raw_analysis = think_response.choices[0].message.content.strip()
+        think_secs = round(time.time() - think_start, 1)
+        think_tokens = getattr(think_response.usage, 'total_tokens', '?')
+        logger.info(f"[THINKER] Done in {think_secs}s, {think_tokens} tokens, {len(raw_analysis)} chars")
+        return raw_analysis, {"secs": think_secs, "tokens": think_tokens, "chars": len(raw_analysis)}
+
+    def _call_formatter(raw_analysis, is_first_batch, batch_idx=0, attempt=1):
+        """Call the formatting model (DeepSeek). Returns (parsed_json, metadata)."""
+        client = AzureOpenAI(
+            azure_endpoint=AZURE_ENDPOINT,
+            api_key=AZURE_KEY,
+            api_version="2024-10-21",
+        )
+        fmt_prompt = _build_formatter_prompt(raw_analysis, is_first_batch)
+        logger.info(f"[FORMATTER] Batch {batch_idx} → {ANALYSIS_FORMATTER} (attempt {attempt})")
+        fmt_start = time.time()
+        fmt_response = client.chat.completions.create(
+            model=ANALYSIS_FORMATTER,
+            messages=[{"role": "user", "content": fmt_prompt}],
+            temperature=0.1,
+            max_tokens=10000,
+        )
+        raw = fmt_response.choices[0].message.content.strip()
+        fmt_secs = round(time.time() - fmt_start, 1)
+        fmt_tokens = getattr(fmt_response.usage, 'total_tokens', '?')
+        result = _clean_json(raw)
+        games_with_ms = sum(1 for g in result.get("games", []) if g.get("matrix_scores"))
+        total_games = len(result.get("games", []))
+        logger.info(f"[FORMATTER] Done in {fmt_secs}s, {fmt_tokens} tokens, {games_with_ms}/{total_games} games with matrix_scores")
+        return result, {"secs": fmt_secs, "tokens": fmt_tokens}
+
+    def _call_single_model(prompt_text):
+        """Fallback: single-model call to AZURE_MODEL (gpt-4.1) with full JSON prompt."""
+        client = AzureOpenAI(
+            azure_endpoint=AZURE_ENDPOINT,
+            api_key=AZURE_KEY,
+            api_version="2024-10-21",
+        )
+        logger.info(f"[FALLBACK] Single-model call to {AZURE_MODEL}")
+        fb_start = time.time()
+        response = client.chat.completions.create(
+            model=AZURE_MODEL,
+            messages=[{"role": "user", "content": prompt_text}],
+            temperature=0.4,
+            max_tokens=8000,
+        )
+        raw = response.choices[0].message.content.strip()
+        fb_secs = round(time.time() - fb_start, 1)
+        fb_tokens = getattr(response.usage, 'total_tokens', '?')
+        logger.info(f"[FALLBACK] {AZURE_MODEL} done in {fb_secs}s, {fb_tokens} tokens")
+        result = _clean_json(raw)
+        for game in result.get("games", []):
+            game["_thinker"] = AZURE_MODEL
+            game["_formatter"] = AZURE_MODEL
+            game["_think_time"] = fb_secs
+        return result
+
+    # ── Quality validation helpers ──
+    def _validate_thinker_output(raw_analysis, batch_games):
+        """Check that thinker referenced teams and injuries from the batch. Non-blocking."""
+        raw_lower = raw_analysis.lower()
+        # Check team names
+        team_count = 0
+        team_total = 0
+        for game_line in batch_games:
+            parts = game_line.split("|")[0].strip()
+            for team in parts.replace(" @ ", "|").split("|"):
+                team_name = team.strip()
+                team_total += 1
+                if team_name.lower() in raw_lower:
+                    team_count += 1
+        # Check injury names from injury_context
+        injury_count = 0
+        injury_total = 0
+        if injury_context:
+            for line in injury_context.split("\n"):
+                line = line.strip()
+                if line and ("OUT" in line.upper() or "GTD" in line.upper() or "QUESTIONABLE" in line.upper()):
+                    injury_total += 1
+                    # Extract player name (usually first part before status)
+                    name_part = line.split("(")[0].split("-")[0].split(":")[0].strip()
+                    if len(name_part) > 3 and name_part.lower() in raw_lower:
+                        injury_count += 1
+        logger.info(f"[QUALITY] {team_count}/{team_total} teams referenced, {injury_count}/{injury_total} injuries mentioned")
+        return team_total == 0 or (team_count / max(team_total, 1)) > 0.5
+
+    def _validate_formatter_output(result):
+        """Check that formatter produced quality matrix_scores. Non-blocking."""
+        games = result.get("games", [])
+        if not games:
+            return False
+        games_with_ms = sum(1 for g in games if g.get("matrix_scores"))
+        # Check score variance (not all clustering at 5-7)
+        low_variance = 0
+        for g in games:
+            ms = g.get("matrix_scores", {})
+            if ms:
+                scores = [v.get("score", 5) for v in ms.values() if isinstance(v, dict)]
+                if len(scores) > 3:
+                    sd = statistics.stdev(scores)
+                    if sd <= 1.0:
+                        low_variance += 1
+                        logger.info(f"[QUALITY] {g.get('matchup', '?')} — score StdDev={sd:.2f} (too clustered)")
+        ms_pct = games_with_ms / len(games) if games else 0
+        logger.info(f"[QUALITY] {games_with_ms}/{len(games)} games have matrix_scores, {low_variance} with low variance")
+        return ms_pct > 0.5
+
+    # ── Main orchestrator ──
+    def _call_azure_batch(prompt_text, batch_idx=0, is_first_batch=False, batch_games=None, batch_prop_lines="", batch_incomplete_note=""):
+        """Two-model analysis engine: Grok thinks, DeepSeek formats, gpt-4.1 fallback.
+
+        ANALYSIS_MODE='single': uses gpt-4.1 with full JSON prompt (safe fallback).
+        ANALYSIS_MODE='twomodel': Grok reasons → DeepSeek formats → fallback if needed.
+        """
+        logger.info(f"[ANALYSIS MODE] {ANALYSIS_MODE} — thinker={ANALYSIS_THINKER}, formatter={ANALYSIS_FORMATTER}")
+
+        # ── Single-model mode (kill switch) ──
+        if ANALYSIS_MODE == "single":
+            return _call_single_model(prompt_text)
+
+        # ── Two-model mode ──
+        # Build thinker prompt from batch data
+        batch_text = "\n".join(batch_games) if batch_games else "(no complete games in this batch)"
+
+        thinker_prompt = _build_thinker_prompt(
+            batch_text,
+            batch_incomplete_note=batch_incomplete_note,
+            is_first_batch=is_first_batch,
+            batch_prop_lines=batch_prop_lines
+        )
+
+        # Step 2: Call thinker (Grok)
+        try:
+            raw_analysis, think_meta = _call_thinker(thinker_prompt, batch_idx)
+        except Exception as e:
+            logger.error(f"[THINKER FAIL] {e} — falling back to {AZURE_MODEL} single-model")
+            return _call_single_model(prompt_text)
+
+        # Step 3: Validate thinker output (non-blocking)
+        if len(raw_analysis) < 200:
+            logger.warning(f"[THINKER] Output too short ({len(raw_analysis)} chars) — falling back to {AZURE_MODEL}")
+            _save_raw_analysis(raw_analysis, batch_idx)
+            return _call_single_model(prompt_text)
+
+        if batch_games:
+            _validate_thinker_output(raw_analysis, batch_games)
+
+        # Step 4: Call formatter (DeepSeek) — retry once on failure
+        result = None
+        for attempt in range(1, 3):
+            try:
+                result, fmt_meta = _call_formatter(raw_analysis, is_first_batch, batch_idx, attempt)
+                # Validate: >50% games must have matrix_scores
+                if _validate_formatter_output(result):
+                    break
+                elif attempt == 1:
+                    logger.warning(f"[FORMATTER] Low quality output — retrying (attempt 2)")
+                    result = None
+                    continue
+            except Exception as e:
+                logger.error(f"[FORMATTER JSON ERROR] attempt {attempt} — {'retrying' if attempt == 1 else 'giving up'}: {e}")
+                if attempt == 2:
+                    _save_raw_analysis(raw_analysis, batch_idx)
+                    logger.info(f"[FALLBACK] Using {AZURE_MODEL} single-model for batch {batch_idx}")
+                    return _call_single_model(prompt_text)
+
+        if result is None:
+            _save_raw_analysis(raw_analysis, batch_idx)
+            logger.info(f"[FALLBACK] Formatter failed both attempts — using {AZURE_MODEL} single-model for batch {batch_idx}")
+            return _call_single_model(prompt_text)
+
+        # Step 5: Tag games with model metadata
+        for game in result.get("games", []):
+            game["_thinker"] = ANALYSIS_THINKER
+            game["_formatter"] = ANALYSIS_FORMATTER
+            game["_think_time"] = think_meta["secs"]
+
+        return result
 
     try:
         # Split complete games into batches of BATCH_SIZE, capped at MAX_BATCHES
@@ -2949,8 +3691,10 @@ Return ONLY valid JSON. No markdown. No explanation."""
         skipped = len(complete_games) - len(games_to_analyze)
         logger.info(f"Analysis {sport}: {len(complete_games)} games -> {len(game_batches)} batches of {BATCH_SIZE} (skipped {skipped})")
 
-        # Build prompts for each batch
-        batch_prompts = []
+        # Build prompts for each batch (single-model prompt used as fallback)
+        batch_prompts = []     # Single-model prompts (fallback)
+        batch_game_lists = []  # Raw game line lists per batch (for thinker)
+        batch_prop_texts = []  # Filtered prop text per batch
         for idx, batch in enumerate(game_batches):
             batch_text = "\n".join(batch) if batch else "(no complete games in this batch)"
             # Only include incomplete note in first batch
@@ -2981,9 +3725,19 @@ Return ONLY valid JSON. No markdown. No explanation."""
                             filtered_props.append(line)
                     batch_props = "\n".join(filtered_props) if filtered_props else ""
             batch_prompts.append(_build_batch_prompt(batch_text, batch_inc, is_first_batch=(idx == 0), batch_prop_lines=batch_props))
+            batch_game_lists.append(batch)
+            batch_prop_texts.append(batch_props)
 
         # Run all batches in parallel via asyncio threads
-        tasks = [asyncio.to_thread(_call_azure_batch, p) for p in batch_prompts]
+        tasks = [
+            asyncio.to_thread(
+                _call_azure_batch, batch_prompts[i],
+                batch_idx=i, is_first_batch=(i == 0), batch_games=batch_game_lists[i],
+                batch_prop_lines=batch_prop_texts[i],
+                batch_incomplete_note=(incomplete_note if i == 0 else "")
+            )
+            for i in range(len(batch_prompts))
+        ]
         batch_results = await asyncio.gather(*tasks, return_exceptions=True)
 
         # Merge results: first batch provides gotcha, all provide games
@@ -3004,7 +3758,15 @@ Return ONLY valid JSON. No markdown. No explanation."""
         # Retry failed batches once
         if failed_batches:
             logger.info(f"Analysis {sport}: retrying {len(failed_batches)} failed batches")
-            retry_tasks = [asyncio.to_thread(_call_azure_batch, batch_prompts[i]) for i in failed_batches]
+            retry_tasks = [
+                asyncio.to_thread(
+                    _call_azure_batch, batch_prompts[i],
+                    batch_idx=i, is_first_batch=(i == 0), batch_games=batch_game_lists[i],
+                    batch_prop_lines=batch_prop_texts[i],
+                    batch_incomplete_note=(incomplete_note if i == 0 else "")
+                )
+                for i in failed_batches
+            ]
             retry_results = await asyncio.gather(*retry_tasks, return_exceptions=True)
             for ri, idx in enumerate(failed_batches):
                 result = retry_results[ri]
@@ -3017,9 +3779,71 @@ Return ONLY valid JSON. No markdown. No explanation."""
                     all_analyzed_games.extend(result["games"])
                     logger.info(f"Analysis batch {idx} retry succeeded: {len(result['games'])} games recovered")
 
-        # ===== SERVER-SIDE GRADE RECALCULATION — we grade, not GPT =====
+        # ===== LOG: Raw model output before our grading =====
         for game in all_analyzed_games:
+            gpt_g = game.get("grade", "NONE")
+            gpt_s = game.get("composite_score", "NONE")
+            has_ms = bool(game.get("matrix_scores"))
+            ms_count = len(game.get("matrix_scores", {}))
+            logger.info(f"[PRE-GRADE] {game.get('matchup')} — GPT grade={gpt_g}, GPT score={gpt_s}, matrix_scores={'YES ('+str(ms_count)+' vars)' if has_ms else 'MISSING'}")
+
+        # ===== RETRY: Re-analyze games missing matrix_scores =====
+        missing_ms_games = [g for g in all_analyzed_games if not g.get("matrix_scores") and g.get("grade") not in ("TBD", "INCOMPLETE")]
+        if missing_ms_games and SPORT_MATRICES.get(sport_lower):
+            logger.info(f"[MATRIX RETRY] {len(missing_ms_games)} games missing matrix_scores — retrying as single batch")
+            retry_matchups = [g.get("matchup", "?") for g in missing_ms_games]
+            # Find the original odds lines for these games
+            retry_lines = []
+            for line in complete_games:
+                for m in retry_matchups:
+                    if m and m.replace(" ", "").upper() in line.replace(" ", "").upper():
+                        retry_lines.append(line)
+                        break
+            if retry_lines:
+                retry_prompt = _build_batch_prompt("\n".join(retry_lines), "", is_first_batch=False, batch_prop_lines="")
+                try:
+                    retry_result = await asyncio.to_thread(_call_azure_batch, retry_prompt, batch_idx=99, is_first_batch=False, batch_games=retry_lines)
+                    if retry_result and retry_result.get("games"):
+                        # Replace the missing-matrix games with retry results
+                        retry_by_matchup = {}
+                        for rg in retry_result["games"]:
+                            rm = rg.get("matchup", "").replace(" ", "").upper()
+                            if rm:
+                                retry_by_matchup[rm] = rg
+                        replaced = 0
+                        for i, game in enumerate(all_analyzed_games):
+                            gm = game.get("matchup", "").replace(" ", "").upper()
+                            if gm in retry_by_matchup and not game.get("matrix_scores"):
+                                retry_game = retry_by_matchup[gm]
+                                if retry_game.get("matrix_scores"):
+                                    all_analyzed_games[i] = retry_game
+                                    replaced += 1
+                                    logger.info(f"[MATRIX RETRY OK] {game.get('matchup')} — got {len(retry_game['matrix_scores'])} vars on retry")
+                        logger.info(f"[MATRIX RETRY] Replaced {replaced}/{len(missing_ms_games)} games")
+                except Exception as e:
+                    logger.warning(f"[MATRIX RETRY FAILED] {e}")
+                    log_error("Analysis", "Matrix retry failed", str(e))
+
+        # ===== SERVER-SIDE GRADE RECALCULATION — we grade, not GPT =====
+        grade_log = {"total": 0, "matrix_graded": 0, "fallback_graded": 0, "kept_gpt": 0, "no_grade": 0}
+        for game in all_analyzed_games:
+            grade_log["total"] += 1
+            pre_grade = game.get("grade", "")
             _recalculate_grade(game, sport_lower)
+            post_grade = game.get("grade", "")
+            source = game.get("grade_source", "matrix")
+            if source == "gpt_composite_fallback":
+                grade_log["fallback_graded"] += 1
+            elif source == "no_data":
+                grade_log["no_grade"] += 1
+            elif post_grade != pre_grade:
+                grade_log["matrix_graded"] += 1
+            else:
+                grade_log["kept_gpt"] += 1
+            thinker_tag = game.get("_thinker", "unknown")
+            formatter_tag = game.get("_formatter", "unknown")
+            logger.info(f"[POST-GRADE] {game.get('matchup')} — {pre_grade} -> {post_grade} (source={source}, score={game.get('composite_score', '?')}, thinker={thinker_tag}, formatter={formatter_tag})")
+        logger.info(f"[GRADE SUMMARY] {sport}: {grade_log}")
 
         # ===== CROSS-VALIDATION GATE (WS4) — validate players before caching =====
         validation_log = []
@@ -3053,7 +3877,7 @@ Return ONLY valid JSON. No markdown. No explanation."""
             "games": all_analyzed_games,
             "sport": sport.upper(),
             "generated_at": _now_ts(),
-            "source": "Azure OpenAI (Edge Finder)",
+            "source": f"Azure OpenAI ({ANALYSIS_MODE}: {ANALYSIS_THINKER}+{ANALYSIS_FORMATTER})" if ANALYSIS_MODE == "twomodel" else f"Azure OpenAI ({AZURE_MODEL})",
             "books_used": odds_data.get("books_used", []),
             "games_complete": len(complete_games),
             "games_incomplete": len(incomplete_games),
@@ -3065,6 +3889,8 @@ Return ONLY valid JSON. No markdown. No explanation."""
             "player_validation": len(validation_log),
             "game_logs_injected": bool(game_log_context),
             "grade_overrides": sum(1 for g in all_analyzed_games if g.get("gpt_original_grade") and g.get("gpt_original_grade") != g.get("grade")),
+            "grade_stats": grade_log,
+            "matrix_retried": len(missing_ms_games) if missing_ms_games else 0,
         }
 
         _set_cache(cache_key, analysis)

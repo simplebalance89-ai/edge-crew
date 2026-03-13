@@ -27,3 +27,9 @@ services:
         sync: false
       - key: API_SPORTS_KEY
         sync: false
+      - key: ANALYSIS_THINKER
+        sync: false
+      - key: ANALYSIS_FORMATTER
+        sync: false
+      - key: ANALYSIS_MODE
+        sync: false

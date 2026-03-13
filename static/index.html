@@ -5033,7 +5033,8 @@ function buildGameRowHTML(g) {
     }
 
     // Default pick display = favorite's spread or ML
-    var pickDisplay = hasSpread ? ((fav || homeAbbr) + ' ' + (spread < 0 ? spreadStr : awaySpreadStr)) : awayAbbr + ' vs ' + homeAbbr + ' (ML)';
+    // Default: show matchup spread reference — NOT a pick recommendation (analysis sets the real pick)
+    var pickDisplay = hasSpread ? (awayAbbr + ' ' + awaySpreadStr + ' / ' + homeAbbr + ' ' + spreadStr) : awayAbbr + ' vs ' + homeAbbr + ' (ML)';
 
     return '<div class="game-row" data-game="' + matchup + '" data-away="' + g.away + '" data-home="' + g.home + '" data-sport="' + (g.sport||'') + '" data-book="' + bookSource + '" data-fetched="' + fetchedAt + '" data-complete="' + (isComplete ? 'true' : 'false') + '" data-time="' + (g.time || '') + '" style="' + todayStyle + '" onclick="toggleGameExpand(this,\'' + matchup.replace(/\s/g, '_').replace(/@/g, 'at') + '\',\'' + (g.sport||'').toLowerCase() + '\')">' +
         '<div class="game-header">' +
@@ -6090,16 +6091,35 @@ function injectPicksIntoCards(sport, analysisData) {
         var reasonEl = document.getElementById('reason-' + matchup);
         var row = pickEl ? pickEl.closest('.game-row') : null;
 
-        if (pickEl && game.peter_zone) {
-            // Try to extract the recommended side from peter_zone
-            var pz = game.peter_zone;
-            // Common patterns: "Take UTA +10", "UTA +10 is the play", "Lean UTA"
-            var sideMatch = pz.match(/(?:take|lean|play|like|grab|ride)\s+([A-Z]{2,5}\s+[+-]?\d+\.?\d*)/i) ||
-                            pz.match(/([A-Z]{2,5}\s+[+-]\d+\.?\d*)\s+(?:is the play|looks good|has value)/i) ||
-                            pz.match(/(?:take|lean|play|like)\s+(OVER|UNDER)\s+(\d+\.?\d*)/i) ||
-                            pz.match(/(?:take|lean|play|like)\s+([A-Z]{2,5}\s+ML)/i);
-            if (sideMatch) {
-                pickEl.textContent = sideMatch[1].toUpperCase() + (sideMatch[2] ? ' ' + sideMatch[2] : '');
+        // ===== SET THE PICK from edge_pick (structured) first, peter_zone (text) as fallback =====
+        if (pickEl) {
+            var pickSet = false;
+            // Priority 1: edge_pick — the structured recommendation from GPT
+            if (game.edge_pick && game.edge_pick.team && game.edge_pick.team.toUpperCase() !== 'PASS') {
+                var ep = game.edge_pick;
+                var pickText = ep.team;
+                if (ep.line) pickText += ' ' + ep.line;
+                else if (ep.bet_type) pickText += ' ' + ep.bet_type;
+                pickEl.textContent = pickText.toUpperCase();
+                pickSet = true;
+            }
+            // Priority 2: peter_zone text parsing — broader regex patterns
+            if (!pickSet && game.peter_zone) {
+                var pz = game.peter_zone;
+                var sideMatch = pz.match(/(?:take|lean|play|like|grab|ride|recommend|back|bet)\s+(?:full unit on |half unit on |small on )?([A-Z][a-zA-Z.]+(?:\s+[A-Z][a-zA-Z.]+)?)\s+([+-]?\d+\.?\d*)/i) ||
+                                pz.match(/(?:take|lean|play|like|grab|ride|recommend)\s+(?:full unit on |half unit on |small on )?([A-Z]{2,5}\s+[+-]?\d+\.?\d*)/i) ||
+                                pz.match(/([A-Z]{2,5}\s+[+-]\d+\.?\d*)\s+(?:is the play|looks good|has value)/i) ||
+                                pz.match(/(?:take|lean|play|like|recommend)\s+(OVER|UNDER)\s+(\d+\.?\d*)/i) ||
+                                pz.match(/(?:take|lean|play|like|recommend)\s+(?:full unit on |half unit on |small on )?([A-Z][a-zA-Z.]+(?:\s+[A-Z][a-zA-Z.]+)?)\s+(ML)/i);
+                if (sideMatch) {
+                    pickEl.textContent = (sideMatch[1] + (sideMatch[2] ? ' ' + sideMatch[2] : '')).toUpperCase();
+                    pickSet = true;
+                }
+            }
+            // If pick is PASS, show it clearly
+            if (game.edge_pick && game.edge_pick.team && game.edge_pick.team.toUpperCase() === 'PASS') {
+                pickEl.textContent = 'PASS';
+                pickEl.style.color = 'rgba(255,255,255,0.3)';
             }
         }
 
@@ -6109,14 +6129,47 @@ function injectPicksIntoCards(sport, analysisData) {
 
         if (row) {
             row.classList.add('has-analysis');
-            // Update grade if analysis has one
+            // Update grade if analysis has one — show Matrix grade / GPT grade
             if (game.grade) {
-                var gradeEl = row.querySelector('.grade');
-                if (gradeEl) {
+                var gradeContainer = row.querySelector('.game-grade');
+                if (gradeContainer) {
                     var gc = game.grade.replace(/[+-]/g,'').toLowerCase();
-                    gradeEl.className = 'grade g' + gc;
-                    gradeEl.textContent = game.grade;
+                    var gptGradeVal = game.gpt_original_grade || '';
+                    var dualHtml = '<span class="grade g' + gc + '">' + game.grade + '</span>';
+                    if (gptGradeVal && gptGradeVal !== game.grade && game.grade !== 'TBD' && game.grade !== 'INCOMPLETE') {
+                        var gc2 = gptGradeVal.replace(/[+-]/g,'').toLowerCase();
+                        dualHtml += '<span style="font-size:9px;color:rgba(255,255,255,0.35);margin:0 2px;">/</span>' +
+                            '<span class="grade g' + gc2 + '" style="opacity:0.6;font-size:10px;" title="GPT grade">' + gptGradeVal + '</span>';
+                    }
+                    if (game.grade_source === 'gpt_composite_fallback') {
+                        dualHtml += '<span style="font-size:7px;color:#F59E0B;display:block;margin-top:1px;" title="No matrix scores — graded from GPT composite">fallback</span>';
+                    }
+                    gradeContainer.innerHTML = dualHtml;
                 }
+            }
+            // Auto-highlight the recommended side button based on edge_pick
+            if (game.edge_pick && game.edge_pick.team && game.edge_pick.team.toUpperCase() !== 'PASS') {
+                var sideBtns = row.querySelectorAll('.side-btn');
+                var epTeam = (game.edge_pick.team || '').toUpperCase();
+                var epLine = (game.edge_pick.line || '').toString();
+                var epType = (game.edge_pick.bet_type || '').toUpperCase();
+                sideBtns.forEach(function(btn) {
+                    var btnText = btn.textContent.toUpperCase();
+                    var isMatch = false;
+                    // Match by team + line (e.g. "ST +1.5")
+                    if (epLine && btnText.indexOf(epTeam.substring(0,3)) !== -1 && btnText.indexOf(epLine.replace(/[()]/g,'')) !== -1) isMatch = true;
+                    // Match OVER/UNDER
+                    if (epType.indexOf('OVER') !== -1 && btnText.indexOf('O ') === 0) isMatch = true;
+                    if (epType.indexOf('UNDER') !== -1 && btnText.indexOf('U ') === 0) isMatch = true;
+                    // Match ML
+                    if (epType.indexOf('ML') !== -1 && btnText.indexOf(epTeam.substring(0,3)) !== -1 && btnText.indexOf('ML') !== -1) isMatch = true;
+                    if (isMatch) {
+                        btn.style.borderColor = 'var(--ec-accent)';
+                        btn.style.background = 'var(--ec-accent-subtle)';
+                        btn.style.color = 'var(--ec-accent-light)';
+                        btn.style.fontWeight = '800';
+                    }
+                });
             }
         }
     });
@@ -6671,6 +6724,22 @@ function fetchAnalysis(sport) {
                                         var sb = document.createElement('div'); sb.className = 'detail-box score-breakdown';
                                         sb.style.cssText = 'border-color:rgba(99,102,241,0.3);';
                                         var sbh = '<h4 style="color:#818cf8;">Score Breakdown</h4>';
+                                        // Dual grade header: Matrix Grade vs GPT Grade
+                                        var matrixGrade = game.grade || '--';
+                                        var origGptGrade = game.gpt_original_grade || '';
+                                        var gradeSource = game.grade_source || 'matrix';
+                                        var gcM = 'g' + matrixGrade.toLowerCase().replace(/[^a-z]/g,'');
+                                        sbh += '<div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;padding:6px 8px;background:rgba(255,255,255,0.03);border-radius:6px;">';
+                                        sbh += '<div style="text-align:center;"><span style="font-size:8px;color:rgba(255,255,255,0.4);display:block;text-transform:uppercase;letter-spacing:0.5px;">Matrix</span><span class="grade ' + gcM + '" style="font-size:16px;">' + matrixGrade + '</span></div>';
+                                        if (origGptGrade) {
+                                            var gcG = 'g' + origGptGrade.toLowerCase().replace(/[^a-z]/g,'');
+                                            sbh += '<div style="font-size:14px;color:rgba(255,255,255,0.2);">vs</div>';
+                                            sbh += '<div style="text-align:center;"><span style="font-size:8px;color:rgba(255,255,255,0.4);display:block;text-transform:uppercase;letter-spacing:0.5px;">GPT</span><span class="grade ' + gcG + '" style="font-size:16px;opacity:0.7;">' + origGptGrade + '</span></div>';
+                                        }
+                                        if (gradeSource === 'gpt_composite_fallback') {
+                                            sbh += '<div style="font-size:9px;color:#F59E0B;margin-left:auto;">No matrix data — grade from GPT composite</div>';
+                                        }
+                                        sbh += '</div>';
                                         if (game.matrix_scores) {
                                             sbh += '<table style="width:100%;font-size:11px;border-collapse:collapse;">';
                                             sbh += '<tr style="color:rgba(255,255,255,0.4);text-align:left;"><th style="padding:3px 6px;">Variable</th><th style="padding:3px 6px;">Score</th><th style="padding:3px 6px;">Wt</th><th style="padding:3px 6px;">Total</th><th style="padding:3px 6px;">Note</th></tr>';
@@ -6695,6 +6764,23 @@ function fetchAnalysis(sport) {
                                             sbh += '</tr></table>';
                                         } else if (game.composite_score) {
                                             sbh += '<p style="font-size:14px;color:#818cf8;font-weight:800;">Composite: ' + game.composite_score + '/10</p>';
+                                        }
+                                        // Chain bonus display
+                                        if (game.chains && game.chains.length) {
+                                            sbh += '<div style="margin-top:8px;padding:8px;background:rgba(252,211,77,0.08);border-radius:6px;border-left:3px solid #FCD34D;">';
+                                            sbh += '<p style="font-size:10px;color:#FCD34D;margin-bottom:4px;font-weight:700;">CHAINS TRIGGERED (+' + (game.chain_bonus || 0) + ' bonus)</p>';
+                                            game.chains.forEach(function(c) {
+                                                sbh += '<div style="margin-bottom:4px;"><span style="font-size:11px;color:#FCD34D;font-weight:700;">' + c.name + '</span>';
+                                                sbh += '<span style="font-size:10px;color:rgba(255,255,255,0.4);margin-left:6px;">' + c.desc + '</span></div>';
+                                            });
+                                            if (game.composite_score_pre_chain) {
+                                                sbh += '<p style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:4px;">Pre-chain: ' + game.composite_score_pre_chain + ' -> Post-chain: ' + game.composite_score + '</p>';
+                                            }
+                                            sbh += '</div>';
+                                        }
+                                        // GPT vs Matrix score comparison
+                                        if (game.gpt_original_score && game.gpt_original_score !== game.composite_score) {
+                                            sbh += '<div style="margin-top:6px;font-size:10px;color:rgba(255,255,255,0.35);padding:4px 8px;background:rgba(255,255,255,0.02);border-radius:4px;">GPT raw score: ' + game.gpt_original_score + ' | Matrix score: ' + game.composite_score + '</div>';
                                         }
                                         if (game.edge_question) {
                                             sbh += '<div style="margin-top:8px;padding:8px;background:rgba(255,255,255,0.03);border-radius:6px;border-left:3px solid ' + (game.edge_question.indexOf('No clear edge') !== -1 ? '#ef4444' : '#22c55e') + ';">';
