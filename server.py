@@ -63,77 +63,124 @@ async def post_error(request: Request):
 
 
 async def _autograde_loop():
-    """Background loop: auto-grade picks every 2 hours, by game."""
+    """Background loop: auto-grade picks every 2 hours, by game.
+
+    Architecture:
+    1. Grade from local scores archive first (no API calls)
+    2. Only fetch fresh scores for sports/dates with remaining ungraded picks
+    3. Cache completed game results so they're never re-fetched
+    """
     await asyncio.sleep(60)  # Wait 60s after startup before first check
     while True:
         try:
             now = datetime.now(PST)
-            # Fetch ungraded picks from local file
             data = _read_picks()
             ungraded = [p for p in data.get("picks", []) if not p.get("result")]
 
             if ungraded:
                 ungraded = _deduplicate_picks(ungraded)
-                days_needed = _days_from_oldest_pick(ungraded)
+                print(f"[AUTOGRADE] {len(ungraded)} ungraded picks at {now.strftime('%I:%M %p PST')}")
+
+                # ── Pass 1: Grade from local archive (FREE — no API calls) ──
+                archive = _read_scores_archive()
+                archived_completed = [g for g in archive.values() if g.get("completed")]
+                graded_from_cache = 0
+
+                if archived_completed:
+                    for game in archived_completed:
+                        home = game.get("home_team", "")
+                        away = game.get("away_team", "")
+                        for pick in ungraded:
+                            if pick.get("result") or pick.get("type", "").lower() == "parlay":
+                                continue
+                            if not _teams_match(pick.get("matchup", ""), home, away):
+                                if not _teams_match(pick.get("selection", ""), home, away):
+                                    continue
+                            if not _game_date_matches_pick(pick, game):
+                                continue
+                            grade = _grade_pick_against_score(pick, game)
+                            if grade:
+                                _update_pick_result(pick.get("id", ""), grade)
+                                pick["result"] = grade
+                                graded_from_cache += 1
+                                print(f"[AUTOGRADE] Cache hit — graded {pick.get('selection', '?')} as {grade}")
+
+                if graded_from_cache:
+                    print(f"[AUTOGRADE] Graded {graded_from_cache} picks from cache (no API calls)")
+
+                # ── Pass 2: Fetch fresh scores only for remaining ungraded picks ──
+                still_ungraded = [p for p in ungraded if not p.get("result") and p.get("type", "").lower() != "parlay"]
                 sports_needed = set()
-                for p in ungraded:
+                for p in still_ungraded:
                     sport = p.get("sport", "").lower()
                     if sport in SPORT_KEYS:
                         sports_needed.add(sport)
-                if not sports_needed:
-                    sports_needed = {"nba", "wnba", "nhl"}
 
-                fetch_tasks = []
-                for sport in sports_needed:
-                    for key in SPORT_KEYS.get(sport, []):
-                        fetch_tasks.append(_fetch_scores(key, days_from=days_needed))
+                graded_from_api = 0
+                all_completed = list(archived_completed)  # Start with cached for parlay grading
 
-                all_scores = []
-                results = await asyncio.gather(*fetch_tasks, return_exceptions=True)
-                for result in results:
-                    if not isinstance(result, Exception) and result:
-                        all_scores.extend(result)
+                if sports_needed:
+                    print(f"[AUTOGRADE] Fetching scores for: {', '.join(sorted(sports_needed))}")
+                    days_needed = _days_from_oldest_pick(still_ungraded)
+                    fetch_tasks = []
+                    for sport in sports_needed:
+                        for key in SPORT_KEYS.get(sport, []):
+                            fetch_tasks.append(_fetch_scores(key, days_from=days_needed))
 
-                completed = [g for g in all_scores if g.get("completed")]
+                    all_scores = []
+                    results = await asyncio.gather(*fetch_tasks, return_exceptions=True)
+                    for result in results:
+                        if not isinstance(result, Exception) and result:
+                            all_scores.extend(result)
 
-                # Grade by game: iterate completed games, find matching picks
-                graded = 0
-                for game in completed:
-                    home = game.get("home_team", "")
-                    away = game.get("away_team", "")
-                    for pick in ungraded:
-                        if pick.get("result"):
-                            continue  # Already graded in this pass
-                        pick_type = pick.get("type", "").lower()
-                        if pick_type == "parlay":
-                            continue  # Handle parlays after singles
+                    api_completed = [g for g in all_scores if g.get("completed")]
+                    all_completed.extend(api_completed)
 
-                        if not _teams_match(pick.get("matchup", ""), home, away):
-                            if not _teams_match(pick.get("selection", ""), home, away):
+                    for game in api_completed:
+                        home = game.get("home_team", "")
+                        away = game.get("away_team", "")
+                        for pick in still_ungraded:
+                            if pick.get("result"):
                                 continue
+                            if not _teams_match(pick.get("matchup", ""), home, away):
+                                if not _teams_match(pick.get("selection", ""), home, away):
+                                    continue
+                            if not _game_date_matches_pick(pick, game):
+                                continue
+                            grade = _grade_pick_against_score(pick, game)
+                            if grade:
+                                _update_pick_result(pick.get("id", ""), grade)
+                                pick["result"] = grade
+                                graded_from_api += 1
+                elif not sports_needed and not still_ungraded:
+                    print(f"[AUTOGRADE] All singles graded from cache — no API calls needed")
 
-                        if not _game_date_matches_pick(pick, game):
-                            continue
+                # ── Pass 3: Parlays (need all completed games from both sources) ──
+                # Dedupe completed games by ID
+                seen_ids = set()
+                deduped_completed = []
+                for g in all_completed:
+                    gid = g.get("id")
+                    if gid and gid not in seen_ids:
+                        seen_ids.add(gid)
+                        deduped_completed.append(g)
 
-                        grade = _grade_pick_against_score(pick, game)
-                        if grade:
-                            _update_pick_result(pick.get("id", ""), grade)
-                            pick["result"] = grade  # Mark so we skip it
-                            graded += 1
-
-                # Parlays after singles (legs may reference multiple games)
+                graded_parlays = 0
                 for pick in ungraded:
                     if pick.get("result"):
                         continue
                     if pick.get("type", "").lower() == "parlay":
-                        grade = _grade_parlay(pick, completed)
+                        grade = _grade_parlay(pick, deduped_completed)
                         if grade:
                             _update_pick_result(pick.get("id", ""), grade)
                             pick["result"] = grade
-                            graded += 1
+                            graded_parlays += 1
 
-                if graded:
-                    print(f"[AUTOGRADE] Graded {graded}/{len(ungraded)} picks at {now.strftime('%I:%M %p PST')}")
+                total_graded = graded_from_cache + graded_from_api + graded_parlays
+                if total_graded:
+                    print(f"[AUTOGRADE] Total graded: {total_graded}/{len(ungraded)} (cache:{graded_from_cache} api:{graded_from_api} parlays:{graded_parlays})")
+                else:
+                    print(f"[AUTOGRADE] No picks gradable yet ({len(ungraded)} still pending)")
         except Exception as e:
             print(f"[AUTOGRADE] Error: {e}")
         await asyncio.sleep(7200)  # Every 2 hours
@@ -3730,51 +3777,87 @@ async def autograde_picks(request: Request):
     # Deduplicate picks by key fields (name + date + selection + matchup)
     ungraded = _deduplicate_picks(ungraded)
 
-    # Determine which sports need scores and how far back to look
+    # ── Pass 1: Grade from local scores archive (FREE — no API calls) ──
+    archive = _read_scores_archive()
+    archived_completed = [g for g in archive.values() if g.get("completed")]
+    graded_from_cache = 0
+
+    for game in archived_completed:
+        home = game.get("home_team", "")
+        away = game.get("away_team", "")
+        for pick in ungraded:
+            if pick.get("result") or pick.get("type", "").lower() == "parlay":
+                continue
+            if not _teams_match(pick.get("matchup", ""), home, away):
+                if not _teams_match(pick.get("selection", ""), home, away):
+                    continue
+            if not _game_date_matches_pick(pick, game):
+                continue
+            grade = _grade_pick_against_score(pick, game)
+            if grade:
+                _update_pick_result(pick.get("id", ""), grade)
+                pick["result"] = grade
+                graded_from_cache += 1
+
+    # ── Pass 2: Only fetch scores for sports with remaining ungraded picks ──
+    still_ungraded = [p for p in ungraded if not p.get("result") and p.get("type", "").lower() != "parlay"]
     days_needed = _days_from_oldest_pick(ungraded)
     sports_needed = set()
-    for p in ungraded:
+    for p in still_ungraded:
         sport = p.get("sport", "").lower()
         if sport in SPORT_KEYS:
             sports_needed.add(sport)
-        # Skip unknown sports instead of fetching everything
 
-    if not sports_needed:
+    if not sports_needed and still_ungraded:
         sports_needed = {"nba", "wnba", "nhl"}  # fallback only if zero sports detected
-
-    # Fetch scores for all sports IN PARALLEL, with dynamic daysFrom window
-    fetch_tasks = []
-    fetch_labels = []
-    for sport in sports_needed:
-        for key in SPORT_KEYS.get(sport, []):
-            fetch_tasks.append(_fetch_scores(key, days_from=days_needed))
-            fetch_labels.append(f"{sport}/{key}")
 
     all_scores = []
     fetch_errors = []
-    results = await asyncio.gather(*fetch_tasks, return_exceptions=True)
-    for label, result in zip(fetch_labels, results):
-        if isinstance(result, Exception):
-            fetch_errors.append(f"{label}: {result}")
-        elif result:
-            all_scores.extend(result)
+    if sports_needed:
+        logger.info(f"[AUTOGRADE] Fetching scores for: {', '.join(sorted(sports_needed))}")
+        fetch_tasks = []
+        fetch_labels = []
+        for sport in sports_needed:
+            for key in SPORT_KEYS.get(sport, []):
+                fetch_tasks.append(_fetch_scores(key, days_from=days_needed))
+                fetch_labels.append(f"{sport}/{key}")
 
-    completed = [g for g in all_scores if g.get("completed")]
+        results = await asyncio.gather(*fetch_tasks, return_exceptions=True)
+        for label, result in zip(fetch_labels, results):
+            if isinstance(result, Exception):
+                fetch_errors.append(f"{label}: {result}")
+            elif result:
+                all_scores.extend(result)
+
+    api_completed = [g for g in all_scores if g.get("completed")]
+
+    # Merge archived + API completed games, dedupe by ID
+    all_completed_map = {}
+    for g in archived_completed:
+        gid = g.get("id")
+        if gid:
+            all_completed_map[gid] = g
+    for g in api_completed:
+        gid = g.get("id")
+        if gid:
+            all_completed_map[gid] = g  # API wins on conflicts
+    completed = list(all_completed_map.values())
 
     # Debug info
     debug_parts = [
         f"{len(ungraded)} ungraded",
-        f"{len(sports_needed)} sports ({', '.join(sports_needed)})",
-        f"{len(all_scores)} games fetched",
-        f"{len(completed)} completed",
+        f"{graded_from_cache} graded from cache",
+        f"{len(sports_needed)} sports ({', '.join(sports_needed) if sports_needed else 'none'})",
+        f"{len(all_scores)} games fetched from API",
+        f"{len(completed)} total completed",
     ]
     if fetch_errors:
         debug_parts.append(f"fetch errors: {', '.join(fetch_errors)}")
 
     if not completed:
         return JSONResponse({
-            "status": "ok", "graded": 0,
-            "message": f"No completed games found",
+            "status": "ok", "graded": graded_from_cache,
+            "message": f"Graded {graded_from_cache} from cache, no additional completed games found",
             "debug": " | ".join(debug_parts),
         })
 
@@ -3870,7 +3953,8 @@ async def autograde_picks(request: Request):
 
     return JSONResponse({
         "status": "ok",
-        "graded": graded_count,
+        "graded": graded_count + graded_from_cache,
+        "graded_from_cache": graded_from_cache,
         "total_ungraded": len(ungraded),
         "completed_games": len(completed),
         "results": results,
