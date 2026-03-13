@@ -244,6 +244,11 @@ body{background:var(--ec-bg-primary);color:var(--ec-text-primary);font-family:va
 .detail-box.trends h4{color:#a78bfa;}
 .detail-box.flags h4{color:var(--ec-danger);}
 .detail-box li,.detail-box p{font-size:13px;color:var(--ec-text-secondary);margin-bottom:4px;line-height:1.6;}
+.refresh-btn{position:absolute;top:8px;right:8px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.6);border-radius:4px;padding:2px 8px;font-size:12px;cursor:pointer;}
+.refresh-btn:hover{background:rgba(255,255,255,0.2);color:#fff;}
+.detail-box{position:relative;}
+.data-card-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;}
+@media (max-width:600px){.data-card-grid{grid-template-columns:1fr;}}
 
 /* ===== TAGS ===== */
 .tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;margin-right:4px;}
@@ -4922,7 +4927,7 @@ function buildGameRowHTML(g) {
     // Default pick display = favorite's spread or ML
     var pickDisplay = hasSpread ? ((fav || homeAbbr) + ' ' + (spread < 0 ? spreadStr : awaySpreadStr)) : awayAbbr + ' vs ' + homeAbbr + ' (ML)';
 
-    return '<div class="game-row" data-game="' + matchup + '" data-away="' + g.away + '" data-home="' + g.home + '" data-sport="' + (g.sport||'') + '" data-book="' + bookSource + '" data-fetched="' + fetchedAt + '" data-complete="' + (isComplete ? 'true' : 'false') + '" data-time="' + (g.time || '') + '" style="' + todayStyle + '" onclick="this.classList.toggle(\'expanded\')">' +
+    return '<div class="game-row" data-game="' + matchup + '" data-away="' + g.away + '" data-home="' + g.home + '" data-sport="' + (g.sport||'') + '" data-book="' + bookSource + '" data-fetched="' + fetchedAt + '" data-complete="' + (isComplete ? 'true' : 'false') + '" data-time="' + (g.time || '') + '" style="' + todayStyle + '" onclick="toggleGameExpand(this,\'' + matchup.replace(/\s/g, '_').replace(/@/g, 'at') + '\',\'' + (g.sport||'').toLowerCase() + '\')">' +
         '<div class="game-header">' +
             /* Row 1: checkbox + time + matchup + grade */
             '<div class="card-r1">' +
@@ -4995,8 +5000,122 @@ function buildGameRowHTML(g) {
                     '</div>' : '') +
                 '</div>' +
             '</div>' +
+            /* Data Cards */
+            (function() {
+                var mid = matchup.replace(/\s/g, '_').replace(/@/g, 'at');
+                var sp = (g.sport || '').toLowerCase();
+                return '<div class="data-card-grid">' +
+                    '<div class="detail-box" style="border-color:rgba(239,68,68,0.3);">' +
+                        '<h4 style="color:#EF4444;">\uD83C\uDFE5 Injuries</h4>' +
+                        '<div class="injury-data" id="injuries-' + mid + '">Loading...</div>' +
+                        '<button class="refresh-btn" onclick="event.stopPropagation();refreshCard(\'injuries\',\'' + mid + '\',\'' + sp + '\')">\u21BB</button>' +
+                    '</div>' +
+                    '<div class="detail-box" style="border-color:rgba(59,130,246,0.3);">' +
+                        '<h4 style="color:#3B82F6;">\uD83D\uDCCA Records</h4>' +
+                        '<div class="records-data" id="records-' + mid + '">Loading...</div>' +
+                        '<button class="refresh-btn" onclick="event.stopPropagation();refreshCard(\'records\',\'' + mid + '\',\'' + sp + '\')">\u21BB</button>' +
+                    '</div>' +
+                    '<div class="detail-box" style="border-color:rgba(168,85,247,0.3);">' +
+                        '<h4 style="color:#A855F7;">\u2694\uFE0F H2H</h4>' +
+                        '<div class="h2h-data" id="h2h-' + mid + '">Loading...</div>' +
+                        '<button class="refresh-btn" onclick="event.stopPropagation();refreshCard(\'h2h\',\'' + mid + '\',\'' + sp + '\')">\u21BB</button>' +
+                    '</div>' +
+                    '<div class="detail-box" style="border-color:rgba(16,185,129,0.3);">' +
+                        '<h4 style="color:#10B981;">\uD83D\uDCCB Lineups</h4>' +
+                        '<div class="lineup-data" id="lineup-' + mid + '">Loading...</div>' +
+                        '<button class="refresh-btn" onclick="event.stopPropagation();refreshCard(\'lineup\',\'' + mid + '\',\'' + sp + '\')">\u21BB</button>' +
+                    '</div>' +
+                '</div>';
+            })() +
         '</div>' +
     '</div>';
+}
+
+// ===== DATA CARD EXPAND + REFRESH =====
+function toggleGameExpand(el, matchupId, sport) {
+    var wasExpanded = el.classList.contains('expanded');
+    el.classList.toggle('expanded');
+    if (!wasExpanded) {
+        // Auto-load data cards on first expand
+        ['injuries', 'records', 'lineup', 'h2h'].forEach(function(type) {
+            var cardEl = document.getElementById(type + '-' + matchupId);
+            if (cardEl && cardEl.textContent === 'Loading...') {
+                refreshCard(type, matchupId, sport);
+            }
+        });
+    }
+}
+
+async function refreshCard(type, matchupId, sport) {
+    var el = document.getElementById(type + '-' + matchupId);
+    if (!el) return;
+    el.innerHTML = '<span style="color:rgba(255,255,255,0.4)">Loading...</span>';
+    var matchup = matchupId.replace(/_/g, ' ').replace(' at ', ' @ ');
+    try {
+        var resp = await fetch('/api/card/' + type + '/' + sport + '/' + encodeURIComponent(matchup));
+        var data = await resp.json();
+        el.innerHTML = formatCardData(type, data);
+    } catch(e) {
+        el.innerHTML = '<span style="color:#EF4444">Failed to load</span>';
+    }
+}
+
+function formatCardData(type, data) {
+    if (type === 'injuries') {
+        var html = '';
+        if (data.away_team && data.away_team.length) {
+            html += '<div style="margin-bottom:6px"><strong>' + (data.away_name || 'Away') + ':</strong></div>';
+            data.away_team.forEach(function(inj) {
+                var statusColor = inj.status === 'OUT' ? '#EF4444' : inj.status === 'GTD' ? '#F59E0B' : '#9CA3AF';
+                html += '<div style="font-size:11px;padding:1px 0"><span style="color:' + statusColor + '">' + inj.status + '</span> ' + inj.player + (inj.injury ? ' \u2014 ' + inj.injury : '') + '</div>';
+            });
+        }
+        if (data.home_team && data.home_team.length) {
+            html += '<div style="margin-top:6px;margin-bottom:6px"><strong>' + (data.home_name || 'Home') + ':</strong></div>';
+            data.home_team.forEach(function(inj) {
+                var statusColor = inj.status === 'OUT' ? '#EF4444' : inj.status === 'GTD' ? '#F59E0B' : '#9CA3AF';
+                html += '<div style="font-size:11px;padding:1px 0"><span style="color:' + statusColor + '">' + inj.status + '</span> ' + inj.player + (inj.injury ? ' \u2014 ' + inj.injury : '') + '</div>';
+            });
+        }
+        if (!html) html = '<span style="color:rgba(255,255,255,0.4)">No injuries reported</span>';
+        return html;
+    }
+    if (type === 'records') {
+        var html = '';
+        if (data.away) {
+            html += '<div style="margin-bottom:4px"><strong>' + data.away.name + ':</strong> ' + data.away.record;
+            if (data.away.home) html += ' (H: ' + data.away.home + ' A: ' + data.away.away + ')';
+            if (data.away.streak) html += ' | ' + data.away.streak;
+            html += '</div>';
+        }
+        if (data.home) {
+            html += '<div><strong>' + data.home.name + ':</strong> ' + data.home.record;
+            if (data.home.home) html += ' (H: ' + data.home.home + ' A: ' + data.home.away + ')';
+            if (data.home.streak) html += ' | ' + data.home.streak;
+            html += '</div>';
+        }
+        return html || '<span style="color:rgba(255,255,255,0.4)">No records available</span>';
+    }
+    if (type === 'h2h') {
+        return '<span style="color:rgba(255,255,255,0.4)">' + (data.note || 'No H2H data') + '</span>';
+    }
+    if (type === 'lineup') {
+        var html = '';
+        var confirmed = data.confirmed ? '\u2705 Confirmed' : '\u23F3 Projected';
+        html += '<div style="font-size:10px;color:rgba(255,255,255,0.4);margin-bottom:4px">' + confirmed + '</div>';
+        if (data.away_lineup && data.away_lineup.length) {
+            html += '<div style="margin-bottom:4px"><strong>' + (data.away_name || 'Away') + ':</strong> ';
+            html += data.away_lineup.slice(0, 8).map(function(p) { return p.name || p; }).join(', ');
+            html += '</div>';
+        }
+        if (data.home_lineup && data.home_lineup.length) {
+            html += '<div><strong>' + (data.home_name || 'Home') + ':</strong> ';
+            html += data.home_lineup.slice(0, 8).map(function(p) { return p.name || p; }).join(', ');
+            html += '</div>';
+        }
+        return html || '<span style="color:rgba(255,255,255,0.4)">No lineup data</span>';
+    }
+    return JSON.stringify(data);
 }
 
 // ===== BEAT REPORT =====

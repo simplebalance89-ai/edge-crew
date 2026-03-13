@@ -1305,7 +1305,7 @@ def _build_matrix_section(sport):
     total_weight = sum(w for _, w, _ in matrix)
     max_score = total_weight * 10
     lines = []
-    lines.append(f"\n=== {sport.upper()} SCORING MATRIX (10 Variables, Weighted 1-10) ===")
+    lines.append(f"\n=== {sport.upper()} SCORING MATRIX ({len(matrix)} Variables, Weighted 1-10) ===")
     lines.append(f"Score each variable 1-10 for EACH game. Weight x Score = Weighted.")
     lines.append(f"Max possible: {max_score}. Composite = sum / {max_score} x 10.\n")
     for i, (key, weight, label) in enumerate(matrix, 1):
@@ -4911,6 +4911,220 @@ async def arb_scan():
                     })
     all_arbs.sort(key=lambda a: a.get("profit_pct", 0), reverse=True)
     return JSONResponse({"arbs": all_arbs, "count": len(all_arbs), "scanned_at": _now_ts()})
+
+
+# ── Data Card Endpoints ────────────────────────────────────────────────────
+_ESPN_SPORT_PATHS_CARDS = {
+    "nba": "basketball/nba",
+    "wnba": "basketball/wnba",
+    "nhl": "hockey/nhl",
+    "soccer": None,
+}
+
+def _parse_matchup_teams(matchup: str):
+    """Parse 'AWAY @ HOME' matchup string into (away, home) tuple."""
+    parts = matchup.split("@")
+    if len(parts) != 2:
+        parts = matchup.split(" at ")
+    if len(parts) != 2:
+        return None, None
+    return parts[0].strip(), parts[1].strip()
+
+
+@app.get("/api/card/injuries/{sport}/{matchup}")
+async def card_injuries(sport: str, matchup: str):
+    """Return structured injury data for a specific matchup."""
+    sport_lower = sport.lower()
+    away_abbr, home_abbr = _parse_matchup_teams(matchup)
+    if not away_abbr or not home_abbr:
+        return JSONResponse({"error": "Invalid matchup format. Use 'AWAY @ HOME'."}, status_code=400)
+
+    away_name = _expand_abbrevs(away_abbr, sport_lower)
+    home_name = _expand_abbrevs(home_abbr, sport_lower)
+
+    # Try ESPN injuries API first
+    espn_sport = _ESPN_SPORT_PATHS.get(sport_lower)
+    away_injuries = []
+    home_injuries = []
+
+    if espn_sport:
+        cache_key = f"espn_injuries_raw:{sport_lower}"
+        cached = _get_cached(cache_key, ttl=1800)
+        if not cached:
+            try:
+                url = f"https://site.api.espn.com/apis/site/v2/sports/{espn_sport}/injuries"
+                async with httpx.AsyncClient(timeout=15.0) as client:
+                    resp = await client.get(url, headers={"User-Agent": "Mozilla/5.0"})
+                    if resp.status_code == 200:
+                        cached = resp.json()
+                        _set_cache(cache_key, cached)
+            except Exception as e:
+                logger.warning(f"ESPN injuries fetch for card failed: {e}")
+
+        if cached:
+            for team_data in cached.get("injuries", cached.get("items", [])):
+                team_a = (team_data.get("abbreviation") or
+                          team_data.get("team", {}).get("abbreviation", "")).lower()
+                team_n = (team_data.get("displayName") or
+                          team_data.get("team", {}).get("displayName", "")).lower()
+                is_away = (team_a == away_abbr.lower() or
+                           away_name in team_n or away_abbr.lower() in team_n)
+                is_home = (team_a == home_abbr.lower() or
+                           home_name in team_n or home_abbr.lower() in team_n)
+                if not is_away and not is_home:
+                    continue
+                target = away_injuries if is_away else home_injuries
+                for inj in team_data.get("injuries", []):
+                    athlete = inj.get("athlete", {})
+                    pname = athlete.get("displayName", "?") if isinstance(athlete, dict) else "?"
+                    status = inj.get("status", "Unknown")
+                    details = inj.get("details", {})
+                    injury_type = details.get("type", "?") if isinstance(details, dict) else "?"
+                    target.append({
+                        "player": pname,
+                        "status": status.upper(),
+                        "injury": injury_type,
+                    })
+
+    return JSONResponse({
+        "away_team": away_injuries,
+        "home_team": home_injuries,
+        "away_name": away_abbr,
+        "home_name": home_abbr,
+        "source": "ESPN",
+    })
+
+
+@app.get("/api/card/records/{sport}/{matchup}")
+async def card_records(sport: str, matchup: str):
+    """Return team records for a matchup via ESPN team API."""
+    sport_lower = sport.lower()
+    away_abbr, home_abbr = _parse_matchup_teams(matchup)
+    if not away_abbr or not home_abbr:
+        return JSONResponse({"error": "Invalid matchup format."}, status_code=400)
+
+    espn_sport = _ESPN_SPORT_PATHS.get(sport_lower)
+    if not espn_sport:
+        return JSONResponse({
+            "away": {"name": away_abbr, "record": "N/A"},
+            "home": {"name": home_abbr, "record": "N/A"},
+            "note": f"No ESPN source for {sport}",
+        })
+
+    async def _fetch_team_record(abbr_str):
+        """Fetch record for a single team from ESPN."""
+        tid = abbr_str.lower()
+        cache_key = f"espn_team_record:{sport_lower}:{tid}"
+        cached = _get_cached(cache_key, ttl=3600)
+        if cached:
+            return cached
+
+        try:
+            url = f"https://site.api.espn.com/apis/site/v2/sports/{espn_sport}/teams/{tid}"
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                resp = await client.get(url, headers={"User-Agent": "Mozilla/5.0"})
+                if resp.status_code == 200:
+                    data = resp.json()
+                    team = data.get("team", {})
+                    abbr_out = team.get("abbreviation", tid.upper())
+                    record_items = team.get("record", {}).get("items", [])
+                    overall = {}
+                    home_rec = ""
+                    away_rec = ""
+                    streak_str = ""
+                    last10 = ""
+                    for item in record_items:
+                        if item.get("type") == "total":
+                            overall = item
+                        stats = {s.get("name", ""): s.get("displayValue", s.get("value", ""))
+                                 for s in item.get("stats", [])}
+                        if item.get("type") == "total":
+                            streak_str = stats.get("streak", "")
+                            # Try to find home/away/last10 in stats
+                        if item.get("type") == "home":
+                            home_rec = item.get("summary", "")
+                        if item.get("type") == "road" or item.get("type") == "away":
+                            away_rec = item.get("summary", "")
+
+                    result = {
+                        "name": abbr_out,
+                        "record": overall.get("summary", "?"),
+                        "home": home_rec,
+                        "away": away_rec,
+                        "streak": streak_str,
+                    }
+                    _set_cache(cache_key, result)
+                    return result
+        except Exception as e:
+            logger.warning(f"ESPN team record fetch failed for {tid}: {e}")
+
+        return {"name": tid.upper(), "record": "N/A"}
+
+    away_rec, home_rec = await asyncio.gather(
+        _fetch_team_record(away_abbr),
+        _fetch_team_record(home_abbr),
+    )
+    return JSONResponse({"away": away_rec, "home": home_rec})
+
+
+@app.get("/api/card/h2h/{sport}/{matchup}")
+async def card_h2h(sport: str, matchup: str):
+    """Head-to-head data for a matchup. Placeholder for now."""
+    return JSONResponse({
+        "matchup": matchup,
+        "note": "H2H data coming soon",
+        "source": "ESPN",
+    })
+
+
+@app.get("/api/card/lineup/{sport}/{matchup}")
+async def card_lineup(sport: str, matchup: str):
+    """Return lineup data for a specific matchup."""
+    sport_lower = sport.lower()
+    away_abbr, home_abbr = _parse_matchup_teams(matchup)
+    if not away_abbr or not home_abbr:
+        return JSONResponse({"error": "Invalid matchup format."}, status_code=400)
+
+    away_name = _expand_abbrevs(away_abbr, sport_lower)
+    home_name = _expand_abbrevs(home_abbr, sport_lower)
+    away_lineup = []
+    home_lineup = []
+    confirmed = False
+
+    espn_sport = _ESPN_SPORT_PATHS.get(sport_lower)
+    if espn_sport:
+        # Try ESPN roster/depth chart as a proxy for lineups
+        for tid, target, name in [(away_abbr.lower(), away_lineup, away_name),
+                                   (home_abbr.lower(), home_lineup, home_name)]:
+            cache_key = f"espn_roster_card:{sport_lower}:{tid}"
+            cached = _get_cached(cache_key, ttl=1800)
+            if cached:
+                target.extend(cached)
+                continue
+            try:
+                url = f"https://site.api.espn.com/apis/site/v2/sports/{espn_sport}/teams/{tid}/roster"
+                async with httpx.AsyncClient(timeout=10.0) as client:
+                    resp = await client.get(url, headers={"User-Agent": "Mozilla/5.0"})
+                    if resp.status_code == 200:
+                        data = resp.json()
+                        players = []
+                        for a in data.get("athletes", []):
+                            players.append({
+                                "name": a.get("displayName", "?"),
+                                "pos": a.get("position", {}).get("abbreviation", "?"),
+                            })
+                        _set_cache(cache_key, players)
+                        target.extend(players)
+            except Exception as e:
+                logger.warning(f"ESPN roster card fetch failed for {tid}: {e}")
+
+    return JSONResponse({
+        "away_lineup": away_lineup[:15],
+        "home_lineup": home_lineup[:15],
+        "away_name": away_abbr,
+        "home_name": home_abbr,
+        "confirmed": confirmed,
+    })
 
 
 @app.get("/")
