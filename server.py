@@ -2292,7 +2292,7 @@ _active_baseball_cache = {"keys": [], "fetched_at": 0}
 
 
 async def _get_active_baseball_keys():
-    """Fetch currently active baseball keys from The Odds API (MLB, WBC, etc). Cached 1 hour."""
+    """Fetch currently active baseball keys from The Odds API (MLB, WBC — no college). Cached 1 hour."""
     now = time.time()
     if _active_baseball_cache["keys"] and now - _active_baseball_cache["fetched_at"] < 3600:
         return _active_baseball_cache["keys"]
@@ -2303,7 +2303,13 @@ async def _get_active_baseball_keys():
             r = await client.get(url, params=params)
             if r.status_code == 200:
                 sports = r.json()
-                keys = [s["key"] for s in sports if s["key"].startswith("baseball_") and s.get("active")]
+                # Only MLB and WBC keys — exclude college baseball (ncaa, college, etc)
+                exclude = ("ncaa", "college", "university")
+                keys = [
+                    s["key"] for s in sports
+                    if s["key"].startswith("baseball_") and s.get("active")
+                    and not any(x in s["key"].lower() for x in exclude)
+                ]
                 if keys:
                     _active_baseball_cache["keys"] = keys
                     _active_baseball_cache["fetched_at"] = now
@@ -2311,6 +2317,63 @@ async def _get_active_baseball_keys():
     except Exception:
         pass
     return SPORT_KEYS.get("mlb", ["baseball_mlb"])  # fallback to hardcoded
+
+
+_wbc_cache = {"games": [], "fetched_at": 0}
+
+
+async def _fetch_wbc_games():
+    """Fetch World Baseball Classic games from ESPN. Cached 15 min."""
+    now = time.time()
+    if _wbc_cache["games"] and now - _wbc_cache["fetched_at"] < 900:
+        return _wbc_cache["games"]
+    try:
+        url = "https://site.api.espn.com/apis/site/v2/sports/baseball/world-baseball-classic/scoreboard"
+        async with httpx.AsyncClient(timeout=10) as client:
+            r = await client.get(url)
+            if r.status_code == 200:
+                data = r.json()
+                games = []
+                for event in data.get("events", []):
+                    comp = event.get("competitions", [{}])[0]
+                    competitors = comp.get("competitors", [])
+                    if len(competitors) < 2:
+                        continue
+                    away = next((c for c in competitors if c.get("homeAway") == "away"), competitors[0])
+                    home = next((c for c in competitors if c.get("homeAway") == "home"), competitors[1])
+                    away_name = away.get("team", {}).get("displayName", "")
+                    home_name = home.get("team", {}).get("displayName", "")
+                    game_time = event.get("date", "")
+                    status = comp.get("status", {}).get("type", {}).get("description", "")
+                    away_score = away.get("score", "0")
+                    home_score = home.get("score", "0")
+                    game = {
+                        "away": away_name,
+                        "home": home_name,
+                        "time": game_time,
+                        "sport": "MLB",
+                        "league": "WBC",
+                        "away_ml": "",
+                        "home_ml": "",
+                        "home_spread": None,
+                        "away_spread": None,
+                        "total": None,
+                        "bookmaker": "ESPN",
+                        "lines_complete": False,
+                        "lines_available": False,
+                        "fetched_at": _now_ts(),
+                        "wbc": True,
+                        "status": status,
+                        "away_score": away_score,
+                        "home_score": home_score,
+                    }
+                    games.append(game)
+                _wbc_cache["games"] = games
+                _wbc_cache["fetched_at"] = now
+                return games
+    except Exception as e:
+        logger.warning(f"WBC fetch failed: {e}")
+    return _wbc_cache.get("games", [])
 
 
 _active_tennis_cache = {"keys": [], "fetched_at": 0}
@@ -2397,6 +2460,16 @@ async def get_odds(sport: str, markets: str = "h2h,spreads,totals"):
         if all_games:
             source_name = "The Odds API"
 
+    # --- WBC: Merge World Baseball Classic from ESPN ---
+    if sport_lower == "mlb":
+        try:
+            wbc_games = await _fetch_wbc_games()
+            if wbc_games:
+                all_games.extend(wbc_games)
+                logger.info(f"[WBC] Added {len(wbc_games)} World Baseball Classic games")
+        except Exception as e:
+            logger.warning(f"WBC merge failed: {e}")
+
     # --- FALLBACK: SharpAPI ---
     if not all_games and SHARPAPI_KEY and sport_lower in SHARPAPI_LEAGUES:
         all_games = await _fetch_sharpapi_odds(sport_lower, label)
@@ -2413,7 +2486,8 @@ async def get_odds(sport: str, markets: str = "h2h,spreads,totals"):
     for g in all_games:
         game_time_str = g.get('time', '')
         has_book = g.get('bookmaker') not in (None, 'None', '')
-        if not game_time_str or not has_book:
+        is_wbc = g.get('wbc', False)
+        if not game_time_str or (not has_book and not is_wbc):
             continue
         try:
             gt = datetime.fromisoformat(game_time_str.replace('Z', '+00:00')).astimezone(PST)
@@ -2422,6 +2496,16 @@ async def get_odds(sport: str, markets: str = "h2h,spreads,totals"):
         except Exception:
             continue
     all_games = filtered_games
+
+    # Deduplicate games by matchup (away + home)
+    seen_matchups = set()
+    deduped = []
+    for g in all_games:
+        key = (g.get("away", "").strip().lower(), g.get("home", "").strip().lower())
+        if key not in seen_matchups:
+            seen_matchups.add(key)
+            deduped.append(g)
+    all_games = deduped
 
     # Save to daily record + invalidate stale analysis cache
     if all_games:
