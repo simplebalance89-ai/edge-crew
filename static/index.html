@@ -2622,7 +2622,7 @@ function togglePick(event, el, gameName) {
     updateSubmitBar();
 }
 
-function pickSide(event, el, side) {
+function pickSide(event, el, side, odds) {
     event.stopPropagation();
     var row = el.closest('.game-row');
     var gameName = row.getAttribute('data-game');
@@ -2640,6 +2640,7 @@ function pickSide(event, el, side) {
     el.classList.add('picked');
     if (!picks[gameName]) picks[gameName] = {};
     picks[gameName].side = side;
+    picks[gameName].odds = odds || '';
     // Auto-check the game if not already checked
     var check = row.querySelector('.pick-check');
     if (!check.classList.contains('on')) {
@@ -2656,7 +2657,7 @@ function pickSide(event, el, side) {
         var panelId = panel.id || '';
         sport = panelId.replace('panel-', '').toUpperCase();
     }
-    openBetSlip(gameName, side, sport);
+    openBetSlip(gameName, side, sport, odds);
 }
 
 // ===== BET SLIP POPUP =====
@@ -2664,7 +2665,7 @@ var slipState = {
     matchup: '', side: '', sport: '', type: '', who: '', units: '1', conf: 'Lean', odds: '-110', note: ''
 };
 
-function openBetSlip(matchup, side, sport) {
+function openBetSlip(matchup, side, sport, odds) {
     slipState.matchup = matchup;
     slipState.side = side;
     slipState.sport = sport || '';
@@ -2679,24 +2680,33 @@ function openBetSlip(matchup, side, sport) {
         slipState.type = 'Spread';
     }
 
-    // Extract odds from side text if present, e.g. "MIL +3.0 (-110)" or "VAN ML +110"
-    var oddsMatch = side.match(/\(([+-]\d+)\)/);
-    var defaultOdds = '-110';
-    if (oddsMatch) {
-        defaultOdds = oddsMatch[1];
-    } else if (slipState.type === 'Moneyline') {
-        // For ML buttons the odds are often in the text like "VAN ML +110"
-        var mlMatch = side.match(/ML\s*([+-]\d+)/);
-        if (mlMatch) defaultOdds = mlMatch[1];
+    // Use odds passed directly from the button (most reliable)
+    var defaultOdds = '';
+    if (odds !== undefined && odds !== null && odds !== '') {
+        defaultOdds = String(odds);
+        if (defaultOdds !== '0' && defaultOdds.charAt(0) !== '-' && defaultOdds.charAt(0) !== '+') {
+            defaultOdds = '+' + defaultOdds; // Ensure positive odds have + prefix
+        }
     }
-    // Also check liveOddsMap
-    if (typeof liveOddsMap !== 'undefined' && liveOddsMap[matchup]) {
-        // Try exact side match
+    // Fallback: extract odds from side text if present
+    if (!defaultOdds) {
+        var oddsMatch = side.match(/\(([+-]\d+)\)/);
+        if (oddsMatch) {
+            defaultOdds = oddsMatch[1];
+        } else if (slipState.type === 'Moneyline') {
+            var mlMatch = side.match(/ML\s*([+-]\d+)/);
+            if (mlMatch) defaultOdds = mlMatch[1];
+        }
+    }
+    // Fallback: check liveOddsMap
+    if (!defaultOdds && typeof liveOddsMap !== 'undefined' && liveOddsMap[matchup]) {
         var cleanSide = side.replace(/\s*\([^)]*\)/, '');
         if (liveOddsMap[matchup][cleanSide]) {
             defaultOdds = String(liveOddsMap[matchup][cleanSide]);
         }
     }
+    // Final fallback
+    if (!defaultOdds) defaultOdds = '-110';
     slipState.odds = defaultOdds;
 
     // Populate UI
@@ -2889,7 +2899,13 @@ function lockCard() {
         tr.appendChild(td3);
         body.appendChild(tr);
         if (!side) { td3.textContent = 'NO SIDE — skipped'; td3.style.color = '#EF4444'; continue; }
-        lockedPicks.push({ matchup: g, selection: side });
+        var pickOdds = picks[g].odds || '';
+        // Fallback to liveOddsMap if odds weren't stored on the pick
+        if (!pickOdds && typeof liveOddsMap !== 'undefined' && liveOddsMap[g]) {
+            var cleanSide = side.replace(/\s*\([^)]*\)/, '');
+            if (liveOddsMap[g][cleanSide]) pickOdds = String(liveOddsMap[g][cleanSide]);
+        }
+        lockedPicks.push({ matchup: g, selection: side, odds: pickOdds || '-110' });
     }
     document.getElementById('modalOverlay').classList.add('show');
 
@@ -2905,7 +2921,7 @@ function lockCard() {
         var pick = {
             name: name, sport: sport, type: type,
             matchup: lp.matchup, selection: lp.selection,
-            odds: '-110', units: '1', confidence: 'Lean', notes: 'Lock card',
+            odds: lp.odds || '-110', units: '1', confidence: 'Lean', notes: 'Lock card',
             grade: grade || '',
             date: toPSTDate(), time: toPSTShort(), created_at: new Date().toISOString()
         };
@@ -4929,17 +4945,17 @@ function buildGameRowHTML(g) {
         '<div class="game-detail">' +
             /* Side selector buttons (moved here from header) */
             '<div class="side-select" style="padding:12px 16px 8px;flex-wrap:wrap;gap:6px;">' +
-                (hasSpread ? '<div class="side-btn" onclick="pickSide(event,this,\'' + awayAbbr + ' ' + awaySpreadStr + '\')">' + awayAbbr + ' ' + awaySpreadStr + ' (' + (g.away_spread_odds||'-110') + ')</div>' +
-                '<div class="side-btn" onclick="pickSide(event,this,\'' + homeAbbr + ' ' + spreadStr + '\')">' + homeAbbr + ' ' + spreadStr + ' (' + (g.home_spread_odds||'-110') + ')</div>' : '') +
-                (hasTotal ? '<div class="side-btn" onclick="pickSide(event,this,\'OVER ' + total + '\')">O ' + total + ' (' + (g.over_odds||'-110') + ')</div>' +
-                '<div class="side-btn" onclick="pickSide(event,this,\'UNDER ' + total + '\')">U ' + total + ' (' + (g.under_odds||'-110') + ')</div>' : '') +
-                '<div class="side-btn" onclick="pickSide(event,this,\'' + awayAbbr + ' ML\')">' + awayAbbr + ' ML (' + awayML + ')</div>' +
-                '<div class="side-btn" onclick="pickSide(event,this,\'' + homeAbbr + ' ML\')">' + homeAbbr + ' ML (' + homeML + ')</div>' +
-                (g.draw_ml ? '<div class="side-btn" onclick="pickSide(event,this,\'DRAW\')">Draw (' + g.draw_ml + ')</div>' : '') +
-                (g.btts_yes ? '<div class="side-btn" onclick="pickSide(event,this,\'BTTS YES\')">BTTS Yes (' + g.btts_yes + ')</div>' : '') +
-                (g.btts_no ? '<div class="side-btn" onclick="pickSide(event,this,\'BTTS NO\')">BTTS No (' + g.btts_no + ')</div>' : '') +
-                (g.dnb_away ? '<div class="side-btn" onclick="pickSide(event,this,\'' + awayAbbr + ' DNB\')">' + awayAbbr + ' DNB (' + g.dnb_away + ')</div>' : '') +
-                (g.dnb_home ? '<div class="side-btn" onclick="pickSide(event,this,\'' + homeAbbr + ' DNB\')">' + homeAbbr + ' DNB (' + g.dnb_home + ')</div>' : '') +
+                (hasSpread ? '<div class="side-btn" onclick="pickSide(event,this,\'' + awayAbbr + ' ' + awaySpreadStr + '\',' + (g.away_spread_odds||-110) + ')">' + awayAbbr + ' ' + awaySpreadStr + ' (' + (g.away_spread_odds||'-110') + ')</div>' +
+                '<div class="side-btn" onclick="pickSide(event,this,\'' + homeAbbr + ' ' + spreadStr + '\',' + (g.home_spread_odds||-110) + ')">' + homeAbbr + ' ' + spreadStr + ' (' + (g.home_spread_odds||'-110') + ')</div>' : '') +
+                (hasTotal ? '<div class="side-btn" onclick="pickSide(event,this,\'OVER ' + total + '\',' + (g.over_odds||-110) + ')">O ' + total + ' (' + (g.over_odds||'-110') + ')</div>' +
+                '<div class="side-btn" onclick="pickSide(event,this,\'UNDER ' + total + '\',' + (g.under_odds||-110) + ')">U ' + total + ' (' + (g.under_odds||'-110') + ')</div>' : '') +
+                '<div class="side-btn" onclick="pickSide(event,this,\'' + awayAbbr + ' ML\',' + (awayML||0) + ')">' + awayAbbr + ' ML (' + awayML + ')</div>' +
+                '<div class="side-btn" onclick="pickSide(event,this,\'' + homeAbbr + ' ML\',' + (homeML||0) + ')">' + homeAbbr + ' ML (' + homeML + ')</div>' +
+                (g.draw_ml ? '<div class="side-btn" onclick="pickSide(event,this,\'DRAW\',' + g.draw_ml + ')">Draw (' + g.draw_ml + ')</div>' : '') +
+                (g.btts_yes ? '<div class="side-btn" onclick="pickSide(event,this,\'BTTS YES\',' + g.btts_yes + ')">BTTS Yes (' + g.btts_yes + ')</div>' : '') +
+                (g.btts_no ? '<div class="side-btn" onclick="pickSide(event,this,\'BTTS NO\',' + g.btts_no + ')">BTTS No (' + g.btts_no + ')</div>' : '') +
+                (g.dnb_away ? '<div class="side-btn" onclick="pickSide(event,this,\'' + awayAbbr + ' DNB\',' + g.dnb_away + ')">' + awayAbbr + ' DNB (' + g.dnb_away + ')</div>' : '') +
+                (g.dnb_home ? '<div class="side-btn" onclick="pickSide(event,this,\'' + homeAbbr + ' DNB\',' + g.dnb_home + ')">' + homeAbbr + ' DNB (' + g.dnb_home + ')</div>' : '') +
             '</div>' +
             '<div class="detail-grid">' +
                 '<div class="detail-box peter"><h4>Lines (' + bookSource + ')</h4>' +
