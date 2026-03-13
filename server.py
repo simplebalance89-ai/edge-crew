@@ -8,6 +8,7 @@ import logging
 import httpx
 import re
 import asyncio
+import db
 from openai import AzureOpenAI
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
@@ -101,7 +102,7 @@ async def _autograde_loop():
                                 continue
                             grade = _grade_pick_against_score(pick, game)
                             if grade:
-                                _update_pick_result(pick.get("id", ""), grade)
+                                await _update_pick_result(pick.get("id", ""), grade)
                                 pick["result"] = grade
                                 graded_from_cache += 1
                                 print(f"[AUTOGRADE] Cache hit — graded {pick.get('selection', '?')} as {grade}")
@@ -151,7 +152,7 @@ async def _autograde_loop():
                                 continue
                             grade = _grade_pick_against_score(pick, game)
                             if grade:
-                                _update_pick_result(pick.get("id", ""), grade)
+                                await _update_pick_result(pick.get("id", ""), grade)
                                 pick["result"] = grade
                                 graded_from_api += 1
                 elif not sports_needed and not still_ungraded:
@@ -174,7 +175,7 @@ async def _autograde_loop():
                     if pick.get("type", "").lower() == "parlay":
                         grade = _grade_parlay(pick, deduped_completed)
                         if grade:
-                            _update_pick_result(pick.get("id", ""), grade)
+                            await _update_pick_result(pick.get("id", ""), grade)
                             pick["result"] = grade
                             graded_parlays += 1
 
@@ -288,8 +289,14 @@ async def _daily_slate_pull():
 
 @app.on_event("startup")
 async def start_background_tasks():
+    await db.init_schema()
     asyncio.create_task(_autograde_loop())
     asyncio.create_task(_daily_slate_pull())
+
+
+@app.on_event("shutdown")
+async def shutdown():
+    await db.close_pool()
 
 
 @app.get("/health")
@@ -683,6 +690,44 @@ def _archive_completed_games(games: list):
     for g in completed:
         archive[g["id"]] = g
     _save_scores_archive(archive)
+    # Dual-write completed scores to Postgres (fire-and-forget)
+    asyncio.create_task(_db_write_scores(completed))
+
+
+async def _db_write_scores(games: list):
+    """Dual-write completed game scores to Postgres."""
+    for g in games:
+        try:
+            await db.execute(
+                """INSERT INTO scores (id, sport, home_team, away_team, home_score, away_score, completed, commence_time)
+                   VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+                   ON CONFLICT (id) DO UPDATE SET
+                     home_score=EXCLUDED.home_score, away_score=EXCLUDED.away_score,
+                     completed=EXCLUDED.completed, fetched_at=NOW()""",
+                g.get("id", ""),
+                g.get("sport_key", ""),
+                g.get("home_team", ""),
+                g.get("away_team", ""),
+                _extract_score(g, "home"),
+                _extract_score(g, "away"),
+                g.get("completed", False),
+                g.get("commence_time", ""),
+            )
+        except Exception as e:
+            logger.error(f"DB dual-write score failed for {g.get('id')}: {e}")
+
+
+def _extract_score(game: dict, side: str) -> int:
+    """Extract numeric score from game dict scores array."""
+    for s in game.get("scores", []):
+        name = s.get("name", "").lower()
+        team = game.get(f"{side}_team", "").lower()
+        if name and team and name in team or team in name:
+            try:
+                return int(s.get("score", 0))
+            except (ValueError, TypeError):
+                return 0
+    return 0
 
 
 def _days_from_oldest_pick(picks: list) -> int:
@@ -2839,17 +2884,28 @@ def _write_picks(data):
         json.dump(data, f, indent=2)
 
 
-def _update_pick_result(pick_id: str, result: str):
-    """Update a pick's result in local file storage."""
+async def _update_pick_result(pick_id: str, result: str):
+    """Update a pick's result in local file storage + Postgres."""
     if not pick_id:
         return
     data = _read_picks()
     for pick in data["picks"]:
         if pick.get("id") == pick_id:
             pick["result"] = result
-            pick["graded_at"] = datetime.now(PST).strftime("%Y-%m-%d %H:%M:%S")
+            graded_at = datetime.now(PST).strftime("%Y-%m-%d %H:%M:%S")
+            pick["graded_at"] = graded_at
             data["updated_at"] = datetime.now(PST).strftime("%Y-%m-%d %H:%M:%S")
             _write_picks(data)
+            # Dual-write grade to Postgres
+            try:
+                await db.execute(
+                    "UPDATE picks SET result=$1, graded_at=$2 WHERE id=$3",
+                    result,
+                    datetime.strptime(graded_at, "%Y-%m-%d %H:%M:%S").replace(tzinfo=PST),
+                    pick_id,
+                )
+            except Exception as e:
+                logger.error(f"DB dual-write grade failed for {pick_id}: {e}")
             return
 
 
@@ -2973,6 +3029,23 @@ async def save_pick(request: Request):
         logger.error(f"Pick save failed: {e}")
         log_error("Picks", f"Save failed for {name}", str(e))
         return JSONResponse({"error": f"Failed to save pick: {e}"}, status_code=500)
+
+    # Dual-write to Postgres (fire-and-forget — JSON is still source of truth)
+    try:
+        await db.execute(
+            """INSERT INTO picks (id, name, sport, type, matchup, selection, odds, units, confidence, notes, date, time, placed, placed_at, created_at)
+               VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
+               ON CONFLICT (id) DO NOTHING""",
+            pick["id"], pick["name"], pick["sport"], pick["type"],
+            pick["matchup"], pick["selection"], pick["odds"], pick["units"],
+            pick["confidence"], pick["notes"],
+            datetime.strptime(pick["date"], "%Y-%m-%d").date() if pick.get("date") else None,
+            pick.get("time"), pick.get("placed", True),
+            datetime.strptime(pick["placed_at"], "%Y-%m-%d %H:%M:%S").replace(tzinfo=PST) if pick.get("placed_at") else None,
+            datetime.strptime(pick["created_at"], "%Y-%m-%d %H:%M:%S").replace(tzinfo=PST) if pick.get("created_at") else None,
+        )
+    except Exception as e:
+        logger.error(f"DB dual-write pick failed: {e}")
 
     return JSONResponse({"status": "ok", "pick": pick})
 
@@ -3824,7 +3897,7 @@ async def autograde_picks(request: Request):
                 continue
             grade = _grade_pick_against_score(pick, game)
             if grade:
-                _update_pick_result(pick.get("id", ""), grade)
+                await _update_pick_result(pick.get("id", ""), grade)
                 pick["result"] = grade
                 graded_from_cache += 1
 
@@ -3906,7 +3979,7 @@ async def autograde_picks(request: Request):
             result = _grade_parlay(pick, completed)
             if result:
                 pick_id = pick.get("id", "")
-                _update_pick_result(pick_id, result)
+                await _update_pick_result(pick_id, result)
                 graded_count += 1
                 legs = _parse_parlay_legs(pick)
                 results.append({
@@ -3953,7 +4026,7 @@ async def autograde_picks(request: Request):
 
             if result:
                 pick_id = pick.get("id", "")
-                _update_pick_result(pick_id, result)
+                await _update_pick_result(pick_id, result)
 
                 graded_count += 1
                 scores_info = game.get("scores", [])
