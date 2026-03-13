@@ -6019,7 +6019,9 @@ function renderCombinedTable(data) {
                 mProps = '<div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.06);">';
                 mProps += '<div style="font-size:10px;color:#10B981;font-weight:700;margin-bottom:4px;">PROPS</div>';
                 mAnalysis.player_props.forEach(function(p) {
-                    mProps += '<div style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:2px;">' + p + '</div>';
+                    var txt = typeof p === 'string' ? p : '<strong>' + (p.player||'') + '</strong> ' + (p.prop||'') + (p.line ? ' (' + p.line + ')' : '') + (p.edge ? ' — <em>' + p.edge + '</em>' : '');
+                    var pg = typeof p === 'object' && p.grade ? ' <span class="grade g' + p.grade.toLowerCase().replace(/[^a-z]/g,'') + '" style="font-size:9px;padding:2px 5px;">' + p.grade + '</span>' : '';
+                    mProps += '<div style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:2px;">' + txt + pg + '</div>';
                 });
                 mProps += '</div>';
             }

@@ -1533,7 +1533,9 @@ def _recalculate_grade(game, sport):
     max_possible = sum(w for _, w, _ in matrix) * 10
 
     # Calculate actual weighted sum from GPT's individual scores
+    # Missing variables get default score 5 (neutral) instead of being skipped
     total_weighted = 0
+    missing_vars = []
     for var_name, weight, _ in matrix:
         if var_name in matrix_scores:
             score_data = matrix_scores[var_name]
@@ -1544,6 +1546,12 @@ def _recalculate_grade(game, sport):
             if isinstance(score_data, dict):
                 score_data["weighted"] = weighted
             total_weighted += weighted
+        else:
+            # Default to 5 (neutral) for unmatched variables
+            total_weighted += 5 * weight
+            missing_vars.append(var_name)
+    if missing_vars:
+        print(f"[MATRIX DEFAULT] {game.get('matchup')} — {len(missing_vars)} vars defaulted to 5: {missing_vars[:5]}")
 
     # Recalculate composite
     recalculated = round((total_weighted / max_possible) * 10, 1) if max_possible > 0 else 5.0
