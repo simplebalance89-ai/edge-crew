@@ -605,11 +605,13 @@ ANALYSIS_FORMATTER = os.environ.get("ANALYSIS_FORMATTER", "DeepSeek-V3.2")
 ANALYSIS_MODE = os.environ.get("ANALYSIS_MODE", "twomodel")  # "twomodel" or "single"
 
 # Build version — auto-set at server startup for cache busting
-import subprocess as _sp
-try:
-    _git_hash = _sp.check_output(["git", "rev-parse", "--short", "HEAD"], stderr=_sp.DEVNULL).decode().strip()
-except Exception:
-    _git_hash = "unknown"
+_git_hash = os.environ.get("RENDER_GIT_COMMIT", "")[:7]
+if not _git_hash:
+    import subprocess as _sp
+    try:
+        _git_hash = _sp.check_output(["git", "rev-parse", "--short", "HEAD"], stderr=_sp.DEVNULL).decode().strip()
+    except Exception:
+        _git_hash = "dev"
 BUILD_VERSION = f"v2.{datetime.now(PST).strftime('%m%d.%H%M')}.{_git_hash}"
 BUILD_TS = datetime.now(PST).strftime("%Y-%m-%d %I:%M %p PST")
 logger.info(f"[BUILD] {BUILD_VERSION} — {BUILD_TS}")
