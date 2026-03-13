@@ -5933,7 +5933,7 @@ function renderCombinedTable(data) {
                 var gc2 = 'g' + gptGrade.toLowerCase().replace(/[^a-z]/g,'');
                 gradeHtml = '<span class="grade ' + gc + '"' + (analysis.grade === 'TBD' ? ' style="background:rgba(251,176,36,0.15);color:#FBB024;"' : '') + '>' + (analysis.grade || '--') + '</span>' +
                     '<span style="font-size:9px;color:rgba(255,255,255,0.35);margin:0 2px;">/</span>' +
-                    '<span class="grade ' + gc2 + '" style="opacity:0.6;font-size:10px;" title="GPT gut grade">' + gptGrade + '</span>';
+                    '<span class="grade ' + gc2 + '" style="opacity:0.6;font-size:10px;" title="Grok grade">' + gptGrade + '</span>';
             } else {
                 gradeHtml = '<span class="grade ' + gc + '"' + (analysis.grade === 'TBD' ? ' style="background:rgba(251,176,36,0.15);color:#FBB024;"' : '') + '>' + (analysis.grade || '--') + '</span>';
             }
@@ -6129,20 +6129,21 @@ function injectPicksIntoCards(sport, analysisData) {
 
         if (row) {
             row.classList.add('has-analysis');
-            // Update grade if analysis has one — show Matrix grade / GPT grade
+            // Update grade if analysis has one — show Matrix grade / Grok grade
             if (game.grade) {
                 var gradeContainer = row.querySelector('.game-grade');
                 if (gradeContainer) {
                     var gc = game.grade.replace(/[+-]/g,'').toLowerCase();
                     var gptGradeVal = game.gpt_original_grade || '';
+                    var thinkerLabel = (game._thinker || 'gpt').match(/grok/i) ? 'Grok' : (game._thinker || 'gpt').match(/deepseek/i) ? 'DeepSeek' : 'GPT';
                     var dualHtml = '<span class="grade g' + gc + '">' + game.grade + '</span>';
                     if (gptGradeVal && gptGradeVal !== game.grade && game.grade !== 'TBD' && game.grade !== 'INCOMPLETE') {
                         var gc2 = gptGradeVal.replace(/[+-]/g,'').toLowerCase();
                         dualHtml += '<span style="font-size:9px;color:rgba(255,255,255,0.35);margin:0 2px;">/</span>' +
-                            '<span class="grade g' + gc2 + '" style="opacity:0.6;font-size:10px;" title="GPT grade">' + gptGradeVal + '</span>';
+                            '<span class="grade g' + gc2 + '" style="opacity:0.6;font-size:10px;" title="' + thinkerLabel + ' grade">' + gptGradeVal + '</span>';
                     }
                     if (game.grade_source === 'gpt_composite_fallback') {
-                        dualHtml += '<span style="font-size:7px;color:#F59E0B;display:block;margin-top:1px;" title="No matrix scores — graded from GPT composite">fallback</span>';
+                        dualHtml += '<span style="font-size:7px;color:#F59E0B;display:block;margin-top:1px;" title="No matrix scores — graded from ' + thinkerLabel + ' composite">fallback</span>';
                     }
                     gradeContainer.innerHTML = dualHtml;
                 }
@@ -6542,7 +6543,7 @@ function fetchAnalysis(sport) {
     if (typeof startSnowfall === 'function') startSnowfall();
     var gutContent = document.getElementById('peterGut' + sport.toUpperCase() + 'Content');
     if (gutContent) {
-        var skeletonHtml = '<div class="analysis-progress">Analyzing ' + sport.toUpperCase() + ' slate with gpt-4o...</div>';
+        var skeletonHtml = '<div class="analysis-progress">Analyzing ' + sport.toUpperCase() + ' slate with Grok + DeepSeek...</div>';
         for (var sk = 0; sk < 3; sk++) {
             skeletonHtml += '<div class="skeleton-card"><div class="skeleton-line w60"></div><div class="skeleton-line w80"></div><div class="skeleton-line w40"></div></div>';
         }
@@ -6724,20 +6725,21 @@ function fetchAnalysis(sport) {
                                         var sb = document.createElement('div'); sb.className = 'detail-box score-breakdown';
                                         sb.style.cssText = 'border-color:rgba(99,102,241,0.3);';
                                         var sbh = '<h4 style="color:#818cf8;">Score Breakdown</h4>';
-                                        // Dual grade header: Matrix Grade vs GPT Grade
+                                        // Dual grade header: Matrix Grade vs Grok Grade
                                         var matrixGrade = game.grade || '--';
                                         var origGptGrade = game.gpt_original_grade || '';
                                         var gradeSource = game.grade_source || 'matrix';
+                                        var thinkerName = (game._thinker || 'gpt').replace(/^grok.*/, 'Grok').replace(/^DeepSeek.*/, 'DeepSeek').replace(/^gpt.*/, 'GPT');
                                         var gcM = 'g' + matrixGrade.toLowerCase().replace(/[^a-z]/g,'');
                                         sbh += '<div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;padding:6px 8px;background:rgba(255,255,255,0.03);border-radius:6px;">';
                                         sbh += '<div style="text-align:center;"><span style="font-size:8px;color:rgba(255,255,255,0.4);display:block;text-transform:uppercase;letter-spacing:0.5px;">Matrix</span><span class="grade ' + gcM + '" style="font-size:16px;">' + matrixGrade + '</span></div>';
                                         if (origGptGrade) {
                                             var gcG = 'g' + origGptGrade.toLowerCase().replace(/[^a-z]/g,'');
                                             sbh += '<div style="font-size:14px;color:rgba(255,255,255,0.2);">vs</div>';
-                                            sbh += '<div style="text-align:center;"><span style="font-size:8px;color:rgba(255,255,255,0.4);display:block;text-transform:uppercase;letter-spacing:0.5px;">GPT</span><span class="grade ' + gcG + '" style="font-size:16px;opacity:0.7;">' + origGptGrade + '</span></div>';
+                                            sbh += '<div style="text-align:center;"><span style="font-size:8px;color:rgba(255,255,255,0.4);display:block;text-transform:uppercase;letter-spacing:0.5px;">' + thinkerName + '</span><span class="grade ' + gcG + '" style="font-size:16px;opacity:0.7;">' + origGptGrade + '</span></div>';
                                         }
                                         if (gradeSource === 'gpt_composite_fallback') {
-                                            sbh += '<div style="font-size:9px;color:#F59E0B;margin-left:auto;">No matrix data — grade from GPT composite</div>';
+                                            sbh += '<div style="font-size:9px;color:#F59E0B;margin-left:auto;">No matrix data — grade from ' + thinkerName + ' composite</div>';
                                         }
                                         sbh += '</div>';
                                         if (game.matrix_scores) {
@@ -6778,9 +6780,9 @@ function fetchAnalysis(sport) {
                                             }
                                             sbh += '</div>';
                                         }
-                                        // GPT vs Matrix score comparison
+                                        // Thinker vs Matrix score comparison
                                         if (game.gpt_original_score && game.gpt_original_score !== game.composite_score) {
-                                            sbh += '<div style="margin-top:6px;font-size:10px;color:rgba(255,255,255,0.35);padding:4px 8px;background:rgba(255,255,255,0.02);border-radius:4px;">GPT raw score: ' + game.gpt_original_score + ' | Matrix score: ' + game.composite_score + '</div>';
+                                            sbh += '<div style="margin-top:6px;font-size:10px;color:rgba(255,255,255,0.35);padding:4px 8px;background:rgba(255,255,255,0.02);border-radius:4px;">' + thinkerName + ' raw score: ' + game.gpt_original_score + ' | Matrix score: ' + game.composite_score + '</div>';
                                         }
                                         if (game.edge_question) {
                                             sbh += '<div style="margin-top:8px;padding:8px;background:rgba(255,255,255,0.03);border-radius:6px;border-left:3px solid ' + (game.edge_question.indexOf('No clear edge') !== -1 ? '#ef4444' : '#22c55e') + ';">';

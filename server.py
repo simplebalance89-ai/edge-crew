@@ -1458,30 +1458,59 @@ def _recalculate_grade(game, sport):
             print(f"[GRADE MISSING] {game.get('matchup')} — no matrix_scores, no composite, grade set to N/A")
         return
 
-    # Normalize GPT's keys to snake_case (GPT may return human-readable keys)
-    # Build lookup: normalized_key -> score_data, plus label-to-key reverse map
-    label_to_key = {label.lower(): key for key, _, label in matrix}
-    normalized_scores = {}
-    for k, v in matrix_scores.items():
-        # Direct match first
-        if k in {name for name, _, _ in matrix}:
-            normalized_scores[k] = v
-            continue
-        # Normalize: lowercase, replace separators with underscores
-        norm = k.lower().replace(" / ", "_").replace(" ", "_").replace("-", "_").replace("(", "").replace(")", "")
-        # Check if normalized key matches a matrix key
-        matched = False
-        for var_name, _, _ in matrix:
+    # Normalize model's keys to match matrix variable names
+    # The formatter may return exact keys, human-readable labels, or paraphrased names
+    valid_keys = {name for name, _, _ in matrix}
+    label_to_key = {}
+    for key, _, label in matrix:
+        label_to_key[label.lower()] = key
+        # Also map normalized label → key
+        norm_label = label.lower().replace(" / ", "_").replace(" ", "_").replace("-", "_").replace("(", "").replace(")", "").replace(",", "")
+        label_to_key[norm_label] = key
+
+    def _best_key_match(raw_key):
+        """Find the best matching matrix variable key for a model-returned key."""
+        # Direct match
+        if raw_key in valid_keys:
+            return raw_key
+        # Normalize
+        norm = raw_key.lower().replace(" / ", "_").replace(" ", "_").replace("-", "_").replace("(", "").replace(")", "").replace(",", "")
+        # Exact normalized match
+        if norm in valid_keys:
+            return norm
+        # Prefix/suffix match against variable names
+        for var_name in valid_keys:
             if norm == var_name or norm.startswith(var_name) or var_name.startswith(norm):
-                normalized_scores[var_name] = v
-                matched = True
-                break
-        if not matched:
-            # Try matching against label descriptions
-            for label_lower, var_key in label_to_key.items():
-                if norm in label_lower.replace(" / ", "_").replace(" ", "_").replace("-", "_") or label_lower.replace(" / ", "_").replace(" ", "_").replace("-", "_").startswith(norm):
-                    normalized_scores[var_key] = v
-                    break
+                return var_name
+        # Exact label match
+        if norm in label_to_key:
+            return label_to_key[norm]
+        # Word overlap scoring — pick the matrix key whose label shares the most words
+        norm_words = set(norm.split("_")) - {"the", "a", "an", "vs", "of", "and", "or", "is", "in", "for"}
+        best_match = None
+        best_score = 0
+        for key, _, label in matrix:
+            label_words = set(label.lower().replace("/", " ").replace("-", " ").replace("(", " ").replace(")", " ").replace(",", " ").split()) - {"the", "a", "an", "vs", "of", "and", "or", "is", "in", "for"}
+            key_words = set(key.split("_"))
+            # Check overlap with both label words and key words
+            overlap = len(norm_words & (label_words | key_words))
+            if overlap > best_score:
+                best_score = overlap
+                best_match = key
+        if best_score >= 1:
+            return best_match
+        return None
+
+    normalized_scores = {}
+    unmatched = []
+    for k, v in matrix_scores.items():
+        matched_key = _best_key_match(k)
+        if matched_key and matched_key not in normalized_scores:
+            normalized_scores[matched_key] = v
+        else:
+            unmatched.append(k)
+    if unmatched:
+        print(f"[MATRIX NORM] {game.get('matchup')} — unmatched keys: {unmatched}")
     matrix_scores = normalized_scores
 
     # Calculate max possible weighted score
