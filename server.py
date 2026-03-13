@@ -2983,15 +2983,33 @@ Return ONLY valid JSON. No markdown. No explanation."""
         # Merge results: first batch provides gotcha, all provide games
         all_analyzed_games = []
         gotcha_html = ""
+        failed_batches = []
         for idx, result in enumerate(batch_results):
             if isinstance(result, Exception):
                 logger.error(f"Analysis batch {idx} failed: {result}")
                 log_error("Analysis", f"Batch {idx} failed", str(result))
+                failed_batches.append(idx)
                 continue
             if idx == 0 and result.get("gotcha"):
                 gotcha_html = result["gotcha"]
             if result.get("games"):
                 all_analyzed_games.extend(result["games"])
+
+        # Retry failed batches once
+        if failed_batches:
+            logger.info(f"Analysis {sport}: retrying {len(failed_batches)} failed batches")
+            retry_tasks = [asyncio.to_thread(_call_azure_batch, batch_prompts[i]) for i in failed_batches]
+            retry_results = await asyncio.gather(*retry_tasks, return_exceptions=True)
+            for ri, idx in enumerate(failed_batches):
+                result = retry_results[ri]
+                if isinstance(result, Exception):
+                    logger.error(f"Analysis batch {idx} retry also failed: {result}")
+                    continue
+                if idx == 0 and not gotcha_html and result.get("gotcha"):
+                    gotcha_html = result["gotcha"]
+                if result.get("games"):
+                    all_analyzed_games.extend(result["games"])
+                    logger.info(f"Analysis batch {idx} retry succeeded: {len(result['games'])} games recovered")
 
         # ===== SERVER-SIDE GRADE RECALCULATION — we grade, not GPT =====
         for game in all_analyzed_games:

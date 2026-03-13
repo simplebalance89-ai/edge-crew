@@ -915,6 +915,14 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     color:var(--ec-accent-light);font-family:var(--ec-font-mono);
 }
 
+/* ===== SNOWFALL OVERLAY ===== */
+#snowCanvas{
+    position:fixed;top:0;left:0;width:100%;height:100%;
+    pointer-events:none;z-index:999;opacity:0;
+    transition:opacity 0.5s ease;
+}
+#snowCanvas.active{opacity:1;}
+
 /* ===== DASHBOARD HOME ===== */
 .dash-section{margin-bottom:24px;padding:0 16px;}
 .dash-section h2{font-family:var(--ec-font-heading);font-size:14px;font-weight:800;color:var(--ec-accent-light);margin:0 0 12px;text-transform:uppercase;letter-spacing:1px;}
@@ -1093,6 +1101,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 </style>
 </head>
 <body>
+<canvas id="snowCanvas"></canvas>
 
 <!-- LOGIN OVERLAY -->
 <div class="login-overlay" id="loginOverlay">
@@ -6459,7 +6468,8 @@ function fetchAnalysis(sport) {
     var panel = document.getElementById('panel-' + sport);
     if (!panel) return;
 
-    // Show analyzing state with skeleton loader
+    // Show analyzing state with skeleton loader + snowfall
+    if (typeof startSnowfall === 'function') startSnowfall();
     var gutContent = document.getElementById('peterGut' + sport.toUpperCase() + 'Content');
     if (gutContent) {
         var skeletonHtml = '<div class="analysis-progress">Analyzing ' + sport.toUpperCase() + ' slate with gpt-4o...</div>';
@@ -6472,6 +6482,7 @@ function fetchAnalysis(sport) {
     fetch('/api/analysis/' + sport)
         .then(function(r) { return r.json(); })
         .then(function(data) {
+            if (typeof stopSnowfall === 'function') stopSnowfall();
             if (data.error) {
                 console.error('Analysis error:', data.error);
                 if (gutContent) gutContent.innerHTML = '<p style="color:rgba(239,68,68,0.6);font-style:italic;">Analysis unavailable — ' + data.error + '</p>';
@@ -6690,6 +6701,7 @@ function fetchAnalysis(sport) {
             if (typeof window._analysisLoadCallback === 'function') window._analysisLoadCallback(sport);
         })
         .catch(function(err) {
+            if (typeof stopSnowfall === 'function') stopSnowfall();
             console.error('Analysis fetch error:', err);
             if (typeof window._analysisLoadCallback === 'function') window._analysisLoadCallback(sport);
         });
@@ -8645,6 +8657,73 @@ if ('serviceWorker' in navigator) {
     regs.forEach(function(r) { r.unregister(); console.log('[SW] Unregistered:', r.scope); });
   });
 }
+</script>
+
+<script>
+// ===== SNOWFALL EFFECT — runs during analysis =====
+(function() {
+    var canvas = document.getElementById('snowCanvas');
+    var ctx = canvas.getContext('2d');
+    var flakes = [];
+    var animId = null;
+    var running = false;
+
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    function createFlakes(count) {
+        flakes = [];
+        for (var i = 0; i < count; i++) {
+            flakes.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                r: Math.random() * 3 + 1,
+                speed: Math.random() * 1.5 + 0.5,
+                wind: Math.random() * 0.5 - 0.25,
+                opacity: Math.random() * 0.6 + 0.2
+            });
+        }
+    }
+
+    function draw() {
+        if (!running) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (var i = 0; i < flakes.length; i++) {
+            var f = flakes[i];
+            ctx.beginPath();
+            ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(129,140,248,' + f.opacity + ')';
+            ctx.fill();
+            f.y += f.speed;
+            f.x += f.wind + Math.sin(f.y * 0.01) * 0.3;
+            if (f.y > canvas.height) { f.y = -5; f.x = Math.random() * canvas.width; }
+            if (f.x > canvas.width) f.x = 0;
+            if (f.x < 0) f.x = canvas.width;
+        }
+        animId = requestAnimationFrame(draw);
+    }
+
+    window.startSnowfall = function() {
+        if (running) return;
+        running = true;
+        resize();
+        createFlakes(80);
+        canvas.classList.add('active');
+        draw();
+    };
+
+    window.stopSnowfall = function() {
+        running = false;
+        canvas.classList.remove('active');
+        if (animId) { cancelAnimationFrame(animId); animId = null; }
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        flakes = [];
+    };
+})();
 </script>
 </body>
 </html>
