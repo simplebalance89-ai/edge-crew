@@ -1391,6 +1391,18 @@ def _build_matrix_section(sport):
     lines.append(f"\n=== {sport.upper()} SCORING MATRIX ({len(matrix)} Variables, Weighted 1-10) ===")
     lines.append(f"Score each variable 1-10 for EACH game. Weight x Score = Weighted.")
     lines.append(f"Max possible: {max_score}. Composite = sum / {max_score} x 10.\n")
+    lines.append("SCORING RULES — READ CAREFULLY:")
+    lines.append("- Use the FULL 1-10 range. Do NOT cluster scores between 5-7.")
+    lines.append("- 1-2 = Strong negative signal for this side (e.g., star player OUT, 4th game in 5 nights)")
+    lines.append("- 3-4 = Moderate negative")
+    lines.append("- 5 = Neutral / no signal either way")
+    lines.append("- 6-7 = Moderate positive signal")
+    lines.append("- 8-9 = Strong positive signal (e.g., team is 8-2 ATS last 10, opponent on B2B)")
+    lines.append("- 10 = Extreme edge (e.g., MVP-level player out and line barely moved)")
+    lines.append("If a variable has a clear strong signal, score it 8-10. If it clearly hurts the pick, score it 1-3.")
+    lines.append("The point of this matrix is to FIND EDGE — not to hedge everything to a C+.")
+    lines.append("A game where a star is out, the line hasn't moved, and sharp money disagrees with the public should NOT score 6-7 across the board.")
+    lines.append("BE DECISIVE.\n")
     for i, (key, weight, label) in enumerate(matrix, 1):
         lines.append(f"  {i}. KEY: \"{key}\" — {label} (weight: {weight})")
     lines.append("\nCOMPOSITE THRESHOLDS:")
@@ -2671,7 +2683,7 @@ Generate analysis in this EXACT JSON format:
       "edge_question": "Why is the market wrong? 1-2 sentences. If no answer: 'No clear edge identified.'",
       "tags": ["B2B", "SHARP", "TRAP", "UPSET", "PASS", "BEST BET", "REST-EDGE", "INJURY-IMPACT", "INCOMPLETE"],
       "matrix_scores": {{
-        "injuries_lineup": {{"score": 7, "weight": 10, "weighted": 70, "note": "why this score"}},
+        "star_player_status": {{"score": 7, "weight": 10, "weighted": 70, "note": "why this score"}},
         "rest_advantage": {{"score": 5, "weight": 9, "weighted": 45, "note": "why this score"}}
       }},
       "injury_impact": "Which key players are OUT/GTD and how it changes the line. Be specific.",
