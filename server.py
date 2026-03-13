@@ -968,6 +968,131 @@ SOCCER_MATRIX = [
 
 SPORT_MATRICES = {"nba": NBA_MATRIX, "nhl": NHL_MATRIX, "soccer": SOCCER_MATRIX}
 
+# ============================================================
+# CHAIN DETECTION ENGINE — Compound signal bonuses
+# ============================================================
+# Each chain: name, description, bonus, variables dict {var: (operator, threshold)}
+# operator: ">=" means score must be >= threshold, "<=" means score must be <= threshold
+
+CHAINS = {
+    "nba": [
+        {
+            "name": "THE MISPRICING",
+            "desc": "Star out + sharp money + line hasn't moved — book is asleep",
+            "bonus": 1.0,
+            "vars": {"star_player_status": (">=", 8), "line_movement": ("<=", 4), "sharp_vs_public": (">=", 7)},
+        },
+        {
+            "name": "FATIGUE FADE",
+            "desc": "Rested team vs tired squad on long road trip with depth issues",
+            "bonus": 1.0,
+            "vars": {"rest_advantage": (">=", 8), "road_trip_length": (">=", 7), "depth_injuries": (">=", 7)},
+        },
+        {
+            "name": "FORM WAVE",
+            "desc": "Hot team firing on all cylinders — offense, ATS, H2H all aligned",
+            "bonus": 1.5,
+            "vars": {"recent_form": (">=", 8), "off_ranking": (">=", 8), "ats_trend": (">=", 7), "h2h_season": (">=", 7)},
+        },
+        {
+            "name": "TRAP GAME",
+            "desc": "Public hammering one side but sharps + line movement say opposite",
+            "bonus": 1.0,
+            "vars": {"sharp_vs_public": ("<=", 3), "line_movement": (">=", 8), "recent_form": (">=", 7)},
+        },
+        {
+            "name": "VALUE DOG",
+            "desc": "Model says line is off + sharps agree + star missing on other side",
+            "bonus": 1.0,
+            "vars": {"line_vs_model": (">=", 8), "sharp_vs_public": (">=", 7), "star_player_status": ("<=", 4)},
+        },
+    ],
+    "nhl": [
+        {
+            "name": "THE MISPRICING",
+            "desc": "Star out + sharp money + line hasn't moved — book is asleep",
+            "bonus": 1.0,
+            "vars": {"star_player_status": (">=", 8), "line_movement": ("<=", 4), "sharp_vs_public": (">=", 7)},
+        },
+        {
+            "name": "GOALIE EDGE",
+            "desc": "Confirmed starter with hot save %, rested, and strong underlying numbers",
+            "bonus": 1.5,
+            "vars": {"goalie_confirmed": (">=", 8), "save_pct_trend": (">=", 7), "goalie_fatigue": (">=", 7), "corsi_xg": (">=", 7)},
+        },
+        {
+            "name": "FATIGUE FADE",
+            "desc": "B2B fatigue + long road trip + depth issues — fade the tired team",
+            "bonus": 1.0,
+            "vars": {"b2b_fatigue": (">=", 8), "road_trip_length": (">=", 7), "depth_injuries": (">=", 7)},
+        },
+        {
+            "name": "TRAP GAME",
+            "desc": "Public on one side but sharps + line movement disagree",
+            "bonus": 0.5,
+            "vars": {"sharp_vs_public": ("<=", 3), "line_movement": (">=", 8)},
+        },
+    ],
+    "soccer": [
+        {
+            "name": "THE MISPRICING",
+            "desc": "Star out + sharp money + line hasn't moved — book is asleep",
+            "bonus": 1.0,
+            "vars": {"star_player_status": (">=", 8), "line_movement": ("<=", 4), "sharp_vs_public": (">=", 7)},
+        },
+        {
+            "name": "BTTS LOCK",
+            "desc": "Both teams scoring + high goals avg + strong xG + no clean sheets",
+            "bonus": 1.5,
+            "vars": {"btts_trend": (">=", 8), "goals_avg": (">=", 8), "xg_trend": (">=", 7), "clean_sheet": ("<=", 4)},
+        },
+        {
+            "name": "CONGESTION FADE",
+            "desc": "Fixture pile-up + low motivation + depth depleted — fade the tired side",
+            "bonus": 1.0,
+            "vars": {"fixture_congestion": (">=", 8), "motivation_level": ("<=", 4), "depth_injuries": (">=", 7)},
+        },
+        {
+            "name": "FORM WAVE",
+            "desc": "Hot team with xG backing it up — form, ATS, H2H all aligned",
+            "bonus": 1.5,
+            "vars": {"recent_form": (">=", 8), "xg_trend": (">=", 8), "ats_trend": (">=", 7), "h2h_season": (">=", 7)},
+        },
+    ],
+}
+
+
+def _detect_chains(game, sport, matrix_scores):
+    """Detect compound signal chains from matrix scores. Returns list of triggered chains."""
+    sport_chains = CHAINS.get(sport.lower(), [])
+    triggered = []
+    for chain in sport_chains:
+        all_met = True
+        var_scores = {}
+        for var_name, (op, threshold) in chain["vars"].items():
+            score_data = matrix_scores.get(var_name)
+            if score_data is None:
+                all_met = False
+                break
+            score = score_data.get("score", 5) if isinstance(score_data, dict) else (score_data if isinstance(score_data, (int, float)) else 5)
+            score = max(1, min(10, int(score)))
+            if op == ">=" and score < threshold:
+                all_met = False
+                break
+            elif op == "<=" and score > threshold:
+                all_met = False
+                break
+            var_scores[var_name] = score
+        if all_met:
+            triggered.append({
+                "name": chain["name"],
+                "desc": chain["desc"],
+                "bonus": chain["bonus"],
+                "var_scores": var_scores,
+            })
+            print(f"[CHAIN] {game.get('matchup')} — {chain['name']} triggered (+{chain['bonus']})")
+    return triggered
+
 
 def _recalculate_grade(game, sport):
     """Server-side grade recalculation from matrix scores. Overrides GPT's grade.
@@ -1039,6 +1164,17 @@ def _recalculate_grade(game, sport):
     # Override composite_score with our math
     game["composite_score"] = recalculated
     game["gpt_original_score"] = gpt_score
+
+    # Chain detection — compound signal bonuses
+    chains_triggered = _detect_chains(game, sport, matrix_scores)
+    chain_bonus = min(sum(c["bonus"] for c in chains_triggered), 3.0)
+    if chain_bonus > 0:
+        game["composite_score_pre_chain"] = recalculated
+        game["chain_bonus"] = chain_bonus
+        game["chains"] = chains_triggered
+        recalculated = min(10.0, recalculated + chain_bonus)
+        game["composite_score"] = recalculated
+        print(f"[CHAIN BONUS] {game.get('matchup')} — +{chain_bonus} → {recalculated} (was {game['composite_score_pre_chain']})")
 
     # Apply grade from thresholds — WE decide the grade, not GPT
     gpt_grade = game.get("grade", "")
