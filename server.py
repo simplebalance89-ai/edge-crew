@@ -898,17 +898,21 @@ ROTOWIRE_URLS = {
 }
 
 NBA_MATRIX = [
-    ("injuries_lineup", 10, "Injuries / lineup changes"),
-    ("rest_advantage", 9, "Rest advantage (B2B, 3-in-5)"),
-    ("def_ranking", 8, "Defensive ranking vs position"),
+    ("star_player_status", 9, "Star player (top 2) out or limited"),
+    ("rest_advantage", 9, "B2B, 3-in-4, rest days between games"),
+    ("off_ranking", 8, "Offensive efficiency rating"),
+    ("def_ranking", 8, "Defensive efficiency rating"),
+    ("three_pt_matchup", 7, "3PT shooting matchup (attempt rate, %, defense vs 3)"),
     ("pace_matchup", 7, "Pace matchup"),
-    ("travel", 7, "Travel (road trip length)"),
     ("recent_form", 7, "Recent form / streak (last 5-10 games)"),
+    ("road_trip_length", 7, "Road trip fatigue (games on road, travel distance)"),
+    ("h2h_season", 6, "Head-to-head this season (record, margins, trends)"),
+    ("paint_scoring", 6, "Points in the paint matchup"),
+    ("fast_break", 6, "Fast break / transition points"),
     ("ats_trend", 6, "ATS trend (last 7/14 days)"),
     ("sharp_vs_public", 5, "Where the money is (sharp vs public)"),
     ("home_away", 5, "Home/away record"),
-    ("coach", 4, "Coach tendencies"),
-    ("revenge_rivalry", 3, "Revenge / rivalry"),
+    ("depth_injuries", 4, "Role player / bench injuries"),
 ]
 
 NHL_MATRIX = [
