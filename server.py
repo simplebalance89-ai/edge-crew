@@ -1006,6 +1006,12 @@ CHAINS = {
             "bonus": 1.0,
             "vars": {"line_vs_model": (">=", 8), "sharp_vs_public": (">=", 7), "star_player_status": ("<=", 4)},
         },
+        {
+            "name": "SHARP DOG",
+            "desc": "Sharps on inflated dog line + strong ATS trend + star out on favorite",
+            "bonus": 1.0,
+            "vars": {"sharp_vs_public": (">=", 7), "ats_trend": (">=", 7), "star_player_status": (">=", 8)},
+        },
     ],
     "nhl": [
         {
