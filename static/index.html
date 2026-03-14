@@ -956,6 +956,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     scrollbar-width:none;-webkit-overflow-scrolling:touch;
 }
 .sport-tabs::-webkit-scrollbar{display:none;}
+#soccerLeaguePills::-webkit-scrollbar{display:none;}
 .sport-tab{
     padding:8px 16px;font-size:12px;font-weight:600;letter-spacing:0.3px;
     text-transform:uppercase;color:var(--ec-text-tertiary);cursor:pointer;
@@ -1608,7 +1609,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <div class="sport-panel" id="panel-soccer">
 <div class="gotcha-banner" style="border-color:rgba(16,185,129,0.2);background:rgba(16,185,129,0.06);">
     <div style="display:flex;justify-content:space-between;align-items:center;">
-        <h3 style="color:#10B981;">Soccer — Live Lines (Hard Rock Bet)</h3>
+        <h3 style="color:#10B981;">&#9917; Soccer &mdash; Live Lines</h3>
         <div style="display:flex;gap:6px;">
             <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(99,102,241,0.12);color:#818cf8;font-size:11px;font-weight:700;border:none;" onclick="toggleGotchaEdit('SOCCER')">EDIT</button>
             <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(16,185,129,0.15);color:#10B981;font-size:11px;font-weight:700;border:none;" onclick="saveGotcha('SOCCER')">SAVE</button>
@@ -1619,7 +1620,22 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     </div>
     <textarea id="gotchaEditor-SOCCER" style="display:none;width:100%;min-height:150px;background:#08080c;color:#fff;border:1px solid #10B981;border-radius:6px;padding:10px;font-family:var(--ec-font-body);font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line..."></textarea>
 </div>
-<div class="empty-state">No games on the slate.<br><strong>Hit REFRESH SLATE</strong> to check for live lines.</div>
+
+<!-- Soccer League Pill Bar -->
+<div id="soccerLeaguePills" style="display:flex;gap:6px;padding:8px 12px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;border-bottom:1px solid rgba(255,255,255,0.06);">
+    <button class="soccer-league-pill active" onclick="switchSoccerLeague('high-edge',this)" style="flex-shrink:0;padding:5px 12px;border-radius:16px;border:1px solid rgba(245,158,11,0.4);background:rgba(245,158,11,0.15);color:#F59E0B;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;">&#128293; High Edge</button>
+    <button class="soccer-league-pill" onclick="switchSoccerLeague('all',this)" style="flex-shrink:0;padding:5px 12px;border-radius:16px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;">ALL</button>
+</div>
+
+<div id="soccerGamesContainer">
+    <div class="empty-state">No games on the slate.<br><strong>Hit REFRESH SLATE</strong> to check for live lines.</div>
+</div>
+
+<!-- Soccer Tier 3 "MORE" section (hidden by default) -->
+<div id="soccerMoreLeagues" style="display:none;padding:8px 12px;border-top:1px solid rgba(255,255,255,0.06);">
+    <div style="font-size:10px;color:rgba(255,255,255,0.3);font-weight:700;letter-spacing:1px;margin-bottom:6px;">MORE LEAGUES</div>
+    <div id="soccerTier3Pills" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+</div>
 
 <!-- SOCCER ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
@@ -3123,6 +3139,185 @@ function switchSport(sport, e) {
         }
     }
     window.scrollTo(0, 0);
+}
+
+// ===== SOCCER HUB — League Pill Bar & Filtering =====
+var _soccerLeagueCache = {}; // {league_key: [games]}
+var _soccerActivePill = 'high-edge';
+var _soccerLeaguesData = null; // from /api/soccer/leagues
+
+function initSoccerPills() {
+    fetch('/api/soccer/leagues').then(function(r){return r.json()}).then(function(leagues){
+        _soccerLeaguesData = leagues;
+        var pillBar = document.getElementById('soccerLeaguePills');
+        if (!pillBar) return;
+        // Clear all except High Edge and ALL pills
+        var existing = pillBar.querySelectorAll('.soccer-league-pill[data-league]');
+        existing.forEach(function(el){el.remove()});
+        var allBtn = pillBar.querySelector('.soccer-league-pill:nth-child(2)'); // ALL button
+        var moreBtn = pillBar.querySelector('.soccer-league-pill[data-more]');
+        // Add Tier 1 & 2 pills before ALL
+        var tier3Container = document.getElementById('soccerTier3Pills');
+        if (tier3Container) tier3Container.innerHTML = '';
+        leagues.forEach(function(lg){
+            var btn = document.createElement('button');
+            btn.className = 'soccer-league-pill';
+            btn.setAttribute('data-league', lg.key);
+            btn.onclick = function(){switchSoccerLeague(lg.key, btn)};
+            btn.style.cssText = 'flex-shrink:0;padding:5px 12px;border-radius:16px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;';
+            var countBadge = lg.game_count > 0 ? ' (' + lg.game_count + ')' : '';
+            btn.textContent = lg.flag + ' ' + lg.name + countBadge;
+            if (lg.tier <= 2) {
+                pillBar.insertBefore(btn, allBtn);
+            } else if (tier3Container) {
+                tier3Container.appendChild(btn);
+            }
+        });
+        // Add MORE button at end of pill bar
+        if (!moreBtn) {
+            moreBtn = document.createElement('button');
+            moreBtn.className = 'soccer-league-pill';
+            moreBtn.setAttribute('data-more','1');
+            moreBtn.style.cssText = 'flex-shrink:0;padding:5px 12px;border-radius:16px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);color:rgba(255,255,255,0.35);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;';
+            moreBtn.textContent = 'MORE \u25BC';
+            moreBtn.onclick = function(){
+                var sec = document.getElementById('soccerMoreLeagues');
+                if (sec) sec.style.display = sec.style.display === 'none' ? 'block' : 'none';
+                moreBtn.textContent = sec && sec.style.display !== 'none' ? 'MORE \u25B2' : 'MORE \u25BC';
+            };
+            pillBar.appendChild(moreBtn);
+        }
+    }).catch(function(e){console.error('[SOCCER HUB] Failed to load leagues:', e)});
+}
+
+function switchSoccerLeague(leagueKey, btn) {
+    _soccerActivePill = leagueKey;
+    // Update pill active states
+    document.querySelectorAll('.soccer-league-pill').forEach(function(p){
+        p.style.border = '1px solid rgba(255,255,255,0.1)';
+        p.style.background = 'transparent';
+        p.style.color = 'rgba(255,255,255,0.5)';
+        p.classList.remove('active');
+    });
+    if (btn) {
+        btn.classList.add('active');
+        if (leagueKey === 'high-edge') {
+            btn.style.border = '1px solid rgba(245,158,11,0.4)';
+            btn.style.background = 'rgba(245,158,11,0.15)';
+            btn.style.color = '#F59E0B';
+        } else {
+            btn.style.border = '1px solid rgba(16,185,129,0.4)';
+            btn.style.background = 'rgba(16,185,129,0.15)';
+            btn.style.color = '#10B981';
+        }
+    }
+
+    if (leagueKey === 'high-edge') {
+        _renderSoccerHighEdge();
+    } else if (leagueKey === 'all') {
+        _renderSoccerAll();
+    } else {
+        _renderSoccerLeague(leagueKey);
+    }
+}
+
+function _renderSoccerHighEdge() {
+    var container = document.getElementById('soccerGamesContainer');
+    if (!container) return;
+    container.innerHTML = '<div style="text-align:center;padding:20px;color:rgba(255,255,255,0.3);">Loading high-edge games...</div>';
+    fetch('/api/soccer/high-edge').then(function(r){return r.json()}).then(function(data){
+        if (!data.games || data.games.length === 0) {
+            container.innerHTML = '<div style="text-align:center;padding:40px;color:rgba(255,255,255,0.4);">No high-edge soccer games right now.<br><span style="font-size:11px;color:rgba(255,255,255,0.25);">Hit REFRESH SLATE to analyze, or browse by league.</span></div>';
+            return;
+        }
+        var html = '<div class="date-header" style="padding:8px 14px;margin:8px 0 4px;font-size:11px;font-weight:800;color:#F59E0B;letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid rgba(245,158,11,0.2);">\uD83D\uDD25 HIGH EDGE &mdash; B+ or Above</div>';
+        data.games.forEach(function(g){html += buildGameRowHTML(g)});
+        container.innerHTML = html;
+        if (typeof restoreLockedPicks === 'function') restoreLockedPicks();
+    }).catch(function(e){
+        container.innerHTML = '<div style="text-align:center;padding:40px;color:rgba(239,68,68,0.6);">Failed to load high-edge games.</div>';
+    });
+}
+
+function _renderSoccerAll() {
+    var container = document.getElementById('soccerGamesContainer');
+    if (!container) return;
+    // Get all soccer game rows from the panel (already loaded by fetchLiveOdds)
+    var panel = document.getElementById('panel-soccer');
+    var allGames = _getSoccerGamesFromPanel();
+    if (allGames.length === 0) {
+        container.innerHTML = '<div style="text-align:center;padding:40px;color:rgba(255,255,255,0.4);">No soccer games loaded yet.<br><strong>Hit REFRESH SLATE</strong> to load.</div>';
+        return;
+    }
+    // Group by league
+    var grouped = {};
+    allGames.forEach(function(g){
+        var lk = g.sport_key || g.league || 'other';
+        if (!grouped[lk]) grouped[lk] = {name: g.league || lk, flag: g.league_flag || '', games: []};
+        grouped[lk].games.push(g);
+    });
+    var html = '';
+    Object.keys(grouped).forEach(function(lk){
+        var grp = grouped[lk];
+        html += '<div class="date-header" style="padding:8px 14px;margin:12px 0 4px;font-size:11px;font-weight:800;color:#10B981;letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid rgba(16,185,129,0.2);">' + grp.flag + ' ' + grp.name + ' (' + grp.games.length + ')</div>';
+        grp.games.forEach(function(g){html += buildGameRowHTML(g)});
+    });
+    container.innerHTML = html;
+    if (typeof restoreLockedPicks === 'function') restoreLockedPicks();
+}
+
+function _renderSoccerLeague(leagueKey) {
+    var container = document.getElementById('soccerGamesContainer');
+    if (!container) return;
+    // Check if we have these games in the already-loaded slate
+    var allGames = _getSoccerGamesFromPanel();
+    var filtered = allGames.filter(function(g){return g.sport_key === leagueKey});
+    if (filtered.length > 0) {
+        _renderFilteredSoccerGames(filtered, leagueKey);
+        return;
+    }
+    // Tier 3: on-demand fetch
+    container.innerHTML = '<div style="text-align:center;padding:20px;color:rgba(255,255,255,0.3);">Loading league data...</div>';
+    fetch('/api/odds/soccer/league/' + leagueKey).then(function(r){return r.json()}).then(function(data){
+        if (data.error) {
+            container.innerHTML = '<div style="text-align:center;padding:40px;color:rgba(239,68,68,0.6);">' + data.error + '</div>';
+            return;
+        }
+        if (!data.games || data.games.length === 0) {
+            var meta = _soccerLeaguesData ? _soccerLeaguesData.find(function(l){return l.key===leagueKey}) : null;
+            var name = meta ? meta.name : leagueKey;
+            container.innerHTML = '<div style="text-align:center;padding:40px;color:rgba(255,255,255,0.4);">No ' + name + ' games on the slate right now.</div>';
+            return;
+        }
+        // Merge into cache for ALL view
+        data.games.forEach(function(g){
+            if (!_soccerLeagueCache[leagueKey]) _soccerLeagueCache[leagueKey] = [];
+            _soccerLeagueCache[leagueKey].push(g);
+        });
+        _renderFilteredSoccerGames(data.games, leagueKey);
+    }).catch(function(e){
+        container.innerHTML = '<div style="text-align:center;padding:40px;color:rgba(239,68,68,0.6);">Failed to load league.</div>';
+    });
+}
+
+function _renderFilteredSoccerGames(games, leagueKey) {
+    var container = document.getElementById('soccerGamesContainer');
+    if (!container) return;
+    var meta = _soccerLeaguesData ? _soccerLeaguesData.find(function(l){return l.key===leagueKey}) : null;
+    var name = meta ? (meta.flag + ' ' + meta.name) : leagueKey;
+    var html = '<div class="date-header" style="padding:8px 14px;margin:8px 0 4px;font-size:11px;font-weight:800;color:#10B981;letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid rgba(16,185,129,0.2);">' + name + ' (' + games.length + ' games)</div>';
+    games.forEach(function(g){html += buildGameRowHTML(g)});
+    container.innerHTML = html;
+    if (typeof restoreLockedPicks === 'function') restoreLockedPicks();
+}
+
+// Cache soccer games data from fetchLiveOdds for pill filtering
+var _soccerSlateGames = [];
+function _cacheSoccerGames(games) {
+    _soccerSlateGames = games || [];
+}
+function _getSoccerGamesFromPanel() {
+    return _soccerSlateGames;
 }
 
 // ===== SUBMIT PICK FORM =====
@@ -5066,7 +5261,7 @@ function buildGameRowHTML(g) {
             '<div class="card-r1">' +
                 '<div class="pick-check" onclick="togglePick(event, this, \'' + matchup + '\')"></div>' +
                 '<div class="game-time">' + time + '</div>' +
-                '<div class="game-matchup">' + (g.league ? '<span style="font-size:9px;color:var(--ec-text-tertiary);font-weight:600;letter-spacing:0.5px;">' + g.league + '</span> ' : '') + '<span class="away">' + awayAbbr + '</span>' + matchupSep + '<span class="home">' + homeAbbr + '</span></div>' +
+                '<div class="game-matchup">' + (g.league ? '<span style="font-size:9px;color:var(--ec-text-tertiary);font-weight:600;letter-spacing:0.5px;">' + (g.league_flag ? g.league_flag + ' ' : '') + g.league + '</span> ' : '') + '<span class="away">' + awayAbbr + '</span>' + matchupSep + '<span class="home">' + homeAbbr + '</span></div>' +
                 '<div class="game-grade"><span class="grade ' + gradeClass + '">' + gradeDisplay + '</span></div>' +
             '</div>' +
             /* Row 2: OUR PICK — prominent */
@@ -5445,11 +5640,26 @@ function fetchLiveOdds(sport, onDone) {
                 });
             }
 
-            // Insert game rows into panel
-            var temp = document.createElement('div');
-            temp.innerHTML = html;
-            while (temp.firstChild) {
-                panel.appendChild(temp.firstChild);
+            // Soccer hub: cache games + redirect into soccerGamesContainer
+            if (sport === 'soccer') {
+                _cacheSoccerGames(pregameGames);
+                var soccerContainer = document.getElementById('soccerGamesContainer');
+                if (soccerContainer) {
+                    soccerContainer.innerHTML = html;
+                    // Initialize league pills with game counts
+                    initSoccerPills();
+                    // Default to high-edge view if analysis exists, else ALL
+                    if (_soccerActivePill === 'high-edge') {
+                        _renderSoccerHighEdge();
+                    }
+                }
+            } else {
+                // Insert game rows into panel (non-soccer sports)
+                var temp = document.createElement('div');
+                temp.innerHTML = html;
+                while (temp.firstChild) {
+                    panel.appendChild(temp.firstChild);
+                }
             }
 
             // Update tab count (today's games only)

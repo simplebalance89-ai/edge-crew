@@ -589,8 +589,35 @@ API_SPORTS_HOSTS = {
 API_SPORTS_LEAGUES = {
     "nhl": 57,
     "mlb": 1,
-    "soccer": [39, 140, 253, 2, 262],  # EPL, La Liga, MLS, UCL, Liga MX
+    "soccer": [39, 140, 253, 2, 262],  # Derived below from SOCCER_LEAGUES
 }
+
+# ===== SOCCER LEAGUES REGISTRY — Single source of truth =====
+SOCCER_LEAGUES = {
+    # Tier 1 — Always fetched (Big 5 + UCL)
+    "soccer_epl":                {"name": "EPL",          "country": "England",   "flag": "\U0001F3F4", "api_sports_id": 39,  "tier": 1},
+    "soccer_spain_la_liga":      {"name": "La Liga",      "country": "Spain",     "flag": "\U0001F1EA\U0001F1F8", "api_sports_id": 140, "tier": 1},
+    "soccer_germany_bundesliga": {"name": "Bundesliga",   "country": "Germany",   "flag": "\U0001F1E9\U0001F1EA", "api_sports_id": 78,  "tier": 1},
+    "soccer_italy_serie_a":      {"name": "Serie A",      "country": "Italy",     "flag": "\U0001F1EE\U0001F1F9", "api_sports_id": 135, "tier": 1},
+    "soccer_france_ligue_one":   {"name": "Ligue 1",      "country": "France",    "flag": "\U0001F1EB\U0001F1F7", "api_sports_id": 61,  "tier": 1},
+    "soccer_uefa_champs_league": {"name": "UCL",          "country": "Europe",    "flag": "\U0001F3C6", "api_sports_id": 2,   "tier": 1},
+    # Tier 2 — Always fetched (Americas + Europa)
+    "soccer_usa_mls":            {"name": "MLS",          "country": "USA",       "flag": "\U0001F1FA\U0001F1F8", "api_sports_id": 253, "tier": 2},
+    "soccer_mexico_ligamx":      {"name": "Liga MX",      "country": "Mexico",    "flag": "\U0001F1F2\U0001F1FD", "api_sports_id": 262, "tier": 2},
+    "soccer_brazil_serie_a":     {"name": "Brasileir\u00e3o",  "country": "Brazil",    "flag": "\U0001F1E7\U0001F1F7", "api_sports_id": 71,  "tier": 2},
+    "soccer_uefa_europa_league": {"name": "Europa League", "country": "Europe",   "flag": "\U0001F3C6", "api_sports_id": 3,   "tier": 2},
+    # Tier 3 — On-demand only (user clicks to load, saves API quota)
+    "soccer_netherlands_eredivisie":      {"name": "Eredivisie",    "country": "Netherlands", "flag": "\U0001F1F3\U0001F1F1", "api_sports_id": 88,  "tier": 3},
+    "soccer_portugal_primeira_liga":      {"name": "Primeira Liga", "country": "Portugal",    "flag": "\U0001F1F5\U0001F1F9", "api_sports_id": 94,  "tier": 3},
+    "soccer_turkey_super_league":         {"name": "S\u00fcper Lig",     "country": "Turkey",      "flag": "\U0001F1F9\U0001F1F7", "api_sports_id": 203, "tier": 3},
+    "soccer_australia_aleague":           {"name": "A-League",      "country": "Australia",   "flag": "\U0001F1E6\U0001F1FA", "api_sports_id": 188, "tier": 3},
+    "soccer_japan_j_league":             {"name": "J1 League",     "country": "Japan",       "flag": "\U0001F1EF\U0001F1F5", "api_sports_id": 98,  "tier": 3},
+    "soccer_korea_kleague":              {"name": "K League",      "country": "South Korea", "flag": "\U0001F1F0\U0001F1F7", "api_sports_id": 292, "tier": 3},
+    "soccer_conmebol_copa_libertadores": {"name": "Libertadores",  "country": "S. America",  "flag": "\U0001F3C6", "api_sports_id": 13,  "tier": 3},
+}
+# Derive SPORT_KEYS and API_SPORTS_LEAGUES from registry
+SPORT_KEYS_SOCCER = [k for k, v in SOCCER_LEAGUES.items() if v["tier"] <= 2]
+API_SPORTS_LEAGUES["soccer"] = [v["api_sports_id"] for v in SOCCER_LEAGUES.values() if v["tier"] <= 2]
 
 # Azure OpenAI config
 AZURE_ENDPOINT = os.environ.get("AZURE_OPENAI_ENDPOINT", "")
@@ -2142,9 +2169,16 @@ def _parse_event(event, sport_label):
     Tries PREFERRED_BOOK first. If that book has no markets for this event,
     falls back through FALLBACK_BOOKS in order. Tracks which book was used.
     """
+    # Extract league metadata from SOCCER_LEAGUES registry
+    event_sport_key = event.get("sport_key", "")
+    league_meta = SOCCER_LEAGUES.get(event_sport_key, {})
+
     game = {
         "id": event["id"],
         "sport": sport_label,
+        "sport_key": event_sport_key,
+        "league": league_meta.get("name", event.get("sport_title", "")),
+        "league_flag": league_meta.get("flag", ""),
         "away": event["away_team"],
         "home": event["home_team"],
         "time": event["commence_time"],
@@ -2281,13 +2315,7 @@ SPORT_KEYS = {
         "tennis_wta_cincinnati_open",
         "tennis_wta_canadian_open",
     ],
-    "soccer": [
-        "soccer_usa_mls",
-        "soccer_epl",
-        "soccer_spain_la_liga",
-        "soccer_uefa_champs_league",
-        "soccer_mexico_ligamx",
-    ],
+    "soccer": SPORT_KEYS_SOCCER,
 }
 
 
@@ -2539,6 +2567,93 @@ async def get_odds(sport: str, markets: str = "h2h,spreads,totals"):
         "cached": False,
     }
 
+    _set_cache(cache_key, result)
+    return JSONResponse(result)
+
+
+# ===== SOCCER HUB ENDPOINTS =====
+
+@app.get("/api/soccer/leagues")
+async def get_soccer_leagues():
+    """Return full soccer league registry with live game counts."""
+    slate = _load_daily_slate("soccer")
+    counts = {}
+    if slate and slate.get("games"):
+        for g in slate["games"]:
+            sk = g.get("sport_key", "")
+            counts[sk] = counts.get(sk, 0) + 1
+    return JSONResponse([
+        {"key": k, **v, "game_count": counts.get(k, 0)}
+        for k, v in SOCCER_LEAGUES.items()
+    ])
+
+
+@app.get("/api/soccer/high-edge")
+async def get_soccer_high_edge():
+    """Return only B+ or above soccer games from analysis cache."""
+    HIGH_GRADES = {"A+", "A", "A-", "B+"}
+    analysis = _load_analysis_cache("soccer")
+    results = []
+    if analysis and analysis.get("games"):
+        for game in analysis["games"]:
+            if game.get("grade") in HIGH_GRADES:
+                results.append(game)
+        # Sort by composite_score descending
+        results.sort(key=lambda g: g.get("composite_score", 0), reverse=True)
+    if not results:
+        # Fallback: show first 5 upcoming games from slate with "analysis pending" note
+        slate = _load_daily_slate("soccer")
+        if slate and slate.get("games"):
+            now = datetime.now(PST)
+            upcoming = sorted(
+                [g for g in slate["games"] if g.get("time")],
+                key=lambda g: g.get("time", "")
+            )[:5]
+            for g in upcoming:
+                g["grade"] = "PENDING"
+                g["analysis_note"] = "Analysis pending — check back after next slate refresh"
+                results.append(g)
+    return JSONResponse({"games": results, "count": len(results), "filter": "high-edge"})
+
+
+@app.get("/api/odds/soccer/league/{league_key}")
+async def get_soccer_league_odds(league_key: str):
+    """On-demand fetch for a specific soccer league (Tier 3 support)."""
+    if league_key not in SOCCER_LEAGUES:
+        return JSONResponse({"error": f"Unknown league: {league_key}"}, status_code=400)
+
+    cache_key = f"soccer_league:{league_key}"
+    cached = _get_cached(cache_key)
+    if cached:
+        return JSONResponse(cached)
+
+    markets = "h2h,spreads,totals,btts,draw_no_bet"
+    label = "SOCCER"
+    games = await _fetch_sport_odds(league_key, markets, label)
+
+    # Filter: only future games within 24h
+    now = datetime.now(PST)
+    cutoff = now + timedelta(hours=24)
+    filtered = []
+    for g in games:
+        t = g.get("time", "")
+        if not t:
+            continue
+        try:
+            gt = datetime.fromisoformat(t.replace("Z", "+00:00")).astimezone(PST)
+            if now < gt <= cutoff:
+                filtered.append(g)
+        except Exception:
+            continue
+
+    league_meta = SOCCER_LEAGUES[league_key]
+    result = {
+        "league": league_meta["name"],
+        "league_key": league_key,
+        "games": filtered,
+        "count": len(filtered),
+        "fetched_at": _now_ts(),
+    }
     _set_cache(cache_key, result)
     return JSONResponse(result)
 

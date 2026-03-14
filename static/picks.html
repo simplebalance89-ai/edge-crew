@@ -107,6 +107,12 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter'
                 <button class="sport-pill" onclick="pickSport('mma',this)">MMA</button>
                 <button class="sport-pill" onclick="pickSport('boxing',this)">Boxing</button>
             </div>
+            <!-- Soccer league sub-selector (shown when Soccer pill is active) -->
+            <div id="soccerLeagueSelect" style="display:none;margin-top:8px;">
+                <select id="pickSoccerLeague" style="width:100%;padding:8px 12px;border-radius:6px;background:#0a0a0f;color:#fff;border:1px solid rgba(16,185,129,0.3);font-size:13px;font-family:inherit;">
+                    <option value="">All Leagues</option>
+                </select>
+            </div>
         </div>
 
         <!-- Matchup -->
@@ -176,6 +182,28 @@ function pickSport(s, btn) {
     _sport = s;
     document.querySelectorAll('.sport-pill').forEach(function(b){b.classList.remove('active')});
     btn.classList.add('active');
+    // Show/hide soccer league sub-selector
+    var leagueSel = document.getElementById('soccerLeagueSelect');
+    if (leagueSel) {
+        if (s === 'soccer') {
+            leagueSel.style.display = 'block';
+            _loadSoccerLeagueOptions();
+        } else {
+            leagueSel.style.display = 'none';
+        }
+    }
+}
+function _loadSoccerLeagueOptions() {
+    var sel = document.getElementById('pickSoccerLeague');
+    if (!sel || sel.options.length > 1) return; // already loaded
+    fetch('/api/soccer/leagues').then(function(r){return r.json()}).then(function(leagues){
+        leagues.forEach(function(lg){
+            var opt = document.createElement('option');
+            opt.value = lg.key;
+            opt.textContent = lg.flag + ' ' + lg.name;
+            sel.appendChild(opt);
+        });
+    }).catch(function(){});
 }
 function pickUnits(u, btn) {
     _units = u;
@@ -205,6 +233,11 @@ function submitPick() {
     if (!selection) { alert('Enter a selection'); return; }
 
     var who = safeLoad('edgeCrewName') || 'Peter';
+    var soccerLeague = '';
+    if (_sport === 'soccer') {
+        var leagueSel = document.getElementById('pickSoccerLeague');
+        if (leagueSel) soccerLeague = leagueSel.value || '';
+    }
     var pick = {
         name: who, sport: _sport,
         type: detectPickType(selection),
@@ -214,6 +247,7 @@ function submitPick() {
         time: new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}),
         created_at: new Date().toISOString()
     };
+    if (soccerLeague) pick.league = soccerLeague;
 
     var stored = JSON.parse(safeLoad('edgePicks') || '[]');
     stored.unshift(pick);
