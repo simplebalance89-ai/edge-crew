@@ -2656,8 +2656,8 @@ async def get_player_props(sport: str, game: str = None):
                     continue
                 events = events_resp.json()
 
-                # Fetch props for each event (limit to 6 games to conserve credits)
-                for event in events[:6]:
+                # Fetch props for each event (limit to 12 games to cover full slate)
+                for event in events[:12]:
                     event_id = event.get("id")
                     home = event.get("home_team", "")
                     away = event.get("away_team", "")

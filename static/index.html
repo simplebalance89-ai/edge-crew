@@ -7180,6 +7180,9 @@ function renderRealProps(props) {
             html += '<div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">';
             html += '<span style="font-weight:800;color:#fff;font-size:12px;">O ' + prop.line + '</span>';
             html += '<span style="font-weight:700;color:' + vc.color + ';font-size:11px;">' + oddsStr + '</span>';
+            if (prop.edge && prop.edge > 0) {
+                html += '<span style="font-size:9px;font-weight:800;color:#41EAD4;">+' + prop.edge + '%</span>';
+            }
             html += '<span style="font-size:8px;font-weight:800;padding:1px 4px;border-radius:3px;background:' + vc.bg + ';color:' + vc.color + ';border:1px solid ' + vc.border + ';white-space:nowrap;">' + prop.verdict + '</span>';
             html += '</div></div></div>';
             html += '<div style="cursor:pointer;padding:4px 8px;background:rgba(65,234,212,0.15);border:1px solid rgba(65,234,212,0.3);border-radius:5px;color:#41EAD4;font-size:10px;font-weight:800;white-space:nowrap;flex-shrink:0;" onclick="event.stopPropagation();addPropToPicks(\'' + propSel.replace(/'/g,"\\'") + '\',\'' + oddsStr.replace(/'/g,"\\'") + '\',\'' + prop.matchup.replace(/'/g,"\\'") + '\',\'' + _realPropsSport.toUpperCase() + '\',\'Alyssa sharp prop — ' + (prop.verdict || '').replace(/'/g,"\\'") + '\')">LOCK</div>';
