@@ -2601,6 +2601,8 @@ function refreshSlate() {
     window._isManualRefresh = false; // reset after use
     // Reset retry flags for cold-start resilience
     fetchLiveOdds._retried = {};
+    // Clear stale analysis cache so fresh data is fetched
+    _analysisCache = {};
     // Reset all game row checks and side picks
     picks = {};
     safeRemove('edgeLockedPicks');
@@ -3041,6 +3043,7 @@ function updateSubmitBar() {
 
 function lockCard() {
     var lockBtn = document.querySelector('.submit-btn');
+    if (lockBtn && lockBtn.disabled) return;
     if (lockBtn) { lockBtn.disabled = true; lockBtn.textContent = 'LOCKING...'; }
 
     var body = document.getElementById('modalBody');
@@ -3123,6 +3126,8 @@ function lockCard() {
         updateSubmitBar();
         renderPicks();
     }
+    // Re-enable lock button
+    if (lockBtn) { lockBtn.disabled = false; lockBtn.textContent = 'Lock Card'; }
 }
 
 function closeModal() {
@@ -3161,6 +3166,26 @@ function switchSport(sport, e) {
         if (edgeContent && edgeContent.querySelector('p[style*="italic"]')) {
             fetchEdge(sport);
         }
+    }
+    // Initialize pick name from crew profile when opening submit panel
+    if (sport === 'submit' && crewProfile) {
+        var pnd = document.getElementById('pickNameDisplay');
+        var pni = document.getElementById('pickName');
+        if (pnd && pnd.textContent === '--') {
+            pnd.textContent = crewProfile.display_name;
+            pnd.style.color = crewProfile.color;
+            pnd.style.borderColor = crewProfile.color;
+        }
+        if (pni && !pni.value) pni.value = crewProfile.display_name;
+    }
+    // Re-filter tipped-off games from DOM on sport switch
+    var sportPanelEl = document.getElementById('panel-' + sport);
+    if (sportPanelEl) {
+        var nowMs = Date.now();
+        sportPanelEl.querySelectorAll('.game-row[data-time]').forEach(function(row) {
+            var gameTime = new Date(row.getAttribute('data-time')).getTime();
+            if (gameTime <= nowMs) row.remove();
+        });
     }
     window.scrollTo(0, 0);
 }
@@ -3548,6 +3573,7 @@ function setConf(el, level) {
 
 function submitPick() {
     var btn = document.querySelector('.submit-pick-btn');
+    if (btn && btn.disabled) return;
     if (btn) { btn.disabled = true; btn.textContent = 'LOCKING...'; }
 
     var name = crewProfile ? crewProfile.display_name : document.getElementById('pickName').value;
@@ -4595,14 +4621,12 @@ renderBankroll();
 syncPicksFromServer();
 // Re-sync picks every 60s to pull picks from other crew members
 setInterval(syncPicksFromServer, 60000);
-// Remove tipped-off games from DOM every 60s
+// Periodic DOM cleanup: remove tipped-off games every 60s
 setInterval(function() {
-    var now = new Date();
+    var nowMs = Date.now();
     document.querySelectorAll('.game-row[data-time]').forEach(function(row) {
-        try {
-            var gt = new Date(row.getAttribute('data-time'));
-            if (gt <= now) { row.style.display = 'none'; }
-        } catch(e) {}
+        var gameTime = new Date(row.getAttribute('data-time')).getTime();
+        if (gameTime <= nowMs) row.remove();
     });
 }, 60000);
 
@@ -8367,7 +8391,9 @@ async function clearAllCache() {
             await Promise.all(names.map(function(n) { return caches.delete(n); }));
         } catch(e) { console.log('Cache delete error:', e); }
     }
-    // 3. Nuke localStorage (preserve crew token)
+    // 3. Clear in-memory analysis cache
+    _analysisCache = {};
+    // 4. Nuke localStorage (preserve crew token)
     var savedToken = safeLoad('edgeCrewToken');
     try { localStorage.clear(); } catch(e) {}
     if (savedToken) safeSave('edgeCrewToken', savedToken);
@@ -9140,7 +9166,18 @@ function collapseWelcomeChrome() {
 
 function detectPickType(selection) {
     var sel = (selection || '').toLowerCase();
-    if (sel.includes('over') || sel.includes('under')) return 'Over/Under';
+    // Prop detection: player stat keywords or "Name Over/Under X.X" pattern
+    var propStats = ['points','rebounds','assists','threes','steals','blocks','strikeouts',
+        'goals','saves','shots','hits','yards','touchdowns','completions','receptions',
+        'pts','ast','reb','stl','blk','pra','rbi','hrs'];
+    var hasOverUnder = sel.includes('over') || sel.includes('under');
+    if (hasOverUnder) {
+        // Check if it's a player prop (has a name before over/under or stat keyword)
+        var hasPropStat = propStats.some(function(s) { return sel.includes(s); });
+        var hasPlayerName = /[a-z]{2,}\s+(over|under)\s+\d/i.test(sel);
+        if (hasPropStat || hasPlayerName) return 'Prop';
+        return 'Over/Under';
+    }
     if (sel.includes('ml') || sel.includes('money')) return 'Moneyline';
     if (/[+-]\d/.test(sel)) return 'Spread';
     return 'Moneyline';
