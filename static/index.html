@@ -1792,8 +1792,20 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     <div style="font-size:11px;color:rgba(255,255,255,0.3);" id="propsCount"></div>
 </div>
 
-<!-- TWO SWIM LANES -->
+<!-- THREE SWIM LANES -->
 <div style="display:grid;grid-template-columns:1fr;gap:16px;" id="propsLanes">
+
+    <!-- GAP PROPS: Injury-Driven Edge -->
+    <div style="min-width:0;" id="gapPropsLane" class="gap-props-lane">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding-bottom:10px;border-bottom:2px solid rgba(168,85,247,0.3);">
+            <span style="font-size:18px;">&#x26A1;</span>
+            <span style="font-family:var(--ec-font-heading);font-size:15px;font-weight:700;color:#A855F7;">Gap Props — Injury Edge</span>
+            <span style="font-size:9px;color:rgba(168,85,247,0.6);font-weight:600;margin-left:auto;">ROLE PLAYER OVERS</span>
+        </div>
+        <div id="gapPropsContainer">
+            <div class="empty-state" style="font-size:12px;">Select a sport to scan for injury-driven prop edges.</div>
+        </div>
+    </div>
 
     <!-- LEFT LANE: Sinton.ia's Hammer Props -->
     <div style="min-width:0;">
@@ -6901,11 +6913,13 @@ function loadPropsForSport(sport) {
     var filterDiv = document.getElementById('propsStatFilter');
     if (filterDiv) filterDiv.innerHTML = '<button class="stat-filter-btn active" onclick="filterPropsByStat(\'all\',this)" style="font-size:11px;padding:4px 10px;border-radius:12px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.1);color:#fff;cursor:pointer;">All</button>';
 
-    // Clear both containers immediately so stale data doesn't linger
+    // Clear all containers immediately so stale data doesn't linger
     var realContainer = document.getElementById('realPropsContainer');
     if (realContainer) realContainer.innerHTML = '<div style="text-align:center;padding:20px;color:rgba(255,255,255,0.4);font-size:12px;">Loading ' + sport.toUpperCase() + ' props...</div>';
     var aiContainer = document.getElementById('propsContainer');
     if (aiContainer) aiContainer.innerHTML = '<div class="empty-state" style="font-size:12px;">Loading ' + sport.toUpperCase() + ' AI props...</div>';
+    var gapContainer = document.getElementById('gapPropsContainer');
+    if (gapContainer) gapContainer.innerHTML = '<div style="text-align:center;padding:12px;color:rgba(168,85,247,0.5);font-size:12px;">Scanning ' + sport.toUpperCase() + ' injury gaps...</div>';
 
     // Update sport tab active state
     var tabs = document.querySelectorAll('#propsSportTabs .sport-tab');
@@ -6923,9 +6937,10 @@ function loadPropsForSport(sport) {
         }
     });
 
-    // Load BOTH lanes for this sport
+    // Load ALL THREE lanes for this sport
     loadProps(sport);
     loadRealProps(sport);
+    loadGapProps(sport);
 }
 
 function loadProps(sportFilter) {
@@ -7225,6 +7240,131 @@ function renderRealProps(props) {
     });
 
     container.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// GAP PROPS — Injury-Driven Edge (Phase 2)
+// Fetches /api/props/gaps/{sport} and renders gap prop cards
+// ═══════════════════════════════════════════════════════════════
+
+function loadGapProps(sport) {
+    var container = document.getElementById('gapPropsContainer');
+    var lane = document.getElementById('gapPropsLane');
+    if (!container) return;
+
+    var sportKey = (sport || _currentPropsSport || 'nba').toLowerCase();
+
+    // Only NBA and NHL supported
+    if (sportKey !== 'nba' && sportKey !== 'nhl') {
+        if (lane) lane.style.display = 'none';
+        return;
+    }
+    if (lane) lane.style.display = '';
+
+    container.innerHTML = '<div style="text-align:center;padding:12px;color:rgba(168,85,247,0.5);font-size:12px;">Scanning ' + sportKey.toUpperCase() + ' injury gaps...</div>';
+
+    fetch('/api/props/gaps/' + sportKey)
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.error) {
+                container.innerHTML = '<div class="empty-state" style="font-size:11px;color:rgba(239,68,68,0.6);">' + data.error + '</div>';
+                return;
+            }
+
+            var gaps = data.gap_props || [];
+            if (gaps.length === 0) {
+                var msg = data.message || 'No injury-driven prop edges found for this slate.';
+                container.innerHTML = '<div class="empty-state" style="font-size:11px;">' + msg + '</div>';
+                return;
+            }
+
+            var html = '';
+            var gpIdx = 0;
+
+            // Grade color map
+            var gradeColors = {
+                'A+': '#22c55e', 'A': '#22c55e', 'A-': '#4ade80',
+                'B+': '#818cf8', 'B': '#6366f1', 'B-': '#a5b4fc',
+                'C+': '#fbbf24', 'C': '#f59e0b'
+            };
+
+            gaps.forEach(function(gap) {
+                var gc = gradeColors[gap.grade] || '#818cf8';
+                var oddsStr = gap.best_odds > 0 ? '+' + gap.best_odds : '' + gap.best_odds;
+                var propSel = gap.player + ' O ' + gap.prop_line + ' ' + gap.prop_type;
+                var pid = 'gapprop_' + gpIdx;
+                var gapReason = gap.gap_reason || {};
+                var absorption = gap.absorption || {};
+                var scores = gap.scores || {};
+
+                html += '<div class="real-prop-card gap-prop-card" style="background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.25);border-radius:8px;padding:8px 10px;margin-bottom:4px;cursor:pointer;" onclick="togglePropDetail(this)">';
+
+                // Main row
+                html += '<div style="display:flex;align-items:center;gap:8px;">';
+                html += '<input type="checkbox" id="' + pid + '" class="prop-check" onclick="event.stopPropagation()" onchange="togglePropLeg(this,\'gap\',\'' + propSel.replace(/'/g,"\\'") + '\',\'' + oddsStr.replace(/'/g,"\\'") + '\',\'' + (gap.matchup || '').replace(/'/g,"\\'") + '\',\'' + sportKey.toUpperCase() + '\')" style="width:18px;height:18px;accent-color:#A855F7;cursor:pointer;flex-shrink:0;">';
+                html += '<div style="flex:1;min-width:0;">';
+                html += '<div style="display:flex;justify-content:space-between;align-items:center;">';
+                html += '<span style="font-weight:700;color:#fff;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + gap.player + ' <span style="color:rgba(168,85,247,0.5);font-size:10px;">' + gap.team + '</span> <span style="color:rgba(255,255,255,0.35);font-size:10px;">' + gap.prop_type + '</span></span>';
+                html += '<div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">';
+                html += '<span style="font-weight:800;color:#fff;font-size:12px;">O ' + gap.prop_line + '</span>';
+                html += '<span style="font-weight:700;color:#A855F7;font-size:11px;">' + oddsStr + '</span>';
+                if (gap.edge_pct && gap.edge_pct > 0) {
+                    html += '<span style="font-size:9px;font-weight:800;color:#A855F7;">+' + gap.edge_pct.toFixed(1) + '%</span>';
+                }
+                html += '<span style="font-size:8px;font-weight:800;padding:1px 4px;border-radius:3px;background:rgba(168,85,247,0.15);color:' + gc + ';border:1px solid rgba(168,85,247,0.3);white-space:nowrap;">' + gap.grade + '</span>';
+                html += '</div></div></div>';
+                html += '<div style="cursor:pointer;padding:4px 8px;background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3);border-radius:5px;color:#A855F7;font-size:10px;font-weight:800;white-space:nowrap;flex-shrink:0;" onclick="event.stopPropagation();addPropToPicks(\'' + propSel.replace(/'/g,"\\'") + '\',\'' + oddsStr.replace(/'/g,"\\'") + '\',\'' + (gap.matchup || '').replace(/'/g,"\\'") + '\',\'' + sportKey.toUpperCase() + '\',\'Gap prop — ' + (gapReason.player_out || '') + ' OUT\')">LOCK</div>';
+                html += '</div>';
+
+                // Gap reason line (always visible)
+                html += '<div style="margin-top:4px;font-size:10px;color:rgba(168,85,247,0.7);display:flex;gap:6px;flex-wrap:wrap;align-items:center;">';
+                html += '<span style="background:rgba(239,68,68,0.12);color:#EF4444;padding:1px 5px;border-radius:3px;font-weight:700;font-size:9px;">' + (gapReason.player_out || '?') + ' OUT</span>';
+                if (gapReason.days_out !== undefined) {
+                    html += '<span style="color:rgba(255,255,255,0.35);">' + gapReason.days_out + 'd ago</span>';
+                }
+                html += '<span style="color:rgba(255,255,255,0.4);">L5: <strong style="color:#fff;">' + (absorption.l5_avg || '?') + '</strong></span>';
+                html += '<span style="color:rgba(255,255,255,0.4);">Szn: <strong style="color:rgba(255,255,255,0.5);">' + (absorption.season_avg || '?') + '</strong></span>';
+                if (absorption.recent_delta) {
+                    html += '<span style="color:#A855F7;font-weight:700;font-size:9px;">' + absorption.recent_delta + '</span>';
+                }
+                html += '</div>';
+
+                // Detail (hidden)
+                html += '<div class="prop-detail" style="display:none;margin-top:8px;padding-top:8px;border-top:1px solid rgba(168,85,247,0.15);font-size:11px;">';
+                // Scores breakdown
+                html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px;">';
+                html += '<div style="text-align:center;padding:4px;background:rgba(168,85,247,0.08);border-radius:4px;"><div style="font-size:9px;color:rgba(255,255,255,0.4);">GAP SIZE</div><div style="font-weight:800;color:#A855F7;">' + (scores.gap_size || 0).toFixed(1) + '</div></div>';
+                html += '<div style="text-align:center;padding:4px;background:rgba(168,85,247,0.08);border-radius:4px;"><div style="font-size:9px;color:rgba(255,255,255,0.4);">ABSORB</div><div style="font-weight:800;color:#A855F7;">' + (scores.absorption || 0).toFixed(1) + '</div></div>';
+                html += '<div style="text-align:center;padding:4px;background:rgba(168,85,247,0.08);border-radius:4px;"><div style="font-size:9px;color:rgba(255,255,255,0.4);">LINE LAG</div><div style="font-weight:800;color:#A855F7;">' + (scores.line_lag || 0).toFixed(1) + '</div></div>';
+                html += '</div>';
+                // Gap explanation
+                if (gap.edge_summary) {
+                    html += '<div style="padding:6px 8px;background:rgba(168,85,247,0.08);border-radius:5px;border-left:2px solid #A855F7;">';
+                    html += '<div style="font-size:9px;color:#A855F7;font-weight:700;margin-bottom:2px;">GAP ANALYSIS</div>';
+                    html += '<div style="font-size:11px;color:rgba(255,255,255,0.7);line-height:1.4;">' + gap.edge_summary + '</div>';
+                    html += '</div>';
+                }
+                // Production lost
+                if (gapReason.ppg_lost) {
+                    html += '<div style="margin-top:6px;font-size:10px;color:rgba(255,255,255,0.35);">Production lost: ' + gapReason.ppg_lost + ' PPG / ' + (gapReason.rpg_lost || 0) + ' RPG / ' + (gapReason.apg_lost || 0) + ' APG</div>';
+                }
+                if (gap.best_book) {
+                    html += '<div style="margin-top:3px;font-size:10px;color:rgba(255,255,255,0.35);">Best book: <strong style="color:rgba(255,255,255,0.5);">' + gap.best_book + '</strong></div>';
+                }
+                html += '</div>';
+
+                html += '</div>';
+                gpIdx++;
+            });
+
+            // Footer
+            html += '<div style="margin-top:8px;font-size:9px;color:rgba(255,255,255,0.2);text-align:center;">' + gaps.length + ' gap prop' + (gaps.length !== 1 ? 's' : '') + ' found &middot; ' + (data.injuries_scanned || 0) + ' injuries scanned &middot; ' + (data.generated_at || '') + '</div>';
+
+            container.innerHTML = html;
+        })
+        .catch(function(err) {
+            container.innerHTML = '<div class="empty-state" style="font-size:11px;color:rgba(255,255,255,0.3);">Gap props unavailable: ' + err.message + '</div>';
+        });
 }
 
 function togglePropDetail(card) {
