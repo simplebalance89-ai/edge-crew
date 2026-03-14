@@ -238,9 +238,12 @@ async def _daily_slate_pull():
                             print(f"[ANALYSIS] Midnight error {sport}: {e}")
                         await asyncio.sleep(5)
 
-            # Scheduled analysis: 4PM PST only — right before tip when lineups confirmed
+            # Scheduled analysis: 10AM, 1PM, 4PM PST — keep cache warm all day
+            # 10AM: morning lines locked, early edges
+            # 1PM: updated lines, injury news, afternoon sports (soccer/MMA)
+            # 4PM: right before tip, lineups confirmed
             should_run_analysis = False
-            if hour == 16 and last_analysis_run != f"{today}:{hour}":
+            if hour in (10, 13, 16) and last_analysis_run != f"{today}:{hour}":
                 should_run_analysis = True
                 last_analysis_run = f"{today}:{hour}"
 
@@ -288,11 +291,45 @@ async def _daily_slate_pull():
         await asyncio.sleep(300)
 
 
+async def _warm_analysis_cache():
+    """On startup, check if today's analysis exists for each sport. If not, generate it.
+    Runs once after boot with staggered delays to avoid hammering Azure."""
+    await asyncio.sleep(120)  # Wait 2 min after boot for other services to stabilize
+    active_sports = _in_season_sports()
+    today = datetime.now(PST).strftime("%Y-%m-%d")
+    print(f"[ANALYSIS WARM] Checking cache for {len(active_sports)} sports...")
+    for sport in active_sports:
+        try:
+            cached = _load_analysis_cache(sport)
+            # Check if cache is from today
+            if cached and cached.get("games"):
+                cached_date = cached.get("generated_at", "")[:10] or cached.get("cached_at", "")[:10]
+                if cached_date == today:
+                    print(f"[ANALYSIS WARM] {sport.upper()}: today's cache exists ({len(cached['games'])} games)")
+                    # Warm the memory cache too
+                    _set_cache(f"analysis:{sport}", cached)
+                    continue
+            # No today cache — generate fresh
+            print(f"[ANALYSIS WARM] {sport.upper()}: no today cache, generating...")
+            resp = await get_analysis(sport)
+            if hasattr(resp, 'body'):
+                data = json.loads(resp.body)
+                if data.get("games"):
+                    _save_analysis_cache(sport, data)
+                    print(f"[ANALYSIS WARM] {sport.upper()}: generated {len(data['games'])} games")
+            await asyncio.sleep(10)  # Stagger to avoid Azure rate limits
+        except Exception as e:
+            print(f"[ANALYSIS WARM] {sport.upper()} failed: {e}")
+            await asyncio.sleep(5)
+    print(f"[ANALYSIS WARM] Cache warm complete")
+
+
 @app.on_event("startup")
 async def start_background_tasks():
     await db.init_schema()
     asyncio.create_task(_autograde_loop())
     asyncio.create_task(_daily_slate_pull())
+    asyncio.create_task(_warm_analysis_cache())
 
 
 @app.on_event("shutdown")
@@ -589,8 +626,35 @@ API_SPORTS_HOSTS = {
 API_SPORTS_LEAGUES = {
     "nhl": 57,
     "mlb": 1,
-    "soccer": [39, 140, 253, 2, 262],  # EPL, La Liga, MLS, UCL, Liga MX
+    "soccer": [39, 140, 253, 2, 262],  # Derived below from SOCCER_LEAGUES
 }
+
+# ===== SOCCER LEAGUES REGISTRY — Single source of truth =====
+SOCCER_LEAGUES = {
+    # Tier 1 — Always fetched (Big 5 + UCL)
+    "soccer_epl":                {"name": "EPL",          "country": "England",   "flag": "\U0001F3F4", "api_sports_id": 39,  "tier": 1},
+    "soccer_spain_la_liga":      {"name": "La Liga",      "country": "Spain",     "flag": "\U0001F1EA\U0001F1F8", "api_sports_id": 140, "tier": 1},
+    "soccer_germany_bundesliga": {"name": "Bundesliga",   "country": "Germany",   "flag": "\U0001F1E9\U0001F1EA", "api_sports_id": 78,  "tier": 1},
+    "soccer_italy_serie_a":      {"name": "Serie A",      "country": "Italy",     "flag": "\U0001F1EE\U0001F1F9", "api_sports_id": 135, "tier": 1},
+    "soccer_france_ligue_one":   {"name": "Ligue 1",      "country": "France",    "flag": "\U0001F1EB\U0001F1F7", "api_sports_id": 61,  "tier": 1},
+    "soccer_uefa_champs_league": {"name": "UCL",          "country": "Europe",    "flag": "\U0001F3C6", "api_sports_id": 2,   "tier": 1},
+    # Tier 2 — Always fetched (Americas + Europa)
+    "soccer_usa_mls":            {"name": "MLS",          "country": "USA",       "flag": "\U0001F1FA\U0001F1F8", "api_sports_id": 253, "tier": 2},
+    "soccer_mexico_ligamx":      {"name": "Liga MX",      "country": "Mexico",    "flag": "\U0001F1F2\U0001F1FD", "api_sports_id": 262, "tier": 2},
+    "soccer_brazil_serie_a":     {"name": "Brasileir\u00e3o",  "country": "Brazil",    "flag": "\U0001F1E7\U0001F1F7", "api_sports_id": 71,  "tier": 2},
+    "soccer_uefa_europa_league": {"name": "Europa League", "country": "Europe",   "flag": "\U0001F3C6", "api_sports_id": 3,   "tier": 2},
+    # Tier 3 — On-demand only (user clicks to load, saves API quota)
+    "soccer_netherlands_eredivisie":      {"name": "Eredivisie",    "country": "Netherlands", "flag": "\U0001F1F3\U0001F1F1", "api_sports_id": 88,  "tier": 3},
+    "soccer_portugal_primeira_liga":      {"name": "Primeira Liga", "country": "Portugal",    "flag": "\U0001F1F5\U0001F1F9", "api_sports_id": 94,  "tier": 3},
+    "soccer_turkey_super_league":         {"name": "S\u00fcper Lig",     "country": "Turkey",      "flag": "\U0001F1F9\U0001F1F7", "api_sports_id": 203, "tier": 3},
+    "soccer_australia_aleague":           {"name": "A-League",      "country": "Australia",   "flag": "\U0001F1E6\U0001F1FA", "api_sports_id": 188, "tier": 3},
+    "soccer_japan_j_league":             {"name": "J1 League",     "country": "Japan",       "flag": "\U0001F1EF\U0001F1F5", "api_sports_id": 98,  "tier": 3},
+    "soccer_korea_kleague":              {"name": "K League",      "country": "South Korea", "flag": "\U0001F1F0\U0001F1F7", "api_sports_id": 292, "tier": 3},
+    "soccer_conmebol_copa_libertadores": {"name": "Libertadores",  "country": "S. America",  "flag": "\U0001F3C6", "api_sports_id": 13,  "tier": 3},
+}
+# Derive SPORT_KEYS and API_SPORTS_LEAGUES from registry
+SPORT_KEYS_SOCCER = [k for k, v in SOCCER_LEAGUES.items() if v["tier"] <= 2]
+API_SPORTS_LEAGUES["soccer"] = [v["api_sports_id"] for v in SOCCER_LEAGUES.values() if v["tier"] <= 2]
 
 # Azure OpenAI config
 AZURE_ENDPOINT = os.environ.get("AZURE_OPENAI_ENDPOINT", "")
@@ -2089,6 +2153,9 @@ def _parse_sharpapi_events(rows, sport_label):
         # NHL: ML + totals is complete (no spreads expected)
         if sport_label == "NHL" and has_ml and has_total:
             game["lines_complete"] = True
+        # Soccer: ML is enough (spreads rare, totals often missing)
+        elif sport_label == "SOCCER" and has_ml:
+            game["lines_complete"] = True
         # MMA/Boxing: ML-only is complete
         elif sport_label in ("MMA", "BOXING") and has_ml:
             game["lines_complete"] = True
@@ -2139,9 +2206,16 @@ def _parse_event(event, sport_label):
     Tries PREFERRED_BOOK first. If that book has no markets for this event,
     falls back through FALLBACK_BOOKS in order. Tracks which book was used.
     """
+    # Extract league metadata from SOCCER_LEAGUES registry
+    event_sport_key = event.get("sport_key", "")
+    league_meta = SOCCER_LEAGUES.get(event_sport_key, {})
+
     game = {
         "id": event["id"],
         "sport": sport_label,
+        "sport_key": event_sport_key,
+        "league": league_meta.get("name", event.get("sport_title", "")),
+        "league_flag": league_meta.get("flag", ""),
         "away": event["away_team"],
         "home": event["home_team"],
         "time": event["commence_time"],
@@ -2278,13 +2352,7 @@ SPORT_KEYS = {
         "tennis_wta_cincinnati_open",
         "tennis_wta_canadian_open",
     ],
-    "soccer": [
-        "soccer_usa_mls",
-        "soccer_epl",
-        "soccer_spain_la_liga",
-        "soccer_uefa_champs_league",
-        "soccer_mexico_ligamx",
-    ],
+    "soccer": SPORT_KEYS_SOCCER,
 }
 
 
@@ -2536,6 +2604,93 @@ async def get_odds(sport: str, markets: str = "h2h,spreads,totals"):
         "cached": False,
     }
 
+    _set_cache(cache_key, result)
+    return JSONResponse(result)
+
+
+# ===== SOCCER HUB ENDPOINTS =====
+
+@app.get("/api/soccer/leagues")
+async def get_soccer_leagues():
+    """Return full soccer league registry with live game counts."""
+    slate = _load_daily_slate("soccer")
+    counts = {}
+    if slate and slate.get("games"):
+        for g in slate["games"]:
+            sk = g.get("sport_key", "")
+            counts[sk] = counts.get(sk, 0) + 1
+    return JSONResponse([
+        {"key": k, **v, "game_count": counts.get(k, 0)}
+        for k, v in SOCCER_LEAGUES.items()
+    ])
+
+
+@app.get("/api/soccer/high-edge")
+async def get_soccer_high_edge():
+    """Return only B+ or above soccer games from analysis cache."""
+    HIGH_GRADES = {"A+", "A", "A-", "B+"}
+    analysis = _load_analysis_cache("soccer")
+    results = []
+    if analysis and analysis.get("games"):
+        for game in analysis["games"]:
+            if game.get("grade") in HIGH_GRADES:
+                results.append(game)
+        # Sort by composite_score descending
+        results.sort(key=lambda g: g.get("composite_score", 0), reverse=True)
+    if not results:
+        # Fallback: show first 5 upcoming games from slate with "analysis pending" note
+        slate = _load_daily_slate("soccer")
+        if slate and slate.get("games"):
+            now = datetime.now(PST)
+            upcoming = sorted(
+                [g for g in slate["games"] if g.get("time")],
+                key=lambda g: g.get("time", "")
+            )[:5]
+            for g in upcoming:
+                g["grade"] = "PENDING"
+                g["analysis_note"] = "Analysis pending — check back after next slate refresh"
+                results.append(g)
+    return JSONResponse({"games": results, "count": len(results), "filter": "high-edge"})
+
+
+@app.get("/api/odds/soccer/league/{league_key}")
+async def get_soccer_league_odds(league_key: str):
+    """On-demand fetch for a specific soccer league (Tier 3 support)."""
+    if league_key not in SOCCER_LEAGUES:
+        return JSONResponse({"error": f"Unknown league: {league_key}"}, status_code=400)
+
+    cache_key = f"soccer_league:{league_key}"
+    cached = _get_cached(cache_key)
+    if cached:
+        return JSONResponse(cached)
+
+    markets = "h2h,spreads,totals,btts,draw_no_bet"
+    label = "SOCCER"
+    games = await _fetch_sport_odds(league_key, markets, label)
+
+    # Filter: only future games within 24h
+    now = datetime.now(PST)
+    cutoff = now + timedelta(hours=24)
+    filtered = []
+    for g in games:
+        t = g.get("time", "")
+        if not t:
+            continue
+        try:
+            gt = datetime.fromisoformat(t.replace("Z", "+00:00")).astimezone(PST)
+            if now < gt <= cutoff:
+                filtered.append(g)
+        except Exception:
+            continue
+
+    league_meta = SOCCER_LEAGUES[league_key]
+    result = {
+        "league": league_meta["name"],
+        "league_key": league_key,
+        "games": filtered,
+        "count": len(filtered),
+        "fetched_at": _now_ts(),
+    }
     _set_cache(cache_key, result)
     return JSONResponse(result)
 
@@ -3137,14 +3292,13 @@ async def get_analysis(sport: str, cached_only: bool = False, force: bool = Fals
         if cached:
             return JSONResponse(cached)
 
-        # Check file-based analysis cache
+        # Check file-based analysis cache — always serve if today's analysis exists
         cached_analysis = _load_analysis_cache(sport_lower)
         if cached_analysis and cached_analysis.get("games"):
-            odds_cache_key_check = f"{sport_lower}:h2h,spreads,totals"
-            fresh_odds = _get_cached(odds_cache_key_check)
-            if not fresh_odds:
-                cached_analysis["cached"] = True
-                return JSONResponse(cached_analysis)
+            # Serve disk cache and warm memory cache so subsequent requests are instant
+            _set_cache(cache_key, cached_analysis)
+            cached_analysis["cached"] = True
+            return JSONResponse(cached_analysis)
 
     # Get current odds for context
     odds_cache_key = f"{sport_lower}:h2h,spreads,totals"
@@ -3429,7 +3583,8 @@ GRADING RULES:
 - Map composite to grade using the thresholds above.
 - For NHL: totals-only or ML-only ARE gradeable. Only INCOMPLETE if NO data at all.
 - For MMA/Boxing: ML-only IS gradeable.
-- For NBA/Soccer: missing spread, total, OR ML = INCOMPLETE.
+- For NBA: missing spread, total, OR ML = INCOMPLETE.
+- For Soccer: ML is required. Spread and totals are optional (many leagues don't offer them). ML-only IS gradeable.
 - injury_impact is MANDATORY. Check the CBS Sports + ESPN + RotoWire data above. Name specific players.
 - If injury data is unavailable from all sources, flag it: "Injury data not confirmed - grade with caution."
 - rest_schedule is MANDATORY. Check game times for B2B detection.
@@ -4096,6 +4251,84 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
                 "tags": ["INCOMPLETE"],
             })
 
+        # ===== GPT GRADE VALIDATION GATE =====
+        # Server-side verification: recalculate composite_score from matrix_scores,
+        # then map to correct grade using thresholds. Override GPT if math doesn't match.
+        gate_grade_overrides = 0
+        gate_score_overrides = 0
+        matrix = SPORT_MATRICES.get(sport_lower, [])
+        if matrix:
+            max_possible = sum(w for _, w, _ in matrix) * 10
+            for game in all_analyzed_games:
+                ms = game.get("matrix_scores", {})
+                if not ms:
+                    continue
+
+                # Step 1: Recalculate composite_score from matrix_scores
+                recalc_sum = 0
+                valid_scores = 0
+                for var_key, var_data in ms.items():
+                    if isinstance(var_data, dict):
+                        w = var_data.get("weight", 0)
+                        s = var_data.get("score", 0)
+                        weighted = w * s
+                        if var_data.get("weighted") != weighted:
+                            var_data["weighted"] = weighted
+                        recalc_sum += weighted
+                        valid_scores += 1
+
+                if valid_scores == 0:
+                    continue
+
+                recalc_composite = round(recalc_sum / max_possible * 10, 1)
+                gpt_composite = game.get("composite_score", 0)
+
+                # Override composite_score if GPT's math is off by > 0.2
+                if abs(recalc_composite - gpt_composite) > 0.2:
+                    logger.warning(f"Grade gate [{sport_lower}] {game.get('matchup','?')}: "
+                                   f"GPT score {gpt_composite} → recalculated {recalc_composite}")
+                    game["composite_score"] = recalc_composite
+                    game["_score_override"] = {"gpt_claimed": gpt_composite, "server_calculated": recalc_composite}
+                    gate_score_overrides += 1
+
+                # Step 2: Map verified composite_score → correct grade
+                verified_score = game["composite_score"]
+                if game.get("grade") in ("TBD", "INCOMPLETE"):
+                    continue
+
+                if verified_score >= 9.0:
+                    correct_grade = "A+"
+                elif verified_score >= 8.2:
+                    correct_grade = "A"
+                elif verified_score >= 7.5:
+                    correct_grade = "A-"
+                elif verified_score >= 7.0:
+                    correct_grade = "B+"
+                elif verified_score >= 6.5:
+                    correct_grade = "B"
+                elif verified_score >= 6.0:
+                    correct_grade = "B-"
+                elif verified_score >= 5.5:
+                    correct_grade = "C+"
+                elif verified_score >= 4.5:
+                    correct_grade = "C"
+                elif verified_score >= 3.0:
+                    correct_grade = "D"
+                else:
+                    correct_grade = "F"
+
+                gpt_grade = game.get("grade", "")
+                if gpt_grade != correct_grade:
+                    logger.warning(f"Grade gate [{sport_lower}] {game.get('matchup','?')}: "
+                                   f"GPT grade '{gpt_grade}' → corrected '{correct_grade}' (score: {verified_score})")
+                    game["grade"] = correct_grade
+                    game["_grade_override"] = {"gpt_claimed": gpt_grade, "server_assigned": correct_grade}
+                    gate_grade_overrides += 1
+
+        if gate_grade_overrides or gate_score_overrides:
+            logger.info(f"Grade gate [{sport_lower}]: {gate_score_overrides} score overrides, {gate_grade_overrides} grade overrides across {len(all_analyzed_games)} games")
+        # ===== END GRADE VALIDATION GATE =====
+
         analysis = {
             "gotcha": gotcha_html or "Analysis partially generated. Some batches may have failed.",
             "games": all_analyzed_games,
@@ -4115,6 +4348,7 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
             "grade_overrides": sum(1 for g in all_analyzed_games if g.get("gpt_original_grade") and g.get("gpt_original_grade") != g.get("grade")),
             "grade_stats": grade_log,
             "matrix_retried": len(missing_ms_games) if missing_ms_games else 0,
+            "grade_gate": {"score_overrides": gate_score_overrides, "grade_overrides": gate_grade_overrides},
         }
 
         _set_cache(cache_key, analysis)
@@ -4150,8 +4384,12 @@ def _write_picks(data):
         json.dump(data, f, indent=2)
 
 
-async def _update_pick_result(pick_id: str, result: str):
-    """Update a pick's result in local file storage + Postgres."""
+async def _update_pick_result(pick_id: str, result: str, prop_data: dict | None = None):
+    """Update a pick's result in local file storage + Postgres.
+
+    prop_data (optional): enrichment from _grade_prop_pick() —
+        {actual_value, line, stat, player, pct_over}
+    """
     if not pick_id:
         return
     data = _read_picks()
@@ -4160,16 +4398,36 @@ async def _update_pick_result(pick_id: str, result: str):
             pick["result"] = result
             graded_at = datetime.now(PST).strftime("%Y-%m-%d %H:%M:%S")
             pick["graded_at"] = graded_at
+            # Persist prop enrichment on the pick object
+            if prop_data:
+                pick["actual_value"] = prop_data.get("actual_value")
+                pick["prop_line"] = prop_data.get("line")
+                pick["prop_stat"] = prop_data.get("stat")
+                pick["prop_player"] = prop_data.get("player")
+                pick["pct_over"] = prop_data.get("pct_over")
             data["updated_at"] = datetime.now(PST).strftime("%Y-%m-%d %H:%M:%S")
             _write_picks(data)
             # Dual-write grade to Postgres
             try:
-                await db.execute(
-                    "UPDATE picks SET result=$1, graded_at=$2 WHERE id=$3",
-                    result,
-                    datetime.strptime(graded_at, "%Y-%m-%d %H:%M:%S").replace(tzinfo=PST),
-                    pick_id,
-                )
+                if prop_data:
+                    await db.execute(
+                        "UPDATE picks SET result=$1, graded_at=$2, actual_value=$3, prop_line=$4, prop_stat=$5, prop_player=$6, pct_over=$7 WHERE id=$8",
+                        result,
+                        datetime.strptime(graded_at, "%Y-%m-%d %H:%M:%S").replace(tzinfo=PST),
+                        prop_data.get("actual_value"),
+                        prop_data.get("line"),
+                        prop_data.get("stat"),
+                        prop_data.get("player"),
+                        prop_data.get("pct_over"),
+                        pick_id,
+                    )
+                else:
+                    await db.execute(
+                        "UPDATE picks SET result=$1, graded_at=$2 WHERE id=$3",
+                        result,
+                        datetime.strptime(graded_at, "%Y-%m-%d %H:%M:%S").replace(tzinfo=PST),
+                        pick_id,
+                    )
             except Exception as e:
                 logger.error(f"DB dual-write grade failed for {pick_id}: {e}")
             return
@@ -4700,10 +4958,11 @@ async def _fetch_espn_box_score(sport: str, home_team: str, away_team: str, game
         return None
 
 
-def _grade_prop_pick(pick: dict, player_stats: dict) -> str | None:
+def _grade_prop_pick(pick: dict, player_stats: dict) -> dict | None:
     """Grade a player prop pick against actual ESPN box score stats.
 
-    Returns 'W', 'L', 'P' (push), or None if can't grade.
+    Returns dict with result + enrichment data, or None if can't grade.
+    {result, actual_value, line, stat, player, over_under}
     """
     selection = pick.get("selection", "")
     if not selection:
@@ -4789,13 +5048,181 @@ def _grade_prop_pick(pick: dict, player_stats: dict) -> str | None:
         logger.info(f"Prop grade: stat {espn_stat} not found for {matched_player}")
         return None
 
+    # Reverse stat label: ESPN key -> human readable
+    _ESPN_TO_LABEL = {"PTS": "Points", "REB": "Rebounds", "AST": "Assists", "3PM": "Threes",
+                      "STL": "Steals", "BLK": "Blocks", "TO": "Turnovers",
+                      "G": "Goals", "SV": "Saves", "SOG": "Shots",
+                      "K": "Strikeouts", "H": "Hits", "R": "Runs", "RBI": "RBI",
+                      "TB": "Total Bases", "HR": "Home Runs", "BB": "Walks",
+                      "YDS": "Yards", "TD": "Touchdowns", "CMP": "Completions", "REC": "Receptions"}
+
     # Grade
     if actual_value == line:
-        return "P"
-    if over_under == "over":
-        return "W" if actual_value > line else "L"
+        result_str = "P"
+    elif over_under == "over":
+        result_str = "W" if actual_value > line else "L"
     else:  # under
-        return "W" if actual_value < line else "L"
+        result_str = "W" if actual_value < line else "L"
+
+    # Compute pct_over: how far actual exceeded the line (for overs) or fell below (for unders)
+    if line > 0:
+        if over_under == "over":
+            pct_over = round((actual_value - line) / line * 100, 1)
+        else:
+            pct_over = round((line - actual_value) / line * 100, 1)
+    else:
+        pct_over = 0.0
+
+    return {
+        "result": result_str,
+        "actual_value": float(actual_value),
+        "line": line,
+        "stat": _ESPN_TO_LABEL.get(espn_stat, espn_stat),
+        "stat_key": espn_stat,
+        "player": matched_player,
+        "over_under": over_under,
+        "pct_over": pct_over,
+    }
+
+
+# ============================================================
+# PROP BOARD — Crushed Lines Tracker
+# ============================================================
+
+PROP_BOARD_FILE = os.path.join(DATA_DIR, "prop_board.json")
+
+
+def _read_prop_board() -> dict:
+    """Read prop board from persistent JSON file."""
+    try:
+        if os.path.exists(PROP_BOARD_FILE):
+            with open(PROP_BOARD_FILE, "r") as f:
+                return json.load(f)
+    except Exception as e:
+        logger.error(f"Error reading prop board: {e}")
+    return {"board": []}
+
+
+def _write_prop_board(board_data: dict):
+    """Write prop board to persistent JSON file."""
+    try:
+        os.makedirs(os.path.dirname(PROP_BOARD_FILE), exist_ok=True)
+        with open(PROP_BOARD_FILE, "w") as f:
+            json.dump(board_data, f, indent=2)
+    except Exception as e:
+        logger.error(f"Error writing prop board: {e}")
+
+
+def _maybe_add_to_prop_board(pick: dict, prop_data: dict):
+    """Add to prop board if the prop crushed the line by 25%+.
+
+    For overs: actual_value >= line * 1.25
+    For unders: line - actual_value >= line * 0.25
+    """
+    actual = prop_data.get("actual_value", 0)
+    line = prop_data.get("line", 0)
+    over_under = prop_data.get("over_under", "over")
+    pct_over = prop_data.get("pct_over", 0)
+
+    if line <= 0:
+        return
+
+    # Check if it crushed by 25%+
+    if over_under == "over":
+        crushed = actual >= line * 1.25
+    else:
+        crushed = (line - actual) >= line * 0.25
+
+    if not crushed:
+        return
+
+    pick_id = pick.get("id", "")
+    board = _read_prop_board()
+
+    # Dedup by pick_id
+    if any(e.get("pick_id") == pick_id for e in board["board"]):
+        return
+
+    entry = {
+        "id": f"pb_{uuid.uuid4().hex[:12]}",
+        "pick_id": pick_id,
+        "player": prop_data.get("player", ""),
+        "sport": pick.get("sport", "").upper(),
+        "stat": prop_data.get("stat", ""),
+        "stat_key": prop_data.get("stat_key", ""),
+        "line": line,
+        "actual_value": actual,
+        "pct_over": pct_over,
+        "over_under": over_under,
+        "matchup": pick.get("matchup", ""),
+        "picked_by": pick.get("name", ""),
+        "graded_date": datetime.now(PST).strftime("%Y-%m-%d"),
+        "relock_count": 0,
+        "last_relock": None,
+    }
+    board["board"].append(entry)
+    _write_prop_board(board)
+    logger.info(f"[PROP BOARD] Added: {entry['player']} {entry['stat']} {entry['line']} → {entry['actual_value']} (+{pct_over}%)")
+
+
+# Reverse stat mapping for matching board entries to Odds API props
+_STAT_KEY_TO_ODDS_API = {
+    "PTS": "Points", "REB": "Rebounds", "AST": "Assists", "3PM": "Threes",
+    "STL": "Steals", "BLK": "Blocks", "TO": "Turnovers",
+    "G": "Goals", "SV": "Saves", "SOG": "Shots On Goal",
+    "K": "Strikeouts", "H": "Hits", "R": "Runs", "RBI": "Rbi",
+    "TB": "Total Bases", "HR": "Home Runs", "BB": "Walks",
+    "YDS": "Passing Yards", "TD": "Passing Touchdowns", "CMP": "Completions", "REC": "Receptions",
+}
+
+
+def _match_board_to_fresh_odds(entry: dict, props_data: dict) -> dict | None:
+    """Try to find today's fresh odds for a board entry from the props cache.
+
+    Matches on last name + stat type. Returns {today_line, today_odds, today_book, today_matchup} or None.
+    """
+    board_player = entry.get("player", "").lower()
+    board_stat = entry.get("stat", "")
+    board_stat_key = entry.get("stat_key", "")
+
+    # Get last name from board player (ESPN format: "J. Giddey" or "Josh Giddey")
+    board_last = board_player.split()[-1] if board_player else ""
+    if not board_last:
+        return None
+
+    # Map stat key to what Odds API calls it
+    odds_stat_labels = set()
+    if board_stat:
+        odds_stat_labels.add(board_stat.lower())
+    if board_stat_key and board_stat_key in _STAT_KEY_TO_ODDS_API:
+        odds_stat_labels.add(_STAT_KEY_TO_ODDS_API[board_stat_key].lower())
+
+    all_props = props_data.get("props", [])
+    for prop in all_props:
+        prop_player = prop.get("player", "").lower()
+        prop_stat = prop.get("stat", "").lower()
+        prop_side = prop.get("side", "").lower()
+
+        # Match last name
+        if board_last not in prop_player:
+            continue
+
+        # Match stat
+        if not any(sl in prop_stat for sl in odds_stat_labels):
+            continue
+
+        # Match over/under direction
+        if prop_side != entry.get("over_under", "over"):
+            continue
+
+        return {
+            "today_line": prop.get("line"),
+            "today_odds": prop.get("best_odds"),
+            "today_book": prop.get("best_book"),
+            "today_matchup": prop.get("matchup"),
+        }
+
+    return None
 
 
 def _teams_match(pick_text: str, home: str, away: str, sport: str = "") -> bool:
@@ -5277,6 +5704,7 @@ async def autograde_picks(request: Request):
             result = _grade_pick_against_score(pick, game)
 
             # --- PROP GRADING via ESPN Box Score ---
+            prop_grade_data = None
             if result is None and _is_prop(pick) and game.get("completed"):
                 pick_sport = pick.get("sport", "").lower()
                 if pick_sport in _ESPN_SPORT_PATHS:
@@ -5284,15 +5712,20 @@ async def autograde_picks(request: Request):
                     try:
                         box_score = await _fetch_espn_box_score(pick_sport, home, away, pick_date)
                         if box_score:
-                            result = _grade_prop_pick(pick, box_score)
-                            if result:
-                                logger.info(f"Prop graded via ESPN: {selection} = {result}")
+                            prop_grade_data = _grade_prop_pick(pick, box_score)
+                            if prop_grade_data:
+                                result = prop_grade_data["result"]
+                                logger.info(f"Prop graded via ESPN: {selection} = {result} (actual={prop_grade_data['actual_value']})")
                     except Exception as e:
                         logger.warning(f"ESPN prop grade failed: {e}")
 
             if result:
                 pick_id = pick.get("id", "")
-                await _update_pick_result(pick_id, result)
+                await _update_pick_result(pick_id, result, prop_data=prop_grade_data)
+
+                # Trigger prop board entry if prop crushed the line by 25%+
+                if prop_grade_data and result == "W":
+                    _maybe_add_to_prop_board(pick, prop_grade_data)
 
                 graded_count += 1
                 scores_info = game.get("scores", [])
@@ -5329,6 +5762,128 @@ async def autograde_picks(request: Request):
         "results": results,
         "unique_picks": unique_picks,
         "debug": " | ".join(debug_parts),
+    })
+
+
+# ============================================================
+# PROP BOARD API ENDPOINTS
+# ============================================================
+
+
+@app.get("/api/prop-board")
+async def get_prop_board():
+    """Return prop board entries enriched with today's fresh odds."""
+    board = _read_prop_board()
+    entries = board.get("board", [])
+
+    # Try to enrich each entry with fresh odds from cache
+    for entry in entries:
+        sport = entry.get("sport", "").lower()
+        cache_key = f"props:{sport}"
+        cached_props = _get_cached(cache_key, ttl=PROPS_CACHE_TTL)
+        if cached_props:
+            fresh = _match_board_to_fresh_odds(entry, cached_props)
+            if fresh:
+                entry.update(fresh)
+
+    # Sort by pct_over descending (biggest crushers first)
+    entries.sort(key=lambda e: e.get("pct_over", 0), reverse=True)
+
+    return JSONResponse({"board": entries, "count": len(entries)})
+
+
+@app.post("/api/prop-board/{entry_id}/relock")
+async def relock_prop_board(entry_id: str):
+    """Increment relock count for a board entry."""
+    board = _read_prop_board()
+    for entry in board["board"]:
+        if entry.get("id") == entry_id:
+            entry["relock_count"] = entry.get("relock_count", 0) + 1
+            entry["last_relock"] = datetime.now(PST).strftime("%Y-%m-%d %H:%M:%S")
+            _write_prop_board(board)
+            return JSONResponse({"status": "ok", "entry": entry})
+    return JSONResponse({"error": "Entry not found"}, status_code=404)
+
+
+@app.post("/api/prop-board/backfill")
+async def backfill_prop_board():
+    """One-time: re-scan historical prop wins and populate board for 25%+ crushers."""
+    data = _read_picks()
+    all_picks = data.get("picks", [])
+
+    # Find props that already have actual_value stored (from enriched grading)
+    added = 0
+    already_on_board = 0
+    board = _read_prop_board()
+    existing_pick_ids = {e.get("pick_id") for e in board["board"]}
+
+    for pick in all_picks:
+        if pick.get("result") != "W":
+            continue
+        if not _is_prop(pick):
+            continue
+        if pick.get("id") in existing_pick_ids:
+            already_on_board += 1
+            continue
+
+        actual = pick.get("actual_value")
+        line = pick.get("prop_line")
+        if actual is None or line is None or line <= 0:
+            continue
+
+        # Detect over/under from selection text
+        sel_lower = pick.get("selection", "").lower()
+        if "over" in sel_lower or " o " in f" {sel_lower} ":
+            over_under = "over"
+        elif "under" in sel_lower or " u " in f" {sel_lower} ":
+            over_under = "under"
+        else:
+            continue
+
+        # Check 25% threshold
+        if over_under == "over":
+            crushed = actual >= line * 1.25
+        else:
+            crushed = (line - actual) >= line * 0.25
+
+        if not crushed:
+            continue
+
+        pct = pick.get("pct_over", 0)
+        if not pct and line > 0:
+            if over_under == "over":
+                pct = round((actual - line) / line * 100, 1)
+            else:
+                pct = round((line - actual) / line * 100, 1)
+
+        entry = {
+            "id": f"pb_{uuid.uuid4().hex[:12]}",
+            "pick_id": pick.get("id", ""),
+            "player": pick.get("prop_player", ""),
+            "sport": pick.get("sport", "").upper(),
+            "stat": pick.get("prop_stat", ""),
+            "stat_key": "",
+            "line": line,
+            "actual_value": actual,
+            "pct_over": pct,
+            "over_under": over_under,
+            "matchup": pick.get("matchup", ""),
+            "picked_by": pick.get("name", ""),
+            "graded_date": pick.get("graded_at", "")[:10] if pick.get("graded_at") else "",
+            "relock_count": 0,
+            "last_relock": None,
+        }
+        board["board"].append(entry)
+        added += 1
+
+    if added:
+        _write_prop_board(board)
+
+    return JSONResponse({
+        "status": "ok",
+        "added": added,
+        "already_on_board": already_on_board,
+        "total_board": len(board["board"]),
     })
 
 
