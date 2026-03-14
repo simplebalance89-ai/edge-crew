@@ -2089,6 +2089,9 @@ def _parse_sharpapi_events(rows, sport_label):
         # NHL: ML + totals is complete (no spreads expected)
         if sport_label == "NHL" and has_ml and has_total:
             game["lines_complete"] = True
+        # Soccer: ML is enough (spreads rare, totals often missing)
+        elif sport_label == "SOCCER" and has_ml:
+            game["lines_complete"] = True
         # MMA/Boxing: ML-only is complete
         elif sport_label in ("MMA", "BOXING") and has_ml:
             game["lines_complete"] = True
@@ -3429,7 +3432,8 @@ GRADING RULES:
 - Map composite to grade using the thresholds above.
 - For NHL: totals-only or ML-only ARE gradeable. Only INCOMPLETE if NO data at all.
 - For MMA/Boxing: ML-only IS gradeable.
-- For NBA/Soccer: missing spread, total, OR ML = INCOMPLETE.
+- For NBA: missing spread, total, OR ML = INCOMPLETE.
+- For Soccer: ML is required. Spread and totals are optional (many leagues don't offer them). ML-only IS gradeable.
 - injury_impact is MANDATORY. Check the CBS Sports + ESPN + RotoWire data above. Name specific players.
 - If injury data is unavailable from all sources, flag it: "Injury data not confirmed - grade with caution."
 - rest_schedule is MANDATORY. Check game times for B2B detection.
