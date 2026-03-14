@@ -84,7 +84,7 @@ body::before{content:'';position:fixed;bottom:0;left:0;right:0;height:35vh;backg
 .crew-jimmy{background:rgba(96,165,250,0.15);color:#60A5FA;border:1px solid rgba(96,165,250,0.3);}
 .crew-alyssa{background:rgba(65,234,212,0.15);color:#41EAD4;border:1px solid rgba(65,234,212,0.3);}
 .crew-sintonia{background:rgba(247,37,133,0.15);color:#F72585;border:1px solid rgba(247,37,133,0.3);}
-.crew-leon{background:rgba(34,197,94,0.15);color:#22C55E;border:1px solid rgba(34,197,94,0.3);}
+.crew-sportsbook{background:rgba(34,197,94,0.15);color:#22C55E;border:1px solid rgba(34,197,94,0.3);}
 .sweep-time{font-size:11px;color:rgba(255,255,255,0.25);text-align:right;}
 
 /* ===== SPORT TABS (2-Tier Nav) ===== */
@@ -1205,7 +1205,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
             <span class="crew-badge crew-jimmy" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0;margin-left:-4px;">J</span>
             <span class="crew-badge crew-alyssa" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;padding:0;margin-left:-4px;" title="Alyssa"><svg viewBox="0 0 64 64" width="16" height="16"><polygon points="32,6 38,24 58,24 42,36 48,54 32,44 16,54 22,36 6,24 26,24" fill="none" stroke="#41EAD4" stroke-width="3" stroke-linejoin="round"/></svg></span>
             <span class="crew-badge crew-sintonia" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;padding:0;margin-left:-4px;" title="Sinton.ia"><svg viewBox="0 0 64 64" width="16" height="16"><circle cx="32" cy="32" r="28" fill="none" stroke="#F72585" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#F72585" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#F72585" stroke-width="2" stroke-linecap="round"/></svg></span>
-            <span class="crew-badge crew-leon" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0;margin-left:-4px;">L</span>
+            <span class="crew-badge crew-sportsbook" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;padding:0;margin-left:-4px;">$</span>
         </div>
         <div class="agent-switcher" id="agentSwitcher" onclick="backToAgents()"><span id="agentSwitcherLabel">SWITCH AGENT</span></div>
         <button id="analyzeBtn" onclick="runAnalysis()" style="padding:6px 14px;border-radius:var(--ec-radius-full);font-size:11px;font-weight:700;background:linear-gradient(135deg,#F72585,#41EAD4);color:#fff;border:none;cursor:pointer;transition:all 0.2s;letter-spacing:0.3px;">ANALYZE</button>
@@ -1385,28 +1385,39 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <!-- Tonight's Action -->
 <div class="dash-section">
     <h2 style="display:flex;align-items:center;gap:8px;">Tonight's Action <span style="font-size:10px;padding:2px 8px;border-radius:12px;background:rgba(16,185,129,0.15);color:#10B981;font-weight:700;">LIVE</span></h2>
-    <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-bottom:10px;">Real money placed on Sportsbook.ag — $275.82 invested</div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-bottom:10px;">Real money on Sportsbook.ag — March 14, 2026</div>
     <div style="display:grid;gap:6px;" id="tonightsBets">
         <div style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15);border-radius:8px;padding:10px;">
             <div style="display:flex;justify-content:space-between;align-items:center;">
                 <span style="font-size:11px;font-weight:800;color:#10B981;">7-LEG PARLAY</span>
                 <span style="font-size:12px;font-weight:900;color:#fff;">$25 → $604</span>
             </div>
-            <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-top:4px;">LAC -13.5 / TBL / PIT +130 / CBJ / Vallejos / Sy / Delgado</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-top:4px;">LAC -13.5 / TBL -130 / PIT +130 / CBJ -135 / Vallejos -550 / Sy -320 / Delgado -500</div>
+            <div style="font-size:9px;color:rgba(255,255,255,0.2);margin-top:2px;">Bet# 615273286</div>
         </div>
         <div style="background:rgba(168,85,247,0.06);border:1px solid rgba(168,85,247,0.15);border-radius:8px;padding:10px;">
             <div style="display:flex;justify-content:space-between;align-items:center;">
-                <span style="font-size:11px;font-weight:800;color:#A855F7;">PLUS MONEY SWEEP</span>
-                <span style="font-size:12px;font-weight:900;color:#fff;">$20 → $328</span>
+                <span style="font-size:11px;font-weight:800;color:#A855F7;">DUKE + LEMOS + MMA</span>
+                <span style="font-size:12px;font-weight:900;color:#fff;">$25 → $324</span>
             </div>
-            <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-top:4px;">SJ +140 / Lemos +215 / Silva +130</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-top:4px;">Duke -6.5 / TBL -130 / Lemos +215 / Sy -320</div>
+            <div style="font-size:9px;color:rgba(255,255,255,0.2);margin-top:2px;">Bet# 615273321</div>
         </div>
-        <div style="background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.15);border-radius:8px;padding:10px;">
+        <div style="background:rgba(65,234,212,0.06);border:1px solid rgba(65,234,212,0.15);border-radius:8px;padding:10px;">
             <div style="display:flex;justify-content:space-between;align-items:center;">
-                <span style="font-size:11px;font-weight:800;color:#818cf8;">MMA + LAC GRINDER</span>
+                <span style="font-size:11px;font-weight:800;color:#41EAD4;">LAC + LEMOS + SILVA</span>
                 <span style="font-size:12px;font-weight:900;color:#fff;">$25 → $321</span>
             </div>
             <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-top:4px;">LAC -13.5 / Lemos +215 / Silva +130</div>
+            <div style="font-size:9px;color:rgba(255,255,255,0.2);margin-top:2px;">Bet# 615273252</div>
+        </div>
+        <div style="background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.15);border-radius:8px;padding:10px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:11px;font-weight:800;color:#818cf8;">DUKE ML + MMA QUAD</span>
+                <span style="font-size:12px;font-weight:900;color:#fff;">$25 → $96</span>
+            </div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-top:4px;">Duke -300 / Sy -320 / Delgado -500 / Silva +130</div>
+            <div style="font-size:9px;color:rgba(255,255,255,0.2);margin-top:2px;">Bet# 615273244</div>
         </div>
         <div style="background:rgba(247,37,133,0.06);border:1px solid rgba(247,37,133,0.15);border-radius:8px;padding:10px;">
             <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -1414,6 +1425,15 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
                 <span style="font-size:12px;font-weight:900;color:#fff;">$30 → $229</span>
             </div>
             <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-top:4px;">DEN -140 / CAR +110 / SJ +140</div>
+            <div style="font-size:9px;color:rgba(255,255,255,0.2);margin-top:2px;">Bet# 615273213</div>
+        </div>
+        <div style="background:rgba(212,160,23,0.06);border:1px solid rgba(212,160,23,0.15);border-radius:8px;padding:10px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:11px;font-weight:800;color:#D4A017;">SJ PLUS MONEY</span>
+                <span style="font-size:12px;font-weight:900;color:#fff;">$20 → $328</span>
+            </div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-top:4px;">SJ +140 / Lemos +215 / Silva +130</div>
+            <div style="font-size:9px;color:rgba(255,255,255,0.2);margin-top:2px;">Bet# 615272991</div>
         </div>
         <div style="background:rgba(65,234,212,0.06);border:1px solid rgba(65,234,212,0.15);border-radius:8px;padding:10px;">
             <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -1421,23 +1441,43 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
                 <span style="font-size:12px;font-weight:900;color:#fff;">$32 → $199</span>
             </div>
             <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-top:4px;">DEN -140 / SJ +140 / CBJ -135</div>
+            <div style="font-size:9px;color:rgba(255,255,255,0.2);margin-top:2px;">Bet# 615272876</div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
-            <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:8px;text-align:center;">
-                <div style="font-size:9px;color:rgba(255,255,255,0.3);">JOKIC O12.5 REB</div>
-                <div style="font-size:11px;font-weight:800;color:#fff;">$10</div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:10px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:11px;font-weight:800;color:#fff;">ALYSSA CHALK</span>
+                <span style="font-size:12px;font-weight:900;color:#fff;">$25 → $61</span>
             </div>
-            <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:8px;text-align:center;">
-                <div style="font-size:9px;color:rgba(255,255,255,0.3);">MATHURIN O17.5</div>
-                <div style="font-size:11px;font-weight:800;color:#fff;">$14</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-top:4px;">Duke -6.5 / Delgado -500 / Petrino -200</div>
+            <div style="font-size:9px;color:rgba(255,255,255,0.2);margin-top:2px;">Bet# 615272843</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:10px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:11px;font-weight:800;color:#fff;">ALYSSA GRINDER</span>
+                <span style="font-size:12px;font-weight:900;color:#fff;">$25 → $52</span>
             </div>
-            <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:8px;text-align:center;">
-                <div style="font-size:9px;color:rgba(255,255,255,0.3);">ACHIUWA O6.5 REB</div>
-                <div style="font-size:11px;font-weight:800;color:#fff;">$10</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-top:4px;">LAC -13.5 / Sy -320 / Orolbai -450</div>
+            <div style="font-size:9px;color:rgba(255,255,255,0.2);margin-top:2px;">Bet# 615272835</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:4px;">
+            <div style="background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.12);border-radius:8px;padding:8px;text-align:center;">
+                <div style="font-size:9px;color:rgba(255,255,255,0.4);font-weight:700;">JOKIC O12.5 REB</div>
+                <div style="font-size:12px;font-weight:900;color:#fff;">$10 → $18</div>
+                <div style="font-size:8px;color:rgba(255,255,255,0.2);">Bet# 615273572</div>
+            </div>
+            <div style="background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.12);border-radius:8px;padding:8px;text-align:center;">
+                <div style="font-size:9px;color:rgba(255,255,255,0.4);font-weight:700;">MATHURIN O17.5 PTS</div>
+                <div style="font-size:12px;font-weight:900;color:#fff;">$14 → $26</div>
+                <div style="font-size:8px;color:rgba(255,255,255,0.2);">Bet# 615273555</div>
+            </div>
+            <div style="background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.12);border-radius:8px;padding:8px;text-align:center;">
+                <div style="font-size:9px;color:rgba(255,255,255,0.4);font-weight:700;">ACHIUWA O6.5 REB</div>
+                <div style="font-size:12px;font-weight:900;color:#fff;">$10 → $21</div>
+                <div style="font-size:8px;color:rgba(255,255,255,0.2);">Bet# 615273609</div>
             </div>
         </div>
     </div>
-    <div style="text-align:center;margin-top:10px;font-size:10px;color:rgba(255,255,255,0.2);">Max return: $2,279 | Built by the crew: Peter + Alyssa + Sinton.ia + Chinny</div>
+    <div style="text-align:center;margin-top:10px;font-size:10px;color:rgba(255,255,255,0.2);">9 parlays + 3 props | $276 invested | Max return: $2,279 | Built by the crew</div>
 </div>
 
 <!-- Quick Nav -->
@@ -2091,8 +2131,8 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
             <div id="brSinton.ia" style="color:#fff;font-size:14px;">0-0-0 | 0u</div>
         </div>
         <div style="background:#0f1018;border:1px solid #2a2a5a;border-radius:8px;padding:12px;text-align:center;">
-            <div style="color:#22C55E;font-weight:700;margin-bottom:4px;">Leon</div>
-            <div id="brLeon" style="color:#fff;font-size:14px;">0-0-0 | 0u</div>
+            <div style="color:#22C55E;font-weight:700;margin-bottom:4px;">Sportsbook</div>
+            <div id="brSportsbook" style="color:#fff;font-size:14px;">0-0-0 | 0u</div>
         </div>
     </div>
 
@@ -2140,7 +2180,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
         <button class="swim-btn" onclick="setSwimLane('Chinny',this)" style="background:transparent;border:1px solid #FF6B35;color:#FF6B35;border-radius:6px;padding:6px 14px;font-family:var(--ec-font-body);font-weight:700;font-size:12px;cursor:pointer;">Chinny</button>
         <button class="swim-btn" onclick="setSwimLane('Alyssa',this)" style="background:transparent;border:1px solid #41EAD4;color:#41EAD4;border-radius:6px;padding:6px 14px;font-family:var(--ec-font-body);font-weight:700;font-size:12px;cursor:pointer;">Alyssa</button>
         <button class="swim-btn" onclick="setSwimLane('Sinton.ia',this)" style="background:transparent;border:1px solid #F72585;color:#F72585;border-radius:6px;padding:6px 14px;font-family:var(--ec-font-body);font-weight:700;font-size:12px;cursor:pointer;">Sinton.ia</button>
-        <button class="swim-btn" onclick="setSwimLane('Leon',this)" style="background:transparent;border:1px solid #22C55E;color:#22C55E;border-radius:6px;padding:6px 14px;font-family:var(--ec-font-body);font-weight:700;font-size:12px;cursor:pointer;">Leon</button>
+        <button class="swim-btn" onclick="setSwimLane('Sportsbook.ag',this)" style="background:transparent;border:1px solid #22C55E;color:#22C55E;border-radius:6px;padding:6px 14px;font-family:var(--ec-font-body);font-weight:700;font-size:12px;cursor:pointer;">Sportsbook</button>
     </div>
     <div id="bankrollPicks"></div>
 
@@ -3856,7 +3896,7 @@ function editPick(index) {
 
 var activeSwimLane = 'ALL';
 var _resultFilter = 'all'; // 'all', 'regular', 'props'
-var CREW_COLORS = {Peter:'#818cf8',Jimmy:'#5588EE',Chinny:'#FF6B35',Alyssa:'#41EAD4','Sinton.ia':'#F72585',Leon:'#22C55E'};
+var CREW_COLORS = {Peter:'#818cf8',Jimmy:'#5588EE',Chinny:'#FF6B35',Alyssa:'#41EAD4','Sinton.ia':'#F72585','Sportsbook.ag':'#22C55E'};
 
 function setSwimLane(name, btn) {
     activeSwimLane = name;
@@ -4324,7 +4364,7 @@ function renderBankroll() {
 
     var wins = 0, losses = 0, pushes = 0, netUnits = 0;
     var propW = 0, propL = 0, propP = 0;
-    var personStats = {Peter:{w:0,l:0,p:0,u:0},Jimmy:{w:0,l:0,p:0,u:0},Chinny:{w:0,l:0,p:0,u:0},Alyssa:{w:0,l:0,p:0,u:0},'Sinton.ia':{w:0,l:0,p:0,u:0},Willis:{w:0,l:0,p:0,u:0},Leon:{w:0,l:0,p:0,u:0}};
+    var personStats = {Peter:{w:0,l:0,p:0,u:0},Jimmy:{w:0,l:0,p:0,u:0},Chinny:{w:0,l:0,p:0,u:0},Alyssa:{w:0,l:0,p:0,u:0},'Sinton.ia':{w:0,l:0,p:0,u:0},Willis:{w:0,l:0,p:0,u:0},'Sportsbook.ag':{w:0,l:0,p:0,u:0}};
 
     // Daily stats accumulator
     var dailyStats = {};
