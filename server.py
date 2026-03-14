@@ -238,9 +238,12 @@ async def _daily_slate_pull():
                             print(f"[ANALYSIS] Midnight error {sport}: {e}")
                         await asyncio.sleep(5)
 
-            # Scheduled analysis: 4PM PST only — right before tip when lineups confirmed
+            # Scheduled analysis: 10AM, 1PM, 4PM PST — keep cache warm all day
+            # 10AM: morning lines locked, early edges
+            # 1PM: updated lines, injury news, afternoon sports (soccer/MMA)
+            # 4PM: right before tip, lineups confirmed
             should_run_analysis = False
-            if hour == 16 and last_analysis_run != f"{today}:{hour}":
+            if hour in (10, 13, 16) and last_analysis_run != f"{today}:{hour}":
                 should_run_analysis = True
                 last_analysis_run = f"{today}:{hour}"
 
@@ -288,11 +291,45 @@ async def _daily_slate_pull():
         await asyncio.sleep(300)
 
 
+async def _warm_analysis_cache():
+    """On startup, check if today's analysis exists for each sport. If not, generate it.
+    Runs once after boot with staggered delays to avoid hammering Azure."""
+    await asyncio.sleep(120)  # Wait 2 min after boot for other services to stabilize
+    active_sports = _in_season_sports()
+    today = datetime.now(PST).strftime("%Y-%m-%d")
+    print(f"[ANALYSIS WARM] Checking cache for {len(active_sports)} sports...")
+    for sport in active_sports:
+        try:
+            cached = _load_analysis_cache(sport)
+            # Check if cache is from today
+            if cached and cached.get("games"):
+                cached_date = cached.get("generated_at", "")[:10] or cached.get("cached_at", "")[:10]
+                if cached_date == today:
+                    print(f"[ANALYSIS WARM] {sport.upper()}: today's cache exists ({len(cached['games'])} games)")
+                    # Warm the memory cache too
+                    _set_cache(f"analysis:{sport}", cached)
+                    continue
+            # No today cache — generate fresh
+            print(f"[ANALYSIS WARM] {sport.upper()}: no today cache, generating...")
+            resp = await get_analysis(sport)
+            if hasattr(resp, 'body'):
+                data = json.loads(resp.body)
+                if data.get("games"):
+                    _save_analysis_cache(sport, data)
+                    print(f"[ANALYSIS WARM] {sport.upper()}: generated {len(data['games'])} games")
+            await asyncio.sleep(10)  # Stagger to avoid Azure rate limits
+        except Exception as e:
+            print(f"[ANALYSIS WARM] {sport.upper()} failed: {e}")
+            await asyncio.sleep(5)
+    print(f"[ANALYSIS WARM] Cache warm complete")
+
+
 @app.on_event("startup")
 async def start_background_tasks():
     await db.init_schema()
     asyncio.create_task(_autograde_loop())
     asyncio.create_task(_daily_slate_pull())
+    asyncio.create_task(_warm_analysis_cache())
 
 
 @app.on_event("shutdown")
@@ -3255,14 +3292,13 @@ async def get_analysis(sport: str, cached_only: bool = False, force: bool = Fals
         if cached:
             return JSONResponse(cached)
 
-        # Check file-based analysis cache
+        # Check file-based analysis cache — always serve if today's analysis exists
         cached_analysis = _load_analysis_cache(sport_lower)
         if cached_analysis and cached_analysis.get("games"):
-            odds_cache_key_check = f"{sport_lower}:h2h,spreads,totals"
-            fresh_odds = _get_cached(odds_cache_key_check)
-            if not fresh_odds:
-                cached_analysis["cached"] = True
-                return JSONResponse(cached_analysis)
+            # Serve disk cache and warm memory cache so subsequent requests are instant
+            _set_cache(cache_key, cached_analysis)
+            cached_analysis["cached"] = True
+            return JSONResponse(cached_analysis)
 
     # Get current odds for context
     odds_cache_key = f"{sport_lower}:h2h,spreads,totals"
