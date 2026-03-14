@@ -6045,6 +6045,12 @@ async def _fetch_player_game_logs(sport, team_abbrevs):
                     l10_ast = sum(_safe_float(g, stat_indices.get("ast", 11)) for g in l10) / len(l10) if l10 else 0
                     l10_min = sum(_safe_float(g, stat_indices.get("min", 0)) for g in l10) / len(l10) if l10 else 0
 
+                    # L5 averages — used by Prop Gap Analyzer for absorption detection
+                    l5 = games[:5]
+                    l5_pts = sum(_safe_float(g, stat_indices.get("pts", -1)) for g in l5) / len(l5) if l5 else 0
+                    l5_reb = sum(_safe_float(g, stat_indices.get("reb", 10)) for g in l5) / len(l5) if l5 else 0
+                    l5_ast = sum(_safe_float(g, stat_indices.get("ast", 11)) for g in l5) / len(l5) if l5 else 0
+
                     season_pts = sum(_safe_float(g, stat_indices.get("pts", -1)) for g in games) / gp if gp else 0
                     season_reb = sum(_safe_float(g, stat_indices.get("reb", 10)) for g in games) / gp if gp else 0
                     season_ast = sum(_safe_float(g, stat_indices.get("ast", 11)) for g in games) / gp if gp else 0
@@ -6066,6 +6072,10 @@ async def _fetch_player_game_logs(sport, team_abbrevs):
                         "l10_reb": round(l10_reb, 1),
                         "l10_ast": round(l10_ast, 1),
                         "l10_min": round(l10_min, 1),
+                        "l5_pts": round(l5_pts, 1),
+                        "l5_reb": round(l5_reb, 1),
+                        "l5_ast": round(l5_ast, 1),
+                        "l5_min": round(l5_min, 1),
                         "season_pts": round(season_pts, 1),
                         "season_reb": round(season_reb, 1),
                         "season_ast": round(season_ast, 1),
@@ -6609,6 +6619,642 @@ async def card_lineup(sport: str, matchup: str):
         "home_name": home_abbr,
         "confirmed": confirmed,
     })
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# ── PROP GAP ANALYZER — Injury-Driven Edge Detection (Pure Math, No AI) ─────
+# ══════════════════════════════════════════════════════════════════════════════
+#
+# Pipeline: detect injury gaps → find absorbers → match to props → score → grade
+# Zero AI/GPT cost. Separate from main analysis pipeline. Read-only consumer of
+# existing ESPN injuries, game logs, and Odds API prop caches.
+# ─────────────────────────────────────────────────────────────────────────────
+
+GAP_PROPS_CACHE_TTL = 900  # 15 minutes
+GAP_PROPS_SUPPORTED = {"nba", "nhl"}
+
+# Stat mapping per sport for gap analysis
+_GAP_STAT_KEYS = {
+    "nba": {"pts": "Points", "reb": "Rebounds", "ast": "Assists"},
+    "nhl": {"pts": "Points", "ast": "Assists", "goals": "Goals"},
+}
+
+_GRADE_THRESHOLDS = [
+    (8.5, "A"), (7.5, "A-"), (7.0, "B+"), (6.5, "B"), (6.0, "B-"),
+    (5.5, "C+"), (5.0, "C"), (0.0, "D"),
+]
+
+
+def _grade_gap_prop(combined_score):
+    """Map combined score (1-10) to letter grade."""
+    for threshold, grade in _GRADE_THRESHOLDS:
+        if combined_score >= threshold:
+            return grade
+    return "D"
+
+
+async def _detect_injury_gaps(sport):
+    """Core gap detector: find OUT/LIMITED players on tonight's slate,
+    cross-reference against game logs to quantify production lost.
+
+    Returns list of gaps: {player_out, team, status, days_out, ppg_lost, rpg_lost, apg_lost, mpg_lost}
+    """
+    sport_lower = sport.lower()
+    if sport_lower not in GAP_PROPS_SUPPORTED:
+        return []
+
+    # Fetch raw ESPN injury JSON (not the formatted text)
+    espn_sport = _ESPN_SPORT_PATHS.get(sport_lower)
+    if not espn_sport:
+        return []
+
+    injury_cache_key = f"espn_injuries_raw:{sport_lower}"
+    raw_injuries = _get_cached(injury_cache_key, ttl=1800)
+    if not raw_injuries:
+        try:
+            url = f"https://site.api.espn.com/apis/site/v2/sports/{espn_sport}/injuries"
+            async with httpx.AsyncClient(timeout=15.0) as client:
+                resp = await client.get(url, headers={"User-Agent": "Mozilla/5.0"})
+                if resp.status_code != 200:
+                    logger.warning(f"[GAP] ESPN injuries fetch failed: {resp.status_code}")
+                    return []
+                raw_injuries = resp.json()
+                _set_cache(injury_cache_key, raw_injuries)
+        except Exception as e:
+            logger.warning(f"[GAP] ESPN injuries fetch error: {e}")
+            return []
+
+    # Parse injuries — collect OUT/Limited players with team context
+    out_players = []
+    now = datetime.now(PST)
+    for team_data in raw_injuries.get("injuries", raw_injuries.get("items", [])):
+        team_name = team_data.get("displayName", team_data.get("team", {}).get("displayName", "?"))
+        team_abbr = team_data.get("abbreviation", team_data.get("team", {}).get("abbreviation", "?"))
+
+        for injury in team_data.get("injuries", []):
+            status = injury.get("status", "").strip()
+            if status.lower() not in ("out", "out for season"):
+                continue  # Only OUT players — GTD too uncertain
+
+            athlete = injury.get("athlete", {})
+            pname = athlete.get("displayName", "?") if isinstance(athlete, dict) else "?"
+            if pname == "?":
+                continue
+
+            # Freshness: estimate days out from injury date
+            days_out = 0
+            details = injury.get("details", {})
+            if isinstance(details, dict):
+                date_str = details.get("fantasyStatus", {}).get("date", "") if isinstance(details.get("fantasyStatus"), dict) else ""
+                if not date_str:
+                    date_str = details.get("date", "")
+            else:
+                date_str = ""
+
+            if date_str:
+                try:
+                    injury_date = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
+                    days_out = (now - injury_date.replace(tzinfo=None if injury_date.tzinfo else None)).days
+                    if injury_date.tzinfo:
+                        days_out = (now - injury_date.astimezone(PST).replace(tzinfo=None)).days
+                except Exception:
+                    days_out = 0
+
+            # 3-day freshness filter: skip if market has had 3+ days to adjust
+            if days_out >= 3:
+                continue
+
+            out_players.append({
+                "player_out": pname,
+                "team": team_abbr,
+                "team_name": team_name,
+                "status": status,
+                "days_out": days_out,
+            })
+
+    if not out_players:
+        return []
+
+    # Get tonight's slate teams to filter injuries to only tonight's games
+    slate_teams = set()
+    try:
+        sport_keys = SPORT_KEYS.get(sport_lower, [])
+        for sport_key in sport_keys:
+            events_url = f"{ODDS_API_BASE}/{sport_key}/events/"
+            params = {"apiKey": ODDS_API_KEY}
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                resp = await client.get(events_url, params=params)
+                if resp.status_code == 200:
+                    for event in resp.json():
+                        home = event.get("home_team", "")
+                        away = event.get("away_team", "")
+                        if home:
+                            slate_teams.add(home.lower())
+                        if away:
+                            slate_teams.add(away.lower())
+    except Exception as e:
+        logger.debug(f"[GAP] Slate fetch for team filter: {e}")
+
+    # Filter to tonight's slate only (if we have slate data)
+    if slate_teams:
+        slate_filtered = []
+        for gap in out_players:
+            team_full = gap["team_name"].lower()
+            if team_full in slate_teams or any(t in team_full or team_full in t for t in slate_teams):
+                slate_filtered.append(gap)
+        out_players = slate_filtered
+
+    if not out_players:
+        return []
+
+    # Cross-reference against game logs to get production stats for OUT players
+    all_team_abbrevs = list(set(g["team"] for g in out_players))
+    game_logs = await _fetch_player_game_logs(sport, all_team_abbrevs)
+
+    gaps = []
+    for gap in out_players:
+        pname = gap["player_out"]
+        # Find this player's stats in game logs (case-insensitive match)
+        player_stats = None
+        for log_name, log_data in game_logs.items():
+            if log_name.lower() == pname.lower() and log_data.get("team", "").lower() == gap["team"].lower():
+                player_stats = log_data
+                break
+        # Fuzzy match: last name
+        if not player_stats:
+            last_name = pname.split()[-1].lower() if pname else ""
+            for log_name, log_data in game_logs.items():
+                if last_name and last_name in log_name.lower() and log_data.get("team", "").lower() == gap["team"].lower():
+                    player_stats = log_data
+                    break
+
+        if not player_stats or player_stats.get("gp", 0) == 0:
+            continue
+
+        ppg = player_stats.get("season_pts", 0)
+        # 10+ PPG gate: skip if OUT player isn't significant enough
+        if ppg < 10:
+            continue
+
+        gap["ppg_lost"] = round(ppg, 1)
+        gap["rpg_lost"] = round(player_stats.get("season_reb", 0), 1)
+        gap["apg_lost"] = round(player_stats.get("season_ast", 0), 1)
+        gap["mpg_lost"] = round(player_stats.get("l10_min", 0), 1)
+        gaps.append(gap)
+
+    logger.info(f"[GAP] Detected {len(gaps)} injury gaps for {sport.upper()}")
+    return gaps
+
+
+def _find_absorbers(sport, team_abbr, out_player_stats, game_logs):
+    """Find role players likely to absorb production from the OUT player.
+
+    Filters: season_avg < 20 PPG, l10_min < 32, games_played >= 20.
+    Scores by L5 delta from season avg + minutes trend.
+    Returns top 3 candidates sorted by absorption signal.
+    """
+    candidates = []
+    sport_lower = sport.lower()
+
+    for player_name, stats in game_logs.items():
+        if stats.get("team", "").lower() != team_abbr.lower():
+            continue
+        if stats.get("gp", 0) < 20:
+            continue  # sample too small
+        if stats.get("l10_min", 0) >= 32:
+            continue  # already a full-time starter
+        if stats.get("season_pts", 0) >= 20:
+            continue  # already a star — not a role player
+
+        l5_pts = stats.get("l5_pts", stats.get("l10_pts", 0))
+        l5_reb = stats.get("l5_reb", stats.get("l10_reb", 0))
+        l5_ast = stats.get("l5_ast", stats.get("l10_ast", 0))
+        l5_min = stats.get("l5_min", stats.get("l10_min", 0))
+        season_pts = stats.get("season_pts", 0)
+        l10_min = stats.get("l10_min", 0)
+
+        # L5 delta: how much have they spiked recently?
+        pts_delta = l5_pts - season_pts
+        min_delta = l5_min - l10_min if l10_min > 0 else 0
+        min_trend = stats.get("minutes_trend", "stable")
+
+        absorption_signal = (
+            pts_delta * 2.0 +              # Recent scoring spike
+            min_delta * 0.5 +              # Minutes increasing
+            (3 if min_trend == "UP" else 0)  # Trend bonus
+        )
+
+        candidates.append({
+            "player": player_name,
+            "team": team_abbr,
+            "score": round(absorption_signal, 2),
+            "l5_pts": round(l5_pts, 1),
+            "l5_reb": round(l5_reb, 1),
+            "l5_ast": round(l5_ast, 1),
+            "l5_min": round(l5_min, 1),
+            "l10_pts": round(stats.get("l10_pts", 0), 1),
+            "l10_reb": round(stats.get("l10_reb", 0), 1),
+            "l10_ast": round(stats.get("l10_ast", 0), 1),
+            "l10_min": round(l10_min, 1),
+            "season_pts": round(season_pts, 1),
+            "season_reb": round(stats.get("season_reb", 0), 1),
+            "season_ast": round(stats.get("season_ast", 0), 1),
+            "gp": stats.get("gp", 0),
+            "minutes_trend": min_trend,
+        })
+
+    candidates.sort(key=lambda x: x["score"], reverse=True)
+    return candidates[:3]
+
+
+def _match_absorbers_to_props(absorbers, prop_data, sport):
+    """Cross-reference absorbers against live Odds API props.
+    Filters to Over side only. Returns matched props with book/odds/line info.
+    """
+    if not prop_data or not absorbers:
+        return []
+
+    props_list = prop_data.get("props", [])
+    if not props_list:
+        return []
+
+    # Build absorber name lookup (case-insensitive)
+    absorber_map = {}
+    for ab in absorbers:
+        name_lower = ab["player"].lower().strip()
+        absorber_map[name_lower] = ab
+        # Also index by last name for fuzzy match
+        parts = name_lower.split()
+        if len(parts) >= 2:
+            absorber_map[parts[-1]] = ab
+
+    # Stat types we care about per sport
+    stat_labels = _GAP_STAT_KEYS.get(sport.lower(), {})
+    target_stats = set(stat_labels.values())
+
+    matched = []
+    for prop in props_list:
+        if prop.get("side", "").lower() != "over":
+            continue
+
+        stat = prop.get("stat", "")
+        if stat not in target_stats:
+            continue
+
+        player_name = prop.get("player", "").lower().strip()
+        absorber = absorber_map.get(player_name)
+        # Fuzzy: try last name
+        if not absorber:
+            parts = player_name.split()
+            if len(parts) >= 2:
+                absorber = absorber_map.get(parts[-1])
+
+        if not absorber:
+            continue
+
+        matched.append({
+            "absorber": absorber,
+            "prop": prop,
+        })
+
+    return matched
+
+
+def _score_gap_prop(gap_info, absorption_info, prop_info):
+    """Score a gap prop using the 3-component weighted algorithm.
+
+    - Gap Size Score (40%): based on ppg_lost magnitude
+    - Absorption Score (35%): based on L5 delta from season avg
+    - Line Lag Score (25%): based on L5 avg vs prop line gap
+    Returns: {gap_size, absorption, line_lag, combined, grade, edge_pct, edge_summary}
+    """
+    # ── Component 1: Gap Size Score (40%) ──
+    ppg_lost = gap_info.get("ppg_lost", 0)
+    rpg_lost = gap_info.get("rpg_lost", 0)
+    apg_lost = gap_info.get("apg_lost", 0)
+    gap_magnitude = ppg_lost + (rpg_lost * 0.5) + (apg_lost * 0.3)
+
+    if gap_magnitude >= 25:
+        gap_score = 10
+    elif gap_magnitude >= 20:
+        gap_score = 9
+    elif gap_magnitude >= 15:
+        gap_score = 8
+    elif gap_magnitude >= 12:
+        gap_score = 7
+    elif gap_magnitude >= 9:
+        gap_score = 6
+    elif gap_magnitude >= 6:
+        gap_score = 5
+    else:
+        gap_score = 4
+
+    # ── Component 2: Absorption Score (35%) ──
+    prop = prop_info.get("prop", {})
+    stat_label = prop.get("stat", "Points")
+    stat_key_map = {"Points": "pts", "Rebounds": "reb", "Assists": "ast", "Goals": "goals"}
+    stat_key = stat_key_map.get(stat_label, "pts")
+
+    absorber = absorption_info
+    l5_avg = absorber.get(f"l5_{stat_key}", absorber.get("l5_pts", 0))
+    season_avg = absorber.get(f"season_{stat_key}", absorber.get("season_pts", 0))
+
+    if season_avg > 0:
+        l5_delta_pct = ((l5_avg - season_avg) / season_avg) * 100
+    else:
+        l5_delta_pct = 0
+
+    if l5_delta_pct >= 30:
+        abs_score = 10
+    elif l5_delta_pct >= 20:
+        abs_score = 9
+    elif l5_delta_pct >= 15:
+        abs_score = 8
+    elif l5_delta_pct >= 10:
+        abs_score = 7
+    elif l5_delta_pct >= 5:
+        abs_score = 6
+    elif l5_delta_pct >= 0:
+        abs_score = 5
+    else:
+        abs_score = 3
+
+    # Bonus modifiers
+    if absorber.get("minutes_trend") == "UP":
+        abs_score = min(10, abs_score + 1)
+    if absorber.get("gp", 0) >= 50:
+        abs_score = min(10, abs_score + 1)
+    if absorber.get("gp", 0) < 20:
+        abs_score = max(1, abs_score - 1)
+
+    # ── Component 3: Line Lag Score (25%) ──
+    prop_line = float(prop.get("line", 0))
+    if prop_line > 0:
+        line_gap = l5_avg - prop_line
+        line_gap_pct = (line_gap / prop_line) * 100
+    else:
+        line_gap = 0
+        line_gap_pct = 0
+
+    if line_gap_pct >= 25:
+        lag_score = 10
+    elif line_gap_pct >= 20:
+        lag_score = 9
+    elif line_gap_pct >= 15:
+        lag_score = 8
+    elif line_gap_pct >= 10:
+        lag_score = 7
+    elif line_gap_pct >= 5:
+        lag_score = 6
+    elif line_gap_pct >= 0:
+        lag_score = 5
+    else:
+        lag_score = 2
+
+    # ── Combined ──
+    combined = (gap_score * 0.40) + (abs_score * 0.35) + (lag_score * 0.25)
+    combined = round(combined, 1)
+    grade = _grade_gap_prop(combined)
+    edge_pct = round(line_gap_pct, 1) if line_gap_pct > 0 else 0
+
+    # Build edge summary
+    player_out = gap_info.get("player_out", "?")
+    days = gap_info.get("days_out", 0)
+    player_name = absorber.get("player", "?")
+    trend = absorber.get("minutes_trend", "stable")
+    summary = (
+        f"{player_out} OUT {days}d. {player_name} L5 avg {l5_avg} {stat_label.upper()} "
+        f"vs {prop_line} line. {'+' if line_gap >= 0 else ''}{round(line_gap, 1)} pts over book. "
+        f"Minutes trending {trend}."
+    )
+
+    return {
+        "gap_size": round(gap_score, 1),
+        "absorption": round(abs_score, 1),
+        "line_lag": round(lag_score, 1),
+        "combined": combined,
+        "grade": grade,
+        "edge_pct": edge_pct,
+        "edge_summary": summary,
+        "l5_avg": round(l5_avg, 1),
+        "season_avg": round(season_avg, 1),
+        "l5_delta_pct": round(l5_delta_pct, 1),
+    }
+
+
+@app.get("/api/props/gaps/{sport}")
+async def get_gap_props(sport: str, min_gap_score: float = 5.0, force: bool = False):
+    """Prop Gap Analyzer — find mispriced role player props when starters are OUT.
+    Pure math engine: injury detection → absorber ID → prop matching → scoring.
+    No AI/GPT calls. Zero additional API cost beyond existing caches."""
+    sport_lower = sport.lower()
+
+    if sport_lower not in GAP_PROPS_SUPPORTED:
+        return JSONResponse({
+            "sport": sport.upper(),
+            "gap_props": [],
+            "message": f"Gap analysis not supported for {sport.upper()}. Supported: {', '.join(s.upper() for s in GAP_PROPS_SUPPORTED)}",
+        }, status_code=400)
+
+    # Check cache
+    cache_key = f"gap_props:{sport_lower}"
+    if not force:
+        cached = _get_cached(cache_key, ttl=GAP_PROPS_CACHE_TTL)
+        if cached:
+            cached["cached"] = True
+            return JSONResponse(cached)
+
+    # Also check file cache (same-day persistence)
+    today_str = datetime.now(PST).strftime("%Y-%m-%d")
+    data_dir = "/data/gap_props"
+    file_path = f"{data_dir}/gap_{sport_lower}_{today_str}.json"
+    if not force:
+        try:
+            if os.path.exists(file_path):
+                with open(file_path, "r") as f:
+                    file_data = json.load(f)
+                # Check if file is fresh enough (within TTL)
+                gen_ts = file_data.get("_generated_ts", 0)
+                if time.time() - gen_ts < GAP_PROPS_CACHE_TTL:
+                    file_data["cached"] = True
+                    _set_cache(cache_key, file_data)
+                    return JSONResponse(file_data)
+        except Exception:
+            pass
+
+    # ── PIPELINE: Detect → Absorb → Match → Score → Filter ──
+
+    # Step 1: Detect injury gaps
+    gaps = await _detect_injury_gaps(sport)
+    if not gaps:
+        result = {
+            "sport": sport.upper(),
+            "gap_props": [],
+            "injuries_scanned": 0,
+            "absorbers_found": 0,
+            "props_matched": 0,
+            "message": "No impactful injuries detected on tonight's slate",
+            "generated_at": _now_ts(),
+            "cached": False,
+            "ttl_seconds": GAP_PROPS_CACHE_TTL,
+        }
+        _set_cache(cache_key, result)
+        return JSONResponse(result)
+
+    # Step 2: Get game logs for all affected teams
+    affected_teams = list(set(g["team"] for g in gaps))
+    game_logs = await _fetch_player_game_logs(sport, affected_teams)
+
+    # Step 3: Get prop data (reuse existing cache)
+    prop_cache_key = f"props:{sport_lower}"
+    prop_data = _get_cached(prop_cache_key, ttl=PROPS_CACHE_TTL)
+    if not prop_data:
+        try:
+            prop_result = await get_player_props(sport)
+            # get_player_props returns JSONResponse, extract body
+            if hasattr(prop_result, 'body'):
+                prop_data = json.loads(prop_result.body)
+            else:
+                prop_data = _get_cached(prop_cache_key, ttl=PROPS_CACHE_TTL)
+        except Exception as e:
+            logger.warning(f"[GAP] Props fetch failed: {e}")
+            prop_data = None
+
+    if not prop_data or not prop_data.get("props"):
+        result = {
+            "sport": sport.upper(),
+            "gap_props": [],
+            "injuries_scanned": len(gaps),
+            "absorbers_found": 0,
+            "props_matched": 0,
+            "message": "No prop lines available from Odds API",
+            "generated_at": _now_ts(),
+            "cached": False,
+            "ttl_seconds": GAP_PROPS_CACHE_TTL,
+        }
+        _set_cache(cache_key, result)
+        return JSONResponse(result)
+
+    # Step 4: For each gap, find absorbers and match to props
+    all_gap_props = []
+    total_absorbers = 0
+
+    for gap in gaps:
+        out_stats = {
+            "ppg": gap.get("ppg_lost", 0),
+            "rpg": gap.get("rpg_lost", 0),
+            "apg": gap.get("apg_lost", 0),
+            "mpg": gap.get("mpg_lost", 0),
+        }
+
+        absorbers = _find_absorbers(sport, gap["team"], out_stats, game_logs)
+        total_absorbers += len(absorbers)
+
+        if not absorbers:
+            continue
+
+        # Match absorbers to props
+        matched = _match_absorbers_to_props(absorbers, prop_data, sport)
+
+        for match in matched:
+            absorber = match["absorber"]
+            prop = match["prop"]
+
+            # Score it
+            scoring = _score_gap_prop(gap, absorber, match)
+
+            # Filter by minimum score
+            if scoring["combined"] < min_gap_score:
+                continue
+            # Hard gate: minimum B- (6.0) regardless of min_gap_score param
+            if scoring["combined"] < 6.0:
+                continue
+
+            gap_prop = {
+                "player": absorber["player"],
+                "team": absorber["team"],
+                "matchup": prop.get("matchup", ""),
+                "commence": prop.get("commence", ""),
+                "prop_type": prop.get("stat", "Points"),
+                "prop_line": prop.get("line", 0),
+                "prop_side": "Over",
+                "best_odds": prop.get("best_odds", 0),
+                "best_book": prop.get("best_book", ""),
+                "book_count": prop.get("book_count", 0),
+                "gap_reason": {
+                    "player_out": gap["player_out"],
+                    "out_status": gap["status"],
+                    "days_out": gap["days_out"],
+                    "ppg_lost": gap.get("ppg_lost", 0),
+                    "rpg_lost": gap.get("rpg_lost", 0),
+                    "apg_lost": gap.get("apg_lost", 0),
+                    "mpg_lost": gap.get("mpg_lost", 0),
+                },
+                "absorption": {
+                    "l5_avg": scoring["l5_avg"],
+                    "l10_avg": absorber.get("l10_pts", 0),
+                    "season_avg": scoring["season_avg"],
+                    "l5_min": absorber.get("l5_min", 0),
+                    "l10_min": absorber.get("l10_min", 0),
+                    "minutes_trend": absorber.get("minutes_trend", "stable"),
+                    "games_played": absorber.get("gp", 0),
+                    "recent_delta": f"+{round(scoring['l5_avg'] - scoring['season_avg'], 1)} {prop.get('stat', 'PTS').upper()} vs season avg in L5",
+                },
+                "scores": {
+                    "gap_size": scoring["gap_size"],
+                    "absorption": scoring["absorption"],
+                    "line_lag": scoring["line_lag"],
+                    "combined": scoring["combined"],
+                },
+                "grade": scoring["grade"],
+                "edge_pct": scoring["edge_pct"],
+                "edge_summary": scoring["edge_summary"],
+            }
+            all_gap_props.append(gap_prop)
+
+    # Sort by combined score descending
+    all_gap_props.sort(key=lambda x: x["scores"]["combined"], reverse=True)
+
+    result = {
+        "sport": sport.upper(),
+        "gap_props": all_gap_props,
+        "injuries_scanned": len(gaps),
+        "absorbers_found": total_absorbers,
+        "props_matched": len(all_gap_props),
+        "generated_at": _now_ts(),
+        "cached": False,
+        "ttl_seconds": GAP_PROPS_CACHE_TTL,
+    }
+
+    # Cache in-memory
+    result["_generated_ts"] = time.time()
+    _set_cache(cache_key, result)
+
+    # Persist to file
+    try:
+        os.makedirs(data_dir, exist_ok=True)
+        with open(file_path, "w") as f:
+            json.dump(result, f, indent=2)
+        # Prune old files (older than 3 days)
+        for fname in os.listdir(data_dir):
+            fpath = os.path.join(data_dir, fname)
+            if os.path.isfile(fpath):
+                try:
+                    file_age = time.time() - os.path.getmtime(fpath)
+                    if file_age > 3 * 86400:
+                        os.remove(fpath)
+                except Exception:
+                    pass
+    except Exception as e:
+        logger.debug(f"[GAP] File persistence failed: {e}")
+
+    # Remove internal timestamp before response
+    result.pop("_generated_ts", None)
+    logger.info(f"[GAP] {sport.upper()}: {len(all_gap_props)} gap props found (scanned {len(gaps)} injuries, {total_absorbers} absorbers)")
+    return JSONResponse(result)
+
+
+# ── End Prop Gap Analyzer ────────────────────────────────────────────────────
 
 
 @app.get("/")
