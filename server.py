@@ -4269,8 +4269,12 @@ def _write_picks(data):
         json.dump(data, f, indent=2)
 
 
-async def _update_pick_result(pick_id: str, result: str):
-    """Update a pick's result in local file storage + Postgres."""
+async def _update_pick_result(pick_id: str, result: str, prop_data: dict | None = None):
+    """Update a pick's result in local file storage + Postgres.
+
+    prop_data (optional): enrichment from _grade_prop_pick() —
+        {actual_value, line, stat, player, pct_over}
+    """
     if not pick_id:
         return
     data = _read_picks()
@@ -4279,16 +4283,36 @@ async def _update_pick_result(pick_id: str, result: str):
             pick["result"] = result
             graded_at = datetime.now(PST).strftime("%Y-%m-%d %H:%M:%S")
             pick["graded_at"] = graded_at
+            # Persist prop enrichment on the pick object
+            if prop_data:
+                pick["actual_value"] = prop_data.get("actual_value")
+                pick["prop_line"] = prop_data.get("line")
+                pick["prop_stat"] = prop_data.get("stat")
+                pick["prop_player"] = prop_data.get("player")
+                pick["pct_over"] = prop_data.get("pct_over")
             data["updated_at"] = datetime.now(PST).strftime("%Y-%m-%d %H:%M:%S")
             _write_picks(data)
             # Dual-write grade to Postgres
             try:
-                await db.execute(
-                    "UPDATE picks SET result=$1, graded_at=$2 WHERE id=$3",
-                    result,
-                    datetime.strptime(graded_at, "%Y-%m-%d %H:%M:%S").replace(tzinfo=PST),
-                    pick_id,
-                )
+                if prop_data:
+                    await db.execute(
+                        "UPDATE picks SET result=$1, graded_at=$2, actual_value=$3, prop_line=$4, prop_stat=$5, prop_player=$6, pct_over=$7 WHERE id=$8",
+                        result,
+                        datetime.strptime(graded_at, "%Y-%m-%d %H:%M:%S").replace(tzinfo=PST),
+                        prop_data.get("actual_value"),
+                        prop_data.get("line"),
+                        prop_data.get("stat"),
+                        prop_data.get("player"),
+                        prop_data.get("pct_over"),
+                        pick_id,
+                    )
+                else:
+                    await db.execute(
+                        "UPDATE picks SET result=$1, graded_at=$2 WHERE id=$3",
+                        result,
+                        datetime.strptime(graded_at, "%Y-%m-%d %H:%M:%S").replace(tzinfo=PST),
+                        pick_id,
+                    )
             except Exception as e:
                 logger.error(f"DB dual-write grade failed for {pick_id}: {e}")
             return
@@ -4819,10 +4843,11 @@ async def _fetch_espn_box_score(sport: str, home_team: str, away_team: str, game
         return None
 
 
-def _grade_prop_pick(pick: dict, player_stats: dict) -> str | None:
+def _grade_prop_pick(pick: dict, player_stats: dict) -> dict | None:
     """Grade a player prop pick against actual ESPN box score stats.
 
-    Returns 'W', 'L', 'P' (push), or None if can't grade.
+    Returns dict with result + enrichment data, or None if can't grade.
+    {result, actual_value, line, stat, player, over_under}
     """
     selection = pick.get("selection", "")
     if not selection:
@@ -4908,13 +4933,181 @@ def _grade_prop_pick(pick: dict, player_stats: dict) -> str | None:
         logger.info(f"Prop grade: stat {espn_stat} not found for {matched_player}")
         return None
 
+    # Reverse stat label: ESPN key -> human readable
+    _ESPN_TO_LABEL = {"PTS": "Points", "REB": "Rebounds", "AST": "Assists", "3PM": "Threes",
+                      "STL": "Steals", "BLK": "Blocks", "TO": "Turnovers",
+                      "G": "Goals", "SV": "Saves", "SOG": "Shots",
+                      "K": "Strikeouts", "H": "Hits", "R": "Runs", "RBI": "RBI",
+                      "TB": "Total Bases", "HR": "Home Runs", "BB": "Walks",
+                      "YDS": "Yards", "TD": "Touchdowns", "CMP": "Completions", "REC": "Receptions"}
+
     # Grade
     if actual_value == line:
-        return "P"
-    if over_under == "over":
-        return "W" if actual_value > line else "L"
+        result_str = "P"
+    elif over_under == "over":
+        result_str = "W" if actual_value > line else "L"
     else:  # under
-        return "W" if actual_value < line else "L"
+        result_str = "W" if actual_value < line else "L"
+
+    # Compute pct_over: how far actual exceeded the line (for overs) or fell below (for unders)
+    if line > 0:
+        if over_under == "over":
+            pct_over = round((actual_value - line) / line * 100, 1)
+        else:
+            pct_over = round((line - actual_value) / line * 100, 1)
+    else:
+        pct_over = 0.0
+
+    return {
+        "result": result_str,
+        "actual_value": float(actual_value),
+        "line": line,
+        "stat": _ESPN_TO_LABEL.get(espn_stat, espn_stat),
+        "stat_key": espn_stat,
+        "player": matched_player,
+        "over_under": over_under,
+        "pct_over": pct_over,
+    }
+
+
+# ============================================================
+# PROP BOARD — Crushed Lines Tracker
+# ============================================================
+
+PROP_BOARD_FILE = os.path.join(DATA_DIR, "prop_board.json")
+
+
+def _read_prop_board() -> dict:
+    """Read prop board from persistent JSON file."""
+    try:
+        if os.path.exists(PROP_BOARD_FILE):
+            with open(PROP_BOARD_FILE, "r") as f:
+                return json.load(f)
+    except Exception as e:
+        logger.error(f"Error reading prop board: {e}")
+    return {"board": []}
+
+
+def _write_prop_board(board_data: dict):
+    """Write prop board to persistent JSON file."""
+    try:
+        os.makedirs(os.path.dirname(PROP_BOARD_FILE), exist_ok=True)
+        with open(PROP_BOARD_FILE, "w") as f:
+            json.dump(board_data, f, indent=2)
+    except Exception as e:
+        logger.error(f"Error writing prop board: {e}")
+
+
+def _maybe_add_to_prop_board(pick: dict, prop_data: dict):
+    """Add to prop board if the prop crushed the line by 25%+.
+
+    For overs: actual_value >= line * 1.25
+    For unders: line - actual_value >= line * 0.25
+    """
+    actual = prop_data.get("actual_value", 0)
+    line = prop_data.get("line", 0)
+    over_under = prop_data.get("over_under", "over")
+    pct_over = prop_data.get("pct_over", 0)
+
+    if line <= 0:
+        return
+
+    # Check if it crushed by 25%+
+    if over_under == "over":
+        crushed = actual >= line * 1.25
+    else:
+        crushed = (line - actual) >= line * 0.25
+
+    if not crushed:
+        return
+
+    pick_id = pick.get("id", "")
+    board = _read_prop_board()
+
+    # Dedup by pick_id
+    if any(e.get("pick_id") == pick_id for e in board["board"]):
+        return
+
+    entry = {
+        "id": f"pb_{uuid.uuid4().hex[:12]}",
+        "pick_id": pick_id,
+        "player": prop_data.get("player", ""),
+        "sport": pick.get("sport", "").upper(),
+        "stat": prop_data.get("stat", ""),
+        "stat_key": prop_data.get("stat_key", ""),
+        "line": line,
+        "actual_value": actual,
+        "pct_over": pct_over,
+        "over_under": over_under,
+        "matchup": pick.get("matchup", ""),
+        "picked_by": pick.get("name", ""),
+        "graded_date": datetime.now(PST).strftime("%Y-%m-%d"),
+        "relock_count": 0,
+        "last_relock": None,
+    }
+    board["board"].append(entry)
+    _write_prop_board(board)
+    logger.info(f"[PROP BOARD] Added: {entry['player']} {entry['stat']} {entry['line']} → {entry['actual_value']} (+{pct_over}%)")
+
+
+# Reverse stat mapping for matching board entries to Odds API props
+_STAT_KEY_TO_ODDS_API = {
+    "PTS": "Points", "REB": "Rebounds", "AST": "Assists", "3PM": "Threes",
+    "STL": "Steals", "BLK": "Blocks", "TO": "Turnovers",
+    "G": "Goals", "SV": "Saves", "SOG": "Shots On Goal",
+    "K": "Strikeouts", "H": "Hits", "R": "Runs", "RBI": "Rbi",
+    "TB": "Total Bases", "HR": "Home Runs", "BB": "Walks",
+    "YDS": "Passing Yards", "TD": "Passing Touchdowns", "CMP": "Completions", "REC": "Receptions",
+}
+
+
+def _match_board_to_fresh_odds(entry: dict, props_data: dict) -> dict | None:
+    """Try to find today's fresh odds for a board entry from the props cache.
+
+    Matches on last name + stat type. Returns {today_line, today_odds, today_book, today_matchup} or None.
+    """
+    board_player = entry.get("player", "").lower()
+    board_stat = entry.get("stat", "")
+    board_stat_key = entry.get("stat_key", "")
+
+    # Get last name from board player (ESPN format: "J. Giddey" or "Josh Giddey")
+    board_last = board_player.split()[-1] if board_player else ""
+    if not board_last:
+        return None
+
+    # Map stat key to what Odds API calls it
+    odds_stat_labels = set()
+    if board_stat:
+        odds_stat_labels.add(board_stat.lower())
+    if board_stat_key and board_stat_key in _STAT_KEY_TO_ODDS_API:
+        odds_stat_labels.add(_STAT_KEY_TO_ODDS_API[board_stat_key].lower())
+
+    all_props = props_data.get("props", [])
+    for prop in all_props:
+        prop_player = prop.get("player", "").lower()
+        prop_stat = prop.get("stat", "").lower()
+        prop_side = prop.get("side", "").lower()
+
+        # Match last name
+        if board_last not in prop_player:
+            continue
+
+        # Match stat
+        if not any(sl in prop_stat for sl in odds_stat_labels):
+            continue
+
+        # Match over/under direction
+        if prop_side != entry.get("over_under", "over"):
+            continue
+
+        return {
+            "today_line": prop.get("line"),
+            "today_odds": prop.get("best_odds"),
+            "today_book": prop.get("best_book"),
+            "today_matchup": prop.get("matchup"),
+        }
+
+    return None
 
 
 def _teams_match(pick_text: str, home: str, away: str, sport: str = "") -> bool:
@@ -5396,6 +5589,7 @@ async def autograde_picks(request: Request):
             result = _grade_pick_against_score(pick, game)
 
             # --- PROP GRADING via ESPN Box Score ---
+            prop_grade_data = None
             if result is None and _is_prop(pick) and game.get("completed"):
                 pick_sport = pick.get("sport", "").lower()
                 if pick_sport in _ESPN_SPORT_PATHS:
@@ -5403,15 +5597,20 @@ async def autograde_picks(request: Request):
                     try:
                         box_score = await _fetch_espn_box_score(pick_sport, home, away, pick_date)
                         if box_score:
-                            result = _grade_prop_pick(pick, box_score)
-                            if result:
-                                logger.info(f"Prop graded via ESPN: {selection} = {result}")
+                            prop_grade_data = _grade_prop_pick(pick, box_score)
+                            if prop_grade_data:
+                                result = prop_grade_data["result"]
+                                logger.info(f"Prop graded via ESPN: {selection} = {result} (actual={prop_grade_data['actual_value']})")
                     except Exception as e:
                         logger.warning(f"ESPN prop grade failed: {e}")
 
             if result:
                 pick_id = pick.get("id", "")
-                await _update_pick_result(pick_id, result)
+                await _update_pick_result(pick_id, result, prop_data=prop_grade_data)
+
+                # Trigger prop board entry if prop crushed the line by 25%+
+                if prop_grade_data and result == "W":
+                    _maybe_add_to_prop_board(pick, prop_grade_data)
 
                 graded_count += 1
                 scores_info = game.get("scores", [])
@@ -5448,6 +5647,128 @@ async def autograde_picks(request: Request):
         "results": results,
         "unique_picks": unique_picks,
         "debug": " | ".join(debug_parts),
+    })
+
+
+# ============================================================
+# PROP BOARD API ENDPOINTS
+# ============================================================
+
+
+@app.get("/api/prop-board")
+async def get_prop_board():
+    """Return prop board entries enriched with today's fresh odds."""
+    board = _read_prop_board()
+    entries = board.get("board", [])
+
+    # Try to enrich each entry with fresh odds from cache
+    for entry in entries:
+        sport = entry.get("sport", "").lower()
+        cache_key = f"props:{sport}"
+        cached_props = _get_cached(cache_key, ttl=PROPS_CACHE_TTL)
+        if cached_props:
+            fresh = _match_board_to_fresh_odds(entry, cached_props)
+            if fresh:
+                entry.update(fresh)
+
+    # Sort by pct_over descending (biggest crushers first)
+    entries.sort(key=lambda e: e.get("pct_over", 0), reverse=True)
+
+    return JSONResponse({"board": entries, "count": len(entries)})
+
+
+@app.post("/api/prop-board/{entry_id}/relock")
+async def relock_prop_board(entry_id: str):
+    """Increment relock count for a board entry."""
+    board = _read_prop_board()
+    for entry in board["board"]:
+        if entry.get("id") == entry_id:
+            entry["relock_count"] = entry.get("relock_count", 0) + 1
+            entry["last_relock"] = datetime.now(PST).strftime("%Y-%m-%d %H:%M:%S")
+            _write_prop_board(board)
+            return JSONResponse({"status": "ok", "entry": entry})
+    return JSONResponse({"error": "Entry not found"}, status_code=404)
+
+
+@app.post("/api/prop-board/backfill")
+async def backfill_prop_board():
+    """One-time: re-scan historical prop wins and populate board for 25%+ crushers."""
+    data = _read_picks()
+    all_picks = data.get("picks", [])
+
+    # Find props that already have actual_value stored (from enriched grading)
+    added = 0
+    already_on_board = 0
+    board = _read_prop_board()
+    existing_pick_ids = {e.get("pick_id") for e in board["board"]}
+
+    for pick in all_picks:
+        if pick.get("result") != "W":
+            continue
+        if not _is_prop(pick):
+            continue
+        if pick.get("id") in existing_pick_ids:
+            already_on_board += 1
+            continue
+
+        actual = pick.get("actual_value")
+        line = pick.get("prop_line")
+        if actual is None or line is None or line <= 0:
+            continue
+
+        # Detect over/under from selection text
+        sel_lower = pick.get("selection", "").lower()
+        if "over" in sel_lower or " o " in f" {sel_lower} ":
+            over_under = "over"
+        elif "under" in sel_lower or " u " in f" {sel_lower} ":
+            over_under = "under"
+        else:
+            continue
+
+        # Check 25% threshold
+        if over_under == "over":
+            crushed = actual >= line * 1.25
+        else:
+            crushed = (line - actual) >= line * 0.25
+
+        if not crushed:
+            continue
+
+        pct = pick.get("pct_over", 0)
+        if not pct and line > 0:
+            if over_under == "over":
+                pct = round((actual - line) / line * 100, 1)
+            else:
+                pct = round((line - actual) / line * 100, 1)
+
+        entry = {
+            "id": f"pb_{uuid.uuid4().hex[:12]}",
+            "pick_id": pick.get("id", ""),
+            "player": pick.get("prop_player", ""),
+            "sport": pick.get("sport", "").upper(),
+            "stat": pick.get("prop_stat", ""),
+            "stat_key": "",
+            "line": line,
+            "actual_value": actual,
+            "pct_over": pct,
+            "over_under": over_under,
+            "matchup": pick.get("matchup", ""),
+            "picked_by": pick.get("name", ""),
+            "graded_date": pick.get("graded_at", "")[:10] if pick.get("graded_at") else "",
+            "relock_count": 0,
+            "last_relock": None,
+        }
+        board["board"].append(entry)
+        added += 1
+
+    if added:
+        _write_prop_board(board)
+
+    return JSONResponse({
+        "status": "ok",
+        "added": added,
+        "already_on_board": already_on_board,
+        "total_board": len(board["board"]),
     })
 
 

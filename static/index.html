@@ -1808,6 +1808,18 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     <div style="font-size:11px;color:rgba(255,255,255,0.3);" id="propsCount"></div>
 </div>
 
+<!-- PROP BOARD — Crushed Lines -->
+<div id="propBoardSection" style="margin-bottom:20px;display:none;">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding-bottom:10px;border-bottom:2px solid rgba(255,215,0,0.4);">
+        <span style="font-size:18px;">&#x1F451;</span>
+        <span style="font-family:var(--ec-font-heading);font-size:15px;font-weight:700;color:#FFD700;">Prop Board — Crushed Lines</span>
+        <span style="font-size:9px;color:rgba(255,215,0,0.6);font-weight:600;margin-left:auto;">25%+ OVER LINE</span>
+    </div>
+    <div id="propBoardContainer">
+        <div class="empty-state" style="font-size:12px;color:rgba(255,215,0,0.4);">No crushed lines yet. Grade some props to populate.</div>
+    </div>
+</div>
+
 <!-- THREE SWIM LANES -->
 <div style="display:grid;grid-template-columns:1fr;gap:16px;" id="propsLanes">
 
@@ -7147,10 +7159,11 @@ function loadPropsForSport(sport) {
         }
     });
 
-    // Load ALL THREE lanes for this sport
+    // Load ALL THREE lanes for this sport + prop board
     loadProps(sport);
     loadRealProps(sport);
     loadGapProps(sport);
+    loadPropBoard();
 }
 
 function loadProps(sportFilter) {
@@ -7456,6 +7469,146 @@ function renderRealProps(props) {
 // GAP PROPS — Injury-Driven Edge (Phase 2)
 // Fetches /api/props/gaps/{sport} and renders gap prop cards
 // ═══════════════════════════════════════════════════════════════
+
+// ============================================================
+// PROP BOARD — Crushed Lines Tracker
+// ============================================================
+
+function _escapeHtml(s) {
+    if (!s) return '';
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+}
+
+function loadPropBoard() {
+    var container = document.getElementById('propBoardContainer');
+    var section = document.getElementById('propBoardSection');
+    if (!container || !section) return;
+
+    fetch('/api/prop-board')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (!data.board || data.board.length === 0) {
+                section.style.display = 'none';
+                return;
+            }
+            section.style.display = 'block';
+            renderPropBoard(data.board);
+        })
+        .catch(function(err) {
+            console.error('Prop board load failed:', err);
+            section.style.display = 'none';
+        });
+}
+
+function renderPropBoard(entries) {
+    var container = document.getElementById('propBoardContainer');
+    if (!container) return;
+    container.innerHTML = '';
+
+    entries.forEach(function(entry) {
+        var card = document.createElement('div');
+        card.style.cssText = 'background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.2);border-radius:10px;padding:12px 14px;margin-bottom:8px;';
+
+        // Top row: player + stat + crushed info
+        var pctColor = entry.pct_over >= 50 ? '#FFD700' : entry.pct_over >= 30 ? '#FFA500' : '#DAA520';
+        var arrow = entry.over_under === 'over' ? '&#x2191;' : '&#x2193;';
+
+        var topHtml = '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+            '<div style="display:flex;align-items:center;gap:8px;">' +
+                '<span style="font-weight:800;color:#FFD700;font-size:14px;">' + _escapeHtml(entry.player) + '</span>' +
+                '<span style="font-size:11px;color:rgba(255,255,255,0.5);">' + _escapeHtml(entry.sport) + '</span>' +
+            '</div>' +
+            '<div style="display:flex;align-items:center;gap:6px;">' +
+                '<span style="font-size:12px;color:rgba(255,255,255,0.4);">' + _escapeHtml(entry.stat) + '</span>' +
+                '<span style="font-size:13px;color:rgba(255,255,255,0.5);">' + entry.line + '</span>' +
+                '<span style="font-size:14px;color:#FFD700;">' + arrow + '</span>' +
+                '<span style="font-size:15px;font-weight:800;color:#FFD700;">' + entry.actual_value + '</span>' +
+                '<span style="font-size:12px;font-weight:700;color:' + pctColor + ';background:rgba(255,215,0,0.12);padding:2px 6px;border-radius:4px;">' +
+                    '+' + entry.pct_over + '%</span>' +
+            '</div>' +
+        '</div>';
+
+        // Bottom row: matchup + fresh odds + relock button
+        var bottomParts = [];
+        bottomParts.push('<span style="font-size:11px;color:rgba(255,255,255,0.3);">' + _escapeHtml(entry.matchup || '') + ' &middot; ' + _escapeHtml(entry.graded_date || '') + '</span>');
+
+        if (entry.picked_by) {
+            bottomParts.push('<span style="font-size:10px;color:rgba(255,215,0,0.4);">by ' + _escapeHtml(entry.picked_by) + '</span>');
+        }
+
+        var freshHtml = '';
+        if (entry.today_line !== undefined && entry.today_line !== null) {
+            freshHtml = '<div style="margin-top:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">' +
+                '<span style="font-size:11px;color:rgba(255,255,255,0.5);">TODAY:</span>' +
+                '<span style="font-size:12px;font-weight:700;color:#41EAD4;">' +
+                    (entry.over_under === 'over' ? 'O' : 'U') + ' ' + entry.today_line +
+                    ' @ ' + (entry.today_odds > 0 ? '+' : '') + entry.today_odds +
+                '</span>' +
+                '<span style="font-size:10px;color:rgba(255,255,255,0.35);">on ' + _escapeHtml(entry.today_book || '') + '</span>' +
+                (entry.today_matchup ? '<span style="font-size:10px;color:rgba(255,255,255,0.25);">' + _escapeHtml(entry.today_matchup) + '</span>' : '') +
+                '<button onclick="relockProp(\'' + entry.id + '\', ' + JSON.stringify(JSON.stringify(entry)) + ')" ' +
+                    'style="margin-left:auto;padding:4px 12px;background:linear-gradient(135deg,#FFD700,#FFA500);color:#000;border:none;border-radius:6px;font-family:var(--ec-font-body);font-weight:800;font-size:11px;cursor:pointer;letter-spacing:0.5px;">' +
+                    'RE-LOCK' + (entry.relock_count > 0 ? ' (' + entry.relock_count + ')' : '') +
+                '</button>' +
+            '</div>';
+        } else {
+            freshHtml = '<div style="margin-top:4px;font-size:10px;color:rgba(255,215,0,0.3);">No fresh odds available today</div>';
+        }
+
+        var relockBadge = entry.relock_count > 0 ? ' <span style="font-size:9px;color:rgba(255,215,0,0.5);">&#x1F504; ' + entry.relock_count + 'x relocked</span>' : '';
+
+        card.innerHTML = topHtml +
+            '<div style="display:flex;align-items:center;gap:8px;margin-top:4px;">' + bottomParts.join(' ') + relockBadge + '</div>' +
+            freshHtml;
+
+        container.appendChild(card);
+    });
+}
+
+function relockProp(entryId, entryJson) {
+    var entry;
+    try { entry = JSON.parse(entryJson); } catch(e) { return; }
+
+    // Build pick from board entry + today's fresh odds
+    var selection = (entry.over_under === 'over' ? 'Over' : 'Under') + ' ' +
+        (entry.today_line || entry.line) + ' ' + (entry.stat || '') + ' - ' + (entry.player || '');
+
+    var pickData = {
+        name: (typeof crewProfile !== 'undefined' && crewProfile) ? crewProfile.display_name : (safeLoad('edgeCrewName') || 'Peter'),
+        sport: entry.sport || 'NBA',
+        type: 'prop',
+        matchup: entry.today_matchup || entry.matchup || '',
+        selection: selection,
+        odds: entry.today_odds ? ((entry.today_odds > 0 ? '+' : '') + entry.today_odds) : '',
+        units: '1',
+        confidence: 'high',
+        notes: 'RE-LOCK from Prop Board: ' + (entry.player || '') + ' crushed ' + entry.line + ' with ' + entry.actual_value + ' (+' + entry.pct_over + '%) on ' + (entry.graded_date || ''),
+        placed: true,
+    };
+
+    // Submit via existing picks endpoint
+    fetch('/api/picks', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(pickData),
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.id || data.status === 'ok') {
+            // Also increment relock count on board
+            fetch('/api/prop-board/' + entryId + '/relock', {method: 'POST'})
+                .then(function() { loadPropBoard(); });
+            showToast('RE-LOCKED: ' + (entry.player || '') + ' ' + (entry.stat || ''), 'success');
+        } else {
+            showToast('Failed to relock: ' + (data.error || 'unknown'), 'error');
+        }
+    })
+    .catch(function(err) {
+        showToast('Relock error: ' + err.message, 'error');
+    });
+}
 
 function loadGapProps(sport) {
     var container = document.getElementById('gapPropsContainer');

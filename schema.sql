@@ -25,6 +25,13 @@ CREATE TABLE IF NOT EXISTS picks (
     graded_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
+-- Prop enrichment columns (added for Prop Board)
+ALTER TABLE picks ADD COLUMN IF NOT EXISTS actual_value REAL;
+ALTER TABLE picks ADD COLUMN IF NOT EXISTS prop_line REAL;
+ALTER TABLE picks ADD COLUMN IF NOT EXISTS prop_stat TEXT;
+ALTER TABLE picks ADD COLUMN IF NOT EXISTS prop_player TEXT;
+ALTER TABLE picks ADD COLUMN IF NOT EXISTS pct_over REAL;
+
 CREATE INDEX IF NOT EXISTS idx_picks_name_date ON picks(name, date);
 CREATE INDEX IF NOT EXISTS idx_picks_result ON picks(result);
 CREATE INDEX IF NOT EXISTS idx_picks_sport ON picks(sport);
