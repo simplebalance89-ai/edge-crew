@@ -6595,7 +6595,7 @@ function fetchAnalysis(sport) {
         gutContent.innerHTML = skeletonHtml;
     }
 
-    fetch('/api/analysis/' + sport)
+    fetch('/api/analysis/' + sport + '?force=true')
         .then(function(r) { return r.json(); })
         .then(function(data) {
             if (typeof stopSnowfall === 'function') stopSnowfall();
