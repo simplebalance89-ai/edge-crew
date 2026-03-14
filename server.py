@@ -5183,19 +5183,19 @@ async def autograde_picks(request: Request):
     fetch_errors = []
     if sports_needed:
         logger.info(f"[AUTOGRADE] Fetching scores for: {', '.join(sorted(sports_needed))}")
-        fetch_tasks = []
-        fetch_labels = []
-        for sport in sports_needed:
+        # Sequential fetches with 2s spacing to avoid rate limits
+        for sport in sorted(sports_needed):
             for key in SPORT_KEYS.get(sport, []):
-                fetch_tasks.append(_fetch_scores(key, days_from=days_needed))
-                fetch_labels.append(f"{sport}/{key}")
-
-        results = await asyncio.gather(*fetch_tasks, return_exceptions=True)
-        for label, result in zip(fetch_labels, results):
-            if isinstance(result, Exception):
-                fetch_errors.append(f"{label}: {result}")
-            elif result:
-                all_scores.extend(result)
+                label = f"{sport}/{key}"
+                try:
+                    result = await _fetch_scores(key, days_from=days_needed)
+                    if result:
+                        all_scores.extend(result)
+                        logger.info(f"[AUTOGRADE] {label}: {len(result)} games")
+                except Exception as e:
+                    fetch_errors.append(f"{label}: {e}")
+                    logger.warning(f"[AUTOGRADE] {label} failed: {e}")
+                await asyncio.sleep(2)  # Space out API calls
 
     api_completed = [g for g in all_scores if g.get("completed")]
 
