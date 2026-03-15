@@ -805,6 +805,7 @@
   <div class="pills" style="margin-top:6px;">
     <div class="pill" id="tabSlate" onclick="switchView('slate')" style="background:var(--pill-active);color:#fff;border-color:var(--accent);">Slate</div>
     <div class="pill" id="tabMatrix" onclick="switchView('matrix')">DJ's Matrix</div>
+    <div class="pill" id="tabReview" onclick="switchView('review')">Review Matrix</div>
   </div>
 </div>
 
@@ -869,7 +870,7 @@
 
 <script>
 const AGENT_USER_ID = 'dj';
-const SPORTS = ['ncaab','nba'];
+const SPORTS = ['ncaab','nba','mlb'];
 const SPORT_LABELS = {ncaab:'NCAAB',nba:'NBA',nhl:'NHL',mlb:'MLB',soccer:'Soccer',tennis:'Tennis',mma:'MMA',boxing:'Boxing',wnba:'WNBA',ncaaf:'NCAAF'};
 
 // Default matrix definitions — the 20-variable scoring system per sport
@@ -1635,15 +1636,107 @@ function switchView(view) {
   currentView = view;
   const tabSlate = document.getElementById('tabSlate');
   const tabMatrix = document.getElementById('tabMatrix');
+  const tabReview = document.getElementById('tabReview');
+  // Reset all
+  [tabSlate, tabMatrix, tabReview].forEach(t => { if (t) { t.style.background = ''; t.style.color = ''; t.style.borderColor = ''; } });
   if (view === 'slate') {
     tabSlate.style.background = 'var(--pill-active)'; tabSlate.style.color = '#fff'; tabSlate.style.borderColor = 'var(--accent)';
-    tabMatrix.style.background = ''; tabMatrix.style.color = ''; tabMatrix.style.borderColor = '';
     if (currentSport) loadSport(currentSport);
-  } else {
+  } else if (view === 'matrix') {
     tabMatrix.style.background = 'var(--pill-active)'; tabMatrix.style.color = '#fff'; tabMatrix.style.borderColor = 'var(--accent)';
-    tabSlate.style.background = ''; tabSlate.style.color = ''; tabSlate.style.borderColor = '';
     renderMatrixView();
+  } else if (view === 'review') {
+    tabReview.style.background = 'var(--pill-active)'; tabReview.style.color = '#fff'; tabReview.style.borderColor = 'var(--accent)';
+    renderReviewView();
   }
+}
+
+function renderReviewView() {
+  const container = document.getElementById('gamesContainer');
+  document.getElementById('footer').style.display = 'none';
+
+  const MLB_MATRIX = [
+    { n: 'Starting Pitcher Quality', w: 10, note: 'xFIP/SIERA gap — true talent vs results. Unanimous #1.' },
+    { n: 'Sharp vs Public Money', w: 9, note: 'Reverse line movement against public % = strongest edge signal.' },
+    { n: 'Bullpen Strength', w: 9, note: 'Last 30 days: K-BB%, HR/9, closer availability. Critical for full-game vs F5.' },
+    { n: 'Platoon Advantage', w: 8, note: 'Pitcher handedness vs lineup composition. Drives run expectancy.' },
+    { n: 'Lineup Construction', w: 8, note: 'wRC+ vs SP type, adjusted last 21 days. Late scratches flip value.' },
+    { n: 'Line Movement / Steam', w: 8, note: 'Opening-to-close shifts + F5 steam = sharp model signal on SP matchup.' },
+    { n: 'First 5 Innings Edge', w: 8, note: 'Isolates SP quality from bullpen variance. F5 vs full game decision.' },
+    { n: 'Injury Impact', w: 7, note: 'Books are slow on non-star injuries. Depth chart replacement matters.' },
+    { n: 'Park Factors', w: 7, note: 'Team batted ball profile vs park HR factors for LHB/RHB. Not just season-long.' },
+    { n: 'Run Line vs ML Value', w: 7, note: 'Implied probability gap between RL and ML = pricing inefficiency.' },
+    { n: 'Weather Conditions', w: 7, note: 'Wind >15 mph in/out is major. Late shifts create mispriced totals.' },
+    { n: 'Recent Form', w: 6, note: 'Last 7-14 days. Use for regression ID, not streak chasing.' },
+    { n: 'Umpire Tendencies', w: 6, note: 'Zone size + K/BB lean. Underweighted by public. Per UmpScorecards.' },
+    { n: 'Travel Fatigue', w: 5, note: '7th game in 7 days, West-to-East. Bigger edge in summer months.' },
+    { n: 'Defense (DRS)', w: 5, note: 'Defensive alignment that day. Especially relevant for contact/groundball SPs.' },
+    { n: 'Home / Away Splits', w: 5, note: 'Some pitchers/teams have extreme splits not in lines.' },
+    { n: 'Catcher Framing', w: 4, note: 'Top framers steal 10-15 strikes/game. Edge in pitcher duels.' },
+    { n: 'Pace Matchup', w: 4, note: 'Quick-working SPs + low-pace games = under edge if total is inflated.' },
+  ];
+
+  const GEMS = [
+    { n: 'Pitch Arsenal Change', note: 'New pitch in last 3 starts + whiff rate up → leading breakout indicator. Not in season stats yet.' },
+    { n: 'Market Overreaction to Last Start', note: 'SP shelled but strong underlying stuff → buy-low candidate next outing. Public bets recency.' },
+    { n: 'Total Mispricing vs Game Pace', note: 'Two quick-working SPs → fewer pitches, lower scoring env → under edge if total is inflated.' },
+  ];
+
+  let html = `<div style="padding:4px 0 20px;">
+    <div style="font-size:0.72rem;color:var(--text-dim);margin-bottom:16px;line-height:1.6;">
+      MLB matrix research — S188. 5 of 7 models completed. 18-variable consensus matrix.
+      <span style="color:var(--accent-glow);font-weight:700;">DeepSeek-V3.2</span> was the sharpest output.
+    </div>`;
+
+  // 18-var matrix
+  html += `<div style="margin-bottom:24px;">
+    <h3 style="font-size:0.82rem;font-weight:800;color:var(--accent-glow);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">18-Variable Recommended Matrix</h3>`;
+
+  MLB_MATRIX.forEach(v => {
+    const wColor = v.w >= 9 ? 'var(--green)' : v.w >= 7 ? 'var(--accent-glow)' : v.w >= 5 ? 'var(--text-dim)' : '#888';
+    const barW = v.w / 10 * 100;
+    html += `<div style="padding:7px 10px;margin-bottom:4px;background:rgba(255,255,255,0.03);border-radius:7px;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="flex:1;font-size:0.73rem;font-weight:700;">${esc(v.n)}</span>
+        <div style="width:70px;height:5px;background:rgba(255,255,255,0.06);border-radius:3px;">
+          <div style="width:${barW}%;height:100%;background:${wColor};border-radius:3px;"></div>
+        </div>
+        <span style="font-size:0.75rem;font-weight:800;color:${wColor};min-width:18px;text-align:right;">${v.w}</span>
+      </div>
+      <div style="font-size:0.65rem;color:var(--text-dim);margin-top:3px;line-height:1.5;">${esc(v.note)}</div>
+    </div>`;
+  });
+  html += `</div>`;
+
+  // DeepSeek gems
+  html += `<div style="margin-bottom:24px;">
+    <h3 style="font-size:0.82rem;font-weight:800;color:var(--yellow);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">DeepSeek Gems — Add as Vars 19-21</h3>
+    <div style="font-size:0.67rem;color:var(--text-dim);margin-bottom:10px;">Unique signals not in the 18-var consensus but sharper than anything Llama or mini contributed.</div>`;
+
+  GEMS.forEach(g => {
+    html += `<div style="padding:8px 10px;margin-bottom:6px;background:rgba(255,217,61,0.05);border:1px solid rgba(255,217,61,0.15);border-radius:7px;">
+      <div style="font-size:0.73rem;font-weight:700;color:var(--yellow);margin-bottom:3px;">${esc(g.n)}</div>
+      <div style="font-size:0.65rem;color:var(--text-dim);line-height:1.5;">${esc(g.note)}</div>
+    </div>`;
+  });
+  html += `</div>`;
+
+  // Model notes
+  html += `<div style="margin-bottom:20px;">
+    <h3 style="font-size:0.82rem;font-weight:800;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Model Notes</h3>
+    <div style="font-size:0.67rem;line-height:1.7;color:var(--text-dim);">
+      <span style="color:var(--green);font-weight:700;">DeepSeek-V3.2</span> — Sharpest output. Quant-specific vars, measurable definitions, betting applications.<br>
+      <span style="color:var(--accent-glow);font-weight:700;">gpt-4.1</span> — Solid 20-var matrix. Good balance of sharp and structural.<br>
+      <span style="color:var(--accent-glow);font-weight:700;">grok-4-fast-reasoning</span> — Clean. Good H2H and day/night additions.<br>
+      <span style="color:var(--text-dim);font-weight:700;">gpt-4.1-mini</span> — Hit major categories, heavy on bullpen sub-vars.<br>
+      <span style="color:var(--text-dim);font-weight:700;">Llama-4-Maverick</span> — Weakest. Surface-level, inflated weights.<br>
+      <span style="color:var(--red);font-weight:700;">grok-4-1-fast-reasoning</span> — Timed out at 540s. Needs streaming.<br>
+      <span style="color:var(--red);font-weight:700;">Mistral Large 3</span> — Rate-limited (S0 tier). Needs quota increase.
+    </div>
+  </div>`;
+
+  html += `</div>`;
+  container.innerHTML = html;
 }
 
 function renderMatrixView() {
