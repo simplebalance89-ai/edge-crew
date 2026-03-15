@@ -5205,17 +5205,35 @@ async def get_scores():
             score_map = {}
             for s in scores:
                 score_map[s["name"]] = s.get("score", "")
+            is_combat = sport in ("mma", "boxing")
+            away_team = g.get("away_team", "")
+            home_team = g.get("home_team", "")
+            away_score = score_map.get(away_team, "")
+            home_score = score_map.get(home_team, "")
+            # Combat sports: Odds API returns scores as "0"/"1" (loser/winner)
+            # or null. Translate to "W"/"L" for display.
+            winner = ""
+            if is_combat and g.get("completed", False):
+                if away_score == "1" and home_score == "0":
+                    winner = away_team
+                elif home_score == "1" and away_score == "0":
+                    winner = home_team
+                # If scores are null/empty for completed fight, winner unknown
+                away_score = "W" if winner == away_team else ("L" if winner else "")
+                home_score = "W" if winner == home_team else ("L" if winner else "")
             games.append({
                 "sport": sport.upper(),
-                "away": g.get("away_team", ""),
-                "home": g.get("home_team", ""),
-                "away_score": score_map.get(g.get("away_team", ""), ""),
-                "home_score": score_map.get(g.get("home_team", ""), ""),
+                "away": away_team,
+                "home": home_team,
+                "away_score": away_score,
+                "home_score": home_score,
                 "completed": g.get("completed", False),
                 "time": game_time,
                 "date": game_date,
                 "is_yesterday": game_date == yesterday_pst,
                 "commence_time": commence,
+                "is_combat": is_combat,
+                "winner": winner,
             })
 
     games.sort(key=lambda x: x.get("commence_time", ""))

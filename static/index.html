@@ -4130,16 +4130,27 @@ function renderScoreboardGames() {
             statusText = g.time || 'TBD';
             statusColor = 'rgba(255,255,255,0.4)';
         }
-        var awayScore = g.away_score || (g.completed ? '0' : '-');
-        var homeScore = g.home_score || (g.completed ? '0' : '-');
-        var awayBold = g.completed && parseInt(g.away_score||0) > parseInt(g.home_score||0) ? 'font-weight:800;color:#fff;' : '';
-        var homeBold = g.completed && parseInt(g.home_score||0) > parseInt(g.away_score||0) ? 'font-weight:800;color:#fff;' : '';
+        var isCombat = g.is_combat || g.sport === 'MMA' || g.sport === 'BOXING';
+        var awayScore, homeScore, awayBold, homeBold;
+        if (isCombat) {
+            // Combat sports: show W/L or "vs" for upcoming, no fake numeric scores
+            awayScore = g.away_score === 'W' ? 'W' : (g.away_score === 'L' ? 'L' : (g.completed ? '-' : ''));
+            homeScore = g.home_score === 'W' ? 'W' : (g.home_score === 'L' ? 'L' : (g.completed ? '-' : ''));
+            awayBold = g.away_score === 'W' ? 'font-weight:800;color:#10B981;' : (g.away_score === 'L' ? 'color:rgba(255,255,255,0.3);' : '');
+            homeBold = g.home_score === 'W' ? 'font-weight:800;color:#10B981;' : (g.home_score === 'L' ? 'color:rgba(255,255,255,0.3);' : '');
+        } else {
+            awayScore = g.away_score || (g.completed ? '0' : '-');
+            homeScore = g.home_score || (g.completed ? '0' : '-');
+            awayBold = g.completed && parseInt(g.away_score||0) > parseInt(g.home_score||0) ? 'font-weight:800;color:#fff;' : '';
+            homeBold = g.completed && parseInt(g.home_score||0) > parseInt(g.away_score||0) ? 'font-weight:800;color:#fff;' : '';
+        }
+        var centerText = isCombat ? 'vs' : '@';
         var leagueTag = g.league ? '<div style="grid-column:1/-1;font-size:9px;color:rgba(255,255,255,0.3);font-weight:600;letter-spacing:0.5px;text-transform:uppercase;">' + g.league + '</div>' : '';
         html += '<div style="display:grid;grid-template-columns:1fr 40px 20px 40px 1fr 60px;align-items:center;padding:10px 12px;background:rgba(255,255,255,0.02);border-radius:8px;margin:4px 0;gap:8px;">' +
             leagueTag +
             '<div style="text-align:right;font-size:14px;color:rgba(255,255,255,0.7);' + awayBold + '">' + g.away + '</div>' +
             '<div style="text-align:center;font-size:18px;font-weight:800;color:#fff;' + awayBold + '">' + awayScore + '</div>' +
-            '<div style="text-align:center;color:rgba(255,255,255,0.2);font-size:12px;">@</div>' +
+            '<div style="text-align:center;color:rgba(255,255,255,0.2);font-size:12px;">' + centerText + '</div>' +
             '<div style="text-align:center;font-size:18px;font-weight:800;color:#fff;' + homeBold + '">' + homeScore + '</div>' +
             '<div style="font-size:14px;color:rgba(255,255,255,0.7);' + homeBold + '">' + g.home + '</div>' +
             '<div style="text-align:right;font-size:11px;font-weight:700;color:' + statusColor + ';">' + statusText + '</div>' +
