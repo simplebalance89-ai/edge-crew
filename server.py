@@ -6501,6 +6501,23 @@ async def _fetch_player_game_logs(sport, team_abbrevs):
                         elif diff < -0.1:
                             min_trend = "DOWN"
 
+                    # Build raw stat arrays for screener (floor/ceiling)
+                    label_indices = {}
+                    for i, label in enumerate(labels):
+                        label_indices[label] = i
+                    raw_stats = {}
+                    for stat_name, idx in label_indices.items():
+                        l5_vals = [_safe_float(g, idx) for g in games[:5]]
+                        l10_vals = [_safe_float(g, idx) for g in games[:10]]
+                        raw_stats[stat_name] = {
+                            "l5_raw": l5_vals,
+                            "l10_raw": l10_vals,
+                            "l5_avg": round(sum(l5_vals) / len(l5_vals), 1) if l5_vals else 0,
+                            "l10_avg": round(sum(l10_vals) / len(l10_vals), 1) if l10_vals else 0,
+                            "l5_floor": min(l5_vals) if l5_vals else 0,
+                            "l5_ceiling": max(l5_vals) if l5_vals else 0,
+                        }
+
                     player_logs[pname] = {
                         "team": abbr,
                         "gp": gp,
@@ -6516,6 +6533,7 @@ async def _fetch_player_game_logs(sport, team_abbrevs):
                         "season_reb": round(season_reb, 1),
                         "season_ast": round(season_ast, 1),
                         "minutes_trend": min_trend,
+                        "raw_stats": raw_stats,
                     }
                 except Exception as e:
                     logger.debug(f"Game log fetch failed for {pname} ({pid}): {e}")
@@ -7476,6 +7494,225 @@ def _score_gap_prop(gap_info, absorption_info, prop_info):
         "season_avg": round(season_avg, 1),
         "l5_delta_pct": round(l5_delta_pct, 1),
     }
+
+
+# ── Mathurin Screener — L5 floor vs book line ─────────────────────────────────
+
+_SCREENER_STAT_MAP = {
+    "Points": "PTS", "Rebounds": "REB", "Assists": "AST",
+    "Threes": "3PM", "Three Pointers": "3PM",
+    "Goals": "G", "Shots": "SOG", "Strikeouts": "K",
+    "Total Bases": "TB", "Hits": "H",
+    "Pass Yds": "YDS", "Rush Yds": "YDS", "Reception Yds": "YDS",
+    "Pass Tds": "TD",
+}
+
+
+@app.get("/api/screener/{sport}")
+async def run_screener(sport: str):
+    """Mathurin Screener: for every prop on tonight's slate, pull L5 game logs,
+    compute floor (min of L5), compare to book's line.
+    Floor > line = MISPRICED = guaranteed edge."""
+    sport_lower = sport.lower()
+
+    cache_key = f"screener:{sport_lower}"
+    cached = _get_cached(cache_key, ttl=300)
+    if cached:
+        cached["cached"] = True
+        return JSONResponse(cached)
+
+    # Step 1: Get props
+    if sport_lower not in PROP_MARKETS:
+        return JSONResponse({"sport": sport.upper(), "screener": [], "count": 0,
+                             "message": f"No prop markets for {sport}"})
+
+    props_result = await get_player_props(sport)
+    if hasattr(props_result, 'body'):
+        props_data = json.loads(props_result.body)
+    else:
+        props_data = _get_cached(f"props:{sport_lower}", ttl=PROPS_CACHE_TTL) or {"props": []}
+
+    all_props = props_data.get("props", [])
+    if not all_props:
+        return JSONResponse({"sport": sport.upper(), "screener": [], "count": 0,
+                             "message": "No props on slate"})
+
+    # Step 2: Get teams playing
+    odds_cache_key = f"{sport_lower}:h2h,spreads,totals"
+    odds_data = _get_cached(odds_cache_key)
+    if not odds_data:
+        try:
+            odds_resp = await get_odds(sport)
+            if hasattr(odds_resp, 'body'):
+                odds_data = json.loads(odds_resp.body)
+            else:
+                odds_data = {"games": []}
+        except Exception:
+            odds_data = {"games": []}
+
+    team_names = set()
+    for g in odds_data.get("games", []):
+        team_names.add(g.get("away", ""))
+        team_names.add(g.get("home", ""))
+
+    # Step 3: Get game logs with raw L5 arrays
+    game_logs = await _fetch_player_game_logs(sport, list(team_names)) if team_names else {}
+
+    # Step 4: Screen each OVER prop
+    screener_results = []
+    for prop in all_props:
+        if prop.get("side", "").lower() != "over":
+            continue
+        player = prop.get("player", "")
+        stat = prop.get("stat", "")
+        line = prop.get("line", 0)
+        if not line:
+            continue
+
+        player_data = game_logs.get(player)
+        if not player_data or player_data.get("note"):
+            continue
+
+        espn_stat = _SCREENER_STAT_MAP.get(stat)
+        if not espn_stat:
+            continue
+
+        # Get raw L5 values from game logs
+        raw_stats = player_data.get("raw_stats", {})
+        raw = raw_stats.get(espn_stat) if raw_stats else None
+
+        # Fallback: build from l5_ fields if raw_stats not available
+        if not raw:
+            stat_key = espn_stat.lower()
+            l5_val = player_data.get(f"l5_{stat_key}", 0)
+            l10_val = player_data.get(f"l10_{stat_key}", 0)
+            if l5_val > 0:
+                # Can't do floor test without raw array, skip
+                continue
+            continue
+
+        l5_raw = raw.get("l5_raw", [])
+        if not l5_raw:
+            continue
+
+        l5_floor = min(l5_raw)
+        l5_ceiling = max(l5_raw)
+        l5_avg = raw.get("l5_avg", 0)
+        l10_avg = raw.get("l10_avg", 0)
+
+        gap = round(l5_floor - line, 1)
+        mispriced = l5_floor > line
+        hit_count = sum(1 for v in l5_raw if v > line)
+        hit_rate = round(hit_count / len(l5_raw) * 100, 0)
+
+        screener_results.append({
+            "player": player,
+            "stat": stat,
+            "team": player_data.get("team", "?"),
+            "matchup": prop.get("matchup", ""),
+            "commence": prop.get("commence", ""),
+            "line": line,
+            "l5_raw": l5_raw,
+            "l5_floor": l5_floor,
+            "l5_ceiling": l5_ceiling,
+            "l5_avg": l5_avg,
+            "l10_avg": l10_avg,
+            "gap": gap,
+            "mispriced": mispriced,
+            "hit_rate": hit_rate,
+            "best_odds": prop.get("best_odds"),
+            "best_book": prop.get("best_book"),
+            "best_prob": prop.get("best_prob"),
+            "consensus_prob": prop.get("consensus_prob"),
+            "edge": prop.get("edge", 0),
+            "book_count": prop.get("book_count", 0),
+            "books": prop.get("books", []),
+            "verdict": "MISPRICED" if mispriced else ("CLOSE" if gap >= -1 else "PASS"),
+        })
+
+    screener_results.sort(key=lambda x: -x["gap"])
+
+    result = {
+        "sport": sport.upper(),
+        "screener": screener_results,
+        "mispriced_count": sum(1 for s in screener_results if s["mispriced"]),
+        "total_screened": len(screener_results),
+        "games_on_slate": len(team_names),
+        "players_with_logs": len(game_logs),
+        "cached": False,
+        "generated_at": _now_ts(),
+    }
+
+    _set_cache(cache_key, result)
+    return JSONResponse(result)
+
+
+# ── Book Discrepancy Engine ───────────────────────────────────────────────────
+
+@app.get("/api/discrepancies/{sport}")
+async def find_discrepancies(sport: str):
+    """Compare same prop across all books. Flag where they disagree."""
+    sport_lower = sport.lower()
+
+    cache_key = f"discrepancies:{sport_lower}"
+    cached = _get_cached(cache_key, ttl=300)
+    if cached:
+        cached["cached"] = True
+        return JSONResponse(cached)
+
+    if sport_lower not in PROP_MARKETS:
+        return JSONResponse({"sport": sport.upper(), "discrepancies": [], "count": 0})
+
+    props_result = await get_player_props(sport)
+    if hasattr(props_result, 'body'):
+        props_data = json.loads(props_result.body)
+    else:
+        props_data = _get_cached(f"props:{sport_lower}", ttl=PROPS_CACHE_TTL) or {"props": []}
+
+    all_props = props_data.get("props", [])
+    discrepancies = []
+
+    for prop in all_props:
+        books = prop.get("books", [])
+        if len(books) < 2:
+            continue
+        sorted_books = sorted(books, key=lambda b: b["odds"], reverse=True)
+        best = sorted_books[0]
+        worst = sorted_books[-1]
+        best_prob = best.get("implied_prob", 0) or 0
+        worst_prob = worst.get("implied_prob", 0) or 0
+        prob_gap = round(abs(worst_prob - best_prob), 1)
+        odds_gap = best["odds"] - worst["odds"]
+
+        if prob_gap >= 1.0:
+            discrepancies.append({
+                "player": prop.get("player", ""),
+                "stat": prop.get("stat", ""),
+                "side": prop.get("side", ""),
+                "line": prop.get("line", 0),
+                "matchup": prop.get("matchup", ""),
+                "commence": prop.get("commence", ""),
+                "best_book": best["book"],
+                "best_odds": best["odds"],
+                "best_prob": best_prob,
+                "worst_book": worst["book"],
+                "worst_odds": worst["odds"],
+                "worst_prob": worst_prob,
+                "prob_gap": prob_gap,
+                "odds_gap": odds_gap,
+                "book_count": len(books),
+                "all_books": sorted_books,
+            })
+
+    discrepancies.sort(key=lambda x: -x["prob_gap"])
+    result = {
+        "sport": sport.upper(),
+        "discrepancies": discrepancies,
+        "count": len(discrepancies),
+        "cached": False,
+    }
+    _set_cache(cache_key, result)
+    return JSONResponse(result)
 
 
 @app.get("/api/props/gaps/{sport}")

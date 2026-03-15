@@ -1252,6 +1252,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     <div class="sport-tab" onclick="switchSport('boxing', event)"><span class="tab-icon">🥋</span><span class="tab-label">Boxing</span> <span class="tab-count">0</span></div>
 </div>
 <div class="sport-tabs utility-row">
+    <div class="sport-tab utility-tab" onclick="switchSport('edge', event)" style="border-color:var(--ec-accent)"><span class="tab-icon">🔥</span><span class="tab-label">EDGE</span></div>
     <div class="sport-tab utility-tab" onclick="switchSport('props', event)"><span class="tab-icon">📊</span><span class="tab-label">Props</span> <span class="tab-count">0</span></div>
     <div class="sport-tab utility-tab" onclick="switchSport('beat', event)"><span class="tab-icon">📰</span><span class="tab-label">Beat</span></div>
     <div class="sport-tab utility-tab" onclick="switchSport('arbscan', event)"><span class="tab-icon">💎</span><span class="tab-label">Arbs</span> <span class="tab-count">0</span></div>
@@ -1901,6 +1902,39 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 </div>
 
 <!-- ===== ARB SCANNER PANEL ===== -->
+<!-- ===== EDGE PANEL — Mathurin Screener + Discrepancies + Gap Props ===== -->
+<div class="sport-panel" id="panel-edge">
+<div class="gotcha-banner" style="border-color:rgba(212,160,36,0.4);background:rgba(212,160,36,0.06);">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h3 style="color:#d4a024;">EDGE FINDER</h3>
+        <div style="display:flex;gap:6px;">
+            <select id="edgeSportSelect" onchange="loadEdgeData(this.value)" style="background:rgba(255,255,255,0.06);color:#fff;border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:6px 10px;font-size:12px;cursor:pointer;">
+                <option value="nba">NBA</option>
+                <option value="ncaab">NCAAB</option>
+                <option value="nhl">NHL</option>
+                <option value="nfl">NFL</option>
+                <option value="mlb">MLB</option>
+                <option value="mma">MMA</option>
+            </select>
+            <button style="cursor:pointer;padding:6px 14px;border-radius:6px;background:rgba(212,160,36,0.2);color:#d4a024;font-size:11px;font-weight:700;border:none;letter-spacing:0.5px;" onclick="loadEdgeData(document.getElementById('edgeSportSelect').value)">SCAN</button>
+        </div>
+    </div>
+    <p style="color:rgba(255,255,255,0.4);font-size:12px;margin-top:4px;">Mathurin Screener: L5 floor > book's line = MISPRICED. Book Discrepancies. Injury Gap Props.</p>
+</div>
+<!-- Edge Stats Bar -->
+<div id="edgeStats" style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap;"></div>
+<!-- Edge Sub-Tabs -->
+<div style="display:flex;gap:4px;margin-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:0;">
+    <button class="edge-subtab active" onclick="switchEdgeTab('screener',this)" style="padding:8px 16px;background:transparent;color:#d4a024;border:none;border-bottom:2px solid #d4a024;font-size:12px;font-weight:700;cursor:pointer;">SCREENER</button>
+    <button class="edge-subtab" onclick="switchEdgeTab('discrepancies',this)" style="padding:8px 16px;background:transparent;color:rgba(255,255,255,0.4);border:none;border-bottom:2px solid transparent;font-size:12px;font-weight:700;cursor:pointer;">DISCREPANCIES</button>
+    <button class="edge-subtab" onclick="switchEdgeTab('gaps',this)" style="padding:8px 16px;background:transparent;color:rgba(255,255,255,0.4);border:none;border-bottom:2px solid transparent;font-size:12px;font-weight:700;cursor:pointer;">GAP PROPS</button>
+</div>
+<!-- Edge Content -->
+<div id="edgeContent" style="padding:8px 0;">
+    <p style="color:rgba(255,255,255,0.3);font-style:italic;text-align:center;padding:40px;">Select a sport and hit SCAN to find edges...</p>
+</div>
+</div>
+
 <div class="sport-panel" id="panel-arbscan">
 <div class="gotcha-banner" style="border-color:rgba(16,185,129,0.3);background:rgba(16,185,129,0.06);">
     <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -3297,6 +3331,7 @@ function switchSport(sport, e) {
     if (sport === 'combined') fetchCombinedSlate();
     if (sport === 'props') { loadPropsForSport(_currentPropsSport || 'nba'); }
     if (sport === 'scores') { loadScoreboard(); startScoreboardRefresh(); }
+    if (sport === 'edge') { loadEdgeData(_edgeCurrentSport || 'nba'); }
     if (typeof populateIntel === 'function') populateIntel(sport);
     // Auto-fetch Alyssa edge data for side-by-side view
     var sportList = ['nba','wnba','ncaab','ncaaf','nhl','mlb','tennis','soccer','mma','boxing'];
@@ -7771,6 +7806,197 @@ function relockProp(entryId, entryJson) {
     .catch(function(err) {
         showToast('Relock error: ' + err.message, 'error');
     });
+}
+
+// ===== EDGE TAB — Mathurin Screener + Discrepancies + Gap Props =====
+var _edgeScreenerData = null;
+var _edgeDiscrepancyData = null;
+var _edgeGapsData = null;
+var _edgeCurrentTab = 'screener';
+var _edgeCurrentSport = 'nba';
+
+function switchEdgeTab(tab, btn) {
+    _edgeCurrentTab = tab;
+    document.querySelectorAll('.edge-subtab').forEach(function(b) {
+        b.style.color = 'rgba(255,255,255,0.4)';
+        b.style.borderBottomColor = 'transparent';
+    });
+    if (btn) {
+        btn.style.color = '#d4a024';
+        btn.style.borderBottomColor = '#d4a024';
+    }
+    renderEdgeContent();
+}
+
+function loadEdgeData(sport) {
+    _edgeCurrentSport = sport;
+    var content = document.getElementById('edgeContent');
+    content.innerHTML = '<div style="text-align:center;padding:40px;"><div style="width:32px;height:32px;border:3px solid rgba(255,255,255,0.1);border-top-color:#d4a024;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px;"></div><p style="color:rgba(255,255,255,0.4);">Screening ' + sport.toUpperCase() + ' props...</p></div>';
+
+    Promise.all([
+        fetch('/api/screener/' + sport).then(function(r) { return r.json(); }),
+        fetch('/api/discrepancies/' + sport).then(function(r) { return r.json(); }),
+        fetch('/api/props/gaps/' + sport).then(function(r) { return r.json(); })
+    ]).then(function(results) {
+        _edgeScreenerData = results[0];
+        _edgeDiscrepancyData = results[1];
+        _edgeGapsData = results[2];
+
+        // Stats bar
+        var stats = document.getElementById('edgeStats');
+        var mp = (_edgeScreenerData.mispriced_count || 0);
+        var sc = (_edgeScreenerData.total_screened || 0);
+        var dc = (_edgeDiscrepancyData.count || 0);
+        var gc = (_edgeGapsData.props_matched || _edgeGapsData.count || 0);
+        stats.innerHTML =
+            '<div style="flex:1;min-width:80px;background:rgba(212,160,36,0.08);border:1px solid rgba(212,160,36,0.2);border-radius:8px;padding:10px 12px;"><div style="font-size:10px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;">Mispriced</div><div style="font-size:20px;font-weight:700;color:#d4a024;margin-top:2px;">' + mp + '</div></div>' +
+            '<div style="flex:1;min-width:80px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:10px 12px;"><div style="font-size:10px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;">Screened</div><div style="font-size:20px;font-weight:700;color:#e8e8f0;margin-top:2px;">' + sc + '</div></div>' +
+            '<div style="flex:1;min-width:80px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:10px 12px;"><div style="font-size:10px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;">Discrepancies</div><div style="font-size:20px;font-weight:700;color:#f59e0b;margin-top:2px;">' + dc + '</div></div>' +
+            '<div style="flex:1;min-width:80px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:10px 12px;"><div style="font-size:10px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;">Gap Props</div><div style="font-size:20px;font-weight:700;color:#22c55e;margin-top:2px;">' + gc + '</div></div>';
+
+        renderEdgeContent();
+    }).catch(function(e) {
+        content.innerHTML = '<p style="color:#ef4444;text-align:center;padding:40px;">Error loading edge data: ' + e.message + '</p>';
+    });
+}
+
+function renderEdgeContent() {
+    if (_edgeCurrentTab === 'screener') renderEdgeScreener();
+    else if (_edgeCurrentTab === 'discrepancies') renderEdgeDiscrepancies();
+    else if (_edgeCurrentTab === 'gaps') renderEdgeGapProps();
+}
+
+function _escEdge(s) { var d = document.createElement('div'); d.textContent = String(s || ''); return d.innerHTML; }
+
+function renderEdgeScreener() {
+    var content = document.getElementById('edgeContent');
+    if (!_edgeScreenerData || !_edgeScreenerData.screener) {
+        content.innerHTML = '<p style="color:rgba(255,255,255,0.3);text-align:center;padding:40px;">No screener data. Hit SCAN.</p>';
+        return;
+    }
+    var items = _edgeScreenerData.screener;
+    if (items.length === 0) {
+        content.innerHTML = '<p style="color:rgba(255,255,255,0.3);text-align:center;padding:40px;">No props to screen on this slate. Check back closer to game time.</p>';
+        return;
+    }
+    var html = '';
+    items.forEach(function(p) {
+        var borderColor = p.mispriced ? '#22c55e' : (p.verdict === 'CLOSE' ? '#f59e0b' : 'rgba(255,255,255,0.08)');
+        var verdictBg = p.mispriced ? 'rgba(34,197,94,0.15)' : (p.verdict === 'CLOSE' ? 'rgba(245,158,11,0.12)' : 'rgba(255,255,255,0.05)');
+        var verdictColor = p.mispriced ? '#22c55e' : (p.verdict === 'CLOSE' ? '#f59e0b' : 'rgba(255,255,255,0.3)');
+        var gapColor = p.gap > 0 ? '#22c55e' : (p.gap >= -1 ? '#d4a024' : '#ef4444');
+        var gapStr = p.gap > 0 ? '+' + p.gap : '' + p.gap;
+
+        var l5Html = '';
+        (p.l5_raw || []).forEach(function(v) {
+            var c = v > p.line ? '#22c55e' : '#ef4444';
+            var bg = v > p.line ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)';
+            l5Html += '<span style="display:inline-block;background:' + bg + ';border:1px solid ' + c + '33;border-radius:4px;padding:3px 8px;font-weight:700;color:' + c + ';font-size:13px;min-width:32px;text-align:center;">' + v + '</span> ';
+        });
+
+        html += '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-left:3px solid ' + borderColor + ';border-radius:8px;padding:12px;margin-bottom:8px;cursor:pointer;" onclick="this.querySelector(\'.edge-l5\').style.display=this.querySelector(\'.edge-l5\').style.display===\'none\'?\'block\':\'none\'">' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">' +
+                '<div><span style="font-weight:700;font-size:14px;">' + _escEdge(p.player) + '</span> <span style="color:rgba(255,255,255,0.4);font-size:12px;">' + _escEdge(p.stat) + '</span><div style="font-size:11px;color:rgba(255,255,255,0.3);">' + _escEdge(p.matchup) + ' · ' + _escEdge(p.team) + '</div></div>' +
+                '<span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;background:' + verdictBg + ';color:' + verdictColor + ';">' + _escEdge(p.verdict) + '</span>' +
+            '</div>' +
+            '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(80px,1fr));gap:6px;font-size:12px;">' +
+                '<div><div style="color:rgba(255,255,255,0.4);font-size:10px;">Line</div><div style="font-weight:600;">' + p.line + '</div></div>' +
+                '<div><div style="color:rgba(255,255,255,0.4);font-size:10px;">L5 Floor</div><div style="font-weight:600;color:' + gapColor + ';">' + p.l5_floor + '</div></div>' +
+                '<div><div style="color:rgba(255,255,255,0.4);font-size:10px;">Gap</div><div style="font-weight:600;color:' + gapColor + ';">' + gapStr + '</div></div>' +
+                '<div><div style="color:rgba(255,255,255,0.4);font-size:10px;">L5 Avg</div><div style="font-weight:600;">' + p.l5_avg + '</div></div>' +
+                '<div><div style="color:rgba(255,255,255,0.4);font-size:10px;">Hit Rate</div><div style="font-weight:600;">' + p.hit_rate + '%</div></div>' +
+                '<div><div style="color:rgba(255,255,255,0.4);font-size:10px;">Best Odds</div><div style="font-weight:600;color:#d4a024;">' + (p.best_odds > 0 ? '+' : '') + p.best_odds + '</div></div>' +
+                '<div><div style="color:rgba(255,255,255,0.4);font-size:10px;">Best Book</div><div style="font-weight:600;">' + _escEdge(p.best_book) + '</div></div>' +
+                '<div><div style="color:rgba(255,255,255,0.4);font-size:10px;">Books</div><div style="font-weight:600;">' + p.book_count + '</div></div>' +
+            '</div>' +
+            '<div class="edge-l5" style="display:none;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06);">' +
+                '<div style="font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:4px;">L5 Game Log (tap to expand)</div>' +
+                '<div style="display:flex;gap:6px;flex-wrap:wrap;">' + l5Html + '</div>' +
+                '<div style="margin-top:6px;font-size:11px;color:rgba(255,255,255,0.3);">Ceiling: ' + p.l5_ceiling + ' · L10 Avg: ' + p.l10_avg + ' · Edge: ' + p.edge + '%</div>' +
+            '</div>' +
+        '</div>';
+    });
+    content.innerHTML = html;
+}
+
+function renderEdgeDiscrepancies() {
+    var content = document.getElementById('edgeContent');
+    if (!_edgeDiscrepancyData || !_edgeDiscrepancyData.discrepancies) {
+        content.innerHTML = '<p style="color:rgba(255,255,255,0.3);text-align:center;padding:40px;">No discrepancy data. Hit SCAN.</p>';
+        return;
+    }
+    var items = _edgeDiscrepancyData.discrepancies;
+    if (items.length === 0) {
+        content.innerHTML = '<p style="color:rgba(255,255,255,0.3);text-align:center;padding:40px;">No significant book discrepancies found.</p>';
+        return;
+    }
+    var html = '';
+    items.forEach(function(d) {
+        var booksHtml = '';
+        (d.all_books || []).forEach(function(b) {
+            booksHtml += '<span style="display:inline-block;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:4px;padding:4px 8px;font-size:11px;margin:2px;"><span style="color:rgba(255,255,255,0.4);">' + _escEdge(b.book) + '</span> <span style="font-weight:700;">' + (b.odds > 0 ? '+' : '') + b.odds + '</span> <span style="color:rgba(255,255,255,0.3);">(' + b.implied_prob + '%)</span></span> ';
+        });
+        html += '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-left:3px solid #f59e0b;border-radius:8px;padding:12px;margin-bottom:8px;cursor:pointer;" onclick="this.querySelector(\'.edge-books\').style.display=this.querySelector(\'.edge-books\').style.display===\'none\'?\'block\':\'none\'">' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">' +
+                '<div><span style="font-weight:700;font-size:14px;">' + _escEdge(d.player) + '</span> <span style="color:rgba(255,255,255,0.4);font-size:12px;">' + _escEdge(d.stat) + ' ' + _escEdge(d.side) + '</span><div style="font-size:11px;color:rgba(255,255,255,0.3);">' + _escEdge(d.matchup) + '</div></div>' +
+                '<span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;background:rgba(245,158,11,0.15);color:#f59e0b;">' + d.prob_gap + '% GAP</span>' +
+            '</div>' +
+            '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:6px;font-size:12px;">' +
+                '<div><div style="color:rgba(255,255,255,0.4);font-size:10px;">Line</div><div style="font-weight:600;">' + d.line + '</div></div>' +
+                '<div><div style="color:rgba(255,255,255,0.4);font-size:10px;">Best</div><div style="font-weight:600;color:#22c55e;">' + _escEdge(d.best_book) + ' ' + (d.best_odds > 0 ? '+' : '') + d.best_odds + '</div></div>' +
+                '<div><div style="color:rgba(255,255,255,0.4);font-size:10px;">Worst</div><div style="font-weight:600;color:#ef4444;">' + _escEdge(d.worst_book) + ' ' + (d.worst_odds > 0 ? '+' : '') + d.worst_odds + '</div></div>' +
+                '<div><div style="color:rgba(255,255,255,0.4);font-size:10px;">Odds Gap</div><div style="font-weight:600;color:#d4a024;">' + (d.odds_gap > 0 ? '+' : '') + d.odds_gap + '</div></div>' +
+            '</div>' +
+            '<div class="edge-books" style="display:none;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06);">' +
+                '<div style="font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:4px;">All Book Lines</div>' +
+                '<div style="display:flex;flex-wrap:wrap;gap:4px;">' + booksHtml + '</div>' +
+            '</div>' +
+        '</div>';
+    });
+    content.innerHTML = html;
+}
+
+function renderEdgeGapProps() {
+    var content = document.getElementById('edgeContent');
+    if (!_edgeGapsData) {
+        content.innerHTML = '<p style="color:rgba(255,255,255,0.3);text-align:center;padding:40px;">No gap data. Hit SCAN.</p>';
+        return;
+    }
+    var items = _edgeGapsData.gap_props || _edgeGapsData.gaps || [];
+    if (items.length === 0) {
+        content.innerHTML = '<p style="color:rgba(255,255,255,0.3);text-align:center;padding:40px;">No injury-driven gap props found. Either no key players are OUT or books have already adjusted.</p>';
+        return;
+    }
+    var html = '';
+    items.forEach(function(g) {
+        var grade = g.grade || '?';
+        var gradeColor = grade === 'A' || grade === 'A+' ? '#22c55e' : (grade === 'B' || grade === 'B+' ? '#d4a024' : 'rgba(255,255,255,0.5)');
+        var gapReason = g.gap_reason || {};
+        var absorption = g.absorption || {};
+        var scores = g.scores || {};
+        html += '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-left:3px solid #22c55e;border-radius:8px;padding:12px;margin-bottom:8px;">' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">' +
+                '<div><span style="font-weight:700;font-size:14px;">' + _escEdge(g.player) + '</span> <span style="color:rgba(255,255,255,0.4);font-size:12px;">' + _escEdge(g.prop_type || g.stat || '') + ' O' + (g.prop_line || g.line || 0) + '</span><div style="font-size:11px;color:rgba(255,255,255,0.3);">' + _escEdge(g.matchup) + ' · ' + _escEdge(g.team) + '</div></div>' +
+                '<span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;background:rgba(34,197,94,0.15);color:' + gradeColor + ';">Grade ' + grade + '</span>' +
+            '</div>' +
+            '<div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.15);border-radius:6px;padding:6px 10px;margin-bottom:8px;font-size:12px;">' +
+                '<span style="color:#ef4444;font-weight:600;">' + _escEdge(gapReason.player_out || g.injured_player || '') + '</span>' +
+                '<span style="color:rgba(255,255,255,0.4);"> is </span>' +
+                '<span style="color:#ef4444;font-weight:600;">' + _escEdge(gapReason.out_status || g.injured_status || 'OUT') + '</span>' +
+                '<span style="color:rgba(255,255,255,0.4);"> (' + (gapReason.ppg_lost || g.injured_ppg || 0) + ' PPG) — ' + _escEdge(g.player) + ' absorbs</span>' +
+            '</div>' +
+            '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(80px,1fr));gap:6px;font-size:12px;">' +
+                '<div><div style="color:rgba(255,255,255,0.4);font-size:10px;">Line</div><div style="font-weight:600;">' + (g.prop_line || g.line || 0) + '</div></div>' +
+                '<div><div style="color:rgba(255,255,255,0.4);font-size:10px;">L5 Avg</div><div style="font-weight:600;color:#22c55e;">' + (absorption.l5_avg || g.l5_avg || 0) + '</div></div>' +
+                '<div><div style="color:rgba(255,255,255,0.4);font-size:10px;">Edge</div><div style="font-weight:600;color:#d4a024;">' + (g.edge_pct || g.gap || 0) + '%</div></div>' +
+                '<div><div style="color:rgba(255,255,255,0.4);font-size:10px;">Best Odds</div><div style="font-weight:600;color:#d4a024;">' + (g.best_odds > 0 ? '+' : '') + (g.best_odds || 0) + '</div></div>' +
+                '<div><div style="color:rgba(255,255,255,0.4);font-size:10px;">Score</div><div style="font-weight:600;color:' + gradeColor + ';">' + (scores.combined || g.combined_score || 0) + '/10</div></div>' +
+                '<div><div style="color:rgba(255,255,255,0.4);font-size:10px;">Best Book</div><div style="font-weight:600;">' + _escEdge(g.best_book) + '</div></div>' +
+            '</div>' +
+            (g.edge_summary ? '<div style="margin-top:6px;font-size:11px;color:rgba(255,255,255,0.4);">' + _escEdge(g.edge_summary) + '</div>' : '') +
+        '</div>';
+    });
+    content.innerHTML = html;
 }
 
 function loadGapProps(sport) {
