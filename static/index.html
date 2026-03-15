@@ -9820,6 +9820,20 @@ window.addEventListener('beforeinstallprompt', function(e) {
   });
 });
 
+// iOS PWA install banner — Safari doesn't fire beforeinstallprompt
+(function() {
+  var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  var isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+  var dismissed = localStorage.getItem('pwa-ios-dismissed');
+  if (isIOS && !isStandalone && !dismissed) {
+    var b = document.createElement('div');
+    b.id = 'pwa-ios-banner';
+    b.innerHTML = '<div style="flex:1;"><div style="font-weight:700;margin-bottom:4px;">Install Edge Crew</div><div style="font-size:11px;color:rgba(255,255,255,0.5);">Tap <svg viewBox="0 0 24 24" width="14" height="14" style="vertical-align:middle;margin:0 2px;"><path d="M12 2l0 14M12 2l-4 4M12 2l4 4M4 14v4a2 2 0 002 2h12a2 2 0 002-2v-4" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> then <strong>"Add to Home Screen"</strong></div></div><button onclick="localStorage.setItem(\'pwa-ios-dismissed\',\'1\');this.parentElement.remove()" style="background:none;border:none;color:rgba(255,255,255,0.4);font-size:18px;cursor:pointer;padding:0 8px;">&times;</button>';
+    b.style.cssText = 'position:fixed;bottom:80px;left:12px;right:12px;max-width:576px;margin:0 auto;padding:14px 16px;background:rgba(15,16,24,0.95);border:1px solid rgba(99,102,241,0.3);border-radius:12px;display:flex;align-items:center;gap:12px;z-index:999;font-size:13px;color:#f1f5f9;backdrop-filter:blur(10px);';
+    document.body.appendChild(b);
+  }
+})();
+
 // Auto-reload on new deploy — check build version every 60s and on page show
 var _localBuildVersion = null;
 function _checkBuildVersion() {
