@@ -717,23 +717,48 @@ async function loadSport(sport) {
     let games;
     const analysisGames = analysis.games || [];
 
-    // Simple stale check: if upcoming odds games exist, ALWAYS prefer them
-    // Analysis is supplemental — merge grades onto odds games if matchups align
-    // This ensures DJ always sees TOMORROW's slate, never yesterday's
+    // Build from odds (upcoming games), then MERGE analysis data onto matching games
     if (upcomingOddsGames.length > 0) {
-      // No analysis yet (tomorrow's slate) — show odds-only cards
-      games = upcomingOddsGames.map(og => ({
-        matchup: `${og.away} @ ${og.home}`,
-        away: og.away || '',
-        home: og.home || '',
-        grade: 'TBD',
-        spread: og.home_spread || null,
-        total: og.total || null,
-        away_ml: og.away_ml || null,
-        home_ml: og.home_ml || null,
-        commence_time: og.commence_time || og.commence || '',
-        all_bookmakers: og.all_bookmakers || [],
-      }));
+      games = upcomingOddsGames.map(og => {
+        const oddsMatchup = `${og.away} @ ${og.home}`;
+        // Find matching analysis game by team name overlap
+        let matched = null;
+        const ogTeams = [og.away, og.home].map(t => (t || '').toLowerCase().split(/\s+/).filter(w => w.length > 2));
+        for (const ag of analysisGames) {
+          const am = (ag.matchup || '').toLowerCase();
+          const found = ogTeams.some(teamWords => teamWords.some(w => am.includes(w)));
+          if (found) { matched = ag; break; }
+        }
+        // Merge: use odds for lines/books, analysis for grade/matrix/edge
+        return {
+          matchup: oddsMatchup,
+          away: og.away || '',
+          home: og.home || '',
+          grade: matched ? matched.grade : 'TBD',
+          composite_score: matched ? matched.composite_score : null,
+          matrix_scores: matched ? matched.matrix_scores : {},
+          edge_question: matched ? matched.edge_question : '',
+          edge_summary: matched ? matched.edge_summary : '',
+          edge_pick: matched ? matched.edge_pick : {},
+          injury_impact: matched ? matched.injury_impact : '',
+          rest_schedule: matched ? matched.rest_schedule : '',
+          trends: matched ? (matched.trends || []) : [],
+          tags: matched ? (matched.tags || []) : [],
+          flags: matched ? (matched.flags || []) : [],
+          peter_zone: matched ? matched.peter_zone : '',
+          analyzed_by: matched ? (matched.analyzed_by || matched._thinker || '') : '',
+          player_props: matched ? matched.player_props : [],
+          spread: og.home_spread || null,
+          total: og.total || null,
+          away_ml: og.away_ml || null,
+          home_ml: og.home_ml || null,
+          commence_time: og.commence_time || og.commence || og.time || '',
+          all_bookmakers: og.all_bookmakers || [],
+        };
+      });
+    } else if (analysisGames.length > 0) {
+      // No odds games but analysis exists — show analysis
+      games = analysisGames;
     } else {
       games = [];
     }
