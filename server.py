@@ -7371,6 +7371,28 @@ async def update_agent_profile(user_id: str, request: Request):
     return JSONResponse(profile)
 
 
+@app.post("/api/agent/{user_id}/profile")
+async def create_agent_profile(user_id: str, request: Request):
+    """Create a new user agent profile."""
+    existing = _load_user_profile(user_id)
+    if existing:
+        return JSONResponse({"error": "Profile already exists", "profile": existing}, status_code=409)
+    body = await request.json()
+    profile = {
+        "user_id": user_id,
+        "display_name": body.get("display_name", user_id.upper()),
+        "created_at": _now_ts(),
+        "updated_at": _now_ts(),
+        "sport_preferences": body.get("sport_preferences", ["ncaab", "nba", "mlb"]),
+        "betting_style": body.get("betting_style", {"periods": ["full"], "strategy": [], "notes": ""}),
+        "matrices": body.get("matrices", {}),
+        "conversation_context": body.get("conversation_context", {"learned_preferences": []}),
+        "agent_personality": body.get("agent_personality", {"voice": "ash", "style": "direct"}),
+    }
+    _save_user_profile(profile)
+    return JSONResponse(profile, status_code=201)
+
+
 @app.post("/api/agent/{user_id}/action")
 async def agent_action(user_id: str, request: Request):
     """Process a voice agent tool call."""
