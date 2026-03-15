@@ -493,6 +493,15 @@ def _seed_profiles():
             added = True
     if added:
         _write_profiles(data)
+    # Force-update PINs for members with custom defaults
+    updated = False
+    for mid, pin in CREW_DEFAULT_PINS.items():
+        for p in data.get("profiles", []):
+            if p["id"] == mid and p["pin_hash"] == _hash_pin("0000"):
+                p["pin_hash"] = _hash_pin(pin)
+                updated = True
+    if updated:
+        _write_profiles(data)
 
 
 _seed_profiles()
