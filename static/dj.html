@@ -639,39 +639,77 @@
   .dj-delta-down { color: var(--red); background: rgba(255,85,85,0.1); }
   .dj-delta-same { color: var(--text-dim); background: rgba(255,255,255,0.05); }
 
-  /* Voice bar */
+  /* Voice bar — fixed bottom */
   .voice-bar {
     position: fixed; bottom: 0; left: 0; right: 0;
-    padding: 10px 16px; padding-bottom: max(10px, env(safe-area-inset-bottom));
-    background: rgba(13,13,20,0.95); backdrop-filter: blur(12px);
+    padding: 0; padding-bottom: env(safe-area-inset-bottom);
+    background: rgba(13,13,20,0.97); backdrop-filter: blur(12px);
     border-top: 1px solid var(--card-border);
-    display: flex; align-items: center; gap: 10px; z-index: 200;
+    z-index: 200;
   }
-  .voice-status-text {
-    flex: 1; font-size: 0.75rem; color: var(--text-dim); font-weight: 600;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  .voice-status-row {
+    padding: 6px 16px; text-align: center;
+    font-size: 0.72rem; font-weight: 600; color: var(--text-dim);
+    display: none;
   }
-  .voice-status-text.active { color: var(--accent-glow); }
-  .voice-status-text .v-dot {
+  .voice-status-row.active { display: block; }
+  .voice-status-row .v-dot {
     display: inline-block; width: 6px; height: 6px; border-radius: 50%;
     background: var(--accent); margin-right: 6px; animation: agent-pulse 1s infinite;
   }
-  .voice-mic-btn {
-    width: 44px; height: 44px; border-radius: 12px;
-    border: 1px solid rgba(108,92,231,0.3);
-    background: transparent; color: var(--accent-glow); cursor: pointer;
+  .voice-status-row.state-listening { color: var(--green); }
+  .voice-status-row.state-thinking { color: var(--yellow); }
+  .voice-status-row.state-speaking { color: var(--accent-glow); }
+
+  .voice-controls {
     display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0; transition: all 0.2s;
+    gap: 8px; padding: 8px 16px;
   }
-  .voice-mic-btn:hover { background: rgba(108,92,231,0.1); }
-  .voice-mic-btn.listening {
-    background: rgba(108,92,231,0.2); border-color: var(--accent);
-    animation: mic-pulse 1.5s infinite;
+  .voice-mode-btn {
+    padding: 8px 16px; border-radius: 8px;
+    border: 1px solid rgba(108,92,231,0.3);
+    background: rgba(108,92,231,0.08); color: var(--accent-glow);
+    font-family: inherit; font-size: 0.7rem; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
-  @keyframes mic-pulse {
-    0%,100%{box-shadow:0 0 0 0 rgba(108,92,231,0.4);}
-    50%{box-shadow:0 0 0 10px rgba(108,92,231,0);}
+  .voice-mode-btn:hover { background: rgba(108,92,231,0.15); border-color: var(--accent); }
+  .voice-mode-btn.active { background: rgba(108,92,231,0.25); border-color: var(--accent); color: #fff; }
+  .voice-mode-btn.end-btn {
+    border-color: rgba(255,85,85,0.3); color: var(--red);
+    background: rgba(255,85,85,0.08); display: none;
   }
+  .voice-mode-btn.end-btn.visible { display: inline-flex; }
+
+  .mic-sensitivity {
+    display: none; align-items: center; gap: 6px;
+    padding: 4px 16px 6px; justify-content: center;
+  }
+  .mic-sensitivity.visible { display: flex; }
+  .mic-sensitivity label {
+    font-size: 0.6rem; color: var(--text-dim); font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .mic-sensitivity select {
+    padding: 3px 8px; border-radius: 6px; border: 1px solid var(--card-border);
+    background: var(--card-bg); color: var(--text); font-family: inherit;
+    font-size: 0.65rem; font-weight: 600; cursor: pointer;
+  }
+
+  /* Voice transcript area */
+  .voice-transcript {
+    max-height: 0; overflow: hidden; transition: max-height 0.3s;
+    padding: 0 16px;
+  }
+  .voice-transcript.open { max-height: 200px; overflow-y: auto; padding: 8px 16px; }
+  .voice-transcript p {
+    font-size: 0.72rem; padding: 4px 0; margin: 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04); line-height: 1.5;
+  }
+  .voice-transcript p.vt-user { color: var(--text-dim); }
+  .voice-transcript p.vt-user::before { content: 'You: '; font-weight: 700; color: var(--text); }
+  .voice-transcript p.vt-agent { color: var(--accent-glow); }
+  .voice-transcript p.vt-agent::before { content: 'Agent: '; font-weight: 700; }
 
   /* Connecting overlay */
   .voice-connecting {
@@ -724,10 +762,23 @@
 
 <!-- Voice bar -->
 <div class="voice-bar" id="voiceBar">
-  <div class="voice-status-text" id="voiceStatusText">Talk to your agent...</div>
-  <button class="voice-mic-btn" id="voiceMicBtn" onclick="toggleVoice()">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-  </button>
+  <div class="voice-transcript" id="voiceTranscript"></div>
+  <div class="voice-status-row" id="voiceStatusRow">
+    <span class="v-dot"></span><span id="voiceStatusText">Listening...</span>
+  </div>
+  <div class="voice-controls">
+    <button class="voice-mode-btn" id="btnConversation" onclick="startVoiceWithMode('freeflow')">Conversation</button>
+    <button class="voice-mode-btn" id="btnTakeTurns" onclick="startVoiceWithMode('turnbased')">Take Turns</button>
+    <button class="voice-mode-btn end-btn" id="btnEndVoice" onclick="endVoice()">End Voice</button>
+  </div>
+  <div class="mic-sensitivity" id="micSensitivity">
+    <label>Mic Sensitivity</label>
+    <select id="micEagerness" onchange="updateMicSensitivity(this.value)">
+      <option value="low">Low</option>
+      <option value="medium" selected>Medium</option>
+      <option value="high">High</option>
+    </select>
+  </div>
 </div>
 
 <!-- Hidden audio for WebRTC -->
@@ -1576,18 +1627,36 @@ function showAgentToast(msg) {
   setTimeout(() => el.classList.remove('show'), 2500);
 }
 
-// === VOICE ===
-function toggleVoice() {
-  if (voiceActive) endVoice();
-  else startVoice();
+// === VOICE — Gold Standard (Casa Companion pattern) ===
+let waitToRespondMode = false;
+let voiceInteractionMode = 'freeflow';
+let currentEagerness = 'medium';
+let aiTranscriptBuffer = '';
+let aiTranscriptEl = null;
+
+function startVoiceWithMode(mode) {
+  if (voiceActive) { endVoice(); return; }
+  const btnConv = document.getElementById('btnConversation');
+  const btnTurns = document.getElementById('btnTakeTurns');
+  const btn = mode === 'turnbased' ? btnTurns : btnConv;
+  if (btn && btn.disabled) return;
+  if (btnConv) btnConv.disabled = true;
+  if (btnTurns) btnTurns.disabled = true;
+  setTimeout(() => { if (btnConv) btnConv.disabled = false; if (btnTurns) btnTurns.disabled = false; }, 1000);
+
+  voiceInteractionMode = mode;
+  waitToRespondMode = (mode === 'turnbased');
+  startVoiceMode();
 }
 
-async function startVoice() {
+async function startVoiceMode() {
   const overlay = document.getElementById('voiceConnecting');
-  overlay.classList.add('visible');
+  const connectText = document.getElementById('voiceConnectText');
+  if (overlay) overlay.classList.add('visible');
+  if (connectText) connectText.textContent = 'Connecting to DJ\'s Edge Agent...';
 
   try {
-    // 1. Get token with user_id
+    // 1. Token with user_id
     const tokenResp = await fetch('/api/voice/token', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
@@ -1614,7 +1683,7 @@ async function startVoice() {
     // 5. Data channel
     rtcDC = rtcPC.createDataChannel('realtime-channel');
 
-    // 6. Offer + SDP
+    // 6. Offer + SDP exchange
     const offer = await rtcPC.createOffer();
     await rtcPC.setLocalDescription(offer);
 
@@ -1627,21 +1696,35 @@ async function startVoice() {
     const answerSdp = await sdpResp.text();
     await rtcPC.setRemoteDescription({type: 'answer', sdp: answerSdp});
 
-    // 7. On open
+    // 7. On data channel open — configure session
     rtcDC.onopen = () => {
-      overlay.classList.remove('visible');
+      if (overlay) overlay.classList.remove('visible');
+
+      // Configure VAD with mode settings
       rtcDC.send(JSON.stringify({
         type: 'session.update',
         session: {
           input_audio_transcription: {model: 'whisper-1'},
           turn_detection: {
-            type: 'semantic_vad', create_response: true,
-            interrupt_response: true, eagerness: 'medium'
+            type: 'semantic_vad',
+            create_response: true,
+            interrupt_response: !waitToRespondMode,
+            eagerness: currentEagerness
           }
         }
       }));
+
       voiceActive = true;
       updateVoiceUI(true);
+
+      // Open transcript area
+      document.getElementById('voiceTranscript').classList.add('open');
+
+      // Set status
+      const statusText = document.getElementById('voiceStatusText');
+      if (statusText) statusText.textContent = waitToRespondMode
+        ? 'Take Turns — listen, then speak'
+        : 'Conversation mode. Just talk.';
 
       // Greeting
       const name = agentProfile ? agentProfile.display_name : 'DJ';
@@ -1649,43 +1732,130 @@ async function startVoice() {
       rtcDC.send(JSON.stringify({
         type: 'response.create',
         response: {
-          instructions: `Greet ${name} by name. You're their Edge Agent. Current sport is ${sport}. Ask what they want to adjust or analyze. 2 sentences max.`
+          instructions: `Greet ${name} by name. You're their Edge Agent. Current sport is ${sport}. Ask what they want to adjust or analyze. 2 sentences max. Be sharp and direct.`
         }
       }));
     };
 
-    // 8. Messages — including function calls
+    // 8. Handle all RTC events — gold standard
     rtcDC.onmessage = event => {
       const msg = JSON.parse(event.data);
-
-      if (msg.type === 'conversation.item.input_audio_transcription.completed') {
-        if (msg.transcript && msg.transcript.trim()) {
-          showAgentToast('You: ' + msg.transcript.trim().substring(0, 60));
-        }
-      }
-
-      if (msg.type === 'response.audio_transcript.done') {
-        if (msg.transcript && msg.transcript.trim()) {
-          document.getElementById('voiceStatusText').textContent = msg.transcript.trim();
-        }
-      }
-
-      // Function call — process via backend
-      if (msg.type === 'response.function_call_arguments.done') {
-        handleAgentFunctionCall(msg);
-      }
+      handleRTCEvent(msg);
     };
 
     rtcDC.onclose = () => endVoice();
-    rtcPC.onconnectionstatechange = () => {
-      if (rtcPC && (rtcPC.connectionState === 'failed' || rtcPC.connectionState === 'disconnected')) endVoice();
+    rtcPC.oniceconnectionstatechange = () => {
+      if (rtcPC && (rtcPC.iceConnectionState === 'failed' || rtcPC.iceConnectionState === 'disconnected')) {
+        endVoice();
+        showAgentToast('Voice connection lost');
+      }
     };
 
   } catch(e) {
-    overlay.classList.remove('visible');
+    if (overlay) overlay.classList.remove('visible');
     showAgentToast('Voice error: ' + e.message);
     endVoice();
   }
+}
+
+function handleRTCEvent(msg) {
+  const statusRow = document.getElementById('voiceStatusRow');
+  const statusText = document.getElementById('voiceStatusText');
+  const transcript = document.getElementById('voiceTranscript');
+
+  switch (msg.type) {
+    case 'input_audio_buffer.speech_started':
+      setVoiceState('listening');
+      aiTranscriptBuffer = '';
+      aiTranscriptEl = null;
+      break;
+
+    case 'input_audio_buffer.speech_stopped':
+      setVoiceState('thinking');
+      break;
+
+    case 'conversation.item.input_audio_transcription.completed':
+      if (msg.transcript && msg.transcript.trim()) {
+        addVoiceTranscript('user', msg.transcript.trim());
+      }
+      break;
+
+    case 'response.output_audio_transcript.delta':
+      // Build AI response word-by-word
+      if (!aiTranscriptEl) {
+        aiTranscriptBuffer = '';
+        aiTranscriptEl = document.createElement('p');
+        aiTranscriptEl.className = 'vt-agent';
+        if (transcript) transcript.appendChild(aiTranscriptEl);
+      }
+      aiTranscriptBuffer += msg.delta;
+      aiTranscriptEl.textContent = aiTranscriptBuffer;
+      if (transcript) transcript.scrollTop = transcript.scrollHeight;
+      break;
+
+    case 'response.output_audio_transcript.done':
+      aiTranscriptEl = null;
+      aiTranscriptBuffer = '';
+      break;
+
+    case 'output_audio_buffer.started':
+      setVoiceState('speaking');
+      if (waitToRespondMode) muteRtcMic();
+      break;
+
+    case 'output_audio_buffer.stopped':
+      setVoiceState('idle');
+      if (waitToRespondMode) unmuteRtcMic();
+      if (voiceActive && statusText) {
+        statusText.textContent = waitToRespondMode
+          ? 'Your turn \u2014 speak now'
+          : 'Conversation mode. Just talk.';
+      }
+      break;
+
+    case 'response.function_call_arguments.done':
+      handleAgentFunctionCall(msg);
+      break;
+
+    case 'error':
+      console.error('Realtime API error:', msg.error);
+      showAgentToast('Voice error: ' + (msg.error?.message || 'Unknown'));
+      break;
+  }
+}
+
+function setVoiceState(state) {
+  const statusRow = document.getElementById('voiceStatusRow');
+  const statusText = document.getElementById('voiceStatusText');
+  if (!statusRow) return;
+
+  statusRow.className = 'voice-status-row active state-' + state;
+  switch (state) {
+    case 'listening':
+      statusText.textContent = 'Listening...';
+      break;
+    case 'thinking':
+      statusText.textContent = 'Thinking...';
+      break;
+    case 'speaking':
+      statusText.textContent = 'Speaking...';
+      break;
+    case 'idle':
+      statusText.textContent = waitToRespondMode
+        ? 'Your turn \u2014 speak now'
+        : 'Conversation mode. Just talk.';
+      break;
+  }
+}
+
+function addVoiceTranscript(role, text) {
+  const transcript = document.getElementById('voiceTranscript');
+  if (!transcript) return;
+  const p = document.createElement('p');
+  p.className = role === 'user' ? 'vt-user' : 'vt-agent';
+  p.textContent = text;
+  transcript.appendChild(p);
+  transcript.scrollTop = transcript.scrollHeight;
 }
 
 async function handleAgentFunctionCall(msg) {
@@ -1714,12 +1884,11 @@ async function handleAgentFunctionCall(msg) {
       rtcDC.send(JSON.stringify({ type: 'response.create' }));
     }
 
-    // Refresh matrix + profile
+    // Refresh matrix + UI
     if (result.success) {
       showAgentToast(result.message || 'Updated');
       const matrixResp = await fetch('/api/agent/' + AGENT_USER_ID + '/matrix/' + (args.sport || currentSport));
       if (matrixResp.ok) agentMatrix[args.sport || currentSport] = await matrixResp.json();
-      // Re-render to show updated matrix
       if (currentSport) await loadSport(currentSport);
     }
   } catch(e) {
@@ -1727,31 +1896,66 @@ async function handleAgentFunctionCall(msg) {
   }
 }
 
+function updateMicSensitivity(level) {
+  currentEagerness = level;
+  if (rtcDC && rtcDC.readyState === 'open') {
+    rtcDC.send(JSON.stringify({
+      type: 'session.update',
+      session: {
+        turn_detection: {
+          type: 'semantic_vad',
+          create_response: true,
+          interrupt_response: !waitToRespondMode,
+          eagerness: level
+        }
+      }
+    }));
+  }
+}
+
+function muteRtcMic() {
+  if (rtcMicStream) rtcMicStream.getAudioTracks().forEach(t => { t.enabled = false; });
+}
+function unmuteRtcMic() {
+  if (rtcMicStream) rtcMicStream.getAudioTracks().forEach(t => { t.enabled = true; });
+}
+
 function endVoice() {
-  if (rtcPC) { try { rtcPC.close(); } catch(e){} rtcPC = null; }
+  voiceActive = false;
+  waitToRespondMode = false;
+  voiceInteractionMode = 'freeflow';
   if (rtcDC) { try { rtcDC.close(); } catch(e){} rtcDC = null; }
+  if (rtcPC) { try { rtcPC.close(); } catch(e){} rtcPC = null; }
   if (rtcMicStream) { rtcMicStream.getTracks().forEach(t => t.stop()); rtcMicStream = null; }
   const audioEl = document.getElementById('rtcAudio');
   if (audioEl && audioEl.srcObject) {
     audioEl.srcObject.getTracks().forEach(t => t.stop());
     audioEl.srcObject = null;
   }
-  voiceActive = false;
   updateVoiceUI(false);
   document.getElementById('voiceConnecting').classList.remove('visible');
+  document.getElementById('voiceTranscript').classList.remove('open');
 }
 
 function updateVoiceUI(active) {
-  const micBtn = document.getElementById('voiceMicBtn');
-  const statusEl = document.getElementById('voiceStatusText');
+  const btnConv = document.getElementById('btnConversation');
+  const btnTurns = document.getElementById('btnTakeTurns');
+  const btnEnd = document.getElementById('btnEndVoice');
+  const statusRow = document.getElementById('voiceStatusRow');
+  const micSens = document.getElementById('micSensitivity');
+
   if (active) {
-    micBtn.classList.add('listening');
-    statusEl.className = 'voice-status-text active';
-    statusEl.innerHTML = '<span class="v-dot"></span>Listening...';
+    const activeBtn = voiceInteractionMode === 'turnbased' ? btnTurns : btnConv;
+    if (activeBtn) activeBtn.classList.add('active');
+    if (btnEnd) btnEnd.classList.add('visible');
+    if (statusRow) statusRow.classList.add('active');
+    if (micSens) micSens.classList.add('visible');
   } else {
-    micBtn.classList.remove('listening');
-    statusEl.className = 'voice-status-text';
-    statusEl.textContent = 'Talk to your agent...';
+    if (btnConv) btnConv.classList.remove('active');
+    if (btnTurns) btnTurns.classList.remove('active');
+    if (btnEnd) btnEnd.classList.remove('visible');
+    if (statusRow) { statusRow.classList.remove('active'); statusRow.className = 'voice-status-row'; }
+    if (micSens) micSens.classList.remove('visible');
   }
 }
 
