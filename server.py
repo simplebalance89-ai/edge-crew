@@ -6851,6 +6851,11 @@ async def picks_page():
     return FileResponse("static/picks.html", headers=NO_CACHE_HEADERS)
 
 
+@app.get("/dj")
+async def dj_page():
+    return FileResponse("static/dj.html", headers=NO_CACHE_HEADERS)
+
+
 @app.get("/api/arb-scan")
 async def arb_scan():
     """Scan all active sports for arbitrage opportunities."""

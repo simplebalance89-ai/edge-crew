@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Casa Expected Value</title>
+<style>
+  :root {
+    --bg: #0d0d14;
+    --card-bg: #161622;
+    --card-border: #1e1e30;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --accent: #6c5ce7;
+    --accent-glow: #7c6cf7;
+    --green: #00d68f;
+    --red: #ff5555;
+    --yellow: #ffd93d;
+    --orange: #ff9f43;
+    --pill-bg: #1a1a2e;
+    --pill-active: #6c5ce7;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    min-height: 100vh;
+    padding: 0 0 80px;
+  }
+
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: linear-gradient(180deg, var(--bg) 80%, transparent);
+    padding: 20px 16px 12px;
+  }
+
+  .header h1 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text);
+    text-align: center;
+    margin-bottom: 12px;
+  }
+
+  .header h1 .sport-label { color: var(--accent-glow); }
+  .header h1 .date-label { color: var(--text-dim); font-weight: 400; font-size: 0.85rem; }
+
+  .pills {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding-bottom: 4px;
+  }
+
+  .pill {
+    padding: 6px 14px;
+    border-radius: 20px;
+    background: var(--pill-bg);
+    color: var(--text-dim);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .pill:hover { border-color: var(--accent); color: var(--text); }
+  .pill.active { background: var(--pill-active); color: #fff; border-color: var(--accent); }
+
+  .loading {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-dim);
+    font-size: 0.95rem;
+  }
+
+  .loading .spinner {
+    display: inline-block;
+    width: 28px; height: 28px;
+    border: 3px solid var(--card-border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 12px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .games-container { padding: 0 12px; max-width: 720px; margin: 0 auto; }
+
+  .game-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    transition: border-color 0.2s;
+  }
+
+  .game-card:hover { border-color: var(--accent); }
+
+  .game-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+  }
+
+  .matchup-info { flex: 1; }
+
+  .matchup-teams {
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.4;
+  }
+
+  .matchup-meta {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  .grade-badge {
+    font-size: 1.6rem;
+    font-weight: 800;
+    min-width: 50px;
+    text-align: center;
+    line-height: 1;
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: rgba(108, 92, 231, 0.15);
+  }
+
+  .grade-A { color: var(--green); background: rgba(0, 214, 143, 0.12); }
+  .grade-B { color: var(--yellow); background: rgba(255, 217, 61, 0.12); }
+  .grade-C { color: var(--orange); background: rgba(255, 159, 67, 0.12); }
+  .grade-D, .grade-F { color: var(--red); background: rgba(255, 85, 85, 0.12); }
+  .grade-INCOMPLETE { color: var(--text-dim); background: rgba(136, 136, 160, 0.1); font-size: 0.8rem; }
+
+  .lines-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+
+  .line-chip {
+    font-size: 0.72rem;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.04);
+    color: var(--text-dim);
+    font-weight: 500;
+  }
+
+  .line-chip .val { color: var(--text); font-weight: 700; }
+
+  .edge-pick-row {
+    background: rgba(108, 92, 231, 0.08);
+    border: 1px solid rgba(108, 92, 231, 0.2);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+  }
+
+  .edge-pick-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--accent-glow);
+    margin-bottom: 4px;
+    font-weight: 700;
+  }
+
+  .edge-pick-text {
+    font-size: 0.85rem;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  .edge-pick-reasoning {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+
+  .section-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+    font-weight: 600;
+  }
+
+  .gotcha-text {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    line-height: 1.5;
+    margin-bottom: 10px;
+  }
+
+  .gotcha-text ul { padding-left: 16px; margin: 0; }
+  .gotcha-text li { margin-bottom: 3px; }
+  .gotcha-text strong { color: var(--text); }
+
+  .flags-row {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+
+  .flag-tag {
+    font-size: 0.6rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .flag-SHARP { background: rgba(0,214,143,0.15); color: var(--green); }
+  .flag-TRAP { background: rgba(255,85,85,0.15); color: var(--red); }
+  .flag-B2B { background: rgba(255,159,67,0.15); color: var(--orange); }
+  .flag-UPSET { background: rgba(255,217,61,0.15); color: var(--yellow); }
+  .flag-PASS { background: rgba(136,136,160,0.12); color: var(--text-dim); }
+  .flag-BEST { background: rgba(0,214,143,0.2); color: var(--green); }
+  .flag-REST { background: rgba(108,92,231,0.15); color: var(--accent-glow); }
+  .flag-INJURY { background: rgba(255,85,85,0.12); color: var(--red); }
+  .flag-INCOMPLETE { background: rgba(136,136,160,0.1); color: var(--text-dim); }
+  .flag-default { background: rgba(255,255,255,0.06); color: var(--text-dim); }
+
+  .screener-section {
+    margin-top: 8px;
+    border-top: 1px solid var(--card-border);
+    padding-top: 8px;
+  }
+
+  .screener-hit {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+    font-size: 0.75rem;
+  }
+
+  .screener-player { font-weight: 600; }
+  .screener-stat { color: var(--text-dim); }
+  .screener-verdict { color: var(--green); font-weight: 700; font-size: 0.7rem; }
+
+  .peter-zone {
+    font-size: 0.78rem;
+    color: var(--text);
+    line-height: 1.5;
+    background: rgba(108, 92, 231, 0.06);
+    border-left: 3px solid var(--accent);
+    padding: 8px 12px;
+    margin-top: 8px;
+    border-radius: 0 6px 6px 0;
+  }
+
+  .footer {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-dim);
+    font-size: 0.7rem;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-dim);
+  }
+
+  .empty-state .icon { font-size: 2rem; margin-bottom: 12px; }
+  .empty-state p { font-size: 0.9rem; }
+
+  .global-gotcha {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+  }
+
+  .global-gotcha .section-label { color: var(--accent-glow); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>CASA EXPECTED VALUE &mdash; <span class="sport-label" id="sportLabel">NCAAB</span> <span class="date-label" id="dateLabel"></span></h1>
+  <div class="pills" id="sportPills"></div>
+</div>
+
+<div id="loadingState" class="loading" style="display:none;">
+  <div class="spinner"></div>
+  <div>Loading slate...</div>
+</div>
+
+<div class="games-container" id="gamesContainer"></div>
+
+<div class="footer" id="footer" style="display:none;">
+  <div id="lastAnalyzed"></div>
+  <div style="margin-top:4px;">Casa Expected Value &mdash; Edge Crew</div>
+</div>
+
+<script>
+const SPORTS = ['ncaab','nba','nhl','mlb','wnba','ncaaf','tennis','soccer','mma','boxing'];
+const SPORT_LABELS = {ncaab:'NCAAB',nba:'NBA',nhl:'NHL',mlb:'MLB',wnba:'WNBA',ncaaf:'NCAAF',tennis:'TENNIS',soccer:'SOCCER',mma:'MMA',boxing:'BOXING'};
+
+let currentSport = 'ncaab';
+let analysisCache = {};
+let screenerCache = {};
+
+function init() {
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  document.getElementById('dateLabel').textContent = tomorrow.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+
+  renderPills();
+  loadSport(currentSport);
+}
+
+function renderPills() {
+  const container = document.getElementById('sportPills');
+  container.innerHTML = SPORTS.map(s =>
+    `<div class="pill ${s === currentSport ? 'active' : ''}" onclick="switchSport('${s}')">${SPORT_LABELS[s]}</div>`
+  ).join('');
+}
+
+function switchSport(sport) {
+  currentSport = sport;
+  document.getElementById('sportLabel').textContent = SPORT_LABELS[sport];
+  renderPills();
+  loadSport(sport);
+}
+
+async function loadSport(sport) {
+  const container = document.getElementById('gamesContainer');
+  const loading = document.getElementById('loadingState');
+  const footer = document.getElementById('footer');
+
+  container.innerHTML = '';
+  footer.style.display = 'none';
+  loading.style.display = 'block';
+
+  try {
+    // Fetch analysis and screener in parallel
+    const [analysisResp, screenerResp] = await Promise.all([
+      fetch(`/api/analysis/${sport}?cached_only=true`).then(r => r.json()).catch(() => null),
+      fetch(`/api/screener/${sport}`).then(r => r.json()).catch(() => null)
+    ]);
+
+    loading.style.display = 'none';
+
+    const analysis = analysisResp || { games: [] };
+    const screener = screenerResp || { screener: [] };
+    const games = analysis.games || [];
+
+    if (games.length === 0) {
+      container.innerHTML = `<div class="empty-state"><div class="icon">&#128203;</div><p>No ${SPORT_LABELS[sport]} analysis available yet.</p><p style="margin-top:8px;font-size:0.75rem;">Analysis runs daily at 4 PM PST when games are on the slate.</p></div>`;
+      return;
+    }
+
+    // Build screener lookup: matchup string -> hits
+    const screenerByGame = buildScreenerMap(screener.screener || [], games);
+
+    // Render global gotcha if present
+    let html = '';
+    if (analysis.gotcha) {
+      html += `<div class="global-gotcha"><div class="section-label">Tonight's Intel</div><div class="gotcha-text">${analysis.gotcha}</div></div>`;
+    }
+
+    // Sort games: best grades first
+    const gradeOrder = {'A+':0,'A':1,'A-':2,'B+':3,'B':4,'B-':5,'C+':6,'C':7,'D':8,'F':9,'TBD':10,'INCOMPLETE':11};
+    games.sort((a, b) => (gradeOrder[a.grade] ?? 10) - (gradeOrder[b.grade] ?? 10));
+
+    games.forEach(game => {
+      html += renderGameCard(game, screenerByGame[game.matchup] || []);
+    });
+
+    container.innerHTML = html;
+
+    // Footer
+    const ts = analysis.generated_at || analysis.fetched_at || '';
+    document.getElementById('lastAnalyzed').textContent = ts ? `Last analyzed: ${ts}` : '';
+    footer.style.display = 'block';
+
+  } catch (err) {
+    loading.style.display = 'none';
+    container.innerHTML = `<div class="empty-state"><p>Failed to load data. Try again later.</p></div>`;
+    console.error(err);
+  }
+}
+
+function buildScreenerMap(screenerHits, games) {
+  const map = {};
+  games.forEach(g => { map[g.matchup] = []; });
+
+  screenerHits.forEach(hit => {
+    const hitMatchup = (hit.matchup || '').toLowerCase();
+    for (const g of games) {
+      const gm = (g.matchup || '').toLowerCase();
+      // Match by team names overlap
+      const gTeams = gm.replace('@', ' ').split(/\s+/).filter(t => t.length > 2);
+      const hTeams = hitMatchup.replace('@', ' ').replace('vs', ' ').split(/\s+/).filter(t => t.length > 2);
+      const overlap = gTeams.some(t => hTeams.some(h => h.includes(t) || t.includes(h)));
+      if (overlap) {
+        if (!map[g.matchup]) map[g.matchup] = [];
+        map[g.matchup].push(hit);
+        break;
+      }
+    }
+  });
+  return map;
+}
+
+function gradeClass(grade) {
+  if (!grade) return '';
+  const g = grade.replace(/[+-]/g, '');
+  if (g === 'A') return 'grade-A';
+  if (g === 'B') return 'grade-B';
+  if (g === 'C') return 'grade-C';
+  if (g === 'D' || g === 'F') return 'grade-D';
+  if (grade === 'INCOMPLETE') return 'grade-INCOMPLETE';
+  return '';
+}
+
+function flagClass(tag) {
+  const t = tag.toUpperCase();
+  if (t === 'SHARP') return 'flag-SHARP';
+  if (t === 'TRAP') return 'flag-TRAP';
+  if (t === 'B2B') return 'flag-B2B';
+  if (t === 'UPSET') return 'flag-UPSET';
+  if (t === 'PASS') return 'flag-PASS';
+  if (t === 'BEST BET' || t === 'BEST') return 'flag-BEST';
+  if (t.includes('REST')) return 'flag-REST';
+  if (t.includes('INJURY')) return 'flag-INJURY';
+  if (t === 'INCOMPLETE') return 'flag-INCOMPLETE';
+  return 'flag-default';
+}
+
+function renderGameCard(game, screenerHits) {
+  const matchup = game.matchup || '?';
+  const grade = game.grade || 'TBD';
+  const tags = game.tags || [];
+  const edgePick = game.edge_pick || {};
+  const flags = game.flags || [];
+  const peterZone = game.peter_zone || '';
+  const edgeSummary = game.edge_summary || '';
+  const injuryImpact = game.injury_impact || '';
+  const restSchedule = game.rest_schedule || '';
+
+  // Build gotcha from available fields
+  let gotchaLines = [];
+  if (injuryImpact && injuryImpact !== 'N/A') gotchaLines.push(injuryImpact);
+  if (restSchedule && restSchedule !== 'N/A') gotchaLines.push(restSchedule);
+  if (edgeSummary) gotchaLines.push(edgeSummary);
+
+  // Parse matchup for time info if available
+  let timeStr = '';
+  // We'll just show the matchup as-is
+
+  let html = `<div class="game-card">`;
+
+  // Top row: matchup + grade
+  html += `<div class="game-top">
+    <div class="matchup-info">
+      <div class="matchup-teams">${esc(matchup)}</div>
+      <div class="matchup-meta">${timeStr}</div>
+    </div>
+    <div class="grade-badge ${gradeClass(grade)}">${esc(grade)}</div>
+  </div>`;
+
+  // Tags
+  if (tags.length > 0) {
+    html += `<div class="flags-row">${tags.map(t => `<span class="flag-tag ${flagClass(t)}">${esc(t)}</span>`).join('')}</div>`;
+  }
+
+  // Edge pick
+  if (edgePick.team && edgePick.team !== 'PASS') {
+    html += `<div class="edge-pick-row">
+      <div class="edge-pick-label">Edge Pick</div>
+      <div class="edge-pick-text">${esc(edgePick.team)} &mdash; ${esc(edgePick.bet_type || '')} ${esc(edgePick.line || '')}</div>
+      ${edgePick.reasoning ? `<div class="edge-pick-reasoning">${esc(edgePick.reasoning)}</div>` : ''}
+    </div>`;
+  }
+
+  // Gotcha / context
+  if (gotchaLines.length > 0) {
+    html += `<div class="section-label">Context</div>
+      <div class="gotcha-text">${gotchaLines.map(l => `<div>${esc(l)}</div>`).join('')}</div>`;
+  }
+
+  // Flags
+  if (flags.length > 0) {
+    html += `<div class="section-label">Flags</div>
+      <div class="gotcha-text" style="font-size:0.72rem;">${flags.map(f => `<div>&#8226; ${esc(f)}</div>`).join('')}</div>`;
+  }
+
+  // Peter Zone
+  if (peterZone) {
+    html += `<div class="peter-zone">${esc(peterZone)}</div>`;
+  }
+
+  // Screener hits
+  if (screenerHits.length > 0) {
+    html += `<div class="screener-section">
+      <div class="section-label">Screener Hits</div>`;
+    screenerHits.forEach(hit => {
+      const player = hit.player || '?';
+      const stat = hit.stat || '';
+      const line = hit.line ?? '';
+      const floor = hit.floor ?? '';
+      const verdict = hit.verdict || hit.signal || 'EDGE';
+      html += `<div class="screener-hit">
+        <span class="screener-player">${esc(player)}</span>
+        <span class="screener-stat">${esc(stat)} line ${line} / floor ${floor}</span>
+        <span class="screener-verdict">${esc(verdict)}</span>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  html += `</div>`;
+  return html;
+}
+
+function esc(s) {
+  if (s === null || s === undefined) return '';
+  const d = document.createElement('div');
+  d.textContent = String(s);
+  return d.innerHTML;
+}
+
+init();
+</script>
+</body>
+</html>
