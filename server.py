@@ -4324,6 +4324,7 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
         client = OpenAI(
             base_url=THINKER_ENDPOINT,
             api_key=AZURE_KEY,
+            timeout=60,
         )
         logger.info(f"[THINKER] Batch {batch_idx} ({sport.upper()}) → {ANALYSIS_THINKER} via {THINKER_ENDPOINT}")
         think_start = time.time()
