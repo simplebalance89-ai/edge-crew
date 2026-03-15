@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Casa Expected Value</title>
+<title>DJ's Edge Agent — Casa EV</title>
 <style>
   :root {
     --bg: #0d0d14;
@@ -28,7 +28,7 @@
     color: var(--text);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     min-height: 100vh;
-    padding: 0 0 80px;
+    padding: 0 0 100px;
   }
 
   .header {
@@ -547,6 +547,149 @@
     align-items: center;
     gap: 6px;
   }
+
+  /* === AGENT PANEL === */
+  .agent-panel {
+    background: var(--card-bg);
+    border: 1px solid var(--accent);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 16px;
+    position: relative;
+  }
+  .agent-panel-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .agent-panel-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent); animation: agent-pulse 2s infinite;
+  }
+  @keyframes agent-pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+  .agent-panel-title {
+    font-size: 0.85rem; font-weight: 800; color: var(--accent-glow);
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+  .agent-panel-badge {
+    margin-left: auto;
+    padding: 3px 10px; border-radius: 10px;
+    background: rgba(108,92,231,0.15);
+    color: var(--accent-glow); font-size: 0.65rem; font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  /* Analyze My Way button */
+  .analyze-my-way {
+    display: block; width: 100%; padding: 14px; margin: 10px 0;
+    border-radius: 10px; border: none;
+    background: linear-gradient(135deg, #6c5ce7, #7c6cf7);
+    color: #fff; font-family: inherit; font-size: 0.85rem; font-weight: 800;
+    cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
+    transition: all 0.2s;
+  }
+  .analyze-my-way:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(108,92,231,0.3); }
+  .analyze-my-way:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+  .analyze-my-way.running { animation: amw-shimmer 1.5s infinite; }
+  @keyframes amw-shimmer { 0%,100%{opacity:1;} 50%{opacity:0.7;} }
+
+  /* Matrix panel */
+  .matrix-panel {
+    margin-top: 12px;
+    border-top: 1px solid var(--card-border);
+    padding-top: 12px;
+  }
+  .matrix-panel-toggle {
+    font-size: 0.72rem; color: var(--accent-glow);
+    cursor: pointer; font-weight: 700; user-select: none;
+  }
+  .matrix-panel-toggle:hover { text-decoration: underline; }
+  .matrix-panel-body { display: none; margin-top: 10px; }
+  .matrix-panel-body.open { display: block; }
+  .matrix-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 5px 8px; border-radius: 6px; margin-bottom: 3px;
+    font-size: 0.72rem; background: rgba(255,255,255,0.03);
+  }
+  .matrix-row .m-key { flex: 1; font-weight: 600; color: var(--text); }
+  .matrix-row .m-weight {
+    font-weight: 800; color: var(--accent-glow);
+    min-width: 28px; text-align: center;
+  }
+  .matrix-row .m-tag {
+    font-size: 0.55rem; font-weight: 700; padding: 1px 6px;
+    border-radius: 4px; margin-left: 6px; text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .m-tag-override { color: var(--yellow); background: rgba(255,217,61,0.12); }
+  .m-tag-custom { color: var(--green); background: rgba(0,214,143,0.12); }
+  .matrix-excluded-row {
+    padding: 4px 8px; margin-bottom: 3px; font-size: 0.7rem;
+    color: var(--red); text-decoration: line-through; opacity: 0.6;
+  }
+
+  /* DJ results comparison */
+  .dj-result-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 8px; border-radius: 6px; font-size: 0.65rem;
+    font-weight: 700; margin-left: 8px;
+  }
+  .dj-delta-up { color: var(--green); background: rgba(0,214,143,0.1); }
+  .dj-delta-down { color: var(--red); background: rgba(255,85,85,0.1); }
+  .dj-delta-same { color: var(--text-dim); background: rgba(255,255,255,0.05); }
+
+  /* Voice bar */
+  .voice-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    padding: 10px 16px; padding-bottom: max(10px, env(safe-area-inset-bottom));
+    background: rgba(13,13,20,0.95); backdrop-filter: blur(12px);
+    border-top: 1px solid var(--card-border);
+    display: flex; align-items: center; gap: 10px; z-index: 200;
+  }
+  .voice-status-text {
+    flex: 1; font-size: 0.75rem; color: var(--text-dim); font-weight: 600;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .voice-status-text.active { color: var(--accent-glow); }
+  .voice-status-text .v-dot {
+    display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent); margin-right: 6px; animation: agent-pulse 1s infinite;
+  }
+  .voice-mic-btn {
+    width: 44px; height: 44px; border-radius: 12px;
+    border: 1px solid rgba(108,92,231,0.3);
+    background: transparent; color: var(--accent-glow); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all 0.2s;
+  }
+  .voice-mic-btn:hover { background: rgba(108,92,231,0.1); }
+  .voice-mic-btn.listening {
+    background: rgba(108,92,231,0.2); border-color: var(--accent);
+    animation: mic-pulse 1.5s infinite;
+  }
+  @keyframes mic-pulse {
+    0%,100%{box-shadow:0 0 0 0 rgba(108,92,231,0.4);}
+    50%{box-shadow:0 0 0 10px rgba(108,92,231,0);}
+  }
+
+  /* Connecting overlay */
+  .voice-connecting {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 300;
+    display: none; align-items: center; justify-content: center;
+    flex-direction: column; gap: 16px;
+  }
+  .voice-connecting.visible { display: flex; }
+  .voice-connecting-text { color: var(--accent-glow); font-size: 0.9rem; font-weight: 700; }
+
+  /* Toast */
+  .agent-toast {
+    position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+    padding: 8px 18px; border-radius: 8px; background: rgba(108,92,231,0.9);
+    color: #fff; font-size: 0.75rem; font-weight: 700; z-index: 400;
+    opacity: 0; transition: opacity 0.3s; pointer-events: none;
+  }
+  .agent-toast.show { opacity: 1; }
 </style>
 </head>
 <body>
@@ -567,10 +710,31 @@
 
 <div class="footer" id="footer" style="display:none;">
   <div id="lastAnalyzed"></div>
-  <div style="margin-top:4px;">Casa Expected Value &mdash; Edge Crew</div>
+  <div style="margin-top:4px;">DJ's Edge Agent &mdash; Casa EV</div>
 </div>
 
+<!-- Agent overlay -->
+<div class="voice-connecting" id="voiceConnecting">
+  <div class="spinner"></div>
+  <div class="voice-connecting-text" id="voiceConnectText">Connecting to your agent...</div>
+</div>
+
+<!-- Toast -->
+<div class="agent-toast" id="agentToast"></div>
+
+<!-- Voice bar -->
+<div class="voice-bar" id="voiceBar">
+  <div class="voice-status-text" id="voiceStatusText">Talk to your agent...</div>
+  <button class="voice-mic-btn" id="voiceMicBtn" onclick="toggleVoice()">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+  </button>
+</div>
+
+<!-- Hidden audio for WebRTC -->
+<audio id="rtcAudio" autoplay style="display:none;"></audio>
+
 <script>
+const AGENT_USER_ID = 'dj';
 const SPORTS = ['ncaab','nba'];
 const SPORT_LABELS = {ncaab:'NCAAB',nba:'NBA'};
 const BOOK_DISPLAY = {
@@ -587,7 +751,21 @@ let oddsCache = {};
 let screenerCache = {};
 let gamesLoaded = false;
 
-function init() {
+// Agent state
+let agentProfile = null;
+let agentMatrix = {};     // sport -> matrix data
+let djAnalysis = {};      // sport -> DJ's custom analysis
+let rtcPC = null;
+let rtcDC = null;
+let rtcMicStream = null;
+let voiceActive = false;
+
+async function init() {
+  // Load agent profile
+  try {
+    const resp = await fetch('/api/agent/' + AGENT_USER_ID + '/profile');
+    if (resp.ok) agentProfile = await resp.json();
+  } catch(e) { console.log('Agent profile not loaded'); }
   showLanding();
 }
 
@@ -685,13 +863,15 @@ async function loadSport(sport) {
   document.getElementById('loadingText').textContent = 'Loading slate...';
 
   try {
-    // Fetch analysis, screener, odds, and arbs in parallel
-    const [analysisResp, screenerResp, oddsResp, arbResp] = await Promise.all([
+    // Fetch analysis, screener, odds, arbs, and agent matrix in parallel
+    const [analysisResp, screenerResp, oddsResp, arbResp, matrixResp] = await Promise.all([
       fetch(`/api/analysis/${sport}?cached_only=true`).then(r => r.json()).catch(() => null),
       fetch(`/api/screener/${sport}`).then(r => r.json()).catch(() => null),
       fetch(`/api/odds/${sport}`).then(r => r.json()).catch(() => null),
-      fetch(`/api/arb-scan`).then(r => r.json()).catch(() => null)
+      fetch(`/api/arb-scan`).then(r => r.json()).catch(() => null),
+      agentProfile ? fetch(`/api/agent/${AGENT_USER_ID}/matrix/${sport}`).then(r => r.json()).catch(() => null) : Promise.resolve(null)
     ]);
+    if (matrixResp) agentMatrix[sport] = matrixResp;
 
     loading.style.display = 'none';
 
@@ -791,6 +971,11 @@ async function loadSport(sport) {
     html += `<div class="reanalyze-bar">
       <button class="reanalyze-btn" id="reanalyzeSlateBtn" onclick="reanalyzeSlate('${sport}')">RE-ANALYZE SLATE</button>
     </div>`;
+
+    // Agent panel
+    if (agentProfile) {
+      html += renderAgentPanel(sport);
+    }
 
     // Grade legend
     html += `<div class="grade-legend">
@@ -1138,6 +1323,7 @@ function renderGameCard(game, screenerHits, oddsGame, cardIdx) {
     </div>
     <div class="card-actions">
       <div class="grade-badge ${gradeClass(grade)}">${esc(grade)}</div>
+      ${renderDJBadge(matchup)}
       <button class="reanalyze-btn small" onclick="reanalyzeGame('${currentSport}')" title="Re-analyze this game">RE-ANALYZE</button>
     </div>
   </div>`;
@@ -1251,6 +1437,322 @@ function esc(s) {
   const d = document.createElement('div');
   d.textContent = String(s);
   return d.innerHTML;
+}
+
+// === AGENT FUNCTIONS ===
+
+function renderDJBadge(matchup) {
+  if (!currentSport || !djAnalysis[currentSport]) return '';
+  const djGames = djAnalysis[currentSport].games || [];
+  const djGame = djGames.find(g => g.matchup === matchup);
+  if (!djGame) return '';
+
+  const defData = analysisCache[currentSport] || {};
+  const defGames = defData.games || [];
+  const defGame = defGames.find(g => g.matchup === matchup);
+  const defScore = defGame ? (defGame.composite_score || 0) : 0;
+  const djScore = djGame.composite_score || 0;
+  const diff = (djScore - defScore).toFixed(1);
+  const cls = diff > 0 ? 'dj-delta-up' : (diff < 0 ? 'dj-delta-down' : 'dj-delta-same');
+  const arrow = diff > 0 ? '\u2191' : (diff < 0 ? '\u2193' : '=');
+  return `<span class="dj-result-badge ${cls}">DJ: ${esc(djGame.grade)} (${djScore.toFixed(1)}) ${arrow}${Math.abs(diff)}</span>`;
+}
+
+function renderAgentPanel(sport) {
+  const matrix = agentMatrix[sport] || { matrix: [], excluded: [] };
+  const name = agentProfile ? agentProfile.display_name : 'DJ';
+  const toggleId = 'matrixPanel_' + sport;
+
+  let html = `<div class="agent-panel">
+    <div class="agent-panel-header">
+      <div class="agent-panel-dot"></div>
+      <div class="agent-panel-title">${esc(name)}'s Edge Agent</div>
+      <div class="agent-panel-badge">${sport.toUpperCase()}</div>
+    </div>
+    <button class="analyze-my-way" id="analyzeMyWayBtn" onclick="analyzeMyWay('${sport}')">ANALYZE ${esc(name).toUpperCase()}'S WAY</button>`;
+
+  // DJ results summary (if exists)
+  if (djAnalysis[sport] && djAnalysis[sport].games) {
+    const defData = analysisCache[sport] || {};
+    const defGames = defData.games || [];
+    const defMap = {};
+    defGames.forEach(g => { defMap[g.matchup] = g; });
+
+    html += `<div style="margin-bottom:10px;">`;
+    djAnalysis[sport].games.forEach(g => {
+      const def = defMap[g.matchup] || {};
+      const djScore = (g.composite_score || 0).toFixed(1);
+      const defScore = (def.composite_score || 0).toFixed(1);
+      const diff = (g.composite_score - (def.composite_score || 0)).toFixed(1);
+      const cls = diff > 0 ? 'dj-delta-up' : (diff < 0 ? 'dj-delta-down' : 'dj-delta-same');
+      html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.72rem;">
+        <span style="font-weight:600;">${esc(g.matchup)}</span>
+        <span><span class="dj-result-badge ${cls}">${esc(name)}: ${esc(g.grade)} (${djScore})</span>
+        <span style="color:var(--text-dim);margin-left:4px;">Default: ${esc(def.grade || '?')} (${defScore})</span></span>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  // Matrix toggle
+  html += `<div class="matrix-panel">
+    <div class="matrix-panel-toggle" onclick="toggleMatrixPanel('${toggleId}')">&#9660; My Matrix (${matrix.matrix ? matrix.matrix.length : 0} vars)</div>
+    <div class="matrix-panel-body" id="${toggleId}">`;
+
+  if (matrix.matrix && matrix.matrix.length) {
+    matrix.matrix.forEach(m => {
+      let tag = '';
+      if (m.type === 'override') {
+        tag = `<span class="m-tag m-tag-override">was ${m.default_weight}</span>`;
+      } else if (m.type === 'custom') {
+        tag = `<span class="m-tag m-tag-custom">custom</span>`;
+      }
+      html += `<div class="matrix-row">
+        <span class="m-key">${esc(m.key.replace(/_/g, ' '))}</span>
+        <span class="m-weight">${m.weight}</span>
+        ${tag}
+      </div>`;
+    });
+  }
+  if (matrix.excluded && matrix.excluded.length) {
+    matrix.excluded.forEach(ex => {
+      html += `<div class="matrix-excluded-row">x ${esc(ex.replace(/_/g, ' '))}</div>`;
+    });
+  }
+
+  html += `</div></div></div>`;
+  return html;
+}
+
+function toggleMatrixPanel(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('open');
+}
+
+async function analyzeMyWay(sport) {
+  const btn = document.getElementById('analyzeMyWayBtn');
+  if (!btn) return;
+  btn.disabled = true;
+  btn.classList.add('running');
+  btn.textContent = 'ANALYZING...';
+
+  const loading = document.getElementById('loadingState');
+  loading.style.display = 'block';
+  document.getElementById('loadingText').textContent = 'Running DJ\'s custom analysis... 30-60 seconds';
+
+  try {
+    const resp = await fetch(`/api/analysis/${sport}?force=true&user_id=${AGENT_USER_ID}`);
+    if (resp.status === 429) {
+      showAgentToast('Rate limit \u2014 max 3 custom runs per sport per day');
+      return;
+    }
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      showAgentToast(err.error || 'Analysis failed');
+      return;
+    }
+    const data = await resp.json();
+    djAnalysis[sport] = data;
+    showAgentToast('DJ\'s analysis complete!');
+    // Reload the sport view to show comparison
+    await loadSport(sport);
+  } catch(e) {
+    showAgentToast('Error: ' + e.message);
+  } finally {
+    loading.style.display = 'none';
+    if (btn) {
+      btn.disabled = false;
+      btn.classList.remove('running');
+      const name = agentProfile ? agentProfile.display_name : 'DJ';
+      btn.textContent = 'ANALYZE ' + name.toUpperCase() + '\'S WAY';
+    }
+  }
+}
+
+function showAgentToast(msg) {
+  const el = document.getElementById('agentToast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// === VOICE ===
+function toggleVoice() {
+  if (voiceActive) endVoice();
+  else startVoice();
+}
+
+async function startVoice() {
+  const overlay = document.getElementById('voiceConnecting');
+  overlay.classList.add('visible');
+
+  try {
+    // 1. Get token with user_id
+    const tokenResp = await fetch('/api/voice/token', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ user_id: AGENT_USER_ID })
+    });
+    if (!tokenResp.ok) throw new Error('Failed to get voice token');
+    const tokenData = await tokenResp.json();
+
+    // 2. Peer connection
+    rtcPC = new RTCPeerConnection();
+
+    // 3. Audio output
+    const audioEl = document.getElementById('rtcAudio');
+    rtcPC.ontrack = event => {
+      if (event.streams.length > 0) audioEl.srcObject = event.streams[0];
+    };
+
+    // 4. Mic
+    rtcMicStream = await navigator.mediaDevices.getUserMedia({
+      audio: {noiseSuppression:true, echoCancellation:true, autoGainControl:true, channelCount:1}
+    });
+    rtcPC.addTrack(rtcMicStream.getAudioTracks()[0]);
+
+    // 5. Data channel
+    rtcDC = rtcPC.createDataChannel('realtime-channel');
+
+    // 6. Offer + SDP
+    const offer = await rtcPC.createOffer();
+    await rtcPC.setLocalDescription(offer);
+
+    const sdpResp = await fetch('/api/voice/sdp', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({sdp: offer.sdp, token: tokenData.token})
+    });
+    if (!sdpResp.ok) throw new Error('SDP exchange failed');
+    const answerSdp = await sdpResp.text();
+    await rtcPC.setRemoteDescription({type: 'answer', sdp: answerSdp});
+
+    // 7. On open
+    rtcDC.onopen = () => {
+      overlay.classList.remove('visible');
+      rtcDC.send(JSON.stringify({
+        type: 'session.update',
+        session: {
+          input_audio_transcription: {model: 'whisper-1'},
+          turn_detection: {
+            type: 'semantic_vad', create_response: true,
+            interrupt_response: true, eagerness: 'medium'
+          }
+        }
+      }));
+      voiceActive = true;
+      updateVoiceUI(true);
+
+      // Greeting
+      const name = agentProfile ? agentProfile.display_name : 'DJ';
+      const sport = currentSport ? currentSport.toUpperCase() : 'the slate';
+      rtcDC.send(JSON.stringify({
+        type: 'response.create',
+        response: {
+          instructions: `Greet ${name} by name. You're their Edge Agent. Current sport is ${sport}. Ask what they want to adjust or analyze. 2 sentences max.`
+        }
+      }));
+    };
+
+    // 8. Messages — including function calls
+    rtcDC.onmessage = event => {
+      const msg = JSON.parse(event.data);
+
+      if (msg.type === 'conversation.item.input_audio_transcription.completed') {
+        if (msg.transcript && msg.transcript.trim()) {
+          showAgentToast('You: ' + msg.transcript.trim().substring(0, 60));
+        }
+      }
+
+      if (msg.type === 'response.audio_transcript.done') {
+        if (msg.transcript && msg.transcript.trim()) {
+          document.getElementById('voiceStatusText').textContent = msg.transcript.trim();
+        }
+      }
+
+      // Function call — process via backend
+      if (msg.type === 'response.function_call_arguments.done') {
+        handleAgentFunctionCall(msg);
+      }
+    };
+
+    rtcDC.onclose = () => endVoice();
+    rtcPC.onconnectionstatechange = () => {
+      if (rtcPC && (rtcPC.connectionState === 'failed' || rtcPC.connectionState === 'disconnected')) endVoice();
+    };
+
+  } catch(e) {
+    overlay.classList.remove('visible');
+    showAgentToast('Voice error: ' + e.message);
+    endVoice();
+  }
+}
+
+async function handleAgentFunctionCall(msg) {
+  const fnName = msg.name;
+  let args = {};
+  try { args = JSON.parse(msg.arguments || '{}'); } catch(e) {}
+  const callId = msg.call_id;
+
+  // Default sport to current if not specified
+  if (!args.sport && currentSport) args.sport = currentSport;
+
+  try {
+    const resp = await fetch('/api/agent/' + AGENT_USER_ID + '/action', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ action: fnName, args: args })
+    });
+    const result = await resp.json();
+
+    // Send result back to realtime session
+    if (rtcDC && rtcDC.readyState === 'open') {
+      rtcDC.send(JSON.stringify({
+        type: 'conversation.item.create',
+        item: { type: 'function_call_output', call_id: callId, output: JSON.stringify(result) }
+      }));
+      rtcDC.send(JSON.stringify({ type: 'response.create' }));
+    }
+
+    // Refresh matrix + profile
+    if (result.success) {
+      showAgentToast(result.message || 'Updated');
+      const matrixResp = await fetch('/api/agent/' + AGENT_USER_ID + '/matrix/' + (args.sport || currentSport));
+      if (matrixResp.ok) agentMatrix[args.sport || currentSport] = await matrixResp.json();
+      // Re-render to show updated matrix
+      if (currentSport) await loadSport(currentSport);
+    }
+  } catch(e) {
+    showAgentToast('Action error: ' + e.message);
+  }
+}
+
+function endVoice() {
+  if (rtcPC) { try { rtcPC.close(); } catch(e){} rtcPC = null; }
+  if (rtcDC) { try { rtcDC.close(); } catch(e){} rtcDC = null; }
+  if (rtcMicStream) { rtcMicStream.getTracks().forEach(t => t.stop()); rtcMicStream = null; }
+  const audioEl = document.getElementById('rtcAudio');
+  if (audioEl && audioEl.srcObject) {
+    audioEl.srcObject.getTracks().forEach(t => t.stop());
+    audioEl.srcObject = null;
+  }
+  voiceActive = false;
+  updateVoiceUI(false);
+  document.getElementById('voiceConnecting').classList.remove('visible');
+}
+
+function updateVoiceUI(active) {
+  const micBtn = document.getElementById('voiceMicBtn');
+  const statusEl = document.getElementById('voiceStatusText');
+  if (active) {
+    micBtn.classList.add('listening');
+    statusEl.className = 'voice-status-text active';
+    statusEl.innerHTML = '<span class="v-dot"></span>Listening...';
+  } else {
+    micBtn.classList.remove('listening');
+    statusEl.className = 'voice-status-text';
+    statusEl.textContent = 'Talk to your agent...';
+  }
 }
 
 init();
