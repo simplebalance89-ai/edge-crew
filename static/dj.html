@@ -604,17 +604,41 @@ function showLanding() {
   document.getElementById('landingPage').innerHTML = `
     <div class="landing">
       <h2>CASA EXPECTED VALUE</h2>
-      <div class="subtitle">AI-Powered Sports Edge Finder</div>
-      <div class="what-we-do">
-        <h3>What we do</h3>
-        <ul>
-          <li>Grade every game using AI + injury data + line analysis</li>
-          <li>Find where the book is WRONG &mdash; not just who wins</li>
-          <li>Screen every player prop against their last 5 games</li>
-          <li>Compare lines across 7+ books to find mispricings</li>
+      <div class="subtitle">What you saw tonight &mdash; automated.</div>
+
+      <div class="what-we-do" style="text-align:left;max-width:560px;margin:24px auto;">
+        <h3 style="color:var(--green);font-size:0.95rem;margin-bottom:12px;">Tonight's Proof</h3>
+        <div style="background:rgba(0,214,143,0.06);border:1px solid rgba(0,214,143,0.2);border-radius:10px;padding:14px;margin-bottom:16px;font-size:0.8rem;line-height:1.7;">
+          <div><span style="color:var(--green);font-weight:700;">Mathurin O17.5 PTS</span> &mdash; L5 games: 26, 28, 21, 22, 23. Floor: 21. Line: 17.5. Gap: +3.5. <span style="color:var(--green);font-weight:700;">CASHED (21 pts)</span></div>
+          <div style="margin-top:6px;"><span style="color:var(--green);font-weight:700;">Achiuwa O6.5 REB (+106)</span> &mdash; Sabonis + Eubanks OUT = no center. <span style="color:var(--green);font-weight:700;">CASHED (7 reb)</span></div>
+          <div style="margin-top:6px;"><span style="color:var(--green);font-weight:700;">Achiuwa O10.5 PTS (even)</span> &mdash; Same injury gap. <span style="color:var(--green);font-weight:700;">CASHED (18 pts)</span></div>
+          <div style="margin-top:6px;"><span style="color:var(--green);font-weight:700;">SJ Sharks ML +140</span> &mdash; MTL missing Laine + Caufield. <span style="color:var(--green);font-weight:700;">CASHED</span></div>
+        </div>
+
+        <h3 style="font-size:0.85rem;margin-bottom:10px;">How It Works</h3>
+        <ul style="font-size:0.78rem;line-height:1.8;">
+          <li><strong>15-Variable Matrix</strong> &mdash; every game scored across 15 factors (injuries, rest, matchup, trends, public action, sharp money, etc.) by AI analysis</li>
+          <li><strong>The Mathurin Screener</strong> &mdash; pulls every player's last 5 game logs, compares their FLOOR to the book's line. Floor &gt; line = the book is wrong</li>
+          <li><strong>Multi-Book Comparison</strong> &mdash; same line across 12+ books (DraftKings, FanDuel, Pinnacle, Bovada, Bet365, Hard Rock, BetOnline...). See who has the best number in one card</li>
+          <li><strong>Injury Gap Detection</strong> &mdash; when a star is OUT, we identify which role player absorbs minutes and check if the book adjusted their line. If not = mispriced</li>
+          <li><strong>Arbitrage Scanner</strong> &mdash; cross-book arb opportunities where you can bet both sides and guarantee profit</li>
         </ul>
+
+        <h3 style="font-size:0.85rem;margin-top:18px;margin-bottom:10px;">What You See Per Game</h3>
+        <ul style="font-size:0.78rem;line-height:1.8;">
+          <li><strong>Grade (A through F)</strong> &mdash; A = strong edge, book is wrong. D/F = trap, stay away</li>
+          <li><strong>Scoring Matrix</strong> &mdash; the 15 variables visualized so you see WHY it got that grade</li>
+          <li><strong>Edge Question</strong> &mdash; "Where is the market wrong on this game?"</li>
+          <li><strong>Book Lines</strong> &mdash; every book's spread, ML, and total side by side. Best highlighted green, worst red</li>
+          <li><strong>Screener Hits</strong> &mdash; any player props where the floor beats the line</li>
+        </ul>
+
+        <div style="margin-top:18px;padding:12px;background:rgba(108,92,231,0.08);border:1px solid rgba(108,92,231,0.2);border-radius:8px;font-size:0.78rem;color:var(--text-dim);line-height:1.6;">
+          <strong style="color:var(--accent-glow);">The Rule:</strong> Every pick must pass the Mathurin Test &mdash; "Can you show a NUMBER that proves the book is wrong?" If yes, bet it. If no, pass. No opinions, only math.
+        </div>
       </div>
-      <div class="tonight">Tonight: <strong>NCAAB Conference Tournaments + NBA</strong></div>
+
+      <div class="tonight" style="margin-top:20px;">Conference Tournaments + NBA &mdash; ${dateStr}</div>
       <div class="landing-buttons">
         <button class="landing-btn" onclick="startSport('ncaab')">LOAD NCAAB</button>
         <button class="landing-btn" onclick="startSport('nba')">LOAD NBA</button>
