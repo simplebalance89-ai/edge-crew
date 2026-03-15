@@ -6460,6 +6460,84 @@ async def manual_prop_board(request: Request):
     return JSONResponse({"status": "ok", "entry": entry})
 
 
+# ============================================================
+# DJ FEEDBACK — Notes from DJ to Peter
+# ============================================================
+
+DJ_FEEDBACK_FILE = os.path.join(DATA_DIR, "dj_feedback.json")
+
+
+def _read_dj_feedback() -> dict:
+    try:
+        if os.path.exists(DJ_FEEDBACK_FILE):
+            with open(DJ_FEEDBACK_FILE, "r") as f:
+                return json.load(f)
+    except Exception as e:
+        logger.error(f"Error reading DJ feedback: {e}")
+    return {"notes": []}
+
+
+def _write_dj_feedback(data: dict):
+    try:
+        os.makedirs(os.path.dirname(DJ_FEEDBACK_FILE), exist_ok=True)
+        with open(DJ_FEEDBACK_FILE, "w") as f:
+            json.dump(data, f, indent=2)
+    except Exception as e:
+        logger.error(f"Error writing DJ feedback: {e}")
+
+
+@app.get("/api/dj-feedback")
+async def get_dj_feedback():
+    """Return all DJ feedback notes, newest first."""
+    data = _read_dj_feedback()
+    notes = data.get("notes", [])
+    notes.sort(key=lambda n: n.get("timestamp", ""), reverse=True)
+    return JSONResponse({"notes": notes, "count": len(notes)})
+
+
+@app.post("/api/dj-feedback")
+async def post_dj_feedback(request: Request):
+    """DJ submits a feedback note to Peter."""
+    body = await request.json()
+    message = body.get("message", "").strip()
+    if not message:
+        return JSONResponse({"error": "Message required"}, status_code=400)
+
+    note = {
+        "id": f"fb_{uuid.uuid4().hex[:10]}",
+        "from": body.get("from", "DJ"),
+        "category": body.get("category", "general"),
+        "message": message,
+        "reply": None,
+        "timestamp": datetime.now(PST).strftime("%Y-%m-%d %H:%M"),
+    }
+
+    data = _read_dj_feedback()
+    data["notes"].append(note)
+    _write_dj_feedback(data)
+    logger.info(f"[DJ FEEDBACK] {note['category']}: {message[:80]}")
+
+    return JSONResponse({"status": "ok", "note": note})
+
+
+@app.post("/api/dj-feedback/{note_id}/reply")
+async def reply_dj_feedback(note_id: str, request: Request):
+    """Peter replies to a DJ feedback note."""
+    body = await request.json()
+    reply = body.get("reply", "").strip()
+    if not reply:
+        return JSONResponse({"error": "Reply required"}, status_code=400)
+
+    data = _read_dj_feedback()
+    for note in data["notes"]:
+        if note.get("id") == note_id:
+            note["reply"] = reply
+            note["replied_at"] = datetime.now(PST).strftime("%Y-%m-%d %H:%M")
+            _write_dj_feedback(data)
+            return JSONResponse({"status": "ok", "note": note})
+    return JSONResponse({"error": "Note not found"}, status_code=404)
+
+
 @app.post("/api/prop-board/backfill")
 async def backfill_prop_board():
     """One-time: re-scan historical prop wins and populate board for 25%+ crushers."""
