@@ -10,7 +10,7 @@ import re
 import asyncio
 import statistics
 import db
-from openai import AzureOpenAI
+from openai import AzureOpenAI, OpenAI
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
@@ -729,6 +729,7 @@ AZURE_BASE = AZURE_ENDPOINT.rstrip("/")
 ANALYSIS_THINKER = os.environ.get("ANALYSIS_THINKER", "grok-4-1-fast-reasoning")
 ANALYSIS_FORMATTER = os.environ.get("ANALYSIS_FORMATTER", "DeepSeek-V3.2")
 ANALYSIS_MODE = os.environ.get("ANALYSIS_MODE", "twomodel")  # "twomodel" or "single"
+THINKER_ENDPOINT = os.environ.get("THINKER_ENDPOINT", "https://pwgcerp-9302-resource.services.ai.azure.com/openai/v1/")
 
 # Build version — auto-set at server startup for cache busting
 _git_hash = os.environ.get("RENDER_GIT_COMMIT", "")[:7]
@@ -4320,12 +4321,11 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
     # ── Core model call functions ──
     def _call_thinker(prompt_text, batch_idx=0):
         """Call the reasoning model (Grok). Returns (raw_analysis_text, metadata)."""
-        client = AzureOpenAI(
-            azure_endpoint=AZURE_ENDPOINT,
+        client = OpenAI(
+            base_url=THINKER_ENDPOINT,
             api_key=AZURE_KEY,
-            api_version="2024-10-21",
         )
-        logger.info(f"[THINKER] Batch {batch_idx} ({sport.upper()}) → {ANALYSIS_THINKER}")
+        logger.info(f"[THINKER] Batch {batch_idx} ({sport.upper()}) → {ANALYSIS_THINKER} via {THINKER_ENDPOINT}")
         think_start = time.time()
         think_response = client.chat.completions.create(
             model=ANALYSIS_THINKER,
