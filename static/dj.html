@@ -800,8 +800,12 @@
 <body>
 
 <div class="header" id="headerBar" style="display:none;">
-  <h1>CASA EXPECTED VALUE &mdash; <span class="sport-label" id="sportLabel">NCAAB</span> <span class="date-label" id="dateLabel"></span></h1>
+  <h1>DJ'S EDGE AGENT &mdash; <span class="sport-label" id="sportLabel">NCAAB</span> <span class="date-label" id="dateLabel"></span></h1>
   <div class="pills" id="sportPills"></div>
+  <div class="pills" style="margin-top:6px;">
+    <div class="pill" id="tabSlate" onclick="switchView('slate')" style="background:var(--pill-active);color:#fff;border-color:var(--accent);">Slate</div>
+    <div class="pill" id="tabMatrix" onclick="switchView('matrix')">DJ's Matrix</div>
+  </div>
 </div>
 
 <div id="landingPage"></div>
@@ -865,7 +869,7 @@
 
 <script>
 const AGENT_USER_ID = 'dj';
-const SPORTS = ['ncaab','nba','nhl','mlb','soccer','tennis','mma','boxing','wnba','ncaaf'];
+const SPORTS = ['ncaab','nba'];
 const SPORT_LABELS = {ncaab:'NCAAB',nba:'NBA',nhl:'NHL',mlb:'MLB',soccer:'Soccer',tennis:'Tennis',mma:'MMA',boxing:'Boxing',wnba:'WNBA',ncaaf:'NCAAF'};
 
 // Default matrix definitions — the 20-variable scoring system per sport
@@ -1612,6 +1616,105 @@ function esc(s) {
   const d = document.createElement('div');
   d.textContent = String(s);
   return d.innerHTML;
+}
+
+// === VIEW SWITCHING (Slate vs Matrix) ===
+let currentView = 'slate';
+
+function switchView(view) {
+  currentView = view;
+  const tabSlate = document.getElementById('tabSlate');
+  const tabMatrix = document.getElementById('tabMatrix');
+  if (view === 'slate') {
+    tabSlate.style.background = 'var(--pill-active)'; tabSlate.style.color = '#fff'; tabSlate.style.borderColor = 'var(--accent)';
+    tabMatrix.style.background = ''; tabMatrix.style.color = ''; tabMatrix.style.borderColor = '';
+    if (currentSport) loadSport(currentSport);
+  } else {
+    tabMatrix.style.background = 'var(--pill-active)'; tabMatrix.style.color = '#fff'; tabMatrix.style.borderColor = 'var(--accent)';
+    tabSlate.style.background = ''; tabSlate.style.color = ''; tabSlate.style.borderColor = '';
+    renderMatrixView();
+  }
+}
+
+function renderMatrixView() {
+  const container = document.getElementById('gamesContainer');
+  const sport = currentSport || 'ncaab';
+  const matrix = DEFAULT_MATRICES[sport];
+  const userMatrix = agentMatrix[sport] || { matrix: [], excluded: [] };
+  const name = agentProfile ? agentProfile.display_name : 'DJ';
+
+  let html = '';
+
+  // Default system matrix
+  html += `<div style="margin-bottom:20px;">
+    <h3 style="font-size:0.85rem;font-weight:800;color:var(--accent-glow);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">System Default &mdash; ${SPORT_LABELS[sport] || sport.toUpperCase()} Scoring Matrix</h3>
+    <p style="font-size:0.72rem;color:var(--text-dim);margin-bottom:12px;">Every game is scored across these ${matrix ? matrix.length : 20} variables. Each gets a score of 1-10, multiplied by its weight. Higher weight = bigger impact on the final grade.</p>`;
+
+  if (matrix) {
+    matrix.forEach(([key, weight]) => {
+      const wColor = weight >= 9 ? 'var(--green)' : weight >= 7 ? 'var(--accent-glow)' : weight >= 5 ? 'var(--text-dim)' : 'var(--red)';
+      const barW = (weight / 10 * 100);
+      const label = key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      html += `<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;margin-bottom:3px;background:rgba(255,255,255,0.03);border-radius:6px;">
+        <span style="flex:1;font-size:0.72rem;font-weight:600;">${esc(label)}</span>
+        <div style="width:80px;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;">
+          <div style="width:${barW}%;height:100%;background:${wColor};border-radius:3px;"></div>
+        </div>
+        <span style="font-size:0.75rem;font-weight:800;color:${wColor};min-width:20px;text-align:right;">${weight}</span>
+      </div>`;
+    });
+  }
+  html += `</div>`;
+
+  // DJ's custom matrix (if has any overrides)
+  const hasOverrides = userMatrix.matrix && userMatrix.matrix.some(m => m.type !== 'default');
+  const hasExcluded = userMatrix.excluded && userMatrix.excluded.length > 0;
+
+  if (hasOverrides || hasExcluded) {
+    html += `<div style="margin-bottom:20px;">
+      <h3 style="font-size:0.85rem;font-weight:800;color:var(--green);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">${esc(name)}'s Custom Changes</h3>`;
+
+    if (userMatrix.matrix) {
+      userMatrix.matrix.forEach(m => {
+        if (m.type === 'override') {
+          html += `<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;margin-bottom:3px;background:rgba(255,217,61,0.06);border:1px solid rgba(255,217,61,0.15);border-radius:6px;">
+            <span style="flex:1;font-size:0.72rem;font-weight:600;">${esc(m.key.replace(/_/g, ' '))}</span>
+            <span style="font-size:0.65rem;color:var(--text-dim);">was ${m.default_weight}</span>
+            <span style="font-size:0.65rem;color:var(--text-dim);">&rarr;</span>
+            <span style="font-size:0.75rem;font-weight:800;color:var(--yellow);">${m.weight}</span>
+          </div>`;
+        } else if (m.type === 'custom') {
+          html += `<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;margin-bottom:3px;background:rgba(0,214,143,0.06);border:1px solid rgba(0,214,143,0.15);border-radius:6px;">
+            <span style="flex:1;font-size:0.72rem;font-weight:600;">${esc(m.key.replace(/_/g, ' '))}</span>
+            <span style="font-size:0.55rem;font-weight:700;color:var(--green);text-transform:uppercase;">Custom</span>
+            <span style="font-size:0.75rem;font-weight:800;color:var(--green);">${m.weight}</span>
+          </div>`;
+        }
+      });
+    }
+    if (hasExcluded) {
+      userMatrix.excluded.forEach(ex => {
+        html += `<div style="padding:4px 8px;margin-bottom:3px;font-size:0.72rem;color:var(--red);text-decoration:line-through;opacity:0.6;">
+          x ${esc(ex.replace(/_/g, ' '))} (excluded)
+        </div>`;
+      });
+    }
+    html += `</div>`;
+  } else {
+    html += `<div style="background:rgba(108,92,231,0.06);border:1px solid rgba(108,92,231,0.15);border-radius:10px;padding:16px;text-align:center;margin-bottom:20px;">
+      <div style="font-size:0.85rem;font-weight:700;color:var(--accent-glow);margin-bottom:6px;">No custom weights yet</div>
+      <div style="font-size:0.72rem;color:var(--text-dim);">Hit Conversation or Take Turns below and tell your agent how you'd change these weights. Say things like "bump home court to 8" or "add tight rims as a factor."</div>
+    </div>`;
+  }
+
+  // Analyze buttons
+  html += `<div style="display:flex;gap:10px;margin-bottom:20px;">
+    <button class="analyze-my-way" onclick="analyzeMyWay('${sport}')" style="flex:1;">Analyze ${esc(name)}'s Way</button>
+    <button class="reanalyze-btn" onclick="reanalyzeSlate('${sport}')" style="flex:1;padding:14px;">Analyze Default</button>
+  </div>`;
+
+  container.innerHTML = html;
+  document.getElementById('footer').style.display = 'none';
 }
 
 // === DEFAULT MATRIX CARD ===
