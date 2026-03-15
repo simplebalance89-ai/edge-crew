@@ -971,12 +971,14 @@ async function init() {
 }
 
 function showLanding() {
-  // Skip landing page — go straight to NBA slate
+  gamesLoaded = false;
+  currentSport = null;
+  document.getElementById('headerBar').style.display = 'none';
+  document.getElementById('gamesContainer').innerHTML = '';
+  document.getElementById('footer').style.display = 'none';
+  // Auto-start NBA — skip landing page
   document.getElementById('landingPage').innerHTML = '';
-  document.getElementById('headerBar').style.display = 'block';
-  gamesLoaded = true;
-  renderPills();
-  switchSport('nba');
+  startSport('nba');
 }
 
 function startSport(sport) {
