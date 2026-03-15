@@ -668,15 +668,53 @@ async function loadSport(sport) {
     const analysis = analysisResp || { games: [] };
     const screener = screenerResp || { screener: [] };
     const odds = oddsResp || { games: [] };
-    const games = analysis.games || [];
 
     // Cache for re-analyze
     analysisCache[sport] = analysis;
     screenerCache[sport] = screener;
     oddsCache[sport] = odds;
 
+    // Filter odds games to only UPCOMING (not already started)
+    const now = Date.now();
+    const upcomingOddsGames = (odds.games || []).filter(g => {
+      const ct = g.commence_time || g.commence || g.time || '';
+      if (!ct) return true; // keep if no time data
+      const gameTime = new Date(ct).getTime();
+      return gameTime > now;
+    });
+
+    // Use analysis games if available, but filter to upcoming only
+    let analysisGames = (analysis.games || []).filter(g => {
+      const ct = g.commence_time || g.commence || g.time || '';
+      if (!ct) return true;
+      const gameTime = new Date(ct).getTime();
+      return gameTime > now;
+    });
+
+    // Primary source: analysis games if we have upcoming ones, else build from odds
+    let games;
+    if (analysisGames.length > 0) {
+      games = analysisGames;
+    } else if (upcomingOddsGames.length > 0) {
+      // Build game cards from odds data (no analysis yet for tomorrow)
+      games = upcomingOddsGames.map(og => ({
+        matchup: `${og.away} @ ${og.home}`,
+        away: og.away || '',
+        home: og.home || '',
+        grade: 'TBD',
+        spread: og.home_spread || null,
+        total: og.total || null,
+        away_ml: og.away_ml || null,
+        home_ml: og.home_ml || null,
+        commence_time: og.commence_time || og.commence || '',
+        all_bookmakers: og.all_bookmakers || [],
+      }));
+    } else {
+      games = [];
+    }
+
     if (games.length === 0) {
-      container.innerHTML = `<div class="empty-state"><div class="icon">&#128203;</div><p>No ${SPORT_LABELS[sport]} analysis available yet.</p><p style="margin-top:8px;font-size:0.75rem;">Analysis runs daily at 4 PM PST when games are on the slate.</p></div>`;
+      container.innerHTML = `<div class="empty-state"><div class="icon">&#128203;</div><p>No upcoming ${SPORT_LABELS[sport]} games found.</p><p style="margin-top:8px;font-size:0.75rem;">Games appear when books post lines (usually morning of game day for NCAAB).</p></div>`;
       return;
     }
 
@@ -684,7 +722,7 @@ async function loadSport(sport) {
     const screenerByGame = buildScreenerMap(screener.screener || [], games);
 
     // Build odds lookup: matchup -> odds game data (with all_bookmakers)
-    const oddsByGame = buildOddsMap(odds.games || [], games);
+    const oddsByGame = buildOddsMap(upcomingOddsGames, games);
 
     // Render
     let html = '';
