@@ -4231,6 +4231,11 @@ COMPOSITE THRESHOLDS:
 4. Score ALL {len(matrix)} variables by their KEY NAME (e.g. "star_player_status": 8 because...). Show reasoning for each.
 5. Compute composite score using the weights above.
 6. EDGE PICK: team, bet type (spread/ML/total), specific line, confidence grade, one-sentence reasoning.
+   CRITICAL — TEAM NAME RULE: The "team" in edge_pick MUST match the side you are recommending.
+   - If recommending the UNDERDOG (taking points), use the underdog's team name with the POSITIVE spread (e.g. "PHI +8", NOT the favorite's name).
+   - If recommending the FAVORITE (laying points), use the favorite's team name with the NEGATIVE spread (e.g. "POR -8").
+   - The spread data shows "Spread: HOME SPREAD_VALUE". If SPREAD_VALUE is negative, HOME is the favorite and AWAY is the dog. If positive, HOME is the dog.
+   - VALUE DOG signal = you are recommending the underdog. The edge_pick team MUST be the dog (the +points team). Double-check before writing.
 7. PLAYER PROPS: Top 2-3 from the real prop lines above. Use L10 averages from game logs. No props if no real lines available.
 8. FLAGS: injury flags, schedule flags, sharp money flags.
 9. PETER ZONE: The play — conviction, sizing (full unit / half / small / pass), line value.
