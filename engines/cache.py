@@ -3,7 +3,7 @@
 import time
 
 _cache = {}
-CACHE_TTL = 300  # 5 minutes default
+CACHE_TTL = 600  # 10 minutes — matches prefetch interval
 
 
 def get_cached(key, ttl=None):

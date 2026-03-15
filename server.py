@@ -383,12 +383,41 @@ async def _warm_analysis_cache():
     print(f"[ANALYSIS WARM] Cache warm complete")
 
 
+PREFETCH_SPORTS = ["nba", "nhl", "ncaab", "mma"]
+PREFETCH_INTERVAL = 600  # 10 minutes
+
+
+async def _prefetch_loop():
+    """Background loop: pre-warm odds/props/discrepancy cache every 10 minutes so users never wait."""
+    await asyncio.sleep(30)  # Wait 30s after startup before first run
+    while True:
+        for sport in PREFETCH_SPORTS:
+            try:
+                events = await get_odds(sport)
+                # Skip props/discrepancy for sports with no games on slate
+                if hasattr(events, 'body'):
+                    body = json.loads(events.body)
+                    games = body if isinstance(body, list) else body.get("games", body.get("events", []))
+                    if not games:
+                        logger.info(f"[PREFETCH] {sport.upper()} no games on slate, skipping props")
+                        continue
+                await get_player_props(sport)
+                await find_discrepancies(sport)
+                await get_gap_props(sport)
+                logger.info(f"[PREFETCH] {sport.upper()} cache warmed")
+            except Exception as e:
+                logger.warning(f"[PREFETCH] {sport} failed: {e}")
+            await asyncio.sleep(2)  # Small gap between sports
+        await asyncio.sleep(PREFETCH_INTERVAL)
+
+
 @app.on_event("startup")
 async def start_background_tasks():
     await db.init_schema()
     asyncio.create_task(_autograde_loop())
     asyncio.create_task(_daily_slate_pull())
     asyncio.create_task(_warm_analysis_cache())
+    asyncio.create_task(_prefetch_loop())
 
 
 @app.on_event("shutdown")
