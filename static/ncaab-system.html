@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NCAAB Grading System — Casa Expected Value</title>
 <style>
-:root { --bg:#0d0d14; --card:#161622; --border:#1e1e30; --text:#e8e8f0; --dim:#8888a0; --accent:#6c5ce7; --green:#00d68f; --red:#ff5555; --gold:#d4a024; --orange:#ff9f43; }
+:root { --bg:#0d0d14; --card:#161622; --border:#1e1e30; --text:#e8e8f0; --dim:#8888a0; --accent:#6c5ce7; --green:#00d68f; --red:#ff5555; --gold:#d4a024; --orange:#ff9f43; --cyan:#00cec9; }
 * { margin:0; padding:0; box-sizing:border-box; }
 body { background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif; min-height:100vh; padding:20px 16px 80px; }
-.container { max-width:700px; margin:0 auto; }
+.container { max-width:720px; margin:0 auto; }
 h1 { font-size:1.3rem; color:var(--gold); text-align:center; margin-bottom:4px; letter-spacing:0.5px; }
 .subtitle { text-align:center; color:var(--dim); font-size:0.8rem; margin-bottom:24px; }
 .back { display:inline-block; color:var(--accent); font-size:0.8rem; text-decoration:none; margin-bottom:16px; }
@@ -19,92 +19,163 @@ p, li { font-size:0.78rem; line-height:1.7; color:var(--text); }
 ul { padding-left:18px; }
 li { margin-bottom:4px; }
 .grade-row { display:flex; align-items:center; gap:10px; padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
-.grade-badge { width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.9rem; flex-shrink:0; }
+.grade-badge { width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.75rem; flex-shrink:0; }
 .grade-A { background:rgba(0,214,143,0.15); color:var(--green); }
 .grade-B { background:rgba(108,92,231,0.15); color:var(--accent); }
 .grade-C { background:rgba(255,159,67,0.12); color:var(--orange); }
 .grade-D { background:rgba(255,85,85,0.12); color:var(--red); }
 .grade-desc { flex:1; font-size:0.75rem; }
-.var-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:6px; margin-top:8px; }
-.var-item { background:rgba(255,255,255,0.03); border-radius:6px; padding:6px 8px; font-size:0.72rem; }
-.var-name { color:var(--dim); font-size:0.65rem; text-transform:uppercase; letter-spacing:0.3px; }
+.grade-range { color:var(--dim); font-size:0.68rem; }
+.var-grid { display:grid; grid-template-columns:1fr; gap:4px; margin-top:8px; }
+.var-item { background:rgba(255,255,255,0.03); border-radius:6px; padding:6px 10px; font-size:0.72rem; display:flex; align-items:center; gap:8px; }
+.var-name { color:var(--accent); font-size:0.68rem; font-family:monospace; min-width:140px; flex-shrink:0; }
+.var-weight { color:var(--gold); font-weight:700; font-size:0.72rem; min-width:18px; text-align:center; flex-shrink:0; }
+.var-desc { color:var(--dim); font-size:0.68rem; flex:1; }
 .engine-label { display:inline-block; padding:3px 8px; border-radius:4px; font-size:0.65rem; font-weight:700; text-transform:uppercase; margin-right:6px; }
 .engine-ai { background:rgba(108,92,231,0.15); color:var(--accent); }
 .engine-math { background:rgba(212,160,36,0.15); color:var(--gold); }
+.engine-grok { background:rgba(0,206,201,0.15); color:var(--cyan); }
+.engine-ds { background:rgba(0,214,143,0.15); color:var(--green); }
+.engine-fallback { background:rgba(255,159,67,0.12); color:var(--orange); }
 .callout { background:rgba(0,214,143,0.06); border:1px solid rgba(0,214,143,0.2); border-radius:8px; padding:12px; margin-top:12px; font-size:0.75rem; line-height:1.7; }
+.chain { background:rgba(108,92,231,0.06); border:1px solid rgba(108,92,231,0.2); border-radius:8px; padding:10px 12px; margin-top:6px; font-size:0.73rem; line-height:1.6; }
+.chain-name { color:var(--accent); font-weight:700; }
+.chain-bonus { color:var(--green); font-weight:700; }
+.pipeline { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:10px 0; font-size:0.75rem; }
+.pipeline-step { background:rgba(255,255,255,0.04); border-radius:6px; padding:6px 10px; text-align:center; }
+.pipeline-arrow { color:var(--dim); font-size:1rem; }
+.data-src { display:inline-block; background:rgba(255,255,255,0.04); border-radius:4px; padding:2px 6px; font-size:0.68rem; color:var(--dim); margin:2px; }
 </style>
 </head>
 <body>
 <div class="container">
 <a href="/dj" class="back">&larr; Back to Edge Finder</a>
 <h1>NCAAB Grading System</h1>
-<div class="subtitle">How we grade college basketball — two engines, one grade</div>
+<div class="subtitle">Two-model AI pipeline, 20-variable matrix, chain detection, server-verified math</div>
 
 <div class="section">
-<h2>Two Engines, One Grade</h2>
-<p>Every NCAAB game is analyzed by <strong>two independent engines</strong> that approach the game differently:</p>
+<h2>Two-Model AI Pipeline</h2>
+<p>Every NCAAB game runs through a <strong>two-model pipeline</strong> designed by Sinton.ia. No single model does everything -- each has a role:</p>
 
-<h3><span class="engine-label engine-ai">AI ENGINE</span> Sinton.ia's Analysis</h3>
-<p>AI-powered analysis using a <strong>15-variable scoring matrix</strong>. Each variable is scored 1-10, then weighted into a composite score. The AI reads injury reports, rest schedules, travel, matchup data, and line movement to identify where the market might be wrong.</p>
+<div class="pipeline">
+<div class="pipeline-step"><span class="engine-label engine-grok">THINKER</span><br><strong>Grok</strong><br><span style="font-size:0.65rem;color:var(--dim);">grok-4.1-fast-reasoning<br>2M context</span></div>
+<div class="pipeline-arrow">&rarr;</div>
+<div class="pipeline-step"><span class="engine-label engine-ds">FORMATTER</span><br><strong>DeepSeek-V3.2</strong><br><span style="font-size:0.65rem;color:var(--dim);">Structures JSON output<br>matrix_scores + grades</span></div>
+<div class="pipeline-arrow">&rarr;</div>
+<div class="pipeline-step"><span class="engine-label engine-ai">SERVER</span><br><strong>Recalculates</strong><br><span style="font-size:0.65rem;color:var(--dim);">Weighted sum / max<br>Never trusts GPT math</span></div>
+</div>
 
-<h3><span class="engine-label engine-math">MATH ENGINE</span> Alyssa's Edge Calculator</h3>
-<p>Pure math — no opinions. Compares the book's implied probability to our calculated probability based on:</p>
-<ul>
-<li>Multi-book line comparison (12+ sportsbooks)</li>
-<li>Consensus vs best-available odds</li>
-<li>Historical ATS trends</li>
-<li>Player prop screening (L5 floor vs book line)</li>
-</ul>
-<p>The two engines agree? Strong signal. They disagree? Caution flag.</p>
+<h3><span class="engine-label engine-grok">STEP 1</span> Grok Reasons Freely</h3>
+<p>Grok gets the full game context -- injuries, matchups, trends, sharp money signals, line movement -- and <strong>reasons through it with no JSON constraints</strong>. Pure analysis. 2M context window means nothing gets cut.</p>
+
+<h3><span class="engine-label engine-ds">STEP 2</span> DeepSeek Formats</h3>
+<p>DeepSeek-V3.2 takes Grok's raw analysis and structures it into clean JSON: <code>matrix_scores</code> (all 20 variables), <code>edge_question</code>, letter grades. This separation means Grok thinks freely while DeepSeek handles the schema.</p>
+
+<h3><span class="engine-label engine-ai">STEP 3</span> Server Recalculates</h3>
+<p>The server <strong>never trusts GPT's math</strong>. It takes the 20 matrix scores, applies the real weights, computes: <code>(weighted_sum / max_possible) * 10</code>. Then it runs chain detection for bonus signals. The composite score you see is always server-calculated.</p>
+
+<h3><span class="engine-label engine-fallback">FALLBACK</span> gpt-4.1</h3>
+<p>If the two-model pipeline fails (Grok timeout, DeepSeek parse error), a single-model fallback using <strong>gpt-4.1</strong> catches the game so nothing gets dropped.</p>
 </div>
 
 <div class="section">
-<h2>The 15-Variable Matrix</h2>
-<p>Each game is scored across these 15 factors (1-10 scale):</p>
+<h2>The 20-Variable Matrix</h2>
+<p>Each variable scored 1-10, weighted by importance. Server computes the real composite from these weights:</p>
 <div class="var-grid">
-<div class="var-item"><div class="var-name">Tempo Matchup</div>Pace differential — fast vs slow creates edges</div>
-<div class="var-item"><div class="var-name">Three Pt Reliance</div>3PT dependency — high variance = upset risk</div>
-<div class="var-item"><div class="var-name">Sharp vs Public</div>Where sharp money is vs public — fade the public</div>
-<div class="var-item"><div class="var-name">Line Movement</div>Opening vs current line — movement = information</div>
-<div class="var-item"><div class="var-name">ATS Trend</div>Against-the-spread performance (L10, L5)</div>
-<div class="var-item"><div class="var-name">Defensive Efficiency</div>Points allowed per 100 possessions</div>
-<div class="var-item"><div class="var-name">Offensive Efficiency</div>Points scored per 100 possessions</div>
-<div class="var-item"><div class="var-name">Star Player Status</div>Key player availability and health</div>
-<div class="var-item"><div class="var-name">Bench Depth</div>Rotation depth — thin bench = fatigue risk</div>
-<div class="var-item"><div class="var-name">Conference Strength</div>Strength of conference — Big Ten vs mid-major</div>
-<div class="var-item"><div class="var-name">Turnover Margin</div>Turnover differential — possession matters</div>
-<div class="var-item"><div class="var-name">Rebounding</div>Board control — second chances = points</div>
-<div class="var-item"><div class="var-name">Recent Form</div>L5 game performance trend</div>
-<div class="var-item"><div class="var-name">Home Court</div>Home court advantage factor</div>
-<div class="var-item"><div class="var-name">Coaching Matchup</div>Coach track record in this matchup type</div>
+<div class="var-item"><div class="var-weight">9</div><div class="var-name">tempo_matchup</div><div class="var-desc">Pace / tempo matchup -- fast vs slow, possessions per game</div></div>
+<div class="var-item"><div class="var-weight">8</div><div class="var-name">three_pt_reliance</div><div class="var-desc">3PT shooting reliance vs opponent 3PT defense</div></div>
+<div class="var-item"><div class="var-weight">8</div><div class="var-name">sharp_vs_public</div><div class="var-desc">Sharp money vs public betting split</div></div>
+<div class="var-item"><div class="var-weight">8</div><div class="var-name">line_movement</div><div class="var-desc">Line movement since open -- sharp action, reverse moves</div></div>
+<div class="var-item"><div class="var-weight">8</div><div class="var-name">ats_trend</div><div class="var-desc">ATS trend (last 7/14 days)</div></div>
+<div class="var-item"><div class="var-weight">8</div><div class="var-name">defensive_efficiency</div><div class="var-desc">KenPom adjusted defensive efficiency</div></div>
+<div class="var-item"><div class="var-weight">8</div><div class="var-name">offensive_efficiency</div><div class="var-desc">KenPom adjusted offensive efficiency</div></div>
+<div class="var-item"><div class="var-weight">7</div><div class="var-name">star_player_status</div><div class="var-desc">Key player out or limited</div></div>
+<div class="var-item"><div class="var-weight">7</div><div class="var-name">bench_depth</div><div class="var-desc">Bench depth -- minutes distribution, bench scoring</div></div>
+<div class="var-item"><div class="var-weight">7</div><div class="var-name">conference_strength</div><div class="var-desc">Conference strength of schedule adjustment</div></div>
+<div class="var-item"><div class="var-weight">7</div><div class="var-name">turnover_margin</div><div class="var-desc">Turnover margin -- live ball turnovers, steals</div></div>
+<div class="var-item"><div class="var-weight">7</div><div class="var-name">rebounding</div><div class="var-desc">Offensive + defensive rebounding differential</div></div>
+<div class="var-item"><div class="var-weight">7</div><div class="var-name">recent_form</div><div class="var-desc">Recent form / streak (last 5-10 games)</div></div>
+<div class="var-item"><div class="var-weight">6</div><div class="var-name">home_court</div><div class="var-desc">Home court advantage -- elevation, crowd, venue factor</div></div>
+<div class="var-item"><div class="var-weight">6</div><div class="var-name">coaching_matchup</div><div class="var-desc">Coaching matchup -- timeout usage, in-game adjustments</div></div>
+<div class="var-item"><div class="var-weight">6</div><div class="var-name">ft_shooting</div><div class="var-desc">Free throw shooting % and FTA rate</div></div>
+<div class="var-item"><div class="var-weight">6</div><div class="var-name">rivalry_motivation</div><div class="var-desc">Rivalry / motivation factor -- tourney implications</div></div>
+<div class="var-item"><div class="var-weight">6</div><div class="var-name">b2b_fatigue</div><div class="var-desc">Back-to-back or 3-in-5 schedule fatigue</div></div>
+<div class="var-item"><div class="var-weight">5</div><div class="var-name">travel_distance</div><div class="var-desc">Travel distance / time zone adjustment</div></div>
+<div class="var-item"><div class="var-weight">5</div><div class="var-name">line_vs_model</div><div class="var-desc">Our composite vs the line spread -- meta-edge signal</div></div>
 </div>
-<p style="margin-top:10px;color:var(--dim);font-size:0.7rem;">Additional factors scored but weighted lower: FT Shooting, Rivalry/Motivation, B2B Fatigue, Travel Distance, Line vs Model</p>
+<p style="margin-top:10px;color:var(--dim);font-size:0.7rem;">Max possible: each variable's weight * 10 summed. Server formula: (weighted_sum / max_possible) * 10 = composite.</p>
+</div>
+
+<div class="section">
+<h2>Chain Detection Bonuses</h2>
+<p>When multiple signals align, the server detects compound patterns and adds bonus points to the composite:</p>
+
+<div class="chain">
+<span class="chain-name">TEMPO TRAP</span> <span class="chain-bonus">+1.0</span><br>
+<span style="color:var(--dim);font-size:0.68rem;">tempo_matchup &ge; 8 AND sharp_vs_public &ge; 7 AND three_pt_reliance &ge; 7</span><br>
+Pace mismatch + sharp money + 3PT variance = the book undervalues tempo.
+</div>
+
+<div class="chain">
+<span class="chain-name">TOURNEY FADE</span> <span class="chain-bonus">+1.0</span><br>
+<span style="color:var(--dim);font-size:0.68rem;">b2b_fatigue &ge; 7 AND bench_depth &le; 4 AND home_court &ge; 7</span><br>
+Tired team, thin bench, opponent has home court. Fade the favorite.
+</div>
+
+<div class="chain">
+<span class="chain-name">FORM WAVE</span> <span class="chain-bonus">+1.5</span><br>
+<span style="color:var(--dim);font-size:0.68rem;">recent_form &ge; 8 AND offensive_efficiency &ge; 7 AND ats_trend &ge; 7 AND h2h_season &ge; 6</span><br>
+Hot team firing on all cylinders with ATS momentum. Highest bonus -- hardest to trigger (4 conditions).
+</div>
 </div>
 
 <div class="section">
 <h2>Grade Scale</h2>
-<div class="grade-row"><div class="grade-badge grade-A">A</div><div class="grade-desc"><strong>Strong edge — book is wrong.</strong> Composite 8+. Both engines agree. Clear mispricing identified. Bet this.</div></div>
-<div class="grade-row"><div class="grade-badge grade-A">A-</div><div class="grade-desc"><strong>Good edge.</strong> Composite 7.5+. Strong signal but one variable is uncertain (e.g., injury status TBD).</div></div>
-<div class="grade-row"><div class="grade-badge grade-B">B+</div><div class="grade-desc"><strong>Lean.</strong> Composite 7+. Slight edge detected. Worth a small play if the price is right.</div></div>
-<div class="grade-row"><div class="grade-badge grade-B">B</div><div class="grade-desc"><strong>Marginal.</strong> Composite 6+. Some factors favor a side but not enough for a confident play.</div></div>
-<div class="grade-row"><div class="grade-badge grade-C">C</div><div class="grade-desc"><strong>No edge.</strong> Composite 5-6. Fair line. The book got it right. Pass.</div></div>
-<div class="grade-row"><div class="grade-badge grade-D">D/F</div><div class="grade-desc"><strong>Trap.</strong> Composite below 5. This looks good on the surface but the data says stay away.</div></div>
-
-<div class="callout">
-<strong>The Mathurin Test:</strong> Before any bet, ask: "Can I show a NUMBER that proves the book is wrong?" If the answer is just "I think they'll win" — that's a grade, not an edge. We only bet edges.
-</div>
+<p>Server-calculated composite maps to letter grades:</p>
+<div class="grade-row"><div class="grade-badge grade-A">A+</div><div class="grade-desc"><strong>Elite edge.</strong> <span class="grade-range">Composite 8.5+</span></div></div>
+<div class="grade-row"><div class="grade-badge grade-A">A</div><div class="grade-desc"><strong>Strong edge -- book is wrong.</strong> <span class="grade-range">Composite 7.8+</span></div></div>
+<div class="grade-row"><div class="grade-badge grade-A">A-</div><div class="grade-desc"><strong>Good edge.</strong> <span class="grade-range">Composite 7.0+</span></div></div>
+<div class="grade-row"><div class="grade-badge grade-B">B+</div><div class="grade-desc"><strong>Lean.</strong> Slight edge detected, worth a look. <span class="grade-range">Composite 6.5+</span></div></div>
+<div class="grade-row"><div class="grade-badge grade-B">B</div><div class="grade-desc"><strong>Marginal.</strong> Some factors favor a side. <span class="grade-range">Composite 6.0+</span></div></div>
+<div class="grade-row"><div class="grade-badge grade-B">B-</div><div class="grade-desc"><strong>Thin edge.</strong> Barely worth tracking. <span class="grade-range">Composite 5.5+</span></div></div>
+<div class="grade-row"><div class="grade-badge grade-C">C+</div><div class="grade-desc"><strong>Coin flip.</strong> No meaningful edge. <span class="grade-range">Composite 5.0+</span></div></div>
+<div class="grade-row"><div class="grade-badge grade-C">C</div><div class="grade-desc"><strong>No edge.</strong> Fair line. Pass. <span class="grade-range">Composite 4.0+</span></div></div>
+<div class="grade-row"><div class="grade-badge grade-D">D</div><div class="grade-desc"><strong>Bad spot.</strong> <span class="grade-range">Composite 3.0+</span></div></div>
+<div class="grade-row"><div class="grade-badge grade-D">F</div><div class="grade-desc"><strong>Trap.</strong> Stay away. <span class="grade-range">Below 3.0</span></div></div>
 </div>
 
 <div class="section">
-<h2>NCAAB-Specific Edges</h2>
+<h2>Alyssa's Math Engine</h2>
+<p><span class="engine-label engine-math">MATH ENGINE</span> Independent from the AI pipeline. Pure expected value math:</p>
 <ul>
-<li><strong>Conference tournament fatigue</strong> — teams playing 3rd game in 3 days, legs are gone</li>
-<li><strong>Venue neutrality</strong> — "home" team in a neutral site tournament doesn't get full home court advantage</li>
-<li><strong>Tight rims</strong> — some arenas have notoriously tight rims, favoring unders</li>
-<li><strong>Public bias on blue bloods</strong> — Duke, Kentucky, UNC get bet heavily regardless of matchup. Fade when the line is inflated.</li>
-<li><strong>Mid-major efficiency</strong> — small conference teams can be drastically undervalued in early rounds</li>
-<li><strong>First half lines</strong> — 1H/1Q lines are where books are least efficient in college basketball</li>
+<li><strong>Mathurin Screener</strong> -- pulls last 5 game logs from ESPN. Computes the FLOOR (lowest of L5) vs the book's line. Floor &gt; line = mispriced.</li>
+<li><strong>Multi-Book Comparison</strong> -- lines from 12+ sportsbooks across us, us2, eu, uk, au regions. Flags gaps &gt; 10 cents ML or &gt; 0.5 spread.</li>
+<li><strong>Injury Gap Detection</strong> -- star OUT, identify which role players absorb minutes/usage. If the book hasn't adjusted their props = free money.</li>
+<li><strong>EV Calculation</strong> -- <code>(our_prob * payout) - (1 - our_prob)</code>. Positive EV = bet. Negative = pass.</li>
 </ul>
+</div>
+
+<div class="section">
+<h2>Data Sources</h2>
+<p>
+<span class="data-src">The Odds API (paid)</span>
+<span class="data-src">ESPN injuries</span>
+<span class="data-src">CBS Sports injuries</span>
+<span class="data-src">RotoWire injuries</span>
+<span class="data-src">ESPN game logs</span>
+<span class="data-src">ESPN rosters</span>
+</p>
+<p style="margin-top:6px;color:var(--dim);font-size:0.7rem;">Analysis runs daily at 4PM PST -- right before tip when lineups are confirmed.</p>
+</div>
+
+<div class="section">
+<h2>The Rule</h2>
+<div class="callout">
+<strong>The Mathurin Test:</strong> Before placing any bet -- "Can you show a NUMBER that proves the book is wrong?"<br><br>
+<strong>YES:</strong> "His L5 floor is 21, book has 17.5. Gap is +3.5." &rarr; BET IT.<br>
+<strong>NO:</strong> "I think they'll cover." &rarr; PASS. That's an opinion, not an edge.<br><br>
+No opinions. Only math. The board IS the data.
+</div>
 </div>
 
 <div style="text-align:center;margin-top:20px;font-size:0.7rem;color:var(--dim);">Casa Expected Value &mdash; Edge Crew</div>
