@@ -971,41 +971,12 @@ async function init() {
 }
 
 function showLanding() {
-  gamesLoaded = false;
-  currentSport = null;
-  document.getElementById('headerBar').style.display = 'none';
-  document.getElementById('gamesContainer').innerHTML = '';
-  document.getElementById('footer').style.display = 'none';
-
-  const today = new Date();
-  const dateStr = today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-
-  document.getElementById('landingPage').innerHTML = `
-    <div class="landing">
-      <h2>DJ'S EDGE AGENT</h2>
-      <div class="subtitle">Your matrix. Your weights. Your edge.</div>
-
-      <div class="what-we-do" style="text-align:left;max-width:560px;margin:24px auto;">
-        <h3 style="font-size:0.85rem;margin-bottom:10px;">What This Does</h3>
-        <ul style="font-size:0.78rem;line-height:1.8;">
-          <li><strong>20-Variable Weighted Matrix</strong> per sport &mdash; every game scored across injuries, rest, matchup, trends, sharp money, and more</li>
-          <li><strong>Your Custom Weights</strong> &mdash; talk to your agent to bump, add, or drop variables. Your matrix, your grades</li>
-          <li><strong>Multi-Book Lines</strong> &mdash; same line across 12+ books side by side. Best number highlighted</li>
-          <li><strong>Prop Screener</strong> &mdash; player game logs vs book lines. Floor beats line = mispriced</li>
-          <li><strong>Injury Gap Detection</strong> &mdash; star OUT, role player absorbs, book didn't adjust = edge</li>
-          <li><strong>"Analyze DJ's Way"</strong> &mdash; re-run the full slate through YOUR custom weights and see how your grades differ from defaults</li>
-        </ul>
-
-        <div style="margin-top:18px;padding:12px;background:rgba(108,92,231,0.08);border:1px solid rgba(108,92,231,0.2);border-radius:8px;font-size:0.78rem;color:var(--text-dim);line-height:1.6;">
-          <strong style="color:var(--accent-glow);">How to start:</strong> Pick a sport below. Talk to your agent &mdash; hit Conversation or Take Turns at the bottom. Say things like "bump venue to 8" or "add tight rims" to customize your matrix. Then hit "Analyze DJ's Way" to see your custom grades.
-        </div>
-      </div>
-
-      <div class="tonight" style="margin-top:16px;">${dateStr}</div>
-      <div class="landing-buttons">
-        ${SPORTS.map(s => `<button class="landing-btn" onclick="startSport('${s}')">${SPORT_LABELS[s]}</button>`).join('')}
-      </div>
-    </div>`;
+  // Skip landing page — go straight to NBA slate
+  document.getElementById('landingPage').innerHTML = '';
+  document.getElementById('headerBar').style.display = 'block';
+  gamesLoaded = true;
+  renderPills();
+  switchSport('nba');
 }
 
 function startSport(sport) {
