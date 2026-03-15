@@ -195,6 +195,8 @@ async def _daily_slate_pull():
     await asyncio.sleep(30)
     last_slate_pull = None
     last_analysis_run = None
+    last_ncaab_morning = None  # Track 7 AM NCAAB morning slate
+    ncaab_morning_retries = 0  # Retry counter for 7 AM NCAAB
     while True:
         try:
             now = datetime.now(PST)
@@ -289,6 +291,55 @@ async def _daily_slate_pull():
                             except Exception as e:
                                 print(f"[ANALYSIS] Retry {s.upper()} failed again: {e}")
                     await asyncio.gather(*[_retry_one(s) for s in failed_sports])
+
+            # ── 7 AM PST NCAAB Morning Slate ──────────────────────────────────
+            # March Madness & regular season: NCAAB games tip early, analyze at 7 AM
+            # Retry at 7:30, 8:00 if odds aren't posted yet. Skip after 3 failures.
+            if "ncaab" in _in_season_sports():
+                ncaab_morning_key = f"{today}:ncaab_morning"
+                minute = now.minute
+                should_run_ncaab_morning = False
+
+                if hour == 7 and minute < 5 and last_ncaab_morning != ncaab_morning_key and ncaab_morning_retries == 0:
+                    should_run_ncaab_morning = True
+                elif hour == 7 and 25 <= minute <= 35 and last_ncaab_morning != ncaab_morning_key and ncaab_morning_retries == 1:
+                    should_run_ncaab_morning = True
+                elif hour == 8 and minute < 5 and last_ncaab_morning != ncaab_morning_key and ncaab_morning_retries == 2:
+                    should_run_ncaab_morning = True
+
+                # Reset retries on new day
+                if last_ncaab_morning and not last_ncaab_morning.startswith(today):
+                    ncaab_morning_retries = 0
+
+                if should_run_ncaab_morning:
+                    print(f"[CRON] NCAAB morning slate: attempt {ncaab_morning_retries + 1}/3 at {now.strftime('%I:%M %p PST')}")
+                    try:
+                        # Force fresh odds
+                        ncaab_odds_key = "ncaab:h2h,spreads,totals"
+                        if ncaab_odds_key in _cache:
+                            del _cache[ncaab_odds_key]
+                        async with _analysis_sem:
+                            resp = await get_analysis("ncaab")
+                            if hasattr(resp, 'body'):
+                                d = json.loads(resp.body)
+                                if d.get("games") and len(d["games"]) > 0:
+                                    _save_analysis_cache("ncaab", d)
+                                    print(f"[CRON] NCAAB morning slate: {len(d['games'])} games analyzed")
+                                    last_ncaab_morning = ncaab_morning_key
+                                    ncaab_morning_retries = 0
+                                else:
+                                    ncaab_morning_retries += 1
+                                    print(f"[CRON] NCAAB morning slate: no games/odds yet (retry {ncaab_morning_retries}/3)")
+                            else:
+                                ncaab_morning_retries += 1
+                                print(f"[CRON] NCAAB morning slate: no response (retry {ncaab_morning_retries}/3)")
+                    except Exception as e:
+                        ncaab_morning_retries += 1
+                        print(f"[CRON] NCAAB morning slate failed (retry {ncaab_morning_retries}/3): {e}")
+                    if ncaab_morning_retries >= 3 and last_ncaab_morning != ncaab_morning_key:
+                        print(f"[CRON] NCAAB morning slate: 3 failures, skipping today")
+                        last_ncaab_morning = ncaab_morning_key  # Mark as done to stop retrying
+
         except Exception as e:
             print(f"[SLATE] Loop error: {e}")
         await asyncio.sleep(300)
@@ -7964,6 +8015,104 @@ async def get_gap_props(sport: str, min_gap_score: float = 5.0, force: bool = Fa
 
 
 # ── End Prop Gap Analyzer ────────────────────────────────────────────────────
+
+
+# ── Simple Slate API ─────────────────────────────────────────────────────────
+
+@app.get("/api/simple/{sport}")
+async def get_simple_slate(sport: str):
+    """Combined endpoint for /simple page — returns everything in ONE call.
+    Merges analysis + edge data + gap props into a single response.
+    Games with grade B+ or better AND composite > 7.0 go into games_with_edges.
+    Everything else listed as no_edge_games (matchup names only)."""
+    sport_lower = sport.lower()
+    if sport_lower not in ALL_SPORTS:
+        return JSONResponse({"error": f"Unknown sport: {sport}"}, status_code=400)
+
+    # 1. Get cached analysis (never trigger GPT)
+    analysis_games = []
+    try:
+        analysis_resp = await get_analysis(sport_lower, cached_only=True)
+        if hasattr(analysis_resp, 'body'):
+            analysis_data = json.loads(analysis_resp.body)
+            analysis_games = analysis_data.get("games", [])
+    except Exception as e:
+        print(f"[SIMPLE] Analysis fetch error for {sport_lower}: {e}")
+
+    # 2. Get edge data
+    edge_games = []
+    try:
+        edge_resp = await get_edge(sport_lower)
+        if hasattr(edge_resp, 'body'):
+            edge_data = json.loads(edge_resp.body)
+            edge_games = edge_data.get("games", [])
+    except Exception as e:
+        print(f"[SIMPLE] Edge fetch error for {sport_lower}: {e}")
+
+    # 3. Get gap props (only for supported sports)
+    gap_props = []
+    if sport_lower in GAP_PROPS_SUPPORTED:
+        try:
+            gap_resp = await get_gap_props(sport_lower)
+            if hasattr(gap_resp, 'body'):
+                gap_data = json.loads(gap_resp.body)
+                gap_props = gap_data.get("gap_props", [])
+        except Exception as e:
+            print(f"[SIMPLE] Gap props fetch error for {sport_lower}: {e}")
+
+    # Build edge lookup by matchup for merging
+    edge_by_matchup = {}
+    for eg in edge_games:
+        key = eg.get("matchup", eg.get("game", "")).lower()
+        edge_by_matchup[key] = eg
+
+    # Grade thresholds: B+ or better
+    PASSING_GRADES = {"A+", "A", "A-", "B+"}
+
+    games_with_edges = []
+    no_edge_games = []
+
+    for g in analysis_games:
+        grade = g.get("grade", "")
+        composite = g.get("composite_score", 0)
+        matchup = g.get("matchup", g.get("game", ""))
+
+        if grade in PASSING_GRADES and composite > 7.0:
+            # Merge edge data if available
+            edge_info = edge_by_matchup.get(matchup.lower(), {})
+            games_with_edges.append({
+                "matchup": matchup,
+                "grade": grade,
+                "composite_score": composite,
+                "pick": g.get("pick", g.get("recommendation", "")),
+                "line": g.get("line", ""),
+                "confidence": g.get("confidence", ""),
+                "edge_thesis": g.get("edge_thesis", g.get("why_market_wrong", "")),
+                "upset_score": edge_info.get("upset_score", None),
+                "public_fade": edge_info.get("public_fade", False),
+                "sharp_signal": edge_info.get("sharp_signal", False),
+                "commence_time": g.get("commence_time", ""),
+            })
+        else:
+            no_edge_games.append({"matchup": matchup, "grade": grade})
+
+    # Sort edges by composite score descending
+    games_with_edges.sort(key=lambda x: x.get("composite_score", 0), reverse=True)
+
+    return JSONResponse({
+        "sport": sport.upper(),
+        "games_with_edges": games_with_edges,
+        "no_edge_games": no_edge_games,
+        "gap_props": gap_props[:10] if gap_props else [],
+        "total_games": len(analysis_games),
+        "edge_count": len(games_with_edges),
+        "updated_at": _now_ts(),
+    })
+
+
+@app.get("/simple")
+async def simple_page():
+    return FileResponse("static/simple.html", headers=NO_CACHE_HEADERS)
 
 
 @app.get("/")

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edge Crew — Simple Slate</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d1117;color:#e6edf3;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;padding:12px;max-width:640px;margin:0 auto}
+h1{font-size:1.3rem;margin-bottom:4px;color:#58a6ff}
+.meta{font-size:.75rem;color:#8b949e;margin-bottom:16px}
+.sport-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.sport-tabs button{background:#161b22;border:1px solid #30363d;color:#8b949e;padding:6px 12px;border-radius:6px;font-size:.8rem;cursor:pointer;transition:all .15s}
+.sport-tabs button.active{background:#1f6feb;color:#fff;border-color:#1f6feb}
+.sport-tabs button:hover{border-color:#58a6ff}
+.card{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:14px;margin-bottom:10px}
+.card .matchup{font-size:1rem;font-weight:600;margin-bottom:6px}
+.card .grade{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.75rem;font-weight:700;margin-right:6px}
+.grade-A{background:#238636;color:#fff}.grade-B{background:#1f6feb;color:#fff}
+.card .composite{font-size:.75rem;color:#8b949e}
+.card .pick{margin-top:8px;font-size:.9rem;color:#f0f6fc}
+.card .thesis{margin-top:6px;font-size:.8rem;color:#8b949e;line-height:1.4}
+.card .badges{margin-top:6px;display:flex;gap:6px;flex-wrap:wrap}
+.badge{font-size:.65rem;padding:2px 6px;border-radius:3px;font-weight:600}
+.badge.fade{background:#da3633;color:#fff}
+.badge.sharp{background:#a371f7;color:#fff}
+.badge.upset{background:#d29922;color:#fff}
+.no-edge{padding:8px 0;font-size:.8rem;color:#484f58;border-bottom:1px solid #21262d}
+.no-edge:last-child{border-bottom:none}
+.section-title{font-size:.85rem;color:#8b949e;margin:18px 0 8px;text-transform:uppercase;letter-spacing:.5px}
+.empty{text-align:center;padding:40px 0;color:#484f58;font-size:.9rem}
+.loading{text-align:center;padding:40px 0;color:#58a6ff;font-size:.9rem}
+.gap-card{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:10px;margin-bottom:8px}
+.gap-card .player{font-weight:600;font-size:.9rem}
+.gap-card .detail{font-size:.75rem;color:#8b949e;margin-top:4px}
+.refresh-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.refresh-btn{background:none;border:1px solid #30363d;color:#58a6ff;padding:4px 10px;border-radius:6px;font-size:.75rem;cursor:pointer}
+.refresh-btn:hover{background:#1f6feb;color:#fff;border-color:#1f6feb}
+</style>
+</head>
+<body>
+<div class="refresh-bar">
+  <div>
+    <h1>Edge Crew — Simple</h1>
+    <div class="meta" id="updated">Loading...</div>
+  </div>
+  <button class="refresh-btn" onclick="loadSlate()">Refresh</button>
+</div>
+
+<div class="sport-tabs" id="tabs"></div>
+
+<div id="content"><div class="loading">Loading slate...</div></div>
+
+<script>
+const SPORTS = ['ncaab','nba','nhl','mlb','soccer','tennis','mma','boxing'];
+let currentSport = new URLSearchParams(location.search).get('sport') || 'ncaab';
+
+function buildTabs(){
+  const el = document.getElementById('tabs');
+  el.innerHTML = SPORTS.map(s =>
+    `<button class="${s===currentSport?'active':''}" onclick="switchSport('${s}')">${s.toUpperCase()}</button>`
+  ).join('');
+}
+
+function switchSport(s){
+  currentSport = s;
+  history.replaceState(null,'',`?sport=${s}`);
+  buildTabs();
+  loadSlate();
+}
+
+function gradeClass(g){return g&&g.startsWith('A')?'grade-A':'grade-B'}
+
+function renderSlate(data){
+  const c = document.getElementById('content');
+  document.getElementById('updated').textContent =
+    `${data.sport} • ${data.edge_count}/${data.total_games} edges • ${data.updated_at||''}`;
+
+  if(!data.games_with_edges.length && !data.no_edge_games.length){
+    c.innerHTML = '<div class="empty">No games on slate yet. Check back later.</div>';
+    return;
+  }
+
+  let html = '';
+
+  if(data.games_with_edges.length){
+    html += '<div class="section-title">Edges</div>';
+    data.games_with_edges.forEach(g => {
+      let badges = '';
+      if(g.public_fade) badges += '<span class="badge fade">PUBLIC FADE</span>';
+      if(g.sharp_signal) badges += '<span class="badge sharp">SHARP</span>';
+      if(g.upset_score && g.upset_score >= 6) badges += `<span class="badge upset">UPSET ${g.upset_score}</span>`;
+
+      html += `<div class="card">
+        <div class="matchup">${g.matchup}</div>
+        <span class="grade ${gradeClass(g.grade)}">${g.grade}</span>
+        <span class="composite">${g.composite_score.toFixed(1)} composite</span>
+        ${g.pick ? `<div class="pick">${g.pick}</div>` : ''}
+        ${g.edge_thesis ? `<div class="thesis">${g.edge_thesis}</div>` : ''}
+        ${badges ? `<div class="badges">${badges}</div>` : ''}
+      </div>`;
+    });
+  }
+
+  if(data.gap_props && data.gap_props.length){
+    html += '<div class="section-title">Gap Props</div>';
+    data.gap_props.forEach(p => {
+      html += `<div class="gap-card">
+        <div class="player">${p.player||p.absorber||'—'}</div>
+        <div class="detail">${p.prop_type||''} ${p.line||''} • ${p.team||''} • Grade: ${p.grade||'—'}</div>
+      </div>`;
+    });
+  }
+
+  if(data.no_edge_games.length){
+    html += '<div class="section-title">No Edge</div>';
+    data.no_edge_games.forEach(g => {
+      html += `<div class="no-edge">${g.matchup} <span style="color:#484f58">${g.grade||''}</span></div>`;
+    });
+  }
+
+  c.innerHTML = html;
+}
+
+async function loadSlate(){
+  const c = document.getElementById('content');
+  c.innerHTML = '<div class="loading">Loading slate...</div>';
+  try{
+    const r = await fetch(`/api/simple/${currentSport}`);
+    const d = await r.json();
+    if(d.error){ c.innerHTML = `<div class="empty">${d.error}</div>`; return; }
+    renderSlate(d);
+  }catch(e){
+    c.innerHTML = `<div class="empty">Failed to load: ${e.message}</div>`;
+  }
+}
+
+buildTabs();
+loadSlate();
+setInterval(loadSlate, 30 * 60 * 1000); // Auto-refresh every 30 min
+</script>
+</body>
+</html>
