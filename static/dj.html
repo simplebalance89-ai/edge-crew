@@ -742,7 +742,17 @@ async function loadSport(sport) {
     const screenerByGame = buildScreenerMap(screener.screener || [], games);
 
     // Build odds lookup: matchup -> odds game data (with all_bookmakers)
-    const oddsByGame = buildOddsMap(upcomingOddsGames, games);
+    // When games came from odds directly, use the game itself as the odds source
+    let oddsByGame;
+    if (analysisGames.length > 0) {
+      oddsByGame = buildOddsMap(allOddsGames, games);
+    } else {
+      // Games ARE from odds — map each to its matching odds game directly
+      oddsByGame = {};
+      games.forEach((g, i) => {
+        oddsByGame[g.matchup] = upcomingOddsGames[i] || g;
+      });
+    }
 
     // Render
     let html = '';
@@ -1069,13 +1079,32 @@ function renderGameCard(game, screenerHits, oddsGame, cardIdx) {
   const edgeQuestion = game.edge_question || '';
   const trends = game.trends || [];
 
+  // Format game time
+  const ct = game.commence_time || game.commence || game.time || '';
+  let timeStr = '';
+  if (ct) {
+    const d = new Date(ct);
+    timeStr = d.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Los_Angeles' }) + ' PST';
+  }
+
+  // Basic lines for header
+  const spread = game.spread || game.home_spread || '';
+  const total = game.total || '';
+  const awayMl = game.away_ml || '';
+  const homeMl = game.home_ml || '';
+  const lineStr = [
+    spread ? `Spread: ${spread > 0 ? '+' : ''}${spread}` : '',
+    total ? `Total: ${total}` : '',
+    (awayMl && homeMl) ? `ML: ${awayMl > 0 ? '+' : ''}${awayMl}/${homeMl > 0 ? '+' : ''}${homeMl}` : ''
+  ].filter(Boolean).join(' | ');
+
   let html = `<div class="game-card">`;
 
   // Top row: matchup + grade + re-analyze
   html += `<div class="game-top">
     <div class="matchup-info">
       <div class="matchup-teams">${esc(matchup)}</div>
-      <div class="matchup-meta"></div>
+      <div class="matchup-meta">${timeStr ? esc(timeStr) : ''}${lineStr ? ' &mdash; ' + esc(lineStr) : ''}</div>
     </div>
     <div class="card-actions">
       <div class="grade-badge ${gradeClass(grade)}">${esc(grade)}</div>
