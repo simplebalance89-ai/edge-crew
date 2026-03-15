@@ -1115,25 +1115,34 @@ SOCCER_MATRIX = [
 ]
 
 NCAAB_MATRIX = [
-    ("tempo_matchup", 9, "Pace / tempo matchup — fast vs slow, possessions per game"),
-    ("three_pt_reliance", 8, "3PT shooting reliance vs opponent 3PT defense"),
-    ("sharp_vs_public", 8, "Sharp money vs public betting split"),
-    ("line_movement", 8, "Line movement since open — sharp action, reverse moves"),
-    ("ats_trend", 8, "ATS trend (last 7/14 days)"),
-    ("defensive_efficiency", 8, "KenPom adjusted defensive efficiency"),
-    ("offensive_efficiency", 8, "KenPom adjusted offensive efficiency"),
-    ("star_player_status", 7, "Key player out or limited"),
-    ("bench_depth", 7, "Bench depth — minutes distribution, bench scoring"),
-    ("conference_strength", 7, "Conference strength of schedule adjustment"),
-    ("turnover_margin", 7, "Turnover margin — live ball turnovers, steals"),
-    ("rebounding", 7, "Offensive + defensive rebounding differential"),
-    ("recent_form", 7, "Recent form / streak (last 5-10 games)"),
-    ("home_court", 6, "Home court advantage — elevation, crowd, venue factor"),
-    ("coaching_matchup", 6, "Coaching matchup — timeout usage, in-game adjustments"),
-    ("ft_shooting", 6, "Free throw shooting % and FTA rate"),
-    ("rivalry_motivation", 6, "Rivalry / motivation factor — tourney implications"),
-    ("b2b_fatigue", 6, "Back-to-back or 3-in-5 schedule fatigue"),
-    ("travel_distance", 5, "Travel distance / time zone adjustment"),
+    # Tier 1 — Weight 9 (Game Changers)
+    ("offensive_efficiency", 9, "KenPom/Torvik adjusted offensive efficiency — THE predictor in college basketball"),
+    ("defensive_efficiency", 9, "KenPom/Torvik adjusted defensive efficiency"),
+    ("star_player_status", 9, "Key player (top 2) out/limited — 8-man rotation means losing 1 = losing 12-15% of offense"),
+    ("line_movement", 9, "Line movement since open — sharp action, reverse moves"),
+    # Tier 2 — Weight 8 (Major Factors)
+    ("tempo_matchup", 8, "Pace/tempo matchup — fast vs slow, possessions per game"),
+    ("ats_trend", 8, "ATS trend (last 7/14 days) — covering trends persist more in college than NBA"),
+    ("tournament_context", 8, "Tournament game? Conference tourney round? NCAA tournament? Single elimination psychology, bye advantage"),
+    ("public_money_bias", 8, "Blue blood public bias — Duke/UK/UNC get hammered by public, books shade lines. Fade inflated favorites"),
+    # Tier 3 — Weight 7 (Significant Factors)
+    ("three_pt_reliance", 7, "3PT shooting reliance vs opponent 3PT defense — higher variance than NBA, streakier"),
+    ("bench_depth", 7, "Rotation depth — college = 8-9 man rotations, thin bench + foul trouble = disaster"),
+    ("rebounding", 7, "Offensive + defensive rebounding differential — second chances matter more with lower FG%"),
+    ("turnover_margin", 7, "Turnover margin — live ball turnovers, steals. College teams turn it over more than NBA"),
+    ("recent_form", 7, "Recent form / streak (last 5-10 games) — late season form predicts tournament performance"),
+    ("coaching_tournament_record", 7, "Coach's tournament track record — some coaches consistently over/underperform in March"),
+    ("net_ranking_gap", 7, "NET/RPI ranking differential — NCAA's official ranking. Large gaps = chalk, small gaps = volatility"),
+    # Tier 4 — Weight 6 (Supporting Factors)
+    ("neutral_site", 6, "Neutral site factor — conference tourneys, NCAA tournament. No home court. Proximity to venue matters"),
+    ("conference_strength", 6, "Strength of schedule adjustment — Big Ten vs mid-major, adjusted by KenPom SOS"),
+    ("ft_shooting", 6, "Free throw shooting % and FTA rate — close games decided at the line, college FT% lower than NBA"),
+    ("rivalry_motivation", 6, "Rivalry, revenge spot, senior night, tournament implications — motivation is real for 19-21 year olds"),
+    ("fatigue_schedule", 6, "Conference tournament fatigue — 3rd game in 3 days, late-season schedule compression"),
+    ("coaching_matchup", 6, "Coach A vs Coach B history — more stable in college, coaches stay longer"),
+    # Tier 5 — Weight 5 (Contextual)
+    ("venue_factor", 5, "Arena-specific — tight rims, altitude, court dimensions, crowd noise in smaller gyms"),
+    ("transfer_portal_impact", 5, "Key transfers in/out, roster chemistry. By March this is baked into recent_form"),
     ("line_vs_model", 5, "Our composite vs the line spread — meta-edge signal"),
 ]
 
@@ -1382,21 +1391,33 @@ CHAINS = {
     "ncaab": [
         {
             "name": "TEMPO TRAP",
-            "desc": "Pace mismatch + sharps on the slow side + opponent relies on 3PT",
+            "desc": "Pace mismatch + public on the fast team + 3PT variance",
             "bonus": 1.0,
-            "vars": {"tempo_matchup": (">=", 8), "sharp_vs_public": (">=", 7), "three_pt_reliance": (">=", 7)},
+            "vars": {"tempo_matchup": (">=", 8), "three_pt_reliance": (">=", 7), "public_money_bias": (">=", 7)},
         },
         {
             "name": "TOURNEY FADE",
-            "desc": "Fatigued team on B2B + weak bench + opponent has home crowd",
+            "desc": "Tournament fatigue + thin bench + 3rd game in 3 days",
             "bonus": 1.0,
-            "vars": {"b2b_fatigue": (">=", 7), "bench_depth": ("<=", 4), "home_court": (">=", 7)},
+            "vars": {"tournament_context": (">=", 7), "fatigue_schedule": (">=", 7), "bench_depth": ("<=", 4)},
         },
         {
             "name": "FORM WAVE",
-            "desc": "Hot team firing — ATS, form, efficiency all aligned",
+            "desc": "Hot team firing — ATS, form, efficiency all aligned heading into tournament",
             "bonus": 1.5,
             "vars": {"recent_form": (">=", 8), "ats_trend": (">=", 7), "offensive_efficiency": (">=", 7)},
+        },
+        {
+            "name": "BLUE BLOOD TRAP",
+            "desc": "Public hammering blue blood but line isn't moving and NET gap is small — book shaded for public money",
+            "bonus": 1.0,
+            "vars": {"public_money_bias": (">=", 8), "line_movement": ("<=", 4), "net_ranking_gap": ("<=", 5)},
+        },
+        {
+            "name": "CINDERELLA SIGNAL",
+            "desc": "Lower seed with elite defense and hot recent form — classic tournament upset profile",
+            "bonus": 1.0,
+            "vars": {"net_ranking_gap": (">=", 7), "recent_form": (">=", 8), "defensive_efficiency": (">=", 7)},
         },
     ],
     "mlb": [
