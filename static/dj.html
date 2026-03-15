@@ -996,7 +996,7 @@ function showLanding() {
 
       <div class="tonight" style="margin-top:16px;">${dateStr}</div>
       <div class="landing-buttons">
-        ${SPORTS.map(s => '<button class="landing-btn" onclick="startSport(\\''+s+'\\')">'+SPORT_LABELS[s]+'</button>').join('')}
+        ${SPORTS.map(s => `<button class="landing-btn" onclick="startSport('${s}')">${SPORT_LABELS[s]}</button>`).join('')}
       </div>
     </div>`;
 }
