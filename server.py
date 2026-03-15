@@ -6413,6 +6413,53 @@ async def relock_prop_board(entry_id: str):
     return JSONResponse({"error": "Entry not found"}, status_code=404)
 
 
+@app.post("/api/prop-board/manual")
+async def manual_prop_board(request: Request):
+    """Manually add a crushed line to the prop board."""
+    body = await request.json()
+    player = body.get("player", "").strip()
+    if not player:
+        return JSONResponse({"error": "Player name required"}, status_code=400)
+
+    line = body.get("line", 0)
+    actual = body.get("actual_value", 0)
+    if not line or not actual:
+        return JSONResponse({"error": "Line and actual value required"}, status_code=400)
+
+    pct_over = body.get("pct_over", 0)
+    if not pct_over and line > 0:
+        over_under = body.get("over_under", "over")
+        if over_under == "over":
+            pct_over = round((actual - line) / line * 100, 1)
+        else:
+            pct_over = round((line - actual) / line * 100, 1)
+
+    entry = {
+        "id": f"pb_{uuid.uuid4().hex[:12]}",
+        "pick_id": f"manual_{uuid.uuid4().hex[:8]}",
+        "player": player,
+        "sport": body.get("sport", "NBA").upper(),
+        "stat": body.get("stat", ""),
+        "stat_key": "",
+        "line": line,
+        "actual_value": actual,
+        "pct_over": pct_over,
+        "over_under": body.get("over_under", "over"),
+        "matchup": body.get("matchup", ""),
+        "picked_by": body.get("picked_by", "Peter"),
+        "graded_date": body.get("graded_date", datetime.now(PST).strftime("%Y-%m-%d")),
+        "relock_count": 0,
+        "last_relock": None,
+    }
+
+    board = _read_prop_board()
+    board["board"].append(entry)
+    _write_prop_board(board)
+    logger.info(f"[PROP BOARD] Manual add: {player} {entry['stat']} {line} → {actual} (+{pct_over}%)")
+
+    return JSONResponse({"status": "ok", "entry": entry})
+
+
 @app.post("/api/prop-board/backfill")
 async def backfill_prop_board():
     """One-time: re-scan historical prop wins and populate board for 25%+ crushers."""

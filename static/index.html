@@ -1892,6 +1892,31 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
         <span style="font-size:18px;">&#x1F451;</span>
         <span style="font-family:var(--ec-font-heading);font-size:15px;font-weight:700;color:#FFD700;">Prop Board — Crushed Lines</span>
         <span style="font-size:9px;color:rgba(255,215,0,0.6);font-weight:600;margin-left:auto;">25%+ OVER LINE</span>
+        <div onclick="toggleAddCrush()" style="cursor:pointer;margin-left:8px;padding:3px 10px;background:rgba(255,215,0,0.15);border:1px solid rgba(255,215,0,0.3);border-radius:6px;color:#FFD700;font-size:10px;font-weight:800;">+ ADD</div>
+    </div>
+    <!-- Manual Add Crush Form -->
+    <div id="addCrushForm" style="display:none;background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.2);border-radius:10px;padding:12px;margin-bottom:12px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+            <input id="crushPlayer" placeholder="Player name" style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,215,0,0.2);border-radius:6px;padding:6px 8px;color:#fff;font-size:11px;">
+            <select id="crushSport" style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,215,0,0.2);border-radius:6px;padding:6px 8px;color:#fff;font-size:11px;">
+                <option value="NBA">NBA</option><option value="NHL">NHL</option><option value="MLB">MLB</option><option value="NCAAB">NCAAB</option><option value="NFL">NFL</option><option value="MMA">MMA</option>
+            </select>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:8px;">
+            <select id="crushStat" style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,215,0,0.2);border-radius:6px;padding:6px 8px;color:#fff;font-size:11px;">
+                <option value="Points">Points</option><option value="Rebounds">Rebounds</option><option value="Assists">Assists</option><option value="Threes">Threes</option><option value="Steals">Steals</option><option value="Blocks">Blocks</option><option value="Goals">Goals</option><option value="Saves">Saves</option><option value="Strikeouts">Strikeouts</option><option value="Hits">Hits</option>
+            </select>
+            <input id="crushLine" type="number" step="0.5" placeholder="Line" style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,215,0,0.2);border-radius:6px;padding:6px 8px;color:#fff;font-size:11px;">
+            <input id="crushActual" type="number" step="1" placeholder="Actual" style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,215,0,0.2);border-radius:6px;padding:6px 8px;color:#fff;font-size:11px;">
+            <input id="crushMatchup" placeholder="e.g. BOS @ LAL" style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,215,0,0.2);border-radius:6px;padding:6px 8px;color:#fff;font-size:11px;">
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+            <select id="crushOverUnder" style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,215,0,0.2);border-radius:6px;padding:6px 8px;color:#fff;font-size:11px;">
+                <option value="over">Over</option><option value="under">Under</option>
+            </select>
+            <input id="crushPickedBy" placeholder="Picked by" value="Peter" style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,215,0,0.2);border-radius:6px;padding:6px 8px;color:#fff;font-size:11px;flex:1;">
+            <div onclick="submitManualCrush()" style="cursor:pointer;padding:6px 16px;background:linear-gradient(135deg,#FFD700,#FFA500);border-radius:6px;color:#000;font-size:11px;font-weight:800;white-space:nowrap;">SAVE</div>
+        </div>
     </div>
     <div id="propBoardContainer">
         <div class="empty-state" style="font-size:12px;color:rgba(255,215,0,0.4);">No crushed lines yet. Grade some props to populate.</div>
@@ -7609,6 +7634,52 @@ function _escapeHtml(s) {
     return d.innerHTML;
 }
 
+function toggleAddCrush() {
+    var form = document.getElementById('addCrushForm');
+    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+}
+
+function submitManualCrush() {
+    var player = document.getElementById('crushPlayer').value.trim();
+    var sport = document.getElementById('crushSport').value;
+    var stat = document.getElementById('crushStat').value;
+    var line = parseFloat(document.getElementById('crushLine').value);
+    var actual = parseFloat(document.getElementById('crushActual').value);
+    var matchup = document.getElementById('crushMatchup').value.trim();
+    var overUnder = document.getElementById('crushOverUnder').value;
+    var pickedBy = document.getElementById('crushPickedBy').value.trim() || 'Peter';
+
+    if (!player || !line || !actual) {
+        alert('Need at least player, line, and actual value.');
+        return;
+    }
+
+    var pctOver = overUnder === 'over'
+        ? Math.round((actual - line) / line * 1000) / 10
+        : Math.round((line - actual) / line * 1000) / 10;
+
+    crewFetch('/api/prop-board/manual', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            player: player, sport: sport, stat: stat,
+            line: line, actual_value: actual, matchup: matchup,
+            over_under: overUnder, picked_by: pickedBy, pct_over: pctOver
+        })
+    }).then(function(r) { return r.json(); }).then(function(data) {
+        if (data.status === 'ok') {
+            document.getElementById('addCrushForm').style.display = 'none';
+            document.getElementById('crushPlayer').value = '';
+            document.getElementById('crushLine').value = '';
+            document.getElementById('crushActual').value = '';
+            document.getElementById('crushMatchup').value = '';
+            loadPropBoard();
+        } else {
+            alert(data.error || 'Failed to add');
+        }
+    }).catch(function(err) { alert('Error: ' + err.message); });
+}
+
 function loadPropBoard() {
     var container = document.getElementById('propBoardContainer');
     var section = document.getElementById('propBoardSection');
@@ -7617,16 +7688,16 @@ function loadPropBoard() {
     fetch('/api/prop-board')
         .then(function(r) { return r.json(); })
         .then(function(data) {
-            if (!data.board || data.board.length === 0) {
-                section.style.display = 'none';
-                return;
-            }
             section.style.display = 'block';
-            renderPropBoard(data.board);
+            if (data.board && data.board.length > 0) {
+                renderPropBoard(data.board);
+            } else {
+                container.innerHTML = '<div class="empty-state" style="font-size:12px;color:rgba(255,215,0,0.4);">No crushed lines yet. Use + ADD to enter your winners.</div>';
+            }
         })
         .catch(function(err) {
             console.error('Prop board load failed:', err);
-            section.style.display = 'none';
+            section.style.display = 'block';
         });
 }
 
