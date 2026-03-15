@@ -448,6 +448,7 @@ DEFAULT_CREW = [
     {"id": "alyssa", "display_name": "Alyssa", "color": "#41EAD4", "is_admin": False},
     {"id": "sintonia", "display_name": "Sinton.ia", "color": "#F72585", "is_admin": False},
     {"id": "sportsbook", "display_name": "Sportsbook.ag", "color": "#22C55E", "is_admin": False},
+    {"id": "tunk", "display_name": "Tunk", "color": "#FF4500", "is_admin": False},
 ]
 
 
@@ -469,6 +470,8 @@ def _write_profiles(data):
         json.dump(data, f, indent=2)
 
 
+CREW_DEFAULT_PINS = {"tunk": "1525"}
+
 def _seed_profiles():
     """Ensure all DEFAULT_CREW members exist in profiles. Adds missing members."""
     data = _read_profiles()
@@ -477,10 +480,11 @@ def _seed_profiles():
     added = False
     for member in DEFAULT_CREW:
         if member["id"] not in existing_ids:
+            pin = CREW_DEFAULT_PINS.get(member["id"], "0000")
             data.setdefault("profiles", []).append({
                 "id": member["id"],
                 "display_name": member["display_name"],
-                "pin_hash": default_pin_hash,
+                "pin_hash": _hash_pin(pin),
                 "color": member["color"],
                 "is_admin": member["is_admin"],
                 "created_at": datetime.now(PST).strftime("%Y-%m-%d %H:%M:%S"),
@@ -4052,7 +4056,7 @@ CRITICAL ROSTER RULE: Your training data is STALE. ONLY reference players who ap
 
 NO STALE DATA RULE: Do NOT reference any statistics, records, or player performance data from before the current 2025-26 season. ONLY use data provided in the PLAYER GAME LOGS and INJURY sections below. If you don't have current data for a claim, say "data not available" instead of guessing.
 
-CREW: Peter (heavy/value/sharp, sizes up on conviction), Jimmy (new, learning), Alyssa (pure math/EV edge), Sinton.ia (card builder/grader).
+CREW: Peter (heavy/value/sharp, sizes up on conviction), Jimmy (new, learning), Alyssa (pure math/EV edge), Sinton.ia (card builder/grader), Tunk (wild/aggressive, tracks everything, high volume).
 RULES: "Why is the market wrong?" = required for every grade. No answer = NO BET (grade D/F). Valid edges: news not priced in, public overreaction, rest/schedule, matchup-specific, sharp vs public, situational. Invalid: "better team", "should win", "volume play".
 
 Today's {sport.upper()} slate - {today} (pulled at {now_time}):
