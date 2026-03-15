@@ -2732,6 +2732,17 @@ def _parse_event(event, sport_label):
             game["markets"] = markets
             break
 
+    # Soccer fallback: if no US book has odds, use first available book (e.g. bet365, pinnacle)
+    if game["bookmaker"] is None and bookmakers_data:
+        for bk in event.get("bookmakers", []):
+            markets = {}
+            for market in bk.get("markets", []):
+                markets[market["key"]] = market["outcomes"]
+            if markets:
+                game["bookmaker"] = bk["key"]
+                game["markets"] = markets
+                break
+
     spreads = game["markets"].get("spreads", [])
     totals = game["markets"].get("totals", [])
     h2h = game["markets"].get("h2h", [])
