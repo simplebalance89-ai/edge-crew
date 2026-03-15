@@ -1,0 +1,26 @@
+{
+  "user_id": "dj",
+  "display_name": "DJ",
+  "created_at": "2026-03-15T00:00:00-08:00",
+  "updated_at": "2026-03-15T00:00:00-08:00",
+  "sport_preferences": ["ncaab", "nba", "mlb"],
+  "betting_style": {
+    "periods": ["1H", "1Q", "full"],
+    "strategy": ["arb", "line_shopping"],
+    "notes": "Arb hunter across offshore books. Knows arena quirks. Tight rims data."
+  },
+  "matrices": {
+    "ncaab": {
+      "overrides": {},
+      "excluded": [],
+      "custom_vars": []
+    }
+  },
+  "conversation_context": {
+    "learned_preferences": []
+  },
+  "agent_personality": {
+    "voice": "ash",
+    "style": "direct"
+  }
+}

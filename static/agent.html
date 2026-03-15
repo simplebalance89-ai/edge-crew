@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0A0A0A">
+<title>Edge Agent</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+    background:#0A0A0A;color:#fff;font-family:'Nunito',sans-serif;
+    min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;
+    -webkit-font-smoothing:antialiased;
+}
+
+/* Header */
+.agent-header{
+    padding:14px 16px;background:rgba(99,102,241,0.06);
+    border-bottom:1px solid rgba(99,102,241,0.15);
+    display:flex;align-items:center;gap:10px;flex-shrink:0;
+    position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);
+}
+.agent-back{background:none;border:none;color:#818cf8;font-size:20px;cursor:pointer;padding:4px 8px;}
+.agent-dot{width:8px;height:8px;border-radius:50%;background:#818cf8;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+.agent-title{color:#818cf8;font-weight:800;font-size:15px;flex:1;}
+.agent-user-badge{
+    padding:4px 10px;border-radius:12px;background:rgba(99,102,241,0.15);
+    color:#a5b4fc;font-size:11px;font-weight:700;letter-spacing:0.5px;
+}
+
+/* Sport tabs */
+.sport-tabs{
+    display:flex;gap:6px;padding:10px 16px;overflow-x:auto;flex-shrink:0;
+    -webkit-overflow-scrolling:touch;
+}
+.sport-tabs::-webkit-scrollbar{display:none;}
+.sport-tab{
+    padding:7px 16px;border-radius:20px;background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.08);color:rgba(255,255,255,0.5);
+    font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;
+    font-family:'Nunito',sans-serif;transition:all 0.2s;text-transform:uppercase;
+    letter-spacing:0.5px;
+}
+.sport-tab:hover{border-color:rgba(99,102,241,0.3);color:rgba(255,255,255,0.7);}
+.sport-tab.active{background:rgba(99,102,241,0.2);color:#818cf8;border-color:rgba(99,102,241,0.4);}
+
+/* Main content */
+.agent-content{flex:1;overflow-y:auto;padding:0 16px 120px;-webkit-overflow-scrolling:touch;}
+
+/* Section headers */
+.section-label{
+    font-size:11px;font-weight:800;color:rgba(255,255,255,0.35);
+    letter-spacing:1.5px;text-transform:uppercase;padding:16px 0 8px;
+}
+
+/* Slate cards */
+.slate-card{
+    background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+    border-radius:12px;padding:12px 14px;margin-bottom:8px;
+    display:flex;align-items:center;justify-content:space-between;
+}
+.slate-matchup{font-size:13px;font-weight:700;flex:1;}
+.slate-grade{
+    font-size:13px;font-weight:800;padding:4px 10px;border-radius:8px;
+    min-width:36px;text-align:center;
+}
+.slate-time{font-size:11px;color:rgba(255,255,255,0.35);margin-left:10px;white-space:nowrap;}
+
+/* Grade colors */
+.grade-a{color:#00d68f;background:rgba(0,214,143,0.1);}
+.grade-b{color:#818cf8;background:rgba(99,102,241,0.1);}
+.grade-c{color:#ffd93d;background:rgba(255,217,61,0.1);}
+.grade-d,.grade-f{color:#ff5555;background:rgba(255,85,85,0.1);}
+.grade-inc{color:rgba(255,255,255,0.3);background:rgba(255,255,255,0.05);}
+
+/* Analyze button */
+.analyze-btn{
+    display:block;width:100%;padding:14px;margin:16px 0;border-radius:12px;
+    border:none;background:linear-gradient(135deg,#6366f1,#818cf8);
+    color:#fff;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;
+    cursor:pointer;text-transform:uppercase;letter-spacing:1px;
+    transition:all 0.2s;
+}
+.analyze-btn:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(99,102,241,0.3);}
+.analyze-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;box-shadow:none;}
+.analyze-btn.running{animation:shimmer 1.5s infinite;}
+@keyframes shimmer{0%,100%{opacity:1;}50%{opacity:0.7;}}
+
+/* Results comparison */
+.result-card{
+    background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+    border-radius:12px;padding:14px;margin-bottom:10px;
+}
+.result-matchup{font-size:14px;font-weight:800;margin-bottom:8px;}
+.result-row{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:4px 0;font-size:12px;
+}
+.result-label{color:rgba(255,255,255,0.5);font-weight:600;}
+.result-value{font-weight:800;}
+.result-delta{font-size:11px;margin-left:6px;font-weight:700;}
+.delta-up{color:#00d68f;}
+.delta-down{color:#ff5555;}
+.result-changes{
+    margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06);
+    font-size:11px;color:rgba(255,255,255,0.4);
+}
+
+/* Matrix display */
+.matrix-card{
+    background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+    border-radius:12px;padding:14px;margin-bottom:8px;
+    display:flex;align-items:center;justify-content:space-between;
+}
+.matrix-key{font-size:12px;font-weight:700;flex:1;}
+.matrix-weight{
+    font-size:14px;font-weight:800;color:#818cf8;min-width:30px;text-align:center;
+}
+.matrix-tag{
+    font-size:9px;font-weight:700;padding:2px 6px;border-radius:6px;margin-left:8px;
+    letter-spacing:0.5px;text-transform:uppercase;
+}
+.tag-override{color:#ffd93d;background:rgba(255,217,61,0.12);}
+.tag-custom{color:#00d68f;background:rgba(0,214,143,0.12);}
+.tag-default{color:rgba(255,255,255,0.3);background:rgba(255,255,255,0.05);}
+.matrix-excluded{
+    background:rgba(255,85,85,0.06);border:1px solid rgba(255,85,85,0.12);
+    border-radius:12px;padding:10px 14px;margin-bottom:8px;
+    display:flex;align-items:center;gap:8px;
+}
+.matrix-excluded .x-icon{color:#ff5555;font-weight:800;font-size:14px;}
+.matrix-excluded .ex-label{font-size:12px;color:rgba(255,255,255,0.4);text-decoration:line-through;}
+
+/* Voice bar (bottom) */
+.voice-bar{
+    position:fixed;bottom:0;left:0;right:0;
+    padding:12px 16px;padding-bottom:max(12px,env(safe-area-inset-bottom));
+    background:rgba(10,10,10,0.95);backdrop-filter:blur(12px);
+    border-top:1px solid rgba(255,255,255,0.08);
+    display:flex;align-items:center;gap:10px;z-index:50;
+}
+.voice-status{
+    flex:1;font-size:13px;color:rgba(255,255,255,0.4);font-weight:600;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.voice-status.active{color:#818cf8;}
+.voice-status .vdot{
+    display:inline-block;width:6px;height:6px;border-radius:50%;
+    background:#818cf8;margin-right:6px;animation:pulse 1s infinite;
+}
+.mic-btn{
+    width:48px;height:48px;border-radius:14px;border:1px solid rgba(99,102,241,0.3);
+    background:transparent;color:#818cf8;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    transition:all 0.2s;
+}
+.mic-btn:hover{background:rgba(99,102,241,0.1);}
+.mic-btn.listening{
+    background:rgba(99,102,241,0.2);border-color:#818cf8;
+    animation:pulse-mic 1.5s infinite;
+}
+@keyframes pulse-mic{0%,100%{box-shadow:0 0 0 0 rgba(99,102,241,0.4);}50%{box-shadow:0 0 0 12px rgba(99,102,241,0);}}
+
+/* Connecting overlay */
+.connecting-overlay{
+    position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:100;
+    display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;
+}
+.connecting-overlay.visible{display:flex;}
+.connecting-text{color:#818cf8;font-size:15px;font-weight:700;}
+.spinner{width:40px;height:40px;border:3px solid rgba(99,102,241,0.2);border-top-color:#818cf8;border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* Toast */
+.toast{
+    position:fixed;top:20px;left:50%;transform:translateX(-50%);
+    padding:10px 20px;border-radius:10px;background:rgba(99,102,241,0.9);
+    color:#fff;font-size:13px;font-weight:700;z-index:200;
+    opacity:0;transition:opacity 0.3s;pointer-events:none;
+}
+.toast.show{opacity:1;}
+
+/* Loading skeleton */
+.skeleton{
+    background:linear-gradient(90deg,rgba(255,255,255,0.04) 25%,rgba(255,255,255,0.08) 50%,rgba(255,255,255,0.04) 75%);
+    background-size:200% 100%;animation:skeleton-load 1.5s infinite;
+    border-radius:8px;height:52px;margin-bottom:8px;
+}
+@keyframes skeleton-load{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+
+/* Empty state */
+.empty-state{
+    text-align:center;padding:40px 20px;color:rgba(255,255,255,0.3);
+    font-size:14px;font-weight:600;
+}
+
+@media(min-width:600px){
+    .agent-content{max-width:600px;margin:0 auto;}
+    .voice-bar{max-width:600px;margin:0 auto;left:50%;transform:translateX(-50%);}
+}
+</style>
+</head>
+<body>
+
+<!-- Connecting overlay -->
+<div class="connecting-overlay" id="connectOverlay">
+    <div class="spinner"></div>
+    <div class="connecting-text" id="connectText">Connecting...</div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Header -->
+<div class="agent-header">
+    <button class="agent-back" onclick="window.location.href='/'">&larr;</button>
+    <div class="agent-dot"></div>
+    <div class="agent-title" id="agentTitle">Edge Agent</div>
+    <div class="agent-user-badge" id="userBadge"></div>
+</div>
+
+<!-- Sport tabs -->
+<div class="sport-tabs" id="sportTabs"></div>
+
+<!-- Main content -->
+<div class="agent-content" id="agentContent">
+    <div class="empty-state">Loading...</div>
+</div>
+
+<!-- Voice bar -->
+<div class="voice-bar">
+    <div class="voice-status" id="voiceStatus">Talk to your agent...</div>
+    <button class="mic-btn" id="micBtn" onclick="toggleVoice()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+    </button>
+</div>
+
+<!-- Hidden audio -->
+<audio id="rtcAudio" autoplay style="display:none;"></audio>
+
+<script>
+// === State ===
+var userId = window.location.pathname.split('/agent/')[1] || '';
+var profile = null;
+var activeSport = '';
+var defaultAnalysis = {};  // sport -> analysis data
+var userAnalysis = {};     // sport -> user analysis data
+var userMatrix = {};       // sport -> matrix data
+
+// WebRTC
+var rtcPC = null;
+var rtcDC = null;
+var rtcMicStream = null;
+var voiceActive = false;
+
+// === Init ===
+async function init() {
+    if (!userId) { document.getElementById('agentContent').innerHTML = '<div class="empty-state">No user ID in URL</div>'; return; }
+    document.getElementById('userBadge').textContent = userId.toUpperCase();
+
+    // Load profile
+    try {
+        var resp = await fetch('/api/agent/' + encodeURIComponent(userId) + '/profile');
+        if (!resp.ok) {
+            document.getElementById('agentContent').innerHTML = '<div class="empty-state">Profile not found for "' + userId + '"</div>';
+            return;
+        }
+        profile = await resp.json();
+    } catch(e) {
+        document.getElementById('agentContent').innerHTML = '<div class="empty-state">Error loading profile</div>';
+        return;
+    }
+
+    document.getElementById('agentTitle').textContent = profile.display_name + "'s Edge Agent";
+    document.title = profile.display_name + "'s Edge Agent";
+
+    // Build sport tabs
+    var sports = profile.sport_preferences || ['ncaab','nba','nhl','mlb'];
+    var tabsEl = document.getElementById('sportTabs');
+    sports.forEach(function(s) {
+        var btn = document.createElement('button');
+        btn.className = 'sport-tab';
+        btn.textContent = s.toUpperCase();
+        btn.onclick = function() { selectSport(s); };
+        tabsEl.appendChild(btn);
+    });
+
+    // Select first sport
+    if (sports.length) selectSport(sports[0]);
+}
+
+async function selectSport(sport) {
+    activeSport = sport;
+    // Update tab UI
+    document.querySelectorAll('.sport-tab').forEach(function(t) {
+        t.classList.toggle('active', t.textContent.toLowerCase() === sport);
+    });
+
+    renderLoading();
+
+    // Fetch default analysis + user matrix in parallel
+    var promises = [
+        fetchDefaultAnalysis(sport),
+        fetchUserMatrix(sport)
+    ];
+    // Also load user analysis if we have it cached
+    if (userAnalysis[sport]) promises.push(Promise.resolve());
+    await Promise.all(promises);
+
+    render();
+}
+
+async function fetchDefaultAnalysis(sport) {
+    if (defaultAnalysis[sport]) return;
+    try {
+        var resp = await fetch('/api/analysis/' + sport + '?cached_only=true');
+        var data = await resp.json();
+        defaultAnalysis[sport] = data;
+    } catch(e) {
+        defaultAnalysis[sport] = { games: [] };
+    }
+}
+
+async function fetchUserMatrix(sport) {
+    try {
+        var resp = await fetch('/api/agent/' + encodeURIComponent(userId) + '/matrix/' + sport);
+        var data = await resp.json();
+        userMatrix[sport] = data;
+    } catch(e) {
+        userMatrix[sport] = { matrix: [], excluded: [] };
+    }
+}
+
+function renderLoading() {
+    var html = '<div class="section-label">Loading slate...</div>';
+    for (var i = 0; i < 4; i++) html += '<div class="skeleton"></div>';
+    document.getElementById('agentContent').innerHTML = html;
+}
+
+function gradeClass(grade) {
+    if (!grade) return 'grade-inc';
+    var g = grade.charAt(0).toUpperCase();
+    if (g === 'A') return 'grade-a';
+    if (g === 'B') return 'grade-b';
+    if (g === 'C') return 'grade-c';
+    if (g === 'D' || g === 'F') return 'grade-d';
+    return 'grade-inc';
+}
+
+function render() {
+    var html = '';
+    var defData = defaultAnalysis[activeSport] || { games: [] };
+    var usrData = userAnalysis[activeSport];
+    var matrixData = userMatrix[activeSport] || { matrix: [], excluded: [] };
+
+    // === SLATE ===
+    html += '<div class="section-label">Tonight\'s Slate</div>';
+    if (!defData.games || !defData.games.length) {
+        html += '<div class="empty-state">No games on the ' + activeSport.toUpperCase() + ' slate right now.</div>';
+    } else {
+        defData.games.forEach(function(g) {
+            var grade = g.grade || 'TBD';
+            var matchup = g.matchup || '?';
+            html += '<div class="slate-card">';
+            html += '<div class="slate-matchup">' + matchup + '</div>';
+            html += '<div class="slate-grade ' + gradeClass(grade) + '">' + grade + '</div>';
+            html += '</div>';
+        });
+    }
+
+    // === ANALYZE BUTTON ===
+    html += '<button class="analyze-btn" id="analyzeBtn" onclick="analyzeMyWay()">Analyze ' + (profile ? profile.display_name + "'s" : 'My') + ' Way</button>';
+
+    // === USER RESULTS (if available) ===
+    if (usrData && usrData.games && usrData.games.length) {
+        html += '<div class="section-label">' + (profile ? profile.display_name + "'s" : 'My') + ' Results</div>';
+        var defMap = {};
+        if (defData.games) defData.games.forEach(function(g) { defMap[g.matchup] = g; });
+
+        usrData.games.forEach(function(g) {
+            var defGame = defMap[g.matchup] || {};
+            var userScore = g.composite_score || 0;
+            var defScore = defGame.composite_score || 0;
+            var diff = (userScore - defScore).toFixed(1);
+            var diffClass = diff > 0 ? 'delta-up' : (diff < 0 ? 'delta-down' : '');
+            var diffStr = diff > 0 ? '+' + diff : diff;
+
+            html += '<div class="result-card">';
+            html += '<div class="result-matchup">' + g.matchup + '</div>';
+            html += '<div class="result-row">';
+            html += '<span class="result-label">' + (profile ? profile.display_name : 'User') + ' Grade</span>';
+            html += '<span class="result-value ' + gradeClass(g.grade) + '">' + (g.grade || '?') + ' (' + userScore.toFixed(1) + ')</span>';
+            html += '</div>';
+            html += '<div class="result-row">';
+            html += '<span class="result-label">Default Grade</span>';
+            html += '<span class="result-value ' + gradeClass(defGame.grade) + '">' + (defGame.grade || '?') + ' (' + defScore.toFixed(1) + ')</span>';
+            html += '<span class="result-delta ' + diffClass + '">' + diffStr + '</span>';
+            html += '</div>';
+
+            // Show edge summary
+            if (g.edge_summary) {
+                html += '<div class="result-changes">' + g.edge_summary + '</div>';
+            }
+            html += '</div>';
+        });
+    }
+
+    // === MATRIX ===
+    html += '<div class="section-label">My Matrix (' + activeSport.toUpperCase() + ')</div>';
+    if (matrixData.matrix && matrixData.matrix.length) {
+        matrixData.matrix.forEach(function(m) {
+            var tag = '';
+            if (m.type === 'override') {
+                tag = '<span class="matrix-tag tag-override">was ' + m.default_weight + '</span>';
+            } else if (m.type === 'custom') {
+                tag = '<span class="matrix-tag tag-custom">custom</span>';
+            }
+            html += '<div class="matrix-card">';
+            html += '<div class="matrix-key">' + m.key.replace(/_/g, ' ') + '</div>';
+            html += '<div class="matrix-weight">' + m.weight + '</div>';
+            html += tag;
+            html += '</div>';
+        });
+    }
+    // Excluded variables
+    if (matrixData.excluded && matrixData.excluded.length) {
+        matrixData.excluded.forEach(function(ex) {
+            html += '<div class="matrix-excluded">';
+            html += '<span class="x-icon">x</span>';
+            html += '<span class="ex-label">' + ex.replace(/_/g, ' ') + '</span>';
+            html += '</div>';
+        });
+    }
+
+    document.getElementById('agentContent').innerHTML = html;
+}
+
+// === Analyze My Way ===
+async function analyzeMyWay() {
+    var btn = document.getElementById('analyzeBtn');
+    if (!btn) return;
+    btn.disabled = true;
+    btn.classList.add('running');
+    btn.textContent = 'Analyzing...';
+
+    try {
+        var resp = await fetch('/api/analysis/' + activeSport + '?force=true&user_id=' + encodeURIComponent(userId));
+        if (resp.status === 429) {
+            showToast('Rate limit — max 3 custom runs per sport per day');
+            return;
+        }
+        if (!resp.ok) {
+            var err = await resp.json().catch(function(){return {};});
+            showToast(err.error || 'Analysis failed');
+            return;
+        }
+        var data = await resp.json();
+        userAnalysis[activeSport] = data;
+        showToast('Analysis complete!');
+        render();
+    } catch(e) {
+        showToast('Error: ' + e.message);
+    } finally {
+        btn.disabled = false;
+        btn.classList.remove('running');
+        btn.textContent = 'Analyze ' + (profile ? profile.display_name + "'s" : 'My') + ' Way';
+    }
+}
+
+// === Toast ===
+function showToast(msg) {
+    var el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    setTimeout(function(){ el.classList.remove('show'); }, 2500);
+}
+
+// === Voice ===
+function toggleVoice() {
+    if (voiceActive) endVoice();
+    else startVoice();
+}
+
+async function startVoice() {
+    var overlay = document.getElementById('connectOverlay');
+    overlay.classList.add('visible');
+    document.getElementById('connectText').textContent = 'Connecting to your agent...';
+
+    try {
+        // 1. Get token with user_id
+        var tokenResp = await fetch('/api/voice/token', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ user_id: userId })
+        });
+        if (!tokenResp.ok) throw new Error('Failed to get voice token');
+        var tokenData = await tokenResp.json();
+
+        // 2. Create peer connection
+        rtcPC = new RTCPeerConnection();
+
+        // 3. Audio output
+        var audioEl = document.getElementById('rtcAudio');
+        rtcPC.ontrack = function(event) {
+            if (event.streams.length > 0) audioEl.srcObject = event.streams[0];
+        };
+
+        // 4. Get mic
+        rtcMicStream = await navigator.mediaDevices.getUserMedia({
+            audio: {noiseSuppression:true, echoCancellation:true, autoGainControl:true, channelCount:1}
+        });
+        rtcPC.addTrack(rtcMicStream.getAudioTracks()[0]);
+
+        // 5. Data channel
+        rtcDC = rtcPC.createDataChannel('realtime-channel');
+
+        // 6. Create offer + SDP exchange
+        var offer = await rtcPC.createOffer();
+        await rtcPC.setLocalDescription(offer);
+
+        var sdpResp = await fetch('/api/voice/sdp', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({sdp: offer.sdp, token: tokenData.token})
+        });
+        if (!sdpResp.ok) throw new Error('SDP exchange failed');
+        var answerSdp = await sdpResp.text();
+        await rtcPC.setRemoteDescription({type: 'answer', sdp: answerSdp});
+
+        // 7. On open — configure VAD + send greeting
+        rtcDC.onopen = function() {
+            overlay.classList.remove('visible');
+
+            rtcDC.send(JSON.stringify({
+                type: 'session.update',
+                session: {
+                    input_audio_transcription: {model: 'whisper-1'},
+                    turn_detection: {
+                        type: 'semantic_vad',
+                        create_response: true,
+                        interrupt_response: true,
+                        eagerness: 'medium'
+                    }
+                }
+            }));
+
+            voiceActive = true;
+            updateVoiceUI(true);
+
+            // Personalized greeting
+            var name = profile ? profile.display_name : 'there';
+            rtcDC.send(JSON.stringify({
+                type: 'response.create',
+                response: {
+                    instructions: 'Greet ' + name + ' by name. Say you\'re their Edge Agent, ready to customize their matrix or analyze the slate. Mention the current sport is ' + activeSport.toUpperCase() + '. Keep it to 2 sentences.'
+                }
+            }));
+        };
+
+        // 8. Handle messages — including function calls
+        rtcDC.onmessage = function(event) {
+            var msg = JSON.parse(event.data);
+
+            // User transcription
+            if (msg.type === 'conversation.item.input_audio_transcription.completed') {
+                if (msg.transcript && msg.transcript.trim()) {
+                    showToast('You: ' + msg.transcript.trim().substring(0, 60));
+                }
+            }
+
+            // AI response
+            if (msg.type === 'response.audio_transcript.done') {
+                if (msg.transcript && msg.transcript.trim()) {
+                    document.getElementById('voiceStatus').textContent = msg.transcript.trim();
+                }
+            }
+
+            // Function call completed — process it
+            if (msg.type === 'response.function_call_arguments.done') {
+                handleFunctionCall(msg);
+            }
+        };
+
+        rtcDC.onclose = function() { endVoice(); };
+        rtcPC.onconnectionstatechange = function() {
+            if (rtcPC && (rtcPC.connectionState === 'failed' || rtcPC.connectionState === 'disconnected')) {
+                endVoice();
+            }
+        };
+
+    } catch(e) {
+        overlay.classList.remove('visible');
+        showToast('Voice error: ' + e.message);
+        endVoice();
+    }
+}
+
+async function handleFunctionCall(msg) {
+    var fnName = msg.name;
+    var args = {};
+    try { args = JSON.parse(msg.arguments || '{}'); } catch(e) {}
+    var callId = msg.call_id;
+
+    // POST to backend
+    try {
+        var resp = await fetch('/api/agent/' + encodeURIComponent(userId) + '/action', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ action: fnName, args: args })
+        });
+        var result = await resp.json();
+
+        // Send result back to realtime session
+        if (rtcDC && rtcDC.readyState === 'open') {
+            rtcDC.send(JSON.stringify({
+                type: 'conversation.item.create',
+                item: {
+                    type: 'function_call_output',
+                    call_id: callId,
+                    output: JSON.stringify(result)
+                }
+            }));
+            // Trigger response
+            rtcDC.send(JSON.stringify({ type: 'response.create' }));
+        }
+
+        // Refresh matrix display
+        if (result.success) {
+            showToast(result.message || 'Updated');
+            await fetchUserMatrix(activeSport);
+            render();
+        }
+    } catch(e) {
+        showToast('Action error: ' + e.message);
+    }
+}
+
+function endVoice() {
+    if (rtcPC) { try { rtcPC.close(); } catch(e){} rtcPC = null; }
+    if (rtcDC) { try { rtcDC.close(); } catch(e){} rtcDC = null; }
+    if (rtcMicStream) { rtcMicStream.getTracks().forEach(function(t){t.stop();}); rtcMicStream = null; }
+    var audioEl = document.getElementById('rtcAudio');
+    if (audioEl && audioEl.srcObject) {
+        audioEl.srcObject.getTracks().forEach(function(t){t.stop();});
+        audioEl.srcObject = null;
+    }
+    voiceActive = false;
+    updateVoiceUI(false);
+    document.getElementById('connectOverlay').classList.remove('visible');
+}
+
+function updateVoiceUI(active) {
+    var micBtn = document.getElementById('micBtn');
+    var statusEl = document.getElementById('voiceStatus');
+    if (active) {
+        micBtn.classList.add('listening');
+        statusEl.className = 'voice-status active';
+        statusEl.innerHTML = '<span class="vdot"></span>Listening...';
+    } else {
+        micBtn.classList.remove('listening');
+        statusEl.className = 'voice-status';
+        statusEl.textContent = 'Talk to your agent...';
+    }
+}
+
+// Boot
+init();
+</script>
+</body>
+</html>

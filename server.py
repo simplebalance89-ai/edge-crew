@@ -2096,6 +2096,372 @@ def _build_matrix_section(sport):
     return "\n".join(lines)
 
 
+# ============================================================
+# USER AGENT PROFILES — Per-user weighted matrix customization
+# ============================================================
+
+USER_AGENTS_DIR = os.path.join(DATA_DIR, "user_agents")
+os.makedirs(USER_AGENTS_DIR, exist_ok=True)
+
+# Rate limit: max custom analysis runs per sport per day per user
+_user_analysis_counts = {}  # key: f"{user_id}:{sport}:{date}" -> count
+MAX_USER_ANALYSIS_PER_SPORT_PER_DAY = 3
+
+
+def _user_profile_path(user_id):
+    """Safe path for a user agent profile."""
+    safe_id = re.sub(r'[^a-zA-Z0-9_-]', '', user_id)
+    if not safe_id:
+        return None
+    return os.path.join(USER_AGENTS_DIR, f"{safe_id}.json")
+
+
+def _load_user_profile(user_id):
+    """Load a user agent profile from disk. Returns None if not found."""
+    path = _user_profile_path(user_id)
+    if not path or not os.path.exists(path):
+        return None
+    try:
+        with open(path) as f:
+            return json.load(f)
+    except Exception:
+        return None
+
+
+def _save_user_profile(profile):
+    """Save a user agent profile to disk."""
+    user_id = profile.get("user_id")
+    if not user_id:
+        return False
+    path = _user_profile_path(user_id)
+    if not path:
+        return False
+    profile["updated_at"] = _now_ts()
+    with open(path, "w") as f:
+        json.dump(profile, f, indent=2)
+    return True
+
+
+def _resolve_user_matrix(sport, profile):
+    """Resolve a user's matrix: defaults + overrides + custom_vars - exclusions.
+    Returns list of (key, weight, description) tuples."""
+    default_matrix = SPORT_MATRICES.get(sport.lower(), [])
+    if not default_matrix:
+        return []
+
+    matrices = profile.get("matrices", {})
+    sport_config = matrices.get(sport.lower(), {})
+    overrides = sport_config.get("overrides", {})
+    excluded = set(sport_config.get("excluded", []))
+    custom_vars = sport_config.get("custom_vars", [])
+
+    # Start with defaults, apply overrides and exclusions
+    resolved = []
+    for key, weight, desc in default_matrix:
+        if key in excluded:
+            continue
+        if key in overrides:
+            new_weight = overrides[key].get("weight", weight)
+            note = overrides[key].get("note", "")
+            desc_with_note = f"{desc} [User override: {note}]" if note else desc
+            resolved.append((key, new_weight, desc_with_note))
+        else:
+            resolved.append((key, weight, desc))
+
+    # Append custom variables (max 5)
+    for cv in custom_vars[:5]:
+        resolved.append((cv["key"], cv.get("weight", 5), cv.get("description", cv["key"])))
+
+    return resolved
+
+
+def _build_user_matrix_section(sport, profile):
+    """Build matrix section text using a user's resolved matrix."""
+    resolved = _resolve_user_matrix(sport, profile)
+    if not resolved:
+        return _build_matrix_section(sport)
+
+    total_weight = sum(w for _, w, _ in resolved)
+    max_score = total_weight * 10
+    display_name = profile.get("display_name", profile.get("user_id", "User"))
+
+    lines = []
+    lines.append(f"\n=== {sport.upper()} SCORING MATRIX — {display_name}'s Custom Weights ({len(resolved)} Variables) ===")
+    lines.append(f"Score each variable 1-10 for EACH game. Weight x Score = Weighted.")
+    lines.append(f"Max possible: {max_score}. Composite = sum / {max_score} x 10.\n")
+    lines.append("SCORING RULES — READ CAREFULLY:")
+    lines.append("- Use the FULL 1-10 range. Do NOT cluster scores between 5-7.")
+    lines.append("- 1-2 = Strong negative signal for this side")
+    lines.append("- 3-4 = Moderate negative")
+    lines.append("- 5 = Neutral / no signal either way")
+    lines.append("- 6-7 = Moderate positive signal")
+    lines.append("- 8-9 = Strong positive signal")
+    lines.append("- 10 = Extreme edge")
+    lines.append("BE DECISIVE.\n")
+    for i, (key, weight, label) in enumerate(resolved, 1):
+        lines.append(f"  {i}. KEY: \"{key}\" — {label} (weight: {weight})")
+    lines.append("\nCOMPOSITE THRESHOLDS:")
+    lines.append("  9.0-10.0 = BEST BET (load up, full unit)")
+    lines.append("  7.5-8.9  = STRONG PLAY (A-/B+)")
+    lines.append("  6.0-7.4  = MODERATE EDGE (B/B-)")
+    lines.append("  4.5-5.9  = LEAN (C, small or pass)")
+    lines.append("  Below 4.5 = NO EDGE (D/F, pass)")
+    return "\n".join(lines)
+
+
+def _user_analysis_cache_path(sport, user_id, date_str=None):
+    """Cache path for user-specific analysis."""
+    if not date_str:
+        date_str = datetime.now(PST).strftime("%Y-%m-%d")
+    safe_id = re.sub(r'[^a-zA-Z0-9_-]', '', user_id)
+    return os.path.join(ANALYSIS_DIR, f"analysis_{sport}_{date_str}_{safe_id}.json")
+
+
+def _check_user_rate_limit(user_id, sport):
+    """Check if user has exceeded custom analysis rate limit. Returns True if OK."""
+    date_str = datetime.now(PST).strftime("%Y-%m-%d")
+    key = f"{user_id}:{sport}:{date_str}"
+    count = _user_analysis_counts.get(key, 0)
+    return count < MAX_USER_ANALYSIS_PER_SPORT_PER_DAY
+
+
+def _increment_user_rate_limit(user_id, sport):
+    """Increment the user's analysis count for today."""
+    date_str = datetime.now(PST).strftime("%Y-%m-%d")
+    key = f"{user_id}:{sport}:{date_str}"
+    _user_analysis_counts[key] = _user_analysis_counts.get(key, 0) + 1
+
+
+# Voice agent tool definitions for realtime session
+AGENT_VOICE_TOOLS = [
+    {
+        "type": "function",
+        "name": "update_weight",
+        "description": "Update the weight of a scoring variable in the user's matrix. Example: 'bump venue to 8' or 'set home_court weight to 3'.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "sport": {"type": "string", "description": "Sport code (ncaab, nba, nhl, mlb, etc). Infer from conversation context."},
+                "variable": {"type": "string", "description": "Variable key name from the matrix (e.g. home_court, star_player_status)"},
+                "weight": {"type": "number", "description": "New weight value (1-10)"},
+                "note": {"type": "string", "description": "Brief reason for the override"}
+            },
+            "required": ["sport", "variable", "weight"]
+        }
+    },
+    {
+        "type": "function",
+        "name": "add_custom_variable",
+        "description": "Add a custom scoring variable to the user's matrix. Max 5 custom variables per sport. Example: 'add tight rims as a factor, weight 7'.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "sport": {"type": "string", "description": "Sport code"},
+                "key": {"type": "string", "description": "Variable key (snake_case, e.g. rim_tightness)"},
+                "weight": {"type": "number", "description": "Weight value (1-10)"},
+                "description": {"type": "string", "description": "What this variable measures"}
+            },
+            "required": ["sport", "key", "weight", "description"]
+        }
+    },
+    {
+        "type": "function",
+        "name": "exclude_variable",
+        "description": "Exclude a default variable from the user's matrix. Example: 'I don't care about rivalry'.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "sport": {"type": "string", "description": "Sport code"},
+                "variable": {"type": "string", "description": "Variable key to exclude"}
+            },
+            "required": ["sport", "variable"]
+        }
+    },
+    {
+        "type": "function",
+        "name": "show_my_matrix",
+        "description": "Show the user their current resolved matrix with all overrides, custom variables, and exclusions.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "sport": {"type": "string", "description": "Sport code"}
+            },
+            "required": ["sport"]
+        }
+    },
+    {
+        "type": "function",
+        "name": "reset_to_default",
+        "description": "Reset a sport's matrix back to default, removing all overrides, custom variables, and exclusions.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "sport": {"type": "string", "description": "Sport code to reset"}
+            },
+            "required": ["sport"]
+        }
+    }
+]
+
+
+def _process_agent_action(user_id, action_name, args):
+    """Process a voice agent tool call. Returns result dict."""
+    profile = _load_user_profile(user_id)
+    if not profile:
+        return {"error": f"Profile not found for {user_id}"}
+
+    if "matrices" not in profile:
+        profile["matrices"] = {}
+
+    sport = args.get("sport", "").lower()
+    if sport and sport not in SPORT_MATRICES:
+        return {"error": f"Unknown sport: {sport}. Valid: {', '.join(SPORT_MATRICES.keys())}"}
+
+    if sport and sport not in profile["matrices"]:
+        profile["matrices"][sport] = {"overrides": {}, "excluded": [], "custom_vars": []}
+
+    sport_cfg = profile["matrices"].get(sport, {}) if sport else {}
+
+    if action_name == "update_weight":
+        variable = args.get("variable", "")
+        weight = args.get("weight", 5)
+        note = args.get("note", "")
+        # Validate variable exists in default matrix
+        default_keys = [k for k, _, _ in SPORT_MATRICES.get(sport, [])]
+        if variable not in default_keys:
+            return {"error": f"Variable '{variable}' not found in {sport.upper()} matrix. Available: {', '.join(default_keys)}"}
+        weight = max(1, min(10, int(weight)))
+        if "overrides" not in sport_cfg:
+            sport_cfg["overrides"] = {}
+        # Find default weight
+        default_weight = next((w for k, w, _ in SPORT_MATRICES[sport] if k == variable), 5)
+        sport_cfg["overrides"][variable] = {"weight": weight, "note": note}
+        profile["matrices"][sport] = sport_cfg
+        _save_user_profile(profile)
+        return {"success": True, "message": f"{variable} weight set to {weight} for {sport.upper()} (was {default_weight})"}
+
+    elif action_name == "add_custom_variable":
+        key = args.get("key", "").lower().replace(" ", "_")
+        weight = max(1, min(10, int(args.get("weight", 5))))
+        description = args.get("description", key)
+        if "custom_vars" not in sport_cfg:
+            sport_cfg["custom_vars"] = []
+        if len(sport_cfg["custom_vars"]) >= 5:
+            return {"error": "Max 5 custom variables per sport. Remove one first."}
+        # Check for duplicate
+        existing_keys = [cv["key"] for cv in sport_cfg["custom_vars"]]
+        if key in existing_keys:
+            # Update existing
+            for cv in sport_cfg["custom_vars"]:
+                if cv["key"] == key:
+                    cv["weight"] = weight
+                    cv["description"] = description
+            profile["matrices"][sport] = sport_cfg
+            _save_user_profile(profile)
+            return {"success": True, "message": f"Updated custom variable '{key}' to weight {weight}"}
+        sport_cfg["custom_vars"].append({"key": key, "weight": weight, "description": description})
+        profile["matrices"][sport] = sport_cfg
+        _save_user_profile(profile)
+        return {"success": True, "message": f"Added custom variable '{key}' with weight {weight} to {sport.upper()}"}
+
+    elif action_name == "exclude_variable":
+        variable = args.get("variable", "")
+        default_keys = [k for k, _, _ in SPORT_MATRICES.get(sport, [])]
+        if variable not in default_keys:
+            return {"error": f"Variable '{variable}' not found in {sport.upper()} matrix."}
+        if "excluded" not in sport_cfg:
+            sport_cfg["excluded"] = []
+        if variable not in sport_cfg["excluded"]:
+            sport_cfg["excluded"].append(variable)
+        profile["matrices"][sport] = sport_cfg
+        _save_user_profile(profile)
+        return {"success": True, "message": f"Excluded '{variable}' from {sport.upper()} matrix"}
+
+    elif action_name == "show_my_matrix":
+        resolved = _resolve_user_matrix(sport, profile)
+        matrix_text = []
+        default_dict = {k: w for k, w, _ in SPORT_MATRICES.get(sport, [])}
+        overrides = sport_cfg.get("overrides", {})
+        excluded = set(sport_cfg.get("excluded", []))
+        custom_keys = {cv["key"] for cv in sport_cfg.get("custom_vars", [])}
+
+        for key, weight, desc in resolved:
+            tag = ""
+            if key in custom_keys:
+                tag = " (CUSTOM)"
+            elif key in overrides:
+                orig = default_dict.get(key, "?")
+                tag = f" (was {orig})"
+            matrix_text.append(f"{key}: {weight}{tag}")
+
+        if excluded:
+            matrix_text.append(f"\nExcluded: {', '.join(excluded)}")
+
+        return {"success": True, "matrix": matrix_text, "sport": sport.upper(),
+                "message": f"{sport.upper()} matrix for {profile.get('display_name', user_id)}: " + ", ".join([f"{k}={w}" for k, w, _ in resolved[:5]]) + "..."}
+
+    elif action_name == "reset_to_default":
+        profile["matrices"][sport] = {"overrides": {}, "excluded": [], "custom_vars": []}
+        _save_user_profile(profile)
+        return {"success": True, "message": f"Reset {sport.upper()} matrix to defaults"}
+
+    return {"error": f"Unknown action: {action_name}"}
+
+
+def _build_agent_voice_prompt(profile):
+    """Build personalized voice prompt for a user's agent."""
+    display_name = profile.get("display_name", profile.get("user_id", "User"))
+    sports = profile.get("sport_preferences", [])
+    style = profile.get("betting_style", {})
+    learned = profile.get("conversation_context", {}).get("learned_preferences", [])
+
+    sports_str = ", ".join(s.upper() for s in sports) if sports else "all sports"
+    style_notes = style.get("notes", "")
+    periods = ", ".join(style.get("periods", [])) if style.get("periods") else "full game"
+    strategy = ", ".join(style.get("strategy", [])) if style.get("strategy") else "standard"
+
+    # Build matrix summary for context
+    matrix_summary = []
+    for sport in sports[:3]:
+        resolved = _resolve_user_matrix(sport, profile)
+        default_dict = {k: w for k, w, _ in SPORT_MATRICES.get(sport, [])}
+        matrices_cfg = profile.get("matrices", {}).get(sport, {})
+        overrides = matrices_cfg.get("overrides", {})
+        custom_vars = matrices_cfg.get("custom_vars", [])
+        excluded = matrices_cfg.get("excluded", [])
+        changes = []
+        for k, v in overrides.items():
+            orig = default_dict.get(k, "?")
+            changes.append(f"{k}={v['weight']} (was {orig})")
+        for cv in custom_vars:
+            changes.append(f"+{cv['key']}={cv.get('weight', 5)}")
+        for ex in excluded:
+            changes.append(f"-{ex}")
+        if changes:
+            matrix_summary.append(f"{sport.upper()}: {', '.join(changes)}")
+
+    learned_str = "\n".join(f"- {l}" for l in learned) if learned else "None yet"
+    matrix_str = "\n".join(matrix_summary) if matrix_summary else "All defaults"
+
+    return f"""You are {display_name}'s personal Edge Agent. You help them find edges and customize their analysis matrix through conversation.
+
+{display_name}'s profile:
+- Sports: {sports_str}
+- Periods: {periods}
+- Strategy: {strategy}
+- Notes: {style_notes}
+
+Things I've learned about {display_name}:
+{learned_str}
+
+Current matrix changes:
+{matrix_str}
+
+You can update weights, add/remove variables, show the matrix, or reset to defaults.
+Always confirm changes back to the user. Keep responses under 3 sentences. Be sharp and direct.
+When {display_name} asks to change a weight, infer the sport from context. If ambiguous, ask which sport.
+Use the tools provided to make changes — never just say you'll do it, actually call the function."""
+
 
 PREFERRED_SHARP_BOOK = "draftkings"
 FALLBACK_SHARP_BOOKS = ["fanduel", "betmgm", "caesars", "pointsbet"]
@@ -3325,13 +3691,14 @@ async def get_edge(sport: str):
 
 
 @app.get("/api/analysis/{sport}")
-async def get_analysis(sport: str, cached_only: bool = False, force: bool = False):
+async def get_analysis(sport: str, cached_only: bool = False, force: bool = False, user_id: str = None):
     """Generate AI analysis for a sport based on current live odds.
 
     Params:
         cached_only: If True, return cached results only (never trigger new GPT call).
                      Used by autopicker to read scheduled analysis without burning API tokens.
         force: If True, bypass all caches and run fresh analysis. Used by manual Analyze button.
+        user_id: If provided, run analysis with user's custom matrix weights.
 
     RULE: Do NOT grade any game without complete line data.
     Games missing spread, total, or ML get grade "INCOMPLETE".
@@ -3340,7 +3707,17 @@ async def get_analysis(sport: str, cached_only: bool = False, force: bool = Fals
         return JSONResponse({"error": "Azure OpenAI not configured"}, status_code=500)
 
     sport_lower = sport.lower()
-    cache_key = f"analysis:{sport_lower}"
+
+    # User-specific analysis handling
+    user_profile = None
+    if user_id:
+        user_profile = _load_user_profile(user_id)
+        if not user_profile:
+            return JSONResponse({"error": f"User profile '{user_id}' not found"}, status_code=404)
+        if not _check_user_rate_limit(user_id, sport_lower):
+            return JSONResponse({"error": f"Rate limit exceeded. Max {MAX_USER_ANALYSIS_PER_SPORT_PER_DAY} custom runs per sport per day."}, status_code=429)
+
+    cache_key = f"analysis:{sport_lower}:{user_id}" if user_id else f"analysis:{sport_lower}"
 
     # cached_only mode: return whatever we have, never trigger GPT
     if cached_only:
@@ -3508,7 +3885,10 @@ async def get_analysis(sport: str, cached_only: bool = False, force: bool = Fals
         print(f"Game log fetch error: {e}")
 
     # ===== BUILD WEIGHTED MATRIX SECTION =====
-    matrix_section = _build_matrix_section(sport_lower)
+    if user_profile:
+        matrix_section = _build_user_matrix_section(sport_lower, user_profile)
+    else:
+        matrix_section = _build_matrix_section(sport_lower)
 
     # ===== FETCH REAL PROP LINES (from The Odds API) =====
     prop_lines_text = ""
@@ -4424,6 +4804,15 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
         }
 
         _set_cache(cache_key, analysis)
+        # Save to disk — user-specific analyses get separate files, don't overwrite defaults
+        if user_id:
+            user_cache_path = _user_analysis_cache_path(sport_lower, user_id)
+            with open(user_cache_path, "w") as f:
+                json.dump({"sport": sport.upper(), **analysis, "cached_at": _now_ts(), "user_id": user_id}, f)
+            _increment_user_rate_limit(user_id, sport_lower)
+            analysis["user_id"] = user_id
+        else:
+            _save_analysis_cache(sport_lower, analysis)
         return JSONResponse(analysis)
 
     except json.JSONDecodeError:
@@ -6856,25 +7245,53 @@ async def debug_injuries(sport: str):
 # ── WebRTC Voice (Azure Realtime API) ──────────────────────────────
 
 @app.post("/api/voice/token")
-async def voice_token():
-    """Get ephemeral WebRTC token from Azure Realtime API."""
+async def voice_token(request: Request):
+    """Get ephemeral WebRTC token from Azure Realtime API.
+    Accepts optional user_id in body for personalized agent sessions."""
     if not AZURE_BASE or not AZURE_KEY:
         return JSONResponse({"error": "Azure not configured"}, status_code=500)
+
+    # Parse optional user_id from request body
+    user_id = None
+    try:
+        body = await request.json()
+        user_id = body.get("user_id")
+    except Exception:
+        pass
+
+    # Build session config — personalized if user_id provided
+    instructions = EV_AGENT_VOICE["prompt"]
+    voice = EV_AGENT_VOICE["voice"]
+    tools = []
+
+    if user_id:
+        profile = _load_user_profile(user_id)
+        if profile:
+            instructions = _build_agent_voice_prompt(profile)
+            voice = profile.get("agent_personality", {}).get("voice", "ash")
+            tools = AGENT_VOICE_TOOLS
+
     url = f"{AZURE_BASE}/openai/v1/realtime/client_secrets"
     headers = {"api-key": AZURE_KEY, "Content-Type": "application/json"}
-    payload = {
-        "session": {
-            "type": "realtime",
-            "model": REALTIME_DEPLOYMENT,
-            "instructions": EV_AGENT_VOICE["prompt"],
-            "audio": {"output": {"voice": EV_AGENT_VOICE["voice"]}}
-        }
+    session = {
+        "type": "realtime",
+        "model": REALTIME_DEPLOYMENT,
+        "instructions": instructions,
+        "audio": {"output": {"voice": voice}}
     }
+    if tools:
+        session["tools"] = tools
+        session["tool_choice"] = "auto"
+    payload = {"session": session}
+
     async with httpx.AsyncClient(timeout=15.0) as client:
         resp = await client.post(url, json=payload, headers=headers)
         resp.raise_for_status()
         data = resp.json()
-        return {"token": data["value"], "expires_at": data.get("expires_at"), "voice": EV_AGENT_VOICE["voice"]}
+        result = {"token": data["value"], "expires_at": data.get("expires_at"), "voice": voice}
+        if user_id and tools:
+            result["has_tools"] = True
+        return result
 
 
 @app.post("/api/voice/sdp")
@@ -6910,6 +7327,96 @@ async def ev_page():
 @app.get("/picks")
 async def picks_page():
     return FileResponse("static/picks.html", headers=NO_CACHE_HEADERS)
+
+
+# ── User Agent Endpoints ─────────────────────────────────────────────────────
+
+@app.get("/agent/{user_id}")
+async def agent_page(user_id: str):
+    """Serve the agent page for a user."""
+    return FileResponse("static/agent.html", headers=NO_CACHE_HEADERS)
+
+
+@app.get("/api/agent/{user_id}/profile")
+async def get_agent_profile(user_id: str):
+    """Return a user's agent profile."""
+    profile = _load_user_profile(user_id)
+    if not profile:
+        return JSONResponse({"error": "Profile not found"}, status_code=404)
+    return JSONResponse(profile)
+
+
+@app.put("/api/agent/{user_id}/profile")
+async def update_agent_profile(user_id: str, request: Request):
+    """Partial merge update of a user's agent profile."""
+    profile = _load_user_profile(user_id)
+    if not profile:
+        return JSONResponse({"error": "Profile not found"}, status_code=404)
+    updates = await request.json()
+    # Merge top-level keys (shallow merge for safety)
+    for key in ("display_name", "sport_preferences", "betting_style", "agent_personality"):
+        if key in updates:
+            profile[key] = updates[key]
+    if "conversation_context" in updates:
+        existing = profile.get("conversation_context", {})
+        incoming = updates["conversation_context"]
+        if "learned_preferences" in incoming:
+            existing_prefs = existing.get("learned_preferences", [])
+            for pref in incoming["learned_preferences"]:
+                if pref not in existing_prefs:
+                    existing_prefs.append(pref)
+            existing["learned_preferences"] = existing_prefs
+        profile["conversation_context"] = existing
+    _save_user_profile(profile)
+    return JSONResponse(profile)
+
+
+@app.post("/api/agent/{user_id}/action")
+async def agent_action(user_id: str, request: Request):
+    """Process a voice agent tool call."""
+    body = await request.json()
+    action_name = body.get("action") or body.get("name", "")
+    args = body.get("args", body.get("arguments", {}))
+    if isinstance(args, str):
+        try:
+            args = json.loads(args)
+        except Exception:
+            args = {}
+    result = _process_agent_action(user_id, action_name, args)
+    return JSONResponse(result)
+
+
+@app.get("/api/agent/{user_id}/matrix/{sport}")
+async def get_agent_matrix(user_id: str, sport: str):
+    """Return a user's resolved matrix for a sport."""
+    profile = _load_user_profile(user_id)
+    if not profile:
+        return JSONResponse({"error": "Profile not found"}, status_code=404)
+    resolved = _resolve_user_matrix(sport.lower(), profile)
+    default_dict = {k: w for k, w, _ in SPORT_MATRICES.get(sport.lower(), [])}
+    sport_cfg = profile.get("matrices", {}).get(sport.lower(), {})
+    overrides = sport_cfg.get("overrides", {})
+    excluded = sport_cfg.get("excluded", [])
+    custom_keys = {cv["key"] for cv in sport_cfg.get("custom_vars", [])}
+
+    matrix_out = []
+    for key, weight, desc in resolved:
+        entry = {"key": key, "weight": weight, "description": desc, "type": "default"}
+        if key in custom_keys:
+            entry["type"] = "custom"
+        elif key in overrides:
+            entry["type"] = "override"
+            entry["default_weight"] = default_dict.get(key, weight)
+        matrix_out.append(entry)
+
+    return JSONResponse({
+        "sport": sport.upper(),
+        "user_id": user_id,
+        "matrix": matrix_out,
+        "excluded": excluded,
+        "total_weight": sum(w for _, w, _ in resolved),
+        "var_count": len(resolved),
+    })
 
 
 @app.get("/dj")
