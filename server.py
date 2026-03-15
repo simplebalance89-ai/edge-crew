@@ -3765,7 +3765,7 @@ async def get_edge(sport: str):
 
 
 @app.get("/api/analysis/{sport}")
-async def get_analysis(sport: str, cached_only: bool = False, force: bool = False, user_id: str = None):
+async def get_analysis(sport: str, cached_only: bool = False, force: bool = False, user_id: str = None, model: str = None):
     """Generate AI analysis for a sport based on current live odds.
 
     Params:
@@ -4335,7 +4335,7 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
         client = OpenAI(
             base_url=THINKER_ENDPOINT,
             api_key=AZURE_KEY,
-            timeout=60,
+            timeout=180,
         )
         logger.info(f"[THINKER] Batch {batch_idx} ({sport.upper()}) → {ANALYSIS_THINKER} via {THINKER_ENDPOINT}")
         think_start = time.time()
@@ -4375,17 +4375,18 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
         logger.info(f"[FORMATTER] Done in {fmt_secs}s, {fmt_tokens} tokens, {games_with_ms}/{total_games} games with matrix_scores")
         return result, {"secs": fmt_secs, "tokens": fmt_tokens}
 
-    def _call_single_model(prompt_text):
+    def _call_single_model(prompt_text, model_name=None):
         """Fallback: single-model call to AZURE_MODEL (gpt-4.1) with full JSON prompt."""
+        use_model = model_name or AZURE_MODEL
         client = AzureOpenAI(
             azure_endpoint=AZURE_ENDPOINT,
             api_key=AZURE_KEY,
             api_version="2024-10-21",
         )
-        logger.info(f"[FALLBACK] Single-model call to {AZURE_MODEL}")
+        logger.info(f"[FALLBACK] Single-model call to {use_model}")
         fb_start = time.time()
         response = client.chat.completions.create(
-            model=AZURE_MODEL,
+            model=use_model,
             messages=[{"role": "user", "content": prompt_text}],
             temperature=0.4,
             max_tokens=8000,
@@ -4393,11 +4394,11 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
         raw = response.choices[0].message.content.strip()
         fb_secs = round(time.time() - fb_start, 1)
         fb_tokens = getattr(response.usage, 'total_tokens', '?')
-        logger.info(f"[FALLBACK] {AZURE_MODEL} done in {fb_secs}s, {fb_tokens} tokens")
+        logger.info(f"[FALLBACK] {use_model} done in {fb_secs}s, {fb_tokens} tokens")
         result = _clean_json(raw)
         for game in result.get("games", []):
-            game["_thinker"] = AZURE_MODEL
-            game["_formatter"] = AZURE_MODEL
+            game["_thinker"] = use_model
+            game["_formatter"] = use_model
             game["_think_time"] = fb_secs
         return result
 
@@ -4452,13 +4453,19 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
         return ms_pct > 0.5
 
     # ── Main orchestrator ──
-    def _call_azure_batch(prompt_text, batch_idx=0, is_first_batch=False, batch_games=None, batch_prop_lines="", batch_incomplete_note=""):
+    def _call_azure_batch(prompt_text, batch_idx=0, is_first_batch=False, batch_games=None, batch_prop_lines="", batch_incomplete_note="", model_override=None):
         """Two-model analysis engine: Grok thinks, DeepSeek formats, gpt-4.1 fallback.
 
         ANALYSIS_MODE='single': uses gpt-4.1 with full JSON prompt (safe fallback).
         ANALYSIS_MODE='twomodel': Grok reasons → DeepSeek formats → fallback if needed.
+        model_override: if set, force single-model with this deployment (e.g. 'gpt-4.1-mini' for DJ page).
         """
         logger.info(f"[ANALYSIS MODE] {ANALYSIS_MODE} — thinker={ANALYSIS_THINKER}, formatter={ANALYSIS_FORMATTER}")
+
+        # ── Model override (e.g. DJ page uses gpt-4.1-mini) ──
+        if model_override:
+            logger.info(f"[MODEL OVERRIDE] Forcing single-model: {model_override}")
+            return _call_single_model(prompt_text, model_override)
 
         # ── Single-model mode (kill switch) ──
         if ANALYSIS_MODE == "single":
@@ -4579,7 +4586,8 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
                 _call_azure_batch, batch_prompts[i],
                 batch_idx=i, is_first_batch=(i == 0), batch_games=batch_game_lists[i],
                 batch_prop_lines=batch_prop_texts[i],
-                batch_incomplete_note=(incomplete_note if i == 0 else "")
+                batch_incomplete_note=(incomplete_note if i == 0 else ""),
+                model_override=model,
             )
             for i in range(len(batch_prompts))
         ]

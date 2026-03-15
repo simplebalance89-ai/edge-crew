@@ -1212,10 +1212,10 @@ async function reanalyzeSlate(sport) {
   if (btn) { btn.disabled = true; btn.textContent = 'ANALYZING...'; }
   const loading = document.getElementById('loadingState');
   loading.style.display = 'block';
-  document.getElementById('loadingText').textContent = 'Running AI analysis... this may take 30-60 seconds';
+  document.getElementById('loadingText').textContent = 'Running AI analysis... this may take 1-2 minutes';
 
   try {
-    await fetch(`/api/analysis/${sport}?force=true`);
+    await fetch(`/api/analysis/${sport}?force=true&model=gpt-4.1-mini`);
     await loadSport(sport);
   } catch (err) {
     console.error('Re-analyze failed:', err);
@@ -1877,10 +1877,10 @@ async function analyzeMyWay(sport) {
 
   const loading = document.getElementById('loadingState');
   loading.style.display = 'block';
-  document.getElementById('loadingText').textContent = 'Running DJ\'s custom analysis... 30-60 seconds';
+  document.getElementById('loadingText').textContent = 'Running DJ\'s custom analysis... 1-2 minutes';
 
   try {
-    const resp = await fetch(`/api/analysis/${sport}?force=true&user_id=${AGENT_USER_ID}`);
+    const resp = await fetch(`/api/analysis/${sport}?force=true&model=gpt-4.1-mini&user_id=${AGENT_USER_ID}`);
     if (resp.status === 429) {
       showAgentToast('Rate limit \u2014 max 3 custom runs per sport per day');
       return;
