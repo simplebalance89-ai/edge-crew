@@ -976,9 +976,36 @@ function showLanding() {
   document.getElementById('headerBar').style.display = 'none';
   document.getElementById('gamesContainer').innerHTML = '';
   document.getElementById('footer').style.display = 'none';
-  // Auto-start NBA — skip landing page
-  document.getElementById('landingPage').innerHTML = '';
-  startSport('nba');
+
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+  document.getElementById('landingPage').innerHTML = `
+    <div class="landing">
+      <h2>DJ'S EDGE AGENT</h2>
+      <div class="subtitle">Your matrix. Your weights. Your edge.</div>
+
+      <div class="what-we-do" style="text-align:left;max-width:560px;margin:24px auto;">
+        <h3 style="font-size:0.85rem;margin-bottom:10px;">What This Does</h3>
+        <ul style="font-size:0.78rem;line-height:1.8;">
+          <li><strong>20-Variable Weighted Matrix</strong> per sport &mdash; every game scored across injuries, rest, matchup, trends, sharp money, and more</li>
+          <li><strong>Your Custom Weights</strong> &mdash; talk to your agent to bump, add, or drop variables. Your matrix, your grades</li>
+          <li><strong>Multi-Book Lines</strong> &mdash; same line across 12+ books side by side. Best number highlighted</li>
+          <li><strong>Prop Screener</strong> &mdash; player game logs vs book lines. Floor beats line = mispriced</li>
+          <li><strong>Injury Gap Detection</strong> &mdash; star OUT, role player absorbs, book didn't adjust = edge</li>
+          <li><strong>"Analyze DJ's Way"</strong> &mdash; re-run the full slate through YOUR custom weights and see how your grades differ from defaults</li>
+        </ul>
+
+        <div style="margin-top:18px;padding:12px;background:rgba(108,92,231,0.08);border:1px solid rgba(108,92,231,0.2);border-radius:8px;font-size:0.78rem;color:var(--text-dim);line-height:1.6;">
+          <strong style="color:var(--accent-glow);">How to start:</strong> Pick a sport below. Talk to your agent &mdash; hit Conversation or Take Turns at the bottom. Say things like "bump venue to 8" or "add tight rims" to customize your matrix. Then hit "Analyze DJ's Way" to see your custom grades.
+        </div>
+      </div>
+
+      <div class="tonight" style="margin-top:16px;">${dateStr}</div>
+      <div class="landing-buttons">
+        ${SPORTS.map(s => `<button class="landing-btn" onclick="startSport('${s}')">${SPORT_LABELS[s]}</button>`).join('')}
+      </div>
+    </div>`;
 }
 
 function startSport(sport) {
@@ -1163,19 +1190,7 @@ async function loadSport(sport) {
     const gradeOrder = {'A+':0,'A':1,'A-':2,'B+':3,'B':4,'B-':5,'C+':6,'C':7,'D':8,'F':9,'TBD':10,'INCOMPLETE':11};
     games.sort((a, b) => (gradeOrder[a.grade] ?? 10) - (gradeOrder[b.grade] ?? 10));
 
-    // Filter out games that have already started (stale)
-    const now = new Date();
-    const futureGames = games.filter(game => {
-      const ct = game.commence_time || game.commence || game.time || '';
-      if (!ct) return true; // No time data — keep it
-      return new Date(ct) > now;
-    });
-
-    if (futureGames.length === 0 && games.length > 0) {
-      html += `<div class="empty-state"><div class="icon">&#9989;</div><p>All ${SPORT_LABELS[sport]} games have started or finished. Check back tomorrow.</p></div>`;
-    }
-
-    futureGames.forEach((game, idx) => {
+    games.forEach((game, idx) => {
       html += renderGameCard(game, screenerByGame[game.matchup] || [], oddsByGame[game.matchup] || null, idx);
     });
 
@@ -1451,7 +1466,6 @@ function toggleBooks(id) {
 function renderGameCard(game, screenerHits, oddsGame, cardIdx) {
   const matchup = game.matchup || '?';
   const grade = game.grade || 'TBD';
-  // Store game data for EV button
   const awayName = game.away || matchup.split(' @ ')[0] || '';
   const homeName = game.home || matchup.split(' @ ')[1] || '';
   const evKey = (awayName + '_at_' + homeName).replace(/\s+/g, '_');
@@ -2262,143 +2276,54 @@ function updateVoiceUI(active) {
 function createExpectedValue(btn, evKey) {
   var g = _djGameDataMap[evKey];
   if (!g) { alert('Game data not found'); return; }
-
   btn.disabled = true;
   btn.innerHTML = '&#9889; Analyzing...';
   btn.style.opacity = '0.6';
-
   var panel = btn.parentElement.querySelector('.ev-panel');
   var awayAbbr = (g.away || g.matchup.split(' @ ')[0] || '').split(' ').pop();
   var homeAbbr = (g.home || g.matchup.split(' @ ')[1] || '').split(' ').pop();
-
   var payload = {
     sport: (currentSport || 'nba').toLowerCase(),
     away_team: g.away || g.matchup.split(' @ ')[0] || '',
     home_team: g.home || g.matchup.split(' @ ')[1] || '',
     spread_away: g.away_spread || -(g.spread || 0),
     spread_home: g.spread || g.home_spread || 0,
-    ml_away: g.away_ml || 0,
-    ml_home: g.home_ml || 0,
-    over_under: g.total || 0,
-    matrix_score: g.grade || '--',
-    signals: g.tags || [],
-    chain_bonus: g.chain_bonus || 0,
-    the_play: g.peter_zone || '',
-    game_time: g.commence_time || g.time || ''
+    ml_away: g.away_ml || 0, ml_home: g.home_ml || 0,
+    over_under: g.total || 0, matrix_score: g.grade || '--',
+    signals: g.tags || [], chain_bonus: g.chain_bonus || 0,
+    the_play: g.peter_zone || '', game_time: g.commence_time || g.time || ''
   };
-
-  fetch('/api/ev/card', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  })
+  fetch('/api/ev/card', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
   .then(function(r) { return r.json(); })
   .then(function(ev) {
     renderEVPanel(panel, ev, g, awayAbbr, homeAbbr);
-    btn.innerHTML = '&#9889; Refresh EV';
-    btn.disabled = false;
-    btn.style.opacity = '1';
+    btn.innerHTML = '&#9889; Refresh EV'; btn.disabled = false; btn.style.opacity = '1';
   })
-  .catch(function(err) {
+  .catch(function() {
     panel.style.display = 'block';
     panel.innerHTML = '<div style="padding:12px;color:#EF4444;font-size:12px;">EV engines timed out. Try again.</div>';
-    btn.innerHTML = '&#9889; Create Expected Value';
-    btn.disabled = false;
-    btn.style.opacity = '1';
+    btn.innerHTML = '&#9889; Create Expected Value'; btn.disabled = false; btn.style.opacity = '1';
   });
 }
-
 function renderEVPanel(panel, ev, g, awayAbbr, homeAbbr) {
   panel.style.display = 'block';
   var matchup = awayAbbr + ' @ ' + homeAbbr;
-
-  if (ev.error) {
-    panel.innerHTML = '<div style="padding:12px;color:#EF4444;font-size:12px;">' + ev.error + '</div>';
-    return;
-  }
-
-  if (ev.raw_text) {
-    panel.innerHTML = '<div style="padding:12px;color:#B0BEC5;font-size:11px;white-space:pre-wrap;">' + ev.raw_text + '</div>';
-    return;
-  }
-
+  if (ev.error) { panel.innerHTML = '<div style="padding:12px;color:#EF4444;font-size:12px;">' + ev.error + '</div>'; return; }
+  if (ev.raw_text) { panel.innerHTML = '<div style="padding:12px;color:#B0BEC5;font-size:11px;white-space:pre-wrap;">' + ev.raw_text + '</div>'; return; }
   var html = '<div style="background:rgba(212,160,23,0.06);border:1px solid rgba(212,160,23,0.2);border-radius:8px;padding:12px;margin-top:8px;">';
   html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">';
   html += '<span style="font-size:12px;font-weight:800;color:#D4A017;letter-spacing:0.5px;">&#9889; EV ANALYSIS</span>';
-  html += '<span onclick="collapseEVPanel(this)" style="cursor:pointer;color:rgba(255,255,255,0.3);font-size:14px;padding:2px 6px;">&times;</span>';
-  html += '</div>';
-
-  // Spread Call
-  if (ev.spread_call) {
-    html += '<div style="margin-bottom:10px;">';
-    html += '<div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.4);margin-bottom:3px;">SPREAD CALL</div>';
-    html += '<div style="font-size:12px;color:#fff;font-weight:600;">' + (ev.spread_call.pick || '') + '</div>';
-    html += '<div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;">' + (ev.spread_call.reasoning || '') + '</div>';
-    html += '</div>';
-  }
-
-  // Top Props
-  if (ev.top_props && ev.top_props.length > 0) {
-    html += '<div style="margin-bottom:10px;">';
-    html += '<div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.4);margin-bottom:3px;">TOP PROPS (Mathurin Test)</div>';
-    ev.top_props.forEach(function(p) {
-      var verdictColor = p.verdict === 'MISPRICED' ? '#10B981' : (p.verdict === 'CLOSE' ? '#FBB024' : '#B0BEC5');
-      html += '<div style="font-size:11px;color:#fff;margin-bottom:4px;">';
-      html += '<strong>' + (p.player || '') + '</strong> ' + (p.prop || '');
-      html += ' <span style="color:' + verdictColor + ';font-weight:700;font-size:10px;">' + (p.verdict || '') + '</span>';
-      if (p.l5_floor !== undefined && p.line !== undefined) {
-        html += '<div style="font-size:10px;color:rgba(255,255,255,0.4);">L5 floor: ' + p.l5_floor + ' | Line: ' + p.line + ' | Gap: ' + (p.gap > 0 ? '+' : '') + p.gap + '</div>';
-      }
-      html += '</div>';
-    });
-    html += '</div>';
-  } else {
-    html += '<div style="font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:10px;">No mispriced props found on this slate.</div>';
-  }
-
-  // Book Discrepancy
-  if (ev.book_discrepancy) {
-    html += '<div style="margin-bottom:10px;">';
-    html += '<div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.4);margin-bottom:3px;">BOOK DISCREPANCY</div>';
-    html += '<div style="font-size:11px;color:rgba(255,255,255,0.5);">' + ev.book_discrepancy + '</div>';
-    html += '</div>';
-  }
-
-  // Trap Check
-  if (ev.trap_check) {
-    html += '<div style="margin-bottom:10px;">';
-    html += '<div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.4);margin-bottom:3px;">TRAP CHECK</div>';
-    html += '<div style="font-size:11px;color:rgba(255,255,255,0.5);">' + ev.trap_check + '</div>';
-    html += '</div>';
-  }
-
-  // Lock Suggestions
-  if (ev.lock_suggestions && ev.lock_suggestions.length > 0) {
-    html += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">';
-    ev.lock_suggestions.forEach(function(lock) {
-      html += '<button onclick="event.stopPropagation();" style="padding:6px 12px;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);border-radius:6px;color:#10B981;font-size:11px;font-weight:700;cursor:pointer;transition:all 0.2s;">Lock ' + (lock.selection || '') + '</button>';
-    });
-    html += '</div>';
-  }
-
-  // Engine stats
-  if (ev._engine_data) {
-    var ed = ev._engine_data;
-    html += '<div style="font-size:9px;color:rgba(255,255,255,0.15);margin-top:8px;">Engines: ' + ed.screener_count + ' props screened, ' + ed.disc_count + ' discrepancies, ' + ed.gap_count + ' gap props</div>';
-  }
-
-  html += '</div>';
-  panel.innerHTML = html;
+  html += '<span onclick="collapseEVPanel(this)" style="cursor:pointer;color:rgba(255,255,255,0.3);font-size:14px;padding:2px 6px;">&times;</span></div>';
+  if (ev.spread_call) { html += '<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.4);margin-bottom:3px;">SPREAD CALL</div><div style="font-size:12px;color:#fff;font-weight:600;">' + (ev.spread_call.pick || '') + '</div><div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;">' + (ev.spread_call.reasoning || '') + '</div></div>'; }
+  if (ev.top_props && ev.top_props.length > 0) { html += '<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.4);margin-bottom:3px;">TOP PROPS (Mathurin Test)</div>'; ev.top_props.forEach(function(p) { var vc = p.verdict === 'MISPRICED' ? '#10B981' : (p.verdict === 'CLOSE' ? '#FBB024' : '#B0BEC5'); html += '<div style="font-size:11px;color:#fff;margin-bottom:4px;"><strong>' + (p.player || '') + '</strong> ' + (p.prop || '') + ' <span style="color:' + vc + ';font-weight:700;font-size:10px;">' + (p.verdict || '') + '</span>'; if (p.l5_floor !== undefined && p.line !== undefined) { html += '<div style="font-size:10px;color:rgba(255,255,255,0.4);">L5 floor: ' + p.l5_floor + ' | Line: ' + p.line + ' | Gap: ' + (p.gap > 0 ? '+' : '') + p.gap + '</div>'; } html += '</div>'; }); html += '</div>'; } else { html += '<div style="font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:10px;">No mispriced props found.</div>'; }
+  if (ev.book_discrepancy) { html += '<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.4);margin-bottom:3px;">BOOK DISCREPANCY</div><div style="font-size:11px;color:rgba(255,255,255,0.5);">' + ev.book_discrepancy + '</div></div>'; }
+  if (ev.trap_check) { html += '<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.4);margin-bottom:3px;">TRAP CHECK</div><div style="font-size:11px;color:rgba(255,255,255,0.5);">' + ev.trap_check + '</div></div>'; }
+  if (ev._engine_data) { var ed = ev._engine_data; html += '<div style="font-size:9px;color:rgba(255,255,255,0.15);margin-top:8px;">Engines: ' + ed.screener_count + ' screened, ' + ed.disc_count + ' discrepancies, ' + ed.gap_count + ' gaps</div>'; }
+  html += '</div>'; panel.innerHTML = html;
 }
-
 function collapseEVPanel(closeBtn) {
   var panel = closeBtn.closest('.ev-panel');
-  if (panel) {
-    panel.style.display = 'none';
-    panel.innerHTML = '';
-    var evBtn = panel.parentElement.querySelector('.ev-btn');
-    if (evBtn) evBtn.innerHTML = '&#9889; Create Expected Value';
-  }
+  if (panel) { panel.style.display = 'none'; panel.innerHTML = ''; var evBtn = panel.parentElement.querySelector('.ev-btn'); if (evBtn) evBtn.innerHTML = '&#9889; Create Expected Value'; }
 }
 
 init();
