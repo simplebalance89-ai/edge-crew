@@ -227,16 +227,17 @@ async def _daily_slate_pull():
                 # Auto-grade after midnight slate pull — cards ready with analysis by morning
                 if hour == 0:
                     print(f"[ANALYSIS] Midnight auto-grade — building tomorrow's cards")
-                    for sport in active_sports:
-                        try:
-                            resp = await get_analysis(sport)
-                            if hasattr(resp, 'body'):
-                                data = json.loads(resp.body)
-                                if data.get("games"):
-                                    _save_analysis_cache(sport, data)
-                        except Exception as e:
-                            print(f"[ANALYSIS] Midnight error {sport}: {e}")
-                        await asyncio.sleep(5)
+                    async def _midnight_one(s):
+                        async with _analysis_sem:
+                            try:
+                                resp = await get_analysis(s)
+                                if hasattr(resp, 'body'):
+                                    d = json.loads(resp.body)
+                                    if d.get("games"):
+                                        _save_analysis_cache(s, d)
+                            except Exception as e:
+                                print(f"[ANALYSIS] Midnight error {s}: {e}")
+                    await asyncio.gather(*[_midnight_one(s) for s in active_sports])
 
             # Scheduled analysis: 10AM, 1PM, 4PM PST — keep cache warm all day
             # 10AM: morning lines locked, early edges
@@ -251,41 +252,43 @@ async def _daily_slate_pull():
                 active_sports = _in_season_sports()
                 print(f"[ANALYSIS] Scheduled analysis at {now.strftime('%I:%M %p PST')} — {len(active_sports)} sports")
                 failed_sports = []
-                for sport in active_sports:
-                    try:
-                        # Force fresh odds before analysis
-                        odds_key = f"{sport}:h2h,spreads,totals"
-                        if odds_key in _cache:
-                            del _cache[odds_key]
-                        resp = await get_analysis(sport)
-                        if hasattr(resp, 'body'):
-                            data = json.loads(resp.body)
-                            if data.get("games"):
-                                _save_analysis_cache(sport, data)
-                                print(f"[ANALYSIS] {sport.upper()}: {len(data['games'])} games analyzed")
+                async def _sched_one(s):
+                    async with _analysis_sem:
+                        try:
+                            # Force fresh odds before analysis
+                            odds_key = f"{s}:h2h,spreads,totals"
+                            if odds_key in _cache:
+                                del _cache[odds_key]
+                            resp = await get_analysis(s)
+                            if hasattr(resp, 'body'):
+                                d = json.loads(resp.body)
+                                if d.get("games"):
+                                    _save_analysis_cache(s, d)
+                                    print(f"[ANALYSIS] {s.upper()}: {len(d['games'])} games analyzed")
+                                else:
+                                    print(f"[ANALYSIS] {s.upper()}: No games on slate")
                             else:
-                                print(f"[ANALYSIS] {sport.upper()}: No games on slate")
-                        else:
-                            failed_sports.append(sport)
-                    except Exception as e:
-                        print(f"[ANALYSIS] {sport.upper()} failed: {e}")
-                        failed_sports.append(sport)
-                    await asyncio.sleep(5)
+                                failed_sports.append(s)
+                        except Exception as e:
+                            print(f"[ANALYSIS] {s.upper()} failed: {e}")
+                            failed_sports.append(s)
+                await asyncio.gather(*[_sched_one(s) for s in active_sports])
                 # Retry failed sports once after 30min
                 if failed_sports:
                     print(f"[ANALYSIS] Retrying {len(failed_sports)} failed sports in 30min: {failed_sports}")
                     await asyncio.sleep(1800)
-                    for sport in failed_sports:
-                        try:
-                            resp = await get_analysis(sport)
-                            if hasattr(resp, 'body'):
-                                data = json.loads(resp.body)
-                                if data.get("games"):
-                                    _save_analysis_cache(sport, data)
-                                    print(f"[ANALYSIS] Retry {sport.upper()}: {len(data['games'])} games")
-                        except Exception as e:
-                            print(f"[ANALYSIS] Retry {sport.upper()} failed again: {e}")
-                        await asyncio.sleep(5)
+                    async def _retry_one(s):
+                        async with _analysis_sem:
+                            try:
+                                resp = await get_analysis(s)
+                                if hasattr(resp, 'body'):
+                                    d = json.loads(resp.body)
+                                    if d.get("games"):
+                                        _save_analysis_cache(s, d)
+                                        print(f"[ANALYSIS] Retry {s.upper()}: {len(d['games'])} games")
+                            except Exception as e:
+                                print(f"[ANALYSIS] Retry {s.upper()} failed again: {e}")
+                    await asyncio.gather(*[_retry_one(s) for s in failed_sports])
         except Exception as e:
             print(f"[SLATE] Loop error: {e}")
         await asyncio.sleep(300)
@@ -298,29 +301,34 @@ async def _warm_analysis_cache():
     active_sports = _in_season_sports()
     today = datetime.now(PST).strftime("%Y-%m-%d")
     print(f"[ANALYSIS WARM] Checking cache for {len(active_sports)} sports...")
+    # First pass: check which sports need fresh analysis (sync, no API calls)
+    needs_generation = []
     for sport in active_sports:
-        try:
-            cached = _load_analysis_cache(sport)
-            # Check if cache is from today
-            if cached and cached.get("games"):
-                cached_date = cached.get("generated_at", "")[:10] or cached.get("cached_at", "")[:10]
-                if cached_date == today:
-                    print(f"[ANALYSIS WARM] {sport.upper()}: today's cache exists ({len(cached['games'])} games)")
-                    # Warm the memory cache too
-                    _set_cache(f"analysis:{sport}", cached)
-                    continue
-            # No today cache — generate fresh
-            print(f"[ANALYSIS WARM] {sport.upper()}: no today cache, generating...")
-            resp = await get_analysis(sport)
-            if hasattr(resp, 'body'):
-                data = json.loads(resp.body)
-                if data.get("games"):
-                    _save_analysis_cache(sport, data)
-                    print(f"[ANALYSIS WARM] {sport.upper()}: generated {len(data['games'])} games")
-            await asyncio.sleep(10)  # Stagger to avoid Azure rate limits
-        except Exception as e:
-            print(f"[ANALYSIS WARM] {sport.upper()} failed: {e}")
-            await asyncio.sleep(5)
+        cached = _load_analysis_cache(sport)
+        if cached and cached.get("games"):
+            cached_date = cached.get("generated_at", "")[:10] or cached.get("cached_at", "")[:10]
+            if cached_date == today:
+                print(f"[ANALYSIS WARM] {sport.upper()}: today's cache exists ({len(cached['games'])} games)")
+                _set_cache(f"analysis:{sport}", cached)
+                continue
+        needs_generation.append(sport)
+
+    # Second pass: generate missing caches in parallel (max 3 concurrent)
+    if needs_generation:
+        print(f"[ANALYSIS WARM] Generating {len(needs_generation)} sports in parallel...")
+        async def _warm_one(s):
+            async with _analysis_sem:
+                try:
+                    print(f"[ANALYSIS WARM] {s.upper()}: no today cache, generating...")
+                    resp = await get_analysis(s)
+                    if hasattr(resp, 'body'):
+                        d = json.loads(resp.body)
+                        if d.get("games"):
+                            _save_analysis_cache(s, d)
+                            print(f"[ANALYSIS WARM] {s.upper()}: generated {len(d['games'])} games")
+                except Exception as e:
+                    print(f"[ANALYSIS WARM] {s.upper()} failed: {e}")
+        await asyncio.gather(*[_warm_one(s) for s in needs_generation])
     print(f"[ANALYSIS WARM] Cache warm complete")
 
 
@@ -536,6 +544,9 @@ BANKROLL_FILE = os.path.join(DATA_DIR, "bankroll.json")
 GOTCHA_FILE = os.path.join(DATA_DIR, "gotcha_notes.json")
 
 ALL_SPORTS = ["nba", "wnba", "ncaab", "ncaaf", "nhl", "mlb", "tennis", "soccer", "mma", "boxing"]
+
+# Semaphore to limit concurrent analysis calls (avoid hammering Azure)
+_analysis_sem = asyncio.Semaphore(3)
 
 # Season map — which months each sport is active
 _SEASON_MONTHS = {
