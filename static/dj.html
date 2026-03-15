@@ -1221,6 +1221,7 @@ async function reanalyzeSlate(sport) {
     await loadSport(sport);
   } catch (err) {
     console.error('Re-analyze failed:', err);
+  } finally {
     loading.style.display = 'none';
     if (btn) { btn.disabled = false; btn.textContent = 'RE-ANALYZE SLATE'; }
   }
@@ -1596,11 +1597,12 @@ function renderGameCard(game, screenerHits, oddsGame, cardIdx) {
   // Multi-book line comparison
   html += renderMultiBookCard(oddsGame, cardIdx);
 
-  // Screener hits
-  if (screenerHits.length > 0) {
+  // Screener hits — DJ page: hide PASS, show CLOSE and above only
+  const closeHits = screenerHits.filter(h => (h.verdict || h.signal || '') !== 'PASS');
+  if (closeHits.length > 0) {
     html += `<div class="screener-section">
       <div class="section-label">Screener Hits</div>`;
-    screenerHits.forEach(hit => {
+    closeHits.forEach(hit => {
       const player = hit.player || '?';
       const stat = hit.stat || '';
       const line = hit.line ?? '';
