@@ -8651,6 +8651,141 @@ async def get_gap_props(sport: str, min_gap_score: float = 5.0, force: bool = Fa
 # ── End Prop Gap Analyzer ────────────────────────────────────────────────────
 
 
+# ── Card EV Analysis Engine ──────────────────────────────────────────────────
+
+@app.post("/api/ev/card")
+async def ev_card(request: Request):
+    """Run full EV analysis on a single game card — screener + discrepancies + gaps,
+    filtered to the two teams on the card, then sent through AI for structured output."""
+    body = await request.json()
+    sport = body.get("sport", "").lower()
+    away_team = body.get("away_team", "")
+    home_team = body.get("home_team", "")
+
+    if not sport or not away_team or not home_team:
+        return JSONResponse({"error": "sport, away_team, and home_team are required"}, status_code=400)
+
+    team_names = {away_team.lower(), home_team.lower()}
+    card_data = body  # pass full payload to AI prompt
+
+    # ── Run all three engines in parallel ──
+    async def safe_call(coro, label):
+        try:
+            resp = await coro
+            if hasattr(resp, "body"):
+                return json.loads(resp.body)
+            return resp
+        except Exception as e:
+            logger.warning(f"[EV CARD] {label} failed: {e}")
+            return {}
+
+    screener_data, disc_data, gap_data = await asyncio.gather(
+        safe_call(run_screener(sport), "screener"),
+        safe_call(find_discrepancies(sport), "discrepancies"),
+        safe_call(get_gap_props(sport), "gaps"),
+    )
+
+    # ── Filter results to this game's teams ──
+    def team_match(name):
+        return name.lower() in team_names or any(t in name.lower() for t in team_names)
+
+    filtered_screener = [
+        s for s in screener_data.get("screener", [])
+        if team_match(s.get("team", "")) or team_match(s.get("matchup", ""))
+    ]
+    filtered_disc = [
+        d for d in disc_data.get("discrepancies", [])
+        if team_match(d.get("matchup", ""))
+    ]
+    filtered_gaps = [
+        g for g in gap_data.get("gap_props", [])
+        if team_match(g.get("team", "")) or team_match(g.get("matchup", ""))
+    ]
+
+    # ── Build AI prompt ──
+    ev_prompt = f"""You are the EV Agent. Analyze this game for real edge using the math below.
+DO NOT grade the teams. DO NOT give letter grades.
+Find where the book is WRONG. Show the number that proves it.
+Run the Mathurin Test on any props flagged (L5 floor vs book line).
+Output ONLY valid JSON with this exact structure:
+{{
+  "spread_call": {{ "pick": "TEAM +/-X", "reasoning": "1-2 sentences with numbers" }},
+  "top_props": [
+    {{ "player": "Name", "prop": "O/U X.5 STAT", "l5_floor": 0, "line": 0, "gap": 0, "verdict": "MISPRICED/CLOSE/PASS" }}
+  ],
+  "book_discrepancy": "1-2 sentences or null if none",
+  "trap_check": "1-2 sentences",
+  "lock_suggestions": [
+    {{ "selection": "TEAM +/-X or PLAYER O/U X.5", "matchup": "{away_team} @ {home_team}", "sport": "{sport.upper()}", "odds": "-110", "units": "1", "confidence": "Strong/Moderate/Lean" }}
+  ]
+}}
+Be direct. Numbers only. No fluff. No markdown. Just the JSON object.
+
+CARD DATA: {json.dumps(card_data)}
+SCREENER HITS ({len(filtered_screener)}): {json.dumps(filtered_screener[:10])}
+BOOK DISCREPANCIES ({len(filtered_disc)}): {json.dumps(filtered_disc[:10])}
+GAP PROPS ({len(filtered_gaps)}): {json.dumps(filtered_gaps[:5])}"""
+
+    # ── Call Azure OpenAI ──
+    if not AZURE_ENDPOINT or not AZURE_KEY:
+        # No AI available — return raw engine data
+        return JSONResponse({
+            "raw": True,
+            "screener": filtered_screener[:5],
+            "discrepancies": filtered_disc[:5],
+            "gap_props": filtered_gaps[:5],
+        })
+
+    try:
+        url = f"{AZURE_BASE}/openai/deployments/{AZURE_MODEL}/chat/completions?api-version=2024-08-01-preview"
+        headers = {"api-key": AZURE_KEY, "Content-Type": "application/json"}
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            resp = await client.post(url, json={
+                "messages": [
+                    {"role": "system", "content": "You are a sharp sports betting EV analyst. Return ONLY valid JSON. No markdown fences."},
+                    {"role": "user", "content": ev_prompt},
+                ],
+                "max_tokens": 800,
+                "temperature": 0.3,
+            }, headers=headers)
+            resp.raise_for_status()
+            data = resp.json()
+            raw_reply = data["choices"][0]["message"]["content"].strip()
+
+            # Parse JSON from reply (handle markdown fences if model adds them)
+            clean = raw_reply
+            if clean.startswith("```"):
+                clean = clean.split("\n", 1)[1] if "\n" in clean else clean[3:]
+            if clean.endswith("```"):
+                clean = clean[:-3]
+            clean = clean.strip()
+
+            try:
+                ev_result = json.loads(clean)
+            except json.JSONDecodeError:
+                ev_result = {"raw_text": raw_reply}
+
+            ev_result["_engine_data"] = {
+                "screener_count": len(filtered_screener),
+                "disc_count": len(filtered_disc),
+                "gap_count": len(filtered_gaps),
+            }
+            return JSONResponse(ev_result)
+
+    except Exception as e:
+        logger.error(f"[EV CARD] AI call failed: {e}")
+        return JSONResponse({
+            "error": "EV analysis timed out. Try again.",
+            "raw": True,
+            "screener": filtered_screener[:5],
+            "discrepancies": filtered_disc[:5],
+            "gap_props": filtered_gaps[:5],
+        })
+
+
+# ── End Card EV Analysis ────────────────────────────────────────────────────
+
+
 # ── Simple Slate API ─────────────────────────────────────────────────────────
 
 @app.get("/api/simple/{sport}")

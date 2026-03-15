@@ -5300,6 +5300,9 @@ function buildGameRowHTML(g) {
     var isFight = g.sport && (g.sport.toUpperCase() === 'MMA' || g.sport.toUpperCase() === 'BOXING');
     var awayAbbr = abbr(g.away, g.sport);
     var homeAbbr = abbr(g.home, g.sport);
+    // Store game data for EV button access
+    var evKey = awayAbbr + (isFight ? '_vs_' : '_at_') + homeAbbr;
+    _gameDataMap[evKey] = g;
     var matchupSep = isFight ? ' vs ' : ' @ ';
     var matchup = awayAbbr + matchupSep + homeAbbr;
     var hasSpread = (g.home_spread !== undefined && g.home_spread !== null && g.home_spread !== 0) || (g.away_spread !== undefined && g.away_spread !== null && g.away_spread !== 0);
@@ -5464,6 +5467,7 @@ function buildGameRowHTML(g) {
                     '</div>' : '') +
                 '</div>' +
             '</div>' +
+            '<div style="padding:0 8px 8px;"><button class="ev-btn" data-evkey="' + evKey + '" onclick="event.stopPropagation();createExpectedValue(this,\'' + evKey + '\')" style="width:100%;padding:10px;background:rgba(212,160,23,0.12);border:1px solid rgba(212,160,23,0.3);border-radius:8px;color:#D4A017;font-size:12px;font-weight:800;cursor:pointer;transition:all 0.2s;letter-spacing:0.5px;">&#9889; Create Expected Value</button><div class="ev-panel" style="display:none;"></div></div>' +
             /* Data Cards */
             (function() {
                 var mid = matchup.replace(/\s/g, '_').replace(/@/g, 'at');
@@ -6556,6 +6560,7 @@ function injectPicksIntoCards(sport, analysisData) {
 
 // ===== ANALYSIS CACHE =====
 var _analysisCache = {};
+var _gameDataMap = {};
 
 // Look up analysis grade for a matchup from cache
 function getAnalysisGrade(sport, matchup) {
@@ -9589,6 +9594,159 @@ function agentLockPick(encodedAction) {
     addAgentMsg('agent', '&#10003; <strong>' + pick.selection + '</strong> locked! ' + pick.odds + ' ' + pick.units + 'u');
     renderBankroll();
     showToast(pick.selection + ' locked via EV!');
+}
+
+// ===== EV CARD ANALYSIS =====
+function createExpectedValue(btn, evKey) {
+    var g = _gameDataMap[evKey];
+    if (!g) { showToast('Game data not found'); return; }
+
+    btn.disabled = true;
+    btn.innerHTML = '&#9889; Analyzing...';
+    btn.style.opacity = '0.6';
+
+    var panel = btn.parentElement.querySelector('.ev-panel');
+    var awayAbbr = abbr(g.away, g.sport);
+    var homeAbbr = abbr(g.home, g.sport);
+
+    var payload = {
+        sport: (g.sport || '').toLowerCase(),
+        away_team: g.away,
+        home_team: g.home,
+        spread_away: g.away_spread || 0,
+        spread_home: g.home_spread || 0,
+        ml_away: g.away_ml || 0,
+        ml_home: g.home_ml || 0,
+        over_under: g.total || 0,
+        matrix_score: g.grade || '--',
+        signals: g.tags || [],
+        chain_bonus: g.chain_bonus || 0,
+        the_play: g.peter_zone || '',
+        game_time: g.time || ''
+    };
+
+    crewFetch('/api/ev/card', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(ev) {
+        renderEVPanel(panel, ev, g, awayAbbr, homeAbbr);
+        btn.innerHTML = '&#9889; Refresh EV';
+        btn.disabled = false;
+        btn.style.opacity = '1';
+    })
+    .catch(function(err) {
+        panel.style.display = 'block';
+        panel.innerHTML = '<div style="padding:12px;color:#EF4444;font-size:12px;">EV engines timed out. Try again.</div>';
+        btn.innerHTML = '&#9889; Create Expected Value';
+        btn.disabled = false;
+        btn.style.opacity = '1';
+    });
+}
+
+function renderEVPanel(panel, ev, g, awayAbbr, homeAbbr) {
+    panel.style.display = 'block';
+    var matchup = awayAbbr + ' @ ' + homeAbbr;
+
+    if (ev.error) {
+        panel.innerHTML = '<div style="padding:12px;color:#EF4444;font-size:12px;">' + ev.error + '</div>';
+        return;
+    }
+
+    if (ev.raw_text) {
+        panel.innerHTML = '<div style="padding:12px;color:#B0BEC5;font-size:11px;white-space:pre-wrap;">' + ev.raw_text + '</div>';
+        return;
+    }
+
+    var html = '<div style="background:rgba(212,160,23,0.06);border:1px solid rgba(212,160,23,0.2);border-radius:8px;padding:12px;margin-top:8px;">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">';
+    html += '<span style="font-size:12px;font-weight:800;color:#D4A017;letter-spacing:0.5px;">&#9889; EV ANALYSIS</span>';
+    html += '<span onclick="collapseEVPanel(this)" style="cursor:pointer;color:rgba(255,255,255,0.3);font-size:14px;padding:2px 6px;">&times;</span>';
+    html += '</div>';
+
+    // Spread Call
+    if (ev.spread_call) {
+        html += '<div style="margin-bottom:10px;">';
+        html += '<div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.4);margin-bottom:3px;">SPREAD CALL</div>';
+        html += '<div style="font-size:12px;color:#fff;font-weight:600;">' + (ev.spread_call.pick || '') + '</div>';
+        html += '<div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;">' + (ev.spread_call.reasoning || '') + '</div>';
+        html += '</div>';
+    }
+
+    // Top Props
+    if (ev.top_props && ev.top_props.length > 0) {
+        html += '<div style="margin-bottom:10px;">';
+        html += '<div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.4);margin-bottom:3px;">TOP PROPS (Mathurin Test)</div>';
+        ev.top_props.forEach(function(p) {
+            var verdictColor = p.verdict === 'MISPRICED' ? '#10B981' : (p.verdict === 'CLOSE' ? '#FBB024' : '#B0BEC5');
+            html += '<div style="font-size:11px;color:#fff;margin-bottom:4px;">';
+            html += '<strong>' + (p.player || '') + '</strong> ' + (p.prop || '');
+            html += ' <span style="color:' + verdictColor + ';font-weight:700;font-size:10px;">' + (p.verdict || '') + '</span>';
+            if (p.l5_floor !== undefined && p.line !== undefined) {
+                html += '<div style="font-size:10px;color:rgba(255,255,255,0.4);">L5 floor: ' + p.l5_floor + ' | Line: ' + p.line + ' | Gap: ' + (p.gap > 0 ? '+' : '') + p.gap + '</div>';
+            }
+            html += '</div>';
+        });
+        html += '</div>';
+    } else {
+        html += '<div style="font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:10px;">No mispriced props found on this slate.</div>';
+    }
+
+    // Book Discrepancy
+    if (ev.book_discrepancy) {
+        html += '<div style="margin-bottom:10px;">';
+        html += '<div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.4);margin-bottom:3px;">BOOK DISCREPANCY</div>';
+        html += '<div style="font-size:11px;color:rgba(255,255,255,0.5);">' + ev.book_discrepancy + '</div>';
+        html += '</div>';
+    }
+
+    // Trap Check
+    if (ev.trap_check) {
+        html += '<div style="margin-bottom:10px;">';
+        html += '<div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.4);margin-bottom:3px;">TRAP CHECK</div>';
+        html += '<div style="font-size:11px;color:rgba(255,255,255,0.5);">' + ev.trap_check + '</div>';
+        html += '</div>';
+    }
+
+    // Lock Buttons
+    if (ev.lock_suggestions && ev.lock_suggestions.length > 0) {
+        html += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">';
+        ev.lock_suggestions.forEach(function(lock) {
+            var action = {
+                action: 'lock_pick',
+                selection: lock.selection || '',
+                matchup: lock.matchup || matchup,
+                sport: lock.sport || (g.sport || '').toUpperCase(),
+                odds: lock.odds || '-110',
+                units: lock.units || '1',
+                confidence: lock.confidence || 'Lean'
+            };
+            var encoded = btoa(JSON.stringify(action));
+            html += '<button onclick="event.stopPropagation();agentLockPick(\'' + encoded + '\')" style="padding:6px 12px;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);border-radius:6px;color:#10B981;font-size:11px;font-weight:700;cursor:pointer;transition:all 0.2s;">Lock ' + (lock.selection || '') + '</button>';
+        });
+        html += '</div>';
+    }
+
+    // Engine stats
+    if (ev._engine_data) {
+        var ed = ev._engine_data;
+        html += '<div style="font-size:9px;color:rgba(255,255,255,0.15);margin-top:8px;">Engines: ' + ed.screener_count + ' props screened, ' + ed.disc_count + ' discrepancies, ' + ed.gap_count + ' gap props</div>';
+    }
+
+    html += '</div>';
+    panel.innerHTML = html;
+}
+
+function collapseEVPanel(closeBtn) {
+    var panel = closeBtn.closest('.ev-panel');
+    if (panel) {
+        panel.style.display = 'none';
+        panel.innerHTML = '';
+        var evBtn = panel.parentElement.querySelector('.ev-btn');
+        if (evBtn) evBtn.innerHTML = '&#9889; Create Expected Value';
+    }
 }
 
 /* ---- Mobile Keyboard: resize agent panel (docked + floating keyboards) ---- */
