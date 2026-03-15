@@ -1909,15 +1909,29 @@ async function startVoiceMode() {
         ? 'Take Turns — listen, then speak'
         : 'Conversation mode. Just talk.';
 
-      // Greeting
+      // Greeting — onboarding-aware
       const name = agentProfile ? agentProfile.display_name : 'DJ';
       const sport = currentSport ? currentSport.toUpperCase() : 'the slate';
-      rtcDC.send(JSON.stringify({
-        type: 'response.create',
-        response: {
-          instructions: `Greet ${name} by name. You're their Edge Agent. Current sport is ${sport}. Ask what they want to adjust or analyze. 2 sentences max. Be sharp and direct.`
-        }
-      }));
+      const hasCustomizations = agentProfile && agentProfile.matrices && Object.keys(agentProfile.matrices).some(s => {
+        const m = agentProfile.matrices[s];
+        return (m.overrides && Object.keys(m.overrides).length) || (m.custom_vars && m.custom_vars.length) || (m.excluded && m.excluded.length);
+      });
+
+      if (hasCustomizations) {
+        rtcDC.send(JSON.stringify({
+          type: 'response.create',
+          response: {
+            instructions: `Greet ${name} by name. You're their Edge Agent. Current sport is ${sport}. Mention they have custom weights saved. Ask what they want to do — adjust weights, analyze the slate their way, or explore props. 2-3 sentences, be sharp.`
+          }
+        }));
+      } else {
+        rtcDC.send(JSON.stringify({
+          type: 'response.create',
+          response: {
+            instructions: `Greet ${name} by name. You're their personal Edge Agent. Tell them briefly: "We grade every game using a 20-variable weighted matrix — injuries, rest, sharp money, matchups. You can customize the weights to match how YOU see the game." Then ask: "Want me to walk you through the ${sport} variables so you can build your own grading sheet? Or I can show you what's on the slate tonight." Keep it to 3-4 sentences. Be welcoming but sharp.`
+          }
+        }));
+      }
     };
 
     // 8. Handle all RTC events — gold standard
