@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NBA Grading System — Casa Expected Value</title>
+<style>
+:root { --bg:#0d0d14; --card:#161622; --border:#1e1e30; --text:#e8e8f0; --dim:#8888a0; --accent:#6c5ce7; --green:#00d68f; --red:#ff5555; --gold:#d4a024; --orange:#ff9f43; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif; min-height:100vh; padding:20px 16px 80px; }
+.container { max-width:700px; margin:0 auto; }
+h1 { font-size:1.3rem; color:var(--gold); text-align:center; margin-bottom:4px; letter-spacing:0.5px; }
+.subtitle { text-align:center; color:var(--dim); font-size:0.8rem; margin-bottom:24px; }
+.back { display:inline-block; color:var(--accent); font-size:0.8rem; text-decoration:none; margin-bottom:16px; }
+.section { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:16px; margin-bottom:14px; }
+.section h2 { font-size:0.95rem; color:var(--gold); margin-bottom:10px; border-bottom:1px solid var(--border); padding-bottom:8px; }
+.section h3 { font-size:0.82rem; color:var(--accent); margin:12px 0 6px; }
+p, li { font-size:0.78rem; line-height:1.7; color:var(--text); }
+ul { padding-left:18px; }
+li { margin-bottom:4px; }
+.grade-row { display:flex; align-items:center; gap:10px; padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
+.grade-badge { width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.9rem; flex-shrink:0; }
+.grade-A { background:rgba(0,214,143,0.15); color:var(--green); }
+.grade-B { background:rgba(108,92,231,0.15); color:var(--accent); }
+.grade-C { background:rgba(255,159,67,0.12); color:var(--orange); }
+.grade-D { background:rgba(255,85,85,0.12); color:var(--red); }
+.grade-desc { flex:1; font-size:0.75rem; }
+.var-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:6px; margin-top:8px; }
+.var-item { background:rgba(255,255,255,0.03); border-radius:6px; padding:6px 8px; font-size:0.72rem; }
+.var-name { color:var(--dim); font-size:0.65rem; text-transform:uppercase; letter-spacing:0.3px; }
+.engine-label { display:inline-block; padding:3px 8px; border-radius:4px; font-size:0.65rem; font-weight:700; text-transform:uppercase; margin-right:6px; }
+.engine-ai { background:rgba(108,92,231,0.15); color:var(--accent); }
+.engine-math { background:rgba(212,160,36,0.15); color:var(--gold); }
+.callout { background:rgba(0,214,143,0.06); border:1px solid rgba(0,214,143,0.2); border-radius:8px; padding:12px; margin-top:12px; font-size:0.75rem; line-height:1.7; }
+.proof { background:rgba(212,160,36,0.06); border:1px solid rgba(212,160,36,0.2); border-radius:8px; padding:12px; margin-top:12px; font-size:0.75rem; line-height:1.7; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="/dj" class="back">&larr; Back to Edge Finder</a>
+<h1>NBA Grading System</h1>
+<div class="subtitle">Two engines, 15 variables, one question: where is the book wrong?</div>
+
+<div class="section">
+<h2>Two Engines, One Grade</h2>
+
+<h3><span class="engine-label engine-ai">AI ENGINE</span> Sinton.ia's Analysis</h3>
+<p>Full AI analysis powered by Grok reasoning + DeepSeek formatting. Reads every game through a <strong>15-variable scoring matrix</strong> with access to live injury data, line movement, and rest schedules from ESPN, The Odds API, and CBS Sports. Each variable scored 1-10, weighted by importance, rolled into a composite score.</p>
+<p>Sinton.ia doesn't just grade teams — he identifies the specific question: <strong>"Where is the market wrong on this game?"</strong> Every game gets an edge question, not just a letter.</p>
+
+<h3><span class="engine-label engine-math">MATH ENGINE</span> Alyssa's Edge Calculator</h3>
+<p>Pure expected value math. No opinions, no gut feel. Three layers:</p>
+<ul>
+<li><strong>Multi-Book Comparison</strong> — pulls lines from 12+ books (DraftKings, FanDuel, Pinnacle, Bovada, Bet365, Hard Rock, BetOnline, William Hill...). Compares implied probabilities. Where books disagree = opportunity.</li>
+<li><strong>Mathurin Screener</strong> — for every player prop: pulls last 5 game logs from ESPN, computes the FLOOR (lowest of L5), compares to the book's line. Floor > line = MISPRICED.</li>
+<li><strong>Injury Gap Detection</strong> — when a star is OUT, identifies which role players absorb minutes. If the book hasn't adjusted their props = free money.</li>
+</ul>
+</div>
+
+<div class="section">
+<h2>The 15-Variable Matrix</h2>
+<p>NBA-specific factors, each scored 1-10:</p>
+<div class="var-grid">
+<div class="var-item"><div class="var-name">Star Player Status</div>Who's playing, who's out, who's limited. This moves lines more than anything.</div>
+<div class="var-item"><div class="var-name">Rest Advantage</div>Days off, B2B, 3-in-4. Fatigue is the NBA's biggest hidden variable.</div>
+<div class="var-item"><div class="var-name">Injury Impact</div>Not just who's out — how many PPG/RPG/APG are missing from the lineup?</div>
+<div class="var-item"><div class="var-name">Line Movement</div>Opening line vs current. Significant moves = sharp money or injury news.</div>
+<div class="var-item"><div class="var-name">Sharp vs Public</div>Where sharp bettors are vs the public. Fading public heavy sides.</div>
+<div class="var-item"><div class="var-name">Offensive Efficiency</div>Points per 100 possessions. The real measure of offense.</div>
+<div class="var-item"><div class="var-name">Defensive Efficiency</div>Points allowed per 100 possessions.</div>
+<div class="var-item"><div class="var-name">Recent Form</div>L10, L5 performance. Hot/cold streaks matter in the NBA.</div>
+<div class="var-item"><div class="var-name">Tempo Matchup</div>Pace differential. Fast vs slow creates variance.</div>
+<div class="var-item"><div class="var-name">Home Court</div>Home court advantage — still real, but varies by team.</div>
+<div class="var-item"><div class="var-name">ATS Trend</div>Against-the-spread performance. Books adjust slowly.</div>
+<div class="var-item"><div class="var-name">Bench Depth</div>Rotation depth. Short rotations + B2B = blowout risk.</div>
+<div class="var-item"><div class="var-name">Rebounding</div>Board differential. Second chances at the rim.</div>
+<div class="var-item"><div class="var-name">Turnover Margin</div>Possession control. Turnovers = fast break points.</div>
+<div class="var-item"><div class="var-name">Three Pt Reliance</div>3PT volume and accuracy. High variance = upset risk.</div>
+</div>
+<p style="margin-top:10px;color:var(--dim);font-size:0.7rem;">Additional factors: Travel Distance, B2B Fatigue, Coaching Matchup, FT Shooting, Rivalry/Motivation, Line vs Model</p>
+</div>
+
+<div class="section">
+<h2>Grade Scale</h2>
+<div class="grade-row"><div class="grade-badge grade-A">A</div><div class="grade-desc"><strong>Strong edge — book is wrong.</strong> Composite 8+. Both engines agree. Clear mispricing. Bet this.</div></div>
+<div class="grade-row"><div class="grade-badge grade-A">A-</div><div class="grade-desc"><strong>Good edge.</strong> Composite 7.5+. Strong signal, one variable uncertain.</div></div>
+<div class="grade-row"><div class="grade-badge grade-B">B+</div><div class="grade-desc"><strong>Lean.</strong> Composite 7+. Slight edge. Small play if price is right.</div></div>
+<div class="grade-row"><div class="grade-badge grade-B">B</div><div class="grade-desc"><strong>Marginal.</strong> Composite 6+. Some factors favor a side, not enough for a confident play.</div></div>
+<div class="grade-row"><div class="grade-badge grade-C">C</div><div class="grade-desc"><strong>No edge.</strong> Composite 5-6. Fair line. The book got it right. Pass.</div></div>
+<div class="grade-row"><div class="grade-badge grade-D">D/F</div><div class="grade-desc"><strong>Trap.</strong> Composite below 5. Looks good on the surface, data says stay away.</div></div>
+</div>
+
+<div class="section">
+<h2>NBA-Specific Edge Signals</h2>
+<ul>
+<li><strong>Injury absorption</strong> — star OUT, role players feast. Books adjust the star's line fast but are SLOW on the role players. Example: Sabonis OUT → Achiuwa O6.5 REB cashed at +106.</li>
+<li><strong>B2B fatigue</strong> — second night of a back-to-back, especially on the road. Unders and dog spreads.</li>
+<li><strong>"Too Good to Be True"</strong> — when the spread looks like free money, the book is giving it away for a reason. Denver -3 looked free → Denver down 14. Trap.</li>
+<li><strong>Prop floor test</strong> — Mathurin L5: 26, 28, 21, 22, 23. Line: 17.5. Floor (21) > line (17.5) by 3.5 points. The book is behind. CASHED.</li>
+<li><strong>Multi-book ML gaps</strong> — 15+ cent gap between books on the same moneyline = someone is wrong. Bet the better number.</li>
+</ul>
+
+<div class="proof">
+<strong>March 14, 2026 — Proof of Concept:</strong><br>
+Mathurin O17.5 PTS: CASHED (21 pts) — L5 floor 21, gap +3.5<br>
+Achiuwa O6.5 REB: CASHED (7 reb) — Sabonis + Eubanks OUT<br>
+Achiuwa O10.5 PTS: CASHED (18 pts) — same injury gap<br>
+SJ Sharks ML +140: CASHED — MTL missing Laine + Caufield<br>
+CBJ ML -135: CASHED — sharp money read<br>
+Kuzma O13.5 PTS: CASHED — (Peter's pick)
+</div>
+</div>
+
+<div class="section">
+<h2>The Rule</h2>
+<div class="callout">
+<strong>The Mathurin Test:</strong> Before placing any bet — "Can you show a NUMBER that proves the book is wrong?"<br><br>
+<strong>YES:</strong> "His L5 floor is 21, book has 17.5. Gap is +3.5." → BET IT.<br>
+<strong>NO:</strong> "I think Denver covers." → PASS. That's an opinion, not an edge.<br><br>
+No opinions. Only math. The board IS the data.
+</div>
+</div>
+
+<div style="text-align:center;margin-top:20px;font-size:0.7rem;color:var(--dim);">Casa Expected Value &mdash; Edge Crew</div>
+</div>
+</body>
+</html>

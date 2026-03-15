@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NCAAB Grading System — Casa Expected Value</title>
+<style>
+:root { --bg:#0d0d14; --card:#161622; --border:#1e1e30; --text:#e8e8f0; --dim:#8888a0; --accent:#6c5ce7; --green:#00d68f; --red:#ff5555; --gold:#d4a024; --orange:#ff9f43; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif; min-height:100vh; padding:20px 16px 80px; }
+.container { max-width:700px; margin:0 auto; }
+h1 { font-size:1.3rem; color:var(--gold); text-align:center; margin-bottom:4px; letter-spacing:0.5px; }
+.subtitle { text-align:center; color:var(--dim); font-size:0.8rem; margin-bottom:24px; }
+.back { display:inline-block; color:var(--accent); font-size:0.8rem; text-decoration:none; margin-bottom:16px; }
+.section { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:16px; margin-bottom:14px; }
+.section h2 { font-size:0.95rem; color:var(--gold); margin-bottom:10px; border-bottom:1px solid var(--border); padding-bottom:8px; }
+.section h3 { font-size:0.82rem; color:var(--accent); margin:12px 0 6px; }
+p, li { font-size:0.78rem; line-height:1.7; color:var(--text); }
+ul { padding-left:18px; }
+li { margin-bottom:4px; }
+.grade-row { display:flex; align-items:center; gap:10px; padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
+.grade-badge { width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.9rem; flex-shrink:0; }
+.grade-A { background:rgba(0,214,143,0.15); color:var(--green); }
+.grade-B { background:rgba(108,92,231,0.15); color:var(--accent); }
+.grade-C { background:rgba(255,159,67,0.12); color:var(--orange); }
+.grade-D { background:rgba(255,85,85,0.12); color:var(--red); }
+.grade-desc { flex:1; font-size:0.75rem; }
+.var-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:6px; margin-top:8px; }
+.var-item { background:rgba(255,255,255,0.03); border-radius:6px; padding:6px 8px; font-size:0.72rem; }
+.var-name { color:var(--dim); font-size:0.65rem; text-transform:uppercase; letter-spacing:0.3px; }
+.engine-label { display:inline-block; padding:3px 8px; border-radius:4px; font-size:0.65rem; font-weight:700; text-transform:uppercase; margin-right:6px; }
+.engine-ai { background:rgba(108,92,231,0.15); color:var(--accent); }
+.engine-math { background:rgba(212,160,36,0.15); color:var(--gold); }
+.callout { background:rgba(0,214,143,0.06); border:1px solid rgba(0,214,143,0.2); border-radius:8px; padding:12px; margin-top:12px; font-size:0.75rem; line-height:1.7; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="/dj" class="back">&larr; Back to Edge Finder</a>
+<h1>NCAAB Grading System</h1>
+<div class="subtitle">How we grade college basketball — two engines, one grade</div>
+
+<div class="section">
+<h2>Two Engines, One Grade</h2>
+<p>Every NCAAB game is analyzed by <strong>two independent engines</strong> that approach the game differently:</p>
+
+<h3><span class="engine-label engine-ai">AI ENGINE</span> Sinton.ia's Analysis</h3>
+<p>AI-powered analysis using a <strong>15-variable scoring matrix</strong>. Each variable is scored 1-10, then weighted into a composite score. The AI reads injury reports, rest schedules, travel, matchup data, and line movement to identify where the market might be wrong.</p>
+
+<h3><span class="engine-label engine-math">MATH ENGINE</span> Alyssa's Edge Calculator</h3>
+<p>Pure math — no opinions. Compares the book's implied probability to our calculated probability based on:</p>
+<ul>
+<li>Multi-book line comparison (12+ sportsbooks)</li>
+<li>Consensus vs best-available odds</li>
+<li>Historical ATS trends</li>
+<li>Player prop screening (L5 floor vs book line)</li>
+</ul>
+<p>The two engines agree? Strong signal. They disagree? Caution flag.</p>
+</div>
+
+<div class="section">
+<h2>The 15-Variable Matrix</h2>
+<p>Each game is scored across these 15 factors (1-10 scale):</p>
+<div class="var-grid">
+<div class="var-item"><div class="var-name">Tempo Matchup</div>Pace differential — fast vs slow creates edges</div>
+<div class="var-item"><div class="var-name">Three Pt Reliance</div>3PT dependency — high variance = upset risk</div>
+<div class="var-item"><div class="var-name">Sharp vs Public</div>Where sharp money is vs public — fade the public</div>
+<div class="var-item"><div class="var-name">Line Movement</div>Opening vs current line — movement = information</div>
+<div class="var-item"><div class="var-name">ATS Trend</div>Against-the-spread performance (L10, L5)</div>
+<div class="var-item"><div class="var-name">Defensive Efficiency</div>Points allowed per 100 possessions</div>
+<div class="var-item"><div class="var-name">Offensive Efficiency</div>Points scored per 100 possessions</div>
+<div class="var-item"><div class="var-name">Star Player Status</div>Key player availability and health</div>
+<div class="var-item"><div class="var-name">Bench Depth</div>Rotation depth — thin bench = fatigue risk</div>
+<div class="var-item"><div class="var-name">Conference Strength</div>Strength of conference — Big Ten vs mid-major</div>
+<div class="var-item"><div class="var-name">Turnover Margin</div>Turnover differential — possession matters</div>
+<div class="var-item"><div class="var-name">Rebounding</div>Board control — second chances = points</div>
+<div class="var-item"><div class="var-name">Recent Form</div>L5 game performance trend</div>
+<div class="var-item"><div class="var-name">Home Court</div>Home court advantage factor</div>
+<div class="var-item"><div class="var-name">Coaching Matchup</div>Coach track record in this matchup type</div>
+</div>
+<p style="margin-top:10px;color:var(--dim);font-size:0.7rem;">Additional factors scored but weighted lower: FT Shooting, Rivalry/Motivation, B2B Fatigue, Travel Distance, Line vs Model</p>
+</div>
+
+<div class="section">
+<h2>Grade Scale</h2>
+<div class="grade-row"><div class="grade-badge grade-A">A</div><div class="grade-desc"><strong>Strong edge — book is wrong.</strong> Composite 8+. Both engines agree. Clear mispricing identified. Bet this.</div></div>
+<div class="grade-row"><div class="grade-badge grade-A">A-</div><div class="grade-desc"><strong>Good edge.</strong> Composite 7.5+. Strong signal but one variable is uncertain (e.g., injury status TBD).</div></div>
+<div class="grade-row"><div class="grade-badge grade-B">B+</div><div class="grade-desc"><strong>Lean.</strong> Composite 7+. Slight edge detected. Worth a small play if the price is right.</div></div>
+<div class="grade-row"><div class="grade-badge grade-B">B</div><div class="grade-desc"><strong>Marginal.</strong> Composite 6+. Some factors favor a side but not enough for a confident play.</div></div>
+<div class="grade-row"><div class="grade-badge grade-C">C</div><div class="grade-desc"><strong>No edge.</strong> Composite 5-6. Fair line. The book got it right. Pass.</div></div>
+<div class="grade-row"><div class="grade-badge grade-D">D/F</div><div class="grade-desc"><strong>Trap.</strong> Composite below 5. This looks good on the surface but the data says stay away.</div></div>
+
+<div class="callout">
+<strong>The Mathurin Test:</strong> Before any bet, ask: "Can I show a NUMBER that proves the book is wrong?" If the answer is just "I think they'll win" — that's a grade, not an edge. We only bet edges.
+</div>
+</div>
+
+<div class="section">
+<h2>NCAAB-Specific Edges</h2>
+<ul>
+<li><strong>Conference tournament fatigue</strong> — teams playing 3rd game in 3 days, legs are gone</li>
+<li><strong>Venue neutrality</strong> — "home" team in a neutral site tournament doesn't get full home court advantage</li>
+<li><strong>Tight rims</strong> — some arenas have notoriously tight rims, favoring unders</li>
+<li><strong>Public bias on blue bloods</strong> — Duke, Kentucky, UNC get bet heavily regardless of matchup. Fade when the line is inflated.</li>
+<li><strong>Mid-major efficiency</strong> — small conference teams can be drastically undervalued in early rounds</li>
+<li><strong>First half lines</strong> — 1H/1Q lines are where books are least efficient in college basketball</li>
+</ul>
+</div>
+
+<div style="text-align:center;margin-top:20px;font-size:0.7rem;color:var(--dim);">Casa Expected Value &mdash; Edge Crew</div>
+</div>
+</body>
+</html>

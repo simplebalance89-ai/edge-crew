@@ -6866,6 +6866,16 @@ async def dj_page():
     return FileResponse("static/dj.html", headers=NO_CACHE_HEADERS)
 
 
+@app.get("/dj/ncaab-system")
+async def ncaab_system_page():
+    return FileResponse("static/ncaab-system.html", headers=NO_CACHE_HEADERS)
+
+
+@app.get("/dj/nba-system")
+async def nba_system_page():
+    return FileResponse("static/nba-system.html", headers=NO_CACHE_HEADERS)
+
+
 @app.get("/api/arb-scan")
 async def arb_scan():
     """Scan all active sports for arbitrage opportunities."""

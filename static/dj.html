@@ -638,7 +638,12 @@ function showLanding() {
         </div>
       </div>
 
-      <div class="tonight" style="margin-top:20px;">Conference Tournaments + NBA &mdash; ${dateStr}</div>
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:20px;">
+        <a href="/dj/ncaab-system" style="color:var(--accent-glow,#7c6cf7);font-size:0.75rem;text-decoration:none;padding:8px 14px;border:1px solid rgba(108,92,231,0.3);border-radius:6px;">NCAAB Grading System</a>
+        <a href="/dj/nba-system" style="color:var(--accent-glow,#7c6cf7);font-size:0.75rem;text-decoration:none;padding:8px 14px;border:1px solid rgba(108,92,231,0.3);border-radius:6px;">NBA Grading System</a>
+      </div>
+
+      <div class="tonight" style="margin-top:16px;">Conference Tournaments + NBA &mdash; ${dateStr}</div>
       <div class="landing-buttons">
         <button class="landing-btn" onclick="startSport('ncaab')">LOAD NCAAB</button>
         <button class="landing-btn" onclick="startSport('nba')">LOAD NBA</button>
