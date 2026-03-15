@@ -681,6 +681,23 @@
   }
   .voice-mode-btn.end-btn.visible { display: inline-flex; }
 
+  .voice-mic-btn {
+    width: 44px; height: 44px; border-radius: 12px;
+    border: 1px solid rgba(108,92,231,0.3);
+    background: transparent; color: var(--accent-glow); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all 0.2s;
+  }
+  .voice-mic-btn:hover { background: rgba(108,92,231,0.1); }
+  .voice-mic-btn.listening {
+    background: rgba(108,92,231,0.2); border-color: var(--accent);
+    animation: mic-pulse 1.5s infinite;
+  }
+  @keyframes mic-pulse {
+    0%,100%{box-shadow:0 0 0 0 rgba(108,92,231,0.4);}
+    50%{box-shadow:0 0 0 10px rgba(108,92,231,0);}
+  }
+
   .mic-sensitivity {
     display: none; align-items: center; gap: 6px;
     padding: 4px 16px 6px; justify-content: center;
@@ -769,6 +786,9 @@
   <div class="voice-controls">
     <button class="voice-mode-btn" id="btnConversation" onclick="startVoiceWithMode('freeflow')">Conversation</button>
     <button class="voice-mode-btn" id="btnTakeTurns" onclick="startVoiceWithMode('turnbased')">Take Turns</button>
+    <button class="voice-mic-btn" id="voiceMicBtn" onclick="startVoiceWithMode(voiceActive ? '' : voiceInteractionMode || 'freeflow')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+    </button>
     <button class="voice-mode-btn end-btn" id="btnEndVoice" onclick="endVoice()">End Voice</button>
   </div>
   <div class="mic-sensitivity" id="micSensitivity">
@@ -1941,6 +1961,7 @@ function updateVoiceUI(active) {
   const btnConv = document.getElementById('btnConversation');
   const btnTurns = document.getElementById('btnTakeTurns');
   const btnEnd = document.getElementById('btnEndVoice');
+  const micBtn = document.getElementById('voiceMicBtn');
   const statusRow = document.getElementById('voiceStatusRow');
   const micSens = document.getElementById('micSensitivity');
 
@@ -1948,12 +1969,14 @@ function updateVoiceUI(active) {
     const activeBtn = voiceInteractionMode === 'turnbased' ? btnTurns : btnConv;
     if (activeBtn) activeBtn.classList.add('active');
     if (btnEnd) btnEnd.classList.add('visible');
+    if (micBtn) micBtn.classList.add('listening');
     if (statusRow) statusRow.classList.add('active');
     if (micSens) micSens.classList.add('visible');
   } else {
     if (btnConv) btnConv.classList.remove('active');
     if (btnTurns) btnTurns.classList.remove('active');
     if (btnEnd) btnEnd.classList.remove('visible');
+    if (micBtn) micBtn.classList.remove('listening');
     if (statusRow) { statusRow.classList.remove('active'); statusRow.className = 'voice-status-row'; }
     if (micSens) micSens.classList.remove('visible');
   }
