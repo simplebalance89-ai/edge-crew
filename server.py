@@ -534,7 +534,7 @@ ODDS_API_KEY = os.environ.get("ODDS_API_KEY_PAID", "") or os.environ.get("ODDS_A
 ODDS_API_BASE = "https://api.the-odds-api.com/v4/sports"
 PREFERRED_BOOK = "hardrockbet"
 FALLBACK_BOOKS = ["draftkings", "fanduel", "betmgm", "bovada"]
-REGIONS = "us,us2"
+REGIONS = "us,us2,eu,uk,au"
 # Persistent data directory — uses /data mount on Render, falls back to local ./data
 DATA_DIR = "/data" if os.path.isdir("/data") else os.path.join(os.path.dirname(__file__), "data")
 UPSETS_FILE = os.path.join(DATA_DIR, "upsets.json")
