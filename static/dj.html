@@ -97,14 +97,149 @@
 
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  .games-container { padding: 0 12px; max-width: 720px; margin: 0 auto; }
+  .games-container { padding: 0 12px; max-width: 800px; margin: 0 auto; }
 
+  /* Landing page */
+  .landing {
+    text-align: center;
+    padding: 60px 20px 40px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  .landing h2 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+  .landing .subtitle {
+    font-size: 0.95rem;
+    color: var(--accent-glow);
+    margin-bottom: 30px;
+    font-weight: 500;
+  }
+  .landing .what-we-do {
+    text-align: left;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 30px;
+  }
+  .landing .what-we-do h3 {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+  }
+  .landing .what-we-do ul {
+    list-style: none;
+    padding: 0;
+  }
+  .landing .what-we-do li {
+    font-size: 0.88rem;
+    color: var(--text);
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    line-height: 1.5;
+  }
+  .landing .what-we-do li:last-child { border-bottom: none; }
+  .landing .what-we-do li::before {
+    content: '';
+    display: inline-block;
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    margin-right: 10px;
+    vertical-align: middle;
+  }
+  .landing .tonight {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    margin-bottom: 20px;
+  }
+  .landing .tonight strong { color: var(--text); }
+  .landing-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .landing-btn {
+    padding: 14px 28px;
+    border-radius: 10px;
+    border: 1px solid var(--accent);
+    background: rgba(108, 92, 231, 0.12);
+    color: var(--accent-glow);
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+  .landing-btn:hover {
+    background: var(--accent);
+    color: #fff;
+    transform: translateY(-1px);
+  }
+
+  /* Re-analyze button */
+  .reanalyze-bar {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 16px;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .reanalyze-btn {
+    padding: 8px 18px;
+    border-radius: 8px;
+    border: 1px solid var(--accent);
+    background: rgba(108, 92, 231, 0.1);
+    color: var(--accent-glow);
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .reanalyze-btn:hover { background: var(--accent); color: #fff; }
+  .reanalyze-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .reanalyze-btn.small {
+    padding: 4px 10px;
+    font-size: 0.65rem;
+    border-radius: 6px;
+  }
+
+  /* Grade legend */
+  .grade-legend {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 14px;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    line-height: 1.6;
+    text-align: center;
+  }
+  .grade-legend .gl-a { color: var(--green); font-weight: 700; }
+  .grade-legend .gl-b { color: var(--yellow); font-weight: 700; }
+  .grade-legend .gl-c { color: var(--orange); font-weight: 700; }
+  .grade-legend .gl-d { color: var(--red); font-weight: 700; }
+
+  /* Game cards */
   .game-card {
     background: var(--card-bg);
     border: 1px solid var(--card-border);
     border-radius: 12px;
     padding: 16px;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
     transition: border-color 0.2s;
   }
 
@@ -204,6 +339,37 @@
     font-weight: 600;
   }
 
+  /* Analysis text */
+  .analysis-block {
+    background: rgba(255,255,255,0.02);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+  .analysis-block .ab-label {
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--accent-glow);
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .analysis-block .ab-edge {
+    color: var(--text);
+    font-weight: 600;
+    font-size: 0.82rem;
+    margin-bottom: 6px;
+  }
+  .analysis-block strong { color: var(--text); }
+  .analysis-block .ab-row {
+    padding: 3px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+  }
+  .analysis-block .ab-row:last-child { border-bottom: none; }
+
   .gotcha-text {
     font-size: 0.78rem;
     color: var(--text-dim);
@@ -296,18 +462,105 @@
   }
 
   .global-gotcha .section-label { color: var(--accent-glow); }
+
+  /* Multi-book line comparison */
+  .books-section {
+    margin-top: 10px;
+    border-top: 1px solid var(--card-border);
+    padding-top: 10px;
+  }
+  .books-toggle {
+    font-size: 0.7rem;
+    color: var(--accent-glow);
+    cursor: pointer;
+    font-weight: 600;
+    padding: 4px 0;
+    user-select: none;
+  }
+  .books-toggle:hover { text-decoration: underline; }
+  .books-detail { display: none; margin-top: 8px; }
+  .books-detail.open { display: block; }
+  .books-market {
+    margin-bottom: 10px;
+  }
+  .books-market-title {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--accent-glow);
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .books-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 3px 6px;
+    font-size: 0.72rem;
+    border-radius: 4px;
+    margin-bottom: 2px;
+  }
+  .books-row.best { background: rgba(0, 214, 143, 0.08); }
+  .books-row.worst { background: rgba(255, 85, 85, 0.06); }
+  .books-row .book-name {
+    color: var(--text-dim);
+    min-width: 90px;
+    font-weight: 500;
+  }
+  .books-row .book-line {
+    color: var(--text);
+    font-weight: 700;
+    min-width: 80px;
+  }
+  .books-row .book-odds {
+    color: var(--text-dim);
+    font-weight: 600;
+    min-width: 60px;
+    text-align: right;
+  }
+  .books-row .best-tag {
+    font-size: 0.55rem;
+    color: var(--green);
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-left: 6px;
+  }
+  .books-row .worst-tag {
+    font-size: 0.55rem;
+    color: var(--red);
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-left: 6px;
+  }
+  .books-gap {
+    font-size: 0.68rem;
+    color: var(--yellow);
+    font-weight: 600;
+    padding: 2px 0;
+    margin-top: 2px;
+  }
+  .books-gap.disagree { color: var(--orange); }
+
+  /* Card top row with re-analyze */
+  .card-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
 </style>
 </head>
 <body>
 
-<div class="header">
+<div class="header" id="headerBar" style="display:none;">
   <h1>CASA EXPECTED VALUE &mdash; <span class="sport-label" id="sportLabel">NCAAB</span> <span class="date-label" id="dateLabel"></span></h1>
   <div class="pills" id="sportPills"></div>
 </div>
 
+<div id="landingPage"></div>
+
 <div id="loadingState" class="loading" style="display:none;">
   <div class="spinner"></div>
-  <div>Loading slate...</div>
+  <div id="loadingText">Loading slate...</div>
 </div>
 
 <div class="games-container" id="gamesContainer"></div>
@@ -318,21 +571,62 @@
 </div>
 
 <script>
-const SPORTS = ['ncaab','nba','nhl','mlb','wnba','ncaaf','tennis','soccer','mma','boxing'];
-const SPORT_LABELS = {ncaab:'NCAAB',nba:'NBA',nhl:'NHL',mlb:'MLB',wnba:'WNBA',ncaaf:'NCAAF',tennis:'TENNIS',soccer:'SOCCER',mma:'MMA',boxing:'BOXING'};
+const SPORTS = ['ncaab','nba'];
+const SPORT_LABELS = {ncaab:'NCAAB',nba:'NBA'};
+const BOOK_DISPLAY = {
+  'draftkings':'DraftKings','fanduel':'FanDuel','betmgm':'BetMGM','bovada':'Bovada',
+  'pointsbetus':'PointsBet','williamhill_us':'Caesars','barstool':'ESPN BET','betrivers':'BetRivers',
+  'unibet_us':'Unibet','wynnbet':'WynnBET','superbook':'SuperBook','hardrock':'Hard Rock',
+  'fliff':'Fliff','betus':'BetUS','mybookieag':'MyBookie','betonlineag':'BetOnline',
+  'lowvig':'LowVig','pinnacle':'Pinnacle','bet365':'Bet365'
+};
 
-let currentSport = 'ncaab';
+let currentSport = null;
 let analysisCache = {};
+let oddsCache = {};
 let screenerCache = {};
+let gamesLoaded = false;
 
 function init() {
-  const today = new Date();
-  const tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  document.getElementById('dateLabel').textContent = tomorrow.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  showLanding();
+}
 
-  renderPills();
-  loadSport(currentSport);
+function showLanding() {
+  gamesLoaded = false;
+  currentSport = null;
+  document.getElementById('headerBar').style.display = 'none';
+  document.getElementById('gamesContainer').innerHTML = '';
+  document.getElementById('footer').style.display = 'none';
+
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+  document.getElementById('landingPage').innerHTML = `
+    <div class="landing">
+      <h2>CASA EXPECTED VALUE</h2>
+      <div class="subtitle">AI-Powered Sports Edge Finder</div>
+      <div class="what-we-do">
+        <h3>What we do</h3>
+        <ul>
+          <li>Grade every game using AI + injury data + line analysis</li>
+          <li>Find where the book is WRONG &mdash; not just who wins</li>
+          <li>Screen every player prop against their last 5 games</li>
+          <li>Compare lines across 7+ books to find mispricings</li>
+        </ul>
+      </div>
+      <div class="tonight">Tonight: <strong>NCAAB Conference Tournaments + NBA</strong></div>
+      <div class="landing-buttons">
+        <button class="landing-btn" onclick="startSport('ncaab')">LOAD NCAAB</button>
+        <button class="landing-btn" onclick="startSport('nba')">LOAD NBA</button>
+      </div>
+    </div>`;
+}
+
+function startSport(sport) {
+  document.getElementById('landingPage').innerHTML = '';
+  document.getElementById('headerBar').style.display = 'block';
+  gamesLoaded = true;
+  switchSport(sport);
 }
 
 function renderPills() {
@@ -345,6 +639,8 @@ function renderPills() {
 function switchSport(sport) {
   currentSport = sport;
   document.getElementById('sportLabel').textContent = SPORT_LABELS[sport];
+  const today = new Date();
+  document.getElementById('dateLabel').textContent = today.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
   renderPills();
   loadSport(sport);
 }
@@ -357,19 +653,27 @@ async function loadSport(sport) {
   container.innerHTML = '';
   footer.style.display = 'none';
   loading.style.display = 'block';
+  document.getElementById('loadingText').textContent = 'Loading slate...';
 
   try {
-    // Fetch analysis and screener in parallel
-    const [analysisResp, screenerResp] = await Promise.all([
+    // Fetch analysis, screener, and odds in parallel
+    const [analysisResp, screenerResp, oddsResp] = await Promise.all([
       fetch(`/api/analysis/${sport}?cached_only=true`).then(r => r.json()).catch(() => null),
-      fetch(`/api/screener/${sport}`).then(r => r.json()).catch(() => null)
+      fetch(`/api/screener/${sport}`).then(r => r.json()).catch(() => null),
+      fetch(`/api/odds/${sport}`).then(r => r.json()).catch(() => null)
     ]);
 
     loading.style.display = 'none';
 
     const analysis = analysisResp || { games: [] };
     const screener = screenerResp || { screener: [] };
+    const odds = oddsResp || { games: [] };
     const games = analysis.games || [];
+
+    // Cache for re-analyze
+    analysisCache[sport] = analysis;
+    screenerCache[sport] = screener;
+    oddsCache[sport] = odds;
 
     if (games.length === 0) {
       container.innerHTML = `<div class="empty-state"><div class="icon">&#128203;</div><p>No ${SPORT_LABELS[sport]} analysis available yet.</p><p style="margin-top:8px;font-size:0.75rem;">Analysis runs daily at 4 PM PST when games are on the slate.</p></div>`;
@@ -379,8 +683,26 @@ async function loadSport(sport) {
     // Build screener lookup: matchup string -> hits
     const screenerByGame = buildScreenerMap(screener.screener || [], games);
 
-    // Render global gotcha if present
+    // Build odds lookup: matchup -> odds game data (with all_bookmakers)
+    const oddsByGame = buildOddsMap(odds.games || [], games);
+
+    // Render
     let html = '';
+
+    // Re-analyze bar
+    html += `<div class="reanalyze-bar">
+      <button class="reanalyze-btn" id="reanalyzeSlateBtn" onclick="reanalyzeSlate('${sport}')">RE-ANALYZE SLATE</button>
+    </div>`;
+
+    // Grade legend
+    html += `<div class="grade-legend">
+      <span class="gl-a">A</span> = Strong edge, book is wrong
+      &nbsp;|&nbsp; <span class="gl-b">B</span> = Lean, slight edge
+      &nbsp;|&nbsp; <span class="gl-c">C</span> = No edge, fair line
+      &nbsp;|&nbsp; <span class="gl-d">D/F</span> = Trap, stay away
+    </div>`;
+
+    // Global gotcha
     if (analysis.gotcha) {
       html += `<div class="global-gotcha"><div class="section-label">Tonight's Intel</div><div class="gotcha-text">${analysis.gotcha}</div></div>`;
     }
@@ -389,8 +711,8 @@ async function loadSport(sport) {
     const gradeOrder = {'A+':0,'A':1,'A-':2,'B+':3,'B':4,'B-':5,'C+':6,'C':7,'D':8,'F':9,'TBD':10,'INCOMPLETE':11};
     games.sort((a, b) => (gradeOrder[a.grade] ?? 10) - (gradeOrder[b.grade] ?? 10));
 
-    games.forEach(game => {
-      html += renderGameCard(game, screenerByGame[game.matchup] || []);
+    games.forEach((game, idx) => {
+      html += renderGameCard(game, screenerByGame[game.matchup] || [], oddsByGame[game.matchup] || null, idx);
     });
 
     container.innerHTML = html;
@@ -407,6 +729,49 @@ async function loadSport(sport) {
   }
 }
 
+async function reanalyzeSlate(sport) {
+  const btn = document.getElementById('reanalyzeSlateBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'ANALYZING...'; }
+  const loading = document.getElementById('loadingState');
+  loading.style.display = 'block';
+  document.getElementById('loadingText').textContent = 'Running AI analysis... this may take 30-60 seconds';
+
+  try {
+    await fetch(`/api/analysis/${sport}?force=true`);
+    await loadSport(sport);
+  } catch (err) {
+    console.error('Re-analyze failed:', err);
+    loading.style.display = 'none';
+    if (btn) { btn.disabled = false; btn.textContent = 'RE-ANALYZE SLATE'; }
+  }
+}
+
+async function reanalyzeGame(sport) {
+  // For now, re-fetch the whole slate
+  await reanalyzeSlate(sport);
+}
+
+function buildOddsMap(oddsGames, analysisGames) {
+  const map = {};
+  analysisGames.forEach(g => { map[g.matchup] = null; });
+
+  oddsGames.forEach(og => {
+    const ogKey = `${og.away} @ ${og.home}`.toLowerCase();
+    for (const ag of analysisGames) {
+      const agKey = (ag.matchup || '').toLowerCase();
+      // Match by team name overlap
+      const ogTeams = ogKey.replace('@', ' ').split(/\s+/).filter(t => t.length > 2);
+      const agTeams = agKey.replace('@', ' ').split(/\s+/).filter(t => t.length > 2);
+      const overlap = ogTeams.some(t => agTeams.some(h => h.includes(t) || t.includes(h)));
+      if (overlap && !map[ag.matchup]) {
+        map[ag.matchup] = og;
+        break;
+      }
+    }
+  });
+  return map;
+}
+
 function buildScreenerMap(screenerHits, games) {
   const map = {};
   games.forEach(g => { map[g.matchup] = []; });
@@ -415,7 +780,6 @@ function buildScreenerMap(screenerHits, games) {
     const hitMatchup = (hit.matchup || '').toLowerCase();
     for (const g of games) {
       const gm = (g.matchup || '').toLowerCase();
-      // Match by team names overlap
       const gTeams = gm.replace('@', ' ').split(/\s+/).filter(t => t.length > 2);
       const hTeams = hitMatchup.replace('@', ' ').replace('vs', ' ').split(/\s+/).filter(t => t.length > 2);
       const overlap = gTeams.some(t => hTeams.some(h => h.includes(t) || t.includes(h)));
@@ -454,7 +818,173 @@ function flagClass(tag) {
   return 'flag-default';
 }
 
-function renderGameCard(game, screenerHits) {
+function bookDisplayName(key) {
+  return BOOK_DISPLAY[key] || key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+
+function renderMultiBookCard(oddsGame, cardIdx) {
+  if (!oddsGame || !oddsGame.all_bookmakers || oddsGame.all_bookmakers.length < 2) {
+    return '';
+  }
+
+  const books = oddsGame.all_bookmakers;
+  const away = oddsGame.away;
+  const home = oddsGame.home;
+  const toggleId = `booksDetail_${cardIdx}`;
+
+  let html = `<div class="books-section">
+    <div class="books-toggle" onclick="toggleBooks('${toggleId}')">&#9660; Compare Lines Across ${books.length} Books</div>
+    <div class="books-detail" id="${toggleId}">`;
+
+  // SPREAD comparison
+  const spreadData = [];
+  books.forEach(bk => {
+    const spreads = bk.markets.spreads || [];
+    spreads.forEach(s => {
+      if (s.name === home) {
+        spreadData.push({ book: bk.title || bk.key, team: home, point: s.point, price: s.price });
+      }
+    });
+  });
+  if (spreadData.length > 1) {
+    // Sort by point (most favorable = most negative for favorite, most positive for dog)
+    spreadData.sort((a, b) => a.point - b.point);
+    const bestSpread = spreadData[0];
+    const worstSpread = spreadData[spreadData.length - 1];
+    const gap = Math.abs(worstSpread.point - bestSpread.point);
+
+    html += `<div class="books-market">
+      <div class="books-market-title">SPREAD (${esc(home)})</div>`;
+    spreadData.forEach((d, i) => {
+      const isBest = i === 0;
+      const isWorst = i === spreadData.length - 1;
+      const cls = isBest ? 'best' : (isWorst ? 'worst' : '');
+      const tag = isBest ? '<span class="best-tag">BEST</span>' : (isWorst ? '<span class="worst-tag">WORST</span>' : '');
+      html += `<div class="books-row ${cls}">
+        <span class="book-name">${esc(bookDisplayName(d.book))}</span>
+        <span class="book-line">${esc(home)} ${d.point > 0 ? '+' : ''}${d.point}</span>
+        <span class="book-odds">(${d.price > 0 ? '+' : ''}${d.price})</span>
+        ${tag}
+      </div>`;
+    });
+    if (gap > 0) {
+      html += `<div class="books-gap ${gap >= 1.5 ? 'disagree' : ''}">Gap: ${gap.toFixed(1)} pts${gap >= 1.5 ? ' | BOOKS DISAGREE' : ''}</div>`;
+    }
+    html += `</div>`;
+  }
+
+  // MONEYLINE comparison
+  const mlAwayData = [];
+  const mlHomeData = [];
+  books.forEach(bk => {
+    const h2h = bk.markets.h2h || [];
+    h2h.forEach(h => {
+      if (h.name === away) mlAwayData.push({ book: bk.title || bk.key, team: away, price: h.price });
+      if (h.name === home) mlHomeData.push({ book: bk.title || bk.key, team: home, price: h.price });
+    });
+  });
+  if (mlAwayData.length > 1 || mlHomeData.length > 1) {
+    html += `<div class="books-market"><div class="books-market-title">MONEYLINE</div>`;
+
+    // Determine who is favorite/dog
+    const avgAway = mlAwayData.reduce((s, d) => s + d.price, 0) / (mlAwayData.length || 1);
+    const avgHome = mlHomeData.reduce((s, d) => s + d.price, 0) / (mlHomeData.length || 1);
+    const dogData = avgAway > avgHome ? mlAwayData : mlHomeData;
+    const favData = avgAway > avgHome ? mlHomeData : mlAwayData;
+    const dogTeam = avgAway > avgHome ? away : home;
+    const favTeam = avgAway > avgHome ? home : away;
+
+    // Show dog lines (higher = better for bettor)
+    dogData.sort((a, b) => b.price - a.price);
+    favData.sort((a, b) => b.price - a.price); // Less negative = better for fav bettor
+
+    // Merge and show side by side
+    const allML = [];
+    books.forEach(bk => {
+      const h2h = bk.markets.h2h || [];
+      let awayP = null, homeP = null;
+      h2h.forEach(h => {
+        if (h.name === away) awayP = h.price;
+        if (h.name === home) homeP = h.price;
+      });
+      if (awayP !== null && homeP !== null) {
+        allML.push({ book: bk.title || bk.key, awayP, homeP, dogP: avgAway > avgHome ? awayP : homeP });
+      }
+    });
+    // Sort by best dog odds
+    allML.sort((a, b) => b.dogP - a.dogP);
+
+    allML.forEach((d, i) => {
+      const isBest = i === 0;
+      const isWorst = i === allML.length - 1;
+      const cls = isBest ? 'best' : (isWorst ? 'worst' : '');
+      const tag = isBest ? '<span class="best-tag">BEST DOG</span>' : (isWorst ? '<span class="worst-tag">WORST</span>' : '');
+      html += `<div class="books-row ${cls}">
+        <span class="book-name">${esc(bookDisplayName(d.book))}</span>
+        <span class="book-line">${esc(away)} ${d.awayP > 0 ? '+' : ''}${d.awayP} / ${esc(home)} ${d.homeP > 0 ? '+' : ''}${d.homeP}</span>
+        ${tag}
+      </div>`;
+    });
+
+    if (allML.length >= 2) {
+      const bestDog = allML[0].dogP;
+      const worstDog = allML[allML.length - 1].dogP;
+      const gap = Math.abs(bestDog - worstDog);
+      if (gap > 0) {
+        html += `<div class="books-gap">Gap: ${gap} cents</div>`;
+      }
+    }
+    html += `</div>`;
+  }
+
+  // TOTAL comparison
+  const totalData = [];
+  books.forEach(bk => {
+    const totals = bk.markets.totals || [];
+    let overP = null, underP = null, point = null;
+    totals.forEach(t => {
+      if (t.name === 'Over') { overP = t.price; point = t.point; }
+      if (t.name === 'Under') { underP = t.price; }
+    });
+    if (point !== null) {
+      totalData.push({ book: bk.title || bk.key, point, overP, underP });
+    }
+  });
+  if (totalData.length > 1) {
+    totalData.sort((a, b) => a.point - b.point);
+    const low = totalData[0].point;
+    const high = totalData[totalData.length - 1].point;
+    const gap = high - low;
+
+    html += `<div class="books-market"><div class="books-market-title">TOTAL (O/U)</div>`;
+    totalData.forEach((d, i) => {
+      const isBest = i === 0;
+      const isWorst = i === totalData.length - 1;
+      const cls = isBest ? 'best' : (isWorst ? 'worst' : '');
+      const tag = isBest ? '<span class="best-tag">LOW</span>' : (isWorst && gap > 0 ? '<span class="worst-tag">HIGH</span>' : '');
+      html += `<div class="books-row ${cls}">
+        <span class="book-name">${esc(bookDisplayName(d.book))}</span>
+        <span class="book-line">O/U ${d.point}</span>
+        <span class="book-odds">O(${d.overP > 0 ? '+' : ''}${d.overP}) U(${d.underP > 0 ? '+' : ''}${d.underP})</span>
+        ${tag}
+      </div>`;
+    });
+    if (gap > 0) {
+      html += `<div class="books-gap ${gap >= 2 ? 'disagree' : ''}">Gap: ${gap.toFixed(1)} pts${gap >= 2 ? ' | BOOKS DISAGREE' : ''}</div>`;
+    }
+    html += `</div>`;
+  }
+
+  html += `</div></div>`;
+  return html;
+}
+
+function toggleBooks(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('open');
+}
+
+function renderGameCard(game, screenerHits, oddsGame, cardIdx) {
   const matchup = game.matchup || '?';
   const grade = game.grade || 'TBD';
   const tags = game.tags || [];
@@ -464,26 +994,21 @@ function renderGameCard(game, screenerHits) {
   const edgeSummary = game.edge_summary || '';
   const injuryImpact = game.injury_impact || '';
   const restSchedule = game.rest_schedule || '';
-
-  // Build gotcha from available fields
-  let gotchaLines = [];
-  if (injuryImpact && injuryImpact !== 'N/A') gotchaLines.push(injuryImpact);
-  if (restSchedule && restSchedule !== 'N/A') gotchaLines.push(restSchedule);
-  if (edgeSummary) gotchaLines.push(edgeSummary);
-
-  // Parse matchup for time info if available
-  let timeStr = '';
-  // We'll just show the matchup as-is
+  const edgeQuestion = game.edge_question || '';
+  const trends = game.trends || [];
 
   let html = `<div class="game-card">`;
 
-  // Top row: matchup + grade
+  // Top row: matchup + grade + re-analyze
   html += `<div class="game-top">
     <div class="matchup-info">
       <div class="matchup-teams">${esc(matchup)}</div>
-      <div class="matchup-meta">${timeStr}</div>
+      <div class="matchup-meta"></div>
     </div>
-    <div class="grade-badge ${gradeClass(grade)}">${esc(grade)}</div>
+    <div class="card-actions">
+      <div class="grade-badge ${gradeClass(grade)}">${esc(grade)}</div>
+      <button class="reanalyze-btn small" onclick="reanalyzeGame('${currentSport}')" title="Re-analyze this game">RE-ANALYZE</button>
+    </div>
   </div>`;
 
   // Tags
@@ -500,10 +1025,28 @@ function renderGameCard(game, screenerHits) {
     </div>`;
   }
 
-  // Gotcha / context
-  if (gotchaLines.length > 0) {
-    html += `<div class="section-label">Context</div>
-      <div class="gotcha-text">${gotchaLines.map(l => `<div>${esc(l)}</div>`).join('')}</div>`;
+  // Full analysis breakdown
+  const hasAnalysis = edgeQuestion || edgeSummary || injuryImpact || restSchedule || trends.length > 0;
+  if (hasAnalysis) {
+    html += `<div class="analysis-block">
+      <div class="ab-label">Analysis</div>`;
+
+    if (edgeQuestion && edgeQuestion !== 'No clear edge identified.') {
+      html += `<div class="ab-edge">${esc(edgeQuestion)}</div>`;
+    }
+    if (edgeSummary) {
+      html += `<div class="ab-row"><strong>Edge:</strong> ${esc(edgeSummary)}</div>`;
+    }
+    if (injuryImpact && injuryImpact !== 'N/A') {
+      html += `<div class="ab-row"><strong>Injuries:</strong> ${esc(injuryImpact)}</div>`;
+    }
+    if (restSchedule && restSchedule !== 'N/A') {
+      html += `<div class="ab-row"><strong>Schedule:</strong> ${esc(restSchedule)}</div>`;
+    }
+    if (trends.length > 0) {
+      html += `<div class="ab-row"><strong>Trends:</strong> ${trends.map(t => esc(t)).join(' | ')}</div>`;
+    }
+    html += `</div>`;
   }
 
   // Flags
@@ -516,6 +1059,9 @@ function renderGameCard(game, screenerHits) {
   if (peterZone) {
     html += `<div class="peter-zone">${esc(peterZone)}</div>`;
   }
+
+  // Multi-book line comparison
+  html += renderMultiBookCard(oddsGame, cardIdx);
 
   // Screener hits
   if (screenerHits.length > 0) {

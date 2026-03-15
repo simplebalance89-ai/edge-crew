@@ -2327,6 +2327,16 @@ def _parse_event(event, sport_label):
     if arbs:
         game["arbs"] = arbs
 
+    # Store ALL bookmakers data for multi-book comparison (DJ page)
+    all_books = []
+    for bk in event.get("bookmakers", []):
+        book_entry = {"key": bk.get("key", ""), "title": bk.get("title", bk.get("key", "")), "markets": {}}
+        for market in bk.get("markets", []):
+            book_entry["markets"][market["key"]] = market["outcomes"]
+        if book_entry["markets"]:
+            all_books.append(book_entry)
+    game["all_bookmakers"] = all_books
+
     return game
 
 
