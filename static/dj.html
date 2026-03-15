@@ -712,32 +712,10 @@ async function loadSport(sport) {
     let games;
     const analysisGames = analysis.games || [];
 
-    // Determine if analysis is stale: check if any analysis matchups overlap with upcoming odds
-    // If odds has upcoming games but NONE match analysis matchups, analysis is from a previous slate
-    let analysisIsRelevant = false;
-    if (analysisGames.length > 0 && upcomingOddsGames.length > 0) {
-      const oddsMatchups = upcomingOddsGames.map(og => `${og.away} @ ${og.home}`.toLowerCase());
-      for (const ag of analysisGames) {
-        const am = (ag.matchup || '').toLowerCase();
-        const amTeams = am.replace('@', ' ').replace('vs', ' ').split(/\s+/).filter(t => t.length > 2);
-        for (const om of oddsMatchups) {
-          const omTeams = om.replace('@', ' ').split(/\s+/).filter(t => t.length > 2);
-          if (amTeams.some(t => omTeams.some(h => h.includes(t) || t.includes(h)))) {
-            analysisIsRelevant = true;
-            break;
-          }
-        }
-        if (analysisIsRelevant) break;
-      }
-    } else if (analysisGames.length > 0 && upcomingOddsGames.length === 0) {
-      // No upcoming odds games — analysis might still be relevant (no tomorrow slate yet)
-      analysisIsRelevant = true;
-    }
-
-    if (analysisIsRelevant && analysisGames.length > 0) {
-      // Analysis matches current/upcoming slate — show it
-      games = analysisGames;
-    } else if (upcomingOddsGames.length > 0) {
+    // Simple stale check: if upcoming odds games exist, ALWAYS prefer them
+    // Analysis is supplemental — merge grades onto odds games if matchups align
+    // This ensures DJ always sees TOMORROW's slate, never yesterday's
+    if (upcomingOddsGames.length > 0) {
       // No analysis yet (tomorrow's slate) — show odds-only cards
       games = upcomingOddsGames.map(og => ({
         matchup: `${og.away} @ ${og.home}`,
