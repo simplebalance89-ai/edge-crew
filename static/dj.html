@@ -1748,78 +1748,117 @@ function renderMatrixView() {
   const userMatrix = agentMatrix[sport] || { matrix: [], excluded: [] };
   const name = agentProfile ? agentProfile.display_name : 'DJ';
 
-  let html = '';
+  // Build a lookup: key -> current weight (override if set, else default)
+  const overrideLookup = {};
+  if (userMatrix.matrix) {
+    userMatrix.matrix.forEach(m => { overrideLookup[m.key] = { weight: m.weight, type: m.type, default_weight: m.default_weight }; });
+  }
 
-  // Default system matrix
-  html += `<div style="margin-bottom:20px;">
-    <h3 style="font-size:0.85rem;font-weight:800;color:var(--accent-glow);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">System Default &mdash; ${SPORT_LABELS[sport] || sport.toUpperCase()} Scoring Matrix</h3>
-    <p style="font-size:0.72rem;color:var(--text-dim);margin-bottom:12px;">Every game is scored across these ${matrix ? matrix.length : 20} variables. Each gets a score of 1-10, multiplied by its weight. Higher weight = bigger impact on the final grade.</p>`;
+  let html = `<div style="margin-bottom:12px;">
+    <h3 style="font-size:0.85rem;font-weight:800;color:var(--accent-glow);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">${esc(name)}'s Matrix &mdash; ${SPORT_LABELS[sport] || sport.toUpperCase()}</h3>
+    <p style="font-size:0.68rem;color:var(--text-dim);margin-bottom:14px;">Edit the weights below (1–10). Yellow = you changed it. Hit Save to lock it in, then Analyze ${esc(name)}'s Way to re-run the cards.</p>`;
 
   if (matrix) {
-    matrix.forEach(([key, weight]) => {
-      const wColor = weight >= 9 ? 'var(--green)' : weight >= 7 ? 'var(--accent-glow)' : weight >= 5 ? 'var(--text-dim)' : 'var(--red)';
-      const barW = (weight / 10 * 100);
+    matrix.forEach(([key, defaultWeight]) => {
+      const override = overrideLookup[key];
+      const currentWeight = override ? override.weight : defaultWeight;
+      const isChanged = override && override.type === 'override';
       const label = key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-      html += `<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;margin-bottom:3px;background:rgba(255,255,255,0.03);border-radius:6px;">
-        <span style="flex:1;font-size:0.72rem;font-weight:600;">${esc(label)}</span>
-        <div style="width:80px;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;">
-          <div style="width:${barW}%;height:100%;background:${wColor};border-radius:3px;"></div>
-        </div>
-        <span style="font-size:0.75rem;font-weight:800;color:${wColor};min-width:20px;text-align:right;">${weight}</span>
+      const rowBg = isChanged ? 'rgba(255,217,61,0.06)' : 'rgba(255,255,255,0.03)';
+      const rowBorder = isChanged ? '1px solid rgba(255,217,61,0.2)' : '1px solid transparent';
+      const weightColor = isChanged ? 'var(--yellow)' : (currentWeight >= 9 ? 'var(--green)' : currentWeight >= 7 ? 'var(--accent-glow)' : 'var(--text-dim)');
+      html += `<div style="display:flex;align-items:center;gap:10px;padding:7px 10px;margin-bottom:3px;background:${rowBg};border:${rowBorder};border-radius:7px;">
+        <span style="flex:1;font-size:0.73rem;font-weight:600;">${esc(label)}</span>
+        ${isChanged ? `<span style="font-size:0.62rem;color:var(--text-dim);">default ${defaultWeight}</span>` : ''}
+        <input type="number" min="1" max="10" value="${currentWeight}"
+          data-key="${esc(key)}" data-default="${defaultWeight}"
+          style="width:44px;padding:4px 6px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:5px;color:${weightColor};font-size:0.8rem;font-weight:800;text-align:center;"
+          oninput="onWeightInput(this)">
       </div>`;
     });
   }
   html += `</div>`;
 
-  // DJ's custom matrix (if has any overrides)
-  const hasOverrides = userMatrix.matrix && userMatrix.matrix.some(m => m.type !== 'default');
-  const hasExcluded = userMatrix.excluded && userMatrix.excluded.length > 0;
-
-  if (hasOverrides || hasExcluded) {
-    html += `<div style="margin-bottom:20px;">
-      <h3 style="font-size:0.85rem;font-weight:800;color:var(--green);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">${esc(name)}'s Custom Changes</h3>`;
-
-    if (userMatrix.matrix) {
-      userMatrix.matrix.forEach(m => {
-        if (m.type === 'override') {
-          html += `<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;margin-bottom:3px;background:rgba(255,217,61,0.06);border:1px solid rgba(255,217,61,0.15);border-radius:6px;">
-            <span style="flex:1;font-size:0.72rem;font-weight:600;">${esc(m.key.replace(/_/g, ' '))}</span>
-            <span style="font-size:0.65rem;color:var(--text-dim);">was ${m.default_weight}</span>
-            <span style="font-size:0.65rem;color:var(--text-dim);">&rarr;</span>
-            <span style="font-size:0.75rem;font-weight:800;color:var(--yellow);">${m.weight}</span>
-          </div>`;
-        } else if (m.type === 'custom') {
-          html += `<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;margin-bottom:3px;background:rgba(0,214,143,0.06);border:1px solid rgba(0,214,143,0.15);border-radius:6px;">
-            <span style="flex:1;font-size:0.72rem;font-weight:600;">${esc(m.key.replace(/_/g, ' '))}</span>
-            <span style="font-size:0.55rem;font-weight:700;color:var(--green);text-transform:uppercase;">Custom</span>
-            <span style="font-size:0.75rem;font-weight:800;color:var(--green);">${m.weight}</span>
-          </div>`;
-        }
-      });
-    }
-    if (hasExcluded) {
-      userMatrix.excluded.forEach(ex => {
-        html += `<div style="padding:4px 8px;margin-bottom:3px;font-size:0.72rem;color:var(--red);text-decoration:line-through;opacity:0.6;">
-          x ${esc(ex.replace(/_/g, ' '))} (excluded)
-        </div>`;
-      });
-    }
-    html += `</div>`;
-  } else {
-    html += `<div style="background:rgba(108,92,231,0.06);border:1px solid rgba(108,92,231,0.15);border-radius:10px;padding:16px;text-align:center;margin-bottom:20px;">
-      <div style="font-size:0.85rem;font-weight:700;color:var(--accent-glow);margin-bottom:6px;">No custom weights yet</div>
-      <div style="font-size:0.72rem;color:var(--text-dim);">Hit Conversation or Take Turns below and tell your agent how you'd change these weights. Say things like "bump home court to 8" or "add tight rims as a factor."</div>
-    </div>`;
-  }
+  // Save + Reset row
+  html += `<div style="display:flex;gap:8px;margin-bottom:16px;">
+    <button id="saveMatrixBtn" onclick="saveMatrix('${sport}')"
+      style="flex:2;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:0.8rem;font-weight:800;letter-spacing:0.5px;cursor:pointer;">
+      SAVE CHANGES
+    </button>
+    <button onclick="resetMatrix('${sport}')"
+      style="flex:1;padding:12px;background:rgba(255,255,255,0.06);color:var(--text-dim);border:1px solid rgba(255,255,255,0.1);border-radius:8px;font-size:0.75rem;font-weight:600;cursor:pointer;">
+      RESET
+    </button>
+  </div>`;
 
   // Analyze buttons
   html += `<div style="display:flex;gap:10px;margin-bottom:20px;">
-    <button class="analyze-my-way" onclick="analyzeMyWay('${sport}')" style="flex:1;">Analyze ${esc(name)}'s Way</button>
+    <button class="analyze-my-way" id="analyzeMyWayBtn" onclick="analyzeMyWay('${sport}')" style="flex:1;">Analyze ${esc(name)}'s Way</button>
     <button class="reanalyze-btn" onclick="reanalyzeSlate('${sport}')" style="flex:1;padding:14px;">Analyze Default</button>
   </div>`;
 
   container.innerHTML = html;
   document.getElementById('footer').style.display = 'none';
+}
+
+function onWeightInput(el) {
+  // Clamp to 1-10 as user types
+  let v = parseInt(el.value);
+  if (isNaN(v)) return;
+  v = Math.max(1, Math.min(10, v));
+  const def = parseInt(el.dataset.default);
+  el.style.color = (v !== def) ? 'var(--yellow)' : 'var(--text-dim)';
+}
+
+async function saveMatrix(sport) {
+  const btn = document.getElementById('saveMatrixBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'SAVING...'; }
+
+  const inputs = document.querySelectorAll('[data-key]');
+  const changes = [];
+  inputs.forEach(inp => {
+    const key = inp.dataset.key;
+    const def = parseInt(inp.dataset.default);
+    const val = Math.max(1, Math.min(10, parseInt(inp.value) || def));
+    if (val !== def) changes.push({ variable: key, weight: val });
+  });
+
+  try {
+    // Fire all weight updates in parallel
+    await Promise.all(changes.map(c =>
+      fetch(`/api/agent/${AGENT_USER_ID}/action`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'update_weight', sport, args: { variable: c.variable, weight: c.weight, sport } })
+      })
+    ));
+    // Refresh cached matrix
+    const matrixResp = await fetch(`/api/agent/${AGENT_USER_ID}/matrix/${sport}`).then(r => r.json()).catch(() => null);
+    if (matrixResp) agentMatrix[sport] = matrixResp;
+    showAgentToast(changes.length > 0 ? `Saved ${changes.length} weight change${changes.length > 1 ? 's' : ''}` : 'No changes to save');
+    renderMatrixView();
+  } catch(e) {
+    showAgentToast('Save failed: ' + e.message);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'SAVE CHANGES'; }
+  }
+}
+
+async function resetMatrix(sport) {
+  if (!confirm('Reset all weights to system defaults?')) return;
+  try {
+    await fetch(`/api/agent/${AGENT_USER_ID}/action`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'reset_to_default', sport, args: { sport } })
+    });
+    const matrixResp = await fetch(`/api/agent/${AGENT_USER_ID}/matrix/${sport}`).then(r => r.json()).catch(() => null);
+    if (matrixResp) agentMatrix[sport] = matrixResp;
+    showAgentToast('Matrix reset to defaults');
+    renderMatrixView();
+  } catch(e) {
+    showAgentToast('Reset failed: ' + e.message);
+  }
 }
 
 // === DEFAULT MATRIX CARD ===
