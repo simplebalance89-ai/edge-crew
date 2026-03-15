@@ -1190,7 +1190,19 @@ async function loadSport(sport) {
     const gradeOrder = {'A+':0,'A':1,'A-':2,'B+':3,'B':4,'B-':5,'C+':6,'C':7,'D':8,'F':9,'TBD':10,'INCOMPLETE':11};
     games.sort((a, b) => (gradeOrder[a.grade] ?? 10) - (gradeOrder[b.grade] ?? 10));
 
-    games.forEach((game, idx) => {
+    // Filter out games that have already started (stale)
+    const now = new Date();
+    const futureGames = games.filter(game => {
+      const ct = game.commence_time || game.commence || game.time || '';
+      if (!ct) return true; // No time data — keep it
+      return new Date(ct) > now;
+    });
+
+    if (futureGames.length === 0 && games.length > 0) {
+      html += `<div class="empty-state"><div class="icon">&#9989;</div><p>All ${SPORT_LABELS[sport]} games have started or finished. Check back tomorrow.</p></div>`;
+    }
+
+    futureGames.forEach((game, idx) => {
       html += renderGameCard(game, screenerByGame[game.matchup] || [], oddsByGame[game.matchup] || null, idx);
     });
 
