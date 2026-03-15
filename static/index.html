@@ -9790,13 +9790,28 @@ if (window.visualViewport) {
 </script>
 
 <script>
-// Service worker DISABLED — was interfering with API fetches
-// Unregister any lingering SW on every page load
+// Service worker — register for PWA install + offline support
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.getRegistrations().then(function(regs) {
-    regs.forEach(function(r) { r.unregister(); console.log('[SW] Unregistered:', r.scope); });
-  });
+  navigator.serviceWorker.register('/sw.js', { scope: '/' })
+    .then(function(reg) { console.log('[SW] Registered:', reg.scope); })
+    .catch(function(err) { console.log('[SW] Registration failed:', err); });
 }
+
+// PWA install prompt
+var _deferredInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', function(e) {
+  e.preventDefault();
+  _deferredInstallPrompt = e;
+  var banner = document.createElement('div');
+  banner.id = 'pwa-install-banner';
+  banner.innerHTML = '<span style="flex:1;">Install Edge Crew for quick access</span><button id="pwa-install-btn" style="padding:6px 16px;background:#6366f1;border:none;border-radius:6px;color:#fff;font-weight:700;font-size:12px;cursor:pointer;">Install</button><button onclick="this.parentElement.remove()" style="background:none;border:none;color:rgba(255,255,255,0.4);font-size:16px;cursor:pointer;padding:0 8px;">&times;</button>';
+  banner.style.cssText = 'position:fixed;bottom:80px;left:12px;right:12px;max-width:576px;margin:0 auto;padding:12px 16px;background:rgba(15,16,24,0.95);border:1px solid rgba(99,102,241,0.3);border-radius:12px;display:flex;align-items:center;gap:12px;z-index:999;font-size:13px;color:#f1f5f9;backdrop-filter:blur(10px);';
+  document.body.appendChild(banner);
+  document.getElementById('pwa-install-btn').addEventListener('click', function() {
+    _deferredInstallPrompt.prompt();
+    _deferredInstallPrompt.userChoice.then(function() { banner.remove(); });
+  });
+});
 
 // Auto-reload on new deploy — check build version every 60s and on page show
 var _localBuildVersion = null;
