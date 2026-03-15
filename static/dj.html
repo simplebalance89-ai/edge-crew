@@ -656,11 +656,12 @@ async function loadSport(sport) {
   document.getElementById('loadingText').textContent = 'Loading slate...';
 
   try {
-    // Fetch analysis, screener, and odds in parallel
-    const [analysisResp, screenerResp, oddsResp] = await Promise.all([
+    // Fetch analysis, screener, odds, and arbs in parallel
+    const [analysisResp, screenerResp, oddsResp, arbResp] = await Promise.all([
       fetch(`/api/analysis/${sport}?cached_only=true`).then(r => r.json()).catch(() => null),
       fetch(`/api/screener/${sport}`).then(r => r.json()).catch(() => null),
-      fetch(`/api/odds/${sport}`).then(r => r.json()).catch(() => null)
+      fetch(`/api/odds/${sport}`).then(r => r.json()).catch(() => null),
+      fetch(`/api/arb-scan`).then(r => r.json()).catch(() => null)
     ]);
 
     loading.style.display = 'none';
@@ -674,29 +675,24 @@ async function loadSport(sport) {
     screenerCache[sport] = screener;
     oddsCache[sport] = odds;
 
-    // Filter odds games to only UPCOMING (not already started)
+    // Show ALL analysis games (the analysis IS the demo — DJ needs to see the full system)
+    // Only fall back to odds-only upcoming games when no analysis exists
     const now = Date.now();
-    const upcomingOddsGames = (odds.games || []).filter(g => {
-      const ct = g.commence_time || g.commence || g.time || '';
-      if (!ct) return true; // keep if no time data
-      const gameTime = new Date(ct).getTime();
-      return gameTime > now;
-    });
-
-    // Use analysis games if available, but filter to upcoming only
-    let analysisGames = (analysis.games || []).filter(g => {
+    const allOddsGames = odds.games || [];
+    const upcomingOddsGames = allOddsGames.filter(g => {
       const ct = g.commence_time || g.commence || g.time || '';
       if (!ct) return true;
-      const gameTime = new Date(ct).getTime();
-      return gameTime > now;
+      return new Date(ct).getTime() > now;
     });
 
-    // Primary source: analysis games if we have upcoming ones, else build from odds
     let games;
+    const analysisGames = analysis.games || [];
+
     if (analysisGames.length > 0) {
+      // Show ALL analyzed games — today's completed games show the full matrix/gotcha system
       games = analysisGames;
     } else if (upcomingOddsGames.length > 0) {
-      // Build game cards from odds data (no analysis yet for tomorrow)
+      // No analysis yet (tomorrow's slate) — show odds-only cards
       games = upcomingOddsGames.map(og => ({
         matchup: `${og.away} @ ${og.home}`,
         away: og.away || '',
@@ -714,7 +710,7 @@ async function loadSport(sport) {
     }
 
     if (games.length === 0) {
-      container.innerHTML = `<div class="empty-state"><div class="icon">&#128203;</div><p>No upcoming ${SPORT_LABELS[sport]} games found.</p><p style="margin-top:8px;font-size:0.75rem;">Games appear when books post lines (usually morning of game day for NCAAB).</p></div>`;
+      container.innerHTML = `<div class="empty-state"><div class="icon">&#128203;</div><p>No ${SPORT_LABELS[sport]} games or analysis available.</p><p style="margin-top:8px;font-size:0.75rem;">NCAAB lines appear morning of game day. NBA analysis runs at 4 PM PST.</p></div>`;
       return;
     }
 
@@ -743,6 +739,20 @@ async function loadSport(sport) {
     // Global gotcha
     if (analysis.gotcha) {
       html += `<div class="global-gotcha"><div class="section-label">Tonight's Intel</div><div class="gotcha-text">${analysis.gotcha}</div></div>`;
+    }
+
+    // Arbitrage opportunities
+    const arbs = (arbResp && arbResp.arbs) ? arbResp.arbs : [];
+    if (arbs.length > 0) {
+      html += `<div class="global-gotcha" style="border-color:rgba(0,214,143,0.3);background:rgba(0,214,143,0.04);">
+        <div class="section-label" style="color:var(--green);">ARBITRAGE OPPORTUNITIES (${arbs.length})</div>`;
+      arbs.slice(0, 5).forEach(a => {
+        html += `<div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.75rem;">
+          <div style="font-weight:700;">${esc(a.matchup || a.game || '')}</div>
+          <div style="color:var(--text-dim);margin-top:2px;">${esc(a.type || '')} — ${esc(a.book1 || a.best_book || '')} vs ${esc(a.book2 || a.worst_book || '')} — <span style="color:var(--green);font-weight:700;">Profit: ${a.profit_pct || a.profit || '?'}%</span></div>
+        </div>`;
+      });
+      html += `</div>`;
     }
 
     // Sort games: best grades first
@@ -1063,11 +1073,40 @@ function renderGameCard(game, screenerHits, oddsGame, cardIdx) {
     </div>`;
   }
 
+  // Matrix scores (the 15-variable grading system)
+  const matrixScores = game.matrix_scores || {};
+  const compositeScore = game.composite_score || null;
+  const analyzedBy = game.analyzed_by || game.model || '';
+  const matrixKeys = Object.keys(matrixScores);
+
+  if (matrixKeys.length > 0) {
+    html += `<div class="analysis-block">
+      <div class="ab-label">Scoring Matrix${analyzedBy ? ` — analyzed by ${esc(analyzedBy)}` : ''}${compositeScore ? ` — Composite: ${compositeScore}/10` : ''}</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:4px;margin-top:6px;">`;
+    matrixKeys.forEach(key => {
+      const val = matrixScores[key];
+      const score = typeof val === 'object' ? (val.score || val.value || val) : val;
+      const numScore = parseFloat(score) || 0;
+      const barColor = numScore >= 7 ? 'var(--green)' : numScore >= 5 ? 'var(--yellow)' : 'var(--red)';
+      const label = key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      html += `<div style="background:rgba(255,255,255,0.03);border-radius:4px;padding:4px 6px;font-size:0.65rem;">
+        <div style="color:var(--text-dim);margin-bottom:2px;">${esc(label)}</div>
+        <div style="display:flex;align-items:center;gap:4px;">
+          <div style="flex:1;height:4px;background:rgba(255,255,255,0.06);border-radius:2px;">
+            <div style="width:${numScore * 10}%;height:100%;background:${barColor};border-radius:2px;"></div>
+          </div>
+          <span style="font-weight:700;color:${barColor};min-width:20px;text-align:right;">${numScore}</span>
+        </div>
+      </div>`;
+    });
+    html += `</div></div>`;
+  }
+
   // Full analysis breakdown
   const hasAnalysis = edgeQuestion || edgeSummary || injuryImpact || restSchedule || trends.length > 0;
   if (hasAnalysis) {
     html += `<div class="analysis-block">
-      <div class="ab-label">Analysis</div>`;
+      <div class="ab-label">Edge Analysis</div>`;
 
     if (edgeQuestion && edgeQuestion !== 'No clear edge identified.') {
       html += `<div class="ab-edge">${esc(edgeQuestion)}</div>`;
