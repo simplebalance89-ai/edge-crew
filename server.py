@@ -1239,49 +1239,61 @@ TENNIS_MATRIX = [
 ]
 
 MMA_MATRIX = [
+    # Tier 1 — Weight 9
     ("style_matchup", 9, "Style matchup — striker vs grappler, range fighter vs pressure"),
+    # Tier 2 — Weight 8
     ("recent_form", 8, "Recent form — wins, finishes, decision losses"),
     ("sharp_vs_public", 8, "Sharp money vs public betting split"),
     ("line_movement", 8, "Line movement since open"),
     ("grappling_advantage", 8, "Grappling — wrestling credentials, submission threat, TDD"),
     ("striking_advantage", 8, "Striking — volume, accuracy, power, defense"),
+    # Tier 3 — Weight 7
+    ("age_differential", 7, "Age / age gap — fighters over 32 lose 62% of the time, post-34 KO vulnerability spikes"),
     ("cardio_endurance", 7, "Cardio / gas tank — late-round performance"),
-    ("reach_advantage", 7, "Reach / height advantage — range management"),
     ("chin_durability", 7, "Chin durability — absorption rate, knockdown history"),
     ("takedown_defense", 7, "Takedown defense % — ability to keep fight standing"),
     ("fight_iq", 7, "Fight IQ — cage control, adjustments, game planning"),
-    ("camp_quality", 6, "Camp quality — training partners, coaching"),
+    ("octagon_control", 7, "Octagon control — center positioning, cage pressure, control time"),
+    ("camp_quality", 7, "Camp quality — training partners, coaching, intel on opponent"),
+    ("line_vs_model", 7, "Our composite vs the line — meta-edge signal, THE edge indicator"),
+    # Tier 4 — Weight 6
     ("weight_cut", 6, "Weight cut — missed weight history, size at weigh-in"),
-    ("finishing_rate", 6, "Finishing rate — KO/TKO/SUB vs decisions"),
     ("injury_history", 6, "Injury history — layoff, surgery, chronic issues"),
+    ("experience_gap", 6, "Experience gap — UFC fights, five-round experience"),
     ("motivation", 6, "Motivation — title shot, rivalry, contract fight"),
-    ("octagon_control", 5, "Octagon control — center positioning, cage pressure"),
-    ("experience_gap", 5, "Experience gap — UFC fights, five-round experience"),
-    ("method_of_victory_lean", 5, "Method of victory lean — KO, SUB, or DEC value"),
-    ("line_vs_model", 5, "Our composite vs the line — meta-edge signal"),
+    # Tier 5 — Weight 5
+    ("reach_advantage", 5, "Reach / height advantage — minimal correlation with strike success per research"),
+    ("finishing_rate", 5, "Finishing rate — KO/TKO/SUB vs decisions"),
+    ("short_notice", 5, "Short notice fight — replacement fighters on <2 weeks notice perform measurably worse"),
+    ("method_of_victory_lean", 4, "Method of victory lean — KO, SUB, or DEC value (better as prop signal than fight grade)"),
 ]
 
 BOXING_MATRIX = [
-    ("style_matchup", 9, "Style matchup — counter-puncher vs pressure, southpaw vs orthodox"),
+    # Tier 1 — Weight 9
+    ("style_matchup", 9, "Style matchup — counter-puncher vs pressure, southpaw vs orthodox (includes counter-punching as a style)"),
+    ("line_vs_model", 9, "Our composite vs the line — meta-edge signal, THE edge indicator. Discrepancy = opportunity"),
+    # Tier 2 — Weight 8
     ("recent_form", 8, "Recent form — wins, stoppages, level of opposition"),
     ("sharp_vs_public", 8, "Sharp money vs public betting split"),
     ("line_movement", 8, "Line movement since open"),
-    ("punch_output", 8, "Punch output — volume, connect rate, jab effectiveness"),
-    ("power_advantage", 8, "Power — KO %, one-punch ability, body work"),
+    ("punch_output", 8, "Punch output — volume, connect rate, jab effectiveness, body work effectiveness"),
+    ("power_advantage", 8, "Power — KO %, one-punch ability"),
+    ("age_differential", 8, "Age / age gap — the 38-year-old rule. Post-peak decline is the #1 predictor in boxing research"),
+    ("chin_durability", 8, "Chin durability — been hurt/dropped, recovery, absorption history"),
+    # Tier 3 — Weight 7
     ("ring_generalship", 7, "Ring generalship — cutting off ring, controlling distance"),
-    ("counter_punching", 7, "Counter-punching ability — timing, accuracy on counters"),
     ("cardio_endurance", 7, "Cardio / gas tank — late-round performance"),
-    ("reach_advantage", 7, "Reach / height advantage — range management"),
-    ("chin_durability", 7, "Chin durability — been hurt/dropped, recovery"),
     ("defensive_skill", 7, "Defensive skill — head movement, guard, footwork"),
-    ("body_attack", 6, "Body attack effectiveness — breaking down opponents"),
+    ("experience_gap", 7, "Experience gap — rounds fought, championship experience, 12-round fights"),
+    ("judges_location", 7, "Judges / location — home advantage, scoring tendencies, sanctioning body"),
+    # Tier 4 — Weight 6
     ("camp_quality", 6, "Camp quality — trainer, sparring partners"),
     ("weight_management", 6, "Weight management — rehydration, size advantage"),
-    ("motivation", 6, "Motivation — title shot, legacy, redemption"),
     ("injury_history", 6, "Injury history — cuts, hand issues, layoff"),
-    ("experience_gap", 5, "Experience gap — rounds fought, championship experience"),
-    ("judges_location", 5, "Judges / location — home advantage, scoring tendencies"),
-    ("line_vs_model", 5, "Our composite vs the line — meta-edge signal"),
+    ("activity_level", 6, "Activity level / ring rust — time between fights, 12+ month layoff = measurably worse"),
+    # Tier 5 — Weight 5
+    ("reach_advantage", 5, "Reach / height advantage — range management (less predictive than commonly believed)"),
+    ("motivation", 4, "Motivation — title shot, legacy, redemption (narrative noise, traps public bettors)"),
 ]
 
 SPORT_MATRICES = {

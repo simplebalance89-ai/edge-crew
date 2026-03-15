@@ -11,9 +11,13 @@
   },
   "matrices": {
     "ncaab": {
-      "overrides": {},
+      "overrides": {
+        "home_court": {"weight": 8, "note": "DJ values venue data heavily"}
+      },
       "excluded": [],
-      "custom_vars": []
+      "custom_vars": [
+        {"key": "rim_tightness", "weight": 7, "description": "Arena rim measurements - tight rims suppress scoring"}
+      ]
     }
   },
   "conversation_context": {
