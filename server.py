@@ -405,22 +405,21 @@ async def _warm_analysis_cache():
                 continue
         needs_generation.append(sport)
 
-    # Second pass: generate missing caches in parallel (max 3 concurrent)
+    # Second pass: generate missing caches SEQUENTIALLY (avoid overwhelming Azure)
     if needs_generation:
-        print(f"[ANALYSIS WARM] Generating {len(needs_generation)} sports in parallel...")
-        async def _warm_one(s):
-            async with _analysis_sem:
-                try:
-                    print(f"[ANALYSIS WARM] {s.upper()}: no today cache, generating...")
-                    resp = await get_analysis(s)
-                    if hasattr(resp, 'body'):
-                        d = json.loads(resp.body)
-                        if d.get("games"):
-                            _save_analysis_cache(s, d)
-                            print(f"[ANALYSIS WARM] {s.upper()}: generated {len(d['games'])} games")
-                except Exception as e:
-                    print(f"[ANALYSIS WARM] {s.upper()} failed: {e}")
-        await asyncio.gather(*[_warm_one(s) for s in needs_generation])
+        print(f"[ANALYSIS WARM] Generating {len(needs_generation)} sports sequentially...")
+        for s in needs_generation:
+            try:
+                print(f"[ANALYSIS WARM] {s.upper()}: no today cache, generating...")
+                resp = await get_analysis(s)
+                if hasattr(resp, 'body'):
+                    d = json.loads(resp.body)
+                    if d.get("games"):
+                        _save_analysis_cache(s, d)
+                        print(f"[ANALYSIS WARM] {s.upper()}: generated {len(d['games'])} games")
+            except Exception as e:
+                print(f"[ANALYSIS WARM] {s.upper()} failed: {e}")
+            await asyncio.sleep(30)  # 30s gap between sports to avoid resource contention
     print(f"[ANALYSIS WARM] Cache warm complete")
 
 
@@ -691,6 +690,9 @@ ALL_SPORTS = ["nba", "wnba", "ncaab", "ncaaf", "nhl", "mlb", "tennis", "soccer",
 
 # Semaphore to limit concurrent analysis calls (avoid hammering Azure)
 _analysis_sem = asyncio.Semaphore(3)
+
+# Track which sports currently have analysis running
+_analysis_running: set[str] = set()
 
 # Season map — which months each sport is active
 _SEASON_MONTHS = {
@@ -4010,6 +4012,22 @@ async def get_analysis(sport: str, cached_only: bool = False, force: bool = Fals
             cached_analysis["cached"] = True
             return JSONResponse(cached_analysis)
 
+    # Re-entrancy guard: if this sport is already being analyzed, serve cache
+    if sport_lower in _analysis_running:
+        logger.info(f"[ANALYSIS] {sport_lower} already running — serving cache")
+        cached = _get_cached(cache_key, ttl=ANALYSIS_CACHE_TTL)
+        if cached:
+            cached["cached"] = True
+            return JSONResponse(cached)
+        stale = _load_analysis_cache(sport_lower)
+        if stale and stale.get("games"):
+            stale["cached"] = True
+            return JSONResponse(stale)
+        return JSONResponse({"sport": sport.upper(), "games": [], "generated_at": _now_ts(),
+                             "gotcha": "Analysis is already running for this sport. Results will appear shortly — try again in 2-3 minutes."})
+
+    _analysis_running.add(sport_lower)
+
     # Get current odds for context
     odds_cache_key = f"{sport_lower}:h2h,spreads,totals"
     odds_data = _get_cached(odds_cache_key)
@@ -4573,6 +4591,7 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
             azure_endpoint=AZURE_ENDPOINT,
             api_key=AZURE_KEY,
             api_version="2024-10-21",
+            timeout=120,
         )
         fmt_prompt = _build_formatter_prompt(raw_analysis, is_first_batch)
         logger.info(f"[FORMATTER] Batch {batch_idx} → {ANALYSIS_FORMATTER} (attempt {attempt})")
@@ -4599,6 +4618,7 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
             azure_endpoint=AZURE_ENDPOINT,
             api_key=AZURE_KEY,
             api_version="2024-10-21",
+            timeout=120,
         )
         logger.info(f"[FALLBACK] Single-model call to {use_model}")
         fb_start = time.time()
@@ -5254,6 +5274,8 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
             {"error": f"Analysis generation failed: {str(e)}"},
             status_code=500,
         )
+    finally:
+        _analysis_running.discard(sport_lower)
 
 
 def _read_picks():
@@ -7681,6 +7703,8 @@ async def _fetch_player_game_logs(sport, team_abbrevs):
 
     player_logs = {}
     async with httpx.AsyncClient(timeout=15.0) as client:
+        # Collect all fetch tasks upfront instead of sequential loop
+        fetch_tasks = []
         for abbr, info in target_teams.items():
             top_players = info.get("players", [])[:8]
             for player in top_players:
@@ -7688,131 +7712,146 @@ async def _fetch_player_game_logs(sport, team_abbrevs):
                 pname = player.get("name", "?")
                 if not pid:
                     continue
-                try:
-                    url = f"https://site.web.api.espn.com/apis/common/v3/sports/{espn_sport}/athletes/{pid}/gamelog"
-                    resp = await client.get(url, headers={"User-Agent": "Mozilla/5.0"})
-                    if resp.status_code != 200:
-                        continue
-                    data = resp.json()
+                fetch_tasks.append((abbr, pname, pid))
 
-                    # Parse labels to find stat indices dynamically
-                    labels = [l.upper() for l in data.get("labels", [])]
-                    dynamic_indices = {}
-                    for i, label in enumerate(labels):
-                        if label == "MIN":
-                            dynamic_indices["min"] = i
-                        elif label == "PTS":
-                            dynamic_indices["pts"] = i
-                        elif label == "REB":
-                            dynamic_indices["reb"] = i
-                        elif label == "AST":
-                            dynamic_indices["ast"] = i
+        async def _fetch_one_gamelog(http_client, abbr, pname, pid):
+            """Fetch and parse game log for a single player. Returns dict or None."""
+            try:
+                url = f"https://site.web.api.espn.com/apis/common/v3/sports/{espn_sport}/athletes/{pid}/gamelog"
+                resp = await http_client.get(url, headers={"User-Agent": "Mozilla/5.0"})
+                if resp.status_code != 200:
+                    return None
+                data = resp.json()
 
-                    # Parse game log entries — categories are months (most recent first)
-                    season_stats = data.get("seasonTypes", [])
-                    games = []
-                    # Only use regular season (first seasonType)
-                    if season_stats:
-                        for cat in season_stats[0].get("categories", []):
-                            for event in cat.get("events", []):
-                                stats_row = event.get("stats", [])
-                                if stats_row:
-                                    games.append(stats_row)
+                # Parse labels to find stat indices dynamically
+                labels = [l.upper() for l in data.get("labels", [])]
+                dynamic_indices = {}
+                for i, label in enumerate(labels):
+                    if label == "MIN":
+                        dynamic_indices["min"] = i
+                    elif label == "PTS":
+                        dynamic_indices["pts"] = i
+                    elif label == "REB":
+                        dynamic_indices["reb"] = i
+                    elif label == "AST":
+                        dynamic_indices["ast"] = i
 
-                    gp = len(games)
-                    if gp == 0:
-                        player_logs[pname] = {
-                            "team": abbr, "gp": 0,
-                            "note": "No game log data available"
-                        }
-                        continue
+                # Parse game log entries — categories are months (most recent first)
+                season_stats = data.get("seasonTypes", [])
+                games = []
+                # Only use regular season (first seasonType)
+                if season_stats:
+                    for cat in season_stats[0].get("categories", []):
+                        for event in cat.get("events", []):
+                            stats_row = event.get("stats", [])
+                            if stats_row:
+                                games.append(stats_row)
 
-                    # Use dynamically parsed labels if available, fall back to NBA defaults
-                    if dynamic_indices:
-                        stat_indices = {
-                            "min": dynamic_indices.get("min", 0),
-                            "pts": dynamic_indices.get("pts", 13),
-                            "reb": dynamic_indices.get("reb", 7),
-                            "ast": dynamic_indices.get("ast", 8),
-                        }
-                    else:
-                        # NBA default: MIN(0), FG(1), FG%(2), 3PT(3), 3P%(4), FT(5), FT%(6), REB(7), AST(8), BLK(9), STL(10), PF(11), TO(12), PTS(13)
-                        stat_indices = {"min": 0, "pts": 13, "reb": 7, "ast": 8}
+                gp = len(games)
+                if gp == 0:
+                    return {pname: {
+                        "team": abbr, "gp": 0,
+                        "note": "No game log data available"
+                    }}
 
-                    def _safe_float(row, idx):
-                        try:
-                            if idx < 0 or idx >= len(row):
-                                return 0.0
-                            val = row[idx]
-                            if isinstance(val, str):
-                                val = val.replace("--", "0").replace("-", "0")
-                            return float(val)
-                        except (ValueError, IndexError):
-                            return 0.0
-
-                    l10 = games[:10]
-                    l10_pts = sum(_safe_float(g, stat_indices.get("pts", -1)) for g in l10) / len(l10) if l10 else 0
-                    l10_reb = sum(_safe_float(g, stat_indices.get("reb", 10)) for g in l10) / len(l10) if l10 else 0
-                    l10_ast = sum(_safe_float(g, stat_indices.get("ast", 11)) for g in l10) / len(l10) if l10 else 0
-                    l10_min = sum(_safe_float(g, stat_indices.get("min", 0)) for g in l10) / len(l10) if l10 else 0
-
-                    # L5 averages — used by Prop Gap Analyzer for absorption detection
-                    l5 = games[:5]
-                    l5_pts = sum(_safe_float(g, stat_indices.get("pts", -1)) for g in l5) / len(l5) if l5 else 0
-                    l5_reb = sum(_safe_float(g, stat_indices.get("reb", 10)) for g in l5) / len(l5) if l5 else 0
-                    l5_ast = sum(_safe_float(g, stat_indices.get("ast", 11)) for g in l5) / len(l5) if l5 else 0
-
-                    season_pts = sum(_safe_float(g, stat_indices.get("pts", -1)) for g in games) / gp if gp else 0
-                    season_reb = sum(_safe_float(g, stat_indices.get("reb", 10)) for g in games) / gp if gp else 0
-                    season_ast = sum(_safe_float(g, stat_indices.get("ast", 11)) for g in games) / gp if gp else 0
-
-                    # Minutes trend: compare L5 avg to L10 avg
-                    l5_min = sum(_safe_float(g, stat_indices.get("min", 0)) for g in games[:5]) / min(5, len(games)) if games else 0
-                    min_trend = "stable"
-                    if l10_min > 0:
-                        diff = (l5_min - l10_min) / l10_min
-                        if diff > 0.1:
-                            min_trend = "UP"
-                        elif diff < -0.1:
-                            min_trend = "DOWN"
-
-                    # Build raw stat arrays for screener (floor/ceiling)
-                    label_indices = {}
-                    for i, label in enumerate(labels):
-                        label_indices[label] = i
-                    raw_stats = {}
-                    for stat_name, idx in label_indices.items():
-                        l5_vals = [_safe_float(g, idx) for g in games[:5]]
-                        l10_vals = [_safe_float(g, idx) for g in games[:10]]
-                        raw_stats[stat_name] = {
-                            "l5_raw": l5_vals,
-                            "l10_raw": l10_vals,
-                            "l5_avg": round(sum(l5_vals) / len(l5_vals), 1) if l5_vals else 0,
-                            "l10_avg": round(sum(l10_vals) / len(l10_vals), 1) if l10_vals else 0,
-                            "l5_floor": min(l5_vals) if l5_vals else 0,
-                            "l5_ceiling": max(l5_vals) if l5_vals else 0,
-                        }
-
-                    player_logs[pname] = {
-                        "team": abbr,
-                        "gp": gp,
-                        "l10_pts": round(l10_pts, 1),
-                        "l10_reb": round(l10_reb, 1),
-                        "l10_ast": round(l10_ast, 1),
-                        "l10_min": round(l10_min, 1),
-                        "l5_pts": round(l5_pts, 1),
-                        "l5_reb": round(l5_reb, 1),
-                        "l5_ast": round(l5_ast, 1),
-                        "l5_min": round(l5_min, 1),
-                        "season_pts": round(season_pts, 1),
-                        "season_reb": round(season_reb, 1),
-                        "season_ast": round(season_ast, 1),
-                        "minutes_trend": min_trend,
-                        "raw_stats": raw_stats,
+                # Use dynamically parsed labels if available, fall back to NBA defaults
+                if dynamic_indices:
+                    stat_indices = {
+                        "min": dynamic_indices.get("min", 0),
+                        "pts": dynamic_indices.get("pts", 13),
+                        "reb": dynamic_indices.get("reb", 7),
+                        "ast": dynamic_indices.get("ast", 8),
                     }
-                except Exception as e:
-                    logger.debug(f"Game log fetch failed for {pname} ({pid}): {e}")
-                    continue
+                else:
+                    # NBA default: MIN(0), FG(1), FG%(2), 3PT(3), 3P%(4), FT(5), FT%(6), REB(7), AST(8), BLK(9), STL(10), PF(11), TO(12), PTS(13)
+                    stat_indices = {"min": 0, "pts": 13, "reb": 7, "ast": 8}
+
+                def _safe_float(row, idx):
+                    try:
+                        if idx < 0 or idx >= len(row):
+                            return 0.0
+                        val = row[idx]
+                        if isinstance(val, str):
+                            val = val.replace("--", "0").replace("-", "0")
+                        return float(val)
+                    except (ValueError, IndexError):
+                        return 0.0
+
+                l10 = games[:10]
+                l10_pts = sum(_safe_float(g, stat_indices.get("pts", -1)) for g in l10) / len(l10) if l10 else 0
+                l10_reb = sum(_safe_float(g, stat_indices.get("reb", 10)) for g in l10) / len(l10) if l10 else 0
+                l10_ast = sum(_safe_float(g, stat_indices.get("ast", 11)) for g in l10) / len(l10) if l10 else 0
+                l10_min = sum(_safe_float(g, stat_indices.get("min", 0)) for g in l10) / len(l10) if l10 else 0
+
+                # L5 averages — used by Prop Gap Analyzer for absorption detection
+                l5 = games[:5]
+                l5_pts = sum(_safe_float(g, stat_indices.get("pts", -1)) for g in l5) / len(l5) if l5 else 0
+                l5_reb = sum(_safe_float(g, stat_indices.get("reb", 10)) for g in l5) / len(l5) if l5 else 0
+                l5_ast = sum(_safe_float(g, stat_indices.get("ast", 11)) for g in l5) / len(l5) if l5 else 0
+
+                season_pts = sum(_safe_float(g, stat_indices.get("pts", -1)) for g in games) / gp if gp else 0
+                season_reb = sum(_safe_float(g, stat_indices.get("reb", 10)) for g in games) / gp if gp else 0
+                season_ast = sum(_safe_float(g, stat_indices.get("ast", 11)) for g in games) / gp if gp else 0
+
+                # Minutes trend: compare L5 avg to L10 avg
+                l5_min = sum(_safe_float(g, stat_indices.get("min", 0)) for g in games[:5]) / min(5, len(games)) if games else 0
+                min_trend = "stable"
+                if l10_min > 0:
+                    diff = (l5_min - l10_min) / l10_min
+                    if diff > 0.1:
+                        min_trend = "UP"
+                    elif diff < -0.1:
+                        min_trend = "DOWN"
+
+                # Build raw stat arrays for screener (floor/ceiling)
+                label_indices = {}
+                for i, label in enumerate(labels):
+                    label_indices[label] = i
+                raw_stats = {}
+                for stat_name, idx in label_indices.items():
+                    l5_vals = [_safe_float(g, idx) for g in games[:5]]
+                    l10_vals = [_safe_float(g, idx) for g in games[:10]]
+                    raw_stats[stat_name] = {
+                        "l5_raw": l5_vals,
+                        "l10_raw": l10_vals,
+                        "l5_avg": round(sum(l5_vals) / len(l5_vals), 1) if l5_vals else 0,
+                        "l10_avg": round(sum(l10_vals) / len(l10_vals), 1) if l10_vals else 0,
+                        "l5_floor": min(l5_vals) if l5_vals else 0,
+                        "l5_ceiling": max(l5_vals) if l5_vals else 0,
+                    }
+
+                return {pname: {
+                    "team": abbr,
+                    "gp": gp,
+                    "l10_pts": round(l10_pts, 1),
+                    "l10_reb": round(l10_reb, 1),
+                    "l10_ast": round(l10_ast, 1),
+                    "l10_min": round(l10_min, 1),
+                    "l5_pts": round(l5_pts, 1),
+                    "l5_reb": round(l5_reb, 1),
+                    "l5_ast": round(l5_ast, 1),
+                    "l5_min": round(l5_min, 1),
+                    "season_pts": round(season_pts, 1),
+                    "season_reb": round(season_reb, 1),
+                    "season_ast": round(season_ast, 1),
+                    "minutes_trend": min_trend,
+                    "raw_stats": raw_stats,
+                }}
+            except Exception as e:
+                logger.debug(f"Game log fetch failed for {pname} ({pid}): {e}")
+                return None
+
+        # Process in batches of 10 concurrent requests
+        BATCH = 10
+        for batch_start in range(0, len(fetch_tasks), BATCH):
+            batch = fetch_tasks[batch_start:batch_start + BATCH]
+            results = await asyncio.gather(
+                *[_fetch_one_gamelog(client, a, p, pid) for a, p, pid in batch],
+                return_exceptions=True
+            )
+            for r in results:
+                if isinstance(r, dict) and r:
+                    player_logs.update(r)
 
     if player_logs:
         _set_cache(game_log_cache_key, player_logs)

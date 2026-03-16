@@ -6892,6 +6892,11 @@ function backToAgents() {
 
 var _analysisPending = 0;
 function runAnalysis() {
+    // Re-entrancy guard — prevent double-clicks spawning parallel pipelines
+    if (_analysisPending > 0) {
+        showToast('Analysis already running — please wait', 'warning');
+        return;
+    }
     // Detect active sport panel — only analyze that one sport
     var activePanel = document.querySelector('.sport-panel.active');
     var currentSport = activePanel ? activePanel.id.replace('panel-', '') : '';
