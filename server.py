@@ -4623,6 +4623,12 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
                 return None
             model_name = challenger["name"]
             endpoint_type = challenger["endpoint"]
+
+            # Skip Anthropic models if API key is missing
+            if endpoint_type == "anthropic" and not ANTHROPIC_API_KEY:
+                logger.warning(f"[CHALLENGER] Skipping {challenger['display']} — ANTHROPIC_API_KEY not set")
+                return None
+
             logger.info(f"[CHALLENGER] Batch {batch_idx} ({sport.upper()}) → {challenger['display']} ({model_name})")
             ch_start = time.time()
 
