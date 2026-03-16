@@ -181,9 +181,43 @@ async def _autograde_loop():
                             pick["result"] = grade
                             graded_parlays += 1
 
-                total_graded = graded_from_cache + graded_from_api + graded_parlays
+                # ── Pass 4: AI prop grading fallback ──
+                graded_ai_props = 0
+                still_ungraded_props = [p for p in ungraded if not p.get("result") and _is_prop(p)]
+                if still_ungraded_props and deduped_completed:
+                    try:
+                        ai_results = await _ai_grade_props(still_ungraded_props, deduped_completed)
+                        for ai_grade in ai_results:
+                            pick_id = ai_grade["pick_id"]
+                            result = ai_grade["result"]
+                            prop_data = {
+                                "result": result,
+                                "actual_value": ai_grade.get("actual_value", 0),
+                                "line": ai_grade.get("line", 0),
+                                "stat": ai_grade.get("stat", ""),
+                                "player": ai_grade.get("player", ""),
+                                "over_under": ai_grade.get("over_under", "over"),
+                                "pct_over": ai_grade.get("pct_over", 0),
+                            }
+                            await _update_pick_result(pick_id, result, prop_data=prop_data)
+                            graded_ai_props += 1
+                            # Update in-memory pick
+                            for p in ungraded:
+                                if p.get("id") == pick_id:
+                                    p["result"] = result
+                                    break
+                            # Prop board
+                            if result == "W":
+                                matching_pick = next((p for p in ungraded if p.get("id") == pick_id), {})
+                                _maybe_add_to_prop_board(matching_pick, prop_data)
+                        if graded_ai_props:
+                            print(f"[AUTOGRADE] AI prop fallback graded {graded_ai_props} props")
+                    except Exception as e:
+                        logger.warning(f"[AUTOGRADE] AI prop grading failed: {e}")
+
+                total_graded = graded_from_cache + graded_from_api + graded_parlays + graded_ai_props
                 if total_graded:
-                    print(f"[AUTOGRADE] Total graded: {total_graded}/{len(ungraded)} (cache:{graded_from_cache} api:{graded_from_api} parlays:{graded_parlays})")
+                    print(f"[AUTOGRADE] Total graded: {total_graded}/{len(ungraded)} (cache:{graded_from_cache} api:{graded_from_api} parlays:{graded_parlays} ai_props:{graded_ai_props})")
                 else:
                     print(f"[AUTOGRADE] No picks gradable yet ({len(ungraded)} still pending)")
 
@@ -5898,6 +5932,191 @@ def _grade_prop_pick(pick: dict, player_stats: dict) -> dict | None:
 
 
 # ============================================================
+# AI PROP GRADING — Fallback when mechanical parsing fails
+# ============================================================
+
+async def _ai_grade_props(ungraded_props: list[dict], completed_games: list[dict]) -> list[dict]:
+    """AI-powered prop grading fallback.
+
+    When mechanical _grade_prop_pick() can't parse a prop (weird formatting,
+    combo stats, etc.), send the props + box scores to Azure OpenAI and let
+    AI figure out W/L/P.
+
+    Returns list of {pick_id, result, player, stat, actual_value, line, over_under, pct_over}
+    """
+    if not AZURE_ENDPOINT or not AZURE_KEY:
+        return []
+
+    # Collect props that need AI grading + their matched box scores
+    props_for_ai = []
+    for pick in ungraded_props:
+        if not _is_prop(pick):
+            continue
+        pick_sport = pick.get("sport", "").lower()
+        if pick_sport not in _ESPN_SPORT_PATHS:
+            continue
+
+        # Find the matching completed game
+        matchup = pick.get("matchup", "")
+        selection = pick.get("selection", "")
+        matched_game = None
+        for game in completed_games:
+            home = game.get("home_team", "")
+            away = game.get("away_team", "")
+            if _teams_match(matchup, home, away, pick_sport) or _teams_match(selection, home, away, pick_sport):
+                if _game_date_matches_pick(pick, game):
+                    matched_game = game
+                    break
+
+        if not matched_game:
+            continue
+
+        # Fetch ESPN box score for this game
+        home = matched_game.get("home_team", "")
+        away = matched_game.get("away_team", "")
+        pick_date = pick.get("date", datetime.now(PST).strftime("%Y-%m-%d"))
+        try:
+            box_score = await _fetch_espn_box_score(pick_sport, home, away, pick_date)
+        except Exception:
+            box_score = None
+
+        if not box_score:
+            continue
+
+        # Build a compact stat summary for the AI (top players only)
+        stat_summary = {}
+        for player_name, stats in box_score.items():
+            # Only include players with meaningful stats
+            pts = stats.get("PTS", stats.get("G", 0))
+            if isinstance(pts, (int, float)) and pts > 0:
+                stat_summary[player_name] = {k: v for k, v in stats.items()
+                                              if isinstance(v, (int, float))}
+
+        props_for_ai.append({
+            "pick_id": pick.get("id", ""),
+            "selection": selection,
+            "matchup": matchup,
+            "sport": pick_sport,
+            "box_score": stat_summary,
+        })
+
+    if not props_for_ai:
+        return []
+
+    # Batch up to 20 props per AI call
+    ai_results = []
+    for batch_start in range(0, len(props_for_ai), 20):
+        batch = props_for_ai[batch_start:batch_start + 20]
+
+        # Build the prompt
+        props_text = []
+        for i, p in enumerate(batch):
+            props_text.append(f"{i+1}. Pick: \"{p['selection']}\" | Game: {p['matchup']}")
+
+        box_scores_text = []
+        seen_games = set()
+        for p in batch:
+            game_key = p["matchup"]
+            if game_key in seen_games:
+                continue
+            seen_games.add(game_key)
+            box_scores_text.append(f"\n--- {game_key} ---")
+            for player, stats in list(p["box_score"].items())[:30]:
+                stat_parts = [f"{k}={v}" for k, v in stats.items() if k not in ("MIN",)]
+                box_scores_text.append(f"  {player}: {', '.join(stat_parts)}")
+
+        prompt = f"""Grade each player prop bet as W (win), L (loss), or P (push).
+
+PROPS TO GRADE:
+{chr(10).join(props_text)}
+
+PLAYER STATS (from completed games):
+{chr(10).join(box_scores_text)}
+
+For each prop, compare the player's actual stat to the line. Over 24.5 points + scored 28 = W. Under 6.5 assists + had 7 = L. Exact match on the line = P.
+
+Return ONLY a JSON array, one object per prop, in order:
+[{{"pick_number": 1, "result": "W", "player": "name", "stat": "Points", "actual_value": 28, "line": 24.5, "over_under": "over"}}]
+
+No explanation, just the JSON array."""
+
+        try:
+            url = f"{AZURE_BASE}/openai/deployments/{AZURE_MODEL}/chat/completions?api-version=2024-08-01-preview"
+            headers = {"api-key": AZURE_KEY, "Content-Type": "application/json"}
+            payload = {
+                "messages": [
+                    {"role": "system", "content": "You are a sports betting grading system. Grade prop bets accurately against box score stats. Return only valid JSON."},
+                    {"role": "user", "content": prompt},
+                ],
+                "temperature": 0,
+                "max_tokens": 2000,
+            }
+
+            async with httpx.AsyncClient(timeout=30) as client:
+                resp = await client.post(url, json=payload, headers=headers)
+
+            if resp.status_code != 200:
+                logger.warning(f"[AI PROP GRADE] Azure call failed: {resp.status_code}")
+                continue
+
+            resp_json = resp.json()
+            content = resp_json.get("choices", [{}])[0].get("message", {}).get("content", "")
+
+            # Parse JSON from response (handle markdown code blocks)
+            content = content.strip()
+            if content.startswith("```"):
+                content = content.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
+
+            grades = json.loads(content)
+            if not isinstance(grades, list):
+                logger.warning(f"[AI PROP GRADE] Unexpected response format")
+                continue
+
+            for grade in grades:
+                pick_num = grade.get("pick_number", 0)
+                if pick_num < 1 or pick_num > len(batch):
+                    continue
+                prop = batch[pick_num - 1]
+                result = grade.get("result", "").upper()
+                if result not in ("W", "L", "P"):
+                    continue
+
+                actual = grade.get("actual_value", 0)
+                line = grade.get("line", 0)
+                over_under = grade.get("over_under", "over").lower()
+
+                # Compute pct_over
+                if line and line > 0:
+                    if over_under == "over":
+                        pct_over = round((actual - line) / line * 100, 1)
+                    else:
+                        pct_over = round((line - actual) / line * 100, 1)
+                else:
+                    pct_over = 0.0
+
+                ai_results.append({
+                    "pick_id": prop["pick_id"],
+                    "result": result,
+                    "player": grade.get("player", ""),
+                    "stat": grade.get("stat", ""),
+                    "actual_value": float(actual) if actual else 0.0,
+                    "line": float(line) if line else 0.0,
+                    "over_under": over_under,
+                    "pct_over": pct_over,
+                    "graded_by": "ai",
+                })
+
+            logger.info(f"[AI PROP GRADE] Graded {len(ai_results)} props via AI")
+
+        except json.JSONDecodeError as e:
+            logger.warning(f"[AI PROP GRADE] JSON parse failed: {e}")
+        except Exception as e:
+            logger.warning(f"[AI PROP GRADE] Error: {e}")
+
+    return ai_results
+
+
+# ============================================================
 # PROP BOARD — Crushed Lines Tracker
 # ============================================================
 
@@ -6558,6 +6777,50 @@ async def autograde_picks(request: Request):
     if no_match:
         debug_parts.append(f"no match: {', '.join(no_match[:5])}")
 
+    # ── Pass 4: AI prop grading fallback for still-ungraded props ──
+    ai_graded = 0
+    still_ungraded_props = [p for p in ungraded if not p.get("result") and _is_prop(p)]
+    if still_ungraded_props and completed:
+        try:
+            ai_results = await _ai_grade_props(still_ungraded_props, completed)
+            for ai_grade in ai_results:
+                pick_id = ai_grade["pick_id"]
+                result = ai_grade["result"]
+                prop_data = {
+                    "result": result,
+                    "actual_value": ai_grade.get("actual_value", 0),
+                    "line": ai_grade.get("line", 0),
+                    "stat": ai_grade.get("stat", ""),
+                    "player": ai_grade.get("player", ""),
+                    "over_under": ai_grade.get("over_under", "over"),
+                    "pct_over": ai_grade.get("pct_over", 0),
+                }
+                await _update_pick_result(pick_id, result, prop_data=prop_data)
+                ai_graded += 1
+
+                # Find the pick to update its result in memory
+                for p in ungraded:
+                    if p.get("id") == pick_id:
+                        p["result"] = result
+                        break
+
+                # Prop board entry if crushed
+                if result == "W":
+                    matching_pick = next((p for p in ungraded if p.get("id") == pick_id), {})
+                    _maybe_add_to_prop_board(matching_pick, prop_data)
+
+                results.append({
+                    "pick_id": pick_id,
+                    "selection": next((p.get("selection", "") for p in ungraded if p.get("id") == pick_id), ""),
+                    "matchup": next((p.get("matchup", "") for p in ungraded if p.get("id") == pick_id), ""),
+                    "result": result,
+                    "final_score": f"AI graded: {ai_grade.get('player', '?')} {ai_grade.get('stat', '?')} = {ai_grade.get('actual_value', '?')}",
+                })
+            if ai_graded:
+                logger.info(f"[AUTOGRADE] AI prop fallback graded {ai_graded} props")
+        except Exception as e:
+            logger.warning(f"[AUTOGRADE] AI prop grading failed: {e}")
+
     # Also show sample completed games for debugging
     sample_games = [f"{g['away_team']} @ {g['home_team']}" for g in completed[:5]]
     debug_parts.append(f"sample games: {', '.join(sample_games)}")
@@ -6565,10 +6828,12 @@ async def autograde_picks(request: Request):
     # Score unique picks — contrarian/underdog wins get bonus grades
     unique_picks = _score_unique_picks(results, ungraded)
 
+    total_graded = graded_count + graded_from_cache + ai_graded
     return JSONResponse({
         "status": "ok",
-        "graded": graded_count + graded_from_cache,
+        "graded": total_graded,
         "graded_from_cache": graded_from_cache,
+        "graded_from_ai": ai_graded,
         "total_ungraded": len(ungraded),
         "completed_games": len(completed),
         "results": results,
