@@ -907,7 +907,7 @@ Keep responses under 3 sentences for voice. Be the sharpest analyst in the room.
 
 # Simple in-memory cache to save API credits
 _cache = {}
-CACHE_TTL = 600  # 10 minutes — matches prefetch interval
+CACHE_TTL = 300  # 5 minutes
 ANALYSIS_CACHE_TTL = 10800  # 3 hours — scheduled analysis runs at 12/3/6 PM PST
 
 # Opening lines tracker — stores first-seen odds per game per day
@@ -3449,7 +3449,7 @@ PROP_MARKETS = {
     "mma": "fighter_wins_by_ko,fighter_wins_by_submission",
     "boxing": "fighter_wins_by_ko,fighter_wins_by_decision",
 }
-PROPS_CACHE_TTL = 600  # 10 min — matches prefetch interval
+PROPS_CACHE_TTL = 300  # 5 min
 
 
 def _calc_implied_prob(american_odds):
@@ -4551,7 +4551,7 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
         client = OpenAI(
             base_url=THINKER_ENDPOINT,
             api_key=AZURE_KEY,
-            timeout=90,  # 90s — fail fast, fallback to single-model before 120s batch cutoff
+            timeout=180,
         )
         logger.info(f"[THINKER] Batch {batch_idx} ({sport.upper()}) → {ANALYSIS_THINKER} via {THINKER_ENDPOINT}")
         think_start = time.time()
@@ -4858,23 +4858,17 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
             batch_game_lists.append(batch)
             batch_prop_texts.append(batch_props)
 
-        # Run all batches in parallel via asyncio threads — 120s hard cutoff per batch
-        async def _run_batch_with_timeout(i):
-            try:
-                return await asyncio.wait_for(
-                    asyncio.to_thread(
-                        _call_azure_batch, batch_prompts[i],
-                        batch_idx=i, is_first_batch=(i == 0), batch_games=batch_game_lists[i],
-                        batch_prop_lines=batch_prop_texts[i],
-                        batch_incomplete_note=(incomplete_note if i == 0 else ""),
-                        model_override=model,
-                    ),
-                    timeout=120  # 120s per batch — never let a model hang block the card
-                )
-            except asyncio.TimeoutError:
-                logger.warning(f"[BATCH {i}] Timed out after 120s — skipping batch")
-                return {"games": [], "gotcha": "" if i > 0 else "Some analysis batches timed out. Partial results shown."}
-        tasks = [_run_batch_with_timeout(i) for i in range(len(batch_prompts))]
+        # Run all batches in parallel via asyncio threads
+        tasks = [
+            asyncio.to_thread(
+                _call_azure_batch, batch_prompts[i],
+                batch_idx=i, is_first_batch=(i == 0), batch_games=batch_game_lists[i],
+                batch_prop_lines=batch_prop_texts[i],
+                batch_incomplete_note=(incomplete_note if i == 0 else ""),
+                model_override=model,
+            )
+            for i in range(len(batch_prompts))
+        ]
         batch_results = await asyncio.gather(*tasks, return_exceptions=True)
 
         # Merge results: first batch provides gotcha, all provide games
