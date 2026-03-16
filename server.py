@@ -4153,7 +4153,16 @@ async def get_analysis(sport: str, cached_only: bool = False, force: bool = Fals
         except Exception:
             game_time = game_time_raw
 
-        line_str = f"{away} @ {home} | Spread: {home} {spread} | Total: {total} | ML: {away} ({away_ml}) / {home} ({home_ml}) | Book: {book} | Time: {game_time}"
+        # Format spread with explicit +/- so the model knows who is favored
+        try:
+            spread_val = float(spread)
+            if spread_val > 0:
+                spread_str = f"+{spread_val}"  # home is underdog (getting points)
+            else:
+                spread_str = str(spread_val)   # home is favored (giving points)
+        except (ValueError, TypeError):
+            spread_str = str(spread)
+        line_str = f"{away} @ {home} | Spread: {home} {spread_str} | Total: {total} | ML: {away} ({away_ml}) / {home} ({home_ml}) | Book: {book} | Time: {game_time}"
 
         if g.get("lines_complete"):
             complete_games.append(line_str)
