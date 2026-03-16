@@ -4569,7 +4569,7 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
             azure_endpoint=AZURE_ENDPOINT,
             api_key=AZURE_KEY,
             api_version="2024-10-21",
-            timeout=60,  # 60s hard timeout — never hang on formatter
+            timeout=120,  # 120s timeout — formatter can take time on large batches
         )
         fmt_prompt = _build_formatter_prompt(raw_analysis, is_first_batch)
         logger.info(f"[FORMATTER] Batch {batch_idx} → {ANALYSIS_FORMATTER} (attempt {attempt})")
