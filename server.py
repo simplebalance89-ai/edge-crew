@@ -4250,6 +4250,34 @@ async def get_analysis(sport: str, cached_only: bool = False, force: bool = Fals
     except Exception as e:
         print(f"Game log fetch error: {e}")
 
+    # ===== FETCH CASCADE/GAP PROPS (usage cascade from injuries) =====
+    cascade_context = ""
+    try:
+        gap_resp = await get_gap_props(sport_lower)
+        if hasattr(gap_resp, 'body'):
+            gap_data = json.loads(gap_resp.body)
+            gap_props = gap_data.get("gap_props", [])
+            if gap_props:
+                cascade_lines = ["\n=== USAGE CASCADE ALERTS (star OUT → secondary players absorb) ==="]
+                cascade_lines.append("RULE: These players' prop lines are set on SEASON averages, but TONIGHT their usage spikes because a star is OUT. Look for OVER value on these players — NOT the obvious stars.")
+                for gp in gap_props[:8]:
+                    out_name = gp.get("out_player", "?")
+                    out_ppg = gp.get("ppg_lost", "?")
+                    absorber = gp.get("absorber", "?")
+                    role_change = gp.get("role_change", "")
+                    proj_pts = gp.get("projected_pts", gp.get("l5_pts", "?"))
+                    season_pts = gp.get("season_pts", "?")
+                    prop_line = gp.get("prop_line", "?")
+                    prop_stat = gp.get("prop_stat", "Points")
+                    grade = gp.get("grade", "?")
+                    cascade_lines.append(f"- {out_name} OUT ({out_ppg} PPG) → {absorber} absorbs | Season: {season_pts} | L5: {proj_pts} | Prop line: {prop_line} {prop_stat} | {role_change} | Grade: {grade}")
+                cascade_context = "\n".join(cascade_lines)
+    except Exception as e:
+        print(f"Cascade props fetch error: {e}")
+
+    if cascade_context:
+        game_log_context += "\n\n" + cascade_context
+
     # ===== BUILD WEIGHTED MATRIX SECTION =====
     if user_profile:
         matrix_section = _build_user_matrix_section(sport_lower, user_profile)
@@ -9269,47 +9297,91 @@ async def _detect_injury_gaps(sport):
 
 
 def _find_absorbers(sport, team_abbr, out_player_stats, game_logs):
-    """Find role players likely to absorb production from the OUT player.
+    """Find players likely to absorb production from the OUT player.
 
-    Filters: season_avg < 20 PPG, l10_min < 32, games_played >= 20.
-    Scores by L5 delta from season avg + minutes trend.
-    Returns top 3 candidates sorted by absorption signal.
+    Widened filter: includes secondary scorers (up to 25 PPG) and starters
+    whose usage increases when a star goes down. Role classification determines
+    absorption coefficient.
     """
     candidates = []
     sport_lower = sport.lower()
+    out_ppg = out_player_stats.get("ppg_lost", out_player_stats.get("l10_pts", 0))
 
     for player_name, stats in game_logs.items():
         if stats.get("team", "").lower() != team_abbr.lower():
             continue
-        if stats.get("gp", 0) < 20:
+        if stats.get("gp", 0) < 15:
             continue  # sample too small
-        if stats.get("l10_min", 0) >= 32:
-            continue  # already a full-time starter
-        if stats.get("season_pts", 0) >= 20:
-            continue  # already a star — not a role player
 
+        season_pts = stats.get("season_pts", 0)
+        l10_min = stats.get("l10_min", 0)
         l5_pts = stats.get("l5_pts", stats.get("l10_pts", 0))
         l5_reb = stats.get("l5_reb", stats.get("l10_reb", 0))
         l5_ast = stats.get("l5_ast", stats.get("l10_ast", 0))
         l5_min = stats.get("l5_min", stats.get("l10_min", 0))
-        season_pts = stats.get("season_pts", 0)
-        l10_min = stats.get("l10_min", 0)
+        min_trend = stats.get("minutes_trend", "stable")
 
-        # L5 delta: how much have they spiked recently?
+        # Role classification
+        season_ast = stats.get("season_ast", 0)
+        season_reb = stats.get("season_reb", 0)
+        if season_pts >= 22:
+            role = "primary_scorer"
+        elif season_pts >= 15:
+            role = "secondary_scorer"
+        elif season_ast >= 6:
+            role = "playmaker"
+        elif season_reb >= 8 and season_pts < 15:
+            role = "rebounder"
+        else:
+            role = "role_player"
+
+        # Skip the OUT player themselves
+        out_name = out_player_stats.get("player", "").lower()
+        if out_name and out_name in player_name.lower():
+            continue
+
+        # Absorption coefficient based on role proximity to OUT player
+        # Secondary scorers absorb most when primary scorer is OUT
+        if role == "secondary_scorer" and out_ppg >= 18:
+            role_boost = 4.0  # This is the Mathurin case
+        elif role == "primary_scorer":
+            role_boost = 2.0  # Already a star, gets more but less marginal gain
+        elif role == "playmaker" and out_ppg >= 15:
+            role_boost = 3.0  # Playmaker takes over ball handling
+        elif role == "role_player":
+            role_boost = 1.0
+        else:
+            role_boost = 1.5
+
+        # Usage projection: how much could this player's stats increase?
+        minutes_ceiling = 40 - l10_min  # room to grow in minutes
+        minutes_boost = max(0, minutes_ceiling * 0.3)  # ~30% of available minutes
+
+        # L5 delta: recent spike signals absorption already happening
         pts_delta = l5_pts - season_pts
         min_delta = l5_min - l10_min if l10_min > 0 else 0
-        min_trend = stats.get("minutes_trend", "stable")
+
+        # Projected tonight stats (conservative)
+        projected_pts = l5_pts + (out_ppg * 0.15 * role_boost / 4)  # absorb ~15% of OUT player's PPG, weighted by role
+        projected_reb = l5_reb + (out_player_stats.get("rpg_lost", 0) * 0.1)
+        projected_ast = l5_ast + (out_player_stats.get("apg_lost", 0) * 0.1)
 
         absorption_signal = (
             pts_delta * 2.0 +              # Recent scoring spike
             min_delta * 0.5 +              # Minutes increasing
+            role_boost * 2.0 +             # Role-based boost
             (3 if min_trend == "UP" else 0)  # Trend bonus
         )
 
         candidates.append({
             "player": player_name,
             "team": team_abbr,
+            "role": role,
+            "role_change": f"{role} → usage spike" if role_boost >= 3.0 else role,
             "score": round(absorption_signal, 2),
+            "projected_pts": round(projected_pts, 1),
+            "projected_reb": round(projected_reb, 1),
+            "projected_ast": round(projected_ast, 1),
             "l5_pts": round(l5_pts, 1),
             "l5_reb": round(l5_reb, 1),
             "l5_ast": round(l5_ast, 1),
@@ -9326,7 +9398,7 @@ def _find_absorbers(sport, team_abbr, out_player_stats, game_logs):
         })
 
     candidates.sort(key=lambda x: x["score"], reverse=True)
-    return candidates[:3]
+    return candidates[:5]  # Top 5 instead of 3
 
 
 def _match_absorbers_to_props(absorbers, prop_data, sport):
