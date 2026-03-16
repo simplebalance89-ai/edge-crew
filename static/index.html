@@ -1194,9 +1194,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
         <div id="loginSignin">
             <div class="login-field">
                 <label>Name</label>
-                <select id="loginName">
-                    <option value="">Loading crew...</option>
-                </select>
+                <input type="text" id="loginName" placeholder="Type your name" autocomplete="off" autocapitalize="words" style="width:100%;padding:10px 12px;background:var(--ec-bg);border:1px solid var(--ec-border);color:#fff;border-radius:8px;font-size:14px;">
             </div>
             <div class="login-field">
                 <label>PIN (4 digits)</label>
@@ -2714,19 +2712,11 @@ function updateCrewUI() {
 }
 
 function loadLoginProfiles() {
+    // Profiles loaded server-side for auth — no dropdown exposed
     fetch('/api/auth/profiles').then(function(r) { return r.json(); }).then(function(data) {
-        var select = document.getElementById('loginName');
-        select.innerHTML = '<option value="">Select your name...</option>';
-        (data.profiles || []).forEach(function(p) {
-            var opt = document.createElement('option');
-            opt.value = p.display_name;
-            opt.textContent = p.display_name;
-            opt.style.color = p.color;
-            select.appendChild(opt);
-        });
+        window._crewProfiles = data.profiles || [];
     }).catch(function() {
-        var select = document.getElementById('loginName');
-        select.innerHTML = '<option value="">Server offline</option>';
+        window._crewProfiles = [];
     });
     // Fetch and display build version on login screen
     fetch('/api/version').then(function(r) { return r.json(); }).then(function(data) {

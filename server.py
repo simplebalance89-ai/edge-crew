@@ -616,8 +616,23 @@ async def auth_login(request: Request):
     pin_hash = _hash_pin(pin)
     for p in data.get("profiles", []):
         if p["display_name"].lower() == name.lower() and p["pin_hash"] == pin_hash:
-            p["last_login"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            p["last_login"] = datetime.now(PST).strftime("%Y-%m-%d %H:%M:%S")
             _write_profiles(data)
+
+            # Audit log — persist to disk
+            try:
+                audit_path = DATA_DIR / "login_audit.json"
+                audit = json.loads(audit_path.read_text()) if audit_path.exists() else []
+                audit.insert(0, {
+                    "name": p["display_name"],
+                    "ts": datetime.now(PST).strftime("%Y-%m-%d %I:%M %p PST"),
+                    "ip": request.client.host if request.client else "unknown",
+                })
+                if len(audit) > 200:
+                    audit = audit[:200]
+                audit_path.write_text(json.dumps(audit))
+            except Exception:
+                pass  # Non-fatal
 
             token = secrets.token_urlsafe(32)
             _sessions[token] = {
@@ -629,6 +644,19 @@ async def auth_login(request: Request):
             return JSONResponse({"status": "ok", "token": token, "profile": _sessions[token]})
 
     return JSONResponse({"error": "Invalid name or PIN"}, status_code=401)
+
+
+@app.get("/api/auth/audit")
+async def auth_audit(request: Request):
+    """Return login audit log. Last 200 logins."""
+    audit_path = DATA_DIR / "login_audit.json"
+    if audit_path.exists():
+        try:
+            audit = json.loads(audit_path.read_text())
+            return {"audit": audit, "count": len(audit)}
+        except Exception:
+            pass
+    return {"audit": [], "count": 0}
 
 
 @app.get("/api/auth/me")
