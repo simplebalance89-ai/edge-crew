@@ -3964,16 +3964,6 @@ async def get_analysis(sport: str, cached_only: bool = False, force: bool = Fals
     RULE: Do NOT grade any game without complete line data.
     Games missing spread, total, or ML get grade "INCOMPLETE".
     """
-    try:
-        return await _get_analysis_inner(sport, cached_only=cached_only, force=force, user_id=user_id, model=model)
-    except BaseException as e:
-        import traceback
-        tb = traceback.format_exc()
-        logger.error(f"[ANALYSIS FATAL] {type(e).__name__}: {e}\n{tb}")
-        return JSONResponse({"error": f"Analysis crashed: {type(e).__name__}: {str(e)}", "traceback": tb}, status_code=500)
-
-
-async def _get_analysis_inner(sport: str, cached_only: bool = False, force: bool = False, user_id: str = None, model: str = None):
     if not AZURE_ENDPOINT or not AZURE_KEY:
         return JSONResponse({"error": "Azure OpenAI not configured"}, status_code=500)
 
