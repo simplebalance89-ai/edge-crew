@@ -967,6 +967,9 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     text-align:center;padding:16px;font-size:13px;font-weight:600;
     color:var(--ec-accent-light);font-family:var(--ec-font-mono);
 }
+.analysis-timer{font-size:11px;color:rgba(255,255,255,0.35);font-family:var(--ec-font-mono);margin-left:8px;}
+.analysis-complete-time{font-size:10px;color:rgba(255,255,255,0.3);text-align:center;padding:4px 0;font-family:var(--ec-font-mono);}
+.analysis-error{text-align:center;padding:16px;font-size:13px;color:#EF4444;font-weight:600;}
 
 /* ===== SNOWFALL OVERLAY ===== */
 #snowCanvas{
@@ -6904,12 +6907,31 @@ function runAnalysis() {
             }
         }
     };
+    // Start elapsed timer
+    window._analysisStartTime = Date.now();
+    window._analysisTimerInterval = setInterval(function() {
+        var elapsed = Math.floor((Date.now() - window._analysisStartTime) / 1000);
+        var mins = Math.floor(elapsed / 60);
+        var secs = elapsed % 60;
+        var timerStr = mins + ':' + (secs < 10 ? '0' : '') + secs;
+        var timerEl = document.querySelector('.analysis-timer');
+        if (timerEl) timerEl.textContent = timerStr;
+        if (btn) btn.textContent = 'GRADING ' + sportLabel + '... ' + timerStr;
+    }, 1000);
     // Fetch analysis for current sport only
     fetchFn(currentSport);
-    // Fallback timeout
+    // Hard timeout: 90 seconds — kill it and show error
     setTimeout(function() {
-        if (btn && btn.textContent.indexOf('GRADING') !== -1) { btn.textContent = 'ANALYZE'; btn.disabled = false; }
-    }, 60000);
+        if (btn && btn.textContent.indexOf('GRADING') !== -1) {
+            btn.textContent = 'ANALYZE'; btn.disabled = false;
+            if (window._analysisTimerInterval) clearInterval(window._analysisTimerInterval);
+            var gutContent = document.getElementById('peterGut' + sportLabel + 'Content');
+            if (gutContent && gutContent.querySelector('.analysis-progress')) {
+                gutContent.innerHTML = '<div class="analysis-error">Analysis timed out after 90s. Try again or check back in a few minutes.</div>';
+            }
+            if (typeof stopSnowfall === 'function') stopSnowfall();
+        }
+    }, 90000);
 }
 
 // ===== ANALYSIS FETCH =====
@@ -7171,7 +7193,7 @@ function fetchAnalysis(sport) {
     if (typeof startSnowfall === 'function') startSnowfall();
     var gutContent = document.getElementById('peterGut' + sport.toUpperCase() + 'Content');
     if (gutContent) {
-        var skeletonHtml = '<div class="analysis-progress">Analyzing ' + sport.toUpperCase() + ' slate with Grok + DeepSeek...</div>';
+        var skeletonHtml = '<div class="analysis-progress">Analyzing ' + sport.toUpperCase() + ' slate with Grok + DeepSeek... <span class="analysis-timer">0:00</span></div>';
         for (var sk = 0; sk < 3; sk++) {
             skeletonHtml += '<div class="skeleton-card"><div class="skeleton-line w60"></div><div class="skeleton-line w80"></div><div class="skeleton-line w40"></div></div>';
         }
@@ -7182,6 +7204,10 @@ function fetchAnalysis(sport) {
         .then(function(r) { return r.json(); })
         .then(function(data) {
             if (typeof stopSnowfall === 'function') stopSnowfall();
+            // Stop timer and show completion time
+            if (window._analysisTimerInterval) clearInterval(window._analysisTimerInterval);
+            var elapsedSecs = window._analysisStartTime ? Math.floor((Date.now() - window._analysisStartTime) / 1000) : 0;
+            var elapsedStr = Math.floor(elapsedSecs / 60) + ':' + (elapsedSecs % 60 < 10 ? '0' : '') + (elapsedSecs % 60);
             if (data.error) {
                 console.error('Analysis error:', data.error);
                 if (gutContent) gutContent.innerHTML = '<p style="color:rgba(239,68,68,0.6);font-style:italic;">Analysis unavailable — ' + data.error + '</p>';
@@ -7191,9 +7217,18 @@ function fetchAnalysis(sport) {
             // Cache analysis data for props + dashboard
             _analysisCache[sport.toUpperCase()] = data;
             refreshDashboard();
+            // Show challenger fallback info if applicable
+            var challengerNote = '';
+            if (data.challenger_timeout) challengerNote = '<div class="analysis-complete-time" style="color:#F59E0B;">Challenger grade unavailable — showing primary analysis</div>';
+            var completeTimeHtml = '<div class="analysis-complete-time">Analysis completed in ' + elapsedStr + (challengerNote ? '' : '') + '</div>' + challengerNote;
 
             // Update Peter's Gut Picks dynamically
             updatePeterGut(sport, data);
+
+            // Show completion time after gut content
+            if (gutContent) {
+                gutContent.insertAdjacentHTML('afterbegin', completeTimeHtml);
+            }
 
             // Inject picks into game cards (Fix 1: pick badge matches recommendation)
             injectPicksIntoCards(sport, data);
@@ -7469,7 +7504,9 @@ function fetchAnalysis(sport) {
         })
         .catch(function(err) {
             if (typeof stopSnowfall === 'function') stopSnowfall();
+            if (window._analysisTimerInterval) clearInterval(window._analysisTimerInterval);
             console.error('Analysis fetch error:', err);
+            if (gutContent) gutContent.innerHTML = '<div class="analysis-error">Analysis failed — ' + (err.message || 'network error') + '. Try again.</div>';
             if (typeof window._analysisLoadCallback === 'function') window._analysisLoadCallback(sport);
         });
 }
