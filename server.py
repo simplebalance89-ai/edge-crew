@@ -907,7 +907,7 @@ Keep responses under 3 sentences for voice. Be the sharpest analyst in the room.
 
 # Simple in-memory cache to save API credits
 _cache = {}
-CACHE_TTL = 300  # 5 minutes
+CACHE_TTL = 600  # 10 minutes — matches prefetch interval
 ANALYSIS_CACHE_TTL = 10800  # 3 hours — scheduled analysis runs at 12/3/6 PM PST
 
 # Opening lines tracker — stores first-seen odds per game per day
@@ -3449,7 +3449,7 @@ PROP_MARKETS = {
     "mma": "fighter_wins_by_ko,fighter_wins_by_submission",
     "boxing": "fighter_wins_by_ko,fighter_wins_by_decision",
 }
-PROPS_CACHE_TTL = 300  # 5 min
+PROPS_CACHE_TTL = 600  # 10 min — matches prefetch interval
 
 
 def _calc_implied_prob(american_odds):
