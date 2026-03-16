@@ -850,8 +850,8 @@ CHALLENGER_MODELS = [
     {"name": "grok-3", "endpoint": "ai_services", "display": "Grok 3"},
     {"name": "Llama-4-Maverick-17B-128E-Instruct-FP8", "endpoint": "ai_services", "display": "Llama 4 Maverick"},
     {"name": "DeepSeek-V3.2", "endpoint": "ai_services", "display": "DeepSeek V3.2"},
-    {"name": "grok-4-fast-reasoning", "endpoint": "ai_services", "display": "Grok 4 Fast"},
     {"name": "claude-sonnet-4-6", "endpoint": "anthropic", "display": "Claude Sonnet 4.6"},
+    {"name": "grok-4-fast-reasoning", "endpoint": "ai_services", "display": "Grok 4 Fast"},
 ]
 CHALLENGER_MODEL_OVERRIDE = os.environ.get("CHALLENGER_MODEL", "")
 _challenger_cache = {}  # week_num -> model dict
