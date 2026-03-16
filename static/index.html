@@ -7201,7 +7201,10 @@ function fetchAnalysis(sport) {
     }
 
     fetch('/api/analysis/' + sport + '?force=true')
-        .then(function(r) { return r.json(); })
+        .then(function(r) {
+            if (!r.ok) throw new Error('Server returned ' + r.status);
+            return r.json();
+        })
         .then(function(data) {
             if (typeof stopSnowfall === 'function') stopSnowfall();
             // Stop timer and show completion time
