@@ -278,8 +278,30 @@ body::before{content:'';position:fixed;bottom:0;left:0;right:0;height:35vh;backg
 .refresh-btn{position:absolute;top:8px;right:8px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.6);border-radius:4px;padding:2px 8px;font-size:12px;cursor:pointer;}
 .refresh-btn:hover{background:rgba(255,255,255,0.2);color:#fff;}
 .detail-box{position:relative;}
-.data-card-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px;}
-@media (max-width:600px){.data-card-grid{grid-template-columns:1fr;}}
+.data-card-grid{display:grid;grid-template-columns:1fr;gap:8px;margin-top:8px;}
+/* Unified Matchup Card */
+.matchup-card{background:var(--ec-bg-elevated);border:1px solid var(--ec-border);border-radius:12px;overflow:hidden;position:relative;}
+.matchup-card .mc-header{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;background:rgba(255,255,255,0.03);border-bottom:1px solid var(--ec-border);}
+.matchup-card .mc-team-header{font-size:13px;font-weight:700;color:#fff;}
+.matchup-card .mc-record{font-size:10px;color:rgba(255,255,255,0.5);margin-top:2px;}
+.matchup-card .mc-vs{font-size:11px;color:rgba(255,255,255,0.3);font-weight:600;}
+.matchup-card .mc-body{display:grid;grid-template-columns:1fr 1fr;gap:0;min-height:120px;}
+.matchup-card .mc-col{padding:10px 14px;font-size:12px;}
+.matchup-card .mc-col:first-child{border-right:1px solid var(--ec-border);}
+.matchup-card .mc-section-label{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.35);font-weight:700;margin-bottom:6px;margin-top:8px;}
+.matchup-card .mc-section-label:first-child{margin-top:0;}
+.matchup-card .mc-player{display:flex;align-items:center;gap:6px;padding:2px 0;font-size:11px;color:rgba(255,255,255,0.8);}
+.matchup-card .mc-pos{color:rgba(255,255,255,0.35);font-size:10px;font-weight:600;min-width:22px;text-align:right;}
+.matchup-card .mc-status{font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;margin-left:auto;}
+.matchup-card .mc-status.out{background:rgba(239,68,68,0.25);color:#EF4444;}
+.matchup-card .mc-status.gtd{background:rgba(245,158,11,0.25);color:#F59E0B;}
+.matchup-card .mc-status.dtd{background:rgba(245,158,11,0.25);color:#F59E0B;}
+.matchup-card .mc-status.ques{background:rgba(245,158,11,0.2);color:#FBB024;}
+.matchup-card .mc-footer{display:flex;justify-content:center;gap:24px;padding:8px 16px;background:rgba(255,255,255,0.03);border-top:1px solid var(--ec-border);font-size:11px;color:rgba(255,255,255,0.5);}
+.matchup-card .mc-footer strong{color:rgba(255,255,255,0.8);}
+.matchup-card .mc-confirmed{font-size:9px;color:rgba(255,255,255,0.3);text-align:center;padding:4px 0 0;}
+@media (max-width:600px){.matchup-card .mc-body{grid-template-columns:1fr;}
+.matchup-card .mc-col:first-child{border-right:none;border-bottom:1px solid var(--ec-border);}}
 
 /* ===== TAGS ===== */
 .tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;margin-right:4px;}
@@ -5555,21 +5577,27 @@ function buildGameRowHTML(g) {
             (function() {
                 var mid = matchup.replace(/\s/g, '_').replace(/@/g, 'at');
                 var sp = (g.sport || '').toLowerCase();
+                var spreadStr = g.spread ? (parseFloat(g.spread) > 0 ? g.away + ' +' + g.spread : g.home + ' ' + g.spread) : '—';
+                var totalStr = g.total || '—';
+                var awayMl = g.away_ml || '—';
+                var homeMl = g.home_ml || '—';
                 return '<div class="data-card-grid">' +
-                    '<div class="detail-box" style="border-color:rgba(239,68,68,0.3);">' +
-                        '<h4 style="color:#EF4444;">\uD83C\uDFE5 Injuries</h4>' +
-                        '<div class="injury-data" id="injuries-' + mid + '">Loading...</div>' +
-                        '<button class="refresh-btn" onclick="event.stopPropagation();refreshCard(\'injuries\',\'' + mid + '\',\'' + sp + '\')">\u21BB</button>' +
-                    '</div>' +
-                    '<div class="detail-box" style="border-color:rgba(59,130,246,0.3);">' +
-                        '<h4 style="color:#3B82F6;">\uD83D\uDCCA Records</h4>' +
-                        '<div class="records-data" id="records-' + mid + '">Loading...</div>' +
-                        '<button class="refresh-btn" onclick="event.stopPropagation();refreshCard(\'records\',\'' + mid + '\',\'' + sp + '\')">\u21BB</button>' +
-                    '</div>' +
-                    '<div class="detail-box" style="border-color:rgba(16,185,129,0.3);">' +
-                        '<h4 style="color:#10B981;">\uD83D\uDCCB Lineups</h4>' +
-                        '<div class="lineup-data" id="lineup-' + mid + '">Loading...</div>' +
-                        '<button class="refresh-btn" onclick="event.stopPropagation();refreshCard(\'lineup\',\'' + mid + '\',\'' + sp + '\')">\u21BB</button>' +
+                    '<div class="matchup-card" id="matchup-card-' + mid + '" data-sport="' + sp + '">' +
+                        '<div class="mc-header">' +
+                            '<div><div class="mc-team-header">' + g.away + '</div><div class="mc-record" id="mc-rec-away-' + mid + '">...</div></div>' +
+                            '<div class="mc-vs">VS</div>' +
+                            '<div style="text-align:right;"><div class="mc-team-header">' + g.home + '</div><div class="mc-record" id="mc-rec-home-' + mid + '">...</div></div>' +
+                        '</div>' +
+                        '<div class="mc-body">' +
+                            '<div class="mc-col" id="mc-away-' + mid + '"><span style="color:rgba(255,255,255,0.4);font-size:11px;">Loading...</span></div>' +
+                            '<div class="mc-col" id="mc-home-' + mid + '"><span style="color:rgba(255,255,255,0.4);font-size:11px;">Loading...</span></div>' +
+                        '</div>' +
+                        '<div class="mc-footer">' +
+                            '<div>ML: <strong>' + g.away + ' ' + awayMl + '</strong> / <strong>' + g.home + ' ' + homeMl + '</strong></div>' +
+                            '<div>SPREAD: <strong>' + spreadStr + '</strong></div>' +
+                            '<div>O/U: <strong>' + totalStr + '</strong></div>' +
+                        '</div>' +
+                        '<button class="refresh-btn" onclick="event.stopPropagation();loadMatchupCard(\'' + mid + '\',\'' + sp + '\')" style="top:6px;right:6px;">\u21BB</button>' +
                     '</div>' +
                 '</div>';
             })() +
@@ -5691,87 +5719,97 @@ function toggleGameExpand(el, matchupId, sport) {
     var wasExpanded = el.classList.contains('expanded');
     el.classList.toggle('expanded');
     if (!wasExpanded) {
-        // Auto-load data cards on first expand
-        ['injuries', 'records', 'lineup'].forEach(function(type) {
-            var cardEl = document.getElementById(type + '-' + matchupId);
-            if (cardEl && cardEl.textContent === 'Loading...') {
-                refreshCard(type, matchupId, sport);
-            }
-        });
+        // Auto-load unified matchup card on first expand
+        var card = document.getElementById('matchup-card-' + matchupId);
+        if (card && card.querySelector('.mc-col span')) {
+            loadMatchupCard(matchupId, sport);
+        }
         // Fetch alt grade + team profiles
         fetchAltGrade(matchupId, sport);
     }
 }
 
-async function refreshCard(type, matchupId, sport) {
-    var el = document.getElementById(type + '-' + matchupId);
-    if (!el) return;
-    el.innerHTML = '<span style="color:rgba(255,255,255,0.4)">Loading...</span>';
+async function loadMatchupCard(matchupId, sport) {
     var matchup = matchupId.replace(/_/g, ' ').replace(' at ', ' @ ');
-    try {
-        var resp = await fetch('/api/card/' + type + '/' + sport + '/' + encodeURIComponent(matchup));
-        var data = await resp.json();
-        el.innerHTML = formatCardData(type, data);
-    } catch(e) {
-        el.innerHTML = '<span style="color:#EF4444">Failed to load</span>';
+    var awayCol = document.getElementById('mc-away-' + matchupId);
+    var homeCol = document.getElementById('mc-home-' + matchupId);
+    var recAway = document.getElementById('mc-rec-away-' + matchupId);
+    var recHome = document.getElementById('mc-rec-home-' + matchupId);
+
+    // Fetch all 3 data sources in parallel
+    var enc = encodeURIComponent(matchup);
+    var [injResp, recResp, linResp] = await Promise.allSettled([
+        fetch('/api/card/injuries/' + sport + '/' + enc).then(function(r){return r.json();}),
+        fetch('/api/card/records/' + sport + '/' + enc).then(function(r){return r.json();}),
+        fetch('/api/card/lineup/' + sport + '/' + enc).then(function(r){return r.json();})
+    ]);
+
+    var injuries = injResp.status === 'fulfilled' ? injResp.value : {};
+    var records = recResp.status === 'fulfilled' ? recResp.value : {};
+    var lineups = linResp.status === 'fulfilled' ? linResp.value : {};
+
+    // Records header
+    if (recAway && records.away) {
+        var txt = records.away.record || '';
+        if (records.away.home) txt += '  H:' + records.away.home + '  A:' + records.away.away;
+        if (records.away.streak) txt += '  ' + records.away.streak;
+        recAway.textContent = txt;
     }
+    if (recHome && records.home) {
+        var txt = records.home.record || '';
+        if (records.home.home) txt += '  H:' + records.home.home + '  A:' + records.home.away;
+        if (records.home.streak) txt += '  ' + records.home.streak;
+        recHome.textContent = txt;
+    }
+
+    // Build away column
+    if (awayCol) awayCol.innerHTML = buildMatchupCol(lineups.away_lineup, injuries.away_team, lineups.confirmed);
+    if (homeCol) homeCol.innerHTML = buildMatchupCol(lineups.home_lineup, injuries.home_team, lineups.confirmed);
+}
+
+function buildMatchupCol(lineup, injuries, confirmed) {
+    var html = '';
+    // Starters
+    var starters = (lineup || []).slice(0, 5);
+    if (starters.length) {
+        html += '<div class="mc-section-label">Expected Lineup</div>';
+        starters.forEach(function(p) {
+            var name = p.name || p;
+            var pos = p.pos || '?';
+            html += '<div class="mc-player"><span class="mc-pos">' + pos + '</span> ' + name + '</div>';
+        });
+    }
+    if (confirmed !== undefined) {
+        html += '<div class="mc-confirmed">' + (confirmed ? '\u2705 Confirmed' : '\u23F3 Projected') + '</div>';
+    }
+
+    // Injuries → MAY NOT PLAY
+    var injList = injuries || [];
+    if (injList.length) {
+        html += '<div class="mc-section-label" style="color:rgba(239,68,68,0.6);">May Not Play</div>';
+        injList.forEach(function(inj) {
+            var st = (inj.status || '').toUpperCase();
+            var cls = st === 'OUT' ? 'out' : (st === 'GTD' || st === 'DTD') ? 'gtd' : 'ques';
+            html += '<div class="mc-player">';
+            if (inj.pos) html += '<span class="mc-pos">' + inj.pos + '</span> ';
+            html += inj.player;
+            html += ' <span class="mc-status ' + cls + '">' + st + '</span>';
+            html += '</div>';
+        });
+    }
+
+    if (!starters.length && !injList.length) {
+        html = '<span style="color:rgba(255,255,255,0.3);font-size:11px;">No data</span>';
+    }
+    return html;
+}
+
+// Legacy refreshCard kept for any remaining references
+async function refreshCard(type, matchupId, sport) {
+    loadMatchupCard(matchupId, sport);
 }
 
 function formatCardData(type, data) {
-    if (type === 'injuries') {
-        var html = '';
-        if (data.away_team && data.away_team.length) {
-            html += '<div style="margin-bottom:6px"><strong>' + (data.away_name || 'Away') + ':</strong></div>';
-            data.away_team.forEach(function(inj) {
-                var statusColor = inj.status === 'OUT' ? '#EF4444' : inj.status === 'GTD' ? '#F59E0B' : '#9CA3AF';
-                html += '<div style="font-size:11px;padding:1px 0"><span style="color:' + statusColor + '">' + inj.status + '</span> ' + inj.player + (inj.injury ? ' \u2014 ' + inj.injury : '') + '</div>';
-            });
-        }
-        if (data.home_team && data.home_team.length) {
-            html += '<div style="margin-top:6px;margin-bottom:6px"><strong>' + (data.home_name || 'Home') + ':</strong></div>';
-            data.home_team.forEach(function(inj) {
-                var statusColor = inj.status === 'OUT' ? '#EF4444' : inj.status === 'GTD' ? '#F59E0B' : '#9CA3AF';
-                html += '<div style="font-size:11px;padding:1px 0"><span style="color:' + statusColor + '">' + inj.status + '</span> ' + inj.player + (inj.injury ? ' \u2014 ' + inj.injury : '') + '</div>';
-            });
-        }
-        if (!html) html = '<span style="color:rgba(255,255,255,0.4)">No injuries reported</span>';
-        return html;
-    }
-    if (type === 'records') {
-        var html = '';
-        if (data.away) {
-            html += '<div style="margin-bottom:4px"><strong>' + data.away.name + ':</strong> ' + data.away.record;
-            if (data.away.home) html += ' (H: ' + data.away.home + ' A: ' + data.away.away + ')';
-            if (data.away.streak) html += ' | ' + data.away.streak;
-            html += '</div>';
-        }
-        if (data.home) {
-            html += '<div><strong>' + data.home.name + ':</strong> ' + data.home.record;
-            if (data.home.home) html += ' (H: ' + data.home.home + ' A: ' + data.home.away + ')';
-            if (data.home.streak) html += ' | ' + data.home.streak;
-            html += '</div>';
-        }
-        return html || '<span style="color:rgba(255,255,255,0.4)">No records available</span>';
-    }
-    if (type === 'h2h') {
-        return '<span style="color:rgba(255,255,255,0.4)">' + (data.note || 'No H2H data') + '</span>';
-    }
-    if (type === 'lineup') {
-        var html = '';
-        var confirmed = data.confirmed ? '\u2705 Confirmed' : '\u23F3 Projected';
-        html += '<div style="font-size:10px;color:rgba(255,255,255,0.4);margin-bottom:4px">' + confirmed + '</div>';
-        if (data.away_lineup && data.away_lineup.length) {
-            html += '<div style="margin-bottom:4px"><strong>' + (data.away_name || 'Away') + ':</strong> ';
-            html += data.away_lineup.slice(0, 8).map(function(p) { return p.name || p; }).join(', ');
-            html += '</div>';
-        }
-        if (data.home_lineup && data.home_lineup.length) {
-            html += '<div><strong>' + (data.home_name || 'Home') + ':</strong> ';
-            html += data.home_lineup.slice(0, 8).map(function(p) { return p.name || p; }).join(', ');
-            html += '</div>';
-        }
-        return html || '<span style="color:rgba(255,255,255,0.4)">No lineup data</span>';
-    }
     return JSON.stringify(data);
 }
 
