@@ -7321,6 +7321,12 @@ function fetchAnalysis(sport) {
                 return;
             }
 
+            // No games available — show clear message, don't fake a completed analysis
+            if (data.no_odds || !data.games || data.games.length === 0) {
+                if (gutContent) gutContent.innerHTML = '<p style="color:#F59E0B;font-style:italic;">' + (data.gotcha || 'No lines available yet. Check back after 10 AM.') + '</p>';
+                return;
+            }
+
             // Cache analysis data for props + dashboard
             _analysisCache[sport.toUpperCase()] = data;
             refreshDashboard();

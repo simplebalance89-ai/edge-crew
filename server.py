@@ -4057,9 +4057,10 @@ async def get_analysis(sport: str, cached_only: bool = False, force: bool = Fals
             return JSONResponse(stale)
         return JSONResponse({
             "sport": sport.upper(),
-            "gotcha": "No games on the slate right now.",
+            "gotcha": "No lines available yet. The Odds API updates around 10 AM — check back then, or wait for the scheduled analysis run.",
             "games": [],
             "generated_at": _now_ts(),
+            "no_odds": True,
         })
 
     # Separate complete vs incomplete games
