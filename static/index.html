@@ -5960,6 +5960,13 @@ function fetchLiveOdds(sport, onDone) {
         _oddsFetch = fetch('/api/odds/' + sport).then(function(r) {
             console.log('[ODDS] ' + sport + ' live response:', r.status);
             return r.json();
+        }).then(function(data) {
+            // Fallback: if live odds empty, serve cached slate instead of blank screen
+            if (!data.games || data.games.length === 0) {
+                console.log('[ODDS] ' + sport + ' live empty — falling back to cached slate');
+                return fetch('/api/slate/cached/' + sport).then(function(r) { return r.json(); });
+            }
+            return data;
         });
     } else {
         _oddsFetch = fetch('/api/slate/cached/' + sport)
