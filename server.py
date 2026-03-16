@@ -5158,7 +5158,14 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
             if challenger and batch_prompts:
                 challenger_model_display = challenger["display"]
                 logger.info(f"[CHALLENGER] Running {challenger['display']} on batch 0 ({len(batch_prompts)} total batches)")
-                challenger_result = await asyncio.to_thread(_call_challenger, batch_prompts[0], 0)
+                try:
+                    challenger_result = await asyncio.wait_for(
+                        asyncio.to_thread(_call_challenger, batch_prompts[0], 0),
+                        timeout=60  # 60s hard cutoff — never block the card
+                    )
+                except asyncio.TimeoutError:
+                    logger.warning(f"[CHALLENGER] {challenger['display']} timed out after 60s — skipping")
+                    challenger_result = None
                 if challenger_result:
                     matched = 0
                     for cg in challenger_result.get("games", []):
