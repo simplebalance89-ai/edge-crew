@@ -5594,8 +5594,9 @@ function getTrendArrow(trend) {
 
 function renderAltGradeBadge(matchupId, data) {
     var slot = document.getElementById('altgrade-' + matchupId.replace(/[^a-zA-Z0-9]/g, ''));
-    if (!slot || !data || !data.alt_grade) return;
+    if (!slot || !data || !data.alt_grade) { if (slot) slot.innerHTML = ''; return; }
     var ag = data.alt_grade;
+    if (!ag.grade || ag.grade === 'null' || ag.grade === 'None') { slot.innerHTML = ''; return; }
     var cls = getAltGradeClass(ag.grade);
     slot.className = cls;
     slot.innerHTML = ag.grade + getTrendArrow(ag.trend || 'flat');

@@ -8557,7 +8557,14 @@ async def alt_grade_endpoint(sport: str, matchup: str):
     away_profile = _build_team_profile(away_name, sport_lower)
     home_profile = _build_team_profile(home_name, sport_lower)
     h2h = _build_h2h(away_name, home_name, sport_lower)
-    alt_grade = _calculate_alt_grade(away_profile, home_profile, h2h)
+
+    # Don't calculate alt grade if we have no game data for either team
+    away_games = len(away_profile.get("last_5", []))
+    home_games = len(home_profile.get("last_5", []))
+    if away_games == 0 and home_games == 0:
+        alt_grade = None
+    else:
+        alt_grade = _calculate_alt_grade(away_profile, home_profile, h2h)
 
     result = {
         "away_profile": away_profile,
