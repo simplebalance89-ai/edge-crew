@@ -806,6 +806,7 @@
     <div class="pill" id="tabSlate" onclick="switchView('slate')" style="background:var(--pill-active);color:#fff;border-color:var(--accent);">Slate</div>
     <div class="pill" id="tabMatrix" onclick="switchView('matrix')">DJ's Matrix</div>
     <div class="pill" id="tabReview" onclick="switchView('review')">Review Matrix</div>
+    <div class="pill" id="tabFeedback" onclick="switchView('feedback')" style="border-color:rgba(255,215,0,0.3);">&#x1F4DD; Feedback</div>
   </div>
 </div>
 
@@ -1639,8 +1640,9 @@ function switchView(view) {
   const tabSlate = document.getElementById('tabSlate');
   const tabMatrix = document.getElementById('tabMatrix');
   const tabReview = document.getElementById('tabReview');
+  const tabFeedback = document.getElementById('tabFeedback');
   // Reset all
-  [tabSlate, tabMatrix, tabReview].forEach(t => { if (t) { t.style.background = ''; t.style.color = ''; t.style.borderColor = ''; } });
+  [tabSlate, tabMatrix, tabReview, tabFeedback].forEach(t => { if (t) { t.style.background = ''; t.style.color = ''; t.style.borderColor = ''; } });
   if (view === 'slate') {
     tabSlate.style.background = 'var(--pill-active)'; tabSlate.style.color = '#fff'; tabSlate.style.borderColor = 'var(--accent)';
     if (currentSport) loadSport(currentSport);
@@ -1650,7 +1652,114 @@ function switchView(view) {
   } else if (view === 'review') {
     tabReview.style.background = 'var(--pill-active)'; tabReview.style.color = '#fff'; tabReview.style.borderColor = 'var(--accent)';
     renderReviewView();
+  } else if (view === 'feedback') {
+    tabFeedback.style.background = 'rgba(255,215,0,0.2)'; tabFeedback.style.color = '#FFD700'; tabFeedback.style.borderColor = 'rgba(255,215,0,0.5)';
+    renderFeedbackView();
   }
+}
+
+function renderFeedbackView() {
+  const container = document.getElementById('gamesContainer');
+  document.getElementById('footer').style.display = 'none';
+
+  container.innerHTML = `
+    <div style="max-width:600px;margin:0 auto;padding:20px;">
+      <div style="text-align:center;margin-bottom:20px;">
+        <div style="font-size:24px;margin-bottom:4px;">&#x1F4DD;</div>
+        <h2 style="font-family:var(--font-heading);font-size:18px;color:#FFD700;margin:0;">Feedback Board</h2>
+        <p style="font-size:12px;color:rgba(255,255,255,0.4);margin:4px 0 0;">Tell Peter what's working, what's not, what you'd change.</p>
+      </div>
+
+      <div style="background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.2);border-radius:12px;padding:16px;margin-bottom:16px;">
+        <select id="fbCategory" style="width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(255,215,0,0.2);border-radius:8px;padding:8px 10px;color:#fff;font-size:13px;margin-bottom:10px;">
+          <option value="general">General Feedback</option>
+          <option value="feature">Feature Request</option>
+          <option value="bug">Something's Broken</option>
+          <option value="matrix">Matrix / Weights</option>
+          <option value="ui">UI / Design</option>
+          <option value="data">Data / Stats</option>
+        </select>
+        <textarea id="fbMessage" placeholder="What's on your mind? What would you change? What's working well?" rows="4" style="width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(255,215,0,0.2);border-radius:8px;padding:10px;color:#fff;font-size:13px;resize:vertical;box-sizing:border-box;font-family:inherit;"></textarea>
+        <div style="display:flex;justify-content:flex-end;margin-top:10px;">
+          <div id="fbSubmitBtn" onclick="submitFeedback()" style="cursor:pointer;padding:8px 24px;background:linear-gradient(135deg,#FFD700,#FFA500);border-radius:8px;color:#000;font-size:13px;font-weight:800;">SEND TO PETER</div>
+        </div>
+      </div>
+
+      <div id="fbHistory" style="margin-top:16px;">
+        <div style="font-size:11px;color:rgba(255,255,255,0.3);text-align:center;">Loading previous feedback...</div>
+      </div>
+    </div>
+  `;
+
+  loadFeedbackHistory();
+}
+
+function submitFeedback() {
+  const msg = document.getElementById('fbMessage').value.trim();
+  const cat = document.getElementById('fbCategory').value;
+  const btn = document.getElementById('fbSubmitBtn');
+  if (!msg) return;
+
+  btn.textContent = 'SENDING...';
+  btn.style.opacity = '0.5';
+
+  fetch('/api/dj-feedback', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ message: msg, category: cat, from: 'DJ' })
+  }).then(r => r.json()).then(data => {
+    btn.textContent = 'SENT ✓';
+    btn.style.background = 'linear-gradient(135deg,#10B981,#059669)';
+    document.getElementById('fbMessage').value = '';
+    setTimeout(() => {
+      btn.textContent = 'SEND TO PETER';
+      btn.style.background = 'linear-gradient(135deg,#FFD700,#FFA500)';
+      btn.style.opacity = '1';
+    }, 2000);
+    loadFeedbackHistory();
+  }).catch(err => {
+    btn.textContent = 'FAILED — TRY AGAIN';
+    btn.style.background = 'linear-gradient(135deg,#EF4444,#DC2626)';
+    btn.style.opacity = '1';
+    setTimeout(() => {
+      btn.textContent = 'SEND TO PETER';
+      btn.style.background = 'linear-gradient(135deg,#FFD700,#FFA500)';
+    }, 3000);
+  });
+}
+
+function loadFeedbackHistory() {
+  const histContainer = document.getElementById('fbHistory');
+  if (!histContainer) return;
+
+  fetch('/api/dj-feedback').then(r => r.json()).then(data => {
+    const notes = data.notes || [];
+    if (notes.length === 0) {
+      histContainer.innerHTML = '<div style="font-size:12px;color:rgba(255,255,255,0.25);text-align:center;padding:12px;">No feedback yet. Be the first to drop a note.</div>';
+      return;
+    }
+
+    let html = '<div style="font-size:11px;color:rgba(255,215,0,0.5);font-weight:700;margin-bottom:8px;">PREVIOUS NOTES</div>';
+    notes.forEach(n => {
+      const catColors = {
+        general: '#41EAD4', feature: '#6366f1', bug: '#EF4444',
+        matrix: '#F59E0B', ui: '#A855F7', data: '#3B82F6'
+      };
+      const color = catColors[n.category] || '#41EAD4';
+      const reply = n.reply ? `<div style="background:rgba(65,234,212,0.08);border-left:3px solid #41EAD4;padding:6px 10px;margin-top:6px;border-radius:0 6px 6px 0;font-size:11px;color:rgba(255,255,255,0.7);"><strong style="color:#41EAD4;">Peter:</strong> ${n.reply}</div>` : '';
+      html += `<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:10px;margin-bottom:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+          <span style="font-size:10px;font-weight:700;color:${color};text-transform:uppercase;">${n.category}</span>
+          <span style="font-size:10px;color:rgba(255,255,255,0.25);">${n.timestamp || ''}</span>
+        </div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.75);line-height:1.4;">${n.message}</div>
+        ${reply}
+      </div>`;
+    });
+    histContainer.innerHTML = html;
+  }).catch(() => {
+    histContainer.innerHTML = '<div style="font-size:11px;color:rgba(255,255,255,0.25);text-align:center;">Could not load history.</div>';
+  });
 }
 
 function renderReviewView() {

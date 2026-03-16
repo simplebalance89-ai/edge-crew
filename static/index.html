@@ -235,6 +235,34 @@ body::before{content:'';position:fixed;bottom:0;left:0;right:0;height:35vh;backg
 .gc{background:rgba(245,158,11,0.12);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);} .gcm{background:rgba(245,158,11,0.12);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);}
 .gd{background:rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.3);} .gf{background:rgba(127,29,29,0.2);color:#fca5a5;border:1px solid rgba(127,29,29,0.4);}
 
+/* ===== ALT GRADE BADGE ===== */
+.alt-grade{display:inline-block;padding:3px 8px;border-radius:100px;font-weight:700;font-size:10px;font-family:var(--ec-font-mono);border-style:dotted !important;opacity:0.9;margin-left:4px;vertical-align:middle;}
+.alt-grade .trend-arrow{font-size:10px;margin-left:2px;font-weight:800;}
+.trend-up{color:#22c55e;}
+.trend-down{color:#ef4444;}
+.trend-flat{color:#6b7280;}
+
+/* ===== CHALLENGER GRADE BADGE ===== */
+.challenger-grade{display:inline-block;font-size:9px;font-weight:700;padding:2px 5px;border-radius:4px;margin-left:3px;opacity:0.85;border:1px dashed rgba(255,255,255,0.2);cursor:help;}
+.challenger-label{display:block;font-size:7px;color:var(--ec-text-tertiary);text-align:center;margin-top:1px;font-weight:600;letter-spacing:0.3px;}
+
+/* ===== TEAM PROFILE PANEL ===== */
+.team-profile-panel{background:var(--ec-bg-elevated);border:1px solid var(--ec-border);border-radius:12px;padding:16px;margin-top:12px;}
+.team-profile-panel h4{font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;font-weight:600;color:#818cf8;}
+.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:600px){.profile-grid{grid-template-columns:1fr;}}
+.profile-team{font-size:12px;}
+.profile-team .team-name{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;color:var(--ec-text-primary);}
+.profile-team .team-summary{font-size:11px;color:var(--ec-text-secondary);margin-bottom:8px;font-family:var(--ec-font-mono);}
+.profile-team table{width:100%;font-size:10px;font-family:var(--ec-font-mono);border-collapse:collapse;}
+.profile-team table th{font-size:9px;text-transform:uppercase;color:var(--ec-text-tertiary);text-align:left;padding:2px 4px;border-bottom:1px solid var(--ec-border);}
+.profile-team table td{padding:2px 4px;color:var(--ec-text-secondary);}
+.profile-team table td.result-w{color:#22c55e;font-weight:700;}
+.profile-team table td.result-l{color:#ef4444;font-weight:700;}
+.profile-h2h{margin-top:12px;padding-top:10px;border-top:1px solid var(--ec-border);font-size:11px;color:var(--ec-text-secondary);font-family:var(--ec-font-mono);}
+.profile-h2h .h2h-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;color:#a78bfa;}
+.profile-loading{font-size:11px;color:rgba(255,255,255,0.4);padding:8px 0;}
+
 /* ===== EXPANDED DETAIL ===== */
 .game-detail{
     display:none;padding:0 20px 16px;border-top:1px solid var(--ec-border);
@@ -1896,6 +1924,31 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
         <span style="font-size:18px;">&#x1F451;</span>
         <span style="font-family:var(--ec-font-heading);font-size:15px;font-weight:700;color:#FFD700;">Prop Board — Crushed Lines</span>
         <span style="font-size:9px;color:rgba(255,215,0,0.6);font-weight:600;margin-left:auto;">25%+ OVER LINE</span>
+        <div onclick="toggleAddCrush()" style="cursor:pointer;margin-left:8px;padding:3px 10px;background:rgba(255,215,0,0.15);border:1px solid rgba(255,215,0,0.3);border-radius:6px;color:#FFD700;font-size:10px;font-weight:800;">+ ADD</div>
+    </div>
+    <!-- Manual Add Crush Form -->
+    <div id="addCrushForm" style="display:none;background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.2);border-radius:10px;padding:12px;margin-bottom:12px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+            <input id="crushPlayer" placeholder="Player name" style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,215,0,0.2);border-radius:6px;padding:6px 8px;color:#fff;font-size:11px;">
+            <select id="crushSport" style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,215,0,0.2);border-radius:6px;padding:6px 8px;color:#fff;font-size:11px;">
+                <option value="NBA">NBA</option><option value="NHL">NHL</option><option value="MLB">MLB</option><option value="NCAAB">NCAAB</option><option value="NFL">NFL</option><option value="MMA">MMA</option>
+            </select>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:8px;">
+            <select id="crushStat" style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,215,0,0.2);border-radius:6px;padding:6px 8px;color:#fff;font-size:11px;">
+                <option value="Points">Points</option><option value="Rebounds">Rebounds</option><option value="Assists">Assists</option><option value="Threes">Threes</option><option value="Steals">Steals</option><option value="Blocks">Blocks</option><option value="Goals">Goals</option><option value="Saves">Saves</option><option value="Strikeouts">Strikeouts</option><option value="Hits">Hits</option>
+            </select>
+            <input id="crushLine" type="number" step="0.5" placeholder="Line" style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,215,0,0.2);border-radius:6px;padding:6px 8px;color:#fff;font-size:11px;">
+            <input id="crushActual" type="number" step="1" placeholder="Actual" style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,215,0,0.2);border-radius:6px;padding:6px 8px;color:#fff;font-size:11px;">
+            <input id="crushMatchup" placeholder="e.g. BOS @ LAL" style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,215,0,0.2);border-radius:6px;padding:6px 8px;color:#fff;font-size:11px;">
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+            <select id="crushOverUnder" style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,215,0,0.2);border-radius:6px;padding:6px 8px;color:#fff;font-size:11px;">
+                <option value="over">Over</option><option value="under">Under</option>
+            </select>
+            <input id="crushPickedBy" placeholder="Picked by" value="Peter" style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,215,0,0.2);border-radius:6px;padding:6px 8px;color:#fff;font-size:11px;flex:1;">
+            <div onclick="submitManualCrush()" style="cursor:pointer;padding:6px 16px;background:linear-gradient(135deg,#FFD700,#FFA500);border-radius:6px;color:#000;font-size:11px;font-weight:800;white-space:nowrap;">SAVE</div>
+        </div>
     </div>
     <div id="propBoardContainer">
         <div class="empty-state" style="font-size:12px;color:rgba(255,215,0,0.4);">No crushed lines yet. Grade some props to populate.</div>
@@ -2344,6 +2397,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     <div style="font-weight:700;color:var(--ec-text-secondary);margin-bottom:4px;font-size:14px;letter-spacing:0.5px;">Edge Crew</div>
     <div style="font-size:11px;color:var(--ec-text-tertiary);font-weight:500;">AI-Powered Sports Analytics &mdash; 11 Sports, Real Edges, Full Transparency</div>
     <div style="margin-top:6px;color:var(--ec-text-tertiary);font-size:10px;font-weight:600;letter-spacing:0.5px;">No edge = no bet &bull; Build your crew</div>
+    <div id="challengerInfo" style="display:none;margin-top:6px;font-size:9px;color:rgba(255,255,255,0.3);font-family:monospace;letter-spacing:0.3px;"></div>
 </div>
 
 <!-- SUBMIT BAR -->
@@ -2634,6 +2688,14 @@ function loadLoginProfiles() {
         var el = document.getElementById('buildVersion');
         if (el && data.version) {
             el.textContent = data.version + ' | ' + (data.built || '') + ' | ' + data.mode + ' (' + (data.thinker || '').split('-')[0] + '+' + (data.formatter || '').split('-')[0] + ')';
+        }
+    }).catch(function() {});
+    // Fetch challenger model info
+    fetch('/api/challenger').then(function(r) { return r.json(); }).then(function(data) {
+        var ci = document.getElementById('challengerInfo');
+        if (ci && data.display) {
+            ci.style.display = 'block';
+            ci.textContent = 'Challenger: ' + data.display + (data.week ? ' (Wk ' + data.week + ')' : '');
         }
     }).catch(function() {});
 }
@@ -5422,7 +5484,7 @@ function buildGameRowHTML(g) {
                 '<div class="pick-check" onclick="togglePick(event, this, \'' + matchup + '\')"></div>' +
                 '<div class="game-time">' + time + '</div>' +
                 '<div class="game-matchup">' + (g.league ? '<span style="font-size:9px;color:var(--ec-text-tertiary);font-weight:600;letter-spacing:0.5px;">' + (g.league_flag ? g.league_flag + ' ' : '') + g.league + '</span> ' : '') + '<span class="away">' + awayAbbr + '</span>' + matchupSep + '<span class="home">' + homeAbbr + '</span></div>' +
-                '<div class="game-grade"><span class="grade ' + gradeClass + '">' + gradeDisplay + '</span></div>' +
+                '<div class="game-grade"><span class="grade ' + gradeClass + '">' + gradeDisplay + '</span><span class="alt-grade-slot" id="altgrade-' + matchup.replace(/[^a-zA-Z0-9]/g,'') + '"></span><span class="challenger-slot" id="challenger-' + matchup.replace(/[^a-zA-Z0-9]/g,'') + '"></span></div>' +
             '</div>' +
             /* Row 2: OUR PICK — prominent */
             '<div class="card-r2 card-pick" id="pick-' + matchup.replace(/[^a-zA-Z0-9]/g,'') + '">' + pickDisplay + '</div>' +
@@ -5511,8 +5573,116 @@ function buildGameRowHTML(g) {
                     '</div>' +
                 '</div>';
             })() +
+            /* Team Profile Panel (populated by alt-grade fetch) */
+            '<div class="team-profile-panel" id="profile-' + matchup.replace(/\s/g, '_').replace(/@/g, 'at') + '" style="display:none;"></div>' +
         '</div>' +
     '</div>';
+}
+
+// ===== ALT GRADE CACHE + RENDERING =====
+var altGradeCache = {};
+
+function getAltGradeClass(grade) {
+    return 'alt-grade g' + grade.toLowerCase().replace(/[^a-z]/g, '');
+}
+
+function getTrendArrow(trend) {
+    if (trend === 'up') return '<span class="trend-arrow trend-up">\u2191</span>';
+    if (trend === 'down') return '<span class="trend-arrow trend-down">\u2193</span>';
+    return '<span class="trend-arrow trend-flat">\u2192</span>';
+}
+
+function renderAltGradeBadge(matchupId, data) {
+    var slot = document.getElementById('altgrade-' + matchupId.replace(/[^a-zA-Z0-9]/g, ''));
+    if (!slot || !data || !data.alt_grade) return;
+    var ag = data.alt_grade;
+    var cls = getAltGradeClass(ag.grade);
+    slot.className = cls;
+    slot.innerHTML = ag.grade + getTrendArrow(ag.trend || 'flat');
+}
+
+function renderTeamProfile(matchupId, data) {
+    var panel = document.getElementById('profile-' + matchupId);
+    if (!panel || !data) return;
+    var html = '<h4>5-Game Rolling Profiles</h4><div class="profile-grid">';
+
+    // Away team profile
+    if (data.away_profile) {
+        html += renderOneTeamProfile(data.away_profile);
+    }
+    // Home team profile
+    if (data.home_profile) {
+        html += renderOneTeamProfile(data.home_profile);
+    }
+    html += '</div>';
+
+    // H2H section
+    if (data.h2h && data.h2h.summary) {
+        var h = data.h2h;
+        html += '<div class="profile-h2h">';
+        html += '<div class="h2h-title">H2H (Last ' + (h.games ? h.games.length : '?') + ' meetings)</div>';
+        html += h.summary.record + ' | Avg margin: ' + (h.summary.avg_margin >= 0 ? '+' : '') + h.summary.avg_margin;
+        if (h.games && h.games.length) {
+            html += '<table style="margin-top:6px;"><tr><th>Date</th><th>Opp</th><th>Res</th><th>Score</th><th>ATS</th><th>O/U</th></tr>';
+            h.games.forEach(function(gm) {
+                var rc = gm.result === 'W' ? 'result-w' : 'result-l';
+                html += '<tr><td>' + (gm.date || '--') + '</td><td>' + (gm.opponent || '--') + '</td><td class="' + rc + '">' + gm.result + ' ' + (gm.margin >= 0 ? '+' : '') + gm.margin + '</td><td>' + (gm.score || '--') + '</td><td>' + (gm.ats || '--') + '</td><td>' + (gm.ou || '--') + '</td></tr>';
+            });
+            html += '</table>';
+        }
+        html += '</div>';
+    }
+
+    panel.innerHTML = html;
+    panel.style.display = 'block';
+}
+
+function renderOneTeamProfile(profile) {
+    var html = '<div class="profile-team">';
+    html += '<div class="team-name">' + (profile.team || 'Team') + ' (Last 5)</div>';
+    if (profile.summary) {
+        var s = profile.summary;
+        html += '<div class="team-summary">' + s.record + ' | ATS ' + s.ats_record + ' | O/U ' + s.ou_record;
+        if (s.avg_margin !== undefined) html += ' | Avg ' + (s.avg_margin >= 0 ? '+' : '') + s.avg_margin;
+        if (s.trend) html += ' ' + getTrendArrow(s.trend);
+        html += '</div>';
+    }
+    if (profile.last_5 && profile.last_5.length) {
+        html += '<table><tr><th>Opp</th><th>Res</th><th>Score</th><th>ATS</th><th>O/U</th><th>Date</th></tr>';
+        profile.last_5.forEach(function(gm) {
+            var rc = gm.result === 'W' ? 'result-w' : 'result-l';
+            html += '<tr><td>' + (gm.opponent || '--') + '</td><td class="' + rc + '">' + gm.result + ' ' + (gm.margin >= 0 ? '+' : '') + gm.margin + '</td><td>' + (gm.score || '--') + '</td><td>' + (gm.ats || '--') + '</td><td>' + (gm.ou || '--') + '</td><td>' + (gm.date || '--') + '</td></tr>';
+        });
+        html += '</table>';
+    }
+    html += '</div>';
+    return html;
+}
+
+function fetchAltGrade(matchupId, sport) {
+    if (altGradeCache[matchupId]) {
+        renderAltGradeBadge(matchupId, altGradeCache[matchupId]);
+        renderTeamProfile(matchupId, altGradeCache[matchupId]);
+        return;
+    }
+    var matchup = matchupId.replace(/_/g, ' ').replace(' at ', ' @ ');
+    var profilePanel = document.getElementById('profile-' + matchupId);
+    if (profilePanel) {
+        profilePanel.style.display = 'block';
+        profilePanel.innerHTML = '<div class="profile-loading">Loading team profiles...</div>';
+    }
+    fetch('/api/alt-grade/' + sport + '/' + encodeURIComponent(matchup))
+        .then(function(resp) { return resp.json(); })
+        .then(function(data) {
+            altGradeCache[matchupId] = data;
+            renderAltGradeBadge(matchupId, data);
+            renderTeamProfile(matchupId, data);
+        })
+        .catch(function(e) {
+            if (profilePanel) {
+                profilePanel.innerHTML = '<div class="profile-loading" style="color:#EF4444;">Failed to load profiles</div>';
+            }
+        });
 }
 
 // ===== DATA CARD EXPAND + REFRESH =====
@@ -5527,6 +5697,8 @@ function toggleGameExpand(el, matchupId, sport) {
                 refreshCard(type, matchupId, sport);
             }
         });
+        // Fetch alt grade + team profiles
+        fetchAltGrade(matchupId, sport);
     }
 }
 
@@ -7054,6 +7226,18 @@ function fetchAnalysis(sport) {
                                     gradeContainer.appendChild(badge);
                                 }
                             }
+                            // Challenger grade badge
+                            if (game.challenger_grade && game.challenger_model) {
+                                var cSlotId = 'challenger-' + (row.getAttribute('data-game') || '').replace(/[^a-zA-Z0-9]/g,'');
+                                var cSlot = document.getElementById(cSlotId);
+                                if (cSlot && !cSlot.innerHTML) {
+                                    var cClass = 'g' + game.challenger_grade.toLowerCase().replace(/[^a-z]/g,'');
+                                    var shortModel = game.challenger_model.replace('GPT-', 'G').replace(' Mini', 'M').replace(' Fast', 'F').replace('Maverick', 'Mav');
+                                    if (shortModel.length > 8) shortModel = shortModel.substring(0, 8);
+                                    cSlot.innerHTML = '<span class="challenger-grade grade ' + cClass + '" title="Challenger: ' + game.challenger_model + '">' + game.challenger_grade + '</span>' +
+                                        '<span class="challenger-label">' + shortModel + '</span>';
+                                }
+                            }
                             // Chain alerts — render triggered chains on card
                             if (game.chains && game.chains.length) {
                                 var existingChains = row.querySelector('.chain-alerts');
@@ -7075,6 +7259,12 @@ function fetchAnalysis(sport) {
                                 chainDiv.innerHTML = chainHtml;
                                 var header = row.querySelector('.game-header');
                                 if (header) header.after(chainDiv);
+                            }
+                            // Trigger alt grade fetch for this game
+                            var altMatchupId = (row.getAttribute('data-game') || '').replace(/\s/g, '_').replace(/@/g, 'at');
+                            var altSport = (row.getAttribute('data-sport') || sport || '').toLowerCase();
+                            if (altMatchupId && !altGradeCache[altMatchupId]) {
+                                fetchAltGrade(altMatchupId, altSport);
                             }
                             var edgeEl = row.querySelector('.game-edge');
                             if (edgeEl && game.edge_summary) {
@@ -7441,9 +7631,11 @@ function loadRealProps(sport) {
         });
         filterDiv.innerHTML = filterHtml;
 
-        document.getElementById('propsCount').textContent = data.count + ' props | ' + (data.fetched_at || '');
+        // Filter to SHARP VALUE only on load
+        var sharpOnly = _realPropsData.filter(function(p) { return p.verdict === 'SHARP VALUE'; });
+        document.getElementById('propsCount').textContent = sharpOnly.length + ' props | ' + (data.fetched_at || '');
         document.getElementById('propsTimestamp').textContent = 'Real lines from The Odds API | ' + (data.fetched_at || '');
-        renderRealProps(_realPropsData);
+        renderRealProps(sharpOnly);
     }).catch(function(err) {
         container.innerHTML = '<div class="empty-state" style="font-size:12px;">Failed to load props: ' + err.message + '</div>';
     });
@@ -7454,7 +7646,9 @@ function filterProps() {
     var filtered = _realPropsData.filter(function(p) {
         var matchSearch = !q || p.player.toLowerCase().indexOf(q) !== -1 || p.matchup.toLowerCase().indexOf(q) !== -1;
         var matchStat = _realPropsStatFilter === 'all' || p.stat === _realPropsStatFilter;
-        return matchSearch && matchStat;
+        // Hide SLIGHT EDGE, FAIR LINE, and BAD NUMBER — only show SHARP VALUE
+        var matchVerdict = p.verdict === 'SHARP VALUE';
+        return matchSearch && matchStat && matchVerdict;
     });
     renderRealProps(filtered);
 }
@@ -7619,6 +7813,52 @@ function _escapeHtml(s) {
     return d.innerHTML;
 }
 
+function toggleAddCrush() {
+    var form = document.getElementById('addCrushForm');
+    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+}
+
+function submitManualCrush() {
+    var player = document.getElementById('crushPlayer').value.trim();
+    var sport = document.getElementById('crushSport').value;
+    var stat = document.getElementById('crushStat').value;
+    var line = parseFloat(document.getElementById('crushLine').value);
+    var actual = parseFloat(document.getElementById('crushActual').value);
+    var matchup = document.getElementById('crushMatchup').value.trim();
+    var overUnder = document.getElementById('crushOverUnder').value;
+    var pickedBy = document.getElementById('crushPickedBy').value.trim() || 'Peter';
+
+    if (!player || !line || !actual) {
+        alert('Need at least player, line, and actual value.');
+        return;
+    }
+
+    var pctOver = overUnder === 'over'
+        ? Math.round((actual - line) / line * 1000) / 10
+        : Math.round((line - actual) / line * 1000) / 10;
+
+    crewFetch('/api/prop-board/manual', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            player: player, sport: sport, stat: stat,
+            line: line, actual_value: actual, matchup: matchup,
+            over_under: overUnder, picked_by: pickedBy, pct_over: pctOver
+        })
+    }).then(function(r) { return r.json(); }).then(function(data) {
+        if (data.status === 'ok') {
+            document.getElementById('addCrushForm').style.display = 'none';
+            document.getElementById('crushPlayer').value = '';
+            document.getElementById('crushLine').value = '';
+            document.getElementById('crushActual').value = '';
+            document.getElementById('crushMatchup').value = '';
+            loadPropBoard();
+        } else {
+            alert(data.error || 'Failed to add');
+        }
+    }).catch(function(err) { alert('Error: ' + err.message); });
+}
+
 function loadPropBoard() {
     var container = document.getElementById('propBoardContainer');
     var section = document.getElementById('propBoardSection');
@@ -7627,16 +7867,16 @@ function loadPropBoard() {
     fetch('/api/prop-board')
         .then(function(r) { return r.json(); })
         .then(function(data) {
-            if (!data.board || data.board.length === 0) {
-                section.style.display = 'none';
-                return;
-            }
             section.style.display = 'block';
-            renderPropBoard(data.board);
+            if (data.board && data.board.length > 0) {
+                renderPropBoard(data.board);
+            } else {
+                container.innerHTML = '<div class="empty-state" style="font-size:12px;color:rgba(255,215,0,0.4);">No crushed lines yet. Use + ADD to enter your winners.</div>';
+            }
         })
         .catch(function(err) {
             console.error('Prop board load failed:', err);
-            section.style.display = 'none';
+            section.style.display = 'block';
         });
 }
 
