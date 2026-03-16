@@ -185,6 +185,12 @@ async def _autograde_loop():
                     print(f"[AUTOGRADE] Total graded: {total_graded}/{len(ungraded)} (cache:{graded_from_cache} api:{graded_from_api} parlays:{graded_parlays})")
                 else:
                     print(f"[AUTOGRADE] No picks gradable yet ({len(ungraded)} still pending)")
+
+                # Persist closing lines for any newly completed games
+                try:
+                    _persist_closing_lines()
+                except Exception as e:
+                    logger.warning(f"Closing lines persist failed: {e}")
         except Exception as e:
             print(f"[AUTOGRADE] Error: {e}")
         await asyncio.sleep(7200)  # Every 2 hours
@@ -862,8 +868,8 @@ def _read_scores_archive() -> dict:
 
 
 def _save_scores_archive(archive: dict):
-    """Write scores archive. Prune games older than 14 days."""
-    cutoff = (datetime.now(PST) - timedelta(days=14)).isoformat()
+    """Write scores archive. Prune games older than 30 days."""
+    cutoff = (datetime.now(PST) - timedelta(days=30)).isoformat()
     pruned = {gid: g for gid, g in archive.items() if g.get("commence_time", "") >= cutoff}
     try:
         with open(SCORES_ARCHIVE_FILE, "w") as f:
@@ -957,6 +963,45 @@ def _track_opening_lines(game):
     if home_ml is not None and opening["home_ml"] is not None and home_ml != opening["home_ml"]:
         shifts["home_ml"] = {"open": opening["home_ml"], "now": home_ml}
     return shifts if shifts else None
+
+
+def _persist_closing_lines():
+    """Write closing lines from _opening_lines into the scores archive for completed games.
+
+    For any completed game in the archive that doesn't have closing_spread/closing_total/
+    closing_away_ml/closing_home_ml, look up the most recent values from _opening_lines
+    and persist them.
+    """
+    archive = _read_scores_archive()
+    updated = False
+    for gid, game in archive.items():
+        if not game.get("completed"):
+            continue
+        # Skip if closing lines already saved
+        if game.get("closing_spread") is not None:
+            continue
+        # First, check if the game object itself has line data
+        if game.get("home_spread") is not None:
+            game["closing_spread"] = game["home_spread"]
+            game["closing_total"] = game.get("total")
+            game["closing_away_ml"] = game.get("away_ml")
+            game["closing_home_ml"] = game.get("home_ml")
+            updated = True
+            continue
+        # Fall back to _opening_lines (most recent values)
+        best_entry = None
+        for okey, oval in _opening_lines.items():
+            if okey.endswith(f":{gid}"):
+                if best_entry is None or oval.get("ts", 0) > best_entry.get("ts", 0):
+                    best_entry = oval
+        if best_entry:
+            game["closing_spread"] = best_entry.get("spread")
+            game["closing_total"] = best_entry.get("total")
+            game["closing_away_ml"] = best_entry.get("away_ml")
+            game["closing_home_ml"] = best_entry.get("home_ml")
+            updated = True
+    if updated:
+        _save_scores_archive(archive)
 
 
 def _american_to_implied(odds):
@@ -4805,6 +4850,25 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
             logger.info(f"[POST-GRADE] {game.get('matchup')} — {pre_grade} -> {post_grade} (source={source}, score={game.get('composite_score', '?')}, thinker={thinker_tag}, formatter={formatter_tag})")
         logger.info(f"[GRADE SUMMARY] {sport}: {grade_log}")
 
+        # ===== ALT GRADE — team profile + H2H based secondary grade =====
+        for game in all_analyzed_games:
+            try:
+                matchup = game.get("matchup", "")
+                if not matchup:
+                    continue
+                away_abbr, home_abbr = _parse_matchup_teams(matchup)
+                if not away_abbr or not home_abbr:
+                    continue
+                away_name = _expand_abbrevs(away_abbr, sport_lower)
+                home_name = _expand_abbrevs(home_abbr, sport_lower)
+                away_prof = _build_team_profile(away_name, sport_lower)
+                home_prof = _build_team_profile(home_name, sport_lower)
+                h2h_data = _build_h2h(away_name, home_name, sport_lower)
+                alt = _calculate_alt_grade(away_prof, home_prof, h2h_data)
+                game["alt_grade"] = alt
+            except Exception as e:
+                logger.warning(f"Alt grade failed for {game.get('matchup', '?')}: {e}")
+
         # ===== CROSS-VALIDATION GATE (WS4) — validate players before caching =====
         validation_log = []
         if all_analyzed_games:
@@ -7903,14 +7967,484 @@ async def card_records(sport: str, matchup: str):
     return JSONResponse({"away": away_rec, "home": home_rec})
 
 
+# ── Team Profile + H2H + Alt Grade helpers ────────────────────────────────────
+
+def _team_in_game(team: str, game: dict, sport: str = "") -> str:
+    """Check if a team appears in a game. Returns 'home', 'away', or '' if no match."""
+    home = game.get("home_team", "")
+    away = game.get("away_team", "")
+    t_norm = _expand_abbrevs(_normalize_team(team), sport)
+    h_norm = _expand_abbrevs(_normalize_team(home), sport)
+    a_norm = _expand_abbrevs(_normalize_team(away), sport)
+    # Check if team matches home
+    t_parts = t_norm.split()
+    h_parts = h_norm.split()
+    a_parts = a_norm.split()
+    h_match = (t_norm == h_norm or
+               any(p in t_norm for p in h_parts if len(p) > 2) or
+               any(p in h_norm for p in t_parts if len(p) > 2))
+    a_match = (t_norm == a_norm or
+               any(p in t_norm for p in a_parts if len(p) > 2) or
+               any(p in a_norm for p in t_parts if len(p) > 2))
+    if h_match:
+        return "home"
+    if a_match:
+        return "away"
+    return ""
+
+
+def _get_game_scores(game: dict):
+    """Extract (home_score, away_score) from a game object. Returns (None, None) if unavailable."""
+    scores = game.get("scores")
+    if not scores or not isinstance(scores, list):
+        return None, None
+    home_team = game.get("home_team", "")
+    away_team = game.get("away_team", "")
+    home_score = None
+    away_score = None
+    for s in scores:
+        name = s.get("name", "")
+        score = s.get("score")
+        if score is None:
+            continue
+        try:
+            score_val = int(score) if isinstance(score, str) else score
+        except (ValueError, TypeError):
+            continue
+        if name == home_team:
+            home_score = score_val
+        elif name == away_team:
+            away_score = score_val
+    return home_score, away_score
+
+
+def _build_team_profile(team: str, sport: str) -> dict:
+    """Build a team profile from the scores archive. Returns last 5 games + summary."""
+    cache_key = f"team_profile:{sport}:{_normalize_team(team)}"
+    cached = _get_cached(cache_key, ttl=1800)
+    if cached is not None:
+        return cached
+
+    archive = _read_scores_archive()
+    team_games = []
+    for gid, game in archive.items():
+        if not game.get("completed"):
+            continue
+        sport_key = game.get("sport_key", "")
+        if sport.lower() not in sport_key:
+            continue
+        side = _team_in_game(team, game, sport)
+        if not side:
+            continue
+        home_score, away_score = _get_game_scores(game)
+        if home_score is None or away_score is None:
+            continue
+        team_games.append({
+            "game": game,
+            "side": side,
+            "home_score": home_score,
+            "away_score": away_score,
+            "commence_time": game.get("commence_time", ""),
+        })
+
+    # Sort by commence_time descending, take last 5
+    team_games.sort(key=lambda x: x["commence_time"], reverse=True)
+    last_5_raw = team_games[:5]
+
+    last_5 = []
+    wins = 0
+    losses = 0
+    ats_wins = 0
+    ats_losses = 0
+    ats_pushes = 0
+    ou_overs = 0
+    ou_unders = 0
+    ou_pushes = 0
+    total_margin = 0
+
+    for entry in last_5_raw:
+        game = entry["game"]
+        side = entry["side"]
+        home_score = entry["home_score"]
+        away_score = entry["away_score"]
+
+        if side == "home":
+            team_score = home_score
+            opp_score = away_score
+            opponent = game.get("away_team", "?")
+        else:
+            team_score = away_score
+            opp_score = home_score
+            opponent = game.get("home_team", "?")
+
+        margin = team_score - opp_score
+        result = "W" if margin > 0 else "L"
+        if margin > 0:
+            wins += 1
+        else:
+            losses += 1
+        total_margin += margin
+
+        # ATS result
+        closing_spread = game.get("closing_spread")
+        ats = None
+        if closing_spread is not None:
+            try:
+                spread_val = float(closing_spread)
+                # closing_spread is home_spread; adjust for team side
+                if side == "home":
+                    adjusted_margin = margin + spread_val
+                else:
+                    adjusted_margin = margin - spread_val
+                if adjusted_margin > 0:
+                    ats = "W"
+                    ats_wins += 1
+                elif adjusted_margin < 0:
+                    ats = "L"
+                    ats_losses += 1
+                else:
+                    ats = "P"
+                    ats_pushes += 1
+            except (ValueError, TypeError):
+                pass
+
+        # O/U result
+        closing_total = game.get("closing_total")
+        ou = None
+        if closing_total is not None:
+            try:
+                total_val = float(closing_total)
+                actual_total = home_score + away_score
+                if actual_total > total_val:
+                    ou = "O"
+                    ou_overs += 1
+                elif actual_total < total_val:
+                    ou = "U"
+                    ou_unders += 1
+                else:
+                    ou = "P"
+                    ou_pushes += 1
+            except (ValueError, TypeError):
+                pass
+
+        # Parse date from commence_time
+        ct = game.get("commence_time", "")
+        game_date = ct[:10] if len(ct) >= 10 else "?"
+
+        last_5.append({
+            "opponent": opponent,
+            "result": result,
+            "margin": margin,
+            "score": f"{team_score}-{opp_score}",
+            "ats": ats,
+            "ou": ou,
+            "date": game_date,
+        })
+
+    # Summary
+    count = len(last_5)
+    avg_margin = round(total_margin / count, 1) if count > 0 else 0
+    # Trend: "up" if last 2 wins, "down" if last 2 losses, else "flat"
+    trend = "flat"
+    if len(last_5) >= 2:
+        if last_5[0].get("result") == "W" and last_5[1].get("result") == "W":
+            trend = "up"
+        elif last_5[0].get("result") == "L" and last_5[1].get("result") == "L":
+            trend = "down"
+
+    profile = {
+        "team": team,
+        "sport": sport.lower(),
+        "last_5": last_5,
+        "summary": {
+            "record": f"{wins}-{losses}",
+            "ats_record": f"{ats_wins}-{ats_losses}" + (f"-{ats_pushes}" if ats_pushes else ""),
+            "ou_record": f"{ou_overs}-{ou_unders}-{ou_pushes}",
+            "avg_margin": avg_margin,
+            "trend": trend,
+        },
+    }
+    _set_cache(cache_key, profile)
+    return profile
+
+
+def _build_h2h(away_team: str, home_team: str, sport: str) -> dict:
+    """Build head-to-head history from scores archive."""
+    cache_key = f"h2h:{sport}:{_normalize_team(away_team)}:{_normalize_team(home_team)}"
+    cached = _get_cached(cache_key, ttl=1800)
+    if cached is not None:
+        return cached
+
+    archive = _read_scores_archive()
+    h2h_games = []
+    for gid, game in archive.items():
+        if not game.get("completed"):
+            continue
+        sport_key = game.get("sport_key", "")
+        if sport.lower() not in sport_key:
+            continue
+        away_side = _team_in_game(away_team, game, sport)
+        home_side = _team_in_game(home_team, game, sport)
+        if not away_side or not home_side:
+            continue
+        # Both teams in this game
+        home_score, away_score = _get_game_scores(game)
+        if home_score is None or away_score is None:
+            continue
+        h2h_games.append({
+            "game": game,
+            "home_score": home_score,
+            "away_score": away_score,
+            "commence_time": game.get("commence_time", ""),
+        })
+
+    h2h_games.sort(key=lambda x: x["commence_time"], reverse=True)
+    last_5_raw = h2h_games[:5]
+
+    meetings = []
+    away_wins = 0
+    home_wins = 0
+    total_margin = 0
+
+    for entry in last_5_raw:
+        game = entry["game"]
+        home_score = entry["home_score"]
+        away_score = entry["away_score"]
+        margin = away_score - home_score  # From away_team perspective
+
+        # Determine which side our query away_team was actually on
+        actual_away_side = _team_in_game(away_team, game, sport)
+        if actual_away_side == "home":
+            # Our "away_team" was actually the home team in this game
+            team_score = home_score
+            opp_score = away_score
+        else:
+            team_score = away_score
+            opp_score = home_score
+        team_margin = team_score - opp_score
+
+        if team_margin > 0:
+            away_wins += 1
+            result = "W"
+        else:
+            home_wins += 1
+            result = "L"
+        total_margin += team_margin
+
+        # ATS
+        closing_spread = game.get("closing_spread")
+        ats = None
+        if closing_spread is not None:
+            try:
+                spread_val = float(closing_spread)
+                if actual_away_side == "home":
+                    adjusted = team_margin + spread_val
+                else:
+                    adjusted = team_margin - spread_val
+                ats = "W" if adjusted > 0 else ("L" if adjusted < 0 else "P")
+            except (ValueError, TypeError):
+                pass
+
+        # O/U
+        closing_total = game.get("closing_total")
+        ou = None
+        if closing_total is not None:
+            try:
+                total_val = float(closing_total)
+                actual_total = home_score + away_score
+                ou = "O" if actual_total > total_val else ("U" if actual_total < total_val else "P")
+            except (ValueError, TypeError):
+                pass
+
+        ct = game.get("commence_time", "")
+        game_date = ct[:10] if len(ct) >= 10 else "?"
+
+        meetings.append({
+            "away": game.get("away_team", "?"),
+            "home": game.get("home_team", "?"),
+            "result": result,
+            "margin": team_margin,
+            "score": f"{away_score}-{home_score}",
+            "ats": ats,
+            "ou": ou,
+            "date": game_date,
+        })
+
+    count = len(meetings)
+    avg_margin = round(total_margin / count, 1) if count > 0 else 0
+
+    h2h = {
+        "away_team": away_team,
+        "home_team": home_team,
+        "meetings": meetings,
+        "count": count,
+        "summary": {
+            "away_record": f"{away_wins}-{home_wins}",
+            "home_record": f"{home_wins}-{away_wins}",
+            "avg_margin": avg_margin,
+        },
+    }
+    _set_cache(cache_key, h2h)
+    return h2h
+
+
+def _calculate_alt_grade(away_profile: dict, home_profile: dict, h2h: dict) -> dict:
+    """Calculate alternative grade based on recent form, H2H, and momentum.
+
+    Weights: Recent form 50%, H2H 30%, Momentum 20%.
+    Returns: {"grade": "B+", "score": 7.2, "trend": "up"}
+    """
+    # --- Form score (50%) ---
+    def _form_score(profile):
+        summary = profile.get("summary", {})
+        record = summary.get("record", "0-0")
+        parts = record.split("-")
+        try:
+            wins = int(parts[0])
+        except (ValueError, IndexError):
+            wins = 0
+        avg_margin = summary.get("avg_margin", 0)
+        # Base: wins/5 * 10, adjusted by avg margin (capped effect)
+        base = (wins / 5) * 10
+        margin_adj = max(-2, min(2, avg_margin / 5))
+        return max(1, min(10, base + margin_adj))
+
+    away_form = _form_score(away_profile)
+    home_form = _form_score(home_profile)
+    # Use the higher form as the "matchup quality" signal
+    form_score = (away_form + home_form) / 2
+
+    # --- H2H score (30%) ---
+    h2h_score = 5.0  # Default neutral if no H2H data
+    h2h_summary = h2h.get("summary", {})
+    h2h_count = h2h.get("count", 0)
+    if h2h_count > 0:
+        away_rec = h2h_summary.get("away_record", "0-0").split("-")
+        try:
+            h2h_away_wins = int(away_rec[0])
+        except (ValueError, IndexError):
+            h2h_away_wins = 0
+        h2h_avg_margin = abs(h2h_summary.get("avg_margin", 0))
+        # Competitive H2H (close games) = higher quality matchup
+        competitiveness = max(0, 10 - h2h_avg_margin)
+        # Split decisions also indicate quality
+        split_factor = min(h2h_count, 5) / 5 * 2
+        h2h_score = max(1, min(10, competitiveness + split_factor))
+
+    # --- Momentum (20%) ---
+    away_trend = away_profile.get("summary", {}).get("trend", "flat")
+    home_trend = home_profile.get("summary", {}).get("trend", "flat")
+    momentum_score = 5.0
+    for trend in [away_trend, home_trend]:
+        if trend == "up":
+            momentum_score += 1.0
+        elif trend == "down":
+            momentum_score -= 1.0
+    momentum_score = max(1, min(10, momentum_score))
+
+    # --- Composite ---
+    composite = round(form_score * 0.5 + h2h_score * 0.3 + momentum_score * 0.2, 1)
+    composite = max(1.0, min(10.0, composite))
+
+    # --- Grade using same thresholds as _recalculate_grade ---
+    if composite >= 9.0:
+        grade = "A+"
+    elif composite >= 8.5:
+        grade = "A"
+    elif composite >= 7.5:
+        grade = "A-"
+    elif composite >= 7.0:
+        grade = "B+"
+    elif composite >= 6.5:
+        grade = "B"
+    elif composite >= 6.0:
+        grade = "B-"
+    elif composite >= 5.5:
+        grade = "C+"
+    elif composite >= 4.5:
+        grade = "C"
+    elif composite >= 3.0:
+        grade = "D"
+    else:
+        grade = "F"
+
+    # --- Trend: dominant momentum direction ---
+    if away_trend == "up" and home_trend == "up":
+        trend = "up"
+    elif away_trend == "down" and home_trend == "down":
+        trend = "down"
+    elif away_trend == "up" or home_trend == "up":
+        trend = "up"
+    elif away_trend == "down" or home_trend == "down":
+        trend = "down"
+    else:
+        trend = "flat"
+
+    return {"grade": grade, "score": composite, "trend": trend}
+
+
+@app.get("/api/team-profile/{sport}/{team}")
+async def team_profile_endpoint(sport: str, team: str):
+    """Get team profile with last 5 games, ATS/OU records, and trend."""
+    sport_lower = sport.lower()
+    team_name = _expand_abbrevs(team, sport_lower)
+    profile = _build_team_profile(team_name, sport_lower)
+    return JSONResponse(profile)
+
+
 @app.get("/api/card/h2h/{sport}/{matchup}")
 async def card_h2h(sport: str, matchup: str):
-    """Head-to-head data for a matchup. Placeholder for now."""
+    """Head-to-head data for a matchup from scores archive."""
+    sport_lower = sport.lower()
+    away_abbr, home_abbr = _parse_matchup_teams(matchup)
+    if not away_abbr or not home_abbr:
+        return JSONResponse({"error": "Invalid matchup format. Use 'AWAY @ HOME'."}, status_code=400)
+
+    away_name = _expand_abbrevs(away_abbr, sport_lower)
+    home_name = _expand_abbrevs(home_abbr, sport_lower)
+
+    away_profile = _build_team_profile(away_name, sport_lower)
+    home_profile = _build_team_profile(home_name, sport_lower)
+    h2h = _build_h2h(away_name, home_name, sport_lower)
+
     return JSONResponse({
         "matchup": matchup,
-        "note": "H2H data coming soon",
-        "source": "ESPN",
+        "away_profile": away_profile,
+        "home_profile": home_profile,
+        "h2h": h2h,
+        "source": "Scores Archive",
     })
+
+
+@app.get("/api/alt-grade/{sport}/{matchup}")
+async def alt_grade_endpoint(sport: str, matchup: str):
+    """Calculate alternative grade based on team profiles and H2H."""
+    sport_lower = sport.lower()
+    away_abbr, home_abbr = _parse_matchup_teams(matchup)
+    if not away_abbr or not home_abbr:
+        return JSONResponse({"error": "Invalid matchup format. Use 'AWAY @ HOME'."}, status_code=400)
+
+    cache_key = f"alt_grade:{sport_lower}:{_normalize_team(away_abbr)}:{_normalize_team(home_abbr)}"
+    cached = _get_cached(cache_key, ttl=1800)
+    if cached is not None:
+        return JSONResponse(cached)
+
+    away_name = _expand_abbrevs(away_abbr, sport_lower)
+    home_name = _expand_abbrevs(home_abbr, sport_lower)
+
+    away_profile = _build_team_profile(away_name, sport_lower)
+    home_profile = _build_team_profile(home_name, sport_lower)
+    h2h = _build_h2h(away_name, home_name, sport_lower)
+    alt_grade = _calculate_alt_grade(away_profile, home_profile, h2h)
+
+    result = {
+        "away_profile": away_profile,
+        "home_profile": home_profile,
+        "h2h": h2h,
+        "alt_grade": alt_grade,
+    }
+    _set_cache(cache_key, result)
+    return JSONResponse(result)
 
 
 @app.get("/api/card/lineup/{sport}/{matchup}")
