@@ -4044,10 +4044,13 @@ async def _get_analysis_inner(sport: str, cached_only: bool = False, force: bool
     if not odds_data.get("games"):
         slate_data = _load_daily_slate(sport_lower)
         if slate_data:
+            # _load_daily_slate returns the full JSON object {"sport":..., "games":[...]}
+            # extract just the games list
+            slate_games = slate_data.get("games", []) if isinstance(slate_data, dict) else slate_data
             now = datetime.now(PST)
             cutoff = now + timedelta(hours=48)
             future_games = [
-                g for g in slate_data
+                g for g in slate_games
                 if _game_not_started(g, now) and _game_within_cutoff(g, cutoff)
             ]
             if future_games:
