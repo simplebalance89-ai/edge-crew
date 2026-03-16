@@ -240,6 +240,10 @@ body::before{content:'';position:fixed;bottom:0;left:0;right:0;height:35vh;backg
 .trend-down{color:#ef4444;}
 .trend-flat{color:#6b7280;}
 
+/* ===== CHALLENGER GRADE BADGE ===== */
+.challenger-grade{display:inline-block;font-size:9px;font-weight:700;padding:2px 5px;border-radius:4px;margin-left:3px;opacity:0.85;border:1px dashed rgba(255,255,255,0.2);cursor:help;}
+.challenger-label{display:block;font-size:7px;color:var(--ec-text-tertiary);text-align:center;margin-top:1px;font-weight:600;letter-spacing:0.3px;}
+
 /* ===== TEAM PROFILE PANEL ===== */
 .team-profile-panel{background:var(--ec-bg-elevated);border:1px solid var(--ec-border);border-radius:12px;padding:16px;margin-top:12px;}
 .team-profile-panel h4{font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;font-weight:600;color:#818cf8;}
@@ -2379,6 +2383,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     <div style="font-weight:700;color:var(--ec-text-secondary);margin-bottom:4px;font-size:14px;letter-spacing:0.5px;">Edge Crew</div>
     <div style="font-size:11px;color:var(--ec-text-tertiary);font-weight:500;">AI-Powered Sports Analytics &mdash; 11 Sports, Real Edges, Full Transparency</div>
     <div style="margin-top:6px;color:var(--ec-text-tertiary);font-size:10px;font-weight:600;letter-spacing:0.5px;">No edge = no bet &bull; Build your crew</div>
+    <div id="challengerInfo" style="display:none;margin-top:6px;font-size:9px;color:rgba(255,255,255,0.3);font-family:monospace;letter-spacing:0.3px;"></div>
 </div>
 
 <!-- SUBMIT BAR -->
@@ -2669,6 +2674,14 @@ function loadLoginProfiles() {
         var el = document.getElementById('buildVersion');
         if (el && data.version) {
             el.textContent = data.version + ' | ' + (data.built || '') + ' | ' + data.mode + ' (' + (data.thinker || '').split('-')[0] + '+' + (data.formatter || '').split('-')[0] + ')';
+        }
+    }).catch(function() {});
+    // Fetch challenger model info
+    fetch('/api/challenger').then(function(r) { return r.json(); }).then(function(data) {
+        var ci = document.getElementById('challengerInfo');
+        if (ci && data.display) {
+            ci.style.display = 'block';
+            ci.textContent = 'Challenger: ' + data.display + (data.week ? ' (Wk ' + data.week + ')' : '');
         }
     }).catch(function() {});
 }
@@ -5457,7 +5470,7 @@ function buildGameRowHTML(g) {
                 '<div class="pick-check" onclick="togglePick(event, this, \'' + matchup + '\')"></div>' +
                 '<div class="game-time">' + time + '</div>' +
                 '<div class="game-matchup">' + (g.league ? '<span style="font-size:9px;color:var(--ec-text-tertiary);font-weight:600;letter-spacing:0.5px;">' + (g.league_flag ? g.league_flag + ' ' : '') + g.league + '</span> ' : '') + '<span class="away">' + awayAbbr + '</span>' + matchupSep + '<span class="home">' + homeAbbr + '</span></div>' +
-                '<div class="game-grade"><span class="grade ' + gradeClass + '">' + gradeDisplay + '</span><span class="alt-grade-slot" id="altgrade-' + matchup.replace(/[^a-zA-Z0-9]/g,'') + '"></span></div>' +
+                '<div class="game-grade"><span class="grade ' + gradeClass + '">' + gradeDisplay + '</span><span class="alt-grade-slot" id="altgrade-' + matchup.replace(/[^a-zA-Z0-9]/g,'') + '"></span><span class="challenger-slot" id="challenger-' + matchup.replace(/[^a-zA-Z0-9]/g,'') + '"></span></div>' +
             '</div>' +
             /* Row 2: OUR PICK — prominent */
             '<div class="card-r2 card-pick" id="pick-' + matchup.replace(/[^a-zA-Z0-9]/g,'') + '">' + pickDisplay + '</div>' +
@@ -7197,6 +7210,18 @@ function fetchAnalysis(sport) {
                                     badge.style.cssText = 'display:inline-block;font-size:9px;color:#10B981;background:rgba(16,185,129,0.15);padding:2px 5px;border-radius:4px;margin-left:4px;';
                                     badge.textContent = game.player_props.length + 'P';
                                     gradeContainer.appendChild(badge);
+                                }
+                            }
+                            // Challenger grade badge
+                            if (game.challenger_grade && game.challenger_model) {
+                                var cSlotId = 'challenger-' + (row.getAttribute('data-game') || '').replace(/[^a-zA-Z0-9]/g,'');
+                                var cSlot = document.getElementById(cSlotId);
+                                if (cSlot && !cSlot.innerHTML) {
+                                    var cClass = 'g' + game.challenger_grade.toLowerCase().replace(/[^a-z]/g,'');
+                                    var shortModel = game.challenger_model.replace('GPT-', 'G').replace(' Mini', 'M').replace(' Fast', 'F').replace('Maverick', 'Mav');
+                                    if (shortModel.length > 8) shortModel = shortModel.substring(0, 8);
+                                    cSlot.innerHTML = '<span class="challenger-grade grade ' + cClass + '" title="Challenger: ' + game.challenger_model + '">' + game.challenger_grade + '</span>' +
+                                        '<span class="challenger-label">' + shortModel + '</span>';
                                 }
                             }
                             // Chain alerts — render triggered chains on card

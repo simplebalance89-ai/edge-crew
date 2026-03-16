@@ -779,6 +779,42 @@ ANALYSIS_FORMATTER = os.environ.get("ANALYSIS_FORMATTER", "DeepSeek-V3.2")
 ANALYSIS_MODE = os.environ.get("ANALYSIS_MODE", "twomodel")  # "twomodel" or "single"
 THINKER_ENDPOINT = os.environ.get("THINKER_ENDPOINT", "https://pwgcerp-9302-resource.services.ai.azure.com/openai/v1/")
 
+# Challenger Model of the Week — rotation list
+CHALLENGER_MODELS = [
+    {"name": "gpt-5-mini", "endpoint": "azure", "display": "GPT-5 Mini"},
+    {"name": "o4-mini", "endpoint": "azure", "display": "o4-mini"},
+    {"name": "grok-3", "endpoint": "ai_services", "display": "Grok 3"},
+    {"name": "Llama-4-Maverick-17B-128E-Instruct-FP8", "endpoint": "ai_services", "display": "Llama 4 Maverick"},
+    {"name": "DeepSeek-V3.2", "endpoint": "ai_services", "display": "DeepSeek V3.2"},
+    {"name": "grok-4-fast-reasoning", "endpoint": "ai_services", "display": "Grok 4 Fast"},
+]
+CHALLENGER_MODEL_OVERRIDE = os.environ.get("CHALLENGER_MODEL", "")
+_challenger_cache = {}  # week_num -> model dict
+
+
+def _get_weekly_challenger():
+    """Return this week's challenger model dict based on ISO week rotation."""
+    now = datetime.now(PST)
+    week_num = now.isocalendar()[1]
+    if week_num in _challenger_cache:
+        return _challenger_cache[week_num]
+    # Check for env override
+    if CHALLENGER_MODEL_OVERRIDE:
+        for m in CHALLENGER_MODELS:
+            if m["name"] == CHALLENGER_MODEL_OVERRIDE:
+                _challenger_cache[week_num] = m
+                return m
+        # Override name not in list — build an ad-hoc entry (assume ai_services)
+        override = {"name": CHALLENGER_MODEL_OVERRIDE, "endpoint": "ai_services", "display": CHALLENGER_MODEL_OVERRIDE}
+        _challenger_cache[week_num] = override
+        return override
+    idx = week_num % len(CHALLENGER_MODELS)
+    model = CHALLENGER_MODELS[idx]
+    _challenger_cache[week_num] = model
+    logger.info(f"[CHALLENGER] Week {week_num} challenger: {model['display']} ({model['name']})")
+    return model
+
+
 # Build version — auto-set at server startup for cache busting
 _git_hash = os.environ.get("RENDER_GIT_COMMIT", "")[:7]
 if not _git_hash:
@@ -4494,6 +4530,49 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
             game["_think_time"] = fb_secs
         return result
 
+    def _call_challenger(prompt_text, batch_idx=0):
+        """Call this week's challenger model for independent grading. Returns parsed JSON or None."""
+        try:
+            challenger = _get_weekly_challenger()
+            if not challenger:
+                return None
+            model_name = challenger["name"]
+            endpoint_type = challenger["endpoint"]
+            logger.info(f"[CHALLENGER] Batch {batch_idx} ({sport.upper()}) → {challenger['display']} ({model_name})")
+            ch_start = time.time()
+
+            if endpoint_type == "azure":
+                client = AzureOpenAI(
+                    azure_endpoint=AZURE_ENDPOINT,
+                    api_key=AZURE_KEY,
+                    api_version="2024-10-21",
+                    timeout=120,
+                )
+            else:
+                client = OpenAI(
+                    base_url=THINKER_ENDPOINT,
+                    api_key=AZURE_KEY,
+                    timeout=120,
+                )
+
+            response = client.chat.completions.create(
+                model=model_name,
+                messages=[{"role": "user", "content": prompt_text}],
+                temperature=0.4,
+                max_tokens=8000,
+            )
+            raw = response.choices[0].message.content.strip()
+            ch_secs = round(time.time() - ch_start, 1)
+            ch_tokens = getattr(response.usage, 'total_tokens', '?')
+            logger.info(f"[CHALLENGER] {challenger['display']} done in {ch_secs}s, {ch_tokens} tokens")
+            result = _clean_json(raw)
+            for game in result.get("games", []):
+                game["_challenger_model"] = challenger["display"]
+            return result
+        except Exception as e:
+            logger.warning(f"[CHALLENGER] Call failed for {_get_weekly_challenger().get('display', '?')}: {e}")
+            return None
+
     # ── Quality validation helpers ──
     def _validate_thinker_output(raw_analysis, batch_games):
         """Check that thinker referenced teams and injuries from the batch. Non-blocking."""
@@ -4974,6 +5053,33 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
             logger.info(f"Grade gate [{sport_lower}]: {gate_score_overrides} score overrides, {gate_grade_overrides} grade overrides across {len(all_analyzed_games)} games")
         # ===== END GRADE VALIDATION GATE =====
 
+        # ===== CHALLENGER MODEL OF THE WEEK =====
+        challenger_model_display = ""
+        try:
+            challenger = _get_weekly_challenger()
+            if challenger and batch_prompts:
+                challenger_model_display = challenger["display"]
+                logger.info(f"[CHALLENGER] Running {challenger['display']} on batch 0 ({len(batch_prompts)} total batches)")
+                challenger_result = await asyncio.to_thread(_call_challenger, batch_prompts[0], 0)
+                if challenger_result:
+                    matched = 0
+                    for cg in challenger_result.get("games", []):
+                        c_matchup = (cg.get("matchup", "")).replace(" ", "").upper()
+                        for game in all_analyzed_games:
+                            g_matchup = (game.get("matchup", "")).replace(" ", "").upper()
+                            if c_matchup == g_matchup:
+                                game["challenger_grade"] = cg.get("grade", "")
+                                game["challenger_score"] = cg.get("composite_score", 0)
+                                game["challenger_model"] = challenger["display"]
+                                matched += 1
+                                break
+                    logger.info(f"[CHALLENGER] Matched {matched}/{len(challenger_result.get('games', []))} games from {challenger['display']}")
+                else:
+                    logger.warning("[CHALLENGER] No result returned")
+        except Exception as e:
+            logger.warning(f"[CHALLENGER] Failed: {e}")
+        # ===== END CHALLENGER MODEL =====
+
         analysis = {
             "gotcha": gotcha_html or "Analysis partially generated. Some batches may have failed.",
             "games": all_analyzed_games,
@@ -4994,6 +5100,7 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
             "grade_stats": grade_log,
             "matrix_retried": len(missing_ms_games) if missing_ms_games else 0,
             "grade_gate": {"score_overrides": gate_score_overrides, "grade_overrides": gate_grade_overrides},
+            "challenger_model": challenger_model_display,
         }
 
         _set_cache(cache_key, analysis)
@@ -5085,6 +5192,19 @@ async def _update_pick_result(pick_id: str, result: str, prop_data: dict | None 
             except Exception as e:
                 logger.error(f"DB dual-write grade failed for {pick_id}: {e}")
             return
+
+
+@app.get("/api/challenger")
+async def get_challenger():
+    """Return current week's challenger model and full rotation schedule."""
+    challenger = _get_weekly_challenger()
+    week = datetime.now(PST).isocalendar()[1]
+    return JSONResponse({
+        "model": challenger["name"] if challenger else None,
+        "display": challenger["display"] if challenger else None,
+        "week": week,
+        "rotation": [{"name": m["name"], "display": m["display"]} for m in CHALLENGER_MODELS],
+    })
 
 
 @app.get("/api/picks")
