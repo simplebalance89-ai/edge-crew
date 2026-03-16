@@ -513,35 +513,43 @@ def _write_profiles(data):
         json.dump(data, f, indent=2)
 
 
-CREW_DEFAULT_PINS = {"tunk": "1525", "padrino": "0726", "los": "4200"}
+CREW_DEFAULT_PINS = {"peter": "0000", "jimmy": "0000", "chinny": "0000",
+                     "alyssa": "0000", "sintonia": "0000", "sportsbook": "0000",
+                     "tunk": "1525", "padrino": "0726", "los": "4200"}
 
 def _seed_profiles():
-    """Ensure all DEFAULT_CREW members exist in profiles. Adds missing members."""
+    """Ensure all DEFAULT_CREW members exist in profiles. Sync PINs to defaults."""
     data = _read_profiles()
-    existing_ids = {p["id"] for p in data.get("profiles", [])}
-    default_pin_hash = _hash_pin("0000")
-    added = False
+    existing = {p["id"]: p for p in data.get("profiles", [])}
+    updated = False
     for member in DEFAULT_CREW:
-        if member["id"] not in existing_ids:
-            pin = CREW_DEFAULT_PINS.get(member["id"], "0000")
+        expected_pin = CREW_DEFAULT_PINS.get(member["id"], "0000")
+        expected_hash = _hash_pin(expected_pin)
+        if member["id"] not in existing:
             data.setdefault("profiles", []).append({
                 "id": member["id"],
                 "display_name": member["display_name"],
-                "pin_hash": _hash_pin(pin),
+                "pin_hash": expected_hash,
                 "color": member["color"],
                 "is_admin": member["is_admin"],
                 "created_at": datetime.now(PST).strftime("%Y-%m-%d %H:%M:%S"),
                 "last_login": None,
             })
-            added = True
-    if added:
-        _write_profiles(data)
-    # Force-update PINs for members with custom defaults
-    updated = False
-    for mid, pin in CREW_DEFAULT_PINS.items():
-        for p in data.get("profiles", []):
-            if p["id"] == mid and p["pin_hash"] == _hash_pin("0000"):
-                p["pin_hash"] = _hash_pin(pin)
+            updated = True
+        else:
+            # Sync display_name, color, is_admin, and ensure PIN hash matches
+            p = existing[member["id"]]
+            if p["pin_hash"] != expected_hash:
+                p["pin_hash"] = expected_hash
+                updated = True
+            if p.get("display_name") != member["display_name"]:
+                p["display_name"] = member["display_name"]
+                updated = True
+            if p.get("color") != member["color"]:
+                p["color"] = member["color"]
+                updated = True
+            if p.get("is_admin") != member["is_admin"]:
+                p["is_admin"] = member["is_admin"]
                 updated = True
     if updated:
         _write_profiles(data)
