@@ -987,6 +987,9 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 .loading-content-card .lc-text{font-size:13px;color:rgba(255,255,255,0.75);line-height:1.5;}
 .loading-content-card .lc-text b{color:#fff;}
 .loading-content-card .lc-highlight{font-size:15px;font-weight:800;color:#10B981;margin-top:4px;}
+.loading-content-card .lc-label[data-type="tutorial"]{color:#60A5FA;}
+.loading-content-card .lc-label[data-type="howto"]{color:#A78BFA;}
+.loading-content-card .lc-label[data-type="protip"]{color:#FBBF24;}
 
 /* ===== SNOWFALL OVERLAY ===== */
 #snowCanvas{
@@ -7217,13 +7220,20 @@ function _startLoadingExperience(sport) {
         {icon:'', text:'Finalizing grades + picks...', pct:95, stage:'5 of 5'}
     ];
     var contentCards = [
-        {label:'DID YOU KNOW', text:'Home underdogs in divisional games cover <b>56% of the time</b>. The public always overvalues favorites.'},
-        {label:'CREW TIP', text:'Back-to-back games are the #1 edge finder. Tired legs = missed free throws, slower rotations, blown leads.'},
+        // ── TUTORIALS: Teach the product while they wait ──
+        {label:'TUTORIAL', text:'See the <b>EV button</b> on every card? Tap it to run our Expected Value engine — it finds where the book is wrong and tells you exactly how much edge you have.'},
+        {label:'HOW TO USE', text:'Hit the <b>microphone icon</b> to voice-search any matchup. Say "Lakers tonight" and it loads the full slate with grades, props, and line movement.'},
+        {label:'TUTORIAL', text:'Every game gets graded <b>A+ through D</b>. Only A- or higher becomes a pick. Tap any card to expand it — you\'ll see the full matrix breakdown with 15+ variables.'},
+        {label:'PRO TIP', text:'Tap <b>"THE PLAY"</b> on any card to see our conviction pick with sizing. It tells you the bet type, the line, and why we like it — not just a grade.'},
+        {label:'HOW TO USE', text:'The <b>Matrix Scores</b> inside each card show exactly what\'s driving the grade — star player status, rest advantage, sharp money, injuries. Hover any bar to see the weight.'},
+        {label:'TUTORIAL', text:'Player props appear on cards with a <b>"P" badge</b> next to the grade. Tap to see each prop with the player\'s L10 average vs the book\'s line. We only show props that pass the Mathurin Test.'},
+        {label:'PRO TIP', text:'Use the <b>sport tabs</b> at the top to switch between NBA, NHL, MLB, Soccer, MMA, and more. Each sport has its own analysis matrix built for that game.'},
+        {label:'HOW TO USE', text:'The <b>Challenger Grade</b> (second badge on cards) is an independent second opinion from a different AI model. When both models agree on A- or higher — that\'s a strong signal.'},
+        {label:'TUTORIAL', text:'See <b>line movement arrows</b> on cards? That\'s the line shifting from open to current. Movement against the public = sharp money. That\'s where edges hide.'},
+        {label:'PRO TIP', text:'The <b>Gotcha Card</b> at the top of each sport shows injury alerts, trap games, and sharp signals across the full slate — read it before picking any games.'},
+        // ── Keep a few edge insights mixed in ──
         {label:'EDGE INSIGHT', text:'When the line moves <b>against</b> the public but the total stays flat, sharp money is on the other side.'},
-        {label:'THE SYSTEM', text:'We grade every game A+ through D. Only <b>A- or higher</b> becomes a pick. Discipline is the edge.'},
         {label:'PARLAY WIN', text:'The crew hit a <b>$1,319 parlay</b> by stacking correlated props. Player performance + team totals = hidden edges.', highlight:'+$1,319'},
-        {label:'SHARP VS PUBLIC', text:'When 70%+ of bets are on one side but the line <b>moves the other way</b>, follow the money, not the crowd.'},
-        {label:'PROP EDGE', text:'Player props with a <b>L10 average 2+ points over the line</b> and no injury flag are the highest-EV bets in sports.'},
         {label:'DID YOU KNOW', text:'Rest advantage is worth <b>2-3 points ATS</b> in the NBA. Our matrix weights it at 8/10.'}
     ];
     var phaseIdx = 0;
@@ -7250,8 +7260,9 @@ function _startLoadingExperience(sport) {
             var slot = document.querySelector('.loading-content-slot');
             if (slot) {
                 var c = contentCards[cardIdx % contentCards.length];
+                var dtype = c.label === 'TUTORIAL' ? 'tutorial' : c.label === 'HOW TO USE' ? 'howto' : c.label === 'PRO TIP' ? 'protip' : '';
                 var html = '<div class="loading-content-card">';
-                html += '<div class="lc-label">' + c.label + '</div>';
+                html += '<div class="lc-label"' + (dtype ? ' data-type="' + dtype + '"' : '') + '>' + c.label + '</div>';
                 html += '<div class="lc-text">' + c.text + '</div>';
                 if (c.highlight) html += '<div class="lc-highlight">' + c.highlight + '</div>';
                 html += '</div>';
@@ -7264,7 +7275,7 @@ function _startLoadingExperience(sport) {
             var slot = document.querySelector('.loading-content-slot');
             if (slot) {
                 var c = contentCards[0];
-                slot.innerHTML = '<div class="loading-content-card"><div class="lc-label">' + c.label + '</div><div class="lc-text">' + c.text + '</div></div>';
+                slot.innerHTML = '<div class="loading-content-card"><div class="lc-label" data-type="tutorial">' + c.label + '</div><div class="lc-text">' + c.text + '</div></div>';
                 cardIdx = 1;
             }
         }
