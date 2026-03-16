@@ -8966,33 +8966,49 @@ function postLoginLoad() {
 var _statusBoard = {
     sections: [
         {
-            title: "P1 — DO THIS WEEK",
+            title: "NEED FROM PETER",
+            color: "#D4A017",
+            items: [
+                {id:"p1", text:"Set ANTHROPIC_API_KEY on Render — Claude challenger can't run without it", done:false, priority:"PETER", cost:"$0", time:"2 min",
+                 steps:["Go to Render dashboard → edge-crew-v2 → Environment","Add ANTHROPIC_API_KEY with your Anthropic key","Also add CHALLENGER_MODEL=claude-sonnet-4-6 if you want to force Claude","Save → service auto-redeploys"]},
+                {id:"p2", text:"Install Render CLI on one machine — I need deploy logs to debug", done:false, priority:"PETER", cost:"$0", time:"5 min",
+                 steps:["Terminal: npm install -g @render-cli/cli","Then: render login (browser auth)","Then: render logs --service edge-crew-v2 --tail","This lets me read error logs instead of pushing blind debug commits"]},
+                {id:"p3", text:"Review board priorities — are P1-P4 still right?", done:false, priority:"PETER", cost:"$0", time:"10 min",
+                 steps:["Scroll down to P1/P2/P3/P4 sections below","Check/uncheck what matters now vs what can wait","Tell me if priorities shifted — I'll reorder"]},
+                {id:"p4", text:"Admin sandbox model comparison — do you still want this?", done:false, priority:"PETER", cost:"$0", time:"I have frontend + backend ready",
+                 steps:["We discussed an admin page running all 7 models side-by-side","Frontend and backend code are built, not deployed yet","Say the word and I'll wire it into the sandbox (edge-crew-alyssa)","Won't touch production Edge Crew"]},
+            ]
+        },
+        {
+            title: "P1 — ALYSSA DOING THIS WEEK",
             color: "#EF4444",
             items: [
-                {id:"n1", text:"Live Intel Feed — breaking news ticker", done:false, priority:"P1", cost:"$0", time:"3-4 hrs",
-                 steps:["Wire RotoWire RSS per sport (free, no auth) for injury breaks, scratches, lineup changes","Parse ESPN longComment field for beat reporter context","Scrolling horizontal ticker, ESPN-style, under the header bar","Auto-refresh every 30 min on game days, show timestamps","Format: [12:45 PM] NBA: Joel Embiid OUT tonight (knee) — @RotoWire"]},
-                {id:"n2", text:"Bet Report Ticker — scrolling results crawl", done:false, priority:"P1", cost:"$0", time:"2-3 hrs",
-                 steps:["Pull from graded picks data: 'Tatum O30.5 PTS — W +1.0u'","Show daily ROI: 'Today: +2.3u | Season: +41.7%'","Hot streak alerts: 'W4 Hot Streak'","Smooth CSS marquee animation, works on desktop + mobile"]},
-                {id:"n3", text:"Line Movement Alerts — sharp money detector", done:false, priority:"P1", cost:"$0", time:"2-3 hrs",
-                 steps:["Odds API already tracks opening vs current lines — no new API cost","Compare open spread vs current spread for each game","Flag any move > 1 point — that's sharp money or news","Show movement arrows on game cards (red/green)","Add to beat report: 'LAL -3 opened, now -5.5 — sharp action'"]},
+                {id:"a1", text:"Model comparison sandbox — test all 7 models safely", done:false, priority:"P1", cost:"$0", time:"2-3 hrs",
+                 steps:["Deploy to edge-crew-alyssa (sandbox), NOT production","Run same prompt across GPT-4.1, Grok 4.1, DeepSeek, Llama, Mistral, Claude, Grok 4","Show grades side-by-side per game","Daily auto-run so we can track which models actually work"]},
                 {id:"n4", text:"Props reasoning QA — test live + fix prompt", done:false, priority:"P1", cost:"$0", time:"1-2 hrs",
                  steps:["Open Props tab during a live NBA/NHL night","Check SHARP VALUE props — does reasoning cite real last-10 stats?","Verify no fabricated numbers, no wrong teams","If reasoning is weak, tweak the GPT prompt template","Goal: every reason cites a real number from ESPN data"]},
+                {id:"n1", text:"Live Intel Feed — breaking news ticker", done:false, priority:"P1", cost:"$0", time:"3-4 hrs",
+                 steps:["Wire RotoWire RSS per sport (free, no auth) for injury breaks, scratches, lineup changes","Parse ESPN longComment field for beat reporter context","Scrolling horizontal ticker under the header bar","Auto-refresh every 30 min on game days, show timestamps"]},
+                {id:"n3", text:"Line Movement Alerts — sharp money detector", done:false, priority:"P1", cost:"$0", time:"2-3 hrs",
+                 steps:["Odds API already tracks opening vs current lines — no new API cost","Compare open spread vs current spread for each game","Flag any move > 1 point — that's sharp money or news","Show movement arrows on game cards (red/green)"]},
+                {id:"a2", text:"Loading tutorial cards — verify live + iterate", done:true, priority:"P1", cost:"$0", time:"Done",
+                 steps:["Shipped 80164c2 + 4b7161e — phase ticker + tutorial cards","Teaches EV agent, mic, matrix, props while analysis loads","Peter approved the approach — verify it works on phone"]},
             ]
         },
         {
             title: "P2 — THIS MONTH",
             color: "#F59E0B",
             items: [
-                {id:"n5", text:"Persistent Picks Database — survive deploys", done:false, priority:"P2", cost:"$0 (Supabase free)", time:"4-6 hrs",
-                 steps:["Currently all picks live in localStorage — gone if you clear browser","Add Supabase free tier (500MB, 50K rows) — plenty for picks","Sync picks server-side so they persist across devices","Crew members see each other's picks in real time","Historical record for long-term ROI tracking"]},
-                {id:"s2", text:"Analysis speed — parallel batch optimization", done:false, priority:"P2", cost:"$0", time:"2-3 hrs",
-                 steps:["Current: 4 games per Azure batch, sequential — slow on big slates","Fire all batches simultaneously with asyncio.gather","Add progress bar: 'Analyzing 8/24 games...'","Target: full slate in under 30 seconds (currently 60+)"]},
+                {id:"n2", text:"Bet Report Ticker — scrolling results crawl", done:false, priority:"P2", cost:"$0", time:"2-3 hrs",
+                 steps:["Pull from graded picks data: 'Tatum O30.5 PTS — W +1.0u'","Show daily ROI: 'Today: +2.3u | Season: +41.7%'","Hot streak alerts: 'W4 Hot Streak'","Smooth CSS marquee animation, works on desktop + mobile"]},
                 {id:"s5", text:"Auto-picks — Alyssa's AI swim lane", done:false, priority:"P2", cost:"$0", time:"3-4 hrs",
-                 steps:["Pull analysis grades, filter A- or higher automatically","Generate picks with reasoning from the analysis data","Post as 'Alyssa' swim lane — auto-grade when games finish","Track AI ROI separately — prove the model works","Crew can follow or fade the AI picks"]},
+                 steps:["Pull analysis grades, filter A- or higher automatically","Generate picks with reasoning from the analysis data","Post as 'Alyssa' swim lane — auto-grade when games finish","Track AI ROI separately — prove the model works"]},
                 {id:"n6", text:"Crew Invite System — shareable join link", done:false, priority:"P2", cost:"$0", time:"3-4 hrs",
-                 steps:["Generate invite codes or shareable URLs","New members join with a PIN + display name","Crew leaderboard, everyone's picks, crew ROI","Each member gets their own swim lane in Results"]},
+                 steps:["Generate invite codes or shareable URLs","New members join with a PIN + display name","Crew leaderboard, everyone's picks, crew ROI"]},
                 {id:"s3", text:"Prop parlay builder — correlation warnings", done:false, priority:"P2", cost:"$0", time:"2-3 hrs",
-                 steps:["Current parlay builder lets you check props and combine","Add correlation warnings: 'Points + Rebounds same player = correlated'","Show combined implied probability across legs","Suggest uncorrelated 2-3 leg parlays from the sharp list"]},
+                 steps:["Add correlation warnings: 'Points + Rebounds same player = correlated'","Show combined implied probability across legs","Suggest uncorrelated 2-3 leg parlays from the sharp list"]},
+                {id:"a3", text:"Make this board dynamic — API-backed so Peter can edit from phone", done:false, priority:"P2", cost:"$0", time:"2-3 hrs",
+                 steps:["Currently hardcoded in JS — any change requires a code push","Move to /data/status_board.json on persistent disk","Add /api/board GET/POST endpoints","Peter can add/edit/reorder items from the site"]},
             ]
         },
         {
@@ -9000,31 +9016,25 @@ var _statusBoard = {
             color: "#818cf8",
             items: [
                 {id:"s4", text:"EV Agent voice — feed it real data", done:false, priority:"P3", cost:"$0 (Azure Realtime already configured)", time:"4-6 hrs",
-                 steps:["Voice agent exists but knowledge is generic","Inject tonight's analysis, injuries, and sharp plays into voice prompt","'What's the best bet tonight?' answered with real data","Add quick commands: 'Read me the top 3 plays'"]},
-                {id:"e1", text:"Weather data for outdoor sports", done:false, priority:"P3", cost:"$0 (OpenWeatherMap free: 1K calls/day)", time:"2-3 hrs",
-                 steps:["MLB, NFL, Soccer all play outdoors — wind, rain, temp matter","Free weather API for game-day forecasts by venue","Inject into analysis: 'Wind 25mph at Wrigley = under play'","Show weather icon on game cards for outdoor sports"]},
+                 steps:["Voice agent exists but knowledge is generic","Inject tonight's analysis, injuries, and sharp plays into voice prompt","'What's the best bet tonight?' answered with real data"]},
+                {id:"e1", text:"Weather data for outdoor sports", done:false, priority:"P3", cost:"$0 (OpenWeatherMap free)", time:"2-3 hrs",
+                 steps:["MLB, NFL, Soccer all play outdoors — wind, rain, temp matter","Free weather API for game-day forecasts by venue","Inject into analysis: 'Wind 25mph at Wrigley = under play'"]},
                 {id:"e2", text:"College sports depth — better NCAAB/NCAAF", done:false, priority:"P3", cost:"$0", time:"4-6 hrs",
-                 steps:["ESPN has basic rosters but sparse game logs for mid-majors","Focus on top 25 + power conference matchups","Use KenPom-style efficiency metrics in analysis","Better than nothing for March Madness"]},
-                {id:"e3", text:"Soccer prop markets + player stats", done:false, priority:"P3", cost:"$0-10/mo (API-Sports upgrade)", time:"4-6 hrs",
-                 steps:["17 soccer leagues loaded but prop markets are thin","Add goalscorer, cards, corners markets where available","Player stats for top 5 leagues via API-Sports","In-game momentum data for live analysis"]},
-                {id:"e4", text:"MMA/Boxing fight stats + tale of the tape", done:false, priority:"P3", cost:"$0-40/mo (BALLDONTLIE MMA)", time:"4-6 hrs",
-                 steps:["MMA injury data is the weakest spot across all sports","Add fighter stats: reach, stance, finish rate, takedown defense","Historical H2H if fighters have met before","Tale-of-the-tape comparison card in analysis"]},
+                 steps:["ESPN has basic rosters but sparse game logs for mid-majors","Focus on top 25 + power conference matchups","Use KenPom-style efficiency metrics in analysis"]},
                 {id:"b1", text:"Mobile PWA — install to home screen", done:false, priority:"P3", cost:"$0", time:"3-4 hrs",
-                 steps:["Already 90% there — add manifest.json + service worker","Offline support for cached analysis and picks","Push notifications for graded picks, hot streaks","'Add to Home Screen' banner on first mobile visit"]},
+                 steps:["Already 90% there — add manifest.json + service worker","Push notifications for graded picks, hot streaks","'Add to Home Screen' banner on first mobile visit"]},
             ]
         },
         {
             title: "P4 — WHEN READY TO SCALE",
             color: "#38D4C4",
             items: [
-                {id:"b2", text:"Monetization — premium tier", done:false, priority:"P4", cost:"$0 to build + Stripe fees (2.9%)", time:"1-2 weeks",
+                {id:"b2", text:"Monetization — premium tier", done:false, priority:"P4", cost:"Stripe fees (2.9%)", time:"1-2 weeks",
                  steps:["Free: game cards + basic grades","Premium ($9.99/mo): props reasoning, sharp alerts, line moves, AI picks","Stripe Checkout integration","Crew members always free — premium is for outside users"]},
-                {id:"b3", text:"Multi-book integration — connect sportsbooks", done:false, priority:"P4", cost:"$0 (APIs are free where legal)", time:"2-3 weeks",
-                 steps:["DraftKings, FanDuel, BetMGM have partner APIs","Auto-track placed bets vs our picks — real P&L","One-click bet placement from the app","Requires state-by-state legal review"]},
-                {id:"b4", text:"Social features — share picks, follow bettors", done:false, priority:"P4", cost:"$0 to build, ~$25/mo for DB scaling", time:"2-3 weeks",
-                 steps:["Public pick cards with shareable links/images","Follow other users' picks and track their ROI","Global leaderboard across all users","Comments/reactions on picks"]},
-                {id:"b5", text:"Production data upgrade — BALLDONTLIE ALL-ACCESS", done:false, priority:"P4", cost:"$299.99/mo", time:"1-2 days to swap",
-                 steps:["Currently using ESPN free tier — no SLA, could break","BALLDONTLIE: structured data, all sports, real-time webhooks","Drop-in replacement for ESPN endpoints","Only makes sense when revenue covers the cost"]},
+                {id:"b3", text:"Multi-book integration — connect sportsbooks", done:false, priority:"P4", cost:"$0", time:"2-3 weeks",
+                 steps:["DraftKings, FanDuel, BetMGM have partner APIs","Auto-track placed bets vs our picks — real P&L","One-click bet placement from the app"]},
+                {id:"b4", text:"Social features — share picks, follow bettors", done:false, priority:"P4", cost:"~$25/mo for DB scaling", time:"2-3 weeks",
+                 steps:["Public pick cards with shareable links/images","Follow other users' picks and track their ROI","Global leaderboard across all users"]},
             ]
         }
     ]
