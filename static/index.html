@@ -6920,18 +6920,18 @@ function runAnalysis() {
     }, 1000);
     // Fetch analysis for current sport only
     fetchFn(currentSport);
-    // Hard timeout: 90 seconds — kill it and show error
+    // Hard timeout: 240 seconds — Grok thinker needs up to 3 min
     setTimeout(function() {
         if (btn && btn.textContent.indexOf('GRADING') !== -1) {
             btn.textContent = 'ANALYZE'; btn.disabled = false;
             if (window._analysisTimerInterval) clearInterval(window._analysisTimerInterval);
             var gutContent = document.getElementById('peterGut' + sportLabel + 'Content');
             if (gutContent && gutContent.querySelector('.analysis-progress')) {
-                gutContent.innerHTML = '<div class="analysis-error">Analysis timed out after 90s. Try again or check back in a few minutes.</div>';
+                gutContent.innerHTML = '<div class="analysis-error">Analysis timed out after 4 min. Try again or check back in a few minutes.</div>';
             }
             if (typeof stopSnowfall === 'function') stopSnowfall();
         }
-    }, 90000);
+    }, 240000);
 }
 
 // ===== ANALYSIS FETCH =====
