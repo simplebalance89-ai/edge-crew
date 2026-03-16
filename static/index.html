@@ -86,6 +86,8 @@ body::before{content:'';position:fixed;bottom:0;left:0;right:0;height:35vh;backg
 .crew-sintonia{background:rgba(247,37,133,0.15);color:#F72585;border:1px solid rgba(247,37,133,0.3);}
 .crew-sportsbook{background:rgba(34,197,94,0.15);color:#22C55E;border:1px solid rgba(34,197,94,0.3);}
 .crew-tunk{background:rgba(255,69,0,0.15);color:#FF4500;border:1px solid rgba(255,69,0,0.3);}
+.crew-padrino{background:rgba(192,160,98,0.15);color:#C0A062;border:1px solid rgba(192,160,98,0.3);}
+.crew-los{background:rgba(56,189,248,0.15);color:#38BDF8;border:1px solid rgba(56,189,248,0.3);}
 .sweep-time{font-size:11px;color:rgba(255,255,255,0.25);text-align:right;}
 
 /* ===== SPORT TABS (2-Tier Nav) ===== */
@@ -1208,6 +1210,8 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
             <span class="crew-badge crew-sintonia" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;padding:0;margin-left:-4px;" title="Sinton.ia"><svg viewBox="0 0 64 64" width="16" height="16"><circle cx="32" cy="32" r="28" fill="none" stroke="#F72585" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#F72585" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#F72585" stroke-width="2" stroke-linecap="round"/></svg></span>
             <span class="crew-badge crew-sportsbook" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;padding:0;margin-left:-4px;">$</span>
             <span class="crew-badge crew-tunk" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0;margin-left:-4px;">T</span>
+            <span class="crew-badge crew-padrino" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;padding:0;margin-left:-4px;">PD</span>
+            <span class="crew-badge crew-los" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0;margin-left:-4px;">L</span>
         </div>
         <div class="agent-switcher" id="agentSwitcher" onclick="backToAgents()"><span id="agentSwitcherLabel">SWITCH AGENT</span></div>
         <button id="analyzeBtn" onclick="runAnalysis()" style="padding:6px 14px;border-radius:var(--ec-radius-full);font-size:11px;font-weight:700;background:linear-gradient(135deg,#F72585,#41EAD4);color:#fff;border:none;cursor:pointer;transition:all 0.2s;letter-spacing:0.3px;">ANALYZE</button>
@@ -2077,6 +2081,14 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
             <div style="color:#FF4500;font-weight:700;margin-bottom:4px;">Tunk</div>
             <div id="brTunk" style="color:#fff;font-size:14px;">0-0-0 | 0u</div>
         </div>
+        <div style="background:#0f1018;border:1px solid #2a2a5a;border-radius:8px;padding:12px;text-align:center;">
+            <div style="color:#C0A062;font-weight:700;margin-bottom:4px;">Padrino</div>
+            <div id="brPadrino" style="color:#fff;font-size:14px;">0-0-0 | 0u</div>
+        </div>
+        <div style="background:#0f1018;border:1px solid #2a2a5a;border-radius:8px;padding:12px;text-align:center;">
+            <div style="color:#38BDF8;font-weight:700;margin-bottom:4px;">Los</div>
+            <div id="brLos" style="color:#fff;font-size:14px;">0-0-0 | 0u</div>
+        </div>
     </div>
 
 
@@ -2122,6 +2134,8 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
         <button class="swim-btn" onclick="setSwimLane('Jimmy',this)" style="background:transparent;border:1px solid #5588EE;color:#5588EE;border-radius:6px;padding:6px 14px;font-family:var(--ec-font-body);font-weight:700;font-size:12px;cursor:pointer;">Jimmy</button>
         <button class="swim-btn" onclick="setSwimLane('Chinny',this)" style="background:transparent;border:1px solid #FF6B35;color:#FF6B35;border-radius:6px;padding:6px 14px;font-family:var(--ec-font-body);font-weight:700;font-size:12px;cursor:pointer;">Chinny</button>
         <button class="swim-btn" onclick="setSwimLane('Tunk',this)" style="background:transparent;border:1px solid #FF4500;color:#FF4500;border-radius:6px;padding:6px 14px;font-family:var(--ec-font-body);font-weight:700;font-size:12px;cursor:pointer;">Tunk</button>
+        <button class="swim-btn" onclick="setSwimLane('Padrino',this)" style="background:transparent;border:1px solid #C0A062;color:#C0A062;border-radius:6px;padding:6px 14px;font-family:var(--ec-font-body);font-weight:700;font-size:12px;cursor:pointer;">Padrino</button>
+        <button class="swim-btn" onclick="setSwimLane('Los',this)" style="background:transparent;border:1px solid #38BDF8;color:#38BDF8;border-radius:6px;padding:6px 14px;font-family:var(--ec-font-body);font-weight:700;font-size:12px;cursor:pointer;">Los</button>
         <button class="swim-btn" onclick="setSwimLane('Alyssa',this)" style="background:transparent;border:1px solid #41EAD4;color:#41EAD4;border-radius:6px;padding:6px 14px;font-family:var(--ec-font-body);font-weight:700;font-size:12px;cursor:pointer;">Alyssa</button>
         <button class="swim-btn" onclick="setSwimLane('Sinton.ia',this)" style="background:transparent;border:1px solid #F72585;color:#F72585;border-radius:6px;padding:6px 14px;font-family:var(--ec-font-body);font-weight:700;font-size:12px;cursor:pointer;">Sinton.ia</button>
         <button class="swim-btn" onclick="setSwimLane('Sportsbook.ag',this)" style="background:transparent;border:1px solid #22C55E;color:#22C55E;border-radius:6px;padding:6px 14px;font-family:var(--ec-font-body);font-weight:700;font-size:12px;cursor:pointer;">Sportsbook</button>
@@ -3841,7 +3855,7 @@ function editPick(index) {
 
 var activeSwimLane = 'ALL';
 var _resultFilter = 'all'; // 'all', 'regular', 'props'
-var CREW_COLORS = {Peter:'#818cf8',Jimmy:'#5588EE',Chinny:'#FF6B35',Alyssa:'#41EAD4','Sinton.ia':'#F72585','Sportsbook.ag':'#22C55E',Tunk:'#FF4500'};
+var CREW_COLORS = {Peter:'#818cf8',Jimmy:'#5588EE',Chinny:'#FF6B35',Alyssa:'#41EAD4','Sinton.ia':'#F72585','Sportsbook.ag':'#22C55E',Tunk:'#FF4500',Padrino:'#C0A062',Los:'#38BDF8'};
 
 function setSwimLane(name, btn) {
     activeSwimLane = name;
@@ -4320,7 +4334,7 @@ function renderBankroll() {
 
     var wins = 0, losses = 0, pushes = 0, netUnits = 0;
     var propW = 0, propL = 0, propP = 0;
-    var personStats = {Peter:{w:0,l:0,p:0,u:0},Jimmy:{w:0,l:0,p:0,u:0},Chinny:{w:0,l:0,p:0,u:0},Alyssa:{w:0,l:0,p:0,u:0},'Sinton.ia':{w:0,l:0,p:0,u:0},Willis:{w:0,l:0,p:0,u:0},'Sportsbook.ag':{w:0,l:0,p:0,u:0},Tunk:{w:0,l:0,p:0,u:0}};
+    var personStats = {Peter:{w:0,l:0,p:0,u:0},Jimmy:{w:0,l:0,p:0,u:0},Chinny:{w:0,l:0,p:0,u:0},Alyssa:{w:0,l:0,p:0,u:0},'Sinton.ia':{w:0,l:0,p:0,u:0},Willis:{w:0,l:0,p:0,u:0},'Sportsbook.ag':{w:0,l:0,p:0,u:0},Tunk:{w:0,l:0,p:0,u:0},Padrino:{w:0,l:0,p:0,u:0},Los:{w:0,l:0,p:0,u:0}};
 
     // Daily stats accumulator
     var dailyStats = {};
@@ -5001,8 +5015,8 @@ function renderPicks() {
         return;
     }
     // Group by crew member
-    var crewOrder = ['Peter','Jimmy','Chinny','Alyssa','Sinton.ia','Tunk'];
-    var crewColors = {Peter:'#fff',Jimmy:'#60A5FA',Chinny:'#FF6B35',Alyssa:'#41EAD4','Sinton.ia':'#F72585',Tunk:'#FF4500'};
+    var crewOrder = ['Peter','Jimmy','Chinny','Alyssa','Sinton.ia','Tunk','Padrino','Los'];
+    var crewColors = {Peter:'#fff',Jimmy:'#60A5FA',Chinny:'#FF6B35',Alyssa:'#41EAD4','Sinton.ia':'#F72585',Tunk:'#FF4500',Padrino:'#C0A062',Los:'#38BDF8'};
     var grouped = {};
     todayPicks.forEach(function(p) {
         var name = p.name || 'Unknown';

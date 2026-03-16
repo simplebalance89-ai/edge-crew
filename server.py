@@ -449,6 +449,8 @@ DEFAULT_CREW = [
     {"id": "sintonia", "display_name": "Sinton.ia", "color": "#F72585", "is_admin": False},
     {"id": "sportsbook", "display_name": "Sportsbook.ag", "color": "#22C55E", "is_admin": False},
     {"id": "tunk", "display_name": "Tunk", "color": "#FF4500", "is_admin": False},
+    {"id": "padrino", "display_name": "Padrino", "color": "#C0A062", "is_admin": False},
+    {"id": "los", "display_name": "Los", "color": "#38BDF8", "is_admin": False},
 ]
 
 
@@ -470,7 +472,7 @@ def _write_profiles(data):
         json.dump(data, f, indent=2)
 
 
-CREW_DEFAULT_PINS = {"tunk": "1525"}
+CREW_DEFAULT_PINS = {"tunk": "1525", "padrino": "0726", "los": "4200"}
 
 def _seed_profiles():
     """Ensure all DEFAULT_CREW members exist in profiles. Adds missing members."""
