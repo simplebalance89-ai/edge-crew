@@ -11,6 +11,7 @@ import asyncio
 import statistics
 import db
 from openai import AzureOpenAI, OpenAI
+import anthropic as anthropic_sdk
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
@@ -781,6 +782,9 @@ ANALYSIS_FORMATTER = os.environ.get("ANALYSIS_FORMATTER", "DeepSeek-V3.2")
 ANALYSIS_MODE = os.environ.get("ANALYSIS_MODE", "twomodel")  # "twomodel" or "single"
 THINKER_ENDPOINT = os.environ.get("THINKER_ENDPOINT", "https://pwgcerp-9302-resource.services.ai.azure.com/openai/v1/")
 
+# Anthropic config
+ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
+
 # Challenger Model of the Week — rotation list
 CHALLENGER_MODELS = [
     {"name": "gpt-5-mini", "endpoint": "azure", "display": "GPT-5 Mini"},
@@ -789,6 +793,7 @@ CHALLENGER_MODELS = [
     {"name": "Llama-4-Maverick-17B-128E-Instruct-FP8", "endpoint": "ai_services", "display": "Llama 4 Maverick"},
     {"name": "DeepSeek-V3.2", "endpoint": "ai_services", "display": "DeepSeek V3.2"},
     {"name": "grok-4-fast-reasoning", "endpoint": "ai_services", "display": "Grok 4 Fast"},
+    {"name": "claude-sonnet-4-6", "endpoint": "anthropic", "display": "Claude Sonnet 4.6"},
 ]
 CHALLENGER_MODEL_OVERRIDE = os.environ.get("CHALLENGER_MODEL", "")
 _challenger_cache = {}  # week_num -> model dict
@@ -4543,30 +4548,43 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
             logger.info(f"[CHALLENGER] Batch {batch_idx} ({sport.upper()}) → {challenger['display']} ({model_name})")
             ch_start = time.time()
 
-            if endpoint_type == "azure":
-                client = AzureOpenAI(
-                    azure_endpoint=AZURE_ENDPOINT,
-                    api_key=AZURE_KEY,
-                    api_version="2024-10-21",
-                    timeout=120,
+            if endpoint_type == "anthropic":
+                anth_client = anthropic_sdk.Anthropic(api_key=ANTHROPIC_API_KEY, timeout=120)
+                anth_response = anth_client.messages.create(
+                    model=model_name,
+                    max_tokens=8000,
+                    temperature=0.4,
+                    messages=[{"role": "user", "content": prompt_text}],
                 )
+                raw = anth_response.content[0].text.strip()
+                ch_secs = round(time.time() - ch_start, 1)
+                ch_tokens = getattr(anth_response.usage, 'input_tokens', 0) + getattr(anth_response.usage, 'output_tokens', 0)
+                logger.info(f"[CHALLENGER] {challenger['display']} done in {ch_secs}s, {ch_tokens} tokens")
             else:
-                client = OpenAI(
-                    base_url=THINKER_ENDPOINT,
-                    api_key=AZURE_KEY,
-                    timeout=120,
-                )
+                if endpoint_type == "azure":
+                    client = AzureOpenAI(
+                        azure_endpoint=AZURE_ENDPOINT,
+                        api_key=AZURE_KEY,
+                        api_version="2024-10-21",
+                        timeout=120,
+                    )
+                else:
+                    client = OpenAI(
+                        base_url=THINKER_ENDPOINT,
+                        api_key=AZURE_KEY,
+                        timeout=120,
+                    )
 
-            response = client.chat.completions.create(
-                model=model_name,
-                messages=[{"role": "user", "content": prompt_text}],
-                temperature=0.4,
-                max_tokens=8000,
-            )
-            raw = response.choices[0].message.content.strip()
-            ch_secs = round(time.time() - ch_start, 1)
-            ch_tokens = getattr(response.usage, 'total_tokens', '?')
-            logger.info(f"[CHALLENGER] {challenger['display']} done in {ch_secs}s, {ch_tokens} tokens")
+                response = client.chat.completions.create(
+                    model=model_name,
+                    messages=[{"role": "user", "content": prompt_text}],
+                    temperature=0.4,
+                    max_tokens=8000,
+                )
+                raw = response.choices[0].message.content.strip()
+                ch_secs = round(time.time() - ch_start, 1)
+                ch_tokens = getattr(response.usage, 'total_tokens', '?')
+                logger.info(f"[CHALLENGER] {challenger['display']} done in {ch_secs}s, {ch_tokens} tokens")
             result = _clean_json(raw)
             for game in result.get("games", []):
                 game["_challenger_model"] = challenger["display"]
