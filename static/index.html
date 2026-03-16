@@ -6862,7 +6862,7 @@ function applyAgentFilter(who, forceRefresh) {
     var activeSports = ['nba','wnba','ncaab','ncaaf','nhl','mlb','tennis','soccer','mma','boxing'].filter(function(s) {
         return _seasonMap[s] && _seasonMap[s].indexOf(month) !== -1;
     });
-    var fetchFn = who === 'sintonia' ? fetchAnalysis : fetchEdge;
+    var fetchFn = who === 'sintonia' ? fetchAnalysisCached : fetchEdge;
     var checkId = who === 'sintonia' ? 'peterGut' : 'alyssaEdge';
     // Filter to sports that need fetching
     var toFetch = activeSports.filter(function(s) {
@@ -7283,6 +7283,54 @@ function _startLoadingExperience(sport) {
 }
 function _stopLoadingExperience() {
     if (window._loadingExpInterval) { clearInterval(window._loadingExpInterval); window._loadingExpInterval = null; }
+}
+
+// Auto-load path: serve cached/stale immediately, poll for fresh in background
+function fetchAnalysisCached(sport) {
+    var sportUpper = sport.toUpperCase();
+    fetch('/api/analysis/' + sport)
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (!data || !data.games || !data.games.length) {
+                // Nothing cached — fall through to full analysis
+                fetchAnalysis(sport);
+                return;
+            }
+            // Render immediately from cache
+            _analysisCache[sportUpper] = data;
+            refreshDashboard();
+            updatePeterGut(sport, data);
+            injectPicksIntoCards(sport, data);
+            if (typeof window._analysisLoadCallback === 'function') window._analysisLoadCallback(sport);
+            // If stale, show badge and poll for fresh data
+            if (data._refreshing) {
+                var gutContent = document.getElementById('peterGut' + sportUpper + 'Content');
+                if (gutContent) {
+                    gutContent.insertAdjacentHTML('afterbegin', '<div id="refreshBadge-' + sportUpper + '" style="font-size:10px;color:#FBB024;margin-bottom:8px;font-family:var(--ec-font-mono);">&#8635; Refreshing in background...</div>');
+                }
+                var pollCount = 0;
+                var pollId = setInterval(function() {
+                    pollCount++;
+                    if (pollCount > 8) { clearInterval(pollId); return; }
+                    fetch('/api/analysis/' + sport)
+                        .then(function(r) { return r.json(); })
+                        .then(function(fresh) {
+                            if (fresh && fresh.games && fresh.games.length && !fresh._refreshing) {
+                                clearInterval(pollId);
+                                _analysisCache[sportUpper] = fresh;
+                                refreshDashboard();
+                                updatePeterGut(sport, fresh);
+                                injectPicksIntoCards(sport, fresh);
+                                var badge = document.getElementById('refreshBadge-' + sportUpper);
+                                if (badge) badge.remove();
+                                var gutContent2 = document.getElementById('peterGut' + sportUpper + 'Content');
+                                if (gutContent2) gutContent2.insertAdjacentHTML('afterbegin', '<div style="font-size:10px;color:#10B981;margin-bottom:6px;font-family:var(--ec-font-mono);">&#10003; Updated</div>');
+                            }
+                        }).catch(function() {});
+                }, 30000);
+            }
+        })
+        .catch(function() { fetchAnalysis(sport); });
 }
 
 function fetchAnalysis(sport) {

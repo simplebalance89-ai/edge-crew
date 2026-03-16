@@ -282,12 +282,13 @@ async def _daily_slate_pull():
                                 print(f"[ANALYSIS] Midnight error {s}: {e}")
                     await asyncio.gather(*[_midnight_one(s) for s in active_sports])
 
-            # Scheduled analysis: 10AM, 1PM, 4PM PST — keep cache warm all day
+            # Scheduled analysis: 8AM, 10AM, 1PM, 4PM PST — keep cache warm all day
+            # 8AM: pre-warm before Peter opens the board
             # 10AM: morning lines locked, early edges
             # 1PM: updated lines, injury news, afternoon sports (soccer/MMA)
             # 4PM: right before tip, lineups confirmed
             should_run_analysis = False
-            if hour in (10, 13, 16) and last_analysis_run != f"{today}:{hour}":
+            if hour in (8, 10, 13, 16) and last_analysis_run != f"{today}:{hour}":
                 should_run_analysis = True
                 last_analysis_run = f"{today}:{hour}"
 
@@ -389,7 +390,7 @@ async def _daily_slate_pull():
 async def _warm_analysis_cache():
     """On startup, check if today's analysis exists for each sport. If not, generate it.
     Runs once after boot with staggered delays to avoid hammering Azure."""
-    await asyncio.sleep(120)  # Wait 2 min after boot for other services to stabilize
+    await asyncio.sleep(15)  # Short stabilization delay after boot
     active_sports = _in_season_sports()
     today = datetime.now(PST).strftime("%Y-%m-%d")
     print(f"[ANALYSIS WARM] Checking cache for {len(active_sports)} sports...")
@@ -3951,6 +3952,26 @@ async def get_edge(sport: str):
     })
 
 
+_refreshing_sports: set = set()
+
+async def _background_refresh(sport: str):
+    """Silently regenerate today's analysis in the background. Prevents duplicate runs."""
+    if sport in _refreshing_sports:
+        return
+    _refreshing_sports.add(sport)
+    try:
+        resp = await get_analysis(sport, force=True)
+        if hasattr(resp, 'body'):
+            d = json.loads(resp.body)
+            if d.get("games"):
+                _save_analysis_cache(sport, d)
+                print(f"[BG REFRESH] {sport.upper()}: {len(d['games'])} games cached")
+    except Exception as e:
+        print(f"[BG REFRESH] {sport.upper()} failed: {e}")
+    finally:
+        _refreshing_sports.discard(sport)
+
+
 @app.get("/api/analysis/{sport}")
 async def get_analysis(sport: str, cached_only: bool = False, force: bool = False, user_id: str = None, model: str = None):
     """Generate AI analysis for a sport based on current live odds.
@@ -4008,6 +4029,10 @@ async def get_analysis(sport: str, cached_only: bool = False, force: bool = Fals
             # Serve disk cache and warm memory cache so subsequent requests are instant
             _set_cache(cache_key, cached_analysis)
             cached_analysis["cached"] = True
+            # Stale (yesterday's) cache — serve immediately and refresh in background
+            if cached_analysis.get("_from_previous_day"):
+                cached_analysis["_refreshing"] = True
+                asyncio.create_task(_background_refresh(sport_lower))
             return JSONResponse(cached_analysis)
 
     # Get current odds for context
