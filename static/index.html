@@ -971,6 +971,23 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 .analysis-complete-time{font-size:10px;color:rgba(255,255,255,0.3);text-align:center;padding:4px 0;font-family:var(--ec-font-mono);}
 .analysis-error{text-align:center;padding:16px;font-size:13px;color:#EF4444;font-weight:600;}
 
+/* ===== LOADING EXPERIENCE ===== */
+.loading-experience{padding:12px 0;}
+.loading-phase-ticker{text-align:center;padding:10px 0 6px;font-size:14px;font-weight:700;color:var(--ec-accent-light);font-family:var(--ec-font-mono);transition:opacity 0.4s;}
+.loading-phase-ticker .phase-icon{margin-right:6px;display:inline-block;animation:phasePulse 1.5s ease-in-out infinite;}
+@keyframes phasePulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+.loading-progress-wrap{padding:8px 16px 12px;max-width:400px;margin:0 auto;}
+.loading-progress-bar{height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;position:relative;}
+.loading-progress-fill{height:100%;background:linear-gradient(90deg,var(--ec-accent),#10B981);border-radius:3px;transition:width 1s ease;width:0%;}
+.loading-stage-label{font-size:10px;color:rgba(255,255,255,0.35);text-align:center;margin-top:4px;font-family:var(--ec-font-mono);}
+.loading-timer-row{text-align:center;margin-bottom:10px;}
+.loading-content-card{background:var(--ec-bg-secondary);border:1px solid var(--ec-border);border-radius:12px;padding:14px 16px;margin:12px auto;max-width:440px;opacity:0;animation:cardFadeIn 0.5s forwards;}
+@keyframes cardFadeIn{to{opacity:1;}}
+.loading-content-card .lc-label{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--ec-accent);margin-bottom:6px;}
+.loading-content-card .lc-text{font-size:13px;color:rgba(255,255,255,0.75);line-height:1.5;}
+.loading-content-card .lc-text b{color:#fff;}
+.loading-content-card .lc-highlight{font-size:15px;font-weight:800;color:#10B981;margin-top:4px;}
+
 /* ===== SNOWFALL OVERLAY ===== */
 #snowCanvas{
     position:fixed;top:0;left:0;width:100%;height:100%;
@@ -6920,18 +6937,19 @@ function runAnalysis() {
     }, 1000);
     // Fetch analysis for current sport only
     fetchFn(currentSport);
-    // Hard timeout: 240 seconds — Grok thinker needs up to 3 min
+    // Hard timeout: 360 seconds (6 min) — kill it and show error
     setTimeout(function() {
         if (btn && btn.textContent.indexOf('GRADING') !== -1) {
             btn.textContent = 'ANALYZE'; btn.disabled = false;
             if (window._analysisTimerInterval) clearInterval(window._analysisTimerInterval);
+            if (window._loadingExpInterval) clearInterval(window._loadingExpInterval);
             var gutContent = document.getElementById('peterGut' + sportLabel + 'Content');
-            if (gutContent && gutContent.querySelector('.analysis-progress')) {
-                gutContent.innerHTML = '<div class="analysis-error">Analysis timed out after 4 min. Try again or check back in a few minutes.</div>';
+            if (gutContent && gutContent.querySelector('.loading-experience')) {
+                gutContent.innerHTML = '<div class="analysis-error">Analysis timed out. Models are running heavy tonight — try again in a few minutes.</div>';
             }
             if (typeof stopSnowfall === 'function') stopSnowfall();
         }
-    }, 240000);
+    }, 360000);
 }
 
 // ===== ANALYSIS FETCH =====
@@ -7185,19 +7203,93 @@ function injectEdgeIntoCards(sport, edgeGames) {
     });
 }
 
+// ===== LOADING EXPERIENCE ENGINE =====
+function _startLoadingExperience(sport) {
+    var phases = [
+        {icon:'', text:'Pulling live odds from sportsbooks...', pct:8, stage:'1 of 5'},
+        {icon:'', text:'Checking injury reports + lineup status...', pct:18, stage:'2 of 5'},
+        {icon:'', text:'Fetching player stats + game logs...', pct:30, stage:'2 of 5'},
+        {icon:'', text:'Running Grok deep analysis...', pct:45, stage:'3 of 5'},
+        {icon:'', text:'Building model consensus...', pct:60, stage:'3 of 5'},
+        {icon:'', text:'Comparing historical matchups...', pct:72, stage:'4 of 5'},
+        {icon:'', text:'Grading player props...', pct:82, stage:'4 of 5'},
+        {icon:'', text:'Running challenger model for second opinion...', pct:90, stage:'5 of 5'},
+        {icon:'', text:'Finalizing grades + picks...', pct:95, stage:'5 of 5'}
+    ];
+    var contentCards = [
+        {label:'DID YOU KNOW', text:'Home underdogs in divisional games cover <b>56% of the time</b>. The public always overvalues favorites.'},
+        {label:'CREW TIP', text:'Back-to-back games are the #1 edge finder. Tired legs = missed free throws, slower rotations, blown leads.'},
+        {label:'EDGE INSIGHT', text:'When the line moves <b>against</b> the public but the total stays flat, sharp money is on the other side.'},
+        {label:'THE SYSTEM', text:'We grade every game A+ through D. Only <b>A- or higher</b> becomes a pick. Discipline is the edge.'},
+        {label:'PARLAY WIN', text:'The crew hit a <b>$1,319 parlay</b> by stacking correlated props. Player performance + team totals = hidden edges.', highlight:'+$1,319'},
+        {label:'SHARP VS PUBLIC', text:'When 70%+ of bets are on one side but the line <b>moves the other way</b>, follow the money, not the crowd.'},
+        {label:'PROP EDGE', text:'Player props with a <b>L10 average 2+ points over the line</b> and no injury flag are the highest-EV bets in sports.'},
+        {label:'DID YOU KNOW', text:'Rest advantage is worth <b>2-3 points ATS</b> in the NBA. Our matrix weights it at 8/10.'}
+    ];
+    var phaseIdx = 0;
+    var cardIdx = 0;
+    var tick = 0;
+    window._loadingExpInterval = setInterval(function() {
+        tick++;
+        // Advance phase every ~6 seconds (but pace slows after phase 5)
+        if (tick % 6 === 0 && phaseIdx < phases.length - 1) {
+            phaseIdx++;
+            var p = phases[phaseIdx];
+            var tickerEl = document.querySelector('.loading-phase-ticker');
+            if (tickerEl) {
+                tickerEl.querySelector('.phase-icon').textContent = p.icon;
+                tickerEl.querySelector('.phase-text').textContent = p.text;
+            }
+            var fillEl = document.querySelector('.loading-progress-fill');
+            if (fillEl) fillEl.style.width = p.pct + '%';
+            var stageEl = document.querySelector('.loading-stage-label');
+            if (stageEl) stageEl.textContent = 'Stage ' + p.stage;
+        }
+        // Rotate content card every 10 seconds
+        if (tick % 10 === 0) {
+            var slot = document.querySelector('.loading-content-slot');
+            if (slot) {
+                var c = contentCards[cardIdx % contentCards.length];
+                var html = '<div class="loading-content-card">';
+                html += '<div class="lc-label">' + c.label + '</div>';
+                html += '<div class="lc-text">' + c.text + '</div>';
+                if (c.highlight) html += '<div class="lc-highlight">' + c.highlight + '</div>';
+                html += '</div>';
+                slot.innerHTML = html;
+                cardIdx++;
+            }
+        }
+        // Show first card at 3 seconds
+        if (tick === 3) {
+            var slot = document.querySelector('.loading-content-slot');
+            if (slot) {
+                var c = contentCards[0];
+                slot.innerHTML = '<div class="loading-content-card"><div class="lc-label">' + c.label + '</div><div class="lc-text">' + c.text + '</div></div>';
+                cardIdx = 1;
+            }
+        }
+    }, 1000);
+}
+function _stopLoadingExperience() {
+    if (window._loadingExpInterval) { clearInterval(window._loadingExpInterval); window._loadingExpInterval = null; }
+}
+
 function fetchAnalysis(sport) {
     var panel = document.getElementById('panel-' + sport);
     if (!panel) return;
 
-    // Show analyzing state with skeleton loader + snowfall
+    // Show loading experience with phase ticker + progress bar + content cards
     if (typeof startSnowfall === 'function') startSnowfall();
     var gutContent = document.getElementById('peterGut' + sport.toUpperCase() + 'Content');
     if (gutContent) {
-        var skeletonHtml = '<div class="analysis-progress">Analyzing ' + sport.toUpperCase() + ' slate with Grok + DeepSeek... <span class="analysis-timer">0:00</span></div>';
-        for (var sk = 0; sk < 3; sk++) {
-            skeletonHtml += '<div class="skeleton-card"><div class="skeleton-line w60"></div><div class="skeleton-line w80"></div><div class="skeleton-line w40"></div></div>';
-        }
-        gutContent.innerHTML = skeletonHtml;
+        var loadHtml = '<div class="loading-experience">';
+        loadHtml += '<div class="loading-timer-row"><span class="analysis-timer" style="font-size:12px;color:rgba(255,255,255,0.4);font-family:var(--ec-font-mono);">0:00</span></div>';
+        loadHtml += '<div class="loading-phase-ticker"><span class="phase-icon"></span><span class="phase-text">Pulling live odds...</span></div>';
+        loadHtml += '<div class="loading-progress-wrap"><div class="loading-progress-bar"><div class="loading-progress-fill"></div></div><div class="loading-stage-label">Stage 1 of 5</div></div>';
+        loadHtml += '<div class="loading-content-slot"></div>';
+        loadHtml += '</div>';
+        gutContent.innerHTML = loadHtml;
+        _startLoadingExperience(sport);
     }
 
     fetch('/api/analysis/' + sport + '?force=true')
@@ -7207,6 +7299,7 @@ function fetchAnalysis(sport) {
         })
         .then(function(data) {
             if (typeof stopSnowfall === 'function') stopSnowfall();
+            _stopLoadingExperience();
             // Stop timer and show completion time
             if (window._analysisTimerInterval) clearInterval(window._analysisTimerInterval);
             var elapsedSecs = window._analysisStartTime ? Math.floor((Date.now() - window._analysisStartTime) / 1000) : 0;
@@ -7507,6 +7600,7 @@ function fetchAnalysis(sport) {
         })
         .catch(function(err) {
             if (typeof stopSnowfall === 'function') stopSnowfall();
+            _stopLoadingExperience();
             if (window._analysisTimerInterval) clearInterval(window._analysisTimerInterval);
             console.error('Analysis fetch error:', err);
             if (gutContent) gutContent.innerHTML = '<div class="analysis-error">Analysis failed — ' + (err.message || 'network error') + '. Try again.</div>';
