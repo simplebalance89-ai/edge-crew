@@ -516,6 +516,7 @@ DEFAULT_CREW = [
     {"id": "tunk", "display_name": "Tunk", "color": "#FF4500", "is_admin": False},
     {"id": "padrino", "display_name": "Padrino", "color": "#C0A062", "is_admin": False},
     {"id": "los", "display_name": "Los", "color": "#38BDF8", "is_admin": False},
+    {"id": "renzo", "display_name": "Renzo", "color": "#9B59B6", "is_admin": False},
 ]
 
 
@@ -539,7 +540,8 @@ def _write_profiles(data):
 
 CREW_DEFAULT_PINS = {"peter": "0000", "jimmy": "0000", "chinny": "0000",
                      "alyssa": "0000", "sintonia": "0000", "sportsbook": "0000",
-                     "tunk": "1525", "padrino": "0726", "los": "4200"}
+                     "tunk": "1525", "padrino": "0726", "los": "4200",
+                     "renzo": "0000"}
 
 def _seed_profiles():
     """Ensure all DEFAULT_CREW members exist in profiles. Sync PINs to defaults."""
@@ -4304,7 +4306,7 @@ CRITICAL ROSTER RULE: Your training data is STALE. ONLY reference players who ap
 
 NO STALE DATA RULE: Do NOT reference any statistics, records, or player performance data from before the current 2025-26 season. ONLY use data provided in the PLAYER GAME LOGS and INJURY sections below. If you don't have current data for a claim, say "data not available" instead of guessing.
 
-CREW: Peter (heavy/value/sharp, sizes up on conviction), Jimmy (new, learning), Alyssa (pure math/EV edge), Sinton.ia (card builder/grader), Tunk (wild/aggressive, tracks everything, high volume).
+CREW: Peter (heavy/value/sharp, sizes up on conviction), Jimmy (new, learning), Alyssa (pure math/EV edge), Renzo (card builder/grader), Tunk (wild/aggressive, tracks everything, high volume).
 RULES: "Why is the market wrong?" = required for every grade. No answer = NO BET (grade D/F). Valid edges: news not priced in, public overreaction, rest/schedule, matchup-specific, sharp vs public, situational. Invalid: "better team", "should win", "volume play".
 
 Today's {sport.upper()} slate - {today} (pulled at {now_time}):
@@ -4473,7 +4475,7 @@ CRITICAL ROSTER RULE: Your training data is STALE. ONLY reference players who ap
 
 NO STALE DATA RULE: Do NOT reference any statistics from before the current 2025-26 season. ONLY use data provided below.
 
-CREW: Peter (heavy/value/sharp), Jimmy (new, learning), Alyssa (pure math/EV), Sinton.ia (card builder/grader).
+CREW: Peter (heavy/value/sharp), Jimmy (new, learning), Alyssa (pure math/EV), Renzo (card builder/grader).
 
 Today's {sport.upper()} slate - {today} (pulled at {now_time}):
 
