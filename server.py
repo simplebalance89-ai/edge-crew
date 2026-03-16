@@ -733,9 +733,16 @@ def _save_daily_slate(sport, games_data):
         json.dump({"sport": sport.upper(), "games": games_data, "fetched_at": _now_ts(), "date": datetime.now(PST).strftime("%Y-%m-%d")}, f)
 
 def _load_daily_slate(sport):
+    """Load daily slate — tries today first, falls back to yesterday."""
     path = _slate_path(sport)
     if os.path.exists(path):
         with open(path) as f:
+            return json.load(f)
+    # Fallback: check yesterday's slate (handles midnight rollover)
+    yesterday = (datetime.now(PST) - timedelta(days=1)).strftime("%Y-%m-%d")
+    yesterday_path = _slate_path(sport, date_str=yesterday)
+    if os.path.exists(yesterday_path):
+        with open(yesterday_path) as f:
             return json.load(f)
     return None
 
@@ -745,10 +752,19 @@ def _save_analysis_cache(sport, analysis_data):
         json.dump({"sport": sport.upper(), **analysis_data, "cached_at": _now_ts()}, f)
 
 def _load_analysis_cache(sport):
+    """Load analysis from disk — tries today first, falls back to yesterday."""
     path = _analysis_cache_path(sport)
     if os.path.exists(path):
         with open(path) as f:
             return json.load(f)
+    # Fallback: check yesterday's cache (handles midnight date rollover)
+    yesterday = (datetime.now(PST) - timedelta(days=1)).strftime("%Y-%m-%d")
+    yesterday_path = _analysis_cache_path(sport, date_str=yesterday)
+    if os.path.exists(yesterday_path):
+        with open(yesterday_path) as f:
+            data = json.load(f)
+            data["_from_previous_day"] = True
+            return data
     return None
 
 # SharpAPI config (primary odds source)
@@ -862,7 +878,6 @@ def _get_weekly_challenger():
     _challenger_cache[week_num] = model
     logger.info(f"[CHALLENGER] Week {week_num} challenger: {model['display']} ({model['name']})")
     return model
-
 
 # Build version — auto-set at server startup for cache busting
 _git_hash = os.environ.get("RENDER_GIT_COMMIT", "")[:7]
@@ -4015,7 +4030,28 @@ async def get_analysis(sport: str, cached_only: bool = False, force: bool = Fals
             if _game_not_started(g, now) and _game_within_cutoff(g, cutoff)
         ]
 
+    # Fallback: if live odds are empty, try the cached daily slate
     if not odds_data.get("games"):
+        slate_data = _load_daily_slate(sport_lower)
+        if slate_data:
+            now = datetime.now(PST)
+            cutoff = now + timedelta(hours=48)
+            future_games = [
+                g for g in slate_data
+                if _game_not_started(g, now) and _game_within_cutoff(g, cutoff)
+            ]
+            if future_games:
+                logger.info(f"[ANALYSIS] Live odds empty for {sport_lower} — using cached slate ({len(future_games)} future games)")
+                odds_data = {"games": future_games, "count": len(future_games), "_source": "cached_slate"}
+
+    if not odds_data.get("games"):
+        # Before returning empty, check if we have cached analysis to serve
+        stale = _load_analysis_cache(sport_lower)
+        if stale and stale.get("games"):
+            stale["cached"] = True
+            stale["_recovery"] = "no_odds_available"
+            _set_cache(cache_key, stale)
+            return JSONResponse(stale)
         return JSONResponse({
             "sport": sport.upper(),
             "gotcha": "No games on the slate right now.",
@@ -5178,6 +5214,12 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
         return JSONResponse(analysis)
 
     except json.JSONDecodeError:
+        # Serve stale cache rather than returning empty
+        stale = _load_analysis_cache(sport_lower)
+        if stale and stale.get("games"):
+            stale["cached"] = True
+            stale["_recovery"] = "json_decode_error"
+            return JSONResponse(stale)
         return JSONResponse({
             "sport": sport.upper(),
             "gotcha": "Analysis generation returned invalid format. Refresh to retry.",
@@ -5185,6 +5227,12 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
             "generated_at": _now_ts(),
         })
     except Exception as e:
+        # Serve stale cache rather than returning error
+        stale = _load_analysis_cache(sport_lower)
+        if stale and stale.get("games"):
+            stale["cached"] = True
+            stale["_recovery"] = f"exception: {str(e)}"
+            return JSONResponse(stale)
         return JSONResponse(
             {"error": f"Analysis generation failed: {str(e)}"},
             status_code=500,
