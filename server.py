@@ -267,38 +267,74 @@ async def _daily_slate_pull():
                     except Exception as e:
                         print(f"[SLATE] Error pulling {sport}: {e}")
                     await asyncio.sleep(2)
-                # Auto-grade after midnight slate pull — cards ready with analysis by morning
+                # Midnight: odds/slates only — no analysis burn. Smart schedule handles it later.
                 if hour == 0:
-                    print(f"[ANALYSIS] Midnight auto-grade — building tomorrow's cards")
-                    async def _midnight_one(s):
-                        async with _analysis_sem:
-                            try:
-                                resp = await get_analysis(s)
-                                if hasattr(resp, 'body'):
-                                    d = json.loads(resp.body)
-                                    if d.get("games"):
-                                        _save_analysis_cache(s, d)
-                            except Exception as e:
-                                print(f"[ANALYSIS] Midnight error {s}: {e}")
-                    await asyncio.gather(*[_midnight_one(s) for s in active_sports])
+                    print(f"[ANALYSIS] Midnight slate pulled — analysis deferred to smart schedule")
+                    _smart_analysis_runs.clear()  # Reset for new day
 
-            # Scheduled analysis: 10AM, 1PM, 4PM PST — keep cache warm all day
-            # 10AM: morning lines locked, early edges
-            # 1PM: updated lines, injury news, afternoon sports (soccer/MMA)
-            # 4PM: right before tip, lineups confirmed
-            should_run_analysis = False
-            if hour in (10, 13, 16) and last_analysis_run != f"{today}:{hour}":
-                should_run_analysis = True
-                last_analysis_run = f"{today}:{hour}"
+            # ── Smart Analysis Schedule ──────────────────────────────────
+            # Run analysis at T-2h and T-30m before earliest tip per sport.
+            # Safety net: if no analysis exists by 4 PM, run for all sports.
+            active_sports = _in_season_sports()
+            for s in active_sports:
+                tip = _earliest_tip_pst(s)
+                if not tip:
+                    continue
+                run_key_2h = f"{today}:{s}:t-2h"
+                run_key_30m = f"{today}:{s}:t-30m"
 
-            if should_run_analysis:
+                # T-2h window: run if within 5 min of the 2h-before mark
+                t_minus_2h = tip - timedelta(hours=2)
+                if abs((now - t_minus_2h).total_seconds()) < 300 and _smart_analysis_runs.get(run_key_2h) is None:
+                    _smart_analysis_runs[run_key_2h] = True
+                    print(f"[ANALYSIS] Smart T-2h for {s.upper()} (tip at {tip.strftime('%I:%M %p PST')})")
+                    try:
+                        odds_key = f"{s}:h2h,spreads,totals"
+                        if odds_key in _cache:
+                            del _cache[odds_key]
+                        resp = await get_analysis(s)
+                        if hasattr(resp, 'body'):
+                            d = json.loads(resp.body)
+                            if d.get("games"):
+                                _save_analysis_cache(s, d)
+                                print(f"[ANALYSIS] Smart T-2h {s.upper()}: {len(d['games'])} games")
+                    except Exception as e:
+                        print(f"[ANALYSIS] Smart T-2h {s.upper()} failed: {e}")
+
+                # T-30m window: run if within 5 min of the 30m-before mark
+                t_minus_30m = tip - timedelta(minutes=30)
+                if abs((now - t_minus_30m).total_seconds()) < 300 and _smart_analysis_runs.get(run_key_30m) is None:
+                    _smart_analysis_runs[run_key_30m] = True
+                    print(f"[ANALYSIS] Smart T-30m for {s.upper()} (tip at {tip.strftime('%I:%M %p PST')})")
+                    try:
+                        odds_key = f"{s}:h2h,spreads,totals"
+                        if odds_key in _cache:
+                            del _cache[odds_key]
+                        resp = await get_analysis(s)
+                        if hasattr(resp, 'body'):
+                            d = json.loads(resp.body)
+                            if d.get("games"):
+                                _save_analysis_cache(s, d)
+                                print(f"[ANALYSIS] Smart T-30m {s.upper()}: {len(d['games'])} games")
+                    except Exception as e:
+                        print(f"[ANALYSIS] Smart T-30m {s.upper()} failed: {e}")
+
+            # Safety net: 4 PM catch-all — analyze anything not yet analyzed today
+            if hour == 16 and last_analysis_run != f"{today}:16":
+                last_analysis_run = f"{today}:16"
                 active_sports = _in_season_sports()
-                print(f"[ANALYSIS] Scheduled analysis at {now.strftime('%I:%M %p PST')} — {len(active_sports)} sports")
-                failed_sports = []
-                async def _sched_one(s):
-                    async with _analysis_sem:
+                needs_analysis = []
+                for s in active_sports:
+                    cached = _load_analysis_cache(s)
+                    if cached and cached.get("games"):
+                        cached_date = cached.get("generated_at", "")[:10] or cached.get("cached_at", "")[:10]
+                        if cached_date == today:
+                            continue
+                    needs_analysis.append(s)
+                if needs_analysis:
+                    print(f"[ANALYSIS] 4 PM safety net — {len(needs_analysis)} sports need analysis: {needs_analysis}")
+                    for s in needs_analysis:
                         try:
-                            # Force fresh odds before analysis
                             odds_key = f"{s}:h2h,spreads,totals"
                             if odds_key in _cache:
                                 del _cache[odds_key]
@@ -307,31 +343,10 @@ async def _daily_slate_pull():
                                 d = json.loads(resp.body)
                                 if d.get("games"):
                                     _save_analysis_cache(s, d)
-                                    print(f"[ANALYSIS] {s.upper()}: {len(d['games'])} games analyzed")
-                                else:
-                                    print(f"[ANALYSIS] {s.upper()}: No games on slate")
-                            else:
-                                failed_sports.append(s)
+                                    print(f"[ANALYSIS] Safety net {s.upper()}: {len(d['games'])} games")
                         except Exception as e:
-                            print(f"[ANALYSIS] {s.upper()} failed: {e}")
-                            failed_sports.append(s)
-                await asyncio.gather(*[_sched_one(s) for s in active_sports])
-                # Retry failed sports once after 30min
-                if failed_sports:
-                    print(f"[ANALYSIS] Retrying {len(failed_sports)} failed sports in 30min: {failed_sports}")
-                    await asyncio.sleep(1800)
-                    async def _retry_one(s):
-                        async with _analysis_sem:
-                            try:
-                                resp = await get_analysis(s)
-                                if hasattr(resp, 'body'):
-                                    d = json.loads(resp.body)
-                                    if d.get("games"):
-                                        _save_analysis_cache(s, d)
-                                        print(f"[ANALYSIS] Retry {s.upper()}: {len(d['games'])} games")
-                            except Exception as e:
-                                print(f"[ANALYSIS] Retry {s.upper()} failed again: {e}")
-                    await asyncio.gather(*[_retry_one(s) for s in failed_sports])
+                            print(f"[ANALYSIS] Safety net {s.upper()} failed: {e}")
+                        await asyncio.sleep(30)
 
             # ── 7 AM PST NCAAB Morning Slate ──────────────────────────────────
             # March Madness & regular season: NCAAB games tip early, analyze at 7 AM
@@ -387,14 +402,12 @@ async def _daily_slate_pull():
 
 
 async def _warm_analysis_cache():
-    """On startup, check if today's analysis exists for each sport. If not, generate it.
-    Runs once after boot with staggered delays to avoid hammering Azure."""
+    """On startup, load existing analysis caches into memory. No Azure calls — smart schedule handles generation."""
     await asyncio.sleep(120)  # Wait 2 min after boot for other services to stabilize
     active_sports = _in_season_sports()
     today = datetime.now(PST).strftime("%Y-%m-%d")
-    print(f"[ANALYSIS WARM] Checking cache for {len(active_sports)} sports...")
-    # First pass: check which sports need fresh analysis (sync, no API calls)
-    needs_generation = []
+    print(f"[ANALYSIS WARM] Checking cache for {len(active_sports)} sports (no generation — smart schedule handles it)...")
+    cached_count = 0
     for sport in active_sports:
         cached = _load_analysis_cache(sport)
         if cached and cached.get("games"):
@@ -402,25 +415,10 @@ async def _warm_analysis_cache():
             if cached_date == today:
                 print(f"[ANALYSIS WARM] {sport.upper()}: today's cache exists ({len(cached['games'])} games)")
                 _set_cache(f"analysis:{sport}", cached)
+                cached_count += 1
                 continue
-        needs_generation.append(sport)
-
-    # Second pass: generate missing caches SEQUENTIALLY (avoid overwhelming Azure)
-    if needs_generation:
-        print(f"[ANALYSIS WARM] Generating {len(needs_generation)} sports sequentially...")
-        for s in needs_generation:
-            try:
-                print(f"[ANALYSIS WARM] {s.upper()}: no today cache, generating...")
-                resp = await get_analysis(s)
-                if hasattr(resp, 'body'):
-                    d = json.loads(resp.body)
-                    if d.get("games"):
-                        _save_analysis_cache(s, d)
-                        print(f"[ANALYSIS WARM] {s.upper()}: generated {len(d['games'])} games")
-            except Exception as e:
-                print(f"[ANALYSIS WARM] {s.upper()} failed: {e}")
-            await asyncio.sleep(30)  # 30s gap between sports to avoid resource contention
-    print(f"[ANALYSIS WARM] Cache warm complete")
+        print(f"[ANALYSIS WARM] {sport.upper()}: no today cache — will be generated by smart schedule")
+    print(f"[ANALYSIS WARM] Boot check complete — {cached_count}/{len(active_sports)} sports have today's cache")
 
 
 PREFETCH_SPORTS = ["nba", "nhl", "ncaab", "mma"]
@@ -473,6 +471,33 @@ async def health_check():
 @app.get("/api/version")
 async def get_version():
     return JSONResponse({"version": BUILD_VERSION, "built": BUILD_TS, "mode": ANALYSIS_MODE, "thinker": ANALYSIS_THINKER, "formatter": ANALYSIS_FORMATTER})
+
+
+@app.get("/api/schedule")
+async def get_analysis_schedule():
+    """Return the smart analysis schedule — when each sport will be auto-analyzed."""
+    active_sports = _in_season_sports()
+    today = datetime.now(PST).strftime("%Y-%m-%d")
+    schedule = []
+    for s in active_sports:
+        tip = _earliest_tip_pst(s)
+        has_analysis = False
+        cached = _load_analysis_cache(s)
+        if cached and cached.get("games"):
+            cached_date = cached.get("generated_at", "")[:10] or cached.get("cached_at", "")[:10]
+            if cached_date == today:
+                has_analysis = True
+        entry = {
+            "sport": s,
+            "earliest_tip": tip.isoformat() if tip else None,
+            "t_minus_2h": (tip - timedelta(hours=2)).isoformat() if tip else None,
+            "t_minus_30m": (tip - timedelta(minutes=30)).isoformat() if tip else None,
+            "has_today_analysis": has_analysis,
+            "t_2h_fired": _smart_analysis_runs.get(f"{today}:{s}:t-2h", False),
+            "t_30m_fired": _smart_analysis_runs.get(f"{today}:{s}:t-30m", False),
+        }
+        schedule.append(entry)
+    return JSONResponse({"schedule": schedule, "generated_at": datetime.now(PST).isoformat()})
 
 
 # ===== CREW AUTH =====
@@ -693,6 +718,32 @@ _analysis_sem = asyncio.Semaphore(3)
 
 # Track which sports currently have analysis running
 _analysis_running: set[str] = set()
+_smart_analysis_runs: dict[str, bool] = {}  # Tracks which smart schedule runs have fired today
+
+
+def _earliest_tip_pst(sport: str) -> datetime | None:
+    """Get the earliest game tip time (PST) for a sport from today's slate."""
+    try:
+        slate = _load_daily_slate(sport)
+        if not slate:
+            return None
+        games = slate.get("games", []) if isinstance(slate, dict) else slate
+        now = datetime.now(PST)
+        tips = []
+        for g in games:
+            t = g.get("time", "")
+            if not t:
+                continue
+            try:
+                gt = datetime.fromisoformat(t.replace("Z", "+00:00")).astimezone(PST)
+                if gt > now:
+                    tips.append(gt)
+            except Exception:
+                continue
+        return min(tips) if tips else None
+    except Exception:
+        return None
+
 
 # Season map — which months each sport is active
 _SEASON_MONTHS = {

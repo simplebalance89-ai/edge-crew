@@ -2916,7 +2916,8 @@ function refreshSlate() {
                 batch.forEach(function(s) { fetchInjuries(s); });
                 setTimeout(function() { batchInjuries(idx + 3); }, 2000);
             })(0);
-            // DON'T auto-trigger analysis — user clicks ANALYZE button
+            // Auto-load cached analysis grades (no Azure calls — cached_only=true)
+            _autoLoadCachedGrades(sportsToLoad);
         }
     }
 
@@ -3371,6 +3372,24 @@ function switchSport(sport, e) {
         if (edgeContent && edgeContent.querySelector('p[style*="italic"]')) {
             fetchEdge(sport);
         }
+    }
+    // Auto-load cached analysis grades on sport switch (no AI calls)
+    if (sportList.indexOf(sport) !== -1 && !_analysisCache[sport.toUpperCase()]) {
+        fetch('/api/analysis/' + sport + '?cached_only=true')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.games && data.games.length > 0) {
+                    _analysisCache[sport.toUpperCase()] = data;
+                    injectPicksIntoCards(sport, data);
+                    updatePeterGut(sport, data);
+                    var panel = document.getElementById('panel-' + sport);
+                    if (panel && data.gotcha) {
+                        var display = document.getElementById('gotchaDisplay-' + sport.toUpperCase());
+                        if (display) display.innerHTML = data.gotcha;
+                    }
+                }
+            })
+            .catch(function() {});
     }
     // Initialize pick name from crew profile when opening submit panel
     if (sport === 'submit' && crewProfile) {
@@ -7288,6 +7307,42 @@ function _startLoadingExperience(sport) {
 }
 function _stopLoadingExperience() {
     if (window._loadingExpInterval) { clearInterval(window._loadingExpInterval); window._loadingExpInterval = null; }
+}
+
+function _autoLoadCachedGrades(sports) {
+    // Silently fetch cached analysis for each sport — if grades exist, show them
+    // This NEVER triggers new AI calls — only reads what the server already has
+    var loaded = 0;
+    sports.forEach(function(sport) {
+        fetch('/api/analysis/' + sport + '?cached_only=true')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                loaded++;
+                if (data.games && data.games.length > 0) {
+                    // Cache analysis data
+                    _analysisCache[sport.toUpperCase()] = data;
+                    // Inject grades into game cards
+                    injectPicksIntoCards(sport, data);
+                    // Update Peter's Gut section
+                    updatePeterGut(sport, data);
+                    // Update gotcha banner
+                    var panel = document.getElementById('panel-' + sport);
+                    if (panel && data.gotcha) {
+                        var display = document.getElementById('gotchaDisplay-' + sport.toUpperCase());
+                        if (display) display.innerHTML = data.gotcha;
+                    }
+                    console.log('[AUTO-GRADE] ' + sport.toUpperCase() + ': ' + data.games.length + ' games loaded from cache');
+                }
+                // Refresh dashboard after all sports checked
+                if (loaded >= sports.length) {
+                    refreshDashboard();
+                }
+            })
+            .catch(function(err) {
+                loaded++;
+                console.log('[AUTO-GRADE] ' + sport.toUpperCase() + ': no cache available');
+            });
+    });
 }
 
 function fetchAnalysis(sport) {
