@@ -4307,7 +4307,7 @@ Generate analysis in this EXACT JSON format:
 
 HARD RULES — NEVER BREAK THESE:
 1. VALUE RANGE: -180 to +400. This is where we find edges. ML worse than -180 = too juiced, take the spread instead. ML past +400 = longshot, not a value play. If a game's best ML play falls outside -180 to +400, flag it and redirect to spread/total.
-8. If lineups are NOT confirmed (game hasn't posted starters, injury report pending, lineups TBD), grade the game "TBD" — not a letter grade. We do not grade games without confirmed lineups. Period.
+8. If lineups are NOT confirmed (game hasn't posted starters, injury report pending, lineups TBD), still grade the game based on available data — but set data_status to "PRE-LINEUP" and note what's pending. Do NOT withhold a grade; provisional grades with clear data caveats are more useful than TBD.
 2. NEVER suggest a player prop without considering games played this season. If a player has < 20 games, FLAG IT: "Returning from injury / limited sample / possible minutes restriction." Grade that prop C or lower regardless of the line.
 3. ALL player prop analysis uses LAST 10 GAME averages from the PLAYER GAME LOGS table above, not season averages. Season stats lie for guys who missed time. Reference the L10 PTS/REB/AST columns. If a player is NOT in the game logs table, say: "No recent game log available" — do NOT estimate or guess stats.
 4. FULL LINEUP CONTEXT before grading ANY game. If a star player is OUT, LIMITED, or returning from injury, the ENTIRE team analysis changes — scoring output, pace, defensive matchups, everything. The spread already prices this in — your analysis must too. Don't grade a team as if they have their full roster when they don't.
@@ -4454,7 +4454,7 @@ COMPOSITE THRESHOLDS:
 10. VALUE RANGE: -180 to +400 for ML. Outside that, redirect to spread/total.
 
 HARD RULES:
-- If lineups NOT confirmed, grade TBD — not a letter grade.
+- If lineups NOT confirmed, grade based on available data and set data_status to "PRE-LINEUP". Never withhold a grade.
 - All prop analysis uses LAST 10 GAME averages, not season averages.
 - If a player has < 20 games this season, flag it.
 - Be brutally honest. "Slight edge" with no specifics = D grade.
@@ -5055,6 +5055,42 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
                 game["alt_grade"] = alt
             except Exception as e:
                 logger.warning(f"Alt grade failed for {game.get('matchup', '?')}: {e}")
+
+        # ===== EV INJECTION — calculate expected value for every game =====
+        _GRADE_TO_PROB = {
+            "A+": 72, "A": 68, "A-": 65, "B+": 62, "B": 59,
+            "B-": 57, "C+": 55, "C": 53, "D": 51, "F": 49,
+        }
+        for game in all_analyzed_games:
+            try:
+                grade = game.get("grade", "")
+                our_prob = _GRADE_TO_PROB.get(grade)
+                if our_prob is None:
+                    game["ev"] = None
+                    game["kelly"] = None
+                    continue
+                edge_pick = game.get("edge_pick") or {}
+                raw_line = str(edge_pick.get("line", "") or "")
+                import re as _re
+                odds_match = _re.search(r"[+-]?\d{3,}", raw_line)
+                if not odds_match:
+                    game["ev"] = None
+                    game["kelly"] = None
+                    continue
+                american_odds = float(odds_match.group())
+                decimal = (1 + american_odds / 100) if american_odds > 0 else (1 + 100 / abs(american_odds))
+                p = our_prob / 100
+                ev = round(((p * (decimal - 1)) - (1 - p)) * 100, 1)
+                b = decimal - 1
+                kelly = round(max(0, (p * b - (1 - p)) / b) * 100, 1) if b > 0 else 0
+                game["ev"] = ev
+                game["kelly"] = kelly
+                game["ev_prob"] = our_prob
+            except Exception as _ev_err:
+                game["ev"] = None
+                game["kelly"] = None
+                logger.debug(f"[EV] {game.get('matchup')} — skipped: {_ev_err}")
+        # ===== END EV INJECTION =====
 
         # ===== CROSS-VALIDATION GATE (WS4) — validate players before caching =====
         validation_log = []
