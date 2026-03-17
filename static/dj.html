@@ -787,6 +787,87 @@
   .dmc-w5, .dmc-w6 { color: var(--text-dim); }
   .dmc-w4, .dmc-w3, .dmc-w2, .dmc-w1 { color: var(--red); }
 
+  /* Edge badge on game cards */
+  .edge-badge {
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 6px;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    line-height: 1;
+    text-align: center;
+  }
+  .edge-high { color: var(--green); background: rgba(0, 214, 143, 0.15); }
+  .edge-mid { color: var(--yellow); background: rgba(255, 217, 61, 0.12); }
+  .edge-low { color: var(--text-dim); background: rgba(136, 136, 160, 0.1); }
+
+  /* Top Edges summary */
+  .top-edges {
+    background: var(--card-bg);
+    border: 1px solid rgba(0, 214, 143, 0.25);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+  }
+  .top-edges .te-header {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--green);
+    font-weight: 800;
+    margin-bottom: 10px;
+  }
+  .top-edges .te-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .top-edges .te-item:last-child { border-bottom: none; }
+  .top-edges .te-rank {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: var(--accent-glow);
+    min-width: 18px;
+  }
+  .top-edges .te-matchup {
+    flex: 1;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .top-edges .te-reason {
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    flex: 1;
+  }
+
+  /* Sort toggle */
+  .sort-toggle {
+    display: inline-flex;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--card-border);
+    font-size: 0.68rem;
+    font-weight: 700;
+  }
+  .sort-toggle-btn {
+    padding: 5px 12px;
+    background: var(--pill-bg);
+    color: var(--text-dim);
+    cursor: pointer;
+    border: none;
+    font-family: inherit;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    transition: all 0.2s;
+  }
+  .sort-toggle-btn:hover { color: var(--text); }
+  .sort-toggle-btn.active { background: var(--pill-active); color: #fff; }
+
   /* Toast */
   .agent-toast {
     position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
@@ -871,7 +952,7 @@
 
 <script>
 const AGENT_USER_ID = 'dj';
-const SPORTS = ['ncaab','nba','mlb'];
+let SPORTS = ['ncaab','nba','mlb'];  // default fallback; replaced dynamically by init()
 const SPORT_LABELS = {ncaab:'NCAAB',nba:'NBA',nhl:'NHL',mlb:'MLB',soccer:'Soccer',tennis:'Tennis',mma:'MMA',boxing:'Boxing',wnba:'WNBA',ncaaf:'NCAAF'};
 
 // Default matrix definitions — the 20-variable scoring system per sport
@@ -964,6 +1045,17 @@ let rtcMicStream = null;
 let voiceActive = false;
 
 async function init() {
+  // Load in-season sports from server schedule
+  try {
+    const schedResp = await fetch('/api/schedule');
+    if (schedResp.ok) {
+      const schedData = await schedResp.json();
+      if (schedData.schedule && schedData.schedule.length > 0) {
+        SPORTS = schedData.schedule.map(s => s.sport);
+      }
+    }
+  } catch(e) { console.log('Schedule fetch failed, using defaults'); }
+
   // Load agent profile
   try {
     const resp = await fetch('/api/agent/' + AGENT_USER_ID + '/profile');
@@ -1084,7 +1176,7 @@ async function loadSport(sport) {
         const oddsMatchup = `${og.away} @ ${og.home}`;
         // Find matching analysis game by team name overlap
         let matched = null;
-        const ogTeams = [og.away, og.home].map(t => (t || '').toLowerCase().split(/\s+/).filter(w => w.length > 2));
+        const ogTeams = [og.away, og.home].map(t => (t || '').toLowerCase().split(/\s+/).filter(w => w.length > 1));
         for (const ag of analysisGames) {
           const am = (ag.matchup || '').toLowerCase();
           const found = ogTeams.some(teamWords => teamWords.some(w => am.includes(w)));
@@ -1188,9 +1280,31 @@ async function loadSport(sport) {
       html += `</div>`;
     }
 
-    // Sort games: best grades first
-    const gradeOrder = {'A+':0,'A':1,'A-':2,'B+':3,'B':4,'B-':5,'C+':6,'C':7,'D':8,'F':9,'TBD':10,'INCOMPLETE':11};
-    games.sort((a, b) => (gradeOrder[a.grade] ?? 10) - (gradeOrder[b.grade] ?? 10));
+    // Top Edges summary (before game cards)
+    html += renderTopEdges(games);
+
+    // Sort toggle
+    html += `<div class="reanalyze-bar">
+      <div class="sort-toggle">
+        <button class="sort-toggle-btn ${currentSortMode === 'edge' ? 'active' : ''}" onclick="setSortMode('edge')">By Edge</button>
+        <button class="sort-toggle-btn ${currentSortMode === 'time' ? 'active' : ''}" onclick="setSortMode('time')">By Time</button>
+      </div>
+    </div>`;
+
+    // Sort games based on current mode
+    if (currentSortMode === 'edge') {
+      games.sort((a, b) => (parseFloat(b.composite_score) || 0) - (parseFloat(a.composite_score) || 0));
+    } else {
+      // Sort by game time ascending
+      games.sort((a, b) => {
+        const tA = a.commence_time || a.commence || a.time || '';
+        const tB = b.commence_time || b.commence || b.time || '';
+        if (!tA && !tB) return 0;
+        if (!tA) return 1;
+        if (!tB) return -1;
+        return new Date(tA).getTime() - new Date(tB).getTime();
+      });
+    }
 
     games.forEach((game, idx) => {
       html += renderGameCard(game, screenerByGame[game.matchup] || [], oddsByGame[game.matchup] || null, idx);
@@ -1228,9 +1342,33 @@ async function reanalyzeSlate(sport) {
   }
 }
 
-async function reanalyzeGame(sport) {
-  // For now, re-fetch the whole slate
-  await reanalyzeSlate(sport);
+async function reanalyzeGame(sport, awayTeam, homeTeam) {
+  const btn = event && event.target;
+  if (btn) { btn.disabled = true; btn.textContent = 'ANALYZING...'; }
+  try {
+    const resp = await fetch('/api/ev/card', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sport, away_team: awayTeam, home_team: homeTeam })
+    });
+    if (!resp.ok) throw new Error('EV card request failed');
+    const evResult = await resp.json();
+    // Show result in an alert-style overlay on the game card
+    const summary = [];
+    if (evResult.spread_call) summary.push('SPREAD: ' + evResult.spread_call.pick + ' — ' + evResult.spread_call.reasoning);
+    if (evResult.trap_check) summary.push('TRAP CHECK: ' + evResult.trap_check);
+    if (evResult.book_discrepancy) summary.push('DISCREPANCY: ' + evResult.book_discrepancy);
+    if (evResult.top_props && evResult.top_props.length) {
+      summary.push('PROPS: ' + evResult.top_props.map(p => p.player + ' ' + p.prop + ' (' + p.verdict + ')').join(', '));
+    }
+    if (evResult.error) summary.push('ERROR: ' + evResult.error);
+    alert(awayTeam + ' @ ' + homeTeam + '\n\n' + (summary.length ? summary.join('\n\n') : 'No EV data returned.'));
+  } catch (err) {
+    console.error('Re-analyze game failed:', err);
+    alert('Re-analyze failed for ' + awayTeam + ' @ ' + homeTeam + '. Check console.');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'RE-ANALYZE'; }
+  }
 }
 
 function buildOddsMap(oddsGames, analysisGames) {
@@ -1242,8 +1380,8 @@ function buildOddsMap(oddsGames, analysisGames) {
     for (const ag of analysisGames) {
       const agKey = (ag.matchup || '').toLowerCase();
       // Match by team name overlap
-      const ogTeams = ogKey.replace('@', ' ').split(/\s+/).filter(t => t.length > 2);
-      const agTeams = agKey.replace('@', ' ').split(/\s+/).filter(t => t.length > 2);
+      const ogTeams = ogKey.replace('@', ' ').split(/\s+/).filter(t => t.length > 1);
+      const agTeams = agKey.replace('@', ' ').split(/\s+/).filter(t => t.length > 1);
       const overlap = ogTeams.some(t => agTeams.some(h => h.includes(t) || t.includes(h)));
       if (overlap && !map[ag.matchup]) {
         map[ag.matchup] = og;
@@ -1262,8 +1400,8 @@ function buildScreenerMap(screenerHits, games) {
     const hitMatchup = (hit.matchup || '').toLowerCase();
     for (const g of games) {
       const gm = (g.matchup || '').toLowerCase();
-      const gTeams = gm.replace('@', ' ').split(/\s+/).filter(t => t.length > 2);
-      const hTeams = hitMatchup.replace('@', ' ').replace('vs', ' ').split(/\s+/).filter(t => t.length > 2);
+      const gTeams = gm.replace('@', ' ').split(/\s+/).filter(t => t.length > 1);
+      const hTeams = hitMatchup.replace('@', ' ').replace('vs', ' ').split(/\s+/).filter(t => t.length > 1);
       const overlap = gTeams.some(t => hTeams.some(h => h.includes(t) || t.includes(h)));
       if (overlap) {
         if (!map[g.matchup]) map[g.matchup] = [];
@@ -1273,6 +1411,45 @@ function buildScreenerMap(screenerHits, games) {
     }
   });
   return map;
+}
+
+function edgeBadgeHtml(compositeScore) {
+  if (compositeScore === null || compositeScore === undefined) return '';
+  const score = parseFloat(compositeScore) || 0;
+  const cls = score >= 7 ? 'edge-high' : score >= 5 ? 'edge-mid' : 'edge-low';
+  return `<div class="edge-badge ${cls}">EDGE ${score.toFixed(1)}</div>`;
+}
+
+function renderTopEdges(games) {
+  // Filter games that have a composite_score, sort descending, take top 3
+  const scored = games.filter(g => g.composite_score !== null && g.composite_score !== undefined);
+  if (scored.length === 0) return '';
+  scored.sort((a, b) => (parseFloat(b.composite_score) || 0) - (parseFloat(a.composite_score) || 0));
+  const top3 = scored.slice(0, 3);
+
+  let html = `<div class="top-edges"><div class="te-header">TOP EDGES</div>`;
+  top3.forEach((g, i) => {
+    const score = parseFloat(g.composite_score) || 0;
+    const cls = score >= 7 ? 'edge-high' : score >= 5 ? 'edge-mid' : 'edge-low';
+    const pick = g.edge_pick || {};
+    const reason = pick.bet_type ? `${pick.bet_type}${pick.team ? ' — ' + pick.team : ''}` : (g.grade ? 'Grade: ' + g.grade : '');
+    html += `<div class="te-item">
+      <span class="te-rank">#${i + 1}</span>
+      <span class="te-matchup">${esc(g.matchup || '?')}</span>
+      <span class="te-reason">${esc(reason)}</span>
+      <div class="edge-badge ${cls}">EDGE ${score.toFixed(1)}</div>
+    </div>`;
+  });
+  html += `</div>`;
+  return html;
+}
+
+// Sort mode state
+let currentSortMode = 'edge'; // 'edge' or 'time'
+
+function setSortMode(mode) {
+  currentSortMode = mode;
+  if (currentSport) loadSport(currentSport);
 }
 
 function gradeClass(grade) {
@@ -1511,9 +1688,10 @@ function renderGameCard(game, screenerHits, oddsGame, cardIdx) {
       <div class="matchup-meta">${timeStr ? esc(timeStr) : ''}${lineStr ? ' &mdash; ' + esc(lineStr) : ''}</div>
     </div>
     <div class="card-actions">
+      ${edgeBadgeHtml(game.composite_score)}
       <div class="grade-badge ${gradeClass(grade)}">${esc(grade)}</div>
       ${renderDJBadge(matchup)}
-      <button class="reanalyze-btn small" onclick="reanalyzeGame('${currentSport}')" title="Re-analyze this game">RE-ANALYZE</button>
+      <button class="reanalyze-btn small" onclick="reanalyzeGame('${currentSport}', '${esc(awayName)}', '${esc(homeName)}')" title="Re-analyze this game">RE-ANALYZE</button>
     </div>
   </div>`;
 
