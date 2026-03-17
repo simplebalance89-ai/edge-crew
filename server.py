@@ -538,7 +538,7 @@ def _write_profiles(data):
         json.dump(data, f, indent=2)
 
 
-CREW_DEFAULT_PINS = {"peter": "0000", "jimmy": "0000", "chinny": "0000",
+CREW_DEFAULT_PINS = {"peter": "1234", "jimmy": "0000", "chinny": "0000",
                      "alyssa": "0000", "sintonia": "0000", "sportsbook": "0000",
                      "tunk": "1525", "padrino": "0726", "los": "4200",
                      "renzo": "0000"}
@@ -972,6 +972,8 @@ Keep responses under 3 sentences for voice. Be the sharpest analyst in the room.
 # Simple in-memory cache to save API credits
 _cache = {}
 CACHE_TTL = 300  # 5 minutes
+SCORES_CACHE_TTL = 900  # 15 min — autograde callers (was 5 min, reduced SGO quota burn)
+SCOREBOARD_CACHE_TTL = 1800  # 30 min — /api/scores display (live scoreboard, less critical)
 ANALYSIS_CACHE_TTL = 10800  # 3 hours — scheduled analysis runs at 12/3/6 PM PST
 
 # Opening lines tracker — stores first-seen odds per game per day
@@ -1017,6 +1019,56 @@ def _get_cached(key, ttl=None):
 
 def _set_cache(key, data):
     _cache[key] = (data, time.time())
+
+
+# ── SGO Soccer Dedup Lock — one SGO call for all 9 soccer sport_keys ──────
+_sgo_soccer_lock = asyncio.Lock()
+
+# ── SGO Entity Budget Tracker — prevent quota burnout ─────────────────────
+SGO_USAGE_FILE = os.path.join(DATA_DIR, "sgo_usage.json")
+SGO_MONTHLY_BUDGET = 100000  # Rookie tier limit
+SGO_BUDGET_THRESHOLD = 90000  # Fall back to Odds API after this
+
+
+def _read_sgo_usage() -> dict:
+    """Read SGO usage tracking. Auto-resets on new month."""
+    try:
+        if os.path.exists(SGO_USAGE_FILE):
+            with open(SGO_USAGE_FILE, "r") as f:
+                data = json.load(f)
+            # Auto-reset on new month
+            if data.get("month") != datetime.now(PST).strftime("%Y-%m"):
+                return {"month": datetime.now(PST).strftime("%Y-%m"), "entities": 0, "calls": 0, "by_sport": {}}
+            return data
+    except Exception:
+        pass
+    return {"month": datetime.now(PST).strftime("%Y-%m"), "entities": 0, "calls": 0, "by_sport": {}}
+
+
+def _record_sgo_entities(count: int, sport: str = "unknown"):
+    """Record SGO entity usage after a successful fetch."""
+    usage = _read_sgo_usage()
+    usage["entities"] = usage.get("entities", 0) + count
+    usage["calls"] = usage.get("calls", 0) + 1
+    usage["last_call"] = datetime.now(PST).isoformat()
+    by_sport = usage.get("by_sport", {})
+    by_sport[sport] = by_sport.get(sport, 0) + count
+    usage["by_sport"] = by_sport
+    try:
+        with open(SGO_USAGE_FILE, "w") as f:
+            json.dump(usage, f, indent=2)
+    except Exception as e:
+        logger.warning(f"SGO usage write failed: {e}")
+
+
+def _sgo_budget_ok() -> bool:
+    """Check if we're within SGO entity budget (< 90K threshold)."""
+    usage = _read_sgo_usage()
+    entities = usage.get("entities", 0)
+    if entities >= SGO_BUDGET_THRESHOLD:
+        logger.warning(f"SGO budget exceeded: {entities}/{SGO_MONTHLY_BUDGET} entities — falling back to Odds API")
+        return False
+    return True
 
 
 # ── Scores Archive — persist completed game scores locally ────────────────
@@ -5707,7 +5759,7 @@ async def get_scores():
     fetch_sports = []
     for sport in active_sports:
         for key in SPORT_KEYS.get(sport, []):
-            fetch_tasks.append(_fetch_scores(key))
+            fetch_tasks.append(_fetch_scores(key, cache_ttl=SCOREBOARD_CACHE_TTL))
             fetch_sports.append(sport)
 
     results = await asyncio.gather(*fetch_tasks, return_exceptions=True)
@@ -5764,11 +5816,21 @@ async def get_scores():
                 "winner": winner,
             })
 
-    games.sort(key=lambda x: x.get("commence_time", ""))
+    # Deduplicate by game identity (away + home + commence_time)
+    # Soccer dedup cache returns same games for all 9 soccer sport_keys
+    seen = set()
+    unique_games = []
+    for g in games:
+        gid = (g.get("away", ""), g.get("home", ""), g.get("commence_time", ""))
+        if gid not in seen:
+            seen.add(gid)
+            unique_games.append(g)
+
+    unique_games.sort(key=lambda x: x.get("commence_time", ""))
     return JSONResponse({
         "date": today_pst,
-        "games": games,
-        "count": len(games),
+        "games": unique_games,
+        "count": len(unique_games),
         "timestamp": _now_ts(),
     })
 
@@ -5853,22 +5915,27 @@ async def _fetch_sportsgameodds_scores(sport_lower: str, days_from: int = 3) -> 
                     break
 
         logger.info(f"SportsGameOdds scores {sport_lower}: {len(games)} games, {sum(1 for g in games if g['completed'])} completed")
+        if games:
+            _record_sgo_entities(len(games), sport_lower)
     except Exception as e:
         logger.warning(f"SportsGameOdds scores failed ({sport_lower}): {type(e).__name__}: {e}")
 
     return games
 
 
-async def _fetch_scores(sport_key: str, days_from: int = 3) -> list:
-    """Fetch game scores: SportsGameOdds primary, Odds API fallback. Cached 5 min.
+async def _fetch_scores(sport_key: str, days_from: int = 3, cache_ttl: int = None) -> list:
+    """Fetch game scores: SportsGameOdds primary, Odds API fallback.
 
     1. Load archived completed scores (free — local file)
     2. Fetch fresh scores from SportsGameOdds (primary) or Odds API (fallback)
     3. Archive any newly completed games
     4. Merge and dedupe by game ID
+
+    cache_ttl: override TTL (default SCORES_CACHE_TTL=15min, scoreboard uses 30min)
     """
+    effective_ttl = cache_ttl or SCORES_CACHE_TTL
     cache_key = f"scores:{sport_key}:{days_from}"
-    cached = _get_cached(cache_key)
+    cached = _get_cached(cache_key, ttl=effective_ttl)
     if cached is not None:
         return cached
 
@@ -5883,11 +5950,34 @@ async def _fetch_scores(sport_key: str, days_from: int = 3) -> list:
     _sgo_reverse = {v: k for k, vals in SPORT_KEYS.items() for v in vals}
     sport_lower = _sgo_reverse.get(sport_key, sport_key.split("_")[-1].lower())
 
-    # PRIMARY: SportsGameOdds
-    if SPORTSGAMEODDS_KEY and sport_lower in SGO_LEAGUE_MAP:
-        sgo_games = await _fetch_sportsgameodds_scores(sport_lower, days_from)
-        if sgo_games:
-            api_games = sgo_games
+    # PRIMARY: SportsGameOdds (with budget gate)
+    if SPORTSGAMEODDS_KEY and sport_lower in SGO_LEAGUE_MAP and _sgo_budget_ok():
+        # Soccer dedup: all soccer sport_keys share one SGO call (9→1)
+        if sport_lower == "soccer":
+            shared_key = f"sgo_raw:soccer:{days_from}"
+            # Double-checked locking: check cache first without lock
+            shared = _get_cached(shared_key, ttl=effective_ttl)
+            if shared is not None:
+                logger.info(f"SGO shared cache HIT for soccer (sport_key={sport_key})")
+                api_games = shared
+            else:
+                async with _sgo_soccer_lock:
+                    # Re-check after acquiring lock (another coroutine may have filled it)
+                    shared = _get_cached(shared_key, ttl=effective_ttl)
+                    if shared is not None:
+                        logger.info(f"SGO shared cache HIT (post-lock) for soccer (sport_key={sport_key})")
+                        api_games = shared
+                    else:
+                        sgo_games = await _fetch_sportsgameodds_scores(sport_lower, days_from)
+                        if sgo_games:
+                            _set_cache(shared_key, sgo_games)
+                            api_games = sgo_games
+                            logger.info(f"SGO shared cache SET for soccer: {len(sgo_games)} games")
+        else:
+            sgo_games = await _fetch_sportsgameodds_scores(sport_lower, days_from)
+            if sgo_games:
+                api_games = sgo_games
+        if api_games:
             logger.info(f"Scores PRIMARY (SportsGameOdds) {sport_key}: {len(api_games)} games")
 
     # FALLBACK: Odds API (only if primary returned nothing)
@@ -10585,6 +10675,28 @@ async def get_simple_slate(sport: str):
         "total_games": len(analysis_games),
         "edge_count": len(games_with_edges),
         "updated_at": _now_ts(),
+    })
+
+
+@app.get("/api/sgo-usage")
+async def sgo_usage():
+    """SGO entity budget monitoring endpoint."""
+    usage = _read_sgo_usage()
+    entities = usage.get("entities", 0)
+    budget = SGO_MONTHLY_BUDGET
+    return JSONResponse({
+        "month": usage.get("month", ""),
+        "entities_used": entities,
+        "budget": budget,
+        "threshold": SGO_BUDGET_THRESHOLD,
+        "remaining": max(0, budget - entities),
+        "percent_used": round(entities / budget * 100, 1) if budget else 0,
+        "over_threshold": entities >= SGO_BUDGET_THRESHOLD,
+        "calls": usage.get("calls", 0),
+        "by_sport": usage.get("by_sport", {}),
+        "last_call": usage.get("last_call", ""),
+        "daily_avg": round(entities / max(1, int(datetime.now(PST).strftime("%d"))), 1),
+        "projected_monthly": round(entities / max(1, int(datetime.now(PST).strftime("%d"))) * 30, 0),
     })
 
 
