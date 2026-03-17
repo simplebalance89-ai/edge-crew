@@ -706,6 +706,35 @@ SGO_LEAGUE_MAP = {
     "mma": "UFC",
     "soccer": "EPL,LA_LIGA,BUNDESLIGA,IT_SERIE_A,FR_LIGUE_1,UEFA_CHAMPIONS_LEAGUE,MLS",
 }
+# SGO player prop stat types per sport (oddID prefix → display label)
+SGO_PROP_STATS = {
+    "nba": {
+        "points": "Points", "rebounds": "Rebounds", "assists": "Assists",
+        "threePointersMade": "Threes", "blocks": "Blocks", "steals": "Steals",
+        "points+rebounds+assists": "Pts+Reb+Ast", "points+rebounds": "Pts+Reb",
+        "points+assists": "Pts+Ast", "rebounds+assists": "Reb+Ast",
+    },
+    "nhl": {
+        "points": "Points", "assists": "Assists", "goals": "Goals",
+        "shots": "Shots", "saves": "Saves",
+    },
+    "nfl": {
+        "passingYards": "Pass Yds", "rushingYards": "Rush Yds",
+        "receivingYards": "Rec Yds", "passingTouchdowns": "Pass TDs",
+        "receptions": "Receptions", "completions": "Completions",
+    },
+    "mlb": {
+        "strikeouts": "Strikeouts", "totalBases": "Total Bases",
+        "hits": "Hits", "homeRuns": "Home Runs", "rbi": "RBIs",
+        "pitcherStrikeouts": "Pitcher Ks",
+    },
+    "soccer": {
+        "goals": "Goals", "assists": "Assists", "shots": "Shots",
+        "shotsOnTarget": "Shots On Target",
+    },
+    "mma": {},
+    "boxing": {},
+}
 BALLDONTLIE_API_KEY = os.environ.get("BALLDONTLIE_API_KEY", "373a65ea-c799-4c41-b54a-64909073123c")
 BALLDONTLIE_BASE = "https://api.balldontlie.io/v1"
 PREFERRED_BOOK = "hardrockbet"
@@ -969,7 +998,7 @@ _cache = {}
 CACHE_TTL = 300  # 5 minutes
 SCORES_CACHE_TTL = 900  # 15 min — autograde callers (was 5 min, reduced SGO quota burn)
 SCOREBOARD_CACHE_TTL = 1800  # 30 min — /api/scores display (live scoreboard, less critical)
-ANALYSIS_CACHE_TTL = 10800  # 3 hours — scheduled analysis runs at 12/3/6 PM PST
+ANALYSIS_CACHE_TTL = 10800  # 3 hours — scheduled analysis runs at 7 AM/noon/4 PM PST
 
 # Opening lines tracker — stores first-seen odds per game per day
 _opening_lines = {}  # key: "YYYY-MM-DD:{game_id}" -> {spread, total, away_ml, home_ml}
@@ -1345,6 +1374,7 @@ ROTOWIRE_URLS = {
 }
 
 NBA_MATRIX = [
+    ("thesis_edge", 10, "Core thesis — why is the market WRONG? Strength of the specific edge identified"),
     ("star_player_status", 9, "Star player (top 2) out or limited"),
     ("rest_advantage", 9, "B2B, 3-in-4, rest days between games"),
     ("line_movement", 9, "Line movement since open — sharp action, reverse moves"),
@@ -1368,6 +1398,7 @@ NBA_MATRIX = [
 ]
 
 NHL_MATRIX = [
+    ("thesis_edge", 10, "Core thesis — why is the market WRONG? Strength of the specific edge identified"),
     ("goalie_confirmed", 9, "Goalie confirmed starter"),
     ("star_player_status", 9, "Top line center, #1 D-man out or limited"),
     ("line_movement", 9, "Line movement since open — sharp action, reverse moves"),
@@ -1391,6 +1422,7 @@ NHL_MATRIX = [
 ]
 
 SOCCER_MATRIX = [
+    ("thesis_edge", 10, "Core thesis — why is the market WRONG? Strength of the specific edge identified"),
     ("star_player_status", 9, "Key striker or GK out or limited"),
     ("btts_trend", 9, "Both Teams to Score trend"),
     ("xg_trend", 9, "xG (expected goals) trend"),
@@ -1415,6 +1447,7 @@ SOCCER_MATRIX = [
 
 NCAAB_MATRIX = [
     # Tier 1 — Weight 9 (Game Changers)
+    ("thesis_edge", 10, "Core thesis — why is the market WRONG? Strength of the specific edge identified"),
     ("offensive_efficiency", 9, "KenPom/Torvik adjusted offensive efficiency — THE predictor in college basketball"),
     ("defensive_efficiency", 9, "KenPom/Torvik adjusted defensive efficiency"),
     ("star_player_status", 9, "Key player (top 2) out/limited — 8-man rotation means losing 1 = losing 12-15% of offense"),
@@ -1446,6 +1479,7 @@ NCAAB_MATRIX = [
 ]
 
 MLB_MATRIX = [
+    ("thesis_edge", 10, "Core thesis — why is the market WRONG? Strength of the specific edge identified"),
     ("starting_pitcher", 9, "Starting pitcher quality — ERA, WHIP, K/9, recent form"),
     ("bullpen_strength", 9, "Bullpen strength — ERA, leverage usage, rest"),
     ("lineup_vs_hand", 8, "Lineup vs LHP/RHP splits — wOBA, OPS"),
@@ -1469,6 +1503,7 @@ MLB_MATRIX = [
 ]
 
 WNBA_MATRIX = [
+    ("thesis_edge", 10, "Core thesis — why is the market WRONG? Strength of the specific edge identified"),
     ("star_player_status", 9, "Star player (top 2) out or limited"),
     ("rest_advantage", 9, "B2B, 3-in-5, rest days between games"),
     ("line_movement", 9, "Line movement since open — sharp action, reverse moves"),
@@ -1492,6 +1527,7 @@ WNBA_MATRIX = [
 ]
 
 NCAAF_MATRIX = [
+    ("thesis_edge", 10, "Core thesis — why is the market WRONG? Strength of the specific edge identified"),
     ("sharp_vs_public", 9, "Sharp money vs public betting split"),
     ("line_movement", 9, "Line movement since open — sharp action, reverse moves"),
     ("offensive_efficiency", 8, "Offensive yards/play, points/drive, EPA"),
@@ -1515,6 +1551,7 @@ NCAAF_MATRIX = [
 ]
 
 TENNIS_MATRIX = [
+    ("thesis_edge", 10, "Core thesis — why is the market WRONG? Strength of the specific edge identified"),
     ("surface_advantage", 9, "Surface win % — clay, hard, grass specialization"),
     ("h2h_record", 9, "Head-to-head record and recent matchup trends"),
     ("recent_form", 8, "Recent form — wins/losses last 5-10 matches"),
@@ -1539,6 +1576,7 @@ TENNIS_MATRIX = [
 
 MMA_MATRIX = [
     # Tier 1 — Weight 9
+    ("thesis_edge", 10, "Core thesis — why is the market WRONG? Strength of the specific edge identified"),
     ("style_matchup", 9, "Style matchup — striker vs grappler, range fighter vs pressure"),
     # Tier 2 — Weight 8
     ("recent_form", 8, "Recent form — wins, finishes, decision losses"),
@@ -1569,6 +1607,7 @@ MMA_MATRIX = [
 
 BOXING_MATRIX = [
     # Tier 1 — Weight 9
+    ("thesis_edge", 10, "Core thesis — why is the market WRONG? Strength of the specific edge identified"),
     ("style_matchup", 9, "Style matchup — counter-puncher vs pressure, southpaw vs orthodox (includes counter-punching as a style)"),
     ("line_vs_model", 9, "Our composite vs the line — meta-edge signal, THE edge indicator. Discrepancy = opportunity"),
     # Tier 2 — Weight 8
@@ -1886,6 +1925,30 @@ def _detect_chains(game, sport, matrix_scores):
     return triggered
 
 
+def _score_to_grade(score):
+    """Convert a numeric score (0-10) to a letter grade."""
+    if score >= 8.5:
+        return "A+"
+    elif score >= 7.8:
+        return "A"
+    elif score >= 7.0:
+        return "A-"
+    elif score >= 6.5:
+        return "B+"
+    elif score >= 6.0:
+        return "B"
+    elif score >= 5.5:
+        return "B-"
+    elif score >= 5.0:
+        return "C+"
+    elif score >= 4.0:
+        return "C"
+    elif score >= 3.0:
+        return "D"
+    else:
+        return "F"
+
+
 def _recalculate_grade(game, sport):
     """Server-side grade recalculation from matrix scores. Overrides GPT's grade.
 
@@ -1904,26 +1967,7 @@ def _recalculate_grade(game, sport):
         # GPT didn't return matrix scores — fall back to GPT's composite_score for grading
         gpt_score = game.get("composite_score")
         if isinstance(gpt_score, (int, float)) and gpt_score > 0:
-            if gpt_score >= 8.5:
-                game["grade"] = "A+"
-            elif gpt_score >= 7.8:
-                game["grade"] = "A"
-            elif gpt_score >= 7.0:
-                game["grade"] = "A-"
-            elif gpt_score >= 6.5:
-                game["grade"] = "B+"
-            elif gpt_score >= 6.0:
-                game["grade"] = "B"
-            elif gpt_score >= 5.5:
-                game["grade"] = "B-"
-            elif gpt_score >= 5.0:
-                game["grade"] = "C+"
-            elif gpt_score >= 4.0:
-                game["grade"] = "C"
-            elif gpt_score >= 3.0:
-                game["grade"] = "D"
-            else:
-                game["grade"] = "F"
+            game["grade"] = _score_to_grade(gpt_score)
             game["grade_source"] = "gpt_composite_fallback"
             print(f"[GRADE FALLBACK] {game.get('matchup')} — no matrix_scores, used GPT composite {gpt_score} → {game['grade']}")
         elif not game.get("grade") or game.get("grade") == "--":
@@ -1987,6 +2031,19 @@ def _recalculate_grade(game, sport):
         print(f"[MATRIX NORM] {game.get('matchup')} — unmatched keys: {unmatched}")
     matrix_scores = normalized_scores
 
+    # P2: Post-hoc clamp star_player_status based on injury freshness
+    star_data = matrix_scores.get("star_player_status")
+    if isinstance(star_data, dict):
+        star_score = star_data.get("score", 5)
+        star_note = str(star_data.get("note", "")).lower()
+        # If note mentions established/season/adapted/priced-in keywords, cap at 6
+        if any(kw in star_note for kw in ["established", "season", "adapted", "priced in", "long-term", "30+d", "without"]):
+            if star_score > 6:
+                print(f"[INJURY CLAMP] {game.get('matchup')} — star_player_status capped {star_score}->6 (established/season injury)")
+                star_data["score"] = 6
+                star_data["note"] = star_data.get("note", "") + " [CLAMPED: established injury, team adapted]"
+        # Fresh injuries: no clamp needed, allow up to 10
+
     # Calculate max possible weighted score
     max_possible = sum(w for _, w, _ in matrix) * 10
 
@@ -2034,28 +2091,33 @@ def _recalculate_grade(game, sport):
         game["composite_score"] = recalculated
         print(f"[CHAIN BONUS] {game.get('matchup')} — +{chain_bonus} → {recalculated} (was {game['composite_score_pre_chain']})")
 
+
+    # P6: Calculate edge_grade — subset of thesis_edge + line_vs_model + sharp_vs_public
+    edge_vars = ["thesis_edge", "line_vs_model", "sharp_vs_public"]
+    edge_total = 0
+    edge_max = 0
+    for var_name in edge_vars:
+        weight = next((w for n, w, _ in matrix if n == var_name), 0)
+        if weight == 0:
+            continue
+        edge_max += weight * 10
+        score_data = matrix_scores.get(var_name)
+        if isinstance(score_data, dict):
+            score = max(1, min(10, int(score_data.get("score", 5))))
+        else:
+            score = 5
+        edge_total += score * weight
+
+    if edge_max > 0:
+        edge_score = round((edge_total / edge_max) * 10, 1)
+    else:
+        edge_score = 5.0
+    game["edge_score"] = edge_score
+    game["edge_grade"] = _score_to_grade(edge_score)
+
     # Apply grade from thresholds — WE decide the grade, not GPT
     gpt_grade = game.get("grade", "")
-    if recalculated >= 8.5:
-        game["grade"] = "A+"
-    elif recalculated >= 7.8:
-        game["grade"] = "A"
-    elif recalculated >= 7.0:
-        game["grade"] = "A-"
-    elif recalculated >= 6.5:
-        game["grade"] = "B+"
-    elif recalculated >= 6.0:
-        game["grade"] = "B"
-    elif recalculated >= 5.5:
-        game["grade"] = "B-"
-    elif recalculated >= 5.0:
-        game["grade"] = "C+"
-    elif recalculated >= 4.0:
-        game["grade"] = "C"
-    elif recalculated >= 3.0:
-        game["grade"] = "D"
-    else:
-        game["grade"] = "F"
+    game["grade"] = _score_to_grade(recalculated)
 
     if gpt_grade and gpt_grade != game["grade"]:
         print(f"[GRADE CHANGED] {game.get('matchup')} — GPT said {gpt_grade}, we say {game['grade']} (score: {recalculated})")
@@ -2387,6 +2449,15 @@ async def _get_lineup_and_injury_context(sport):
             parts.append(f"\n{api_sports_data}")
     except Exception as e:
         print(f"API-Sports context fetch error: {e}")
+
+    # Source health tracking — detect when all sources returned errors instead of actual data
+    source_count = 0
+    for p in parts:
+        if "INJURY REPORT" in p or "LINEUP PAGE FLAGS" in p or "api-sports" in p.lower():
+            source_count += 1
+    if source_count == 0 and parts:
+        # All sources returned errors/failure messages, not actual data
+        parts.insert(0, "WARNING: ALL INJURY SOURCES RETURNED ERRORS — do NOT assume teams are healthy. Grade conservatively with injury uncertainty.")
 
     if not parts:
         parts.append("INJURY/LINEUP: No data sources returned results. Grade conservatively.")
@@ -3278,6 +3349,245 @@ async def _get_active_tennis_keys():
     return SPORT_KEYS.get("tennis", [])  # fallback to hardcoded list
 
 
+async def _fetch_sgo_props(sport_lower: str) -> list:
+    """Fetch player prop lines from SportsGameOdds API (P4: SGO primary for props).
+
+    Returns props in the same format as The Odds API props for compatibility
+    with the existing edge calculation and filtering pipeline.
+    SGO oddID format for player props: {statType}-{PLAYER_ID}-{period}-ou-{over|under}
+    """
+    if not SPORTSGAMEODDS_KEY:
+        return []
+    if not _sgo_budget_ok():
+        logger.warning(f"SGO budget exceeded — skipping props fetch for {sport_lower}")
+        return []
+    league_id = SGO_LEAGUE_MAP.get(sport_lower)
+    if not league_id:
+        return []
+    stat_map = SGO_PROP_STATS.get(sport_lower, {})
+    if not stat_map:
+        return []
+
+    all_props = []
+    book_order = [PREFERRED_BOOK] + FALLBACK_BOOKS
+
+    try:
+        # Fetch events WITHOUT oddID filter — SGO returns all odds including player props.
+        # Use first league only for props (avoid multi-league explosion).
+        first_league = league_id.split(",")[0].strip()
+        params = {
+            "apiKey": SPORTSGAMEODDS_KEY,
+            "leagueID": first_league,
+            "started": "false",
+            "oddsAvailable": "true",
+            "limit": 10,
+        }
+        async with httpx.AsyncClient(timeout=25) as client:
+            resp = await client.get(f"{SPORTSGAMEODDS_BASE}/events", params=params)
+            if resp.status_code != 200:
+                logger.warning(f"SGO props {sport_lower}: HTTP {resp.status_code}")
+                return []
+            data = resp.json()
+            events = data.get("data", [])
+            if not events:
+                return []
+
+            _record_sgo_entities(len(events), f"{sport_lower}_props")
+
+            for ev in events:
+                teams = ev.get("teams", {})
+                home_name = teams.get("home", {}).get("names", {}).get("long", "")
+                away_name = teams.get("away", {}).get("names", {}).get("long", "")
+                matchup = f"{away_name} @ {home_name}"
+                event_id = ev.get("eventID", "")
+                commence = ev.get("status", {}).get("startsAt", "")
+                odds = ev.get("odds", {})
+
+                # Parse player prop oddIDs from the odds dict.
+                # Player prop keys contain a playerID (uppercase with underscores)
+                # Format: {stat}-{PLAYER_ID}-{period}-{betType}-{side}
+                # We only want full-game ou props: *-game-ou-over / *-game-ou-under
+                props_by_player = {}  # key: "player|stat|side|line" -> prop dict
+
+                for odd_key, odd_data in odds.items():
+                    if not isinstance(odd_data, dict):
+                        continue
+                    # Quick filter: must be a game ou over/under player prop
+                    if "-game-ou-" not in odd_key:
+                        continue
+
+                    # Use SGO's structured fields if available
+                    stat_id = odd_data.get("statID", "")
+                    player_id = odd_data.get("playerID", "")
+                    side_id = odd_data.get("sideID", "")
+
+                    # Fallback: parse from oddID string if structured fields missing
+                    if not stat_id or not player_id:
+                        parts = odd_key.split("-")
+                        # Minimum: stat-PLAYER_ID-game-ou-side (5+ parts)
+                        if len(parts) < 5:
+                            continue
+                        stat_id = parts[0]
+                        side_id = parts[-1]  # over or under
+                        # Player ID is everything between stat and game-ou-side
+                        # Find "game" position from the end
+                        try:
+                            game_idx = len(parts) - 3  # -game-ou-side
+                            player_id = "-".join(parts[1:game_idx])
+                        except (IndexError, ValueError):
+                            continue
+
+                    if not player_id or not stat_id:
+                        continue
+
+                    # Check if this stat type is one we care about
+                    stat_label = stat_map.get(stat_id)
+                    if not stat_label:
+                        continue
+
+                    # Only process over/under sides
+                    if side_id not in ("over", "under"):
+                        continue
+
+                    # Extract line and odds from bookmaker data
+                    by_bm = odd_data.get("byBookmaker", {})
+
+                    # Collect all bookmaker prices for this prop
+                    book_entries = []
+                    for bk_name, bk_data in by_bm.items():
+                        if not isinstance(bk_data, dict):
+                            continue
+                        bk_odds_str = bk_data.get("odds")
+                        bk_line = bk_data.get("overUnder")
+                        if bk_odds_str is None or bk_line is None:
+                            continue
+                        try:
+                            bk_odds_num = int(bk_odds_str) if bk_odds_str.lstrip("+-").isdigit() else float(bk_odds_str)
+                            bk_line_num = float(bk_line)
+                        except (ValueError, TypeError):
+                            continue
+                        book_entries.append({
+                            "book": bk_name,
+                            "odds": bk_odds_num,
+                            "line": bk_line_num,
+                            "implied_prob": _calc_implied_prob(bk_odds_num),
+                        })
+
+                    if not book_entries:
+                        # Fallback to consensus bookOdds / bookOverUnder
+                        book_odds_str = odd_data.get("bookOdds")
+                        book_line = odd_data.get("bookOverUnder")
+                        if book_odds_str and book_line:
+                            try:
+                                bo = int(book_odds_str) if book_odds_str.lstrip("+-").isdigit() else float(book_odds_str)
+                                bl = float(book_line)
+                                book_entries.append({
+                                    "book": "consensus",
+                                    "odds": bo,
+                                    "line": bl,
+                                    "implied_prob": _calc_implied_prob(bo),
+                                })
+                            except (ValueError, TypeError):
+                                pass
+
+                    if not book_entries:
+                        continue
+
+                    # Use consistent line (should be same across books for same prop)
+                    line = book_entries[0]["line"]
+
+                    # Build player display name from playerID (JALEN_BRUNSON_1_NBA -> Jalen Brunson)
+                    player_display = odd_data.get("marketName", "")
+                    if player_display:
+                        # marketName is like "Jalen Brunson Points Over/Under"
+                        # Strip the stat and bet type suffix
+                        for suffix in [" Over/Under", " Yes/No", " Over", " Under"]:
+                            if player_display.endswith(suffix):
+                                player_display = player_display[:-len(suffix)]
+                        # Strip stat label from end
+                        for s_label in stat_map.values():
+                            if player_display.endswith(f" {s_label}"):
+                                player_display = player_display[:-len(f" {s_label}")]
+                                break
+                        player_display = player_display.strip()
+                    if not player_display:
+                        # Fallback: parse from player_id
+                        # JALEN_BRUNSON_1_NBA -> Jalen Brunson
+                        id_parts = player_id.split("_")
+                        # Remove trailing number and league (e.g., _1_NBA)
+                        name_parts = []
+                        for p in id_parts:
+                            if p.isdigit() or p in ("NBA", "NHL", "NFL", "MLB", "MLS", "EPL", "UFC"):
+                                break
+                            name_parts.append(p.capitalize())
+                        player_display = " ".join(name_parts) if name_parts else player_id
+
+                    side_display = side_id.capitalize()
+                    pk = f"{player_display}|{stat_label}|{side_display}|{line}"
+
+                    if pk not in props_by_player:
+                        props_by_player[pk] = {
+                            "player": player_display,
+                            "stat": stat_label,
+                            "side": side_display,
+                            "line": line,
+                            "matchup": matchup,
+                            "commence": commence,
+                            "event_id": event_id,
+                            "books": [],
+                            "source": "SGO",
+                        }
+                        # Add fair odds if available
+                        fair_odds_str = odd_data.get("fairOdds")
+                        if fair_odds_str:
+                            try:
+                                fair_num = int(fair_odds_str) if fair_odds_str.lstrip("+-").isdigit() else float(fair_odds_str)
+                                props_by_player[pk]["fair_odds"] = fair_num
+                                props_by_player[pk]["fair_prob"] = _calc_implied_prob(fair_num)
+                            except (ValueError, TypeError):
+                                pass
+
+                    props_by_player[pk]["books"].extend(book_entries)
+
+                # Calculate edge for each prop (same logic as Odds API path)
+                for pk, prop in props_by_player.items():
+                    books = prop["books"]
+                    if not books:
+                        continue
+                    # Best odds = highest (most favorable to bettor)
+                    best = max(books, key=lambda b: b["odds"])
+                    prop["best_book"] = best["book"]
+                    prop["best_odds"] = best["odds"]
+                    prop["best_prob"] = best["implied_prob"]
+                    # Consensus = average implied prob across books
+                    probs = [b["implied_prob"] for b in books if b["implied_prob"]]
+                    prop["consensus_prob"] = round(sum(probs) / len(probs), 1) if probs else None
+                    # Use SGO fair odds for edge if available, otherwise use consensus
+                    if prop.get("fair_prob"):
+                        prop["edge"] = _calc_edge(prop["best_prob"], prop["fair_prob"])
+                    else:
+                        prop["edge"] = _calc_edge(prop["best_prob"], prop["consensus_prob"])
+                    prop["book_count"] = len(books)
+                    # Edge verdict
+                    edge = prop["edge"]
+                    if edge >= 3:
+                        prop["verdict"] = "SHARP VALUE"
+                    elif edge >= 1:
+                        prop["verdict"] = "SLIGHT EDGE"
+                    elif edge >= -1:
+                        prop["verdict"] = "FAIR LINE"
+                    else:
+                        prop["verdict"] = "BAD NUMBER"
+
+                    all_props.append(prop)
+
+        logger.info(f"SGO props {sport_lower}: {len(all_props)} props fetched from {len(events)} events")
+    except Exception as e:
+        logger.warning(f"SGO props fetch failed for {sport_lower}: {type(e).__name__}: {e}")
+
+    return all_props
+
+
 async def _fetch_sgo_odds(sport_lower: str, sport_label: str) -> list:
     """Fetch live odds from SportsGameOdds API (primary odds source).
 
@@ -3485,7 +3795,7 @@ async def _fetch_sport_odds(sport_key, markets, sport_label):
 
 @app.get("/api/odds/{sport}")
 async def get_odds(sport: str, markets: str = "h2h,spreads,totals"):
-    """Fetch live odds — SharpAPI primary, The Odds API fallback."""
+    """Fetch live odds — SGO primary, The Odds API fallback."""
     sport_lower = sport.lower()
     # Soccer gets extra markets: BTTS, draw no bet
     if sport_lower == "soccer" and markets == "h2h,spreads,totals":
@@ -3782,7 +4092,7 @@ def _calc_edge(best_prob, consensus_prob):
 
 @app.get("/api/props/{sport}")
 async def get_player_props(sport: str, game: str = None):
-    """Fetch real player prop lines from The Odds API with edge analysis.
+    """Fetch player prop lines with edge analysis. SGO primary, Odds API fallback.
     Optional game filter: ?game=event_id to show only one matchup."""
     sport_lower = sport.lower()
     if sport_lower not in PROP_MARKETS:
@@ -3792,6 +4102,47 @@ async def get_player_props(sport: str, game: str = None):
     cached = _get_cached(cache_key, ttl=PROPS_CACHE_TTL)
     if cached:
         return JSONResponse(cached)
+
+    # P4: SGO primary for props — try SportsGameOdds first, Odds API fallback
+    sgo_props = []
+    try:
+        sgo_props = await _fetch_sgo_props(sport_lower)
+    except Exception as e:
+        logger.warning(f"SGO props failed for {sport_lower}: {e}")
+
+    if sgo_props:
+        # Apply the same quality filtering as Odds API path
+        quality_filtered = []
+        for prop in sgo_props:
+            stat_lower = prop.get("stat", "").lower()
+            line = prop.get("line", 0)
+            if sport_lower == "nhl" and "goal" in stat_lower and line is not None and float(line) < 0.5:
+                continue
+            if sport_lower == "soccer" and "assist" in stat_lower and line is not None and float(line) < 0.5:
+                continue
+            # Game filter
+            if game and prop.get("event_id") and prop.get("event_id") != game:
+                continue
+            quality_filtered.append(prop)
+
+        # Sort: SHARP VALUE first, then by edge descending
+        verdict_order = {"SHARP VALUE": 0, "SLIGHT EDGE": 1, "FAIR LINE": 2, "BAD NUMBER": 3}
+        quality_filtered.sort(key=lambda p: (verdict_order.get(p.get("verdict", ""), 9), -(p.get("edge", 0))))
+
+        result = {
+            "sport": sport.upper(),
+            "props": quality_filtered,
+            "count": len(quality_filtered),
+            "games_scanned": len(set(p.get("event_id", "") for p in quality_filtered)),
+            "fetched_at": _now_ts(),
+            "source": "SportsGameOdds",
+            "cached": False,
+        }
+        _set_cache(cache_key, result)
+        return JSONResponse(result)
+
+    # Fallback to The Odds API
+    logger.info(f"SGO props empty for {sport_lower} — falling back to Odds API")
 
     if not ODDS_API_KEY:
         return JSONResponse({"error": "No ODDS_API_KEY configured"}, status_code=500)
@@ -4490,6 +4841,40 @@ async def get_analysis(sport: str, cached_only: bool = False, force: bool = Fals
     except Exception as e:
         print(f"ESPN injury fetch error: {e}")
 
+    # P1: Force conservative warning if injury context is effectively empty
+    if not injury_context or len(injury_context.strip()) < 20:
+        injury_context = "CRITICAL: ALL INJURY DATA SOURCES FAILED. No CBS Sports, no RotoWire, no ESPN, no API-Sports data available. Do NOT assume any team is healthy. Grade ALL games conservatively — injury_impact for every game MUST state 'Injury data unavailable from all sources.'"
+
+    # ===== P3: TEAM RECENT FORM (L5 records for prompt) =====
+    form_context = ""
+    try:
+        form_teams = set()
+        for g in odds_data.get("games", []):
+            form_teams.add(g.get("away", ""))
+            form_teams.add(g.get("home", ""))
+        form_lines = ["\n=== TEAM RECENT FORM (L5 Records) ==="]
+        form_lines.append("FORM RULE: If underdog is 4-1+ L5, injuries to favorite may be PRICED IN. Established injuries + winning team = no edge.")
+        for team_name in sorted(form_teams):
+            if not team_name:
+                continue
+            try:
+                profile = _build_team_profile(team_name, sport_lower)
+                if profile and profile.get("last_5"):
+                    w = profile.get("wins", 0)
+                    l = profile.get("losses", 0)
+                    ats_w = profile.get("ats_wins", 0)
+                    ats_l = profile.get("ats_losses", 0)
+                    margin = profile.get("avg_margin", 0)
+                    trend = "UP" if w >= 4 else "DOWN" if l >= 4 else "MIXED"
+                    margin_str = f"+{margin:.1f}" if margin > 0 else f"{margin:.1f}"
+                    form_lines.append(f"{team_name}: L5 {w}-{l} | ATS {ats_w}-{ats_l} | Avg margin {margin_str} | Trend: {trend}")
+            except Exception:
+                pass
+        if len(form_lines) > 2:
+            form_context = "\n".join(form_lines)
+    except Exception as e:
+        print(f"Form context fetch error: {e}")
+
     # ===== FETCH PLAYER GAME LOGS (L10 data for prompt) =====
     game_log_context = ""
     try:
@@ -4596,6 +4981,15 @@ CRITICAL ROSTER RULE: Your training data is STALE. ONLY reference players who ap
 
 NO STALE DATA RULE: Do NOT reference any statistics, records, or player performance data from before the current 2025-26 season. ONLY use data provided in the PLAYER GAME LOGS and INJURY sections below. If you don't have current data for a claim, say "data not available" instead of guessing.
 
+FORM RULE: Teams that are 4-1+ in their last 5 games are IN FORM. If the underdog is in hot form and the favorite has an ESTABLISHED injury (30+ days), that injury is PRICED IN to the line. Do NOT treat long-term absences as fresh edges when the team is winning without the player.
+INJURY FRESHNESS RULE: The injury report labels each injury with a freshness tier:
+- [FRESH 0-3d]: NEW injury. High impact. star_player_status score 8-10 ONLY for fresh injuries to stars.
+- [RECENT 4-14d]: Still adjusting. Moderate impact. star_player_status 6-8.
+- [ESTABLISHED 15-30d]: Team has adapted. star_player_status capped at 5-6. Check team L5 record without player.
+- [SEASON 30+d]: Long-term absence. Team fully adjusted. star_player_status capped at 4-5. If team is 4-1+ L5, the absence is PRICED IN — do NOT treat as a fresh edge.
+- [UNKNOWN]: No date available. Treat as recent (moderate impact).
+If a team is winning WITHOUT their injured star (check L5 record), that injury is NOT an edge — it is already in the line.
+
 CREW: Peter (heavy/value/sharp, sizes up on conviction), Jimmy (new, learning), Alyssa (pure math/EV edge), Renzo (card builder/grader), Tunk (wild/aggressive, tracks everything, high volume).
 RULES: "Why is the market wrong?" = required for every grade. No answer = NO BET (grade D/F). Valid edges: news not priced in, public overreaction, rest/schedule, matchup-specific, sharp vs public, situational. Invalid: "better team", "should win", "volume play".
 
@@ -4609,6 +5003,8 @@ Today's {sport.upper()} slate - {today} (pulled at {now_time}):
 {injury_context}
 
 {roster_context}
+
+{form_context}
 
 {game_log_context}
 
@@ -4765,6 +5161,15 @@ CRITICAL ROSTER RULE: Your training data is STALE. ONLY reference players who ap
 
 NO STALE DATA RULE: Do NOT reference any statistics from before the current 2025-26 season. ONLY use data provided below.
 
+FORM RULE: Teams that are 4-1+ in their last 5 games are IN FORM. If the underdog is in hot form and the favorite has an ESTABLISHED injury (30+ days), that injury is PRICED IN to the line. Do NOT treat long-term absences as fresh edges when the team is winning without the player.
+INJURY FRESHNESS RULE: The injury report labels each injury with a freshness tier:
+- [FRESH 0-3d]: NEW injury. High impact. star_player_status score 8-10 ONLY for fresh injuries to stars.
+- [RECENT 4-14d]: Still adjusting. Moderate impact. star_player_status 6-8.
+- [ESTABLISHED 15-30d]: Team has adapted. star_player_status capped at 5-6. Check team L5 record without player.
+- [SEASON 30+d]: Long-term absence. Team fully adjusted. star_player_status capped at 4-5. If team is 4-1+ L5, the absence is PRICED IN — do NOT treat as a fresh edge.
+- [UNKNOWN]: No date available. Treat as recent (moderate impact).
+If a team is winning WITHOUT their injured star (check L5 record), that injury is NOT an edge — it is already in the line.
+
 CREW: Peter (heavy/value/sharp), Jimmy (new, learning), Alyssa (pure math/EV), Renzo (card builder/grader).
 
 Today's {sport.upper()} slate - {today} (pulled at {now_time}):
@@ -4777,6 +5182,8 @@ Today's {sport.upper()} slate - {today} (pulled at {now_time}):
 {injury_context}
 
 {roster_context}
+
+{form_context}
 
 {game_log_context}
 
@@ -8634,7 +9041,7 @@ async def _fetch_espn_injuries(sport):
     """Fetch injuries from ESPN's official API. Returns structured text for prompt injection."""
     espn_sport = _ESPN_SPORT_PATHS.get(sport.lower())
     if not espn_sport:
-        return ""
+        return f"ESPN INJURY API: Sport '{sport}' not supported — no injury data available."
 
     cache_key = f"espn_injuries:{sport.lower()}"
     cached = _get_cached(cache_key, ttl=1800)  # 30min TTL
@@ -8646,7 +9053,7 @@ async def _fetch_espn_injuries(sport):
         async with httpx.AsyncClient(timeout=15.0) as client:
             resp = await client.get(url, headers={"User-Agent": "Mozilla/5.0"})
             if resp.status_code != 200:
-                return ""
+                return f"ESPN INJURY API: HTTP {resp.status_code} for {sport} — injury data unavailable. Grade conservatively."
             data = resp.json()
 
         injury_lines = [f"\nESPN INJURY REPORT ({sport.upper()}):\n"]
@@ -8678,21 +9085,67 @@ async def _fetch_espn_injuries(sport):
                 short = injury.get("shortComment", "")
                 if short and len(short) < 100:
                     desc += f" ({short})"
-                team_injuries.append(f"    {pname} | {status} | {desc}")
+                # Get injury date for freshness classification
+                injury_date = injury.get("date", "")
+                if not injury_date and isinstance(details, dict):
+                    injury_date = details.get("returnDate", "")
+                tier, days_out = _classify_injury_freshness(injury_date)
+                tier_label = f"[{tier.upper()}" + (f" {days_out}d" if days_out is not None else "") + "]"
+                team_injuries.append(f"    {tier_label} {pname} | {status} | {desc}")
                 injury_count += 1
             if team_injuries:
+                # Sort by freshness tier — fresh injuries first
+                tier_order = {"fresh": 0, "recent": 1, "established": 2, "season": 3, "unknown": 4}
+                team_injuries.sort(key=lambda x: tier_order.get(x.split("]")[0].strip().lstrip("[").split()[0].lower(), 4))
                 injury_lines.append(f"  {team_abbr} ({team_name}):")
                 injury_lines.extend(team_injuries)
 
         if injury_count == 0:
-            return ""
+            return f"\nESPN INJURY REPORT ({sport.upper()}): No injuries listed — verify independently, ESPN may have gaps."
 
         result = "\n".join(injury_lines)
         _set_cache(cache_key, result)
         return result
     except Exception as e:
         logger.warning(f"ESPN injuries fetch failed for {sport}: {e}")
-        return ""
+        return f"ESPN INJURY API: Fetch failed for {sport} ({e}) — cannot confirm injury status."
+
+
+def _classify_injury_freshness(injury_date_str):
+    """Classify how fresh an injury is based on the date.
+    Returns (tier, days_out) where tier is one of: 'fresh', 'recent', 'established', 'season'."""
+    if not injury_date_str:
+        return ("unknown", None)
+    try:
+        # Try ISO format first, then common formats
+        injury_date_str = str(injury_date_str).strip()
+        try:
+            injury_date = datetime.fromisoformat(injury_date_str.replace("Z", "+00:00"))
+        except ValueError:
+            # Try common date formats
+            for fmt in ("%Y-%m-%dT%H:%M:%S", "%Y-%m-%d", "%b %d, %Y", "%B %d, %Y"):
+                try:
+                    injury_date = datetime.strptime(injury_date_str, fmt)
+                    break
+                except ValueError:
+                    continue
+            else:
+                return ("unknown", None)
+        if injury_date.tzinfo is None:
+            injury_date = injury_date.replace(tzinfo=timezone.utc)
+        days_out = (datetime.now(timezone.utc) - injury_date).days
+        if days_out < 0:
+            days_out = 0
+        if days_out <= 3:
+            return ("fresh", days_out)
+        elif days_out <= 14:
+            return ("recent", days_out)
+        elif days_out <= 30:
+            return ("established", days_out)
+        else:
+            return ("season", days_out)
+    except Exception:
+        return ("unknown", None)
 
 
 # ── Cross-Validation Gate (WS4) ──────────────────────────────────────────────
@@ -9283,7 +9736,17 @@ def _build_team_profile(team: str, sport: str) -> dict:
 
     # Sort by commence_time descending, take last 5
     team_games.sort(key=lambda x: x["commence_time"], reverse=True)
-    last_5_raw = team_games[:5]
+    # P5: Dedup by opponent+date to prevent duplicate games in profile
+    seen = set()
+    deduped = []
+    for tg in team_games:
+        opp = tg["game"].get("away_team", "") if tg["side"] == "home" else tg["game"].get("home_team", "")
+        date_key = tg["commence_time"][:10] if tg["commence_time"] else ""
+        key = f"{opp}:{date_key}"
+        if key not in seen:
+            seen.add(key)
+            deduped.append(tg)
+    last_5_raw = deduped[:5]
 
     last_5 = []
     wins = 0

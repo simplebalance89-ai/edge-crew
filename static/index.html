@@ -6833,12 +6833,21 @@ function injectPicksIntoCards(sport, analysisData) {
                     var gc = game.grade.replace(/[+-]/g,'').toLowerCase();
                     var gptGradeVal = game.gpt_original_grade || '';
                     var thinkerLabel = (game._thinker || 'Grok').match(/grok/i) ? 'Grok' : (game._thinker || '').match(/deepseek/i) ? 'DeepSeek' : 'Grok';
+                    var edgeGrade = game.edge_grade || '';
+                    var gc3 = edgeGrade ? edgeGrade.replace(/[+-]/g,'').toLowerCase() : '';
                     var dualHtml = '';
-                    if (gptGradeVal && gptGradeVal !== game.grade && game.grade !== 'TBD' && game.grade !== 'INCOMPLETE') {
+                    if (edgeGrade) {
+                        dualHtml = '<div style="display:flex;flex-direction:column;align-items:center;gap:1px;">' +
+                            '<span class="grade g' + gc + '" style="font-size:18px;">' + game.grade + '</span>' +
+                            '<span style="font-size:7px;color:rgba(255,255,255,0.35);letter-spacing:0.3px;">GAME</span>' +
+                            '<span class="grade g' + gc3 + '" style="font-size:12px;opacity:0.6;">' + edgeGrade + '</span>' +
+                            '<span style="font-size:7px;color:rgba(255,255,255,0.35);letter-spacing:0.3px;">EDGE</span>' +
+                            '</div>';
+                    } else if (gptGradeVal && gptGradeVal !== game.grade && game.grade !== 'TBD' && game.grade !== 'INCOMPLETE') {
                         var gc2 = gptGradeVal.replace(/[+-]/g,'').toLowerCase();
                         dualHtml = '<div style="display:flex;flex-direction:column;align-items:center;gap:1px;">' +
                             '<span class="grade g' + gc + '" style="font-size:18px;">' + game.grade + '</span>' +
-                            '<span style="font-size:7px;color:rgba(255,255,255,0.35);letter-spacing:0.3px;">MATRIX</span>' +
+                            '<span style="font-size:7px;color:rgba(255,255,255,0.35);letter-spacing:0.3px;">GAME</span>' +
                             '<span class="grade g' + gc2 + '" style="font-size:12px;opacity:0.6;">' + gptGradeVal + '</span>' +
                             '<span style="font-size:7px;color:rgba(255,255,255,0.35);letter-spacing:0.3px;">' + thinkerLabel.toUpperCase() + '</span>' +
                             '</div>';
