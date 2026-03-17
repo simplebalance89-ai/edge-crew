@@ -4658,12 +4658,21 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
 
     # ── Core model call functions ──
     def _call_thinker(prompt_text, batch_idx=0):
-        """Call the reasoning model (Grok). Returns (raw_analysis_text, metadata)."""
-        client = OpenAI(
-            base_url=THINKER_ENDPOINT,
-            api_key=AZURE_KEY,
-            timeout=180,
-        )
+        """Call the reasoning model. Returns (raw_analysis_text, metadata)."""
+        # Use AzureOpenAI if thinker is on Azure, OpenAI for external endpoints (Grok)
+        if "openai.azure.com" in THINKER_ENDPOINT:
+            client = AzureOpenAI(
+                azure_endpoint=THINKER_ENDPOINT,
+                api_key=AZURE_KEY,
+                api_version="2024-10-21",
+                timeout=180,
+            )
+        else:
+            client = OpenAI(
+                base_url=THINKER_ENDPOINT,
+                api_key=AZURE_KEY,
+                timeout=180,
+            )
         logger.info(f"[THINKER] Batch {batch_idx} ({sport.upper()}) → {ANALYSIS_THINKER} via {THINKER_ENDPOINT}")
         think_start = time.time()
         think_response = client.chat.completions.create(
