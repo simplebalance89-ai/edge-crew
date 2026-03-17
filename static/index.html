@@ -217,7 +217,31 @@ body::before{content:'';position:fixed;bottom:0;left:0;right:0;height:35vh;backg
 .game-matchup .home{color:var(--ec-text-primary);}
 .game-spread{font-size:14px;font-weight:700;color:var(--ec-accent-light);text-align:center;font-family:var(--ec-font-mono);}
 .game-total{font-size:13px;color:var(--ec-text-tertiary);text-align:center;font-family:var(--ec-font-mono);}
-.game-grade{text-align:center;}
+.game-grade{text-align:center;display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.composite-val{font-size:13px;color:#818cf8;font-weight:800;font-family:var(--ec-font-mono);}
+.data-status-icon{font-size:10px;font-weight:700;flex-shrink:0;}
+.data-status-icon.ds-ok{color:#22c55e;}
+.data-status-icon.ds-warn{color:#F59E0B;}
+.card-front-tags{display:none;padding:2px 0 2px 30px;flex-wrap:wrap;gap:4px;align-items:center;}
+.game-row.has-analysis .card-front-tags{display:flex;}
+.card-front-tags .ftag{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:0.3px;text-transform:uppercase;}
+.ftag-best{background:rgba(34,197,94,0.18);color:#22c55e;border:1px solid rgba(34,197,94,0.3);}
+.ftag-sharp{background:rgba(99,102,241,0.15);color:#818cf8;border:1px solid rgba(99,102,241,0.3);}
+.ftag-upset{background:rgba(245,158,11,0.15);color:#F59E0B;border:1px solid rgba(245,158,11,0.3);}
+.ftag-trap{background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.3);}
+.ftag-rest{background:rgba(34,197,94,0.1);color:#6ee7b7;}
+.ftag-home{background:rgba(99,102,241,0.1);color:#a5b4fc;}
+.ftag-b2b{background:rgba(239,68,68,0.1);color:#fca5a5;}
+.ftag-injury{background:rgba(239,68,68,0.12);color:#ef4444;}
+.ftag-lean{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);}
+.ftag-default{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);}
+.card-matrix-preview{display:none;padding:2px 0 2px 30px;font-size:11px;color:rgba(255,255,255,0.45);font-family:var(--ec-font-mono);font-weight:600;}
+.game-row.has-analysis .card-matrix-preview{display:block;}
+.matrix-pill{display:inline-block;margin-right:8px;}
+.matrix-pill .mp-label{color:rgba(255,255,255,0.35);font-size:9px;text-transform:uppercase;letter-spacing:0.3px;}
+.matrix-pill .mp-score{font-weight:800;margin-left:3px;}
+.mp-high{color:#22c55e;} .mp-mid{color:#f59e0b;} .mp-low{color:#ef4444;}
+.chain-preview{display:inline-block;color:#FCD34D;font-size:10px;font-weight:700;margin-left:4px;}
 .game-edge{font-size:12px;color:var(--ec-text-secondary);line-height:1.4;display:none;}
 .game-row.expanded .game-edge{display:block;padding:6px 0 0 30px;}
 
@@ -243,8 +267,9 @@ body::before{content:'';position:fixed;bottom:0;left:0;right:0;height:35vh;backg
 .trend-flat{color:#6b7280;}
 
 /* ===== CHALLENGER GRADE BADGE ===== */
-.challenger-grade{display:inline-block;font-size:9px;font-weight:700;padding:2px 5px;border-radius:4px;margin-left:3px;opacity:0.85;border:1px dashed rgba(255,255,255,0.2);cursor:help;}
-.challenger-label{display:block;font-size:7px;color:var(--ec-text-tertiary);text-align:center;margin-top:1px;font-weight:600;letter-spacing:0.3px;}
+.challenger-slot{display:flex;align-items:center;gap:3px;}
+.challenger-grade{display:inline-block;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;opacity:0.9;border:1px solid rgba(255,255,255,0.15);cursor:help;}
+.challenger-label{font-size:8px;color:var(--ec-text-tertiary);font-weight:600;letter-spacing:0.3px;}
 
 /* ===== TEAM PROFILE PANEL ===== */
 .team-profile-panel{background:var(--ec-bg-elevated);border:1px solid var(--ec-border);border-radius:12px;padding:16px;margin-top:12px;}
@@ -746,6 +771,8 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     .card-r2{padding-left:0;font-size:16px;}
     .card-r3{padding-left:0;flex-wrap:wrap;}
     .card-r4{padding-left:0;}
+    .card-front-tags{padding-left:0;}
+    .card-matrix-preview{padding-left:0;}
     .game-matchup{font-size:15px;}
     .game-edge{padding-left:0 !important;}
 
@@ -971,6 +998,26 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 .analysis-complete-time{font-size:10px;color:rgba(255,255,255,0.3);text-align:center;padding:4px 0;font-family:var(--ec-font-mono);}
 .analysis-error{text-align:center;padding:16px;font-size:13px;color:#EF4444;font-weight:600;}
 
+/* ===== LOADING EXPERIENCE ===== */
+.loading-experience{padding:12px 0;}
+.loading-phase-ticker{text-align:center;padding:10px 0 6px;font-size:14px;font-weight:700;color:var(--ec-accent-light);font-family:var(--ec-font-mono);transition:opacity 0.4s;}
+.loading-phase-ticker .phase-icon{margin-right:6px;display:inline-block;animation:phasePulse 1.5s ease-in-out infinite;}
+@keyframes phasePulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+.loading-progress-wrap{padding:8px 16px 12px;max-width:400px;margin:0 auto;}
+.loading-progress-bar{height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;position:relative;}
+.loading-progress-fill{height:100%;background:linear-gradient(90deg,var(--ec-accent),#10B981);border-radius:3px;transition:width 1s ease;width:0%;}
+.loading-stage-label{font-size:10px;color:rgba(255,255,255,0.35);text-align:center;margin-top:4px;font-family:var(--ec-font-mono);}
+.loading-timer-row{text-align:center;margin-bottom:10px;}
+.loading-content-card{background:var(--ec-bg-secondary);border:1px solid var(--ec-border);border-radius:12px;padding:14px 16px;margin:12px auto;max-width:440px;opacity:0;animation:cardFadeIn 0.5s forwards;}
+@keyframes cardFadeIn{to{opacity:1;}}
+.loading-content-card .lc-label{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--ec-accent);margin-bottom:6px;}
+.loading-content-card .lc-text{font-size:13px;color:rgba(255,255,255,0.75);line-height:1.5;}
+.loading-content-card .lc-text b{color:#fff;}
+.loading-content-card .lc-highlight{font-size:15px;font-weight:800;color:#10B981;margin-top:4px;}
+.loading-content-card .lc-label[data-type="tutorial"]{color:#60A5FA;}
+.loading-content-card .lc-label[data-type="howto"]{color:#A78BFA;}
+.loading-content-card .lc-label[data-type="protip"]{color:#FBBF24;}
+
 /* ===== SNOWFALL OVERLAY ===== */
 #snowCanvas{
     position:fixed;top:0;left:0;width:100%;height:100%;
@@ -1186,7 +1233,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
                 <label style="margin-bottom:8px;">Pick Your Agent</label>
                 <div id="loginAgentPick" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
                     <div class="login-agent-btn active" data-agent="sintonia" onclick="pickLoginAgent(this,'sintonia')" style="padding:10px 8px;border-radius:10px;border:2px solid #F72585;background:rgba(247,37,133,0.1);cursor:pointer;text-align:center;transition:all 0.2s;">
-                        <div style="font-size:13px;font-weight:800;color:#F72585;">Sinton.ia</div>
+                        <div style="font-size:13px;font-weight:800;color:#9B59B6;">Renzo</div>
                         <div style="font-size:9px;color:rgba(255,255,255,0.4);margin-top:2px;">AI Analysis</div>
                     </div>
                     <div class="login-agent-btn" data-agent="alyssa" onclick="pickLoginAgent(this,'alyssa')" style="padding:10px 8px;border-radius:10px;border:2px solid rgba(65,234,212,0.3);background:transparent;cursor:pointer;text-align:center;transition:all 0.2s;">
@@ -1260,7 +1307,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
             <span class="crew-badge crew-peter" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0;">P</span>
             <span class="crew-badge crew-jimmy" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0;margin-left:-4px;">J</span>
             <span class="crew-badge crew-alyssa" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;padding:0;margin-left:-4px;" title="Alyssa"><svg viewBox="0 0 64 64" width="16" height="16"><polygon points="32,6 38,24 58,24 42,36 48,54 32,44 16,54 22,36 6,24 26,24" fill="none" stroke="#41EAD4" stroke-width="3" stroke-linejoin="round"/></svg></span>
-            <span class="crew-badge crew-sintonia" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;padding:0;margin-left:-4px;" title="Sinton.ia"><svg viewBox="0 0 64 64" width="16" height="16"><circle cx="32" cy="32" r="28" fill="none" stroke="#F72585" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#F72585" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#F72585" stroke-width="2" stroke-linecap="round"/></svg></span>
+            <span class="crew-badge crew-sintonia" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;padding:0;margin-left:-4px;" title="Renzo"><svg viewBox="0 0 64 64" width="16" height="16"><circle cx="32" cy="32" r="28" fill="none" stroke="#9B59B6" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#9B59B6" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#9B59B6" stroke-width="2" stroke-linecap="round"/></svg></span>
             <span class="crew-badge crew-sportsbook" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;padding:0;margin-left:-4px;">$</span>
             <span class="crew-badge crew-tunk" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0;margin-left:-4px;">T</span>
             <span class="crew-badge crew-padrino" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;padding:0;margin-left:-4px;">PD</span>
@@ -1419,7 +1466,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
             </div>
             <div style="background:linear-gradient(135deg,rgba(65,234,212,0.1),rgba(247,37,133,0.1));border:1px solid rgba(129,140,248,0.25);border-radius:8px;padding:10px;text-align:center;">
                 <div style="font-size:22px;font-weight:900;color:#818cf8;">20%</div>
-                <div style="font-size:11px;font-weight:700;margin-top:2px;"><span style="color:#41EAD4;">Alyssa</span> + <span style="color:#F72585;">Sinton.ia</span></div>
+                <div style="font-size:11px;font-weight:700;margin-top:2px;"><span style="color:#41EAD4;">Alyssa</span> + <span style="color:#9B59B6;">Renzo</span></div>
                 <div style="font-size:9px;color:rgba(255,255,255,0.3);margin-top:2px;">AI Engine → Hardware Fund</div>
             </div>
             <div style="background:rgba(255,107,53,0.1);border:1px solid rgba(255,107,53,0.25);border-radius:8px;padding:10px;text-align:center;">
@@ -1486,7 +1533,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <!-- NBA ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutNBA" data-card="sintonia">
-    <h3 id="peterGutNBATitle" style="color:#F72585;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#F72585" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#F72585" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#F72585" stroke-width="2" stroke-linecap="round"/></svg>Sinton.ia's Card &mdash; NBA</h3>
+    <h3 id="peterGutNBATitle" style="color:#9B59B6;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#9B59B6" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#9B59B6" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#9B59B6" stroke-width="2" stroke-linecap="round"/></svg>Renzo's Card &mdash; NBA</h3>
     <div id="peterGutNBAContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
         <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load...</p>
     </div>
@@ -1530,7 +1577,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <!-- NHL ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutNHL" data-card="sintonia">
-    <h3 id="peterGutNHLTitle" style="color:#F72585;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#F72585" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#F72585" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#F72585" stroke-width="2" stroke-linecap="round"/></svg>Sinton.ia's Card &mdash; NHL</h3>
+    <h3 id="peterGutNHLTitle" style="color:#9B59B6;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#9B59B6" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#9B59B6" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#9B59B6" stroke-width="2" stroke-linecap="round"/></svg>Renzo's Card &mdash; NHL</h3>
     <div id="peterGutNHLContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
         <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load...</p>
     </div>
@@ -1574,9 +1621,9 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <!-- MLB ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutMLB" data-card="sintonia">
-    <h3 id="peterGutMLBTitle" style="color:#F72585;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#F72585" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#F72585" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#F72585" stroke-width="2" stroke-linecap="round"/></svg>Sinton.ia's Card &mdash; MLB</h3>
+    <h3 id="peterGutMLBTitle" style="color:#9B59B6;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#9B59B6" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#9B59B6" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#9B59B6" stroke-width="2" stroke-linecap="round"/></svg>Renzo's Card &mdash; MLB</h3>
     <div id="peterGutMLBContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
-        <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate or click MLB tab to load Sinton.ia's analysis card...</p>
+        <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate or click MLB tab to load Renzo's analysis card...</p>
     </div>
     <div id="peterGutMLBTimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
 </div>
@@ -1608,7 +1655,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <!-- WNBA ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutWNBA" data-card="sintonia">
-    <h3 id="peterGutWNBATitle" style="color:#F72585;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#F72585" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#F72585" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#F72585" stroke-width="2" stroke-linecap="round"/></svg>Sinton.ia's Card &mdash; WNBA</h3>
+    <h3 id="peterGutWNBATitle" style="color:#9B59B6;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#9B59B6" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#9B59B6" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#9B59B6" stroke-width="2" stroke-linecap="round"/></svg>Renzo's Card &mdash; WNBA</h3>
     <div id="peterGutWNBAContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;"><p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load...</p></div>
     <div id="peterGutWNBATimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
 </div>
@@ -1637,7 +1684,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <!-- NCAAB ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutNCAAB" data-card="sintonia">
-    <h3 id="peterGutNCAABTitle" style="color:#F72585;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#F72585" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#F72585" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#F72585" stroke-width="2" stroke-linecap="round"/></svg>Sinton.ia's Card &mdash; NCAAB</h3>
+    <h3 id="peterGutNCAABTitle" style="color:#9B59B6;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#9B59B6" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#9B59B6" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#9B59B6" stroke-width="2" stroke-linecap="round"/></svg>Renzo's Card &mdash; NCAAB</h3>
     <div id="peterGutNCAABContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;"><p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load...</p></div>
     <div id="peterGutNCAABTimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
 </div>
@@ -1666,7 +1713,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <!-- NCAAF ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutNCAAF" data-card="sintonia">
-    <h3 id="peterGutNCAAFTitle" style="color:#F72585;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#F72585" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#F72585" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#F72585" stroke-width="2" stroke-linecap="round"/></svg>Sinton.ia's Card &mdash; NCAAF</h3>
+    <h3 id="peterGutNCAAFTitle" style="color:#9B59B6;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#9B59B6" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#9B59B6" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#9B59B6" stroke-width="2" stroke-linecap="round"/></svg>Renzo's Card &mdash; NCAAF</h3>
     <div id="peterGutNCAAFContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;"><p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load...</p></div>
     <div id="peterGutNCAAFTimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
 </div>
@@ -1695,7 +1742,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <!-- TENNIS ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutTENNIS" data-card="sintonia">
-    <h3 id="peterGutTENNISTitle" style="color:#F72585;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#F72585" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#F72585" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#F72585" stroke-width="2" stroke-linecap="round"/></svg>Sinton.ia's Card &mdash; Tennis</h3>
+    <h3 id="peterGutTENNISTitle" style="color:#9B59B6;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#9B59B6" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#9B59B6" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#9B59B6" stroke-width="2" stroke-linecap="round"/></svg>Renzo's Card &mdash; Tennis</h3>
     <div id="peterGutTENNISContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;"><p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load...</p></div>
     <div id="peterGutTENNISTimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
 </div>
@@ -1742,9 +1789,9 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <!-- SOCCER ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutSOCCER" data-card="sintonia">
-    <h3 id="peterGutSOCCERTitle" style="color:#F72585;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#F72585" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#F72585" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#F72585" stroke-width="2" stroke-linecap="round"/></svg>Sinton.ia's Card &mdash; Soccer</h3>
+    <h3 id="peterGutSOCCERTitle" style="color:#9B59B6;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#9B59B6" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#9B59B6" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#9B59B6" stroke-width="2" stroke-linecap="round"/></svg>Renzo's Card &mdash; Soccer</h3>
     <div id="peterGutSOCCERContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
-        <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load Sinton.ia's analysis card...</p>
+        <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load Renzo's analysis card...</p>
     </div>
     <div id="peterGutSOCCERTimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
 </div>
@@ -1779,9 +1826,9 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <!-- MMA ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutMMA" data-card="sintonia">
-    <h3 id="peterGutMMATitle" style="color:#F72585;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#F72585" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#F72585" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#F72585" stroke-width="2" stroke-linecap="round"/></svg>Sinton.ia's Card &mdash; MMA</h3>
+    <h3 id="peterGutMMATitle" style="color:#9B59B6;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#9B59B6" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#9B59B6" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#9B59B6" stroke-width="2" stroke-linecap="round"/></svg>Renzo's Card &mdash; MMA</h3>
     <div id="peterGutMMAContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
-        <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load Sinton.ia's analysis card...</p>
+        <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load Renzo's analysis card...</p>
     </div>
     <div id="peterGutMMATimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
 </div>
@@ -1816,9 +1863,9 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <!-- BOXING ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutBOXING" data-card="sintonia">
-    <h3 id="peterGutBOXINGTitle" style="color:#F72585;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#F72585" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#F72585" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#F72585" stroke-width="2" stroke-linecap="round"/></svg>Sinton.ia's Card &mdash; Boxing</h3>
+    <h3 id="peterGutBOXINGTitle" style="color:#9B59B6;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#9B59B6" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#9B59B6" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#9B59B6" stroke-width="2" stroke-linecap="round"/></svg>Renzo's Card &mdash; Boxing</h3>
     <div id="peterGutBOXINGContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;">
-        <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load Sinton.ia's analysis card...</p>
+        <p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load Renzo's analysis card...</p>
     </div>
     <div id="peterGutBOXINGTimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
 </div>
@@ -1995,11 +2042,11 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
         </div>
     </div>
 
-    <!-- LEFT LANE: Sinton.ia's Hammer Props -->
+    <!-- LEFT LANE: Renzo's Hammer Props -->
     <div style="min-width:0;">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding-bottom:10px;border-bottom:2px solid rgba(247,37,133,0.3);">
             <span style="font-size:18px;">&#x1F528;</span>
-            <span style="font-family:var(--ec-font-heading);font-size:15px;font-weight:700;color:#F72585;">Sinton.ia's Hammer Props</span>
+            <span style="font-family:var(--ec-font-heading);font-size:15px;font-weight:700;color:#9B59B6;">Renzo's Hammer Props</span>
         </div>
         <div id="propsContainer">
             <div class="empty-state" style="font-size:12px;">Hit REFRESH SLATE to load AI analysis props.</div>
@@ -2148,7 +2195,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
             <div id="brAlyssa" style="color:#fff;font-size:14px;">0-0-0 | 0u</div>
         </div>
         <div style="background:#0f1018;border:1px solid #2a2a5a;border-radius:8px;padding:12px;text-align:center;">
-            <div style="color:#F72585;font-weight:700;margin-bottom:4px;">Sinton.ia</div>
+            <div style="color:#9B59B6;font-weight:700;margin-bottom:4px;">Renzo</div>
             <div id="brSinton.ia" style="color:#fff;font-size:14px;">0-0-0 | 0u</div>
         </div>
         <div style="background:#0f1018;border:1px solid #2a2a5a;border-radius:8px;padding:12px;text-align:center;">
@@ -2215,7 +2262,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
         <button class="swim-btn" onclick="setSwimLane('Padrino',this)" style="background:transparent;border:1px solid #C0A062;color:#C0A062;border-radius:6px;padding:6px 14px;font-family:var(--ec-font-body);font-weight:700;font-size:12px;cursor:pointer;">Padrino</button>
         <button class="swim-btn" onclick="setSwimLane('Los',this)" style="background:transparent;border:1px solid #38BDF8;color:#38BDF8;border-radius:6px;padding:6px 14px;font-family:var(--ec-font-body);font-weight:700;font-size:12px;cursor:pointer;">Los</button>
         <button class="swim-btn" onclick="setSwimLane('Alyssa',this)" style="background:transparent;border:1px solid #41EAD4;color:#41EAD4;border-radius:6px;padding:6px 14px;font-family:var(--ec-font-body);font-weight:700;font-size:12px;cursor:pointer;">Alyssa</button>
-        <button class="swim-btn" onclick="setSwimLane('Sinton.ia',this)" style="background:transparent;border:1px solid #F72585;color:#F72585;border-radius:6px;padding:6px 14px;font-family:var(--ec-font-body);font-weight:700;font-size:12px;cursor:pointer;">Sinton.ia</button>
+        <button class="swim-btn" onclick="setSwimLane('Sinton.ia',this)" style="background:transparent;border:1px solid #9B59B6;color:#9B59B6;border-radius:6px;padding:6px 14px;font-family:var(--ec-font-body);font-weight:700;font-size:12px;cursor:pointer;">Renzo</button>
         <button class="swim-btn" onclick="setSwimLane('Sportsbook.ag',this)" style="background:transparent;border:1px solid #22C55E;color:#22C55E;border-radius:6px;padding:6px 14px;font-family:var(--ec-font-body);font-weight:700;font-size:12px;cursor:pointer;">Sportsbook</button>
     </div>
     <div id="bankrollPicks"></div>
@@ -2638,7 +2685,7 @@ function onLoginSuccess() {
     document.body.classList.add('agent-' + _loginAgent, 'agent-active');
     var label = document.getElementById('agentSwitcherLabel');
     if (label) {
-        var names = {sintonia: "Sinton.ia", alyssa: "Alyssa"};
+        var names = {sintonia: "Renzo", alyssa: "Alyssa"};
         label.textContent = (names[_loginAgent] || _loginAgent) + " \u25BC";
     }
     // NO loading overlay — cards render as each sport loads
@@ -2896,7 +2943,8 @@ function refreshSlate() {
                 batch.forEach(function(s) { fetchInjuries(s); });
                 setTimeout(function() { batchInjuries(idx + 3); }, 2000);
             })(0);
-            // DON'T auto-trigger analysis — user clicks ANALYZE button
+            // Auto-load cached analysis grades (no Azure calls — cached_only=true)
+            _autoLoadCachedGrades(sportsToLoad);
         }
     }
 
@@ -3351,6 +3399,24 @@ function switchSport(sport, e) {
         if (edgeContent && edgeContent.querySelector('p[style*="italic"]')) {
             fetchEdge(sport);
         }
+    }
+    // Auto-load cached analysis grades on sport switch (no AI calls)
+    if (sportList.indexOf(sport) !== -1 && !_analysisCache[sport.toUpperCase()]) {
+        fetch('/api/analysis/' + sport + '?cached_only=true')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.games && data.games.length > 0) {
+                    _analysisCache[sport.toUpperCase()] = data;
+                    injectPicksIntoCards(sport, data);
+                    updatePeterGut(sport, data);
+                    var panel = document.getElementById('panel-' + sport);
+                    if (panel && data.gotcha) {
+                        var display = document.getElementById('gotchaDisplay-' + sport.toUpperCase());
+                        if (display) display.innerHTML = data.gotcha;
+                    }
+                }
+            })
+            .catch(function() {});
     }
     // Initialize pick name from crew profile when opening submit panel
     if (sport === 'submit' && crewProfile) {
@@ -3942,7 +4008,7 @@ function editPick(index) {
 
 var activeSwimLane = 'ALL';
 var _resultFilter = 'all'; // 'all', 'regular', 'props'
-var CREW_COLORS = {Peter:'#818cf8',Jimmy:'#5588EE',Chinny:'#FF6B35',Alyssa:'#41EAD4','Sinton.ia':'#F72585','Sportsbook.ag':'#22C55E',Tunk:'#FF4500',Padrino:'#C0A062',Los:'#38BDF8'};
+var CREW_COLORS = {Peter:'#818cf8',Jimmy:'#5588EE',Chinny:'#FF6B35',Alyssa:'#41EAD4','Sinton.ia':'#9B59B6','Sportsbook.ag':'#22C55E',Tunk:'#FF4500',Padrino:'#C0A062',Los:'#38BDF8'};
 
 function setSwimLane(name, btn) {
     activeSwimLane = name;
@@ -5103,7 +5169,7 @@ function renderPicks() {
     }
     // Group by crew member
     var crewOrder = ['Peter','Jimmy','Chinny','Alyssa','Sinton.ia','Tunk','Padrino','Los'];
-    var crewColors = {Peter:'#fff',Jimmy:'#60A5FA',Chinny:'#FF6B35',Alyssa:'#41EAD4','Sinton.ia':'#F72585',Tunk:'#FF4500',Padrino:'#C0A062',Los:'#38BDF8'};
+    var crewColors = {Peter:'#fff',Jimmy:'#60A5FA',Chinny:'#FF6B35',Alyssa:'#41EAD4','Sinton.ia':'#9B59B6',Tunk:'#FF4500',Padrino:'#C0A062',Los:'#38BDF8'};
     var grouped = {};
     todayPicks.forEach(function(p) {
         var name = p.name || 'Unknown';
@@ -5509,7 +5575,13 @@ function buildGameRowHTML(g) {
                 '<div class="pick-check" onclick="togglePick(event, this, \'' + matchup + '\')"></div>' +
                 '<div class="game-time">' + time + '</div>' +
                 '<div class="game-matchup">' + (g.league ? '<span style="font-size:9px;color:var(--ec-text-tertiary);font-weight:600;letter-spacing:0.5px;">' + (g.league_flag ? g.league_flag + ' ' : '') + g.league + '</span> ' : '') + '<span class="away">' + awayAbbr + '</span>' + matchupSep + '<span class="home">' + homeAbbr + '</span></div>' +
-                '<div class="game-grade"><span class="grade ' + gradeClass + '">' + gradeDisplay + '</span><span class="alt-grade-slot" id="altgrade-' + matchup.replace(/[^a-zA-Z0-9]/g,'') + '"></span><span class="challenger-slot" id="challenger-' + matchup.replace(/[^a-zA-Z0-9]/g,'') + '"></span></div>' +
+                '<div class="game-grade">' +
+                    '<span class="grade ' + gradeClass + '">' + gradeDisplay + '</span>' +
+                    '<span class="composite-val" id="comp-' + matchup.replace(/[^a-zA-Z0-9]/g,'') + '"></span>' +
+                    '<span class="alt-grade-slot" id="altgrade-' + matchup.replace(/[^a-zA-Z0-9]/g,'') + '"></span>' +
+                    '<span class="challenger-slot" id="challenger-' + matchup.replace(/[^a-zA-Z0-9]/g,'') + '"></span>' +
+                    '<span class="data-status-icon ' + (isComplete ? 'ds-ok' : 'ds-warn') + '">' + (isComplete ? '\u2713' : '\u26A0') + '</span>' +
+                '</div>' +
             '</div>' +
             /* Row 2: OUR PICK — prominent */
             '<div class="card-r2 card-pick" id="pick-' + matchup.replace(/[^a-zA-Z0-9]/g,'') + '">' + pickDisplay + '</div>' +
@@ -5519,6 +5591,10 @@ function buildGameRowHTML(g) {
                 (hasSpread ? '<span class="spread-ref">' + awayAbbr + ' ' + awaySpreadStr + ' / ' + homeAbbr + ' ' + spreadStr + '</span>' : '') +
                 (hasTotal ? '<span class="total-ref">O/U ' + total + '</span>' : '') +
             '</div>' +
+            /* Front tags: edge tags visible after analysis */
+            '<div class="card-front-tags" id="ftags-' + matchup.replace(/[^a-zA-Z0-9]/g,'') + '"></div>' +
+            /* Matrix preview: top 3 scoring variables */
+            '<div class="card-matrix-preview" id="mprev-' + matchup.replace(/[^a-zA-Z0-9]/g,'') + '"></div>' +
             /* Row 4: reasoning (populated after analysis) */
             '<div class="card-r4 card-reasoning" id="reason-' + matchup.replace(/[^a-zA-Z0-9]/g,'') + '"></div>' +
             /* Edge info (visible only when expanded) */
@@ -5921,6 +5997,13 @@ function fetchLiveOdds(sport, onDone) {
         _oddsFetch = fetch('/api/odds/' + sport).then(function(r) {
             console.log('[ODDS] ' + sport + ' live response:', r.status);
             return r.json();
+        }).then(function(data) {
+            // Fallback: if live odds empty, serve cached slate instead of blank screen
+            if (!data.games || data.games.length === 0) {
+                console.log('[ODDS] ' + sport + ' live empty — falling back to cached slate');
+                return fetch('/api/slate/cached/' + sport).then(function(r) { return r.json(); });
+            }
+            return data;
         });
     } else {
         _oddsFetch = fetch('/api/slate/cached/' + sport)
@@ -6681,7 +6764,7 @@ function updatePeterGut(sport, analysisData) {
 
     var today = new Date();
     var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    if (gutTitle) gutTitle.textContent = "Sinton.ia's Card \u2014 " + sport.toUpperCase() + ' ' + months[today.getMonth()] + ' ' + today.getDate();
+    if (gutTitle) gutTitle.textContent = "Renzo's Card \u2014 " + sport.toUpperCase() + ' ' + months[today.getMonth()] + ' ' + today.getDate();
     if (gutTimestamp) {
         gutTimestamp.textContent = 'Generated: ' + (analysisData.generated_at || 'just now') + ' | Source: ' + (analysisData.source || 'Azure OpenAI');
         var genDate = analysisData.generated_at || '';
@@ -6833,7 +6916,7 @@ function applyAgentFilter(who, forceRefresh) {
     document.body.classList.add('agent-' + who, 'agent-active');
     var label = document.getElementById('agentSwitcherLabel');
     if (label) {
-        var names = {sintonia: "Sinton.ia", alyssa: "Alyssa"};
+        var names = {sintonia: "Renzo", alyssa: "Alyssa"};
         label.textContent = (names[who] || who.toUpperCase()) + " \u25BC";
     }
     // Fetch agent data — batched 3 at a time, skip off-season
@@ -6872,6 +6955,11 @@ function backToAgents() {
 
 var _analysisPending = 0;
 function runAnalysis() {
+    // Re-entrancy guard — prevent double-clicks spawning parallel pipelines
+    if (_analysisPending > 0) {
+        showToast('Analysis already running — please wait', 'warning');
+        return;
+    }
     // Detect active sport panel — only analyze that one sport
     var activePanel = document.querySelector('.sport-panel.active');
     var currentSport = activePanel ? activePanel.id.replace('panel-', '') : '';
@@ -6920,22 +7008,23 @@ function runAnalysis() {
     }, 1000);
     // Fetch analysis for current sport only
     fetchFn(currentSport);
-    // Hard timeout: 240 seconds — Grok thinker needs up to 3 min
+    // Hard timeout: 360 seconds (6 min) — kill it and show error
     setTimeout(function() {
         if (btn && btn.textContent.indexOf('GRADING') !== -1) {
             btn.textContent = 'ANALYZE'; btn.disabled = false;
             if (window._analysisTimerInterval) clearInterval(window._analysisTimerInterval);
+            if (window._loadingExpInterval) clearInterval(window._loadingExpInterval);
             var gutContent = document.getElementById('peterGut' + sportLabel + 'Content');
-            if (gutContent && gutContent.querySelector('.analysis-progress')) {
-                gutContent.innerHTML = '<div class="analysis-error">Analysis timed out after 4 min. Try again or check back in a few minutes.</div>';
+            if (gutContent && gutContent.querySelector('.loading-experience')) {
+                gutContent.innerHTML = '<div class="analysis-error">Analysis timed out. Models are running heavy tonight — try again in a few minutes.</div>';
             }
             if (typeof stopSnowfall === 'function') stopSnowfall();
         }
-    }, 240000);
+    }, 360000);
 }
 
 // ===== ANALYSIS FETCH =====
-// ===== ANALYSIS TOGGLE (Sinton.ia vs Alyssa) =====
+// ===== ANALYSIS TOGGLE (Renzo vs Alyssa) =====
 function toggleAnalysis(sport, who, btn) {
     // No-op: both cards now displayed side-by-side via analysis-duo
     return;
@@ -7114,7 +7203,7 @@ function fetchEdge(sport) {
                 html += '</div>';
             });
             content.innerHTML = html;
-            // Inject edge data into game cards (same as Sinton.ia does with analysis)
+            // Inject edge data into game cards (same as Renzo does with analysis)
             injectEdgeIntoCards(sport, games);
         })
         .catch(function(err) {
@@ -7185,19 +7274,137 @@ function injectEdgeIntoCards(sport, edgeGames) {
     });
 }
 
+// ===== LOADING EXPERIENCE ENGINE =====
+function _startLoadingExperience(sport) {
+    var phases = [
+        {icon:'', text:'Pulling live odds from sportsbooks...', pct:8, stage:'1 of 5'},
+        {icon:'', text:'Checking injury reports + lineup status...', pct:18, stage:'2 of 5'},
+        {icon:'', text:'Fetching player stats + game logs...', pct:30, stage:'2 of 5'},
+        {icon:'', text:'Running Grok deep analysis...', pct:45, stage:'3 of 5'},
+        {icon:'', text:'Building model consensus...', pct:60, stage:'3 of 5'},
+        {icon:'', text:'Comparing historical matchups...', pct:72, stage:'4 of 5'},
+        {icon:'', text:'Grading player props...', pct:82, stage:'4 of 5'},
+        {icon:'', text:'Running challenger model for second opinion...', pct:90, stage:'5 of 5'},
+        {icon:'', text:'Finalizing grades + picks...', pct:95, stage:'5 of 5'}
+    ];
+    var contentCards = [
+        // ── TUTORIALS: Teach the product while they wait ──
+        {label:'TUTORIAL', text:'See the <b>EV button</b> on every card? Tap it to run our Expected Value engine — it finds where the book is wrong and tells you exactly how much edge you have.'},
+        {label:'HOW TO USE', text:'Hit the <b>microphone icon</b> to voice-search any matchup. Say "Lakers tonight" and it loads the full slate with grades, props, and line movement.'},
+        {label:'TUTORIAL', text:'Every game gets graded <b>A+ through D</b>. Only A- or higher becomes a pick. Tap any card to expand it — you\'ll see the full matrix breakdown with 15+ variables.'},
+        {label:'PRO TIP', text:'Tap <b>"THE PLAY"</b> on any card to see our conviction pick with sizing. It tells you the bet type, the line, and why we like it — not just a grade.'},
+        {label:'HOW TO USE', text:'The <b>Matrix Scores</b> inside each card show exactly what\'s driving the grade — star player status, rest advantage, sharp money, injuries. Hover any bar to see the weight.'},
+        {label:'TUTORIAL', text:'Player props appear on cards with a <b>"P" badge</b> next to the grade. Tap to see each prop with the player\'s L10 average vs the book\'s line. We only show props that pass the Mathurin Test.'},
+        {label:'PRO TIP', text:'Use the <b>sport tabs</b> at the top to switch between NBA, NHL, MLB, Soccer, MMA, and more. Each sport has its own analysis matrix built for that game.'},
+        {label:'HOW TO USE', text:'The <b>Challenger Grade</b> (second badge on cards) is an independent second opinion from a different AI model. When both models agree on A- or higher — that\'s a strong signal.'},
+        {label:'TUTORIAL', text:'See <b>line movement arrows</b> on cards? That\'s the line shifting from open to current. Movement against the public = sharp money. That\'s where edges hide.'},
+        {label:'PRO TIP', text:'The <b>Gotcha Card</b> at the top of each sport shows injury alerts, trap games, and sharp signals across the full slate — read it before picking any games.'},
+        // ── Keep a few edge insights mixed in ──
+        {label:'EDGE INSIGHT', text:'When the line moves <b>against</b> the public but the total stays flat, sharp money is on the other side.'},
+        {label:'PARLAY WIN', text:'The crew hit a <b>$1,319 parlay</b> by stacking correlated props. Player performance + team totals = hidden edges.', highlight:'+$1,319'},
+        {label:'DID YOU KNOW', text:'Rest advantage is worth <b>2-3 points ATS</b> in the NBA. Our matrix weights it at 8/10.'}
+    ];
+    var phaseIdx = 0;
+    var cardIdx = 0;
+    var tick = 0;
+    window._loadingExpInterval = setInterval(function() {
+        tick++;
+        // Advance phase every ~6 seconds (but pace slows after phase 5)
+        if (tick % 6 === 0 && phaseIdx < phases.length - 1) {
+            phaseIdx++;
+            var p = phases[phaseIdx];
+            var tickerEl = document.querySelector('.loading-phase-ticker');
+            if (tickerEl) {
+                tickerEl.querySelector('.phase-icon').textContent = p.icon;
+                tickerEl.querySelector('.phase-text').textContent = p.text;
+            }
+            var fillEl = document.querySelector('.loading-progress-fill');
+            if (fillEl) fillEl.style.width = p.pct + '%';
+            var stageEl = document.querySelector('.loading-stage-label');
+            if (stageEl) stageEl.textContent = 'Stage ' + p.stage;
+        }
+        // Rotate content card every 10 seconds
+        if (tick % 10 === 0) {
+            var slot = document.querySelector('.loading-content-slot');
+            if (slot) {
+                var c = contentCards[cardIdx % contentCards.length];
+                var dtype = c.label === 'TUTORIAL' ? 'tutorial' : c.label === 'HOW TO USE' ? 'howto' : c.label === 'PRO TIP' ? 'protip' : '';
+                var html = '<div class="loading-content-card">';
+                html += '<div class="lc-label"' + (dtype ? ' data-type="' + dtype + '"' : '') + '>' + c.label + '</div>';
+                html += '<div class="lc-text">' + c.text + '</div>';
+                if (c.highlight) html += '<div class="lc-highlight">' + c.highlight + '</div>';
+                html += '</div>';
+                slot.innerHTML = html;
+                cardIdx++;
+            }
+        }
+        // Show first card at 3 seconds
+        if (tick === 3) {
+            var slot = document.querySelector('.loading-content-slot');
+            if (slot) {
+                var c = contentCards[0];
+                slot.innerHTML = '<div class="loading-content-card"><div class="lc-label" data-type="tutorial">' + c.label + '</div><div class="lc-text">' + c.text + '</div></div>';
+                cardIdx = 1;
+            }
+        }
+    }, 1000);
+}
+function _stopLoadingExperience() {
+    if (window._loadingExpInterval) { clearInterval(window._loadingExpInterval); window._loadingExpInterval = null; }
+}
+
+function _autoLoadCachedGrades(sports) {
+    // Silently fetch cached analysis for each sport — if grades exist, show them
+    // This NEVER triggers new AI calls — only reads what the server already has
+    var loaded = 0;
+    sports.forEach(function(sport) {
+        fetch('/api/analysis/' + sport + '?cached_only=true')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                loaded++;
+                if (data.games && data.games.length > 0) {
+                    // Cache analysis data
+                    _analysisCache[sport.toUpperCase()] = data;
+                    // Inject grades into game cards
+                    injectPicksIntoCards(sport, data);
+                    // Update Peter's Gut section
+                    updatePeterGut(sport, data);
+                    // Update gotcha banner
+                    var panel = document.getElementById('panel-' + sport);
+                    if (panel && data.gotcha) {
+                        var display = document.getElementById('gotchaDisplay-' + sport.toUpperCase());
+                        if (display) display.innerHTML = data.gotcha;
+                    }
+                    console.log('[AUTO-GRADE] ' + sport.toUpperCase() + ': ' + data.games.length + ' games loaded from cache');
+                }
+                // Refresh dashboard after all sports checked
+                if (loaded >= sports.length) {
+                    refreshDashboard();
+                }
+            })
+            .catch(function(err) {
+                loaded++;
+                console.log('[AUTO-GRADE] ' + sport.toUpperCase() + ': no cache available');
+            });
+    });
+}
+
 function fetchAnalysis(sport) {
     var panel = document.getElementById('panel-' + sport);
     if (!panel) return;
 
-    // Show analyzing state with skeleton loader + snowfall
+    // Show loading experience with phase ticker + progress bar + content cards
     if (typeof startSnowfall === 'function') startSnowfall();
     var gutContent = document.getElementById('peterGut' + sport.toUpperCase() + 'Content');
     if (gutContent) {
-        var skeletonHtml = '<div class="analysis-progress">Analyzing ' + sport.toUpperCase() + ' slate with Grok + DeepSeek... <span class="analysis-timer">0:00</span></div>';
-        for (var sk = 0; sk < 3; sk++) {
-            skeletonHtml += '<div class="skeleton-card"><div class="skeleton-line w60"></div><div class="skeleton-line w80"></div><div class="skeleton-line w40"></div></div>';
-        }
-        gutContent.innerHTML = skeletonHtml;
+        var loadHtml = '<div class="loading-experience">';
+        loadHtml += '<div class="loading-timer-row"><span class="analysis-timer" style="font-size:12px;color:rgba(255,255,255,0.4);font-family:var(--ec-font-mono);">0:00</span></div>';
+        loadHtml += '<div class="loading-phase-ticker"><span class="phase-icon"></span><span class="phase-text">Pulling live odds...</span></div>';
+        loadHtml += '<div class="loading-progress-wrap"><div class="loading-progress-bar"><div class="loading-progress-fill"></div></div><div class="loading-stage-label">Stage 1 of 5</div></div>';
+        loadHtml += '<div class="loading-content-slot"></div>';
+        loadHtml += '</div>';
+        gutContent.innerHTML = loadHtml;
+        _startLoadingExperience(sport);
     }
 
     fetch('/api/analysis/' + sport + '?force=true')
@@ -7207,6 +7414,7 @@ function fetchAnalysis(sport) {
         })
         .then(function(data) {
             if (typeof stopSnowfall === 'function') stopSnowfall();
+            _stopLoadingExperience();
             // Stop timer and show completion time
             if (window._analysisTimerInterval) clearInterval(window._analysisTimerInterval);
             var elapsedSecs = window._analysisStartTime ? Math.floor((Date.now() - window._analysisStartTime) / 1000) : 0;
@@ -7214,6 +7422,12 @@ function fetchAnalysis(sport) {
             if (data.error) {
                 console.error('Analysis error:', data.error);
                 if (gutContent) gutContent.innerHTML = '<p style="color:rgba(239,68,68,0.6);font-style:italic;">Analysis unavailable — ' + data.error + '</p>';
+                return;
+            }
+
+            // No games available — show clear message, don't fake a completed analysis
+            if (data.no_odds || !data.games || data.games.length === 0) {
+                if (gutContent) gutContent.innerHTML = '<p style="color:#F59E0B;font-style:italic;">' + (data.gotcha || 'No lines available yet. Check back after 10 AM.') + '</p>';
                 return;
             }
 
@@ -7274,6 +7488,52 @@ function fetchAnalysis(sport) {
                                 else if (isTBD) { gradeEl.className = 'grade gc'; gradeEl.style.cssText = 'background:rgba(251,176,36,0.15);color:#FBB024;'; gradeEl.textContent = 'TBD'; }
                                 else { gradeEl.className = 'grade g' + game.grade.toLowerCase().replace(/[^a-z]/g,''); gradeEl.textContent = game.grade; }
                             }
+                            // Composite score on card front
+                            var compId = 'comp-' + (row.getAttribute('data-game') || '').replace(/[^a-zA-Z0-9]/g,'');
+                            var compEl = document.getElementById(compId);
+                            if (compEl && game.composite_score) {
+                                compEl.textContent = game.composite_score;
+                            }
+                            // Front edge tags
+                            var ftagsId = 'ftags-' + (row.getAttribute('data-game') || '').replace(/[^a-zA-Z0-9]/g,'');
+                            var ftagsEl = document.getElementById(ftagsId);
+                            if (ftagsEl && game.tags && game.tags.length) {
+                                var ftagHtml = '';
+                                game.tags.forEach(function(t) {
+                                    var cls = 'ftag ftag-default';
+                                    if (t === 'BEST BET') cls = 'ftag ftag-best';
+                                    else if (t === 'SHARP') cls = 'ftag ftag-sharp';
+                                    else if (t === 'UPSET') cls = 'ftag ftag-upset';
+                                    else if (t === 'PASS' || t === 'TRAP') cls = 'ftag ftag-trap';
+                                    else if (t.indexOf('REST') !== -1) cls = 'ftag ftag-rest';
+                                    else if (t.indexOf('HOME') !== -1) cls = 'ftag ftag-home';
+                                    else if (t === 'B2B') cls = 'ftag ftag-b2b';
+                                    else if (t.indexOf('INJURY') !== -1) cls = 'ftag ftag-injury';
+                                    else if (t === 'LEAN') cls = 'ftag ftag-lean';
+                                    ftagHtml += '<span class="' + cls + '">' + t + '</span>';
+                                });
+                                ftagsEl.innerHTML = ftagHtml;
+                            }
+                            // Matrix preview — top 3 scoring variables
+                            var mprevId = 'mprev-' + (row.getAttribute('data-game') || '').replace(/[^a-zA-Z0-9]/g,'');
+                            var mprevEl = document.getElementById(mprevId);
+                            if (mprevEl && game.matrix_scores) {
+                                var sortedVars = [];
+                                for (var mk in game.matrix_scores) {
+                                    sortedVars.push({name: mk, score: game.matrix_scores[mk].score || 0, weighted: game.matrix_scores[mk].weighted || 0});
+                                }
+                                sortedVars.sort(function(a, b) { return b.weighted - a.weighted; });
+                                var top3 = sortedVars.slice(0, 3);
+                                var mpHtml = '';
+                                top3.forEach(function(v) {
+                                    var colorCls = v.score >= 7 ? 'mp-high' : v.score >= 5 ? 'mp-mid' : 'mp-low';
+                                    mpHtml += '<span class="matrix-pill"><span class="mp-label">' + v.name.replace(/_/g,' ') + '</span><span class="mp-score ' + colorCls + '">' + v.score + '</span></span>';
+                                });
+                                if (game.chains && game.chain_bonus) {
+                                    mpHtml += '<span class="chain-preview">&#9889;+' + game.chain_bonus.toFixed(1) + '</span>';
+                                }
+                                mprevEl.innerHTML = mpHtml;
+                            }
                             // Add "Lineups Open" tag if game is >90min away
                             var gradeContainer = row.querySelector('.game-grade');
                             if (gradeContainer) {
@@ -7303,16 +7563,16 @@ function fetchAnalysis(sport) {
                                     gradeContainer.appendChild(badge);
                                 }
                             }
-                            // Challenger grade badge
+                            // Challenger grade badge — prominent side-by-side
                             if (game.challenger_grade && game.challenger_model) {
                                 var cSlotId = 'challenger-' + (row.getAttribute('data-game') || '').replace(/[^a-zA-Z0-9]/g,'');
                                 var cSlot = document.getElementById(cSlotId);
                                 if (cSlot && !cSlot.innerHTML) {
                                     var cClass = 'g' + game.challenger_grade.toLowerCase().replace(/[^a-z]/g,'');
-                                    var shortModel = game.challenger_model.replace('GPT-', 'G').replace(' Mini', 'M').replace(' Fast', 'F').replace('Maverick', 'Mav');
-                                    if (shortModel.length > 8) shortModel = shortModel.substring(0, 8);
-                                    cSlot.innerHTML = '<span class="challenger-grade grade ' + cClass + '" title="Challenger: ' + game.challenger_model + '">' + game.challenger_grade + '</span>' +
-                                        '<span class="challenger-label">' + shortModel + '</span>';
+                                    var shortModel = game.challenger_model.replace('Claude Sonnet 4.6', 'CL').replace('DeepSeek V3.2', 'DS').replace('Grok ', 'GK').replace('Llama 4 Maverick', 'LM').replace(' Fast', 'F');
+                                    if (shortModel.length > 4) shortModel = shortModel.substring(0, 4);
+                                    cSlot.innerHTML = '<span class="challenger-label">' + shortModel + '</span>' +
+                                        '<span class="challenger-grade grade ' + cClass + '" title="Challenger: ' + game.challenger_model + '">' + game.challenger_grade + '</span>';
                                 }
                             }
                             // Chain alerts — render triggered chains on card
@@ -7507,6 +7767,7 @@ function fetchAnalysis(sport) {
         })
         .catch(function(err) {
             if (typeof stopSnowfall === 'function') stopSnowfall();
+            _stopLoadingExperience();
             if (window._analysisTimerInterval) clearInterval(window._analysisTimerInterval);
             console.error('Analysis fetch error:', err);
             if (gutContent) gutContent.innerHTML = '<div class="analysis-error">Analysis failed — ' + (err.message || 'network error') + '. Try again.</div>';
@@ -7670,7 +7931,7 @@ function loadProps(sportFilter) {
             html += '<div style="flex:1;min-width:0;"><div style="font-size:12px;color:rgba(255,255,255,0.85);font-weight:600;overflow:hidden;text-overflow:ellipsis;">' + propText + '</div>';
             if (prop.edge) html += '<div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:1px;overflow:hidden;text-overflow:ellipsis;">' + prop.edge + '</div>';
             html += '</div>';
-            html += '<div style="cursor:pointer;padding:4px 8px;background:rgba(247,37,133,0.15);border:1px solid rgba(247,37,133,0.3);border-radius:5px;color:#F72585;font-size:10px;font-weight:800;white-space:nowrap;flex-shrink:0;" onclick="addPropToPicks(\'' + propSel.replace(/'/g,"\\'") + '\',\'' + propOdds.replace(/'/g,"\\'") + '\',\'' + entry.matchup.replace(/'/g,"\\'") + '\',\'' + entry.sport + '\',\'Sinton.ia AI prop\')">LOCK</div>';
+            html += '<div style="cursor:pointer;padding:4px 8px;background:rgba(155,89,182,0.15);border:1px solid rgba(155,89,182,0.3);border-radius:5px;color:#9B59B6;font-size:10px;font-weight:800;white-space:nowrap;flex-shrink:0;" onclick="addPropToPicks(\'' + propSel.replace(/'/g,"\\'") + '\',\'' + propOdds.replace(/'/g,"\\'") + '\',\'' + entry.matchup.replace(/'/g,"\\'") + '\',\'' + entry.sport + '\',\'Renzo AI prop\')">LOCK</div>';
             html += '</div>';
             propIdx++;
         });
@@ -8545,7 +8806,7 @@ function submitPropsParlay() {
         odds: combinedAmerican,
         units: 1,
         confidence: 'Strong',
-        notes: 'Props parlay from ' + _propsParlayLegs.map(function(l) { return l.source === 'sinton' ? "Sinton.ia" : "Alyssa"; }).join(' + '),
+        notes: 'Props parlay from ' + _propsParlayLegs.map(function(l) { return l.source === 'sinton' ? "Renzo" : "Alyssa"; }).join(' + '),
         date: toPSTDate(),
         time: toPSTShort(),
         created_at: new Date().toISOString(),
@@ -8855,33 +9116,49 @@ function postLoginLoad() {
 var _statusBoard = {
     sections: [
         {
-            title: "P1 — DO THIS WEEK",
+            title: "NEED FROM PETER",
+            color: "#D4A017",
+            items: [
+                {id:"p1", text:"Set ANTHROPIC_API_KEY on Render — Claude challenger can't run without it", done:false, priority:"PETER", cost:"$0", time:"2 min",
+                 steps:["Go to Render dashboard → edge-crew-v2 → Environment","Add ANTHROPIC_API_KEY with your Anthropic key","Also add CHALLENGER_MODEL=claude-sonnet-4-6 if you want to force Claude","Save → service auto-redeploys"]},
+                {id:"p2", text:"Install Render CLI on one machine — I need deploy logs to debug", done:false, priority:"PETER", cost:"$0", time:"5 min",
+                 steps:["Terminal: npm install -g @render-cli/cli","Then: render login (browser auth)","Then: render logs --service edge-crew-v2 --tail","This lets me read error logs instead of pushing blind debug commits"]},
+                {id:"p3", text:"Review board priorities — are P1-P4 still right?", done:false, priority:"PETER", cost:"$0", time:"10 min",
+                 steps:["Scroll down to P1/P2/P3/P4 sections below","Check/uncheck what matters now vs what can wait","Tell me if priorities shifted — I'll reorder"]},
+                {id:"p4", text:"Admin sandbox model comparison — do you still want this?", done:false, priority:"PETER", cost:"$0", time:"I have frontend + backend ready",
+                 steps:["We discussed an admin page running all 7 models side-by-side","Frontend and backend code are built, not deployed yet","Say the word and I'll wire it into the sandbox (edge-crew-alyssa)","Won't touch production Edge Crew"]},
+            ]
+        },
+        {
+            title: "P1 — ALYSSA DOING THIS WEEK",
             color: "#EF4444",
             items: [
-                {id:"n1", text:"Live Intel Feed — breaking news ticker", done:false, priority:"P1", cost:"$0", time:"3-4 hrs",
-                 steps:["Wire RotoWire RSS per sport (free, no auth) for injury breaks, scratches, lineup changes","Parse ESPN longComment field for beat reporter context","Scrolling horizontal ticker, ESPN-style, under the header bar","Auto-refresh every 30 min on game days, show timestamps","Format: [12:45 PM] NBA: Joel Embiid OUT tonight (knee) — @RotoWire"]},
-                {id:"n2", text:"Bet Report Ticker — scrolling results crawl", done:false, priority:"P1", cost:"$0", time:"2-3 hrs",
-                 steps:["Pull from graded picks data: 'Tatum O30.5 PTS — W +1.0u'","Show daily ROI: 'Today: +2.3u | Season: +41.7%'","Hot streak alerts: 'W4 Hot Streak'","Smooth CSS marquee animation, works on desktop + mobile"]},
-                {id:"n3", text:"Line Movement Alerts — sharp money detector", done:false, priority:"P1", cost:"$0", time:"2-3 hrs",
-                 steps:["Odds API already tracks opening vs current lines — no new API cost","Compare open spread vs current spread for each game","Flag any move > 1 point — that's sharp money or news","Show movement arrows on game cards (red/green)","Add to beat report: 'LAL -3 opened, now -5.5 — sharp action'"]},
+                {id:"a1", text:"Model comparison sandbox — test all 7 models safely", done:false, priority:"P1", cost:"$0", time:"2-3 hrs",
+                 steps:["Deploy to edge-crew-alyssa (sandbox), NOT production","Run same prompt across GPT-4.1, Grok 4.1, DeepSeek, Llama, Mistral, Claude, Grok 4","Show grades side-by-side per game","Daily auto-run so we can track which models actually work"]},
                 {id:"n4", text:"Props reasoning QA — test live + fix prompt", done:false, priority:"P1", cost:"$0", time:"1-2 hrs",
                  steps:["Open Props tab during a live NBA/NHL night","Check SHARP VALUE props — does reasoning cite real last-10 stats?","Verify no fabricated numbers, no wrong teams","If reasoning is weak, tweak the GPT prompt template","Goal: every reason cites a real number from ESPN data"]},
+                {id:"n1", text:"Live Intel Feed — breaking news ticker", done:false, priority:"P1", cost:"$0", time:"3-4 hrs",
+                 steps:["Wire RotoWire RSS per sport (free, no auth) for injury breaks, scratches, lineup changes","Parse ESPN longComment field for beat reporter context","Scrolling horizontal ticker under the header bar","Auto-refresh every 30 min on game days, show timestamps"]},
+                {id:"n3", text:"Line Movement Alerts — sharp money detector", done:false, priority:"P1", cost:"$0", time:"2-3 hrs",
+                 steps:["Odds API already tracks opening vs current lines — no new API cost","Compare open spread vs current spread for each game","Flag any move > 1 point — that's sharp money or news","Show movement arrows on game cards (red/green)"]},
+                {id:"a2", text:"Loading tutorial cards — verify live + iterate", done:true, priority:"P1", cost:"$0", time:"Done",
+                 steps:["Shipped 80164c2 + 4b7161e — phase ticker + tutorial cards","Teaches EV agent, mic, matrix, props while analysis loads","Peter approved the approach — verify it works on phone"]},
             ]
         },
         {
             title: "P2 — THIS MONTH",
             color: "#F59E0B",
             items: [
-                {id:"n5", text:"Persistent Picks Database — survive deploys", done:false, priority:"P2", cost:"$0 (Supabase free)", time:"4-6 hrs",
-                 steps:["Currently all picks live in localStorage — gone if you clear browser","Add Supabase free tier (500MB, 50K rows) — plenty for picks","Sync picks server-side so they persist across devices","Crew members see each other's picks in real time","Historical record for long-term ROI tracking"]},
-                {id:"s2", text:"Analysis speed — parallel batch optimization", done:false, priority:"P2", cost:"$0", time:"2-3 hrs",
-                 steps:["Current: 4 games per Azure batch, sequential — slow on big slates","Fire all batches simultaneously with asyncio.gather","Add progress bar: 'Analyzing 8/24 games...'","Target: full slate in under 30 seconds (currently 60+)"]},
+                {id:"n2", text:"Bet Report Ticker — scrolling results crawl", done:false, priority:"P2", cost:"$0", time:"2-3 hrs",
+                 steps:["Pull from graded picks data: 'Tatum O30.5 PTS — W +1.0u'","Show daily ROI: 'Today: +2.3u | Season: +41.7%'","Hot streak alerts: 'W4 Hot Streak'","Smooth CSS marquee animation, works on desktop + mobile"]},
                 {id:"s5", text:"Auto-picks — Alyssa's AI swim lane", done:false, priority:"P2", cost:"$0", time:"3-4 hrs",
-                 steps:["Pull analysis grades, filter A- or higher automatically","Generate picks with reasoning from the analysis data","Post as 'Alyssa' swim lane — auto-grade when games finish","Track AI ROI separately — prove the model works","Crew can follow or fade the AI picks"]},
+                 steps:["Pull analysis grades, filter A- or higher automatically","Generate picks with reasoning from the analysis data","Post as 'Alyssa' swim lane — auto-grade when games finish","Track AI ROI separately — prove the model works"]},
                 {id:"n6", text:"Crew Invite System — shareable join link", done:false, priority:"P2", cost:"$0", time:"3-4 hrs",
-                 steps:["Generate invite codes or shareable URLs","New members join with a PIN + display name","Crew leaderboard, everyone's picks, crew ROI","Each member gets their own swim lane in Results"]},
+                 steps:["Generate invite codes or shareable URLs","New members join with a PIN + display name","Crew leaderboard, everyone's picks, crew ROI"]},
                 {id:"s3", text:"Prop parlay builder — correlation warnings", done:false, priority:"P2", cost:"$0", time:"2-3 hrs",
-                 steps:["Current parlay builder lets you check props and combine","Add correlation warnings: 'Points + Rebounds same player = correlated'","Show combined implied probability across legs","Suggest uncorrelated 2-3 leg parlays from the sharp list"]},
+                 steps:["Add correlation warnings: 'Points + Rebounds same player = correlated'","Show combined implied probability across legs","Suggest uncorrelated 2-3 leg parlays from the sharp list"]},
+                {id:"a3", text:"Make this board dynamic — API-backed so Peter can edit from phone", done:false, priority:"P2", cost:"$0", time:"2-3 hrs",
+                 steps:["Currently hardcoded in JS — any change requires a code push","Move to /data/status_board.json on persistent disk","Add /api/board GET/POST endpoints","Peter can add/edit/reorder items from the site"]},
             ]
         },
         {
@@ -8889,31 +9166,25 @@ var _statusBoard = {
             color: "#818cf8",
             items: [
                 {id:"s4", text:"EV Agent voice — feed it real data", done:false, priority:"P3", cost:"$0 (Azure Realtime already configured)", time:"4-6 hrs",
-                 steps:["Voice agent exists but knowledge is generic","Inject tonight's analysis, injuries, and sharp plays into voice prompt","'What's the best bet tonight?' answered with real data","Add quick commands: 'Read me the top 3 plays'"]},
-                {id:"e1", text:"Weather data for outdoor sports", done:false, priority:"P3", cost:"$0 (OpenWeatherMap free: 1K calls/day)", time:"2-3 hrs",
-                 steps:["MLB, NFL, Soccer all play outdoors — wind, rain, temp matter","Free weather API for game-day forecasts by venue","Inject into analysis: 'Wind 25mph at Wrigley = under play'","Show weather icon on game cards for outdoor sports"]},
+                 steps:["Voice agent exists but knowledge is generic","Inject tonight's analysis, injuries, and sharp plays into voice prompt","'What's the best bet tonight?' answered with real data"]},
+                {id:"e1", text:"Weather data for outdoor sports", done:false, priority:"P3", cost:"$0 (OpenWeatherMap free)", time:"2-3 hrs",
+                 steps:["MLB, NFL, Soccer all play outdoors — wind, rain, temp matter","Free weather API for game-day forecasts by venue","Inject into analysis: 'Wind 25mph at Wrigley = under play'"]},
                 {id:"e2", text:"College sports depth — better NCAAB/NCAAF", done:false, priority:"P3", cost:"$0", time:"4-6 hrs",
-                 steps:["ESPN has basic rosters but sparse game logs for mid-majors","Focus on top 25 + power conference matchups","Use KenPom-style efficiency metrics in analysis","Better than nothing for March Madness"]},
-                {id:"e3", text:"Soccer prop markets + player stats", done:false, priority:"P3", cost:"$0-10/mo (API-Sports upgrade)", time:"4-6 hrs",
-                 steps:["17 soccer leagues loaded but prop markets are thin","Add goalscorer, cards, corners markets where available","Player stats for top 5 leagues via API-Sports","In-game momentum data for live analysis"]},
-                {id:"e4", text:"MMA/Boxing fight stats + tale of the tape", done:false, priority:"P3", cost:"$0-40/mo (BALLDONTLIE MMA)", time:"4-6 hrs",
-                 steps:["MMA injury data is the weakest spot across all sports","Add fighter stats: reach, stance, finish rate, takedown defense","Historical H2H if fighters have met before","Tale-of-the-tape comparison card in analysis"]},
+                 steps:["ESPN has basic rosters but sparse game logs for mid-majors","Focus on top 25 + power conference matchups","Use KenPom-style efficiency metrics in analysis"]},
                 {id:"b1", text:"Mobile PWA — install to home screen", done:false, priority:"P3", cost:"$0", time:"3-4 hrs",
-                 steps:["Already 90% there — add manifest.json + service worker","Offline support for cached analysis and picks","Push notifications for graded picks, hot streaks","'Add to Home Screen' banner on first mobile visit"]},
+                 steps:["Already 90% there — add manifest.json + service worker","Push notifications for graded picks, hot streaks","'Add to Home Screen' banner on first mobile visit"]},
             ]
         },
         {
             title: "P4 — WHEN READY TO SCALE",
             color: "#38D4C4",
             items: [
-                {id:"b2", text:"Monetization — premium tier", done:false, priority:"P4", cost:"$0 to build + Stripe fees (2.9%)", time:"1-2 weeks",
+                {id:"b2", text:"Monetization — premium tier", done:false, priority:"P4", cost:"Stripe fees (2.9%)", time:"1-2 weeks",
                  steps:["Free: game cards + basic grades","Premium ($9.99/mo): props reasoning, sharp alerts, line moves, AI picks","Stripe Checkout integration","Crew members always free — premium is for outside users"]},
-                {id:"b3", text:"Multi-book integration — connect sportsbooks", done:false, priority:"P4", cost:"$0 (APIs are free where legal)", time:"2-3 weeks",
-                 steps:["DraftKings, FanDuel, BetMGM have partner APIs","Auto-track placed bets vs our picks — real P&L","One-click bet placement from the app","Requires state-by-state legal review"]},
-                {id:"b4", text:"Social features — share picks, follow bettors", done:false, priority:"P4", cost:"$0 to build, ~$25/mo for DB scaling", time:"2-3 weeks",
-                 steps:["Public pick cards with shareable links/images","Follow other users' picks and track their ROI","Global leaderboard across all users","Comments/reactions on picks"]},
-                {id:"b5", text:"Production data upgrade — BALLDONTLIE ALL-ACCESS", done:false, priority:"P4", cost:"$299.99/mo", time:"1-2 days to swap",
-                 steps:["Currently using ESPN free tier — no SLA, could break","BALLDONTLIE: structured data, all sports, real-time webhooks","Drop-in replacement for ESPN endpoints","Only makes sense when revenue covers the cost"]},
+                {id:"b3", text:"Multi-book integration — connect sportsbooks", done:false, priority:"P4", cost:"$0", time:"2-3 weeks",
+                 steps:["DraftKings, FanDuel, BetMGM have partner APIs","Auto-track placed bets vs our picks — real P&L","One-click bet placement from the app"]},
+                {id:"b4", text:"Social features — share picks, follow bettors", done:false, priority:"P4", cost:"~$25/mo for DB scaling", time:"2-3 weeks",
+                 steps:["Public pick cards with shareable links/images","Follow other users' picks and track their ROI","Global leaderboard across all users"]},
             ]
         }
     ]
