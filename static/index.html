@@ -217,7 +217,31 @@ body::before{content:'';position:fixed;bottom:0;left:0;right:0;height:35vh;backg
 .game-matchup .home{color:var(--ec-text-primary);}
 .game-spread{font-size:14px;font-weight:700;color:var(--ec-accent-light);text-align:center;font-family:var(--ec-font-mono);}
 .game-total{font-size:13px;color:var(--ec-text-tertiary);text-align:center;font-family:var(--ec-font-mono);}
-.game-grade{text-align:center;}
+.game-grade{text-align:center;display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.composite-val{font-size:13px;color:#818cf8;font-weight:800;font-family:var(--ec-font-mono);}
+.data-status-icon{font-size:10px;font-weight:700;flex-shrink:0;}
+.data-status-icon.ds-ok{color:#22c55e;}
+.data-status-icon.ds-warn{color:#F59E0B;}
+.card-front-tags{display:none;padding:2px 0 2px 30px;flex-wrap:wrap;gap:4px;align-items:center;}
+.game-row.has-analysis .card-front-tags{display:flex;}
+.card-front-tags .ftag{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:0.3px;text-transform:uppercase;}
+.ftag-best{background:rgba(34,197,94,0.18);color:#22c55e;border:1px solid rgba(34,197,94,0.3);}
+.ftag-sharp{background:rgba(99,102,241,0.15);color:#818cf8;border:1px solid rgba(99,102,241,0.3);}
+.ftag-upset{background:rgba(245,158,11,0.15);color:#F59E0B;border:1px solid rgba(245,158,11,0.3);}
+.ftag-trap{background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.3);}
+.ftag-rest{background:rgba(34,197,94,0.1);color:#6ee7b7;}
+.ftag-home{background:rgba(99,102,241,0.1);color:#a5b4fc;}
+.ftag-b2b{background:rgba(239,68,68,0.1);color:#fca5a5;}
+.ftag-injury{background:rgba(239,68,68,0.12);color:#ef4444;}
+.ftag-lean{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);}
+.ftag-default{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);}
+.card-matrix-preview{display:none;padding:2px 0 2px 30px;font-size:11px;color:rgba(255,255,255,0.45);font-family:var(--ec-font-mono);font-weight:600;}
+.game-row.has-analysis .card-matrix-preview{display:block;}
+.matrix-pill{display:inline-block;margin-right:8px;}
+.matrix-pill .mp-label{color:rgba(255,255,255,0.35);font-size:9px;text-transform:uppercase;letter-spacing:0.3px;}
+.matrix-pill .mp-score{font-weight:800;margin-left:3px;}
+.mp-high{color:#22c55e;} .mp-mid{color:#f59e0b;} .mp-low{color:#ef4444;}
+.chain-preview{display:inline-block;color:#FCD34D;font-size:10px;font-weight:700;margin-left:4px;}
 .game-edge{font-size:12px;color:var(--ec-text-secondary);line-height:1.4;display:none;}
 .game-row.expanded .game-edge{display:block;padding:6px 0 0 30px;}
 
@@ -243,8 +267,9 @@ body::before{content:'';position:fixed;bottom:0;left:0;right:0;height:35vh;backg
 .trend-flat{color:#6b7280;}
 
 /* ===== CHALLENGER GRADE BADGE ===== */
-.challenger-grade{display:inline-block;font-size:9px;font-weight:700;padding:2px 5px;border-radius:4px;margin-left:3px;opacity:0.85;border:1px dashed rgba(255,255,255,0.2);cursor:help;}
-.challenger-label{display:block;font-size:7px;color:var(--ec-text-tertiary);text-align:center;margin-top:1px;font-weight:600;letter-spacing:0.3px;}
+.challenger-slot{display:flex;align-items:center;gap:3px;}
+.challenger-grade{display:inline-block;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;opacity:0.9;border:1px solid rgba(255,255,255,0.15);cursor:help;}
+.challenger-label{font-size:8px;color:var(--ec-text-tertiary);font-weight:600;letter-spacing:0.3px;}
 
 /* ===== TEAM PROFILE PANEL ===== */
 .team-profile-panel{background:var(--ec-bg-elevated);border:1px solid var(--ec-border);border-radius:12px;padding:16px;margin-top:12px;}
@@ -746,6 +771,8 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     .card-r2{padding-left:0;font-size:16px;}
     .card-r3{padding-left:0;flex-wrap:wrap;}
     .card-r4{padding-left:0;}
+    .card-front-tags{padding-left:0;}
+    .card-matrix-preview{padding-left:0;}
     .game-matchup{font-size:15px;}
     .game-edge{padding-left:0 !important;}
 
@@ -5548,7 +5575,13 @@ function buildGameRowHTML(g) {
                 '<div class="pick-check" onclick="togglePick(event, this, \'' + matchup + '\')"></div>' +
                 '<div class="game-time">' + time + '</div>' +
                 '<div class="game-matchup">' + (g.league ? '<span style="font-size:9px;color:var(--ec-text-tertiary);font-weight:600;letter-spacing:0.5px;">' + (g.league_flag ? g.league_flag + ' ' : '') + g.league + '</span> ' : '') + '<span class="away">' + awayAbbr + '</span>' + matchupSep + '<span class="home">' + homeAbbr + '</span></div>' +
-                '<div class="game-grade"><span class="grade ' + gradeClass + '">' + gradeDisplay + '</span><span class="alt-grade-slot" id="altgrade-' + matchup.replace(/[^a-zA-Z0-9]/g,'') + '"></span><span class="challenger-slot" id="challenger-' + matchup.replace(/[^a-zA-Z0-9]/g,'') + '"></span></div>' +
+                '<div class="game-grade">' +
+                    '<span class="grade ' + gradeClass + '">' + gradeDisplay + '</span>' +
+                    '<span class="composite-val" id="comp-' + matchup.replace(/[^a-zA-Z0-9]/g,'') + '"></span>' +
+                    '<span class="alt-grade-slot" id="altgrade-' + matchup.replace(/[^a-zA-Z0-9]/g,'') + '"></span>' +
+                    '<span class="challenger-slot" id="challenger-' + matchup.replace(/[^a-zA-Z0-9]/g,'') + '"></span>' +
+                    '<span class="data-status-icon ' + (isComplete ? 'ds-ok' : 'ds-warn') + '">' + (isComplete ? '\u2713' : '\u26A0') + '</span>' +
+                '</div>' +
             '</div>' +
             /* Row 2: OUR PICK — prominent */
             '<div class="card-r2 card-pick" id="pick-' + matchup.replace(/[^a-zA-Z0-9]/g,'') + '">' + pickDisplay + '</div>' +
@@ -5558,6 +5591,10 @@ function buildGameRowHTML(g) {
                 (hasSpread ? '<span class="spread-ref">' + awayAbbr + ' ' + awaySpreadStr + ' / ' + homeAbbr + ' ' + spreadStr + '</span>' : '') +
                 (hasTotal ? '<span class="total-ref">O/U ' + total + '</span>' : '') +
             '</div>' +
+            /* Front tags: edge tags visible after analysis */
+            '<div class="card-front-tags" id="ftags-' + matchup.replace(/[^a-zA-Z0-9]/g,'') + '"></div>' +
+            /* Matrix preview: top 3 scoring variables */
+            '<div class="card-matrix-preview" id="mprev-' + matchup.replace(/[^a-zA-Z0-9]/g,'') + '"></div>' +
             /* Row 4: reasoning (populated after analysis) */
             '<div class="card-r4 card-reasoning" id="reason-' + matchup.replace(/[^a-zA-Z0-9]/g,'') + '"></div>' +
             /* Edge info (visible only when expanded) */
@@ -7451,6 +7488,52 @@ function fetchAnalysis(sport) {
                                 else if (isTBD) { gradeEl.className = 'grade gc'; gradeEl.style.cssText = 'background:rgba(251,176,36,0.15);color:#FBB024;'; gradeEl.textContent = 'TBD'; }
                                 else { gradeEl.className = 'grade g' + game.grade.toLowerCase().replace(/[^a-z]/g,''); gradeEl.textContent = game.grade; }
                             }
+                            // Composite score on card front
+                            var compId = 'comp-' + (row.getAttribute('data-game') || '').replace(/[^a-zA-Z0-9]/g,'');
+                            var compEl = document.getElementById(compId);
+                            if (compEl && game.composite_score) {
+                                compEl.textContent = game.composite_score;
+                            }
+                            // Front edge tags
+                            var ftagsId = 'ftags-' + (row.getAttribute('data-game') || '').replace(/[^a-zA-Z0-9]/g,'');
+                            var ftagsEl = document.getElementById(ftagsId);
+                            if (ftagsEl && game.tags && game.tags.length) {
+                                var ftagHtml = '';
+                                game.tags.forEach(function(t) {
+                                    var cls = 'ftag ftag-default';
+                                    if (t === 'BEST BET') cls = 'ftag ftag-best';
+                                    else if (t === 'SHARP') cls = 'ftag ftag-sharp';
+                                    else if (t === 'UPSET') cls = 'ftag ftag-upset';
+                                    else if (t === 'PASS' || t === 'TRAP') cls = 'ftag ftag-trap';
+                                    else if (t.indexOf('REST') !== -1) cls = 'ftag ftag-rest';
+                                    else if (t.indexOf('HOME') !== -1) cls = 'ftag ftag-home';
+                                    else if (t === 'B2B') cls = 'ftag ftag-b2b';
+                                    else if (t.indexOf('INJURY') !== -1) cls = 'ftag ftag-injury';
+                                    else if (t === 'LEAN') cls = 'ftag ftag-lean';
+                                    ftagHtml += '<span class="' + cls + '">' + t + '</span>';
+                                });
+                                ftagsEl.innerHTML = ftagHtml;
+                            }
+                            // Matrix preview — top 3 scoring variables
+                            var mprevId = 'mprev-' + (row.getAttribute('data-game') || '').replace(/[^a-zA-Z0-9]/g,'');
+                            var mprevEl = document.getElementById(mprevId);
+                            if (mprevEl && game.matrix_scores) {
+                                var sortedVars = [];
+                                for (var mk in game.matrix_scores) {
+                                    sortedVars.push({name: mk, score: game.matrix_scores[mk].score || 0, weighted: game.matrix_scores[mk].weighted || 0});
+                                }
+                                sortedVars.sort(function(a, b) { return b.weighted - a.weighted; });
+                                var top3 = sortedVars.slice(0, 3);
+                                var mpHtml = '';
+                                top3.forEach(function(v) {
+                                    var colorCls = v.score >= 7 ? 'mp-high' : v.score >= 5 ? 'mp-mid' : 'mp-low';
+                                    mpHtml += '<span class="matrix-pill"><span class="mp-label">' + v.name.replace(/_/g,' ') + '</span><span class="mp-score ' + colorCls + '">' + v.score + '</span></span>';
+                                });
+                                if (game.chains && game.chain_bonus) {
+                                    mpHtml += '<span class="chain-preview">&#9889;+' + game.chain_bonus.toFixed(1) + '</span>';
+                                }
+                                mprevEl.innerHTML = mpHtml;
+                            }
                             // Add "Lineups Open" tag if game is >90min away
                             var gradeContainer = row.querySelector('.game-grade');
                             if (gradeContainer) {
@@ -7480,16 +7563,16 @@ function fetchAnalysis(sport) {
                                     gradeContainer.appendChild(badge);
                                 }
                             }
-                            // Challenger grade badge
+                            // Challenger grade badge — prominent side-by-side
                             if (game.challenger_grade && game.challenger_model) {
                                 var cSlotId = 'challenger-' + (row.getAttribute('data-game') || '').replace(/[^a-zA-Z0-9]/g,'');
                                 var cSlot = document.getElementById(cSlotId);
                                 if (cSlot && !cSlot.innerHTML) {
                                     var cClass = 'g' + game.challenger_grade.toLowerCase().replace(/[^a-z]/g,'');
-                                    var shortModel = game.challenger_model.replace('GPT-', 'G').replace(' Mini', 'M').replace(' Fast', 'F').replace('Maverick', 'Mav');
-                                    if (shortModel.length > 8) shortModel = shortModel.substring(0, 8);
-                                    cSlot.innerHTML = '<span class="challenger-grade grade ' + cClass + '" title="Challenger: ' + game.challenger_model + '">' + game.challenger_grade + '</span>' +
-                                        '<span class="challenger-label">' + shortModel + '</span>';
+                                    var shortModel = game.challenger_model.replace('Claude Sonnet 4.6', 'CL').replace('DeepSeek V3.2', 'DS').replace('Grok ', 'GK').replace('Llama 4 Maverick', 'LM').replace(' Fast', 'F');
+                                    if (shortModel.length > 4) shortModel = shortModel.substring(0, 4);
+                                    cSlot.innerHTML = '<span class="challenger-label">' + shortModel + '</span>' +
+                                        '<span class="challenger-grade grade ' + cClass + '" title="Challenger: ' + game.challenger_model + '">' + game.challenger_grade + '</span>';
                                 }
                             }
                             // Chain alerts — render triggered chains on card
