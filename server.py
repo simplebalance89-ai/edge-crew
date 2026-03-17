@@ -887,7 +887,7 @@ API_SPORTS_LEAGUES["soccer"] = [v["api_sports_id"] for v in SOCCER_LEAGUES.value
 # Azure OpenAI config
 AZURE_ENDPOINT = os.environ.get("AZURE_OPENAI_ENDPOINT", "")
 AZURE_KEY = os.environ.get("AZURE_OPENAI_KEY", "")
-AZURE_MODEL = os.environ.get("AZURE_OPENAI_MODEL", "gpt-4.1")
+AZURE_MODEL = os.environ.get("AZURE_OPENAI_MODEL", "DeepSeek-V3.2")
 REALTIME_DEPLOYMENT = "gpt-4o-realtime"
 AZURE_BASE = AZURE_ENDPOINT.rstrip("/")
 
@@ -900,14 +900,12 @@ THINKER_ENDPOINT = os.environ.get("THINKER_ENDPOINT", "https://pwgcerp-9302-reso
 # Anthropic config
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 
-# Challenger Model of the Week — rotation list
+# Challenger Model of the Week — rotation list (NO OpenAI models — Peter directive S197)
 CHALLENGER_MODELS = [
-    {"name": "gpt-5-mini", "endpoint": "azure", "display": "GPT-5 Mini"},
-    {"name": "o4-mini", "endpoint": "azure", "display": "o4-mini"},
+    {"name": "claude-sonnet-4-6", "endpoint": "anthropic", "display": "Claude Sonnet 4.6"},
     {"name": "grok-3", "endpoint": "ai_services", "display": "Grok 3"},
     {"name": "Llama-4-Maverick-17B-128E-Instruct-FP8", "endpoint": "ai_services", "display": "Llama 4 Maverick"},
     {"name": "DeepSeek-V3.2", "endpoint": "ai_services", "display": "DeepSeek V3.2"},
-    {"name": "claude-sonnet-4-6", "endpoint": "anthropic", "display": "Claude Sonnet 4.6"},
     {"name": "grok-4-fast-reasoning", "endpoint": "ai_services", "display": "Grok 4 Fast"},
 ]
 CHALLENGER_MODEL_OVERRIDE = os.environ.get("CHALLENGER_MODEL", "")
@@ -4688,12 +4686,20 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
 
     def _call_formatter(raw_analysis, is_first_batch, batch_idx=0, attempt=1):
         """Call the formatting model (DeepSeek). Returns (parsed_json, metadata)."""
-        client = AzureOpenAI(
-            azure_endpoint=AZURE_ENDPOINT,
-            api_key=AZURE_KEY,
-            api_version="2024-10-21",
-            timeout=120,
-        )
+        # Route: GPT/o-series → Azure OpenAI, everything else → AI Services
+        if ANALYSIS_FORMATTER.startswith(("gpt", "o1", "o4")):
+            client = AzureOpenAI(
+                azure_endpoint=AZURE_ENDPOINT,
+                api_key=AZURE_KEY,
+                api_version="2024-10-21",
+                timeout=120,
+            )
+        else:
+            client = OpenAI(
+                base_url=THINKER_ENDPOINT,
+                api_key=AZURE_KEY,
+                timeout=120,
+            )
         fmt_prompt = _build_formatter_prompt(raw_analysis, is_first_batch)
         logger.info(f"[FORMATTER] Batch {batch_idx} → {ANALYSIS_FORMATTER} (attempt {attempt})")
         fmt_start = time.time()
@@ -4713,14 +4719,22 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
         return result, {"secs": fmt_secs, "tokens": fmt_tokens}
 
     def _call_single_model(prompt_text, model_name=None):
-        """Fallback: single-model call to AZURE_MODEL (gpt-4.1) with full JSON prompt."""
+        """Fallback: single-model call with full JSON prompt. Routes to AI Services or Azure OpenAI."""
         use_model = model_name or AZURE_MODEL
-        client = AzureOpenAI(
-            azure_endpoint=AZURE_ENDPOINT,
-            api_key=AZURE_KEY,
-            api_version="2024-10-21",
-            timeout=120,
-        )
+        # Route: GPT/o-series → Azure OpenAI, everything else → AI Services
+        if use_model.startswith(("gpt", "o1", "o4")):
+            client = AzureOpenAI(
+                azure_endpoint=AZURE_ENDPOINT,
+                api_key=AZURE_KEY,
+                api_version="2024-10-21",
+                timeout=120,
+            )
+        else:
+            client = OpenAI(
+                base_url=THINKER_ENDPOINT,
+                api_key=AZURE_KEY,
+                timeout=120,
+            )
         logger.info(f"[FALLBACK] Single-model call to {use_model}")
         fb_start = time.time()
         response = client.chat.completions.create(
