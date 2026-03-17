@@ -676,6 +676,15 @@ async def no_cache_headers(request, call_next):
 
 ODDS_API_KEY = os.environ.get("ODDS_API_KEY_PAID", "") or os.environ.get("ODDS_API_KEY", "")
 ODDS_API_BASE = "https://api.the-odds-api.com/v4/sports"
+SPORTSGAMEODDS_KEY = os.environ.get("SPORTSGAMEODDS_KEY", "")
+SPORTSGAMEODDS_BASE = "https://api.sportsgameodds.com/v2"
+# SportsGameOdds league IDs mapped from our sport keys
+SGO_LEAGUE_MAP = {
+    "nba": "NBA", "wnba": "WNBA", "ncaab": "NCAAB",
+    "nhl": "NHL", "nfl": "NFL", "mlb": "MLB",
+    "mma": "UFC",
+    "soccer": "EPL,LA_LIGA,BUNDESLIGA,IT_SERIE_A,FR_LIGUE_1,UEFA_CHAMPIONS_LEAGUE,MLS",
+}
 PREFERRED_BOOK = "hardrockbet"
 FALLBACK_BOOKS = ["draftkings", "fanduel", "betmgm", "bovada"]
 REGIONS = "us,us2,eu,uk,au"
@@ -3185,7 +3194,12 @@ async def _fetch_sport_odds(sport_key, markets, sport_label):
         async with httpx.AsyncClient(timeout=15) as client:
             resp = await client.get(url, params=params)
             if resp.status_code == 200:
-                for event in resp.json():
+                try:
+                    events = resp.json()
+                except Exception:
+                    logger.warning(f"Odds API {sport_key}: response was not valid JSON")
+                    return games
+                for event in events:
                     games.append(_parse_event(event, sport_label))
     except Exception:
         pass
@@ -5621,11 +5635,97 @@ async def get_scores():
     })
 
 
+async def _fetch_sportsgameodds_scores(sport_lower: str, days_from: int = 3) -> list:
+    """Fetch completed game scores from SportsGameOdds API (primary).
+    Returns list in the same format as _fetch_scores for compatibility.
+    """
+    if not SPORTSGAMEODDS_KEY:
+        return []
+    league_id = SGO_LEAGUE_MAP.get(sport_lower)
+    if not league_id:
+        return []
+
+    now = datetime.now(timezone.utc)
+    starts_after = (now - timedelta(days=days_from)).strftime("%Y-%m-%dT00:00:00Z")
+    starts_before = (now + timedelta(days=1)).strftime("%Y-%m-%dT23:59:59Z")
+
+    games = []
+    cursor = None
+    try:
+        async with httpx.AsyncClient(timeout=20) as client:
+            for _ in range(5):  # max 5 pages
+                params = {
+                    "apiKey": SPORTSGAMEODDS_KEY,
+                    "leagueID": league_id,
+                    "startsAfter": starts_after,
+                    "startsBefore": starts_before,
+                    "limit": 50,
+                }
+                if cursor:
+                    params["cursor"] = cursor
+
+                resp = await client.get(f"{SPORTSGAMEODDS_BASE}/events", params=params)
+                if resp.status_code != 200:
+                    logger.warning(f"SportsGameOdds scores {sport_lower}: HTTP {resp.status_code}")
+                    break
+
+                try:
+                    data = resp.json()
+                except Exception:
+                    logger.warning(f"SportsGameOdds scores {sport_lower}: invalid JSON response")
+                    break
+
+                for event in data.get("data", []):
+                    status = event.get("status", {})
+                    teams = event.get("teams", {})
+                    home = teams.get("home", {})
+                    away = teams.get("away", {})
+                    home_name = home.get("names", {}).get("long", "")
+                    away_name = away.get("names", {}).get("long", "")
+                    home_score = home.get("score")
+                    away_score = away.get("score")
+                    completed = status.get("completed", False)
+                    started = status.get("started", False)
+                    starts_at = status.get("startsAt", "")
+
+                    # Map sport_key for compatibility with Odds API format
+                    sport_key_map = {
+                        "nba": "basketball_nba", "wnba": "basketball_wnba",
+                        "ncaab": "basketball_ncaab", "nhl": "icehockey_nhl",
+                        "nfl": "americanfootball_nfl", "mlb": "baseball_mlb",
+                        "mma": "mma_mixed_martial_arts", "soccer": "soccer",
+                    }
+
+                    game = {
+                        "id": event.get("eventID", ""),
+                        "sport_key": sport_key_map.get(sport_lower, sport_lower),
+                        "home_team": home_name,
+                        "away_team": away_name,
+                        "completed": completed,
+                        "commence_time": starts_at,
+                        "scores": [
+                            {"name": home_name, "score": str(home_score) if home_score is not None else None},
+                            {"name": away_name, "score": str(away_score) if away_score is not None else None},
+                        ] if home_score is not None else None,
+                    }
+                    games.append(game)
+
+                cursor = data.get("nextCursor")
+                if not cursor:
+                    break
+
+        logger.info(f"SportsGameOdds scores {sport_lower}: {len(games)} games, {sum(1 for g in games if g['completed'])} completed")
+    except Exception as e:
+        logger.warning(f"SportsGameOdds scores failed ({sport_lower}): {type(e).__name__}: {e}")
+
+    return games
+
+
 async def _fetch_scores(sport_key: str, days_from: int = 3) -> list:
-    """Fetch game scores from The Odds API + local archive. Cached 5 min.
+    """Fetch game scores: SportsGameOdds primary, Odds API fallback. Cached 5 min.
 
     1. Load archived completed scores (free — local file)
-    2. Fetch fresh scores from API (daysFrom = dynamic based on oldest pick)
+    2. Fetch fresh scores from SportsGameOdds (primary) or Odds API (fallback)
     3. Archive any newly completed games
     4. Merge and dedupe by game ID
     """
@@ -5639,31 +5739,54 @@ async def _fetch_scores(sport_key: str, days_from: int = 3) -> list:
     archived_games = [g for g in archive.values()
                       if g.get("sport_key", "") == sport_key or sport_key in g.get("sport_key", "")]
 
-    # Step 2: Fetch fresh from API
+    # Step 2: Fetch fresh scores — SportsGameOdds primary, Odds API fallback
     api_games = []
-    if ODDS_API_KEY:
+    # Map sport_key back to sport_lower for SportsGameOdds
+    _sgo_reverse = {v: k for k, vals in SPORT_KEYS.items() for v in vals}
+    sport_lower = _sgo_reverse.get(sport_key, sport_key.split("_")[-1].lower())
+
+    # PRIMARY: SportsGameOdds
+    if SPORTSGAMEODDS_KEY and sport_lower in SGO_LEAGUE_MAP:
+        sgo_games = await _fetch_sportsgameodds_scores(sport_lower, days_from)
+        if sgo_games:
+            api_games = sgo_games
+            logger.info(f"Scores PRIMARY (SportsGameOdds) {sport_key}: {len(api_games)} games")
+
+    # FALLBACK: Odds API (only if primary returned nothing)
+    if not api_games and ODDS_API_KEY:
         url = f"{ODDS_API_BASE}/{sport_key}/scores/"
         params = {"apiKey": ODDS_API_KEY, "daysFrom": days_from}
         try:
             async with httpx.AsyncClient(timeout=15) as client:
                 r = await client.get(url, params=params)
-                logger.info(f"Scores fetch {sport_key} (daysFrom={days_from}): status={r.status_code}")
+                logger.info(f"Scores FALLBACK (Odds API) {sport_key} (daysFrom={days_from}): status={r.status_code}")
                 if r.status_code == 200:
-                    api_games = r.json()
+                    try:
+                        api_games = r.json()
+                    except Exception:
+                        logger.warning(f"Scores FALLBACK {sport_key}: response was not valid JSON")
+                        api_games = []
                     # Tag with sport_key for archive filtering
                     for g in api_games:
                         if "sport_key" not in g:
                             g["sport_key"] = sport_key
-                    logger.info(f"Scores fetch {sport_key}: got {len(api_games)} games")
-                    # Step 3: Archive newly completed games
-                    _archive_completed_games(api_games)
+                    logger.info(f"Scores FALLBACK {sport_key}: got {len(api_games)} games")
                 else:
-                    logger.warning(f"Scores fetch {sport_key}: HTTP {r.status_code}")
+                    logger.warning(f"Scores FALLBACK {sport_key}: HTTP {r.status_code}")
         except Exception as e:
-            logger.warning(f"Scores fetch failed for {sport_key}: {type(e).__name__}: {e}")
+            logger.warning(f"Scores FALLBACK failed for {sport_key}: {type(e).__name__}: {e}")
             log_error("Scores", f"Fetch failed: {sport_key}", str(e))
-    else:
-        logger.warning("No ODDS_API_KEY configured for scores fetch")
+    if not api_games and not SPORTSGAMEODDS_KEY and not ODDS_API_KEY:
+        logger.warning("No scores API configured (set SPORTSGAMEODDS_KEY or ODDS_API_KEY)")
+
+    # Tag SportsGameOdds games with sport_key for archive compatibility
+    for g in api_games:
+        if "sport_key" not in g:
+            g["sport_key"] = sport_key
+
+    # Archive newly completed games
+    if api_games:
+        _archive_completed_games(api_games)
 
     # Step 4: Merge API + archive, dedupe by game ID (API wins on conflicts)
     merged = {}
