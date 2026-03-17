@@ -12,7 +12,7 @@ import statistics
 import db
 from openai import AzureOpenAI, OpenAI
 import anthropic as anthropic_sdk
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
 logger = logging.getLogger("edge-crew")
