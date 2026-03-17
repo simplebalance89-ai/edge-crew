@@ -245,7 +245,7 @@ async def _daily_slate_pull():
             today = now.strftime("%Y-%m-%d")
 
             should_pull_slate = False
-            if hour in (0, 6, 23) and last_slate_pull != f"{today}:{hour}":
+            if hour in (0, 6, 7, 12, 16, 23) and last_slate_pull != f"{today}:{hour}":
                 should_pull_slate = True
                 last_slate_pull = f"{today}:{hour}"
             elif last_slate_pull is None:
@@ -319,34 +319,28 @@ async def _daily_slate_pull():
                     except Exception as e:
                         print(f"[ANALYSIS] Smart T-30m {s.upper()} failed: {e}")
 
-            # Safety net: 4 PM catch-all — analyze anything not yet analyzed today
-            if hour == 16 and last_analysis_run != f"{today}:16":
-                last_analysis_run = f"{today}:16"
+            # ── Fixed Analysis Runs: 7 AM, Noon, 4 PM PST ──────────────
+            # All in-season sports get analyzed at these times so DJ always
+            # has a graded slate no matter when he opens the page.
+            if hour in (7, 12, 16) and last_analysis_run != f"{today}:{hour}":
+                last_analysis_run = f"{today}:{hour}"
                 active_sports = _in_season_sports()
-                needs_analysis = []
+                label = {7: "7 AM", 12: "NOON", 16: "4 PM"}[hour]
+                print(f"[ANALYSIS] {label} scheduled run -- {len(active_sports)} sports in season")
                 for s in active_sports:
-                    cached = _load_analysis_cache(s)
-                    if cached and cached.get("games"):
-                        cached_date = cached.get("generated_at", "")[:10] or cached.get("cached_at", "")[:10]
-                        if cached_date == today:
-                            continue
-                    needs_analysis.append(s)
-                if needs_analysis:
-                    print(f"[ANALYSIS] 4 PM safety net — {len(needs_analysis)} sports need analysis: {needs_analysis}")
-                    for s in needs_analysis:
-                        try:
-                            odds_key = f"{s}:h2h,spreads,totals"
-                            if odds_key in _cache:
-                                del _cache[odds_key]
-                            resp = await get_analysis(s)
-                            if hasattr(resp, 'body'):
-                                d = json.loads(resp.body)
-                                if d.get("games"):
-                                    _save_analysis_cache(s, d)
-                                    print(f"[ANALYSIS] Safety net {s.upper()}: {len(d['games'])} games")
-                        except Exception as e:
-                            print(f"[ANALYSIS] Safety net {s.upper()} failed: {e}")
-                        await asyncio.sleep(30)
+                    try:
+                        odds_key = f"{s}:h2h,spreads,totals"
+                        if odds_key in _cache:
+                            del _cache[odds_key]
+                        resp = await get_analysis(s)
+                        if hasattr(resp, 'body'):
+                            d = json.loads(resp.body)
+                            if d.get("games"):
+                                _save_analysis_cache(s, d)
+                                print(f"[ANALYSIS] {label} {s.upper()}: {len(d['games'])} games")
+                    except Exception as e:
+                        print(f"[ANALYSIS] {label} {s.upper()} failed: {e}")
+                    await asyncio.sleep(30)
 
             # ── 7 AM PST NCAAB Morning Slate ──────────────────────────────────
             # March Madness & regular season: NCAAB games tip early, analyze at 7 AM
