@@ -3692,22 +3692,33 @@ async def get_soccer_league_odds(league_key: str):
 
 @app.get("/api/slate")
 async def get_slate():
-    """Fetch full slate — all sports combined."""
+    """Fetch full slate — all sports combined. Uses cached daily slates first, falls back to live fetch."""
     if not SPORTSGAMEODDS_KEY and not ODDS_API_KEY and not SHARPAPI_KEY:
         return JSONResponse({"error": "No odds API configured (set SPORTSGAMEODDS_KEY, SHARPAPI_KEY, or ODDS_API_KEY)"}, status_code=500)
 
+    now = datetime.now(PST)
     all_games = []
-    for sport in ["nba", "wnba", "ncaab", "ncaaf", "nhl", "mlb", "tennis", "soccer", "mma", "boxing"]:
-        resp = await get_odds(sport)
-        if hasattr(resp, 'body'):
-            data = json.loads(resp.body)
-            if "games" in data:
-                all_games.extend(data["games"])
+    source = "SportsGameOdds" if SPORTSGAMEODDS_KEY else "The Odds API"
+
+    # Try cached slates first (fast, no API calls)
+    for sport in ALL_SPORTS:
+        slate = _load_daily_slate(sport)
+        if slate and slate.get("games"):
+            all_games.extend([g for g in slate["games"] if _game_not_started(g, now)])
+
+    # If no cached data, fetch live
+    if not all_games:
+        for sport in ALL_SPORTS:
+            resp = await get_odds(sport)
+            if hasattr(resp, 'body'):
+                data = json.loads(resp.body)
+                if "games" in data:
+                    all_games.extend(data["games"])
 
     return JSONResponse({
         "games": all_games,
         "count": len(all_games),
-        "source": "SharpAPI + The Odds API (multi-source)",
+        "source": source,
         "fetched_at": _now_ts(),
     })
 
