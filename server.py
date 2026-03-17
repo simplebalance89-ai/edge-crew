@@ -900,7 +900,7 @@ THINKER_ENDPOINT = os.environ.get("THINKER_ENDPOINT", "https://pwgcerp-9302-reso
 # Anthropic config
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 
-# Challenger Model of the Week — rotation list (NO OpenAI models — Peter directive S197)
+# Challenger — Claude Sonnet 4.6 fixed (Peter directive S197 — DeepSeek + Claude, no OpenAI)
 CHALLENGER_MODELS = [
     {"name": "claude-sonnet-4-6", "endpoint": "anthropic", "display": "Claude Sonnet 4.6"},
     {"name": "grok-3", "endpoint": "ai_services", "display": "Grok 3"},
@@ -908,7 +908,7 @@ CHALLENGER_MODELS = [
     {"name": "DeepSeek-V3.2", "endpoint": "ai_services", "display": "DeepSeek V3.2"},
     {"name": "grok-4-fast-reasoning", "endpoint": "ai_services", "display": "Grok 4 Fast"},
 ]
-CHALLENGER_MODEL_OVERRIDE = os.environ.get("CHALLENGER_MODEL", "")
+CHALLENGER_MODEL_OVERRIDE = os.environ.get("CHALLENGER_MODEL", "claude-sonnet-4-6")
 _challenger_cache = {}  # week_num -> model dict
 
 
