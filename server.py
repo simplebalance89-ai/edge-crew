@@ -5816,11 +5816,21 @@ async def get_scores():
                 "winner": winner,
             })
 
-    games.sort(key=lambda x: x.get("commence_time", ""))
+    # Deduplicate by game identity (away + home + commence_time)
+    # Soccer dedup cache returns same games for all 9 soccer sport_keys
+    seen = set()
+    unique_games = []
+    for g in games:
+        gid = (g.get("away", ""), g.get("home", ""), g.get("commence_time", ""))
+        if gid not in seen:
+            seen.add(gid)
+            unique_games.append(g)
+
+    unique_games.sort(key=lambda x: x.get("commence_time", ""))
     return JSONResponse({
         "date": today_pst,
-        "games": games,
-        "count": len(games),
+        "games": unique_games,
+        "count": len(unique_games),
         "timestamp": _now_ts(),
     })
 
