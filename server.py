@@ -511,6 +511,7 @@ DEFAULT_CREW = [
     {"id": "padrino", "display_name": "Padrino", "color": "#C0A062", "is_admin": False},
     {"id": "los", "display_name": "Los", "color": "#38BDF8", "is_admin": False},
     {"id": "renzo", "display_name": "Renzo", "color": "#9B59B6", "is_admin": False},
+    {"id": "dj", "display_name": "DJ", "color": "#E74C3C", "is_admin": False},
 ]
 
 
@@ -535,7 +536,7 @@ def _write_profiles(data):
 CREW_DEFAULT_PINS = {"peter": "1234", "jimmy": "0000", "chinny": "0000",
                      "alyssa": "0000", "sintonia": "0000", "midday_edge": "0000",
                      "tunk": "1525", "padrino": "0726", "los": "4200",
-                     "renzo": "0000"}
+                     "renzo": "0000", "dj": "0000"}
 
 def _seed_profiles():
     """Ensure all DEFAULT_CREW members exist in profiles. Sync PINs to defaults."""

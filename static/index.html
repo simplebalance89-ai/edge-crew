@@ -88,6 +88,7 @@ body::before{content:'';position:fixed;bottom:0;left:0;right:0;height:35vh;backg
 .crew-tunk{background:rgba(255,69,0,0.15);color:#FF4500;border:1px solid rgba(255,69,0,0.3);}
 .crew-padrino{background:rgba(192,160,98,0.15);color:#C0A062;border:1px solid rgba(192,160,98,0.3);}
 .crew-los{background:rgba(56,189,248,0.15);color:#38BDF8;border:1px solid rgba(56,189,248,0.3);}
+.crew-dj{background:rgba(231,76,60,0.15);color:#E74C3C;border:1px solid rgba(231,76,60,0.3);}
 .sweep-time{font-size:11px;color:rgba(255,255,255,0.25);text-align:right;}
 
 /* ===== SPORT TABS (2-Tier Nav) ===== */
@@ -1312,6 +1313,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
             <span class="crew-badge crew-tunk" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0;margin-left:-4px;">T</span>
             <span class="crew-badge crew-padrino" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;padding:0;margin-left:-4px;">PD</span>
             <span class="crew-badge crew-los" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0;margin-left:-4px;">L</span>
+            <span class="crew-badge crew-dj" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0;margin-left:-4px;">DJ</span>
         </div>
         <div class="agent-switcher" id="agentSwitcher" onclick="backToAgents()"><span id="agentSwitcherLabel">SWITCH AGENT</span></div>
         <button id="analyzeBtn" onclick="runAnalysis()" style="padding:6px 14px;border-radius:var(--ec-radius-full);font-size:11px;font-weight:700;background:linear-gradient(135deg,#F72585,#41EAD4);color:#fff;border:none;cursor:pointer;transition:all 0.2s;letter-spacing:0.3px;">ANALYZE</button>
@@ -2264,6 +2266,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
         <button class="swim-btn" onclick="setSwimLane('Alyssa',this)" style="background:transparent;border:1px solid #41EAD4;color:#41EAD4;border-radius:6px;padding:6px 14px;font-family:var(--ec-font-body);font-weight:700;font-size:12px;cursor:pointer;">Alyssa</button>
         <button class="swim-btn" onclick="setSwimLane('Sinton.ia',this)" style="background:transparent;border:1px solid #9B59B6;color:#9B59B6;border-radius:6px;padding:6px 14px;font-family:var(--ec-font-body);font-weight:700;font-size:12px;cursor:pointer;">Renzo</button>
         <button class="swim-btn" onclick="setSwimLane('Midday Edge',this)" style="background:transparent;border:1px solid #22C55E;color:#22C55E;border-radius:6px;padding:6px 14px;font-family:var(--ec-font-body);font-weight:700;font-size:12px;cursor:pointer;">Midday Edge</button>
+        <button class="swim-btn" onclick="setSwimLane('DJ',this)" style="background:transparent;border:1px solid #E74C3C;color:#E74C3C;border-radius:6px;padding:6px 14px;font-family:var(--ec-font-body);font-weight:700;font-size:12px;cursor:pointer;">DJ</button>
     </div>
     <div id="bankrollPicks"></div>
 
@@ -4008,7 +4011,7 @@ function editPick(index) {
 
 var activeSwimLane = 'ALL';
 var _resultFilter = 'all'; // 'all', 'regular', 'props'
-var CREW_COLORS = {Peter:'#818cf8',Jimmy:'#5588EE',Chinny:'#FF6B35',Alyssa:'#41EAD4','Sinton.ia':'#9B59B6','Midday Edge':'#22C55E',Tunk:'#FF4500',Padrino:'#C0A062',Los:'#38BDF8'};
+var CREW_COLORS = {Peter:'#818cf8',Jimmy:'#5588EE',Chinny:'#FF6B35',Alyssa:'#41EAD4','Sinton.ia':'#9B59B6','Midday Edge':'#22C55E',DJ:'#E74C3C',Tunk:'#FF4500',Padrino:'#C0A062',Los:'#38BDF8'};
 
 function setSwimLane(name, btn) {
     activeSwimLane = name;
@@ -4487,7 +4490,7 @@ function renderBankroll() {
 
     var wins = 0, losses = 0, pushes = 0, netUnits = 0;
     var propW = 0, propL = 0, propP = 0;
-    var personStats = {Peter:{w:0,l:0,p:0,u:0},Jimmy:{w:0,l:0,p:0,u:0},Chinny:{w:0,l:0,p:0,u:0},Alyssa:{w:0,l:0,p:0,u:0},'Sinton.ia':{w:0,l:0,p:0,u:0},Willis:{w:0,l:0,p:0,u:0},'Midday Edge':{w:0,l:0,p:0,u:0},Tunk:{w:0,l:0,p:0,u:0},Padrino:{w:0,l:0,p:0,u:0},Los:{w:0,l:0,p:0,u:0}};
+    var personStats = {Peter:{w:0,l:0,p:0,u:0},Jimmy:{w:0,l:0,p:0,u:0},Chinny:{w:0,l:0,p:0,u:0},Alyssa:{w:0,l:0,p:0,u:0},'Sinton.ia':{w:0,l:0,p:0,u:0},Willis:{w:0,l:0,p:0,u:0},'Midday Edge':{w:0,l:0,p:0,u:0},DJ:{w:0,l:0,p:0,u:0},Tunk:{w:0,l:0,p:0,u:0},Padrino:{w:0,l:0,p:0,u:0},Los:{w:0,l:0,p:0,u:0}};
 
     // Daily stats accumulator
     var dailyStats = {};
