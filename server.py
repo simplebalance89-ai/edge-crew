@@ -702,6 +702,8 @@ async def no_cache_headers(request, call_next):
 
 ODDS_API_KEY = os.environ.get("ODDS_API_KEY_PAID", "") or os.environ.get("ODDS_API_KEY", "")
 ODDS_API_BASE = "https://api.the-odds-api.com/v4/sports"
+BALLDONTLIE_API_KEY = os.environ.get("BALLDONTLIE_API_KEY", "373a65ea-c799-4c41-b54a-64909073123c")
+BALLDONTLIE_BASE = "https://api.balldontlie.io/v1"
 PREFERRED_BOOK = "hardrockbet"
 FALLBACK_BOOKS = ["draftkings", "fanduel", "betmgm", "bovada"]
 REGIONS = "us,us2,eu,uk,au"
@@ -7755,6 +7757,199 @@ async def get_rosters(sport: str):
     return JSONResponse(result)
 
 
+# ── BallDontLie Game Logs (Primary — NBA) ─────────────────────────────────────
+async def _fetch_game_logs_bdl(sport, team_abbrevs):
+    """Fetch player game logs from BallDontLie API (primary source).
+    Returns same format as _fetch_player_game_logs for compatibility."""
+    if not BALLDONTLIE_API_KEY or sport.lower() != "nba":
+        return {}  # BDL only supports NBA for now
+
+    game_log_cache_key = f"gamelogs_bdl:{sport.lower()}:{','.join(sorted(t.lower() for t in team_abbrevs))}"
+    cached = _get_cached(game_log_cache_key, ttl=7200)
+    if cached:
+        return cached
+
+    headers = {"Authorization": BALLDONTLIE_API_KEY}
+    player_logs = {}
+
+    # Step 1: Find player IDs for teams playing tonight
+    try:
+        from datetime import datetime, timedelta
+        end_date = datetime.now(PST).strftime("%Y-%m-%d")
+        start_date = (datetime.now(PST) - timedelta(days=30)).strftime("%Y-%m-%d")
+
+        # Get roster from cached ESPN rosters (we still use ESPN for roster IDs)
+        roster_cache = _get_cached(f"rosters:{sport.lower()}", ttl=3600)
+        if not roster_cache:
+            try:
+                await get_rosters(sport)
+                roster_cache = _get_cached(f"rosters:{sport.lower()}", ttl=3600)
+            except Exception:
+                pass
+        if not roster_cache:
+            return {}
+
+        rosters = roster_cache.get("rosters", {})
+        target_teams = {}
+        for abbr, info in rosters.items():
+            team_full = info.get("team", "")
+            if abbr.lower() in [t.lower() for t in team_abbrevs] or \
+               team_full.lower() in [t.lower() for t in team_abbrevs]:
+                target_teams[abbr] = info
+
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            for abbr, info in target_teams.items():
+                top_players = info.get("players", [])[:8]
+                for player in top_players:
+                    pname = player.get("name", "?")
+                    if not pname or pname == "?":
+                        continue
+
+                    try:
+                        # Search BDL for the player
+                        search_name = pname.split()[-1] if len(pname.split()) > 1 else pname
+                        search_resp = await client.get(
+                            f"{BALLDONTLIE_BASE}/players",
+                            params={"search": search_name, "per_page": 5},
+                            headers=headers
+                        )
+                        if search_resp.status_code != 200:
+                            continue
+                        search_data = search_resp.json()
+                        players = search_data.get("data", [])
+
+                        # Find exact match
+                        bdl_player = None
+                        for p in players:
+                            full_name = f"{p.get('first_name', '')} {p.get('last_name', '')}".strip()
+                            if full_name.lower() == pname.lower():
+                                bdl_player = p
+                                break
+                            # Fuzzy: last name match + first initial
+                            if p.get("last_name", "").lower() == pname.split()[-1].lower():
+                                bdl_player = p
+                                break
+
+                        if not bdl_player:
+                            continue
+
+                        bdl_id = bdl_player["id"]
+
+                        # Get recent game stats
+                        stats_resp = await client.get(
+                            f"{BALLDONTLIE_BASE}/stats",
+                            params={
+                                "player_ids[]": bdl_id,
+                                "start_date": start_date,
+                                "end_date": end_date,
+                                "per_page": 25,
+                            },
+                            headers=headers
+                        )
+                        if stats_resp.status_code != 200:
+                            continue
+                        stats_data = stats_resp.json()
+                        games = stats_data.get("data", [])
+
+                        # Filter out DNPs (0 minutes)
+                        games = [g for g in games if g.get("min") and str(g["min"]) != "00" and str(g["min"]) != "0"]
+                        # Sort by date descending (most recent first)
+                        games.sort(key=lambda g: g.get("game", {}).get("date", ""), reverse=True)
+
+                        gp = len(games)
+                        if gp == 0:
+                            continue
+
+                        l10 = games[:10]
+                        l5 = games[:5]
+
+                        def _avg(game_list, key):
+                            vals = [g.get(key, 0) or 0 for g in game_list]
+                            return round(sum(vals) / len(vals), 1) if vals else 0
+
+                        l10_pts = _avg(l10, "pts")
+                        l10_reb = _avg(l10, "reb")
+                        l10_ast = _avg(l10, "ast")
+                        l10_min_vals = []
+                        for g in l10:
+                            try:
+                                m = str(g.get("min", "0"))
+                                l10_min_vals.append(float(m.split(":")[0]) if ":" in m else float(m))
+                            except:
+                                l10_min_vals.append(0)
+                        l10_min = round(sum(l10_min_vals) / len(l10_min_vals), 1) if l10_min_vals else 0
+
+                        l5_pts = _avg(l5, "pts")
+                        l5_reb = _avg(l5, "reb")
+                        l5_ast = _avg(l5, "ast")
+                        l5_min_vals = []
+                        for g in l5:
+                            try:
+                                m = str(g.get("min", "0"))
+                                l5_min_vals.append(float(m.split(":")[0]) if ":" in m else float(m))
+                            except:
+                                l5_min_vals.append(0)
+                        l5_min = round(sum(l5_min_vals) / len(l5_min_vals), 1) if l5_min_vals else 0
+
+                        season_pts = _avg(games, "pts")
+                        season_reb = _avg(games, "reb")
+                        season_ast = _avg(games, "ast")
+
+                        # Minutes trend
+                        min_trend = "stable"
+                        if l10_min > 0:
+                            diff = (l5_min - l10_min) / l10_min
+                            if diff > 0.1:
+                                min_trend = "UP"
+                            elif diff < -0.1:
+                                min_trend = "DOWN"
+
+                        # Build raw stat arrays for screener
+                        raw_stats = {}
+                        for stat_key in ["pts", "reb", "ast"]:
+                            label = stat_key.upper()
+                            l5_vals = [g.get(stat_key, 0) or 0 for g in l5]
+                            l10_vals = [g.get(stat_key, 0) or 0 for g in l10]
+                            raw_stats[label] = {
+                                "l5_raw": l5_vals,
+                                "l10_raw": l10_vals,
+                                "l5_avg": round(sum(l5_vals) / len(l5_vals), 1) if l5_vals else 0,
+                                "l10_avg": round(sum(l10_vals) / len(l10_vals), 1) if l10_vals else 0,
+                                "l5_floor": min(l5_vals) if l5_vals else 0,
+                                "l5_ceiling": max(l5_vals) if l5_vals else 0,
+                            }
+
+                        player_logs[pname] = {
+                            "team": abbr,
+                            "gp": gp,
+                            "l10_pts": l10_pts,
+                            "l10_reb": l10_reb,
+                            "l10_ast": l10_ast,
+                            "l10_min": l10_min,
+                            "l5_pts": l5_pts,
+                            "l5_reb": l5_reb,
+                            "l5_ast": l5_ast,
+                            "l5_min": l5_min,
+                            "season_pts": season_pts,
+                            "season_reb": season_reb,
+                            "season_ast": season_ast,
+                            "minutes_trend": min_trend,
+                            "raw_stats": raw_stats,
+                            "_source": "balldontlie",
+                        }
+                    except Exception as e:
+                        logger.debug(f"BDL game log fetch failed for {pname}: {e}")
+                        continue
+
+    except Exception as e:
+        logger.warning(f"BDL game logs failed: {e}")
+        return {}
+
+    if player_logs:
+        _set_cache(game_log_cache_key, player_logs)
+    return player_logs
+
+
 # ── ESPN Game Logs (WS1) ──────────────────────────────────────────────────────
 async def _fetch_player_game_logs(sport, team_abbrevs):
     """Fetch last 10 game logs for top 8 players per team from ESPN.
@@ -7790,6 +7985,15 @@ async def _fetch_player_game_logs(sport, team_abbrevs):
     cached = _get_cached(game_log_cache_key, ttl=7200)  # 2h TTL
     if cached:
         return cached
+
+    # Try BallDontLie first (accurate data), fall back to ESPN
+    if BALLDONTLIE_API_KEY and sport.lower() == "nba":
+        bdl_logs = await _fetch_game_logs_bdl(sport, team_abbrevs)
+        if bdl_logs:
+            logger.info(f"[GAMELOGS] BallDontLie returned {len(bdl_logs)} players for {sport}")
+            _set_cache(game_log_cache_key, bdl_logs)
+            return bdl_logs
+        logger.warning(f"[GAMELOGS] BallDontLie empty — falling back to ESPN")
 
     player_logs = {}
     async with httpx.AsyncClient(timeout=15.0) as client:
