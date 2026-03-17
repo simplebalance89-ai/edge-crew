@@ -3283,6 +3283,181 @@ async def _get_active_tennis_keys():
     return SPORT_KEYS.get("tennis", [])  # fallback to hardcoded list
 
 
+async def _fetch_sgo_odds(sport_lower: str, sport_label: str) -> list:
+    """Fetch live odds from SportsGameOdds API (primary odds source).
+
+    Returns games in the same format as _parse_event() for compatibility.
+    Uses SGO_LEAGUE_MAP to resolve league IDs. Respects budget gate.
+    """
+    if not SPORTSGAMEODDS_KEY:
+        return []
+    if not _sgo_budget_ok():
+        logger.warning(f"SGO budget exceeded — skipping odds fetch for {sport_lower}")
+        return []
+    league_ids = SGO_LEAGUE_MAP.get(sport_lower)
+    if not league_ids:
+        return []
+
+    games = []
+    try:
+        params = {
+            "apiKey": SPORTSGAMEODDS_KEY,
+            "leagueID": league_ids,
+            "started": "false",
+            "oddsAvailable": "true",
+            "limit": 50,
+            "oddID": "points-away-game-ml-away,points-home-game-ml-home,"
+                     "points-away-game-sp-away,points-home-game-sp-home,"
+                     "points-all-game-ou-over,points-all-game-ou-under",
+        }
+        async with httpx.AsyncClient(timeout=15) as client:
+            resp = await client.get(f"{SPORTSGAMEODDS_BASE}/events", params=params)
+            if resp.status_code != 200:
+                logger.warning(f"SGO odds {sport_lower}: HTTP {resp.status_code}")
+                return []
+            data = resp.json()
+            events = data.get("data", [])
+            if not events:
+                return []
+
+            _record_sgo_entities(len(events), sport_lower)
+
+            for ev in events:
+                teams = ev.get("teams", {})
+                home_info = teams.get("home", {})
+                away_info = teams.get("away", {})
+                home_name = home_info.get("names", {}).get("long", "")
+                away_name = away_info.get("names", {}).get("long", "")
+                starts_at = ev.get("status", {}).get("startsAt", "")
+                odds = ev.get("odds", {})
+
+                # Determine bookmaker — prefer hardrockbet > draftkings > fanduel > consensus
+                book_order = [PREFERRED_BOOK] + FALLBACK_BOOKS
+
+                def _pick_odds(odd_key):
+                    """Get odds/spread/overUnder from preferred bookmaker."""
+                    o = odds.get(odd_key, {})
+                    by_bm = o.get("byBookmaker", {})
+                    for bk in book_order:
+                        if bk in by_bm:
+                            return by_bm[bk], bk
+                    # Fallback: use first available bookmaker
+                    for bk, val in by_bm.items():
+                        return val, bk
+                    # Final fallback: use consensus bookOdds
+                    return o, "consensus"
+
+                # Moneylines
+                away_ml_data, ml_book = _pick_odds("points-away-game-ml-away")
+                home_ml_data, _ = _pick_odds("points-home-game-ml-home")
+                away_ml = away_ml_data.get("odds", odds.get("points-away-game-ml-away", {}).get("bookOdds", ""))
+                home_ml = home_ml_data.get("odds", odds.get("points-home-game-ml-home", {}).get("bookOdds", ""))
+
+                # Spreads
+                away_sp_data, sp_book = _pick_odds("points-away-game-sp-away")
+                home_sp_data, _ = _pick_odds("points-home-game-sp-home")
+                away_spread = away_sp_data.get("spread", odds.get("points-away-game-sp-away", {}).get("bookSpread"))
+                home_spread = home_sp_data.get("spread", odds.get("points-home-game-sp-home", {}).get("bookSpread"))
+                away_spread_odds = away_sp_data.get("odds", odds.get("points-away-game-sp-away", {}).get("bookOdds", -110))
+                home_spread_odds = home_sp_data.get("odds", odds.get("points-home-game-sp-home", {}).get("bookOdds", -110))
+
+                # Totals (game total = entity "all")
+                over_data, ou_book = _pick_odds("points-all-game-ou-over")
+                under_data, _ = _pick_odds("points-all-game-ou-under")
+                total = over_data.get("overUnder", odds.get("points-all-game-ou-over", {}).get("bookOverUnder"))
+                over_odds = over_data.get("odds", odds.get("points-all-game-ou-over", {}).get("bookOdds", -110))
+                under_odds = under_data.get("odds", odds.get("points-all-game-ou-under", {}).get("bookOdds", -110))
+
+                # Convert string odds to int where possible
+                def _to_num(val, fallback=None):
+                    if val is None or val == "":
+                        return fallback
+                    try:
+                        s = str(val).replace("+", "")
+                        return float(s) if "." in s else int(s)
+                    except (ValueError, TypeError):
+                        return fallback
+
+                has_ml = bool(away_ml and home_ml)
+                has_spread = away_spread is not None and home_spread is not None
+                has_total = total is not None
+
+                # Pick best book name for display
+                bookmaker = ml_book if has_ml else (sp_book if has_spread else ou_book)
+                if bookmaker == "consensus":
+                    bookmaker = None
+
+                # Map SGO leagueID to soccer sport_key if applicable
+                sgo_league = ev.get("leagueID", "")
+                sport_key = ""
+                if sport_lower == "soccer":
+                    # Reverse-map SGO leagueID to our sport_key
+                    _sgo_soccer_reverse = {
+                        "EPL": "soccer_epl", "LA_LIGA": "soccer_spain_la_liga",
+                        "BUNDESLIGA": "soccer_germany_bundesliga", "IT_SERIE_A": "soccer_italy_serie_a",
+                        "FR_LIGUE_1": "soccer_france_ligue_one", "UEFA_CHAMPIONS_LEAGUE": "soccer_uefa_champs_league",
+                        "MLS": "soccer_usa_mls",
+                    }
+                    sport_key = _sgo_soccer_reverse.get(sgo_league, f"soccer_{sgo_league.lower()}")
+                else:
+                    # Use the standard sport_key for non-soccer
+                    keys = SPORT_KEYS.get(sport_lower, [sport_lower])
+                    sport_key = keys[0] if keys else sport_lower
+
+                league_meta = SOCCER_LEAGUES.get(sport_key, {})
+
+                game = {
+                    "id": ev.get("eventID", ""),
+                    "sport": sport_label,
+                    "sport_key": sport_key,
+                    "league": league_meta.get("name", sgo_league) if sport_lower == "soccer" else "",
+                    "league_flag": league_meta.get("flag", ""),
+                    "away": away_name,
+                    "home": home_name,
+                    "time": starts_at,
+                    "bookmaker": bookmaker,
+                    "markets": {},
+                    "away_ml": _to_num(away_ml, ""),
+                    "home_ml": _to_num(home_ml, ""),
+                    "away_spread": _to_num(away_spread),
+                    "home_spread": _to_num(home_spread),
+                    "away_spread_odds": _to_num(away_spread_odds, -110),
+                    "home_spread_odds": _to_num(home_spread_odds, -110),
+                    "total": _to_num(total),
+                    "over_odds": _to_num(over_odds, -110),
+                    "under_odds": _to_num(under_odds, -110),
+                    "lines_available": has_spread or has_total or has_ml,
+                    "lines_complete": has_ml,
+                    "fetched_at": _now_ts(),
+                    "all_bookmakers": [],  # SGO doesn't use the same bookmaker format
+                }
+
+                # Add opening line shift data if available from SGO
+                sgo_ml_away = odds.get("points-away-game-ml-away", {})
+                sgo_sp_away = odds.get("points-away-game-sp-away", {})
+                sgo_ou_over = odds.get("points-all-game-ou-over", {})
+                if sgo_ml_away.get("openBookOdds") or sgo_sp_away.get("openBookSpread"):
+                    game["shifts"] = {}
+                    if sgo_ml_away.get("openBookOdds"):
+                        game["shifts"]["away_ml"] = {"open": _to_num(sgo_ml_away["openBookOdds"]), "current": _to_num(away_ml)}
+                    if sgo_sp_away.get("openBookSpread"):
+                        game["shifts"]["spread"] = {"open": _to_num(sgo_sp_away["openBookSpread"]), "current": _to_num(away_spread)}
+                    if sgo_ou_over.get("openBookOverUnder"):
+                        game["shifts"]["total"] = {"open": _to_num(sgo_ou_over["openBookOverUnder"]), "current": _to_num(total)}
+
+                # Fair odds from SGO (bonus data — useful for edge detection)
+                if sgo_ml_away.get("fairOdds"):
+                    game["fair_away_ml"] = _to_num(sgo_ml_away["fairOdds"])
+                    game["fair_home_ml"] = _to_num(odds.get("points-home-game-ml-home", {}).get("fairOdds"))
+
+                games.append(game)
+
+        logger.info(f"SGO odds {sport_lower}: {len(games)} games fetched")
+    except Exception as e:
+        logger.warning(f"SGO odds fetch failed ({sport_lower}): {type(e).__name__}: {e}")
+    return games
+
+
 async def _fetch_sport_odds(sport_key, markets, sport_label):
     """Fetch odds for a single sport key from The Odds API.
 
@@ -3334,8 +3509,14 @@ async def get_odds(sport: str, markets: str = "h2h,spreads,totals"):
     all_games = []
     source_name = ""
 
-    # --- PRIMARY: The Odds API ---
-    if ODDS_API_KEY:
+    # --- PRIMARY: SportsGameOdds API ---
+    if SPORTSGAMEODDS_KEY and sport_lower in SGO_LEAGUE_MAP:
+        all_games = await _fetch_sgo_odds(sport_lower, label)
+        if all_games:
+            source_name = "SportsGameOdds"
+
+    # --- FALLBACK 1: The Odds API ---
+    if not all_games and ODDS_API_KEY:
         if sport_lower == "tennis":
             keys = await _get_active_tennis_keys()
         elif sport_lower == "mlb":
@@ -3358,14 +3539,14 @@ async def get_odds(sport: str, markets: str = "h2h,spreads,totals"):
         except Exception as e:
             logger.warning(f"WBC merge failed: {e}")
 
-    # --- FALLBACK: SharpAPI ---
+    # --- FALLBACK 2: SharpAPI ---
     if not all_games and SHARPAPI_KEY and sport_lower in SHARPAPI_LEAGUES:
         all_games = await _fetch_sharpapi_odds(sport_lower, label)
         if all_games:
             source_name = "SharpAPI (DraftKings)"
 
-    if not all_games and not SHARPAPI_KEY and not ODDS_API_KEY:
-        return JSONResponse({"error": "No odds API configured (set SHARPAPI_KEY or ODDS_API_KEY)"}, status_code=500)
+    if not all_games and not SPORTSGAMEODDS_KEY and not SHARPAPI_KEY and not ODDS_API_KEY:
+        return JSONResponse({"error": "No odds API configured (set SPORTSGAMEODDS_KEY, SHARPAPI_KEY, or ODDS_API_KEY)"}, status_code=500)
 
     # Filter: only future games within 24h window
     now = datetime.now(PST)
@@ -3518,8 +3699,8 @@ async def get_soccer_league_odds(league_key: str):
 @app.get("/api/slate")
 async def get_slate():
     """Fetch full slate — all sports combined."""
-    if not ODDS_API_KEY and not SHARPAPI_KEY:
-        return JSONResponse({"error": "No odds API configured"}, status_code=500)
+    if not SPORTSGAMEODDS_KEY and not ODDS_API_KEY and not SHARPAPI_KEY:
+        return JSONResponse({"error": "No odds API configured (set SPORTSGAMEODDS_KEY, SHARPAPI_KEY, or ODDS_API_KEY)"}, status_code=500)
 
     all_games = []
     for sport in ["nba", "wnba", "ncaab", "ncaaf", "nhl", "mlb", "tennis", "soccer", "mma", "boxing"]:
