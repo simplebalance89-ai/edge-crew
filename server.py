@@ -538,7 +538,7 @@ def _write_profiles(data):
         json.dump(data, f, indent=2)
 
 
-CREW_DEFAULT_PINS = {"peter": "0000", "jimmy": "0000", "chinny": "0000",
+CREW_DEFAULT_PINS = {"peter": "1234", "jimmy": "0000", "chinny": "0000",
                      "alyssa": "0000", "sintonia": "0000", "sportsbook": "0000",
                      "tunk": "1525", "padrino": "0726", "los": "4200",
                      "renzo": "0000"}
