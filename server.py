@@ -6252,6 +6252,17 @@ async def save_pick(request: Request):
         log_error("Picks", f"Save failed for {name}", str(e))
         return JSONResponse({"error": f"Failed to save pick: {e}"}, status_code=500)
 
+    # Update last_pick_at on crew profile
+    try:
+        prof_data = _read_profiles()
+        for p in prof_data.get("profiles", []):
+            if p.get("display_name", "").lower() == name.lower() or p.get("id", "").lower() == name.lower():
+                p["last_pick_at"] = datetime.now(PST).strftime("%Y-%m-%d %H:%M:%S")
+                _write_profiles(prof_data)
+                break
+    except Exception as e:
+        logger.error(f"Failed to update last_pick_at for {name}: {e}")
+
     # Dual-write to Postgres (fire-and-forget — JSON is still source of truth)
     try:
         await db.execute(
@@ -8290,13 +8301,81 @@ async def update_pick(pick_id: str, request: Request):
     return JSONResponse({"error": "Pick not found"}, status_code=404)
 
 
+@app.delete("/api/picks/crew/{member_name}")
+async def delete_crew_picks(member_name: str):
+    """Delete all picks for a crew member."""
+    data = _read_picks()
+    picks = data.get("picks", [])
+    original_count = len(picks)
+    # Match by crew member name (case-insensitive) — pick field is "name"
+    picks = [p for p in picks if p.get("name", "").lower() != member_name.lower()]
+    deleted_count = original_count - len(picks)
+    if deleted_count == 0:
+        return JSONResponse({"error": f"No picks found for '{member_name}'"}, status_code=404)
+    data["picks"] = picks
+    _write_picks(data)
+    return JSONResponse({"member": member_name, "deleted": deleted_count, "remaining": len(picks)})
+
+
 @app.delete("/api/picks/{pick_id}")
 async def delete_pick(pick_id: str):
-    """Delete a pick by ID."""
+    """Delete a single pick by ID."""
     data = _read_picks()
-    data["picks"] = [p for p in data["picks"] if p["id"] != pick_id]
+    picks = data.get("picks", [])
+    original_count = len(picks)
+    picks = [p for p in picks if p.get("id") != pick_id]
+    if len(picks) == original_count:
+        return JSONResponse({"error": f"Pick {pick_id} not found"}, status_code=404)
+    data["picks"] = picks
     _write_picks(data)
-    return JSONResponse({"status": "deleted", "id": pick_id})
+    return JSONResponse({"deleted": pick_id, "remaining": len(picks)})
+
+
+@app.get("/api/crew/inactive")
+async def get_inactive_crew():
+    """List crew members who haven't submitted a pick in 3+ days."""
+    profiles_data = _read_profiles()
+    profiles = profiles_data.get("profiles", [])
+    inactive = []
+    now = datetime.now(PST)
+    for profile in profiles:
+        name = profile.get("display_name", profile.get("id", "unknown"))
+        last_pick = profile.get("last_pick_at")
+        created = profile.get("created_at")
+        if last_pick:
+            try:
+                last_dt = datetime.fromisoformat(last_pick)
+                if last_dt.tzinfo is None:
+                    last_dt = last_dt.replace(tzinfo=PST)
+                if (now - last_dt).days >= 3:
+                    inactive.append({"name": name, "last_pick": last_pick, "days_inactive": (now - last_dt).days})
+            except Exception:
+                pass
+        elif created:
+            try:
+                created_dt = datetime.fromisoformat(created)
+                if created_dt.tzinfo is None:
+                    created_dt = created_dt.replace(tzinfo=PST)
+                if (now - created_dt).days >= 3:
+                    inactive.append({"name": name, "created": created, "never_picked": True, "days_since_join": (now - created_dt).days})
+            except Exception:
+                pass
+    return JSONResponse({"inactive_members": inactive, "rule": "3-day pick requirement", "count": len(inactive)})
+
+
+@app.delete("/api/crew/{member_name}")
+async def remove_crew_member(member_name: str):
+    """Remove a crew member profile. Does NOT delete their picks — use /api/picks/crew/{name} for that."""
+    data = _read_profiles()
+    profiles = data.get("profiles", [])
+    original_count = len(profiles)
+    profiles = [p for p in profiles if p.get("id", "").lower() != member_name.lower() and p.get("display_name", "").lower() != member_name.lower()]
+    if len(profiles) == original_count:
+        return JSONResponse({"error": f"Crew member '{member_name}' not found"}, status_code=404)
+    data["profiles"] = profiles
+    _write_profiles(data)
+    remaining_names = [p.get("display_name", p.get("id")) for p in profiles]
+    return JSONResponse({"removed": member_name, "remaining_crew": remaining_names})
 
 
 @app.get("/api/upsets")
@@ -9477,6 +9556,16 @@ async def ncaab_system_page():
 @app.get("/dj/nba-system")
 async def nba_system_page():
     return FileResponse("static/nba-system.html", headers=NO_CACHE_HEADERS)
+
+
+@app.get("/chinny")
+async def chinny_page():
+    return FileResponse("static/chinny.html", headers=NO_CACHE_HEADERS)
+
+
+@app.get("/jimmy")
+async def jimmy_page():
+    return FileResponse("static/jimmy.html", headers=NO_CACHE_HEADERS)
 
 
 @app.get("/api/arb-scan")

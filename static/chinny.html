@@ -1,0 +1,2780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chinny's Edge Agent — Last Shot</title>
+<style>
+  :root {
+    --bg: #0d0d14;
+    --card-bg: #161622;
+    --card-border: #1e1e30;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --accent: #6c5ce7;
+    --accent-glow: #7c6cf7;
+    --green: #00d68f;
+    --red: #ff5555;
+    --yellow: #ffd93d;
+    --orange: #ff9f43;
+    --pill-bg: #1a1a2e;
+    --pill-active: #6c5ce7;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    min-height: 100vh;
+    padding: 0 0 100px;
+  }
+
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: linear-gradient(180deg, var(--bg) 80%, transparent);
+    padding: 20px 16px 12px;
+  }
+
+  .header h1 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text);
+    text-align: center;
+    margin-bottom: 12px;
+  }
+
+  .header h1 .sport-label { color: var(--accent-glow); }
+  .header h1 .date-label { color: var(--text-dim); font-weight: 400; font-size: 0.85rem; }
+
+  .pills {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding-bottom: 4px;
+  }
+
+  .pill {
+    padding: 6px 14px;
+    border-radius: 20px;
+    background: var(--pill-bg);
+    color: var(--text-dim);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .pill:hover { border-color: var(--accent); color: var(--text); }
+  .pill.active { background: var(--pill-active); color: #fff; border-color: var(--accent); }
+
+  .loading {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-dim);
+    font-size: 0.95rem;
+  }
+
+  .loading .spinner {
+    display: inline-block;
+    width: 28px; height: 28px;
+    border: 3px solid var(--card-border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 12px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .games-container { padding: 0 12px; max-width: 800px; margin: 0 auto; }
+
+  /* Landing page */
+  .landing {
+    text-align: center;
+    padding: 60px 20px 40px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  .landing h2 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+  .landing .subtitle {
+    font-size: 0.95rem;
+    color: var(--accent-glow);
+    margin-bottom: 30px;
+    font-weight: 500;
+  }
+  .landing .what-we-do {
+    text-align: left;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 30px;
+  }
+  .landing .what-we-do h3 {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+  }
+  .landing .what-we-do ul {
+    list-style: none;
+    padding: 0;
+  }
+  .landing .what-we-do li {
+    font-size: 0.88rem;
+    color: var(--text);
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    line-height: 1.5;
+  }
+  .landing .what-we-do li:last-child { border-bottom: none; }
+  .landing .what-we-do li::before {
+    content: '';
+    display: inline-block;
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    margin-right: 10px;
+    vertical-align: middle;
+  }
+  .landing .tonight {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    margin-bottom: 20px;
+  }
+  .landing .tonight strong { color: var(--text); }
+  .landing-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .landing-btn {
+    padding: 14px 28px;
+    border-radius: 10px;
+    border: 1px solid var(--accent);
+    background: rgba(108, 92, 231, 0.12);
+    color: var(--accent-glow);
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+  .landing-btn:hover {
+    background: var(--accent);
+    color: #fff;
+    transform: translateY(-1px);
+  }
+
+  /* Re-analyze button */
+  .reanalyze-bar {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 16px;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .reanalyze-btn {
+    padding: 8px 18px;
+    border-radius: 8px;
+    border: 1px solid var(--accent);
+    background: rgba(108, 92, 231, 0.1);
+    color: var(--accent-glow);
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .reanalyze-btn:hover { background: var(--accent); color: #fff; }
+  .reanalyze-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .reanalyze-btn.small {
+    padding: 4px 10px;
+    font-size: 0.65rem;
+    border-radius: 6px;
+  }
+
+  /* Grade legend */
+  .grade-legend {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 14px;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    line-height: 1.6;
+    text-align: center;
+  }
+  .grade-legend .gl-a { color: var(--green); font-weight: 700; }
+  .grade-legend .gl-b { color: var(--yellow); font-weight: 700; }
+  .grade-legend .gl-c { color: var(--orange); font-weight: 700; }
+  .grade-legend .gl-d { color: var(--red); font-weight: 700; }
+
+  /* Game cards */
+  .game-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 14px;
+    transition: border-color 0.2s;
+  }
+
+  .game-card:hover { border-color: var(--accent); }
+
+  .game-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+  }
+
+  .matchup-info { flex: 1; }
+
+  .matchup-teams {
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.4;
+  }
+
+  .matchup-meta {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  .grade-badge {
+    font-size: 1.6rem;
+    font-weight: 800;
+    min-width: 50px;
+    text-align: center;
+    line-height: 1;
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: rgba(108, 92, 231, 0.15);
+  }
+
+  .grade-A { color: var(--green); background: rgba(0, 214, 143, 0.12); }
+  .grade-B { color: var(--yellow); background: rgba(255, 217, 61, 0.12); }
+  .grade-C { color: var(--orange); background: rgba(255, 159, 67, 0.12); }
+  .grade-D, .grade-F { color: var(--red); background: rgba(255, 85, 85, 0.12); }
+  .grade-INCOMPLETE { color: var(--text-dim); background: rgba(136, 136, 160, 0.1); font-size: 0.8rem; }
+
+  .lines-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+
+  .line-chip {
+    font-size: 0.72rem;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.04);
+    color: var(--text-dim);
+    font-weight: 500;
+  }
+
+  .line-chip .val { color: var(--text); font-weight: 700; }
+
+  .edge-pick-row {
+    background: rgba(108, 92, 231, 0.08);
+    border: 1px solid rgba(108, 92, 231, 0.2);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+  }
+
+  .edge-pick-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--accent-glow);
+    margin-bottom: 4px;
+    font-weight: 700;
+  }
+
+  .edge-pick-text {
+    font-size: 0.85rem;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  .edge-pick-reasoning {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+
+  .section-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+    font-weight: 600;
+  }
+
+  /* Analysis text */
+  .analysis-block {
+    background: rgba(255,255,255,0.02);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+  .analysis-block .ab-label {
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--accent-glow);
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .analysis-block .ab-edge {
+    color: var(--text);
+    font-weight: 600;
+    font-size: 0.82rem;
+    margin-bottom: 6px;
+  }
+  .analysis-block strong { color: var(--text); }
+  .analysis-block .ab-row {
+    padding: 3px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+  }
+  .analysis-block .ab-row:last-child { border-bottom: none; }
+
+  .gotcha-text {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    line-height: 1.5;
+    margin-bottom: 10px;
+  }
+
+  .gotcha-text ul { padding-left: 16px; margin: 0; }
+  .gotcha-text li { margin-bottom: 3px; }
+  .gotcha-text strong { color: var(--text); }
+
+  .flags-row {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+
+  .flag-tag {
+    font-size: 0.6rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .flag-SHARP { background: rgba(0,214,143,0.15); color: var(--green); }
+  .flag-TRAP { background: rgba(255,85,85,0.15); color: var(--red); }
+  .flag-B2B { background: rgba(255,159,67,0.15); color: var(--orange); }
+  .flag-UPSET { background: rgba(255,217,61,0.15); color: var(--yellow); }
+  .flag-PASS { background: rgba(136,136,160,0.12); color: var(--text-dim); }
+  .flag-BEST { background: rgba(0,214,143,0.2); color: var(--green); }
+  .flag-REST { background: rgba(108,92,231,0.15); color: var(--accent-glow); }
+  .flag-INJURY { background: rgba(255,85,85,0.12); color: var(--red); }
+  .flag-INCOMPLETE { background: rgba(136,136,160,0.1); color: var(--text-dim); }
+  .flag-default { background: rgba(255,255,255,0.06); color: var(--text-dim); }
+
+  .screener-section {
+    margin-top: 8px;
+    border-top: 1px solid var(--card-border);
+    padding-top: 8px;
+  }
+
+  .screener-hit {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+    font-size: 0.75rem;
+  }
+
+  .screener-player { font-weight: 600; }
+  .screener-stat { color: var(--text-dim); }
+  .screener-verdict { color: var(--green); font-weight: 700; font-size: 0.7rem; }
+
+  .peter-zone {
+    font-size: 0.78rem;
+    color: var(--text);
+    line-height: 1.5;
+    background: rgba(108, 92, 231, 0.06);
+    border-left: 3px solid var(--accent);
+    padding: 8px 12px;
+    margin-top: 8px;
+    border-radius: 0 6px 6px 0;
+  }
+
+  .footer {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-dim);
+    font-size: 0.7rem;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-dim);
+  }
+
+  .empty-state .icon { font-size: 2rem; margin-bottom: 12px; }
+  .empty-state p { font-size: 0.9rem; }
+
+  .global-gotcha {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+  }
+
+  .global-gotcha .section-label { color: var(--accent-glow); }
+
+  /* Multi-book line comparison */
+  .books-section {
+    margin-top: 10px;
+    border-top: 1px solid var(--card-border);
+    padding-top: 10px;
+  }
+  .books-toggle {
+    font-size: 0.7rem;
+    color: var(--accent-glow);
+    cursor: pointer;
+    font-weight: 600;
+    padding: 4px 0;
+    user-select: none;
+  }
+  .books-toggle:hover { text-decoration: underline; }
+  .books-detail { display: none; margin-top: 8px; }
+  .books-detail.open { display: block; }
+  .books-market {
+    margin-bottom: 10px;
+  }
+  .books-market-title {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--accent-glow);
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .books-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 3px 6px;
+    font-size: 0.72rem;
+    border-radius: 4px;
+    margin-bottom: 2px;
+  }
+  .books-row.best { background: rgba(0, 214, 143, 0.08); }
+  .books-row.worst { background: rgba(255, 85, 85, 0.06); }
+  .books-row .book-name {
+    color: var(--text-dim);
+    min-width: 90px;
+    font-weight: 500;
+  }
+  .books-row .book-line {
+    color: var(--text);
+    font-weight: 700;
+    min-width: 80px;
+  }
+  .books-row .book-odds {
+    color: var(--text-dim);
+    font-weight: 600;
+    min-width: 60px;
+    text-align: right;
+  }
+  .books-row .best-tag {
+    font-size: 0.55rem;
+    color: var(--green);
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-left: 6px;
+  }
+  .books-row .worst-tag {
+    font-size: 0.55rem;
+    color: var(--red);
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-left: 6px;
+  }
+  .books-gap {
+    font-size: 0.68rem;
+    color: var(--yellow);
+    font-weight: 600;
+    padding: 2px 0;
+    margin-top: 2px;
+  }
+  .books-gap.disagree { color: var(--orange); }
+
+  /* Card top row with re-analyze */
+  .card-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* === AGENT PANEL === */
+  .agent-panel {
+    background: var(--card-bg);
+    border: 1px solid var(--accent);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 16px;
+    position: relative;
+  }
+  .agent-panel-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .agent-panel-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent); animation: agent-pulse 2s infinite;
+  }
+  @keyframes agent-pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+  .agent-panel-title {
+    font-size: 0.85rem; font-weight: 800; color: var(--accent-glow);
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+  .agent-panel-badge {
+    margin-left: auto;
+    padding: 3px 10px; border-radius: 10px;
+    background: rgba(108,92,231,0.15);
+    color: var(--accent-glow); font-size: 0.65rem; font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  /* Analyze My Way button */
+  .analyze-my-way {
+    display: block; width: 100%; padding: 14px; margin: 10px 0;
+    border-radius: 10px; border: none;
+    background: linear-gradient(135deg, #6c5ce7, #7c6cf7);
+    color: #fff; font-family: inherit; font-size: 0.85rem; font-weight: 800;
+    cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
+    transition: all 0.2s;
+  }
+  .analyze-my-way:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(108,92,231,0.3); }
+  .analyze-my-way:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+  .analyze-my-way.running { animation: amw-shimmer 1.5s infinite; }
+  @keyframes amw-shimmer { 0%,100%{opacity:1;} 50%{opacity:0.7;} }
+
+  /* Matrix panel */
+  .matrix-panel {
+    margin-top: 12px;
+    border-top: 1px solid var(--card-border);
+    padding-top: 12px;
+  }
+  .matrix-panel-toggle {
+    font-size: 0.72rem; color: var(--accent-glow);
+    cursor: pointer; font-weight: 700; user-select: none;
+  }
+  .matrix-panel-toggle:hover { text-decoration: underline; }
+  .matrix-panel-body { display: none; margin-top: 10px; }
+  .matrix-panel-body.open { display: block; }
+  .matrix-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 5px 8px; border-radius: 6px; margin-bottom: 3px;
+    font-size: 0.72rem; background: rgba(255,255,255,0.03);
+  }
+  .matrix-row .m-key { flex: 1; font-weight: 600; color: var(--text); }
+  .matrix-row .m-weight {
+    font-weight: 800; color: var(--accent-glow);
+    min-width: 28px; text-align: center;
+  }
+  .matrix-row .m-tag {
+    font-size: 0.55rem; font-weight: 700; padding: 1px 6px;
+    border-radius: 4px; margin-left: 6px; text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .m-tag-override { color: var(--yellow); background: rgba(255,217,61,0.12); }
+  .m-tag-custom { color: var(--green); background: rgba(0,214,143,0.12); }
+  .matrix-excluded-row {
+    padding: 4px 8px; margin-bottom: 3px; font-size: 0.7rem;
+    color: var(--red); text-decoration: line-through; opacity: 0.6;
+  }
+
+  /* Chinny results comparison */
+  .dj-result-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 8px; border-radius: 6px; font-size: 0.65rem;
+    font-weight: 700; margin-left: 8px;
+  }
+  .dj-delta-up { color: var(--green); background: rgba(0,214,143,0.1); }
+  .dj-delta-down { color: var(--red); background: rgba(255,85,85,0.1); }
+  .dj-delta-same { color: var(--text-dim); background: rgba(255,255,255,0.05); }
+
+  /* Voice bar — fixed bottom */
+  .voice-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    padding: 0; padding-bottom: env(safe-area-inset-bottom);
+    background: rgba(13,13,20,0.97); backdrop-filter: blur(12px);
+    border-top: 1px solid var(--card-border);
+    z-index: 200;
+  }
+  .voice-status-row {
+    padding: 6px 16px; text-align: center;
+    font-size: 0.72rem; font-weight: 600; color: var(--text-dim);
+    display: none;
+  }
+  .voice-status-row.active { display: block; }
+  .voice-status-row .v-dot {
+    display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent); margin-right: 6px; animation: agent-pulse 1s infinite;
+  }
+  .voice-status-row.state-listening { color: var(--green); }
+  .voice-status-row.state-thinking { color: var(--yellow); }
+  .voice-status-row.state-speaking { color: var(--accent-glow); }
+
+  .voice-controls {
+    display: flex; align-items: center; justify-content: center;
+    gap: 8px; padding: 8px 16px;
+  }
+  .voice-mode-btn {
+    padding: 8px 16px; border-radius: 8px;
+    border: 1px solid rgba(108,92,231,0.3);
+    background: rgba(108,92,231,0.08); color: var(--accent-glow);
+    font-family: inherit; font-size: 0.7rem; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .voice-mode-btn:hover { background: rgba(108,92,231,0.15); border-color: var(--accent); }
+  .voice-mode-btn.active { background: rgba(108,92,231,0.25); border-color: var(--accent); color: #fff; }
+  .voice-mode-btn.end-btn {
+    border-color: rgba(255,85,85,0.3); color: var(--red);
+    background: rgba(255,85,85,0.08); display: none;
+  }
+  .voice-mode-btn.end-btn.visible { display: inline-flex; }
+
+  .voice-mic-btn {
+    width: 44px; height: 44px; border-radius: 12px;
+    border: 1px solid rgba(108,92,231,0.3);
+    background: transparent; color: var(--accent-glow); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all 0.2s;
+  }
+  .voice-mic-btn:hover { background: rgba(108,92,231,0.1); }
+  .voice-mic-btn.listening {
+    background: rgba(108,92,231,0.2); border-color: var(--accent);
+    animation: mic-pulse 1.5s infinite;
+  }
+  @keyframes mic-pulse {
+    0%,100%{box-shadow:0 0 0 0 rgba(108,92,231,0.4);}
+    50%{box-shadow:0 0 0 10px rgba(108,92,231,0);}
+  }
+
+  .mic-sensitivity {
+    display: none; align-items: center; gap: 6px;
+    padding: 4px 16px 6px; justify-content: center;
+  }
+  .mic-sensitivity.visible { display: flex; }
+  .mic-sensitivity label {
+    font-size: 0.6rem; color: var(--text-dim); font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .mic-sensitivity select {
+    padding: 3px 8px; border-radius: 6px; border: 1px solid var(--card-border);
+    background: var(--card-bg); color: var(--text); font-family: inherit;
+    font-size: 0.65rem; font-weight: 600; cursor: pointer;
+  }
+
+  /* Voice transcript area */
+  .voice-transcript {
+    max-height: 0; overflow: hidden; transition: max-height 0.3s;
+    padding: 0 16px;
+  }
+  .voice-transcript.open { max-height: 200px; overflow-y: auto; padding: 8px 16px; }
+  .voice-transcript p {
+    font-size: 0.72rem; padding: 4px 0; margin: 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04); line-height: 1.5;
+  }
+  .voice-transcript p.vt-user { color: var(--text-dim); }
+  .voice-transcript p.vt-user::before { content: 'You: '; font-weight: 700; color: var(--text); }
+  .voice-transcript p.vt-agent { color: var(--accent-glow); }
+  .voice-transcript p.vt-agent::before { content: 'Agent: '; font-weight: 700; }
+
+  /* Connecting overlay */
+  .voice-connecting {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 300;
+    display: none; align-items: center; justify-content: center;
+    flex-direction: column; gap: 16px;
+  }
+  .voice-connecting.visible { display: flex; }
+  .voice-connecting-text { color: var(--accent-glow); font-size: 0.9rem; font-weight: 700; }
+
+  /* Voice prompts / flow lanes */
+  .voice-prompts {
+    display: flex; gap: 6px; padding: 6px 16px;
+    overflow-x: auto; flex-shrink: 0;
+    -webkit-overflow-scrolling: touch;
+  }
+  .voice-prompts::-webkit-scrollbar { display: none; }
+  .voice-prompt {
+    white-space: nowrap; padding: 6px 12px; border-radius: 16px;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.5); font-size: 0.65rem; font-weight: 600;
+    cursor: pointer; font-family: inherit; flex-shrink: 0; transition: all 0.2s;
+  }
+  .voice-prompt:active, .voice-prompt:hover {
+    background: rgba(108,92,231,0.12); color: var(--accent-glow);
+    border-color: rgba(108,92,231,0.3);
+  }
+
+  /* Default matrix card */
+  .default-matrix-card {
+    background: var(--card-bg); border: 1px solid var(--card-border);
+    border-radius: 12px; padding: 14px; margin-bottom: 14px;
+  }
+  .default-matrix-card .dmc-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .default-matrix-card .dmc-title {
+    font-size: 0.75rem; font-weight: 800; color: var(--accent-glow);
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+  .default-matrix-card .dmc-meta {
+    font-size: 0.6rem; color: var(--text-dim); font-weight: 600;
+  }
+  .default-matrix-card .dmc-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 4px;
+  }
+  .dmc-var {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 4px 8px; border-radius: 5px; background: rgba(255,255,255,0.03);
+    font-size: 0.65rem;
+  }
+  .dmc-var .dmc-key { color: var(--text-dim); font-weight: 500; }
+  .dmc-var .dmc-weight { font-weight: 800; min-width: 18px; text-align: right; }
+  .dmc-w9, .dmc-w10 { color: var(--green); }
+  .dmc-w7, .dmc-w8 { color: var(--accent-glow); }
+  .dmc-w5, .dmc-w6 { color: var(--text-dim); }
+  .dmc-w4, .dmc-w3, .dmc-w2, .dmc-w1 { color: var(--red); }
+
+  /* Edge badge on game cards */
+  .edge-badge {
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 6px;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    line-height: 1;
+    text-align: center;
+  }
+  .edge-high { color: var(--green); background: rgba(0, 214, 143, 0.15); }
+  .edge-mid { color: var(--yellow); background: rgba(255, 217, 61, 0.12); }
+  .edge-low { color: var(--text-dim); background: rgba(136, 136, 160, 0.1); }
+
+  /* Top Edges summary */
+  .top-edges {
+    background: var(--card-bg);
+    border: 1px solid rgba(0, 214, 143, 0.25);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+  }
+  .top-edges .te-header {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--green);
+    font-weight: 800;
+    margin-bottom: 10px;
+  }
+  .top-edges .te-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .top-edges .te-item:last-child { border-bottom: none; }
+  .top-edges .te-rank {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: var(--accent-glow);
+    min-width: 18px;
+  }
+  .top-edges .te-matchup {
+    flex: 1;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .top-edges .te-reason {
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    flex: 1;
+  }
+
+  /* Sort toggle */
+  .sort-toggle {
+    display: inline-flex;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--card-border);
+    font-size: 0.68rem;
+    font-weight: 700;
+  }
+  .sort-toggle-btn {
+    padding: 5px 12px;
+    background: var(--pill-bg);
+    color: var(--text-dim);
+    cursor: pointer;
+    border: none;
+    font-family: inherit;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    transition: all 0.2s;
+  }
+  .sort-toggle-btn:hover { color: var(--text); }
+  .sort-toggle-btn.active { background: var(--pill-active); color: #fff; }
+
+  /* Toast */
+  .agent-toast {
+    position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+    padding: 8px 18px; border-radius: 8px; background: rgba(108,92,231,0.9);
+    color: #fff; font-size: 0.75rem; font-weight: 700; z-index: 400;
+    opacity: 0; transition: opacity 0.3s; pointer-events: none;
+  }
+  .agent-toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="header" id="headerBar" style="display:none;">
+  <h1>CHINNY'S EDGE AGENT &mdash; <span class="sport-label" id="sportLabel">NCAAB</span> <span class="date-label" id="dateLabel"></span></h1>
+  <div class="pills" id="sportPills"></div>
+  <div class="pills" style="margin-top:6px;">
+    <div class="pill" id="tabSlate" onclick="switchView('slate')" style="background:var(--pill-active);color:#fff;border-color:var(--accent);">Slate</div>
+    <div class="pill" id="tabMatrix" onclick="switchView('matrix')">Chinny's Matrix</div>
+    <div class="pill" id="tabReview" onclick="switchView('review')">Review Matrix</div>
+    <div class="pill" id="tabFeedback" onclick="switchView('feedback')" style="border-color:rgba(255,215,0,0.3);">&#x1F4DD; Feedback</div>
+  </div>
+</div>
+
+<div id="landingPage"></div>
+
+<div id="loadingState" class="loading" style="display:none;">
+  <div class="spinner"></div>
+  <div id="loadingText">Loading slate...</div>
+</div>
+
+<div class="games-container" id="gamesContainer"></div>
+
+<div class="footer" id="footer" style="display:none;">
+  <div id="lastAnalyzed"></div>
+  <div style="margin-top:4px;">Chinny's Edge Agent &mdash; Casa EV</div>
+</div>
+
+<!-- Agent overlay -->
+<div class="voice-connecting" id="voiceConnecting">
+  <div class="spinner"></div>
+  <div class="voice-connecting-text" id="voiceConnectText">Connecting to your agent...</div>
+</div>
+
+<!-- Toast -->
+<div class="agent-toast" id="agentToast"></div>
+
+<!-- Voice bar -->
+<div class="voice-bar" id="voiceBar">
+  <div class="voice-transcript" id="voiceTranscript"></div>
+  <div class="voice-prompts" id="voicePrompts">
+    <button class="voice-prompt" onclick="voiceQuick('Show me the slate')">Show slate</button>
+    <button class="voice-prompt" onclick="voiceQuick('What is the best play tonight?')">Best play tonight</button>
+    <button class="voice-prompt" onclick="voiceQuick('Show me my matrix')">My matrix</button>
+    <button class="voice-prompt" onclick="voiceQuick('Walk me through how grading works')">How grading works</button>
+    <button class="voice-prompt" onclick="voiceQuick('Bump home court to 8')">Bump a weight</button>
+    <button class="voice-prompt" onclick="voiceQuick('What props look mispriced?')">Mispriced props</button>
+    <button class="voice-prompt" onclick="voiceQuick('Run the full demo')">Run demo</button>
+  </div>
+  <div class="voice-status-row" id="voiceStatusRow">
+    <span class="v-dot"></span><span id="voiceStatusText">Listening...</span>
+  </div>
+  <div class="voice-controls">
+    <button class="voice-mode-btn" id="btnConversation" onclick="startVoiceWithMode('freeflow')">Conversation</button>
+    <button class="voice-mode-btn" id="btnTakeTurns" onclick="startVoiceWithMode('turnbased')">Take Turns</button>
+    <button class="voice-mic-btn" id="voiceMicBtn" onclick="startVoiceWithMode(voiceActive ? '' : voiceInteractionMode || 'freeflow')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+    </button>
+    <button class="voice-mode-btn end-btn" id="btnEndVoice" onclick="endVoice()">End Voice</button>
+  </div>
+  <div class="mic-sensitivity" id="micSensitivity">
+    <label>Mic Sensitivity</label>
+    <select id="micEagerness" onchange="updateMicSensitivity(this.value)">
+      <option value="low">Low</option>
+      <option value="medium" selected>Medium</option>
+      <option value="high">High</option>
+    </select>
+  </div>
+</div>
+
+<!-- Hidden audio for WebRTC -->
+<audio id="rtcAudio" autoplay style="display:none;"></audio>
+
+<script>
+const AGENT_USER_ID = 'chinny';
+let SPORTS = ['nba','nhl','soccer'];  // Chinny's sports
+const SPORT_LABELS = {ncaab:'NCAAB',nba:'NBA',nhl:'NHL',mlb:'MLB',soccer:'Soccer',tennis:'Tennis',mma:'MMA',boxing:'Boxing',wnba:'WNBA',ncaaf:'NCAAF'};
+
+// Default matrix definitions — the 20-variable scoring system per sport
+const DEFAULT_MATRICES = {
+  nba: [
+    ['star_player_status',9],['rest_advantage',9],['line_movement',9],['off_ranking',8],['def_ranking',8],
+    ['three_pt_matchup',7],['sharp_vs_public',7],['pace_matchup',7],['recent_form',7],['road_trip_length',7],
+    ['turnover_gap',7],['h2h_season',6],['paint_scoring',6],['fast_break',6],['rebounding_edge',6],
+    ['ats_trend',6],['line_vs_model',6],['home_away',5],['referee_bias',5],['depth_injuries',4]
+  ],
+  ncaab: [
+    ['offensive_efficiency',9],['defensive_efficiency',9],['star_player_status',9],['line_movement',9],
+    ['tempo_matchup',8],['ats_trend',8],['tournament_context',8],['public_money_bias',8],
+    ['three_pt_reliance',7],['bench_depth',7],['rebounding',7],['turnover_margin',7],['recent_form',7],
+    ['coaching_tournament_record',7],['net_ranking_gap',7],
+    ['neutral_site',6],['conference_strength',6],['ft_shooting',6],['rivalry_motivation',6],['fatigue_schedule',6],['coaching_matchup',6],
+    ['venue_factor',5],['transfer_portal_impact',5],['line_vs_model',5]
+  ],
+  nhl: [
+    ['goalie_confirmed',9],['star_player_status',9],['line_movement',9],['corsi_xg',8],['pp_pk',8],
+    ['b2b_fatigue',8],['goalie_fatigue',7],['sharp_vs_public',7],['off_ranking',7],['def_ranking',7],
+    ['recent_form',7],['road_trip_length',7],['penalty_discipline',7],['h2h_season',6],['save_pct_trend',6],
+    ['puck_luck',6],['ats_trend',6],['line_vs_model',6],['home_away',5],['depth_injuries',4]
+  ],
+  mlb: [
+    ['starting_pitcher',9],['bullpen_strength',9],['lineup_vs_hand',8],['sharp_vs_public',8],['line_movement',8],
+    ['park_factor',7],['recent_form',7],['ats_trend',7],['platoon_advantage',7],['defensive_metrics',7],
+    ['weather_conditions',6],['umpire_tendencies',6],['travel_rest',6],['home_away_splits',6],['injuries',6],
+    ['run_line_value',6],['stolen_base_potential',5],['clutch_hitting',5],['manager_tendencies',5],['line_vs_model',5]
+  ],
+  soccer: [
+    ['star_player_status',9],['btts_trend',9],['xg_trend',9],['line_movement',9],['home_away_form',8],
+    ['goals_avg',8],['sharp_vs_public',7],['h2h_season',7],['league_position',7],['recent_form',7],
+    ['fixture_congestion',7],['motivation_level',7],['goalkeeper_form',7],['tactical_matchup',6],['possession_matchup',6],
+    ['set_pieces',6],['clean_sheet',6],['ats_trend',6],['referee_bias',5],['depth_injuries',4]
+  ],
+  tennis: [
+    ['surface_advantage',9],['h2h_record',9],['recent_form',8],['serve_stats',8],['return_game',8],
+    ['sharp_vs_public',7],['line_movement',7],['ranking_gap',7],['fitness_injury',7],['break_point_conversion',7],
+    ['mental_toughness',7],['fatigue_schedule',6],['set_handicap_value',6],['match_length_trend',6],['clutch_performance',6],
+    ['surface_win_pct',6],['travel_adjustment',5],['weather_conditions',5],['motivation',5],['coaching',5]
+  ],
+  mma: [
+    ['style_matchup',9],['recent_form',8],['sharp_vs_public',8],['line_movement',8],['grappling_advantage',8],
+    ['striking_advantage',8],['cardio_endurance',7],['reach_advantage',7],['chin_durability',7],['takedown_defense',7],
+    ['fight_iq',7],['camp_quality',6],['weight_cut',6],['finishing_rate',6],['injury_history',6],
+    ['motivation',6],['octagon_control',5],['experience_gap',5],['method_of_victory_lean',5],['line_vs_model',5]
+  ],
+  boxing: [
+    ['style_matchup',9],['recent_form',8],['sharp_vs_public',8],['line_movement',8],['punch_output',8],
+    ['power_advantage',8],['ring_generalship',7],['counter_punching',7],['cardio_endurance',7],['reach_advantage',7],
+    ['chin_durability',7],['defensive_skill',7],['body_attack',6],['camp_quality',6],['weight_management',6],
+    ['motivation',6],['injury_history',6],['experience_gap',5],['judges_location',5],['line_vs_model',5]
+  ],
+  wnba: [
+    ['star_player_status',9],['rest_advantage',9],['line_movement',9],['off_ranking',8],['def_ranking',8],
+    ['three_pt_matchup',7],['sharp_vs_public',7],['pace_matchup',7],['recent_form',7],['turnover_gap',7],
+    ['rebounding_edge',7],['h2h_season',6],['paint_scoring',6],['fast_break',6],['ats_trend',6],
+    ['bench_depth',6],['ft_shooting',6],['home_away',5],['travel_fatigue',5],['line_vs_model',5]
+  ],
+  ncaaf: [
+    ['sharp_vs_public',9],['line_movement',9],['offensive_efficiency',8],['defensive_efficiency',8],['star_player_status',8],
+    ['recruiting_rankings',7],['transfer_portal',7],['recent_form',7],['ats_trend',7],['turnover_margin',7],
+    ['rivalry_factor',7],['home_crowd',6],['coaching_matchup',6],['rushing_attack',6],['passing_attack',6],
+    ['special_teams',6],['red_zone',5],['weather_conditions',5],['rest_days',5],['line_vs_model',5]
+  ]
+};
+const BOOK_DISPLAY = {
+  'draftkings':'DraftKings','fanduel':'FanDuel','betmgm':'BetMGM','bovada':'Bovada',
+  'pointsbetus':'PointsBet','williamhill_us':'Caesars','barstool':'ESPN BET','betrivers':'BetRivers',
+  'unibet_us':'Unibet','wynnbet':'WynnBET','superbook':'SuperBook','hardrock':'Hard Rock',
+  'fliff':'Fliff','betus':'BetUS','mybookieag':'MyBookie','betonlineag':'BetOnline',
+  'lowvig':'LowVig','pinnacle':'Pinnacle','bet365':'Bet365'
+};
+
+let currentSport = null;
+let analysisCache = {};
+let oddsCache = {};
+let screenerCache = {};
+let gamesLoaded = false;
+let _djGameDataMap = {};
+
+// Agent state
+let agentProfile = null;
+let agentMatrix = {};     // sport -> matrix data
+let djAnalysis = {};      // sport -> Chinny's custom analysis
+let rtcPC = null;
+let rtcDC = null;
+let rtcMicStream = null;
+let voiceActive = false;
+
+async function init() {
+  // Load in-season sports from server schedule
+  try {
+    const schedResp = await fetch('/api/schedule');
+    if (schedResp.ok) {
+      const schedData = await schedResp.json();
+      if (schedData.schedule && schedData.schedule.length > 0) {
+        SPORTS = schedData.schedule.map(s => s.sport);
+      }
+    }
+  } catch(e) { console.log('Schedule fetch failed, using defaults'); }
+
+  // Load agent profile
+  try {
+    const resp = await fetch('/api/agent/' + AGENT_USER_ID + '/profile');
+    if (resp.ok) agentProfile = await resp.json();
+  } catch(e) { console.log('Agent profile not loaded'); }
+  showLanding();
+}
+
+function showLanding() {
+  gamesLoaded = false;
+  currentSport = null;
+  document.getElementById('headerBar').style.display = 'none';
+  document.getElementById('gamesContainer').innerHTML = '';
+  document.getElementById('footer').style.display = 'none';
+
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+  document.getElementById('landingPage').innerHTML = `
+    <div class="landing">
+      <div style="background:linear-gradient(135deg,#ff1744,#d50000);border-radius:16px;padding:30px 24px;margin-bottom:24px;text-align:center;box-shadow:0 0 40px rgba(255,23,68,0.3);">
+        <h2 style="font-size:2.2rem;font-weight:900;letter-spacing:3px;text-transform:uppercase;color:#fff;margin-bottom:8px;text-shadow:0 2px 20px rgba(0,0,0,0.5);">LAST SHOT</h2>
+        <div style="font-size:1rem;color:rgba(255,255,255,0.85);font-weight:600;margin-bottom:16px;">3rd chance. No more after this.</div>
+        <div id="countdownTimer" style="font-family:monospace;font-size:2.5rem;font-weight:900;color:#fff;letter-spacing:2px;text-shadow:0 0 20px rgba(255,255,255,0.5);"></div>
+        <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-top:8px;text-transform:uppercase;letter-spacing:1px;">until picks are due or you're off the crew</div>
+      </div>
+
+      <h2>CHINNY'S EDGE AGENT</h2>
+      <div class="subtitle">NBA / NHL / Soccer &mdash; Pick or get kicked.</div>
+
+      <div class="what-we-do" style="text-align:left;max-width:560px;margin:24px auto;">
+        <h3 style="font-size:0.85rem;margin-bottom:10px;">The Rules</h3>
+        <ul style="font-size:0.78rem;line-height:1.8;">
+          <li><strong>Submit 3-4 picks minimum</strong> every 2 days or your access gets pulled. No exceptions.</li>
+          <li><strong>NBA, NHL, Soccer</strong> &mdash; your sports. Find the edges.</li>
+          <li><strong>20-Variable Weighted Matrix</strong> &mdash; every game scored. Use it.</li>
+          <li><strong>Prop Screener</strong> &mdash; player game logs vs book lines. Your props lane.</li>
+          <li><strong>Injury Gap Detection</strong> &mdash; star OUT, role player absorbs = edge</li>
+          <li><strong>"Analyze Chinny's Way"</strong> &mdash; customize your matrix weights and run your own grades</li>
+        </ul>
+
+        <div style="margin-top:18px;padding:12px;background:rgba(255,23,68,0.08);border:1px solid rgba(255,23,68,0.3);border-radius:8px;font-size:0.78rem;color:var(--red);line-height:1.6;font-weight:600;">
+          This is attempt #3. Peter gave you a page, gave you the tools, gave you the data. Use them or lose them. Pick a sport and start finding edges.
+        </div>
+      </div>
+
+      <div class="tonight" style="margin-top:16px;">${dateStr}</div>
+      <div class="landing-buttons">
+        ${SPORTS.map(s => `<button class="landing-btn" onclick="startSport('${s}')">${SPORT_LABELS[s]}</button>`).join('')}
+      </div>
+    </div>`;
+
+  // Countdown timer — 48 hours from now (2 days to submit picks)
+  const deadline = new Date();
+  deadline.setHours(deadline.getHours() + 48);
+  function updateCountdown() {
+    const now = new Date();
+    const diff = deadline - now;
+    if (diff <= 0) {
+      document.getElementById('countdownTimer').textContent = 'TIME IS UP';
+      document.getElementById('countdownTimer').style.color = '#ff1744';
+      return;
+    }
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    document.getElementById('countdownTimer').textContent =
+      String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+    requestAnimationFrame(updateCountdown);
+  }
+  updateCountdown();
+}
+
+function startSport(sport) {
+  document.getElementById('landingPage').innerHTML = '';
+  document.getElementById('headerBar').style.display = 'block';
+  gamesLoaded = true;
+  switchSport(sport);
+}
+
+function renderPills() {
+  const container = document.getElementById('sportPills');
+  container.innerHTML = SPORTS.map(s =>
+    `<div class="pill ${s === currentSport ? 'active' : ''}" onclick="switchSport('${s}')">${SPORT_LABELS[s]}</div>`
+  ).join('');
+}
+
+function switchSport(sport) {
+  currentSport = sport;
+  document.getElementById('sportLabel').textContent = SPORT_LABELS[sport];
+  const today = new Date();
+  document.getElementById('dateLabel').textContent = today.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  renderPills();
+  loadSport(sport);
+}
+
+async function loadSport(sport) {
+  const container = document.getElementById('gamesContainer');
+  const loading = document.getElementById('loadingState');
+  const footer = document.getElementById('footer');
+
+  container.innerHTML = '';
+  footer.style.display = 'none';
+  loading.style.display = 'block';
+  document.getElementById('loadingText').textContent = 'Loading slate...';
+
+  try {
+    // Fetch analysis, screener, odds, arbs, and agent matrix in parallel
+    const [analysisResp, screenerResp, oddsResp, arbResp, matrixResp] = await Promise.all([
+      fetch(`/api/analysis/${sport}?cached_only=true`).then(r => r.json()).catch(() => null),
+      fetch(`/api/screener/${sport}`).then(r => r.json()).catch(() => null),
+      fetch(`/api/odds/${sport}`).then(r => r.json()).catch(() => null),
+      fetch(`/api/arb-scan`).then(r => r.json()).catch(() => null),
+      agentProfile ? fetch(`/api/agent/${AGENT_USER_ID}/matrix/${sport}`).then(r => r.json()).catch(() => null) : Promise.resolve(null)
+    ]);
+    if (matrixResp) agentMatrix[sport] = matrixResp;
+
+    loading.style.display = 'none';
+
+    const analysis = analysisResp || { games: [] };
+    const screener = screenerResp || { screener: [] };
+    const odds = oddsResp || { games: [] };
+
+    // Cache for re-analyze
+    analysisCache[sport] = analysis;
+    screenerCache[sport] = screener;
+    oddsCache[sport] = odds;
+
+    // Show ALL analysis games (the analysis IS the demo — Chinny needs to see the full system)
+    // Only fall back to odds-only upcoming games when no analysis exists
+    const now = Date.now();
+    const allOddsGames = odds.games || [];
+    const upcomingOddsGames = allOddsGames.filter(g => {
+      const ct = g.commence_time || g.commence || g.time || '';
+      if (!ct) return true;
+      return new Date(ct).getTime() > now;
+    });
+
+    let games;
+    const analysisGames = analysis.games || [];
+
+    // Build from odds (upcoming games), then MERGE analysis data onto matching games
+    if (upcomingOddsGames.length > 0) {
+      games = upcomingOddsGames.map(og => {
+        const oddsMatchup = `${og.away} @ ${og.home}`;
+        // Find matching analysis game by team name overlap
+        let matched = null;
+        const ogTeams = [og.away, og.home].map(t => (t || '').toLowerCase().split(/\s+/).filter(w => w.length > 1));
+        for (const ag of analysisGames) {
+          const am = (ag.matchup || '').toLowerCase();
+          const found = ogTeams.some(teamWords => teamWords.some(w => am.includes(w)));
+          if (found) { matched = ag; break; }
+        }
+        // Merge: use odds for lines/books, analysis for grade/matrix/edge
+        return {
+          matchup: oddsMatchup,
+          away: og.away || '',
+          home: og.home || '',
+          grade: matched ? matched.grade : 'TBD',
+          composite_score: matched ? matched.composite_score : null,
+          matrix_scores: matched ? matched.matrix_scores : {},
+          edge_question: matched ? matched.edge_question : '',
+          edge_summary: matched ? matched.edge_summary : '',
+          edge_pick: matched ? matched.edge_pick : {},
+          injury_impact: matched ? matched.injury_impact : '',
+          rest_schedule: matched ? matched.rest_schedule : '',
+          trends: matched ? (matched.trends || []) : [],
+          tags: matched ? (matched.tags || []) : [],
+          flags: matched ? (matched.flags || []) : [],
+          peter_zone: matched ? matched.peter_zone : '',
+          analyzed_by: matched ? (matched.analyzed_by || matched._thinker || '') : '',
+          player_props: matched ? matched.player_props : [],
+          spread: og.home_spread || null,
+          total: og.total || null,
+          away_ml: og.away_ml || null,
+          home_ml: og.home_ml || null,
+          commence_time: og.commence_time || og.commence || og.time || '',
+          all_bookmakers: og.all_bookmakers || [],
+        };
+      });
+    } else if (analysisGames.length > 0) {
+      // No odds games but analysis exists — show analysis
+      games = analysisGames;
+    } else {
+      games = [];
+    }
+
+    if (games.length === 0) {
+      container.innerHTML = `<div class="empty-state"><div class="icon">&#128203;</div><p>No ${SPORT_LABELS[sport]} games or analysis available.</p><p style="margin-top:8px;font-size:0.75rem;">NCAAB lines appear morning of game day. NBA analysis runs at 4 PM PST.</p></div>`;
+      return;
+    }
+
+    // Build screener lookup: matchup string -> hits
+    const screenerByGame = buildScreenerMap(screener.screener || [], games);
+
+    // Build odds lookup: matchup -> odds game data (with all_bookmakers)
+    // When games came from odds directly, use the game itself as the odds source
+    let oddsByGame;
+    if (analysisGames.length > 0) {
+      oddsByGame = buildOddsMap(allOddsGames, games);
+    } else {
+      // Games ARE from odds — map each to its matching odds game directly
+      oddsByGame = {};
+      games.forEach((g, i) => {
+        oddsByGame[g.matchup] = upcomingOddsGames[i] || g;
+      });
+    }
+
+    // Render
+    let html = '';
+
+    // Re-analyze bar
+    html += `<div class="reanalyze-bar">
+      <button class="reanalyze-btn" id="reanalyzeSlateBtn" onclick="reanalyzeSlate('${sport}')">RE-ANALYZE SLATE</button>
+    </div>`;
+
+    // Default matrix card — how this sport is graded
+    html += renderDefaultMatrixCard(sport);
+
+    // Agent panel
+    if (agentProfile) {
+      html += renderAgentPanel(sport);
+    }
+
+    // Grade legend
+    html += `<div class="grade-legend">
+      <span class="gl-a">A</span> = Strong edge, book is wrong
+      &nbsp;|&nbsp; <span class="gl-b">B</span> = Lean, slight edge
+      &nbsp;|&nbsp; <span class="gl-c">C</span> = No edge, fair line
+      &nbsp;|&nbsp; <span class="gl-d">D/F</span> = Trap, stay away
+    </div>`;
+
+    // Global gotcha
+    if (analysis.gotcha) {
+      html += `<div class="global-gotcha"><div class="section-label">Tonight's Intel</div><div class="gotcha-text">${analysis.gotcha}</div></div>`;
+    }
+
+    // Arbitrage opportunities
+    const arbs = (arbResp && arbResp.arbs) ? arbResp.arbs : [];
+    if (arbs.length > 0) {
+      html += `<div class="global-gotcha" style="border-color:rgba(0,214,143,0.3);background:rgba(0,214,143,0.04);">
+        <div class="section-label" style="color:var(--green);">ARBITRAGE OPPORTUNITIES (${arbs.length})</div>`;
+      arbs.slice(0, 5).forEach(a => {
+        html += `<div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.75rem;">
+          <div style="font-weight:700;">${esc(a.matchup || a.game || '')}</div>
+          <div style="color:var(--text-dim);margin-top:2px;">${esc(a.type || '')} — ${esc(a.book1 || a.best_book || '')} vs ${esc(a.book2 || a.worst_book || '')} — <span style="color:var(--green);font-weight:700;">Profit: ${a.profit_pct || a.profit || '?'}%</span></div>
+        </div>`;
+      });
+      html += `</div>`;
+    }
+
+    // Top Edges summary (before game cards)
+    html += renderTopEdges(games);
+
+    // Sort toggle
+    html += `<div class="reanalyze-bar">
+      <div class="sort-toggle">
+        <button class="sort-toggle-btn ${currentSortMode === 'edge' ? 'active' : ''}" onclick="setSortMode('edge')">By Edge</button>
+        <button class="sort-toggle-btn ${currentSortMode === 'time' ? 'active' : ''}" onclick="setSortMode('time')">By Time</button>
+      </div>
+    </div>`;
+
+    // Sort games based on current mode
+    if (currentSortMode === 'edge') {
+      games.sort((a, b) => (parseFloat(b.composite_score) || 0) - (parseFloat(a.composite_score) || 0));
+    } else {
+      // Sort by game time ascending
+      games.sort((a, b) => {
+        const tA = a.commence_time || a.commence || a.time || '';
+        const tB = b.commence_time || b.commence || b.time || '';
+        if (!tA && !tB) return 0;
+        if (!tA) return 1;
+        if (!tB) return -1;
+        return new Date(tA).getTime() - new Date(tB).getTime();
+      });
+    }
+
+    games.forEach((game, idx) => {
+      html += renderGameCard(game, screenerByGame[game.matchup] || [], oddsByGame[game.matchup] || null, idx);
+    });
+
+    container.innerHTML = html;
+
+    // Footer
+    const ts = analysis.generated_at || analysis.fetched_at || '';
+    document.getElementById('lastAnalyzed').textContent = ts ? `Last analyzed: ${ts}` : '';
+    footer.style.display = 'block';
+
+  } catch (err) {
+    loading.style.display = 'none';
+    container.innerHTML = `<div class="empty-state"><p>Failed to load data. Try again later.</p></div>`;
+    console.error(err);
+  }
+}
+
+async function reanalyzeSlate(sport) {
+  const btn = document.getElementById('reanalyzeSlateBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'ANALYZING...'; }
+  const loading = document.getElementById('loadingState');
+  loading.style.display = 'block';
+  document.getElementById('loadingText').textContent = 'Running AI analysis... this may take 1-2 minutes';
+
+  try {
+    await fetch(`/api/analysis/${sport}?force=true&model=gpt-4.1-mini`);
+    await loadSport(sport);
+  } catch (err) {
+    console.error('Re-analyze failed:', err);
+  } finally {
+    loading.style.display = 'none';
+    if (btn) { btn.disabled = false; btn.textContent = 'RE-ANALYZE SLATE'; }
+  }
+}
+
+async function reanalyzeGame(sport, awayTeam, homeTeam) {
+  const btn = event && event.target;
+  if (btn) { btn.disabled = true; btn.textContent = 'ANALYZING...'; }
+  try {
+    const resp = await fetch('/api/ev/card', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sport, away_team: awayTeam, home_team: homeTeam })
+    });
+    if (!resp.ok) throw new Error('EV card request failed');
+    const evResult = await resp.json();
+    // Show result in an alert-style overlay on the game card
+    const summary = [];
+    if (evResult.spread_call) summary.push('SPREAD: ' + evResult.spread_call.pick + ' — ' + evResult.spread_call.reasoning);
+    if (evResult.trap_check) summary.push('TRAP CHECK: ' + evResult.trap_check);
+    if (evResult.book_discrepancy) summary.push('DISCREPANCY: ' + evResult.book_discrepancy);
+    if (evResult.top_props && evResult.top_props.length) {
+      summary.push('PROPS: ' + evResult.top_props.map(p => p.player + ' ' + p.prop + ' (' + p.verdict + ')').join(', '));
+    }
+    if (evResult.error) summary.push('ERROR: ' + evResult.error);
+    alert(awayTeam + ' @ ' + homeTeam + '\n\n' + (summary.length ? summary.join('\n\n') : 'No EV data returned.'));
+  } catch (err) {
+    console.error('Re-analyze game failed:', err);
+    alert('Re-analyze failed for ' + awayTeam + ' @ ' + homeTeam + '. Check console.');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'RE-ANALYZE'; }
+  }
+}
+
+function buildOddsMap(oddsGames, analysisGames) {
+  const map = {};
+  analysisGames.forEach(g => { map[g.matchup] = null; });
+
+  oddsGames.forEach(og => {
+    const ogKey = `${og.away} @ ${og.home}`.toLowerCase();
+    for (const ag of analysisGames) {
+      const agKey = (ag.matchup || '').toLowerCase();
+      // Match by team name overlap
+      const ogTeams = ogKey.replace('@', ' ').split(/\s+/).filter(t => t.length > 1);
+      const agTeams = agKey.replace('@', ' ').split(/\s+/).filter(t => t.length > 1);
+      const overlap = ogTeams.some(t => agTeams.some(h => h.includes(t) || t.includes(h)));
+      if (overlap && !map[ag.matchup]) {
+        map[ag.matchup] = og;
+        break;
+      }
+    }
+  });
+  return map;
+}
+
+function buildScreenerMap(screenerHits, games) {
+  const map = {};
+  games.forEach(g => { map[g.matchup] = []; });
+
+  screenerHits.forEach(hit => {
+    const hitMatchup = (hit.matchup || '').toLowerCase();
+    for (const g of games) {
+      const gm = (g.matchup || '').toLowerCase();
+      const gTeams = gm.replace('@', ' ').split(/\s+/).filter(t => t.length > 1);
+      const hTeams = hitMatchup.replace('@', ' ').replace('vs', ' ').split(/\s+/).filter(t => t.length > 1);
+      const overlap = gTeams.some(t => hTeams.some(h => h.includes(t) || t.includes(h)));
+      if (overlap) {
+        if (!map[g.matchup]) map[g.matchup] = [];
+        map[g.matchup].push(hit);
+        break;
+      }
+    }
+  });
+  return map;
+}
+
+function edgeBadgeHtml(compositeScore) {
+  if (compositeScore === null || compositeScore === undefined) return '';
+  const score = parseFloat(compositeScore) || 0;
+  const cls = score >= 7 ? 'edge-high' : score >= 5 ? 'edge-mid' : 'edge-low';
+  return `<div class="edge-badge ${cls}">EDGE ${score.toFixed(1)}</div>`;
+}
+
+function renderTopEdges(games) {
+  // Filter games that have a composite_score, sort descending, take top 3
+  const scored = games.filter(g => g.composite_score !== null && g.composite_score !== undefined);
+  if (scored.length === 0) return '';
+  scored.sort((a, b) => (parseFloat(b.composite_score) || 0) - (parseFloat(a.composite_score) || 0));
+  const top3 = scored.slice(0, 3);
+
+  let html = `<div class="top-edges"><div class="te-header">TOP EDGES</div>`;
+  top3.forEach((g, i) => {
+    const score = parseFloat(g.composite_score) || 0;
+    const cls = score >= 7 ? 'edge-high' : score >= 5 ? 'edge-mid' : 'edge-low';
+    const pick = g.edge_pick || {};
+    const reason = pick.bet_type ? `${pick.bet_type}${pick.team ? ' — ' + pick.team : ''}` : (g.grade ? 'Grade: ' + g.grade : '');
+    html += `<div class="te-item">
+      <span class="te-rank">#${i + 1}</span>
+      <span class="te-matchup">${esc(g.matchup || '?')}</span>
+      <span class="te-reason">${esc(reason)}</span>
+      <div class="edge-badge ${cls}">EDGE ${score.toFixed(1)}</div>
+    </div>`;
+  });
+  html += `</div>`;
+  return html;
+}
+
+// Sort mode state
+let currentSortMode = 'edge'; // 'edge' or 'time'
+
+function setSortMode(mode) {
+  currentSortMode = mode;
+  if (currentSport) loadSport(currentSport);
+}
+
+function gradeClass(grade) {
+  if (!grade) return '';
+  const g = grade.replace(/[+-]/g, '');
+  if (g === 'A') return 'grade-A';
+  if (g === 'B') return 'grade-B';
+  if (g === 'C') return 'grade-C';
+  if (g === 'D' || g === 'F') return 'grade-D';
+  if (grade === 'INCOMPLETE') return 'grade-INCOMPLETE';
+  return '';
+}
+
+function flagClass(tag) {
+  const t = tag.toUpperCase();
+  if (t === 'SHARP') return 'flag-SHARP';
+  if (t === 'TRAP') return 'flag-TRAP';
+  if (t === 'B2B') return 'flag-B2B';
+  if (t === 'UPSET') return 'flag-UPSET';
+  if (t === 'PASS') return 'flag-PASS';
+  if (t === 'BEST BET' || t === 'BEST') return 'flag-BEST';
+  if (t.includes('REST')) return 'flag-REST';
+  if (t.includes('INJURY')) return 'flag-INJURY';
+  if (t === 'INCOMPLETE') return 'flag-INCOMPLETE';
+  return 'flag-default';
+}
+
+function bookDisplayName(key) {
+  return BOOK_DISPLAY[key] || key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+
+function renderMultiBookCard(oddsGame, cardIdx) {
+  if (!oddsGame || !oddsGame.all_bookmakers || oddsGame.all_bookmakers.length < 2) {
+    return '';
+  }
+
+  const books = oddsGame.all_bookmakers;
+  const away = oddsGame.away;
+  const home = oddsGame.home;
+  const toggleId = `booksDetail_${cardIdx}`;
+
+  let html = `<div class="books-section">
+    <div class="books-toggle" onclick="toggleBooks('${toggleId}')">&#9660; Compare Lines Across ${books.length} Books</div>
+    <div class="books-detail" id="${toggleId}">`;
+
+  // SPREAD comparison
+  const spreadData = [];
+  books.forEach(bk => {
+    const spreads = bk.markets.spreads || [];
+    spreads.forEach(s => {
+      if (s.name === home) {
+        spreadData.push({ book: bk.title || bk.key, team: home, point: s.point, price: s.price });
+      }
+    });
+  });
+  if (spreadData.length > 1) {
+    // Sort by point (most favorable = most negative for favorite, most positive for dog)
+    spreadData.sort((a, b) => a.point - b.point);
+    const bestSpread = spreadData[0];
+    const worstSpread = spreadData[spreadData.length - 1];
+    const gap = Math.abs(worstSpread.point - bestSpread.point);
+
+    html += `<div class="books-market">
+      <div class="books-market-title">SPREAD (${esc(home)})</div>`;
+    spreadData.forEach((d, i) => {
+      const isBest = i === 0;
+      const isWorst = i === spreadData.length - 1;
+      const cls = isBest ? 'best' : (isWorst ? 'worst' : '');
+      const tag = isBest ? '<span class="best-tag">BEST</span>' : (isWorst ? '<span class="worst-tag">WORST</span>' : '');
+      html += `<div class="books-row ${cls}">
+        <span class="book-name">${esc(bookDisplayName(d.book))}</span>
+        <span class="book-line">${esc(home)} ${d.point > 0 ? '+' : ''}${d.point}</span>
+        <span class="book-odds">(${d.price > 0 ? '+' : ''}${d.price})</span>
+        ${tag}
+      </div>`;
+    });
+    if (gap > 0) {
+      html += `<div class="books-gap ${gap >= 1.5 ? 'disagree' : ''}">Gap: ${gap.toFixed(1)} pts${gap >= 1.5 ? ' | BOOKS DISAGREE' : ''}</div>`;
+    }
+    html += `</div>`;
+  }
+
+  // MONEYLINE comparison
+  const mlAwayData = [];
+  const mlHomeData = [];
+  books.forEach(bk => {
+    const h2h = bk.markets.h2h || [];
+    h2h.forEach(h => {
+      if (h.name === away) mlAwayData.push({ book: bk.title || bk.key, team: away, price: h.price });
+      if (h.name === home) mlHomeData.push({ book: bk.title || bk.key, team: home, price: h.price });
+    });
+  });
+  if (mlAwayData.length > 1 || mlHomeData.length > 1) {
+    html += `<div class="books-market"><div class="books-market-title">MONEYLINE</div>`;
+
+    // Determine who is favorite/dog
+    const avgAway = mlAwayData.reduce((s, d) => s + d.price, 0) / (mlAwayData.length || 1);
+    const avgHome = mlHomeData.reduce((s, d) => s + d.price, 0) / (mlHomeData.length || 1);
+    const dogData = avgAway > avgHome ? mlAwayData : mlHomeData;
+    const favData = avgAway > avgHome ? mlHomeData : mlAwayData;
+    const dogTeam = avgAway > avgHome ? away : home;
+    const favTeam = avgAway > avgHome ? home : away;
+
+    // Show dog lines (higher = better for bettor)
+    dogData.sort((a, b) => b.price - a.price);
+    favData.sort((a, b) => b.price - a.price); // Less negative = better for fav bettor
+
+    // Merge and show side by side
+    const allML = [];
+    books.forEach(bk => {
+      const h2h = bk.markets.h2h || [];
+      let awayP = null, homeP = null;
+      h2h.forEach(h => {
+        if (h.name === away) awayP = h.price;
+        if (h.name === home) homeP = h.price;
+      });
+      if (awayP !== null && homeP !== null) {
+        allML.push({ book: bk.title || bk.key, awayP, homeP, dogP: avgAway > avgHome ? awayP : homeP });
+      }
+    });
+    // Sort by best dog odds
+    allML.sort((a, b) => b.dogP - a.dogP);
+
+    allML.forEach((d, i) => {
+      const isBest = i === 0;
+      const isWorst = i === allML.length - 1;
+      const cls = isBest ? 'best' : (isWorst ? 'worst' : '');
+      const tag = isBest ? '<span class="best-tag">BEST DOG</span>' : (isWorst ? '<span class="worst-tag">WORST</span>' : '');
+      html += `<div class="books-row ${cls}">
+        <span class="book-name">${esc(bookDisplayName(d.book))}</span>
+        <span class="book-line">${esc(away)} ${d.awayP > 0 ? '+' : ''}${d.awayP} / ${esc(home)} ${d.homeP > 0 ? '+' : ''}${d.homeP}</span>
+        ${tag}
+      </div>`;
+    });
+
+    if (allML.length >= 2) {
+      const bestDog = allML[0].dogP;
+      const worstDog = allML[allML.length - 1].dogP;
+      const gap = Math.abs(bestDog - worstDog);
+      if (gap > 0) {
+        html += `<div class="books-gap">Gap: ${gap} cents</div>`;
+      }
+    }
+    html += `</div>`;
+  }
+
+  // TOTAL comparison
+  const totalData = [];
+  books.forEach(bk => {
+    const totals = bk.markets.totals || [];
+    let overP = null, underP = null, point = null;
+    totals.forEach(t => {
+      if (t.name === 'Over') { overP = t.price; point = t.point; }
+      if (t.name === 'Under') { underP = t.price; }
+    });
+    if (point !== null) {
+      totalData.push({ book: bk.title || bk.key, point, overP, underP });
+    }
+  });
+  if (totalData.length > 1) {
+    totalData.sort((a, b) => a.point - b.point);
+    const low = totalData[0].point;
+    const high = totalData[totalData.length - 1].point;
+    const gap = high - low;
+
+    html += `<div class="books-market"><div class="books-market-title">TOTAL (O/U)</div>`;
+    totalData.forEach((d, i) => {
+      const isBest = i === 0;
+      const isWorst = i === totalData.length - 1;
+      const cls = isBest ? 'best' : (isWorst ? 'worst' : '');
+      const tag = isBest ? '<span class="best-tag">LOW</span>' : (isWorst && gap > 0 ? '<span class="worst-tag">HIGH</span>' : '');
+      html += `<div class="books-row ${cls}">
+        <span class="book-name">${esc(bookDisplayName(d.book))}</span>
+        <span class="book-line">O/U ${d.point}</span>
+        <span class="book-odds">O(${d.overP > 0 ? '+' : ''}${d.overP}) U(${d.underP > 0 ? '+' : ''}${d.underP})</span>
+        ${tag}
+      </div>`;
+    });
+    if (gap > 0) {
+      html += `<div class="books-gap ${gap >= 2 ? 'disagree' : ''}">Gap: ${gap.toFixed(1)} pts${gap >= 2 ? ' | BOOKS DISAGREE' : ''}</div>`;
+    }
+    html += `</div>`;
+  }
+
+  html += `</div></div>`;
+  return html;
+}
+
+function toggleBooks(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('open');
+}
+
+function renderGameCard(game, screenerHits, oddsGame, cardIdx) {
+  const matchup = game.matchup || '?';
+  const grade = game.grade || 'TBD';
+  const awayName = game.away || matchup.split(' @ ')[0] || '';
+  const homeName = game.home || matchup.split(' @ ')[1] || '';
+  const evKey = (awayName + '_at_' + homeName).replace(/\s+/g, '_');
+  _djGameDataMap[evKey] = game;
+  const tags = game.tags || [];
+  const edgePick = game.edge_pick || {};
+  const flags = game.flags || [];
+  const peterZone = game.peter_zone || '';
+  const edgeSummary = game.edge_summary || '';
+  const injuryImpact = game.injury_impact || '';
+  const restSchedule = game.rest_schedule || '';
+  const edgeQuestion = game.edge_question || '';
+  const trends = game.trends || [];
+
+  // Format game time
+  const ct = game.commence_time || game.commence || game.time || '';
+  let timeStr = '';
+  if (ct) {
+    const d = new Date(ct);
+    timeStr = d.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Los_Angeles' }) + ' PST';
+  }
+
+  // Basic lines for header
+  const spread = game.spread || game.home_spread || '';
+  const total = game.total || '';
+  const awayMl = game.away_ml || '';
+  const homeMl = game.home_ml || '';
+  const lineStr = [
+    spread ? `Spread: ${spread > 0 ? '+' : ''}${spread}` : '',
+    total ? `Total: ${total}` : '',
+    (awayMl && homeMl) ? `ML: ${awayMl > 0 ? '+' : ''}${awayMl}/${homeMl > 0 ? '+' : ''}${homeMl}` : ''
+  ].filter(Boolean).join(' | ');
+
+  let html = `<div class="game-card">`;
+
+  // Top row: matchup + grade + re-analyze
+  html += `<div class="game-top">
+    <div class="matchup-info">
+      <div class="matchup-teams">${esc(matchup)}</div>
+      <div class="matchup-meta">${timeStr ? esc(timeStr) : ''}${lineStr ? ' &mdash; ' + esc(lineStr) : ''}</div>
+    </div>
+    <div class="card-actions">
+      ${edgeBadgeHtml(game.composite_score)}
+      <div class="grade-badge ${gradeClass(grade)}">${esc(grade)}</div>
+      ${renderChinnyBadge(matchup)}
+      <button class="reanalyze-btn small" onclick="reanalyzeGame('${currentSport}', '${esc(awayName)}', '${esc(homeName)}')" title="Re-analyze this game">RE-ANALYZE</button>
+    </div>
+  </div>`;
+
+  // Tags
+  if (tags.length > 0) {
+    html += `<div class="flags-row">${tags.map(t => `<span class="flag-tag ${flagClass(t)}">${esc(t)}</span>`).join('')}</div>`;
+  }
+
+  // Edge pick
+  if (edgePick.team && edgePick.team !== 'PASS') {
+    html += `<div class="edge-pick-row">
+      <div class="edge-pick-label">Edge Pick</div>
+      <div class="edge-pick-text">${esc(edgePick.team)} &mdash; ${esc(edgePick.bet_type || '')} ${esc(edgePick.line || '')}</div>
+      ${edgePick.reasoning ? `<div class="edge-pick-reasoning">${esc(edgePick.reasoning)}</div>` : ''}
+    </div>`;
+  }
+
+  // Matrix scores (the 15-variable grading system)
+  const matrixScores = game.matrix_scores || {};
+  const compositeScore = game.composite_score || null;
+  const analyzedBy = game.analyzed_by || game.model || '';
+  const matrixKeys = Object.keys(matrixScores);
+
+  if (matrixKeys.length > 0) {
+    html += `<div class="analysis-block">
+      <div class="ab-label">Scoring Matrix${analyzedBy ? ` — analyzed by ${esc(analyzedBy)}` : ''}${compositeScore ? ` — Composite: ${compositeScore}/10` : ''}</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:4px;margin-top:6px;">`;
+    matrixKeys.forEach(key => {
+      const val = matrixScores[key];
+      const score = typeof val === 'object' ? (val.score || val.value || val) : val;
+      const numScore = parseFloat(score) || 0;
+      const barColor = numScore >= 7 ? 'var(--green)' : numScore >= 5 ? 'var(--yellow)' : 'var(--red)';
+      const label = key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      html += `<div style="background:rgba(255,255,255,0.03);border-radius:4px;padding:4px 6px;font-size:0.65rem;">
+        <div style="color:var(--text-dim);margin-bottom:2px;">${esc(label)}</div>
+        <div style="display:flex;align-items:center;gap:4px;">
+          <div style="flex:1;height:4px;background:rgba(255,255,255,0.06);border-radius:2px;">
+            <div style="width:${numScore * 10}%;height:100%;background:${barColor};border-radius:2px;"></div>
+          </div>
+          <span style="font-weight:700;color:${barColor};min-width:20px;text-align:right;">${numScore}</span>
+        </div>
+      </div>`;
+    });
+    html += `</div></div>`;
+  }
+
+  // Full analysis breakdown
+  const hasAnalysis = edgeQuestion || edgeSummary || injuryImpact || restSchedule || trends.length > 0;
+  if (hasAnalysis) {
+    html += `<div class="analysis-block">
+      <div class="ab-label">Edge Analysis</div>`;
+
+    if (edgeQuestion && edgeQuestion !== 'No clear edge identified.') {
+      html += `<div class="ab-edge">${esc(edgeQuestion)}</div>`;
+    }
+    if (edgeSummary) {
+      html += `<div class="ab-row"><strong>Edge:</strong> ${esc(edgeSummary)}</div>`;
+    }
+    if (injuryImpact && injuryImpact !== 'N/A') {
+      html += `<div class="ab-row"><strong>Injuries:</strong> ${esc(injuryImpact)}</div>`;
+    }
+    if (restSchedule && restSchedule !== 'N/A') {
+      html += `<div class="ab-row"><strong>Schedule:</strong> ${esc(restSchedule)}</div>`;
+    }
+    if (trends.length > 0) {
+      html += `<div class="ab-row"><strong>Trends:</strong> ${trends.map(t => esc(t)).join(' | ')}</div>`;
+    }
+    html += `</div>`;
+  }
+
+  // Flags
+  if (flags.length > 0) {
+    html += `<div class="section-label">Flags</div>
+      <div class="gotcha-text" style="font-size:0.72rem;">${flags.map(f => `<div>&#8226; ${esc(f)}</div>`).join('')}</div>`;
+  }
+
+  // Peter Zone
+  if (peterZone) {
+    html += `<div class="peter-zone">${esc(peterZone)}</div>`;
+  }
+
+  // Multi-book line comparison
+  html += renderMultiBookCard(oddsGame, cardIdx);
+
+  // Screener hits — Chinny page: hide PASS, show CLOSE and above only
+  const closeHits = screenerHits.filter(h => (h.verdict || h.signal || '') !== 'PASS');
+  if (closeHits.length > 0) {
+    html += `<div class="screener-section">
+      <div class="section-label">Screener Hits</div>`;
+    closeHits.forEach(hit => {
+      const player = hit.player || '?';
+      const stat = hit.stat || '';
+      const line = hit.line ?? '';
+      const floor = hit.floor ?? '';
+      const verdict = hit.verdict || hit.signal || 'EDGE';
+      html += `<div class="screener-hit">
+        <span class="screener-player">${esc(player)}</span>
+        <span class="screener-stat">${esc(stat)} line ${line} / floor ${floor}</span>
+        <span class="screener-verdict">${esc(verdict)}</span>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  // EV Button
+  html += `<div style="padding:0 8px 8px;"><button class="ev-btn" data-evkey="${evKey}" onclick="event.stopPropagation();createExpectedValue(this,'${evKey}')" style="width:100%;padding:10px;background:rgba(212,160,23,0.12);border:1px solid rgba(212,160,23,0.3);border-radius:8px;color:#D4A017;font-size:12px;font-weight:800;cursor:pointer;transition:all 0.2s;letter-spacing:0.5px;">&#9889; Create Expected Value</button><div class="ev-panel" style="display:none;"></div></div>`;
+
+  html += `</div>`;
+  return html;
+}
+
+function esc(s) {
+  if (s === null || s === undefined) return '';
+  const d = document.createElement('div');
+  d.textContent = String(s);
+  return d.innerHTML;
+}
+
+// === VIEW SWITCHING (Slate vs Matrix) ===
+let currentView = 'slate';
+
+function switchView(view) {
+  currentView = view;
+  const tabSlate = document.getElementById('tabSlate');
+  const tabMatrix = document.getElementById('tabMatrix');
+  const tabReview = document.getElementById('tabReview');
+  const tabFeedback = document.getElementById('tabFeedback');
+  // Reset all
+  [tabSlate, tabMatrix, tabReview, tabFeedback].forEach(t => { if (t) { t.style.background = ''; t.style.color = ''; t.style.borderColor = ''; } });
+  if (view === 'slate') {
+    tabSlate.style.background = 'var(--pill-active)'; tabSlate.style.color = '#fff'; tabSlate.style.borderColor = 'var(--accent)';
+    if (currentSport) loadSport(currentSport);
+  } else if (view === 'matrix') {
+    tabMatrix.style.background = 'var(--pill-active)'; tabMatrix.style.color = '#fff'; tabMatrix.style.borderColor = 'var(--accent)';
+    renderMatrixView();
+  } else if (view === 'review') {
+    tabReview.style.background = 'var(--pill-active)'; tabReview.style.color = '#fff'; tabReview.style.borderColor = 'var(--accent)';
+    renderReviewView();
+  } else if (view === 'feedback') {
+    tabFeedback.style.background = 'rgba(255,215,0,0.2)'; tabFeedback.style.color = '#FFD700'; tabFeedback.style.borderColor = 'rgba(255,215,0,0.5)';
+    renderFeedbackView();
+  }
+}
+
+function renderFeedbackView() {
+  const container = document.getElementById('gamesContainer');
+  document.getElementById('footer').style.display = 'none';
+
+  container.innerHTML = `
+    <div style="max-width:600px;margin:0 auto;padding:20px;">
+      <div style="text-align:center;margin-bottom:20px;">
+        <div style="font-size:24px;margin-bottom:4px;">&#x1F4DD;</div>
+        <h2 style="font-family:var(--font-heading);font-size:18px;color:#FFD700;margin:0;">Feedback Board</h2>
+        <p style="font-size:12px;color:rgba(255,255,255,0.4);margin:4px 0 0;">Tell Peter what's working, what's not, what you'd change.</p>
+      </div>
+
+      <div style="background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.2);border-radius:12px;padding:16px;margin-bottom:16px;">
+        <select id="fbCategory" style="width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(255,215,0,0.2);border-radius:8px;padding:8px 10px;color:#fff;font-size:13px;margin-bottom:10px;">
+          <option value="general">General Feedback</option>
+          <option value="feature">Feature Request</option>
+          <option value="bug">Something's Broken</option>
+          <option value="matrix">Matrix / Weights</option>
+          <option value="ui">UI / Design</option>
+          <option value="data">Data / Stats</option>
+        </select>
+        <textarea id="fbMessage" placeholder="What's on your mind? What would you change? What's working well?" rows="4" style="width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(255,215,0,0.2);border-radius:8px;padding:10px;color:#fff;font-size:13px;resize:vertical;box-sizing:border-box;font-family:inherit;"></textarea>
+        <div style="display:flex;justify-content:flex-end;margin-top:10px;">
+          <div id="fbSubmitBtn" onclick="submitFeedback()" style="cursor:pointer;padding:8px 24px;background:linear-gradient(135deg,#FFD700,#FFA500);border-radius:8px;color:#000;font-size:13px;font-weight:800;">SEND TO PETER</div>
+        </div>
+      </div>
+
+      <div id="fbHistory" style="margin-top:16px;">
+        <div style="font-size:11px;color:rgba(255,255,255,0.3);text-align:center;">Loading previous feedback...</div>
+      </div>
+    </div>
+  `;
+
+  loadFeedbackHistory();
+}
+
+function submitFeedback() {
+  const msg = document.getElementById('fbMessage').value.trim();
+  const cat = document.getElementById('fbCategory').value;
+  const btn = document.getElementById('fbSubmitBtn');
+  if (!msg) return;
+
+  btn.textContent = 'SENDING...';
+  btn.style.opacity = '0.5';
+
+  fetch('/api/dj-feedback', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ message: msg, category: cat, from: 'Chinny' })
+  }).then(r => r.json()).then(data => {
+    btn.textContent = 'SENT ✓';
+    btn.style.background = 'linear-gradient(135deg,#10B981,#059669)';
+    document.getElementById('fbMessage').value = '';
+    setTimeout(() => {
+      btn.textContent = 'SEND TO PETER';
+      btn.style.background = 'linear-gradient(135deg,#FFD700,#FFA500)';
+      btn.style.opacity = '1';
+    }, 2000);
+    loadFeedbackHistory();
+  }).catch(err => {
+    btn.textContent = 'FAILED — TRY AGAIN';
+    btn.style.background = 'linear-gradient(135deg,#EF4444,#DC2626)';
+    btn.style.opacity = '1';
+    setTimeout(() => {
+      btn.textContent = 'SEND TO PETER';
+      btn.style.background = 'linear-gradient(135deg,#FFD700,#FFA500)';
+    }, 3000);
+  });
+}
+
+function loadFeedbackHistory() {
+  const histContainer = document.getElementById('fbHistory');
+  if (!histContainer) return;
+
+  fetch('/api/dj-feedback').then(r => r.json()).then(data => {
+    const notes = data.notes || [];
+    if (notes.length === 0) {
+      histContainer.innerHTML = '<div style="font-size:12px;color:rgba(255,255,255,0.25);text-align:center;padding:12px;">No feedback yet. Be the first to drop a note.</div>';
+      return;
+    }
+
+    let html = '<div style="font-size:11px;color:rgba(255,215,0,0.5);font-weight:700;margin-bottom:8px;">PREVIOUS NOTES</div>';
+    notes.forEach(n => {
+      const catColors = {
+        general: '#41EAD4', feature: '#6366f1', bug: '#EF4444',
+        matrix: '#F59E0B', ui: '#A855F7', data: '#3B82F6'
+      };
+      const color = catColors[n.category] || '#41EAD4';
+      const reply = n.reply ? `<div style="background:rgba(65,234,212,0.08);border-left:3px solid #41EAD4;padding:6px 10px;margin-top:6px;border-radius:0 6px 6px 0;font-size:11px;color:rgba(255,255,255,0.7);"><strong style="color:#41EAD4;">Peter:</strong> ${n.reply}</div>` : '';
+      html += `<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:10px;margin-bottom:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+          <span style="font-size:10px;font-weight:700;color:${color};text-transform:uppercase;">${n.category}</span>
+          <span style="font-size:10px;color:rgba(255,255,255,0.25);">${n.timestamp || ''}</span>
+        </div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.75);line-height:1.4;">${n.message}</div>
+        ${reply}
+      </div>`;
+    });
+    histContainer.innerHTML = html;
+  }).catch(() => {
+    histContainer.innerHTML = '<div style="font-size:11px;color:rgba(255,255,255,0.25);text-align:center;">Could not load history.</div>';
+  });
+}
+
+function renderReviewView() {
+  const container = document.getElementById('gamesContainer');
+  document.getElementById('footer').style.display = 'none';
+
+  const MLB_MATRIX = [
+    { n: 'Starting Pitcher Quality', w: 10, note: 'xFIP/SIERA gap — true talent vs results. Unanimous #1.' },
+    { n: 'Sharp vs Public Money', w: 9, note: 'Reverse line movement against public % = strongest edge signal.' },
+    { n: 'Bullpen Strength', w: 9, note: 'Last 30 days: K-BB%, HR/9, closer availability. Critical for full-game vs F5.' },
+    { n: 'Platoon Advantage', w: 8, note: 'Pitcher handedness vs lineup composition. Drives run expectancy.' },
+    { n: 'Lineup Construction', w: 8, note: 'wRC+ vs SP type, adjusted last 21 days. Late scratches flip value.' },
+    { n: 'Line Movement / Steam', w: 8, note: 'Opening-to-close shifts + F5 steam = sharp model signal on SP matchup.' },
+    { n: 'First 5 Innings Edge', w: 8, note: 'Isolates SP quality from bullpen variance. F5 vs full game decision.' },
+    { n: 'Injury Impact', w: 7, note: 'Books are slow on non-star injuries. Depth chart replacement matters.' },
+    { n: 'Park Factors', w: 7, note: 'Team batted ball profile vs park HR factors for LHB/RHB. Not just season-long.' },
+    { n: 'Run Line vs ML Value', w: 7, note: 'Implied probability gap between RL and ML = pricing inefficiency.' },
+    { n: 'Weather Conditions', w: 7, note: 'Wind >15 mph in/out is major. Late shifts create mispriced totals.' },
+    { n: 'Recent Form', w: 6, note: 'Last 7-14 days. Use for regression ID, not streak chasing.' },
+    { n: 'Umpire Tendencies', w: 6, note: 'Zone size + K/BB lean. Underweighted by public. Per UmpScorecards.' },
+    { n: 'Travel Fatigue', w: 5, note: '7th game in 7 days, West-to-East. Bigger edge in summer months.' },
+    { n: 'Defense (DRS)', w: 5, note: 'Defensive alignment that day. Especially relevant for contact/groundball SPs.' },
+    { n: 'Home / Away Splits', w: 5, note: 'Some pitchers/teams have extreme splits not in lines.' },
+    { n: 'Catcher Framing', w: 4, note: 'Top framers steal 10-15 strikes/game. Edge in pitcher duels.' },
+    { n: 'Pace Matchup', w: 4, note: 'Quick-working SPs + low-pace games = under edge if total is inflated.' },
+  ];
+
+  const GEMS = [
+    { n: 'Pitch Arsenal Change', note: 'New pitch in last 3 starts + whiff rate up → leading breakout indicator. Not in season stats yet.' },
+    { n: 'Market Overreaction to Last Start', note: 'SP shelled but strong underlying stuff → buy-low candidate next outing. Public bets recency.' },
+    { n: 'Total Mispricing vs Game Pace', note: 'Two quick-working SPs → fewer pitches, lower scoring env → under edge if total is inflated.' },
+  ];
+
+  let html = `<div style="padding:4px 0 20px;">
+    <div style="font-size:0.72rem;color:var(--text-dim);margin-bottom:16px;line-height:1.6;">
+      MLB matrix research — S188. 5 of 7 models completed. 18-variable consensus matrix.
+      <span style="color:var(--accent-glow);font-weight:700;">DeepSeek-V3.2</span> was the sharpest output.
+    </div>`;
+
+  // 18-var matrix
+  html += `<div style="margin-bottom:24px;">
+    <h3 style="font-size:0.82rem;font-weight:800;color:var(--accent-glow);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">18-Variable Recommended Matrix</h3>`;
+
+  MLB_MATRIX.forEach(v => {
+    const wColor = v.w >= 9 ? 'var(--green)' : v.w >= 7 ? 'var(--accent-glow)' : v.w >= 5 ? 'var(--text-dim)' : '#888';
+    const barW = v.w / 10 * 100;
+    html += `<div style="padding:7px 10px;margin-bottom:4px;background:rgba(255,255,255,0.03);border-radius:7px;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="flex:1;font-size:0.73rem;font-weight:700;">${esc(v.n)}</span>
+        <div style="width:70px;height:5px;background:rgba(255,255,255,0.06);border-radius:3px;">
+          <div style="width:${barW}%;height:100%;background:${wColor};border-radius:3px;"></div>
+        </div>
+        <span style="font-size:0.75rem;font-weight:800;color:${wColor};min-width:18px;text-align:right;">${v.w}</span>
+      </div>
+      <div style="font-size:0.65rem;color:var(--text-dim);margin-top:3px;line-height:1.5;">${esc(v.note)}</div>
+    </div>`;
+  });
+  html += `</div>`;
+
+  // DeepSeek gems
+  html += `<div style="margin-bottom:24px;">
+    <h3 style="font-size:0.82rem;font-weight:800;color:var(--yellow);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">DeepSeek Gems — Add as Vars 19-21</h3>
+    <div style="font-size:0.67rem;color:var(--text-dim);margin-bottom:10px;">Unique signals not in the 18-var consensus but sharper than anything Llama or mini contributed.</div>`;
+
+  GEMS.forEach(g => {
+    html += `<div style="padding:8px 10px;margin-bottom:6px;background:rgba(255,217,61,0.05);border:1px solid rgba(255,217,61,0.15);border-radius:7px;">
+      <div style="font-size:0.73rem;font-weight:700;color:var(--yellow);margin-bottom:3px;">${esc(g.n)}</div>
+      <div style="font-size:0.65rem;color:var(--text-dim);line-height:1.5;">${esc(g.note)}</div>
+    </div>`;
+  });
+  html += `</div>`;
+
+  // Model notes
+  html += `<div style="margin-bottom:20px;">
+    <h3 style="font-size:0.82rem;font-weight:800;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Model Notes</h3>
+    <div style="font-size:0.67rem;line-height:1.7;color:var(--text-dim);">
+      <span style="color:var(--green);font-weight:700;">DeepSeek-V3.2</span> — Sharpest output. Quant-specific vars, measurable definitions, betting applications.<br>
+      <span style="color:var(--accent-glow);font-weight:700;">gpt-4.1</span> — Solid 20-var matrix. Good balance of sharp and structural.<br>
+      <span style="color:var(--accent-glow);font-weight:700;">grok-4-fast-reasoning</span> — Clean. Good H2H and day/night additions.<br>
+      <span style="color:var(--text-dim);font-weight:700;">gpt-4.1-mini</span> — Hit major categories, heavy on bullpen sub-vars.<br>
+      <span style="color:var(--text-dim);font-weight:700;">Llama-4-Maverick</span> — Weakest. Surface-level, inflated weights.<br>
+      <span style="color:var(--red);font-weight:700;">grok-4-1-fast-reasoning</span> — Timed out at 540s. Needs streaming.<br>
+      <span style="color:var(--red);font-weight:700;">Mistral Large 3</span> — Rate-limited (S0 tier). Needs quota increase.
+    </div>
+  </div>`;
+
+  html += `</div>`;
+  container.innerHTML = html;
+}
+
+function renderMatrixView() {
+  const container = document.getElementById('gamesContainer');
+  const sport = currentSport || 'ncaab';
+  const matrix = DEFAULT_MATRICES[sport];
+  const userMatrix = agentMatrix[sport] || { matrix: [], excluded: [] };
+  const name = agentProfile ? agentProfile.display_name : 'Chinny';
+
+  // Build a lookup: key -> current weight (override if set, else default)
+  const overrideLookup = {};
+  if (userMatrix.matrix) {
+    userMatrix.matrix.forEach(m => { overrideLookup[m.key] = { weight: m.weight, type: m.type, default_weight: m.default_weight }; });
+  }
+
+  let html = `<div style="margin-bottom:12px;">
+    <h3 style="font-size:0.85rem;font-weight:800;color:var(--accent-glow);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">${esc(name)}'s Matrix &mdash; ${SPORT_LABELS[sport] || sport.toUpperCase()}</h3>
+    <p style="font-size:0.68rem;color:var(--text-dim);margin-bottom:14px;">Edit the weights below (1–10). Yellow = you changed it. Hit Save to lock it in, then Analyze ${esc(name)}'s Way to re-run the cards.</p>`;
+
+  if (matrix) {
+    matrix.forEach(([key, defaultWeight]) => {
+      const override = overrideLookup[key];
+      const currentWeight = override ? override.weight : defaultWeight;
+      const isChanged = override && override.type === 'override';
+      const label = key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      const rowBg = isChanged ? 'rgba(255,217,61,0.06)' : 'rgba(255,255,255,0.03)';
+      const rowBorder = isChanged ? '1px solid rgba(255,217,61,0.2)' : '1px solid transparent';
+      const weightColor = isChanged ? 'var(--yellow)' : (currentWeight >= 9 ? 'var(--green)' : currentWeight >= 7 ? 'var(--accent-glow)' : 'var(--text-dim)');
+      html += `<div style="display:flex;align-items:center;gap:10px;padding:7px 10px;margin-bottom:3px;background:${rowBg};border:${rowBorder};border-radius:7px;">
+        <span style="flex:1;font-size:0.73rem;font-weight:600;">${esc(label)}</span>
+        ${isChanged ? `<span style="font-size:0.62rem;color:var(--text-dim);">default ${defaultWeight}</span>` : ''}
+        <input type="number" min="1" max="10" value="${currentWeight}"
+          data-key="${esc(key)}" data-default="${defaultWeight}"
+          style="width:44px;padding:4px 6px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:5px;color:${weightColor};font-size:0.8rem;font-weight:800;text-align:center;"
+          oninput="onWeightInput(this)">
+      </div>`;
+    });
+  }
+  html += `</div>`;
+
+  // Save + Reset row
+  html += `<div style="display:flex;gap:8px;margin-bottom:16px;">
+    <button id="saveMatrixBtn" onclick="saveMatrix('${sport}')"
+      style="flex:2;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:0.8rem;font-weight:800;letter-spacing:0.5px;cursor:pointer;">
+      SAVE CHANGES
+    </button>
+    <button onclick="resetMatrix('${sport}')"
+      style="flex:1;padding:12px;background:rgba(255,255,255,0.06);color:var(--text-dim);border:1px solid rgba(255,255,255,0.1);border-radius:8px;font-size:0.75rem;font-weight:600;cursor:pointer;">
+      RESET
+    </button>
+  </div>`;
+
+  // Analyze buttons
+  html += `<div style="display:flex;gap:10px;margin-bottom:20px;">
+    <button class="analyze-my-way" id="analyzeMyWayBtn" onclick="analyzeMyWay('${sport}')" style="flex:1;">Analyze ${esc(name)}'s Way</button>
+    <button class="reanalyze-btn" onclick="reanalyzeSlate('${sport}')" style="flex:1;padding:14px;">Analyze Default</button>
+  </div>`;
+
+  container.innerHTML = html;
+  document.getElementById('footer').style.display = 'none';
+}
+
+function onWeightInput(el) {
+  // Clamp to 1-10 as user types
+  let v = parseInt(el.value);
+  if (isNaN(v)) return;
+  v = Math.max(1, Math.min(10, v));
+  const def = parseInt(el.dataset.default);
+  el.style.color = (v !== def) ? 'var(--yellow)' : 'var(--text-dim)';
+}
+
+async function saveMatrix(sport) {
+  const btn = document.getElementById('saveMatrixBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'SAVING...'; }
+
+  const inputs = document.querySelectorAll('[data-key]');
+  const changes = [];
+  inputs.forEach(inp => {
+    const key = inp.dataset.key;
+    const def = parseInt(inp.dataset.default);
+    const val = Math.max(1, Math.min(10, parseInt(inp.value) || def));
+    if (val !== def) changes.push({ variable: key, weight: val });
+  });
+
+  try {
+    // Fire all weight updates in parallel
+    await Promise.all(changes.map(c =>
+      fetch(`/api/agent/${AGENT_USER_ID}/action`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'update_weight', sport, args: { variable: c.variable, weight: c.weight, sport } })
+      })
+    ));
+    // Refresh cached matrix
+    const matrixResp = await fetch(`/api/agent/${AGENT_USER_ID}/matrix/${sport}`).then(r => r.json()).catch(() => null);
+    if (matrixResp) agentMatrix[sport] = matrixResp;
+    showAgentToast(changes.length > 0 ? `Saved ${changes.length} weight change${changes.length > 1 ? 's' : ''}` : 'No changes to save');
+    renderMatrixView();
+  } catch(e) {
+    showAgentToast('Save failed: ' + e.message);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'SAVE CHANGES'; }
+  }
+}
+
+async function resetMatrix(sport) {
+  if (!confirm('Reset all weights to system defaults?')) return;
+  try {
+    await fetch(`/api/agent/${AGENT_USER_ID}/action`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'reset_to_default', sport, args: { sport } })
+    });
+    const matrixResp = await fetch(`/api/agent/${AGENT_USER_ID}/matrix/${sport}`).then(r => r.json()).catch(() => null);
+    if (matrixResp) agentMatrix[sport] = matrixResp;
+    showAgentToast('Matrix reset to defaults');
+    renderMatrixView();
+  } catch(e) {
+    showAgentToast('Reset failed: ' + e.message);
+  }
+}
+
+// === DEFAULT MATRIX CARD ===
+function renderDefaultMatrixCard(sport) {
+  const matrix = DEFAULT_MATRICES[sport];
+  if (!matrix) return '';
+  const totalWeight = matrix.reduce((s, v) => s + v[1], 0);
+  const maxScore = totalWeight * 10;
+
+  let html = `<div class="default-matrix-card">
+    <div class="dmc-header">
+      <div class="dmc-title">${SPORT_LABELS[sport] || sport.toUpperCase()} Scoring Matrix</div>
+      <div class="dmc-meta">${matrix.length} variables | Max ${maxScore} pts | Built by Edge Crew</div>
+    </div>
+    <div class="dmc-grid">`;
+  matrix.forEach(([key, weight]) => {
+    const wClass = weight >= 9 ? 'dmc-w9' : weight >= 7 ? 'dmc-w7' : weight >= 5 ? 'dmc-w5' : 'dmc-w4';
+    const label = key.replace(/_/g, ' ');
+    html += `<div class="dmc-var"><span class="dmc-key">${esc(label)}</span><span class="dmc-weight ${wClass}">${weight}</span></div>`;
+  });
+  html += `</div>
+    <div style="margin-top:8px;font-size:0.65rem;color:var(--text-dim);line-height:1.6;">
+      Each game scored 1-10 per variable. Weight x Score = weighted total. Composite = total / ${maxScore} x 10.
+      <strong style="color:var(--accent-glow);">Talk to your agent to customize these weights.</strong>
+    </div>
+  </div>`;
+  return html;
+}
+
+// === VOICE QUICK PROMPTS ===
+function voiceQuick(text) {
+  if (!voiceActive) {
+    // Start voice first, then send the prompt
+    voiceInteractionMode = 'freeflow';
+    waitToRespondMode = false;
+    startVoiceMode();
+    // Wait for connection, then inject the prompt
+    const checkDC = setInterval(() => {
+      if (rtcDC && rtcDC.readyState === 'open') {
+        clearInterval(checkDC);
+        setTimeout(() => {
+          rtcDC.send(JSON.stringify({
+            type: 'response.create',
+            response: { instructions: 'The user just tapped a quick prompt button. Respond to this request: "' + text + '". Use the current sport context (' + (currentSport || 'ncaab').toUpperCase() + '). Be helpful and specific. If they asked about the slate, describe the games loaded. If they asked about grading, explain the weighted matrix system. If they asked about props, mention the screener. Keep it under 4 sentences.' }
+          }));
+        }, 500);
+      }
+    }, 200);
+    setTimeout(() => clearInterval(checkDC), 10000); // safety timeout
+  } else {
+    // Already connected — send directly
+    if (rtcDC && rtcDC.readyState === 'open') {
+      rtcDC.send(JSON.stringify({
+        type: 'response.create',
+        response: { instructions: 'The user tapped: "' + text + '". Current sport: ' + (currentSport || 'ncaab').toUpperCase() + '. Respond helpfully in under 4 sentences.' }
+      }));
+    }
+  }
+  addVoiceTranscript('user', text);
+}
+
+// === AGENT FUNCTIONS ===
+
+function renderChinnyBadge(matchup) {
+  if (!currentSport || !djAnalysis[currentSport]) return '';
+  const djGames = djAnalysis[currentSport].games || [];
+  const djGame = djGames.find(g => g.matchup === matchup);
+  if (!djGame) return '';
+
+  const defData = analysisCache[currentSport] || {};
+  const defGames = defData.games || [];
+  const defGame = defGames.find(g => g.matchup === matchup);
+  const defScore = defGame ? (defGame.composite_score || 0) : 0;
+  const djScore = djGame.composite_score || 0;
+  const diff = (djScore - defScore).toFixed(1);
+  const cls = diff > 0 ? 'dj-delta-up' : (diff < 0 ? 'dj-delta-down' : 'dj-delta-same');
+  const arrow = diff > 0 ? '\u2191' : (diff < 0 ? '\u2193' : '=');
+  return `<span class="dj-result-badge ${cls}">Chinny: ${esc(djGame.grade)} (${djScore.toFixed(1)}) ${arrow}${Math.abs(diff)}</span>`;
+}
+
+function renderAgentPanel(sport) {
+  const matrix = agentMatrix[sport] || { matrix: [], excluded: [] };
+  const name = agentProfile ? agentProfile.display_name : 'Chinny';
+  const toggleId = 'matrixPanel_' + sport;
+
+  let html = `<div class="agent-panel">
+    <div class="agent-panel-header">
+      <div class="agent-panel-dot"></div>
+      <div class="agent-panel-title">${esc(name)}'s Edge Agent</div>
+      <div class="agent-panel-badge">${sport.toUpperCase()}</div>
+    </div>
+    <button class="analyze-my-way" id="analyzeMyWayBtn" onclick="analyzeMyWay('${sport}')">ANALYZE ${esc(name).toUpperCase()}'S WAY</button>`;
+
+  // Chinny results summary (if exists)
+  if (djAnalysis[sport] && djAnalysis[sport].games) {
+    const defData = analysisCache[sport] || {};
+    const defGames = defData.games || [];
+    const defMap = {};
+    defGames.forEach(g => { defMap[g.matchup] = g; });
+
+    html += `<div style="margin-bottom:10px;">`;
+    djAnalysis[sport].games.forEach(g => {
+      const def = defMap[g.matchup] || {};
+      const djScore = (g.composite_score || 0).toFixed(1);
+      const defScore = (def.composite_score || 0).toFixed(1);
+      const diff = (g.composite_score - (def.composite_score || 0)).toFixed(1);
+      const cls = diff > 0 ? 'dj-delta-up' : (diff < 0 ? 'dj-delta-down' : 'dj-delta-same');
+      html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.72rem;">
+        <span style="font-weight:600;">${esc(g.matchup)}</span>
+        <span><span class="dj-result-badge ${cls}">${esc(name)}: ${esc(g.grade)} (${djScore})</span>
+        <span style="color:var(--text-dim);margin-left:4px;">Default: ${esc(def.grade || '?')} (${defScore})</span></span>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  // Matrix toggle
+  html += `<div class="matrix-panel">
+    <div class="matrix-panel-toggle" onclick="toggleMatrixPanel('${toggleId}')">&#9660; My Matrix (${matrix.matrix ? matrix.matrix.length : 0} vars)</div>
+    <div class="matrix-panel-body" id="${toggleId}">`;
+
+  if (matrix.matrix && matrix.matrix.length) {
+    matrix.matrix.forEach(m => {
+      let tag = '';
+      if (m.type === 'override') {
+        tag = `<span class="m-tag m-tag-override">was ${m.default_weight}</span>`;
+      } else if (m.type === 'custom') {
+        tag = `<span class="m-tag m-tag-custom">custom</span>`;
+      }
+      html += `<div class="matrix-row">
+        <span class="m-key">${esc(m.key.replace(/_/g, ' '))}</span>
+        <span class="m-weight">${m.weight}</span>
+        ${tag}
+      </div>`;
+    });
+  }
+  if (matrix.excluded && matrix.excluded.length) {
+    matrix.excluded.forEach(ex => {
+      html += `<div class="matrix-excluded-row">x ${esc(ex.replace(/_/g, ' '))}</div>`;
+    });
+  }
+
+  html += `</div></div></div>`;
+  return html;
+}
+
+function toggleMatrixPanel(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('open');
+}
+
+async function analyzeMyWay(sport) {
+  const btn = document.getElementById('analyzeMyWayBtn');
+  if (!btn) return;
+  btn.disabled = true;
+  btn.classList.add('running');
+  btn.textContent = 'ANALYZING...';
+
+  const loading = document.getElementById('loadingState');
+  loading.style.display = 'block';
+  document.getElementById('loadingText').textContent = 'Running Chinny\'s custom analysis... 1-2 minutes';
+
+  try {
+    const resp = await fetch(`/api/analysis/${sport}?force=true&model=gpt-4.1-mini&user_id=${AGENT_USER_ID}`);
+    if (resp.status === 429) {
+      showAgentToast('Rate limit \u2014 max 3 custom runs per sport per day');
+      return;
+    }
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      showAgentToast(err.error || 'Analysis failed');
+      return;
+    }
+    const data = await resp.json();
+    djAnalysis[sport] = data;
+    showAgentToast('Chinny\'s analysis complete!');
+    // Reload the sport view to show comparison
+    await loadSport(sport);
+  } catch(e) {
+    showAgentToast('Error: ' + e.message);
+  } finally {
+    loading.style.display = 'none';
+    if (btn) {
+      btn.disabled = false;
+      btn.classList.remove('running');
+      const name = agentProfile ? agentProfile.display_name : 'Chinny';
+      btn.textContent = 'ANALYZE ' + name.toUpperCase() + '\'S WAY';
+    }
+  }
+}
+
+function showAgentToast(msg) {
+  const el = document.getElementById('agentToast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// === VOICE — Gold Standard (Casa Companion pattern) ===
+let waitToRespondMode = false;
+let voiceInteractionMode = 'freeflow';
+let currentEagerness = 'medium';
+let aiTranscriptBuffer = '';
+let aiTranscriptEl = null;
+
+function startVoiceWithMode(mode) {
+  if (voiceActive) { endVoice(); return; }
+  const btnConv = document.getElementById('btnConversation');
+  const btnTurns = document.getElementById('btnTakeTurns');
+  const btn = mode === 'turnbased' ? btnTurns : btnConv;
+  if (btn && btn.disabled) return;
+  if (btnConv) btnConv.disabled = true;
+  if (btnTurns) btnTurns.disabled = true;
+  setTimeout(() => { if (btnConv) btnConv.disabled = false; if (btnTurns) btnTurns.disabled = false; }, 1000);
+
+  voiceInteractionMode = mode;
+  waitToRespondMode = (mode === 'turnbased');
+  startVoiceMode();
+}
+
+async function startVoiceMode() {
+  const overlay = document.getElementById('voiceConnecting');
+  const connectText = document.getElementById('voiceConnectText');
+  if (overlay) overlay.classList.add('visible');
+  if (connectText) connectText.textContent = 'Connecting to Chinny\'s Edge Agent...';
+
+  try {
+    // 1. Token with user_id
+    const tokenResp = await fetch('/api/voice/token', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ user_id: AGENT_USER_ID })
+    });
+    if (!tokenResp.ok) throw new Error('Failed to get voice token');
+    const tokenData = await tokenResp.json();
+
+    // 2. Peer connection
+    rtcPC = new RTCPeerConnection();
+
+    // 3. Audio output
+    const audioEl = document.getElementById('rtcAudio');
+    rtcPC.ontrack = event => {
+      if (event.streams.length > 0) audioEl.srcObject = event.streams[0];
+    };
+
+    // 4. Mic
+    rtcMicStream = await navigator.mediaDevices.getUserMedia({
+      audio: {noiseSuppression:true, echoCancellation:true, autoGainControl:true, channelCount:1}
+    });
+    rtcPC.addTrack(rtcMicStream.getAudioTracks()[0]);
+
+    // 5. Data channel
+    rtcDC = rtcPC.createDataChannel('realtime-channel');
+
+    // 6. Offer + SDP exchange
+    const offer = await rtcPC.createOffer();
+    await rtcPC.setLocalDescription(offer);
+
+    const sdpResp = await fetch('/api/voice/sdp', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({sdp: offer.sdp, token: tokenData.token})
+    });
+    if (!sdpResp.ok) throw new Error('SDP exchange failed');
+    const answerSdp = await sdpResp.text();
+    await rtcPC.setRemoteDescription({type: 'answer', sdp: answerSdp});
+
+    // 7. On data channel open — configure session
+    rtcDC.onopen = () => {
+      if (overlay) overlay.classList.remove('visible');
+
+      // Configure VAD with mode settings
+      rtcDC.send(JSON.stringify({
+        type: 'session.update',
+        session: {
+          input_audio_transcription: {model: 'whisper-1'},
+          turn_detection: {
+            type: 'semantic_vad',
+            create_response: true,
+            interrupt_response: !waitToRespondMode,
+            eagerness: currentEagerness
+          }
+        }
+      }));
+
+      voiceActive = true;
+      updateVoiceUI(true);
+
+      // Open transcript area
+      document.getElementById('voiceTranscript').classList.add('open');
+
+      // Set status
+      const statusText = document.getElementById('voiceStatusText');
+      if (statusText) statusText.textContent = waitToRespondMode
+        ? 'Take Turns — listen, then speak'
+        : 'Conversation mode. Just talk.';
+
+      // Greeting — onboarding-aware
+      const name = agentProfile ? agentProfile.display_name : 'Chinny';
+      const sport = currentSport ? currentSport.toUpperCase() : 'the slate';
+      const hasCustomizations = agentProfile && agentProfile.matrices && Object.keys(agentProfile.matrices).some(s => {
+        const m = agentProfile.matrices[s];
+        return (m.overrides && Object.keys(m.overrides).length) || (m.custom_vars && m.custom_vars.length) || (m.excluded && m.excluded.length);
+      });
+
+      if (hasCustomizations) {
+        rtcDC.send(JSON.stringify({
+          type: 'response.create',
+          response: {
+            instructions: `Greet ${name} by name. You're their Edge Agent. Current sport is ${sport}. Mention they have custom weights saved. Ask what they want to do — adjust weights, analyze the slate their way, or explore props. 2-3 sentences, be sharp.`
+          }
+        }));
+      } else {
+        rtcDC.send(JSON.stringify({
+          type: 'response.create',
+          response: {
+            instructions: `Greet ${name} by name. You're their personal Edge Agent. Tell them briefly: "We grade every game using a 20-variable weighted matrix — injuries, rest, sharp money, matchups. You can customize the weights to match how YOU see the game." Then ask: "Want me to walk you through the ${sport} variables so you can build your own grading sheet? Or I can show you what's on the slate tonight." Keep it to 3-4 sentences. Be welcoming but sharp.`
+          }
+        }));
+      }
+    };
+
+    // 8. Handle all RTC events — gold standard
+    rtcDC.onmessage = event => {
+      const msg = JSON.parse(event.data);
+      handleRTCEvent(msg);
+    };
+
+    rtcDC.onclose = () => endVoice();
+    rtcPC.oniceconnectionstatechange = () => {
+      if (rtcPC && (rtcPC.iceConnectionState === 'failed' || rtcPC.iceConnectionState === 'disconnected')) {
+        endVoice();
+        showAgentToast('Voice connection lost');
+      }
+    };
+
+  } catch(e) {
+    if (overlay) overlay.classList.remove('visible');
+    showAgentToast('Voice error: ' + e.message);
+    endVoice();
+  }
+}
+
+function handleRTCEvent(msg) {
+  const statusRow = document.getElementById('voiceStatusRow');
+  const statusText = document.getElementById('voiceStatusText');
+  const transcript = document.getElementById('voiceTranscript');
+
+  switch (msg.type) {
+    case 'input_audio_buffer.speech_started':
+      setVoiceState('listening');
+      aiTranscriptBuffer = '';
+      aiTranscriptEl = null;
+      break;
+
+    case 'input_audio_buffer.speech_stopped':
+      setVoiceState('thinking');
+      break;
+
+    case 'conversation.item.input_audio_transcription.completed':
+      if (msg.transcript && msg.transcript.trim()) {
+        addVoiceTranscript('user', msg.transcript.trim());
+      }
+      break;
+
+    case 'response.output_audio_transcript.delta':
+      // Build AI response word-by-word
+      if (!aiTranscriptEl) {
+        aiTranscriptBuffer = '';
+        aiTranscriptEl = document.createElement('p');
+        aiTranscriptEl.className = 'vt-agent';
+        if (transcript) transcript.appendChild(aiTranscriptEl);
+      }
+      aiTranscriptBuffer += msg.delta;
+      aiTranscriptEl.textContent = aiTranscriptBuffer;
+      if (transcript) transcript.scrollTop = transcript.scrollHeight;
+      break;
+
+    case 'response.output_audio_transcript.done':
+      aiTranscriptEl = null;
+      aiTranscriptBuffer = '';
+      break;
+
+    case 'output_audio_buffer.started':
+      setVoiceState('speaking');
+      if (waitToRespondMode) muteRtcMic();
+      break;
+
+    case 'output_audio_buffer.stopped':
+      setVoiceState('idle');
+      if (waitToRespondMode) unmuteRtcMic();
+      if (voiceActive && statusText) {
+        statusText.textContent = waitToRespondMode
+          ? 'Your turn \u2014 speak now'
+          : 'Conversation mode. Just talk.';
+      }
+      break;
+
+    case 'response.function_call_arguments.done':
+      handleAgentFunctionCall(msg);
+      break;
+
+    case 'error':
+      console.error('Realtime API error:', msg.error);
+      showAgentToast('Voice error: ' + (msg.error?.message || 'Unknown'));
+      break;
+  }
+}
+
+function setVoiceState(state) {
+  const statusRow = document.getElementById('voiceStatusRow');
+  const statusText = document.getElementById('voiceStatusText');
+  if (!statusRow) return;
+
+  statusRow.className = 'voice-status-row active state-' + state;
+  switch (state) {
+    case 'listening':
+      statusText.textContent = 'Listening...';
+      break;
+    case 'thinking':
+      statusText.textContent = 'Thinking...';
+      break;
+    case 'speaking':
+      statusText.textContent = 'Speaking...';
+      break;
+    case 'idle':
+      statusText.textContent = waitToRespondMode
+        ? 'Your turn \u2014 speak now'
+        : 'Conversation mode. Just talk.';
+      break;
+  }
+}
+
+function addVoiceTranscript(role, text) {
+  const transcript = document.getElementById('voiceTranscript');
+  if (!transcript) return;
+  const p = document.createElement('p');
+  p.className = role === 'user' ? 'vt-user' : 'vt-agent';
+  p.textContent = text;
+  transcript.appendChild(p);
+  transcript.scrollTop = transcript.scrollHeight;
+}
+
+async function handleAgentFunctionCall(msg) {
+  const fnName = msg.name;
+  let args = {};
+  try { args = JSON.parse(msg.arguments || '{}'); } catch(e) {}
+  const callId = msg.call_id;
+
+  // Default sport to current if not specified
+  if (!args.sport && currentSport) args.sport = currentSport;
+
+  try {
+    const resp = await fetch('/api/agent/' + AGENT_USER_ID + '/action', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ action: fnName, args: args })
+    });
+    const result = await resp.json();
+
+    // Send result back to realtime session
+    if (rtcDC && rtcDC.readyState === 'open') {
+      rtcDC.send(JSON.stringify({
+        type: 'conversation.item.create',
+        item: { type: 'function_call_output', call_id: callId, output: JSON.stringify(result) }
+      }));
+      rtcDC.send(JSON.stringify({ type: 'response.create' }));
+    }
+
+    // Refresh matrix + UI
+    if (result.success) {
+      showAgentToast(result.message || 'Updated');
+      const matrixResp = await fetch('/api/agent/' + AGENT_USER_ID + '/matrix/' + (args.sport || currentSport));
+      if (matrixResp.ok) agentMatrix[args.sport || currentSport] = await matrixResp.json();
+      if (currentSport) await loadSport(currentSport);
+    }
+  } catch(e) {
+    showAgentToast('Action error: ' + e.message);
+  }
+}
+
+function updateMicSensitivity(level) {
+  currentEagerness = level;
+  if (rtcDC && rtcDC.readyState === 'open') {
+    rtcDC.send(JSON.stringify({
+      type: 'session.update',
+      session: {
+        turn_detection: {
+          type: 'semantic_vad',
+          create_response: true,
+          interrupt_response: !waitToRespondMode,
+          eagerness: level
+        }
+      }
+    }));
+  }
+}
+
+function muteRtcMic() {
+  if (rtcMicStream) rtcMicStream.getAudioTracks().forEach(t => { t.enabled = false; });
+}
+function unmuteRtcMic() {
+  if (rtcMicStream) rtcMicStream.getAudioTracks().forEach(t => { t.enabled = true; });
+}
+
+function endVoice() {
+  voiceActive = false;
+  waitToRespondMode = false;
+  voiceInteractionMode = 'freeflow';
+  if (rtcDC) { try { rtcDC.close(); } catch(e){} rtcDC = null; }
+  if (rtcPC) { try { rtcPC.close(); } catch(e){} rtcPC = null; }
+  if (rtcMicStream) { rtcMicStream.getTracks().forEach(t => t.stop()); rtcMicStream = null; }
+  const audioEl = document.getElementById('rtcAudio');
+  if (audioEl && audioEl.srcObject) {
+    audioEl.srcObject.getTracks().forEach(t => t.stop());
+    audioEl.srcObject = null;
+  }
+  updateVoiceUI(false);
+  document.getElementById('voiceConnecting').classList.remove('visible');
+  document.getElementById('voiceTranscript').classList.remove('open');
+}
+
+function updateVoiceUI(active) {
+  const btnConv = document.getElementById('btnConversation');
+  const btnTurns = document.getElementById('btnTakeTurns');
+  const btnEnd = document.getElementById('btnEndVoice');
+  const micBtn = document.getElementById('voiceMicBtn');
+  const statusRow = document.getElementById('voiceStatusRow');
+  const micSens = document.getElementById('micSensitivity');
+
+  if (active) {
+    const activeBtn = voiceInteractionMode === 'turnbased' ? btnTurns : btnConv;
+    if (activeBtn) activeBtn.classList.add('active');
+    if (btnEnd) btnEnd.classList.add('visible');
+    if (micBtn) micBtn.classList.add('listening');
+    if (statusRow) statusRow.classList.add('active');
+    if (micSens) micSens.classList.add('visible');
+  } else {
+    if (btnConv) btnConv.classList.remove('active');
+    if (btnTurns) btnTurns.classList.remove('active');
+    if (btnEnd) btnEnd.classList.remove('visible');
+    if (micBtn) micBtn.classList.remove('listening');
+    if (statusRow) { statusRow.classList.remove('active'); statusRow.className = 'voice-status-row'; }
+    if (micSens) micSens.classList.remove('visible');
+  }
+}
+
+// ===== EV CARD ANALYSIS =====
+function createExpectedValue(btn, evKey) {
+  var g = _djGameDataMap[evKey];
+  if (!g) { alert('Game data not found'); return; }
+  btn.disabled = true;
+  btn.innerHTML = '&#9889; Analyzing...';
+  btn.style.opacity = '0.6';
+  var panel = btn.parentElement.querySelector('.ev-panel');
+  var awayAbbr = (g.away || g.matchup.split(' @ ')[0] || '').split(' ').pop();
+  var homeAbbr = (g.home || g.matchup.split(' @ ')[1] || '').split(' ').pop();
+  var payload = {
+    sport: (currentSport || 'nba').toLowerCase(),
+    away_team: g.away || g.matchup.split(' @ ')[0] || '',
+    home_team: g.home || g.matchup.split(' @ ')[1] || '',
+    spread_away: g.away_spread || -(g.spread || 0),
+    spread_home: g.spread || g.home_spread || 0,
+    ml_away: g.away_ml || 0, ml_home: g.home_ml || 0,
+    over_under: g.total || 0, matrix_score: g.grade || '--',
+    signals: g.tags || [], chain_bonus: g.chain_bonus || 0,
+    the_play: g.peter_zone || '', game_time: g.commence_time || g.time || ''
+  };
+  fetch('/api/ev/card', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+  .then(function(r) { return r.json(); })
+  .then(function(ev) {
+    renderEVPanel(panel, ev, g, awayAbbr, homeAbbr);
+    btn.innerHTML = '&#9889; Refresh EV'; btn.disabled = false; btn.style.opacity = '1';
+  })
+  .catch(function() {
+    panel.style.display = 'block';
+    panel.innerHTML = '<div style="padding:12px;color:#EF4444;font-size:12px;">EV engines timed out. Try again.</div>';
+    btn.innerHTML = '&#9889; Create Expected Value'; btn.disabled = false; btn.style.opacity = '1';
+  });
+}
+function renderEVPanel(panel, ev, g, awayAbbr, homeAbbr) {
+  panel.style.display = 'block';
+  var matchup = awayAbbr + ' @ ' + homeAbbr;
+  if (ev.error) { panel.innerHTML = '<div style="padding:12px;color:#EF4444;font-size:12px;">' + ev.error + '</div>'; return; }
+  if (ev.raw_text) { panel.innerHTML = '<div style="padding:12px;color:#B0BEC5;font-size:11px;white-space:pre-wrap;">' + ev.raw_text + '</div>'; return; }
+  var html = '<div style="background:rgba(212,160,23,0.06);border:1px solid rgba(212,160,23,0.2);border-radius:8px;padding:12px;margin-top:8px;">';
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">';
+  html += '<span style="font-size:12px;font-weight:800;color:#D4A017;letter-spacing:0.5px;">&#9889; EV ANALYSIS</span>';
+  html += '<span onclick="collapseEVPanel(this)" style="cursor:pointer;color:rgba(255,255,255,0.3);font-size:14px;padding:2px 6px;">&times;</span></div>';
+  if (ev.spread_call) { html += '<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.4);margin-bottom:3px;">SPREAD CALL</div><div style="font-size:12px;color:#fff;font-weight:600;">' + (ev.spread_call.pick || '') + '</div><div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;">' + (ev.spread_call.reasoning || '') + '</div></div>'; }
+  if (ev.top_props && ev.top_props.length > 0) { html += '<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.4);margin-bottom:3px;">TOP PROPS (Mathurin Test)</div>'; ev.top_props.forEach(function(p) { var vc = p.verdict === 'MISPRICED' ? '#10B981' : (p.verdict === 'CLOSE' ? '#FBB024' : '#B0BEC5'); html += '<div style="font-size:11px;color:#fff;margin-bottom:4px;"><strong>' + (p.player || '') + '</strong> ' + (p.prop || '') + ' <span style="color:' + vc + ';font-weight:700;font-size:10px;">' + (p.verdict || '') + '</span>'; if (p.l5_floor !== undefined && p.line !== undefined) { html += '<div style="font-size:10px;color:rgba(255,255,255,0.4);">L5 floor: ' + p.l5_floor + ' | Line: ' + p.line + ' | Gap: ' + (p.gap > 0 ? '+' : '') + p.gap + '</div>'; } html += '</div>'; }); html += '</div>'; } else { html += '<div style="font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:10px;">No mispriced props found.</div>'; }
+  if (ev.book_discrepancy) { html += '<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.4);margin-bottom:3px;">BOOK DISCREPANCY</div><div style="font-size:11px;color:rgba(255,255,255,0.5);">' + ev.book_discrepancy + '</div></div>'; }
+  if (ev.trap_check) { html += '<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.4);margin-bottom:3px;">TRAP CHECK</div><div style="font-size:11px;color:rgba(255,255,255,0.5);">' + ev.trap_check + '</div></div>'; }
+  if (ev._engine_data) { var ed = ev._engine_data; html += '<div style="font-size:9px;color:rgba(255,255,255,0.15);margin-top:8px;">Engines: ' + ed.screener_count + ' screened, ' + ed.disc_count + ' discrepancies, ' + ed.gap_count + ' gaps</div>'; }
+  html += '</div>'; panel.innerHTML = html;
+}
+function collapseEVPanel(closeBtn) {
+  var panel = closeBtn.closest('.ev-panel');
+  if (panel) { panel.style.display = 'none'; panel.innerHTML = ''; var evBtn = panel.parentElement.querySelector('.ev-btn'); if (evBtn) evBtn.innerHTML = '&#9889; Create Expected Value'; }
+}
+
+init();
+</script>
+</body>
+</html>
