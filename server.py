@@ -506,7 +506,7 @@ DEFAULT_CREW = [
     {"id": "chinny", "display_name": "Chinny", "color": "#FF6B35", "is_admin": False},
     {"id": "alyssa", "display_name": "Alyssa", "color": "#41EAD4", "is_admin": False},
     {"id": "sintonia", "display_name": "Sinton.ia", "color": "#F72585", "is_admin": False},
-    {"id": "sportsbook", "display_name": "Sportsbook.ag", "color": "#22C55E", "is_admin": False},
+    {"id": "midday_edge", "display_name": "Midday Edge \u2014 Alyssa x Renzo", "color": "#22C55E", "is_admin": False},
     {"id": "tunk", "display_name": "Tunk", "color": "#FF4500", "is_admin": False},
     {"id": "padrino", "display_name": "Padrino", "color": "#C0A062", "is_admin": False},
     {"id": "los", "display_name": "Los", "color": "#38BDF8", "is_admin": False},
@@ -533,7 +533,7 @@ def _write_profiles(data):
 
 
 CREW_DEFAULT_PINS = {"peter": "1234", "jimmy": "0000", "chinny": "0000",
-                     "alyssa": "0000", "sintonia": "0000", "sportsbook": "0000",
+                     "alyssa": "0000", "sintonia": "0000", "midday_edge": "0000",
                      "tunk": "1525", "padrino": "0726", "los": "4200",
                      "renzo": "0000"}
 
