@@ -1101,7 +1101,7 @@ THINKER_ENDPOINT = os.environ.get("THINKER_ENDPOINT", "https://pwgcerp-9302-reso
 SPORT_MODELS = {
     "nba": {"thinker": "grok-4-1-fast-reasoning", "timeout": 300},
     "nhl": {"thinker": "gpt-4.1", "timeout": 90},
-    "ncaab": {"thinker": "gpt-4.1", "timeout": 90},
+    "ncaab": {"thinker": "grok-4-1-fast-reasoning", "timeout": 240},
     "mlb": {"thinker": "gpt-4.1", "timeout": 90},
     "mma": {"thinker": "gpt-4.1", "timeout": 90},
     "boxing": {"thinker": "gpt-4.1", "timeout": 90},
