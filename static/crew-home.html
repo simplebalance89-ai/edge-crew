@@ -237,6 +237,48 @@ body {
     border: 1px solid rgba(136, 136, 160, 0.15);
 }
 
+/* ===== TRACK RECORD ===== */
+.track-row {
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--card-border);
+    gap: 12px;
+}
+
+.track-row:last-child { border-bottom: none; }
+
+.track-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    min-width: 70px;
+}
+
+.track-val {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text);
+    flex: 1;
+}
+
+.track-roi {
+    text-align: right;
+    min-width: 60px;
+}
+
+.track-best {
+    border-top: 1px solid rgba(108, 92, 231, 0.2);
+    margin-top: 2px;
+    padding-top: 14px;
+}
+
+.track-best .track-label {
+    color: var(--member-color);
+}
+
 /* ===== PICK CARDS ===== */
 .picks-list {
     display: flex;
@@ -513,6 +555,9 @@ body {
         </div>
     </div>
 
+    <!-- TRACK RECORD -->
+    <div class="section" id="trackRecordSection" style="display:none"></div>
+
     <!-- TODAY'S PICKS -->
     <div class="section" id="picksSection">
         <div class="section-title">
@@ -547,8 +592,8 @@ body {
     // ===== EXTRACT USER ID =====
     function getUserId() {
         const path = window.location.pathname;
-        const match = path.match(/\/home\/([^\/]+)/);
-        if (match) return match[1];
+        const match = path.match(/\/(home|crew)\/([^\/]+)/);
+        if (match) return match[2];
         const params = new URLSearchParams(window.location.search);
         return params.get('user') || params.get('id') || 'peter';
     }
@@ -608,7 +653,7 @@ body {
     }
 
     // ===== RENDER RECORD =====
-    function renderRecord(record) {
+    function renderRecord(record, streak, bestSport, record7d, record30d, recordSeason) {
         const card = document.getElementById('recordCard');
         if (!record) {
             card.innerHTML = '<div class="empty-state"><div class="msg">No record data available.</div></div>';
@@ -618,32 +663,15 @@ body {
         const w = record.wins || 0;
         const l = record.losses || 0;
         const p = record.pushes || 0;
-        const total = w + l;
-        const roi = record.roi;
-        const streak = record.streak || 0;
 
-        let roiHtml = '';
-        if (roi !== undefined && roi !== null) {
-            const roiClass = roi > 0 ? 'roi-pos' : roi < 0 ? 'roi-neg' : 'roi-flat';
-            const roiSign = roi > 0 ? '+' : '';
-            roiHtml = `
-                <div class="record-divider"></div>
-                <div class="record-stat">
-                    <div class="value ${roiClass}">${roiSign}${roi.toFixed(1)}%</div>
-                    <div class="label">ROI</div>
-                </div>`;
-        }
-
+        // Streak from API (string like "W3", "L2", "EVEN")
         let streakHtml = '';
-        if (streak !== 0) {
-            const absStreak = Math.abs(streak);
-            const isWin = streak > 0;
+        if (streak && streak !== 'EVEN') {
+            const isWin = streak.startsWith('W');
             streakHtml = `
                 <div class="record-divider"></div>
                 <div class="record-stat">
-                    <span class="streak-badge ${isWin ? 'win-streak' : 'loss-streak'}">
-                        ${isWin ? 'W' : 'L'}${absStreak}
-                    </span>
+                    <span class="streak-badge ${isWin ? 'win-streak' : 'loss-streak'}">${streak}</span>
                     <div class="label" style="margin-top:6px">STREAK</div>
                 </div>`;
         } else {
@@ -670,9 +698,58 @@ body {
                 <div class="value pushes">${p}</div>
                 <div class="label">PUSHES</div>
             </div>
-            ${roiHtml}
             ${streakHtml}
         `;
+
+        // Render track record section
+        renderTrackRecord(record7d, record30d, recordSeason, bestSport);
+    }
+
+    // ===== RENDER TRACK RECORD =====
+    function _roiHtml(roi) {
+        if (roi === undefined || roi === null) return '';
+        const cls = roi > 0 ? 'roi-pos' : roi < 0 ? 'roi-neg' : 'roi-flat';
+        const sign = roi > 0 ? '+' : '';
+        return `<span class="value ${cls}" style="font-size:0.85rem">${sign}${roi.toFixed(1)}%</span>`;
+    }
+
+    function renderTrackRecord(r7, r30, rSeason, bestSport) {
+        const container = document.getElementById('trackRecordSection');
+        if (!container) return;
+        if (!r7 && !r30 && !rSeason) {
+            container.style.display = 'none';
+            return;
+        }
+
+        function periodRow(label, rec) {
+            if (!rec || rec.total === 0) return `<div class="track-row"><span class="track-label">${label}</span><span class="track-val" style="color:var(--text-dim)">No data</span></div>`;
+            return `<div class="track-row">
+                <span class="track-label">${label}</span>
+                <span class="track-val">${rec.wins}-${rec.losses}${rec.pushes ? '-' + rec.pushes : ''}</span>
+                <span class="track-roi">${_roiHtml(rec.roi)}</span>
+            </div>`;
+        }
+
+        let bestSportHtml = '';
+        if (bestSport) {
+            const sportName = bestSport.sport.toUpperCase();
+            bestSportHtml = `<div class="track-row track-best">
+                <span class="track-label">BEST</span>
+                <span class="track-val">${sportName} (${bestSport.record})</span>
+                <span class="track-roi">${_roiHtml(bestSport.roi)}</span>
+            </div>`;
+        }
+
+        container.innerHTML = `
+            <div class="section-title">TRACK RECORD</div>
+            <div class="record-card" style="flex-direction:column;gap:0">
+                ${periodRow('7 DAY', r7)}
+                ${periodRow('30 DAY', r30)}
+                ${periodRow('SEASON', rSeason)}
+                ${bestSportHtml}
+            </div>
+        `;
+        container.style.display = 'block';
     }
 
     // ===== RENDER PICKS =====
@@ -779,7 +856,7 @@ body {
             }
 
             // Record
-            renderRecord(record);
+            renderRecord(record, data.streak, data.best_sport, data.record_7d, data.record_30d, data.record_season);
 
             // Picks — filter to this member if needed
             const memberPicks = filterMemberPicks(picks, member);

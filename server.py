@@ -272,6 +272,24 @@ async def _daily_slate_pull():
                     print(f"[ANALYSIS] Midnight slate pulled — analysis deferred to smart schedule")
                     _smart_analysis_runs.clear()  # Reset for new day
 
+                # Pre-analysis: overnight data assembly (no AI calls)
+                if hour == 1:
+                    print(f"[PRE-ANALYSIS] 1 AM run — building overnight previews")
+                    for sport in active_sports:
+                        try:
+                            await _build_pre_analysis(sport)
+                        except Exception as e:
+                            print(f"[PRE-ANALYSIS] Error {sport}: {e}")
+                        await asyncio.sleep(2)
+                if hour == 6:
+                    print(f"[PRE-ANALYSIS] 6 AM refresh — checking line movers")
+                    for sport in active_sports:
+                        try:
+                            await _refresh_pre_analysis(sport)
+                        except Exception as e:
+                            print(f"[PRE-ANALYSIS] Refresh error {sport}: {e}")
+                        await asyncio.sleep(2)
+
             # ── Smart Analysis Schedule ──────────────────────────────────
             # Run analysis at T-2h and T-30m before earliest tip per sport.
             # Safety net: if no analysis exists by 4 PM, run for all sports.
@@ -820,6 +838,8 @@ SLATE_DIR = os.path.join(DATA_DIR, "slates")
 ANALYSIS_DIR = os.path.join(DATA_DIR, "analysis_cache")
 os.makedirs(SLATE_DIR, exist_ok=True)
 os.makedirs(ANALYSIS_DIR, exist_ok=True)
+PRE_ANALYSIS_DIR = os.path.join(DATA_DIR, "pre_analysis")
+os.makedirs(PRE_ANALYSIS_DIR, exist_ok=True)
 
 def _slate_path(sport, date_str=None):
     if not date_str:
@@ -849,6 +869,133 @@ def _load_daily_slate(sport):
         with open(yesterday_path) as f:
             return json.load(f)
     return None
+
+async def _build_pre_analysis(sport: str):
+    """Build overnight pre-analysis: schedule + early odds + injuries + rest. NO AI calls."""
+    today = datetime.now(PST).strftime("%Y-%m-%d")
+    path = os.path.join(PRE_ANALYSIS_DIR, f"pre_{sport}_{today}.json")
+
+    pre = {
+        "sport": sport.upper(),
+        "date": today,
+        "type": "pre_analysis",
+        "built_at": _now_ts(),
+        "games": [],
+        "injury_flags": [],
+        "rest_flags": [],
+    }
+
+    try:
+        # Pull schedule + odds from SGO or slate
+        slate = _load_daily_slate(sport)
+        if not slate or not slate.get("games"):
+            # Try fetching fresh
+            try:
+                resp = await get_odds(sport)
+                if hasattr(resp, 'body'):
+                    data = json.loads(resp.body)
+                    if data.get("games"):
+                        _save_daily_slate(sport, data["games"])
+                        slate = {"games": data["games"]}
+            except Exception as e:
+                print(f"[PRE-ANALYSIS] Failed to fetch odds for {sport}: {e}")
+
+        if slate and slate.get("games"):
+            for game in slate["games"]:
+                game_info = {
+                    "matchup": f"{game.get('away', game.get('away_team', '?'))} @ {game.get('home', game.get('home_team', '?'))}",
+                    "commence_time": game.get("commence_time", ""),
+                    "spread": game.get("spread"),
+                    "total": game.get("total"),
+                    "ml_away": game.get("ml_away"),
+                    "ml_home": game.get("ml_home"),
+                }
+
+                # Rest/B2B detection from scores archive
+                away = game.get("away", game.get("away_team", ""))
+                home = game.get("home", game.get("home_team", ""))
+                for team_name in [away, home]:
+                    if not team_name:
+                        continue
+                    try:
+                        profile = _build_team_profile(team_name, sport)
+                        if profile and profile.get("last_5"):
+                            last_game = profile["last_5"][0]
+                            last_date = last_game.get("date", "")
+                            if last_date and last_date >= (datetime.now(PST) - timedelta(days=1)).strftime("%Y-%m-%d"):
+                                pre["rest_flags"].append(f"{team_name}: B2B — played {last_date}")
+                            streak = profile.get("streak", 0)
+                            if streak <= -3:
+                                pre["rest_flags"].append(f"{team_name}: {abs(streak)}-game losing streak")
+                            elif streak >= 3:
+                                pre["rest_flags"].append(f"{team_name}: {streak}-game winning streak")
+                    except Exception:
+                        pass
+
+                pre["games"].append(game_info)
+
+        pre["game_count"] = len(pre["games"])
+
+    except Exception as e:
+        pre["error"] = str(e)
+        print(f"[PRE-ANALYSIS] Error building {sport}: {e}")
+
+    with open(path, "w") as f:
+        json.dump(pre, f, indent=2)
+    print(f"[PRE-ANALYSIS] Built {sport} — {pre.get('game_count', 0)} games")
+    return pre
+
+
+async def _refresh_pre_analysis(sport: str):
+    """Re-pull odds and diff against earlier snapshot. Flag line movers."""
+    today = datetime.now(PST).strftime("%Y-%m-%d")
+    path = os.path.join(PRE_ANALYSIS_DIR, f"pre_{sport}_{today}.json")
+
+    old_pre = {}
+    if os.path.exists(path):
+        try:
+            with open(path) as f:
+                old_pre = json.load(f)
+        except Exception:
+            pass
+
+    old_odds = {}
+    for g in old_pre.get("games", []):
+        old_odds[g.get("matchup", "")] = {
+            "spread": g.get("spread"),
+            "total": g.get("total"),
+        }
+
+    # Rebuild with fresh data
+    new_pre = await _build_pre_analysis(sport)
+
+    # Diff: flag line movers
+    line_movers = []
+    for g in new_pre.get("games", []):
+        matchup = g.get("matchup", "")
+        if matchup in old_odds:
+            old = old_odds[matchup]
+            try:
+                if old.get("spread") and g.get("spread"):
+                    spread_move = abs(float(g["spread"]) - float(old["spread"]))
+                    if spread_move >= 1.0:
+                        line_movers.append(f"{matchup}: spread moved {old['spread']} → {g['spread']}")
+                if old.get("total") and g.get("total"):
+                    total_move = abs(float(g["total"]) - float(old["total"]))
+                    if total_move >= 2.0:
+                        line_movers.append(f"{matchup}: total moved {old['total']} → {g['total']}")
+            except (ValueError, TypeError):
+                pass
+
+    if line_movers:
+        new_pre["line_movers"] = line_movers
+        # Re-save with line movers
+        with open(path, "w") as f:
+            json.dump(new_pre, f, indent=2)
+        print(f"[PRE-ANALYSIS] {sport} line movers: {line_movers}")
+
+    return new_pre
+
 
 def _save_analysis_cache(sport, analysis_data):
     path = _analysis_cache_path(sport)
@@ -1408,7 +1555,10 @@ NBA_MATRIX = [
     ("line_vs_model", 6, "Our composite vs the line spread — meta-edge signal"),
     ("home_away", 5, "Home/away record"),
     ("referee_bias", 5, "Referee foul-calling tendencies, pace impact"),
-    ("depth_injuries", 4, "Role player / bench injuries"),
+    ("depth_injuries", 6, "Team depth beyond stars — can supporting cast sustain without star? Randle-type players who elevate with more usage"),
+    ("momentum_streak", 8, "Winning/losing streak momentum — 3+ game skid or surge affects confidence and execution"),
+    ("opponent_quality", 7, "Opponent strength — covering 10 vs a playoff team is harder than vs a bottom-5 team"),
+    ("second_half_tendency", 6, "Second-half scoring differential L5 — teams that collapse or surge after halftime"),
 ]
 
 NHL_MATRIX = [
@@ -4071,7 +4221,7 @@ async def get_cached_sport_slate(sport: str):
     return await get_odds(sport)
 
 
-# ===== PLAYER PROPS — Real Lines from The Odds API =====
+# ===== PLAYER PROPS — Real Lines (SGO primary, Odds API fallback) =====
 PROP_MARKETS = {
     "nba": "player_points,player_rebounds,player_assists,player_threes",
     "nhl": "player_points,player_assists,player_goals",
@@ -4905,7 +5055,7 @@ async def get_analysis(sport: str, cached_only: bool = False, force: bool = Fals
         for g in odds_data.get("games", []):
             form_teams.add(g.get("away", ""))
             form_teams.add(g.get("home", ""))
-        form_lines = ["\n=== TEAM RECENT FORM (L5 Records) ==="]
+        form_lines = ["\n=== TEAM RECENT FORM (L5 + L10 Records) ==="]
         form_lines.append("FORM RULE: If underdog is 4-1+ L5, injuries to favorite may be PRICED IN. Established injuries + winning team = no edge.")
         for team_name in sorted(form_teams):
             if not team_name:
@@ -4920,7 +5070,12 @@ async def get_analysis(sport: str, cached_only: bool = False, force: bool = Fals
                     margin = profile.get("avg_margin", 0)
                     trend = "UP" if w >= 4 else "DOWN" if l >= 4 else "MIXED"
                     margin_str = f"+{margin:.1f}" if margin > 0 else f"{margin:.1f}"
-                    form_lines.append(f"{team_name}: L5 {w}-{l} | ATS {ats_w}-{ats_l} | Avg margin {margin_str} | Trend: {trend}")
+                    # L10 + streak data
+                    l10w = profile.get("l10_wins", "?")
+                    l10l = profile.get("l10_losses", "?")
+                    stk = profile.get("streak", 0)
+                    streak_str = f"W{stk}" if stk > 0 else f"L{abs(stk)}" if stk < 0 else "EVEN"
+                    form_lines.append(f"{team_name}: L5 {w}-{l} | L10 {l10w}-{l10l} | ATS {ats_w}-{ats_l} | Streak: {streak_str} | Avg margin {margin_str} | Trend: {trend}")
             except Exception:
                 pass
         if len(form_lines) > 2:
@@ -4975,7 +5130,7 @@ async def get_analysis(sport: str, cached_only: bool = False, force: bool = Fals
     else:
         matrix_section = _build_matrix_section(sport_lower)
 
-    # ===== FETCH REAL PROP LINES (from The Odds API) =====
+    # ===== FETCH REAL PROP LINES (SGO primary, Odds API fallback) =====
     prop_lines_text = ""
     prop_sports_with_markets = {"nba", "nhl", "nfl", "mlb"}  # Sports that have prop markets
     if sport_lower in prop_sports_with_markets:
@@ -5042,6 +5197,14 @@ INJURY FRESHNESS RULE: The injury report labels each injury with a freshness tie
 - [SEASON 30+d]: Long-term absence. Team fully adjusted. star_player_status capped at 4-5. If team is 4-1+ L5, the absence is PRICED IN — do NOT treat as a fresh edge.
 - [UNKNOWN]: No date available. Treat as recent (moderate impact).
 If a team is winning WITHOUT their injured star (check L5 record), that injury is NOT an edge — it is already in the line.
+
+MOMENTUM RULE: Teams on 3+ game losing streaks get a momentum_streak penalty. A team trending DOWN with a 3+ game skid should NOT receive a Lock or A-grade pick, even if the opponent has an injury. Losing teams lose for reasons beyond one stat line. Score momentum_streak 2-3 for 3+ game skids.
+
+OPPONENT QUALITY RULE: Laying 10+ points against a playoff-caliber team (top 10 in conference) requires STRONG evidence. Covering double-digit spreads against competitive teams is rare. Score opponent_quality 3-4 when a top-10 team is getting 10+.
+
+DEPTH RULE: When a star is OUT, assess the SUPPORTING CAST. Does the team have a secondary alpha who thrives with more usage (e.g., Randle without Edwards)? A star out does NOT always weaken a team — it can ELEVATE role players. Score depth_injuries based on actual roster depth, not just the absence.
+
+SECOND-HALF RULE: Check the team's second-half scoring L5. Teams averaging under 48 points in the second half (NBA) are collapsing — flag them. Score second_half_tendency 2-4 for consistent second-half collapses.
 
 CREW: Peter (heavy/value/sharp, sizes up on conviction), Jimmy (new, learning), Alyssa (pure math/EV edge), Renzo (card builder/grader), Tunk (wild/aggressive, tracks everything, high volume).
 RULES: "Why is the market wrong?" = required for every grade. No answer = NO BET (grade D/F). Valid edges: news not priced in, public overreaction, rest/schedule, matchup-specific, sharp vs public, situational. Invalid: "better team", "should win", "volume play".
@@ -5222,6 +5385,14 @@ INJURY FRESHNESS RULE: The injury report labels each injury with a freshness tie
 - [SEASON 30+d]: Long-term absence. Team fully adjusted. star_player_status capped at 4-5. If team is 4-1+ L5, the absence is PRICED IN — do NOT treat as a fresh edge.
 - [UNKNOWN]: No date available. Treat as recent (moderate impact).
 If a team is winning WITHOUT their injured star (check L5 record), that injury is NOT an edge — it is already in the line.
+
+MOMENTUM RULE: Teams on 3+ game losing streaks get a momentum_streak penalty. A team trending DOWN with a 3+ game skid should NOT receive a Lock or A-grade pick, even if the opponent has an injury. Losing teams lose for reasons beyond one stat line. Score momentum_streak 2-3 for 3+ game skids.
+
+OPPONENT QUALITY RULE: Laying 10+ points against a playoff-caliber team (top 10 in conference) requires STRONG evidence. Covering double-digit spreads against competitive teams is rare. Score opponent_quality 3-4 when a top-10 team is getting 10+.
+
+DEPTH RULE: When a star is OUT, assess the SUPPORTING CAST. Does the team have a secondary alpha who thrives with more usage (e.g., Randle without Edwards)? A star out does NOT always weaken a team — it can ELEVATE role players. Score depth_injuries based on actual roster depth, not just the absence.
+
+SECOND-HALF RULE: Check the team's second-half scoring L5. Teams averaging under 48 points in the second half (NBA) are collapsing — flag them. Score second_half_tendency 2-4 for consistent second-half collapses.
 
 CREW: Peter (heavy/value/sharp), Jimmy (new, learning), Alyssa (pure math/EV), Renzo (card builder/grader).
 
@@ -8440,6 +8611,64 @@ async def crew_homepage(member_id: str):
     losses = sum(1 for p in member_picks if p.get("result") == "L")
     pushes = sum(1 for p in member_picks if p.get("result") == "P")
 
+    # Time-based records
+    from datetime import timedelta as _td
+    now = datetime.now(PST)
+
+    def _record_for_period(picks_list, days_back):
+        cutoff = (now - _td(days=days_back)).strftime("%Y-%m-%d")
+        period_picks = [p for p in picks_list if (p.get("date") or "") >= cutoff and p.get("result") in ("W", "L", "P")]
+        w = sum(1 for p in period_picks if p.get("result") == "W")
+        l = sum(1 for p in period_picks if p.get("result") == "L")
+        p_count = sum(1 for p in period_picks if p.get("result") == "P")
+        units_risked = w + l
+        units_won = (w * 0.91) - (l * 1.0) if units_risked > 0 else 0
+        roi = round((units_won / units_risked) * 100, 1) if units_risked > 0 else 0.0
+        return {"wins": w, "losses": l, "pushes": p_count, "roi": roi, "total": len(period_picks)}
+
+    record_7d = _record_for_period(member_picks, 7)
+    record_30d = _record_for_period(member_picks, 30)
+    record_season = _record_for_period(member_picks, 365)
+
+    # Best sport by ROI
+    sport_records = {}
+    for p in member_picks:
+        if p.get("result") not in ("W", "L"):
+            continue
+        s = (p.get("sport") or "unknown").lower()
+        if s not in sport_records:
+            sport_records[s] = {"w": 0, "l": 0}
+        if p.get("result") == "W":
+            sport_records[s]["w"] += 1
+        else:
+            sport_records[s]["l"] += 1
+
+    best_sport = None
+    best_roi = -999
+    for s, rec in sport_records.items():
+        total = rec["w"] + rec["l"]
+        if total >= 3:
+            roi = round(((rec["w"] * 0.91 - rec["l"]) / total) * 100, 1)
+            if roi > best_roi:
+                best_roi = roi
+                best_sport = {"sport": s, "roi": roi, "record": f"{rec['w']}-{rec['l']}"}
+
+    # Current streak
+    sorted_picks = sorted(
+        [p for p in member_picks if p.get("result") in ("W", "L")],
+        key=lambda x: x.get("date", ""), reverse=True
+    )
+    streak = 0
+    streak_type = ""
+    if sorted_picks:
+        streak_type = sorted_picks[0].get("result", "")
+        for p in sorted_picks:
+            if p.get("result") == streak_type:
+                streak += 1
+            else:
+                break
+    streak_str = f"{'W' if streak_type == 'W' else 'L'}{streak}" if streak > 0 else "EVEN"
+
     return {
         "member": {
             "id": member["id"],
@@ -8450,8 +8679,38 @@ async def crew_homepage(member_id: str):
         },
         "today_picks": today_picks,
         "record": {"wins": wins, "losses": losses, "pushes": pushes},
+        "record_7d": record_7d,
+        "record_30d": record_30d,
+        "record_season": record_season,
+        "best_sport": best_sport,
+        "streak": streak_str,
         "total_picks": len(member_picks)
     }
+
+
+@app.get("/api/pre-analysis/{sport}")
+async def get_pre_analysis(sport: str):
+    """Get overnight pre-analysis data (schedule + odds + flags). No AI — data assembly only."""
+    sport_lower = sport.lower()
+    today = datetime.now(PST).strftime("%Y-%m-%d")
+    path = os.path.join(PRE_ANALYSIS_DIR, f"pre_{sport_lower}_{today}.json")
+
+    if os.path.exists(path):
+        with open(path) as f:
+            data = json.load(f)
+        return JSONResponse(data)
+
+    # No pre-analysis yet — build on demand
+    try:
+        result = await _build_pre_analysis(sport_lower)
+        return JSONResponse(result)
+    except Exception as e:
+        return JSONResponse({"error": str(e), "type": "pre_analysis", "games": []}, status_code=200)
+
+
+@app.get("/crew/{member_slug}")
+async def crew_page(member_slug: str):
+    return FileResponse("static/crew-home.html", headers=NO_CACHE_HEADERS)
 
 
 @app.get("/home/{user_id}")
@@ -9937,6 +10196,7 @@ def _build_team_profile(team: str, sport: str) -> dict:
             seen.add(key)
             deduped.append(tg)
     last_5_raw = deduped[:5]
+    last_10_raw = deduped[:10]
 
     last_5 = []
     wins = 0
@@ -10039,10 +10299,48 @@ def _build_team_profile(team: str, sport: str) -> dict:
         elif last_5[0].get("result") == "L" and last_5[1].get("result") == "L":
             trend = "down"
 
+    # L10 stats
+    l10_wins = 0
+    l10_losses = 0
+    l10_margin = 0
+    for entry in last_10_raw:
+        game = entry["game"]
+        side = entry["side"]
+        home_score = entry["home_score"]
+        away_score = entry["away_score"]
+        if side == "home":
+            m = home_score - away_score
+        else:
+            m = away_score - home_score
+        if m > 0:
+            l10_wins += 1
+        else:
+            l10_losses += 1
+        l10_margin += m
+
+    l10_avg_margin = round(l10_margin / len(last_10_raw), 1) if last_10_raw else 0
+
+    # Streak: count consecutive W or L from most recent
+    streak = 0
+    if last_5:
+        first_result = last_5[0].get("result", "")
+        for g in last_5:
+            if g.get("result") == first_result:
+                streak += 1
+            else:
+                break
+        if first_result == "L":
+            streak = -streak
+
+    # Second-half average (placeholder — not available from scores_archive without quarter data)
+    second_half_avg = None
+
     profile = {
         "team": team,
         "sport": sport.lower(),
         "last_5": last_5,
+        "wins": wins,
+        "losses": losses,
         "summary": {
             "record": f"{wins}-{losses}",
             "ats_record": f"{ats_wins}-{ats_losses}" + (f"-{ats_pushes}" if ats_pushes else ""),
@@ -10050,6 +10348,11 @@ def _build_team_profile(team: str, sport: str) -> dict:
             "avg_margin": avg_margin,
             "trend": trend,
         },
+        "l10_wins": l10_wins,
+        "l10_losses": l10_losses,
+        "l10_avg_margin": l10_avg_margin,
+        "streak": streak,
+        "second_half_avg": second_half_avg,
     }
     _set_cache(cache_key, profile)
     return profile
