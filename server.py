@@ -769,6 +769,12 @@ SGO_PROP_STATS = {
 }
 BALLDONTLIE_API_KEY = os.environ.get("BALLDONTLIE_API_KEY", "373a65ea-c799-4c41-b54a-64909073123c")
 BALLDONTLIE_BASE = "https://api.balldontlie.io/v1"
+RAPIDAPI_KEY = os.environ.get("RAPIDAPI_KEY", "409e417a5amshc8f88f3da5eb1c8p1b356bjsn648bb9e45f03")
+TANK01_HOSTS = {
+    "nba": "tank01-fantasy-stats.p.rapidapi.com",
+    "nhl": "tank01-nhl-live-in-game-real-time-statistics-nhl.p.rapidapi.com",
+    "mlb": "tank01-mlb-live-in-game-real-time-statistics.p.rapidapi.com",
+}
 PREFERRED_BOOK = "hardrockbet"
 FALLBACK_BOOKS = ["draftkings", "fanduel", "betmgm", "bovada"]
 REGIONS = "us,us2,eu,uk,au"
@@ -2200,13 +2206,34 @@ def _recalculate_grade(game, sport):
     if isinstance(star_data, dict):
         star_score = star_data.get("score", 5)
         star_note = str(star_data.get("note", "")).lower()
-        # If note mentions established/season/adapted/priced-in keywords, cap at 6
-        if any(kw in star_note for kw in ["established", "season", "adapted", "priced in", "long-term", "30+d", "without"]):
-            if star_score > 6:
-                print(f"[INJURY CLAMP] {game.get('matchup')} — star_player_status capped {star_score}->6 (established/season injury)")
-                star_data["score"] = 6
-                star_data["note"] = star_data.get("note", "") + " [CLAMPED: established injury, team adapted]"
-        # Fresh injuries: no clamp needed, allow up to 10
+
+        # SEASON injuries (30+d, team adapted): cap at 3 if team winning L5
+        if any(kw in star_note for kw in ["season", "30+d", "long-term", "fully priced"]):
+            if any(kw in star_note for kw in ["winning", "4-1", "5-0", "adapted", "priced in"]):
+                if star_score > 3:
+                    print(f"[INJURY CLAMP] {game.get('matchup')} — star_player_status capped {star_score}->3 (SEASON injury, team winning)")
+                    star_data["score"] = 3
+                    star_data["note"] = star_data.get("note", "") + " [CLAMPED: SEASON injury, team adapted and winning]"
+            elif star_score > 5:
+                print(f"[INJURY CLAMP] {game.get('matchup')} — star_player_status capped {star_score}->5 (SEASON injury)")
+                star_data["score"] = 5
+                star_data["note"] = star_data.get("note", "") + " [CLAMPED: SEASON injury]"
+
+        # ESTABLISHED injuries (15-30d): cap at 5
+        elif any(kw in star_note for kw in ["established", "15-30", "likely priced", "adapted"]):
+            if star_score > 5:
+                print(f"[INJURY CLAMP] {game.get('matchup')} — star_player_status capped {star_score}->5 (ESTABLISHED injury)")
+                star_data["score"] = 5
+                star_data["note"] = star_data.get("note", "") + " [CLAMPED: ESTABLISHED injury, team adapted]"
+
+        # FRESH injuries (0-3d): no clamp, allow 8-10
+        # RECENT injuries (4-14d): cap at 8
+        elif any(kw in star_note for kw in ["recent", "4-14", "partially priced"]):
+            if star_score > 8:
+                print(f"[INJURY CLAMP] {game.get('matchup')} — star_player_status capped {star_score}->8 (RECENT injury)")
+                star_data["score"] = 8
+                star_data["note"] = star_data.get("note", "") + " [CLAMPED: RECENT injury]"
+        # FRESH: no clamp needed, allow up to 10
 
     # Calculate max possible weighted score
     max_possible = sum(w for _, w, _ in matrix) * 10
@@ -2255,6 +2282,27 @@ def _recalculate_grade(game, sport):
         game["composite_score"] = recalculated
         print(f"[CHAIN BONUS] {game.get('matchup')} — +{chain_bonus} → {recalculated} (was {game['composite_score_pre_chain']})")
 
+    # P7: Auto-flag edge games — 3+ FRESH injuries on one side
+    injury_notes = []
+    fresh_count = 0
+    for var_name in ["star_player_status", "depth_injuries"]:
+        var_data = matrix_scores.get(var_name)
+        if isinstance(var_data, dict):
+            note = str(var_data.get("note", "")).lower()
+            if "fresh" in note or "not priced" in note or "0-3d" in note:
+                fresh_count += 1
+                injury_notes.append(var_data.get("note", ""))
+
+    if fresh_count >= 2 or (fresh_count >= 1 and any("3+" in str(n) or "multiple" in str(n).lower() for n in injury_notes)):
+        game["auto_edge_flag"] = True
+        game["edge_flag_reason"] = "Multiple FRESH injuries detected — potential mispricing"
+        # Boost composite by 15% (capped at 10)
+        boosted = min(10.0, round(recalculated * 1.15, 1))
+        if boosted > recalculated:
+            game["composite_score_pre_injury_boost"] = recalculated
+            game["composite_score"] = boosted
+            recalculated = boosted
+            print(f"[INJURY EDGE] {game.get('matchup')} — auto-flagged, boosted {game['composite_score_pre_injury_boost']} → {boosted}")
 
     # P6: Calculate edge_grade — subset of thesis_edge + line_vs_model + sharp_vs_public
     edge_vars = ["thesis_edge", "line_vs_model", "sharp_vs_public"]
@@ -2282,6 +2330,27 @@ def _recalculate_grade(game, sport):
     # Apply grade from thresholds — WE decide the grade, not GPT
     gpt_grade = game.get("grade", "")
     game["grade"] = _score_to_grade(recalculated)
+
+    # P8: Cap grade if we're picking a team that HAS fresh injuries (picking into weakness)
+    # This is detected when the notes mention "fresh" on the SELECTED team's side
+    selection = str(game.get("selection", "")).lower()
+    edge_summary = str(game.get("edge_summary", "")).lower()
+
+    # Check if the pick is on the team with fresh injuries AND no "despite" explanation
+    for var_name in ["star_player_status", "depth_injuries"]:
+        var_data = matrix_scores.get(var_name)
+        if isinstance(var_data, dict):
+            note = str(var_data.get("note", "")).lower()
+            if ("fresh" in note or "not priced" in note) and "despite" not in edge_summary and "without" not in edge_summary:
+                # Check if the injured team matches our selection
+                injured_team_mentions = [word for word in note.split() if len(word) > 3]
+                if any(team_word in selection for team_word in injured_team_mentions if len(team_word) > 4):
+                    if game["grade"] in ("A+", "A", "A-", "B+", "B", "B-"):
+                        old_grade = game["grade"]
+                        game["grade"] = "C+"
+                        game["grade_cap_reason"] = f"Picking team with FRESH injuries — capped from {old_grade} to C+ (no 'despite' explanation)"
+                        print(f"[GRADE CAP] {game.get('matchup')} — {old_grade} → C+ (picking into FRESH injuries)")
+                    break
 
     if gpt_grade and gpt_grade != game["grade"]:
         print(f"[GRADE CHANGED] {game.get('matchup')} — GPT said {gpt_grade}, we say {game['grade']} (score: {recalculated})")
@@ -5005,6 +5074,19 @@ async def get_analysis(sport: str, cached_only: bool = False, force: bool = Fals
     except Exception as e:
         print(f"ESPN injury fetch error: {e}")
 
+    # ===== ENRICH WITH TANK01 INJURY DETAILS =====
+    tank01_status = "skipped"
+    try:
+        tank01_context = await _build_tank01_injury_context(sport_lower, injury_context)
+        if tank01_context:
+            injury_context += "\n" + tank01_context
+            tank01_status = "ok"
+        else:
+            tank01_status = "no_enrichment"
+    except Exception as e:
+        tank01_status = f"failed: {e}"
+        print(f"Tank01 injury enrichment error: {e}")
+
     # Build injury source health report
     injury_sources = {}
     if "CBS Sports" in injury_context and "no parseable" not in injury_context.lower():
@@ -5026,6 +5108,8 @@ async def get_analysis(sport: str, cached_only: bool = False, force: bool = Fals
     else:
         injury_sources["rotowire"] = "no_response"
 
+    injury_sources["tank01"] = tank01_status
+
     logger.info(f"Injury source health: {injury_sources}")
 
     # P1: Force conservative warning if injury context is effectively empty or has no real player data
@@ -5036,11 +5120,26 @@ async def get_analysis(sport: str, cached_only: bool = False, force: bool = Fals
             has_real_injury_data = True
             break
 
+    # Cross-reference: flag when odds moved but no injury data
+    if not has_real_injury_data:
+        for g in odds_data.get("games", []):
+            spread = g.get("spread")
+            open_spread = g.get("open_spread") or g.get("spread_open")
+            if spread and open_spread:
+                try:
+                    move = abs(float(spread) - float(open_spread))
+                    if move >= 3.0:
+                        matchup = f"{g.get('away', '?')} @ {g.get('home', '?')}"
+                        injury_context += f"\n⚠️ LINE ALERT: {matchup} spread moved {move:.1f} pts (opened {open_spread}, now {spread}) but NO injury data found. Investigate before grading."
+                        logger.warning(f"[INJURY GAP] {matchup} — line moved {move:.1f} pts with no injury data")
+                except (ValueError, TypeError):
+                    pass
+
     if not injury_context or len(injury_context.strip()) < 20 or not has_real_injury_data:
         injury_context = (
             "⚠️ CRITICAL: ALL INJURY DATA SOURCES RETURNED EMPTY OR FAILED.\n"
             "CBS Sports, ESPN, RotoWire, and API-Sports all failed to return player injury data.\n"
-            "Do NOT assume either team is healthy. Grade conservatively.\n"
+            "Do NOT assume teams are healthy. Grade conservatively. Flag as TBD.\n"
             "Set injury_impact to: 'Injury data unavailable — graded with extreme caution.'\n"
             "If you have any knowledge of current injuries for these teams, mention them but flag as unverified.\n"
             "Consider downgrading composite by 0.5 points due to data uncertainty.\n"
@@ -5205,6 +5304,10 @@ OPPONENT QUALITY RULE: Laying 10+ points against a playoff-caliber team (top 10 
 DEPTH RULE: When a star is OUT, assess the SUPPORTING CAST. Does the team have a secondary alpha who thrives with more usage (e.g., Randle without Edwards)? A star out does NOT always weaken a team — it can ELEVATE role players. Score depth_injuries based on actual roster depth, not just the absence.
 
 SECOND-HALF RULE: Check the team's second-half scoring L5. Teams averaging under 48 points in the second half (NBA) are collapsing — flag them. Score second_half_tendency 2-4 for consistent second-half collapses.
+
+MULTI-INJURY RULE: When one team has 3+ rotation players OUT with FRESH injuries, this is a MAJOR edge signal. Auto-flag the game. The book cannot fully adjust for multiple simultaneous absences. Score star_player_status AND depth_injuries both 8-10 in this scenario.
+
+PICKING-INTO-INJURY RULE: If you are recommending a team that has FRESH injuries, you MUST explain WHY you still like them despite being weakened. Include a "despite X being out, we still like this because Y" line in edge_summary. Without this explanation, the grade is capped at C+.
 
 CREW: Peter (heavy/value/sharp, sizes up on conviction), Jimmy (new, learning), Alyssa (pure math/EV edge), Renzo (card builder/grader), Tunk (wild/aggressive, tracks everything, high volume).
 RULES: "Why is the market wrong?" = required for every grade. No answer = NO BET (grade D/F). Valid edges: news not priced in, public overreaction, rest/schedule, matchup-specific, sharp vs public, situational. Invalid: "better team", "should win", "volume play".
@@ -5393,6 +5496,10 @@ OPPONENT QUALITY RULE: Laying 10+ points against a playoff-caliber team (top 10 
 DEPTH RULE: When a star is OUT, assess the SUPPORTING CAST. Does the team have a secondary alpha who thrives with more usage (e.g., Randle without Edwards)? A star out does NOT always weaken a team — it can ELEVATE role players. Score depth_injuries based on actual roster depth, not just the absence.
 
 SECOND-HALF RULE: Check the team's second-half scoring L5. Teams averaging under 48 points in the second half (NBA) are collapsing — flag them. Score second_half_tendency 2-4 for consistent second-half collapses.
+
+MULTI-INJURY RULE: When one team has 3+ rotation players OUT with FRESH injuries, this is a MAJOR edge signal. Auto-flag the game. The book cannot fully adjust for multiple simultaneous absences. Score star_player_status AND depth_injuries both 8-10 in this scenario.
+
+PICKING-INTO-INJURY RULE: If you are recommending a team that has FRESH injuries, you MUST explain WHY you still like them despite being weakened. Include a "despite X being out, we still like this because Y" line in edge_summary. Without this explanation, the grade is capped at C+.
 
 CREW: Peter (heavy/value/sharp), Jimmy (new, learning), Alyssa (pure math/EV), Renzo (card builder/grader).
 
@@ -6235,6 +6342,7 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
             "matrix_retried": len(missing_ms_games) if missing_ms_games else 0,
             "grade_gate": {"score_overrides": gate_score_overrides, "grade_overrides": gate_grade_overrides},
             "challenger_model": challenger_model_display,
+            "injury_sources": injury_sources,
         }
 
         _set_cache(cache_key, analysis)
@@ -9585,6 +9693,163 @@ def _classify_injury_freshness(injury_date_str):
             return ("season", days_out)
     except Exception:
         return ("unknown", None)
+
+
+async def _fetch_tank01_injury(player_name: str, sport: str = "nba") -> dict:
+    """Fetch injury details from Tank01 API. Returns classification + details.
+    Free tier: 1,000 hits/mo — only call for players already flagged as injured."""
+    if not RAPIDAPI_KEY:
+        return {}
+
+    host = TANK01_HOSTS.get(sport.lower())
+    if not host:
+        return {}
+
+    cache_key = f"tank01:{sport}:{player_name.lower().replace(' ', '_')}"
+    cached = _get_cached(cache_key, ttl=3600)  # 1h cache
+    if cached is not None:
+        return cached
+
+    endpoint_map = {
+        "nba": "getNBAPlayerInfo",
+        "nhl": "getNHLPlayerInfo",
+        "mlb": "getMLBPlayerInfo",
+    }
+    endpoint = endpoint_map.get(sport.lower())
+    if not endpoint:
+        return {}
+
+    try:
+        async with httpx.AsyncClient(timeout=15) as client:
+            resp = await client.get(
+                f"https://{host}/{endpoint}",
+                params={"playerName": player_name},
+                headers={
+                    "x-rapidapi-host": host,
+                    "x-rapidapi-key": RAPIDAPI_KEY,
+                    "Content-Type": "application/json",
+                },
+            )
+            if resp.status_code != 200:
+                logger.warning(f"Tank01 {sport} {player_name}: HTTP {resp.status_code}")
+                return {}
+
+            data = resp.json()
+            body = data.get("body", [])
+            if not body:
+                return {}
+
+            player = body[0]
+            injury = player.get("injury", {})
+            last_game = player.get("lastGamePlayed", "")
+
+            # Calculate days_out from lastGamePlayed (format: YYYYMMDD_AWAY@HOME)
+            days_out = None
+            if last_game and len(last_game) >= 8:
+                try:
+                    last_date = datetime.strptime(last_game[:8], "%Y%m%d")
+                    days_out = (datetime.now() - last_date).days
+                except ValueError:
+                    pass
+
+            # Classify
+            designation = injury.get("designation", "")
+            if not designation or designation.lower() in ("healthy", "active", ""):
+                result = {"status": "healthy", "player": player_name}
+                _set_cache(cache_key, result)
+                return result
+
+            # Freshness tier from days_out
+            if days_out is not None:
+                if days_out <= 3:
+                    tier = "FRESH"
+                    pricing = "NOT PRICED"
+                elif days_out <= 14:
+                    tier = "RECENT"
+                    pricing = "PARTIALLY PRICED"
+                elif days_out <= 30:
+                    tier = "ESTABLISHED"
+                    pricing = "LIKELY PRICED"
+                else:
+                    tier = "SEASON"
+                    pricing = "FULLY PRICED"
+            else:
+                tier = "UNKNOWN"
+                pricing = "CHECK MANUALLY"
+
+            result = {
+                "player": player_name,
+                "status": designation,
+                "tier": tier,
+                "days_out": days_out,
+                "pricing": pricing,
+                "description": injury.get("description", ""),
+                "return_date": injury.get("injReturnDate", ""),
+                "last_game": last_game,
+                "source": "tank01",
+            }
+            _set_cache(cache_key, result)
+            return result
+
+    except Exception as e:
+        logger.warning(f"Tank01 injury fetch failed for {player_name}: {e}")
+        return {}
+
+
+async def _build_tank01_injury_context(sport: str, existing_injury_text: str) -> str:
+    """Enrich injury data with Tank01 details. Only queries players already flagged as injured."""
+    if not RAPIDAPI_KEY or sport.lower() not in TANK01_HOSTS:
+        return ""
+
+    import re
+    # Extract player names from existing injury context
+    # Pattern: look for names before | or after ] in injury lines
+    name_patterns = [
+        r'\]\s*([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)\s*\|',  # [TIER] Name | status
+        r'[-•]\s*([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)\s*[\(|]',  # - Name (pos) | or - Name |
+    ]
+
+    found_names = set()
+    for pattern in name_patterns:
+        for match in re.finditer(pattern, existing_injury_text):
+            name = match.group(1).strip()
+            if len(name) > 3 and len(name) < 40:
+                found_names.add(name)
+
+    if not found_names:
+        return ""
+
+    # Limit to 15 players max (free tier conservation)
+    names_list = list(found_names)[:15]
+
+    tank01_lines = ["\n=== TANK01 INJURY DETAILS (verified) ==="]
+    enriched = 0
+
+    for name in names_list:
+        try:
+            detail = await _fetch_tank01_injury(name, sport)
+            if detail and detail.get("tier"):
+                tier = detail["tier"]
+                days = detail.get("days_out", "?")
+                pricing = detail.get("pricing", "?")
+                status = detail.get("status", "?")
+                desc = detail.get("description", "")
+                # Truncate description
+                if len(desc) > 120:
+                    desc = desc[:120] + "..."
+                tank01_lines.append(
+                    f"  [{tier} {days}d] {name} — {status} — {pricing} — {desc}"
+                )
+                enriched += 1
+            await asyncio.sleep(0.3)  # Rate limiting
+        except Exception as e:
+            logger.warning(f"Tank01 enrichment failed for {name}: {e}")
+
+    if enriched == 0:
+        return ""
+
+    tank01_lines.append(f"  (Tank01: {enriched}/{len(names_list)} players enriched)")
+    return "\n".join(tank01_lines)
 
 
 # ── Cross-Validation Gate (WS4) ──────────────────────────────────────────────
