@@ -2613,7 +2613,8 @@ function doLogin() {
             crewToken = res.data.token;
             crewProfile = res.data.profile;
             safeSave('edgeCrewToken', crewToken);
-            onLoginSuccess();
+            // Redirect to personal homepage on fresh login
+            window.location.href = '/home/' + crewProfile.id;
         } else {
             errEl.textContent = res.data.error || 'Login failed';
         }
@@ -2644,7 +2645,8 @@ function doRegister() {
             crewToken = res.data.token;
             crewProfile = res.data.profile;
             safeSave('edgeCrewToken', crewToken);
-            onLoginSuccess();
+            // Redirect to personal homepage on fresh registration
+            window.location.href = '/home/' + crewProfile.id;
         } else {
             errEl.textContent = res.data.error || 'Registration failed';
         }

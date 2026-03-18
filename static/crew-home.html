@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0d0d14">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+<title>Edge Crew — Home</title>
+<style>
+:root {
+    --bg: #0d0d14;
+    --card-bg: #161622;
+    --card-border: #1e1e30;
+    --text: #e8e8f0;
+    --text-dim: #8888a0;
+    --accent: #6c5ce7;
+    --accent-glow: #7c6cf7;
+    --green: #00d68f;
+    --red: #ff5555;
+    --yellow: #ffd93d;
+    --orange: #ff9f43;
+    --member-color: #6c5ce7;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    min-height: 100vh;
+    padding: 0 0 80px;
+}
+
+.page-wrap {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 16px;
+}
+
+/* ===== HEADER BAR ===== */
+.header-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(13, 13, 20, 0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--card-border);
+    padding: 14px 20px;
+}
+
+.header-inner {
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.member-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--member-color);
+    box-shadow: 0 0 8px var(--member-color);
+    flex-shrink: 0;
+}
+
+.member-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.header-brand {
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 2px;
+}
+
+.btn-main-board {
+    background: transparent;
+    border: 1px solid var(--card-border);
+    color: var(--text-dim);
+    padding: 7px 16px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-main-board:hover {
+    border-color: var(--member-color);
+    color: var(--text);
+    background: rgba(108, 92, 231, 0.08);
+}
+
+/* ===== SECTIONS ===== */
+.section {
+    margin-top: 24px;
+}
+
+.section-title {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.section-title .date-tag {
+    font-weight: 400;
+    color: var(--text-dim);
+    opacity: 0.6;
+    font-size: 0.65rem;
+}
+
+/* ===== METHODOLOGY CARD ===== */
+.method-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-left: 3px solid var(--member-color);
+    border-radius: 10px;
+    padding: 24px;
+}
+
+.method-card h3 {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--member-color);
+    margin-bottom: 16px;
+}
+
+.method-text {
+    font-size: 0.92rem;
+    line-height: 1.7;
+    color: var(--text);
+    opacity: 0.9;
+    white-space: pre-line;
+}
+
+.method-text.loading {
+    color: var(--text-dim);
+    font-style: italic;
+}
+
+/* ===== RECORD CARD ===== */
+.record-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.record-stat {
+    text-align: center;
+    flex: 1;
+    min-width: 60px;
+}
+
+.record-stat .value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.record-stat .label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-top: 4px;
+}
+
+.record-divider {
+    width: 1px;
+    height: 40px;
+    background: var(--card-border);
+}
+
+.record-stat .value.wins { color: var(--green); }
+.record-stat .value.losses { color: var(--red); }
+.record-stat .value.pushes { color: var(--yellow); }
+.record-stat .value.roi-pos { color: var(--green); }
+.record-stat .value.roi-neg { color: var(--red); }
+.record-stat .value.roi-flat { color: var(--text-dim); }
+
+.streak-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.streak-badge.win-streak {
+    background: rgba(0, 214, 143, 0.12);
+    color: var(--green);
+    border: 1px solid rgba(0, 214, 143, 0.25);
+}
+
+.streak-badge.loss-streak {
+    background: rgba(255, 85, 85, 0.12);
+    color: var(--red);
+    border: 1px solid rgba(255, 85, 85, 0.25);
+}
+
+.streak-badge.no-streak {
+    background: rgba(136, 136, 160, 0.08);
+    color: var(--text-dim);
+    border: 1px solid rgba(136, 136, 160, 0.15);
+}
+
+/* ===== PICK CARDS ===== */
+.picks-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.pick-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: border-color 0.2s;
+}
+
+.pick-card:hover {
+    border-color: rgba(108, 92, 231, 0.2);
+}
+
+.pick-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.pick-sport-badge {
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    flex-shrink: 0;
+}
+
+.sport-nba { background: rgba(249, 115, 22, 0.15); color: #f97316; }
+.sport-nfl { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
+.sport-nhl { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
+.sport-mlb { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+.sport-soccer { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+.sport-mma { background: rgba(244, 63, 94, 0.15); color: #f43f5e; }
+.sport-boxing { background: rgba(234, 179, 8, 0.15); color: #eab308; }
+.sport-ncaab { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+.sport-ncaaf { background: rgba(168, 85, 247, 0.15); color: #a855f7; }
+.sport-tennis { background: rgba(132, 204, 22, 0.15); color: #84cc16; }
+.sport-wnba { background: rgba(236, 72, 153, 0.15); color: #ec4899; }
+.sport-default { background: rgba(108, 92, 231, 0.15); color: var(--accent); }
+
+.pick-matchup {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--text);
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pick-result-badge {
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    flex-shrink: 0;
+}
+
+.result-win { background: rgba(0, 214, 143, 0.15); color: var(--green); }
+.result-loss { background: rgba(255, 85, 85, 0.15); color: var(--red); }
+.result-push { background: rgba(255, 217, 61, 0.15); color: var(--yellow); }
+.result-pending { background: rgba(136, 136, 160, 0.08); color: var(--text-dim); }
+
+.pick-bottom {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.pick-selection {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.pick-line {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+}
+
+.pick-odds {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+}
+
+.pick-spacer {
+    flex: 1;
+}
+
+.pick-units {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: rgba(108, 92, 231, 0.12);
+    color: var(--accent-glow);
+}
+
+.confidence-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.conf-strong { background: rgba(0, 214, 143, 0.12); color: var(--green); }
+.conf-moderate { background: rgba(255, 217, 61, 0.12); color: var(--yellow); }
+.conf-lean { background: rgba(136, 136, 160, 0.08); color: var(--text-dim); }
+
+.grade-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.grade-a { background: rgba(0, 214, 143, 0.15); color: var(--green); }
+.grade-b { background: rgba(255, 217, 61, 0.15); color: var(--yellow); }
+.grade-c { background: rgba(255, 159, 67, 0.15); color: var(--orange); }
+.grade-d, .grade-f { background: rgba(255, 85, 85, 0.15); color: var(--red); }
+
+/* ===== EMPTY STATE ===== */
+.empty-state {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--text-dim);
+}
+
+.empty-state .icon {
+    font-size: 2rem;
+    margin-bottom: 12px;
+    opacity: 0.4;
+}
+
+.empty-state .msg {
+    font-size: 0.88rem;
+    line-height: 1.5;
+}
+
+/* ===== LOADING ===== */
+.loading-spinner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+}
+
+.spinner {
+    width: 28px;
+    height: 28px;
+    border: 2.5px solid var(--card-border);
+    border-top-color: var(--member-color);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ===== ERROR STATE ===== */
+.error-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--red);
+    font-size: 0.85rem;
+}
+
+.error-state .retry-btn {
+    margin-top: 12px;
+    background: transparent;
+    border: 1px solid var(--red);
+    color: var(--red);
+    padding: 8px 20px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.error-state .retry-btn:hover {
+    background: rgba(255, 85, 85, 0.1);
+}
+
+/* ===== FOOTER ===== */
+.footer {
+    margin-top: 48px;
+    text-align: center;
+    padding: 24px 16px;
+    border-top: 1px solid var(--card-border);
+}
+
+.footer-brand {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    opacity: 0.5;
+}
+
+.footer-updated {
+    font-size: 0.62rem;
+    color: var(--text-dim);
+    opacity: 0.35;
+    margin-top: 6px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 480px) {
+    .header-bar { padding: 12px 14px; }
+    .member-name { font-size: 0.95rem; }
+    .method-card { padding: 18px 16px; }
+    .record-card { padding: 16px; gap: 10px; }
+    .record-stat .value { font-size: 1.3rem; }
+    .record-divider { height: 30px; }
+    .pick-card { padding: 14px; }
+    .pick-matchup { font-size: 0.85rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER BAR -->
+<div class="header-bar">
+    <div class="header-inner">
+        <div class="header-left">
+            <div class="member-dot" id="memberDot"></div>
+            <div>
+                <div class="member-name" id="memberName">---</div>
+                <div class="header-brand">EDGE CREW</div>
+            </div>
+        </div>
+        <button class="btn-main-board" onclick="window.location.href='/'">MAIN BOARD</button>
+    </div>
+</div>
+
+<!-- PAGE CONTENT -->
+<div class="page-wrap">
+
+    <!-- METHODOLOGY -->
+    <div class="section" id="methodSection">
+        <div class="method-card">
+            <h3>HOW I FIND EDGE</h3>
+            <div class="method-text loading" id="methodText">Loading methodology...</div>
+        </div>
+    </div>
+
+    <!-- RECORD -->
+    <div class="section" id="recordSection">
+        <div class="section-title">RECORD</div>
+        <div class="record-card" id="recordCard">
+            <div class="loading-spinner"><div class="spinner"></div></div>
+        </div>
+    </div>
+
+    <!-- TODAY'S PICKS -->
+    <div class="section" id="picksSection">
+        <div class="section-title">
+            TODAY'S PICKS
+            <span class="date-tag" id="picksDate"></span>
+        </div>
+        <div class="picks-list" id="picksList">
+            <div class="loading-spinner"><div class="spinner"></div></div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        <div class="footer-brand">Edge Crew V2</div>
+        <div class="footer-updated" id="footerUpdated"></div>
+    </div>
+
+</div>
+
+<script>
+(function() {
+    'use strict';
+
+    // ===== CONFIG =====
+    const SPORT_CLASS_MAP = {
+        'nba': 'sport-nba', 'nfl': 'sport-nfl', 'nhl': 'sport-nhl',
+        'mlb': 'sport-mlb', 'soccer': 'sport-soccer', 'mma': 'sport-mma',
+        'boxing': 'sport-boxing', 'ncaab': 'sport-ncaab', 'ncaaf': 'sport-ncaaf',
+        'tennis': 'sport-tennis', 'wnba': 'sport-wnba'
+    };
+
+    // ===== EXTRACT USER ID =====
+    function getUserId() {
+        const path = window.location.pathname;
+        const match = path.match(/\/home\/([^\/]+)/);
+        if (match) return match[1];
+        const params = new URLSearchParams(window.location.search);
+        return params.get('user') || params.get('id') || 'peter';
+    }
+
+    const userId = getUserId();
+
+    // ===== UTILITY =====
+    function todayStr() {
+        const d = new Date();
+        const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+    }
+
+    function todayISO() {
+        const d = new Date();
+        return d.toISOString().split('T')[0];
+    }
+
+    function applyMemberColor(color) {
+        document.documentElement.style.setProperty('--member-color', color);
+        document.getElementById('memberDot').style.background = color;
+        document.getElementById('memberDot').style.boxShadow = `0 0 8px ${color}`;
+    }
+
+    function getSportClass(sport) {
+        if (!sport) return 'sport-default';
+        const key = sport.toLowerCase().replace(/[^a-z]/g, '');
+        return SPORT_CLASS_MAP[key] || 'sport-default';
+    }
+
+    function getGradeClass(grade) {
+        if (!grade) return '';
+        const g = grade.charAt(0).toUpperCase();
+        if (g === 'A') return 'grade-a';
+        if (g === 'B') return 'grade-b';
+        if (g === 'C') return 'grade-c';
+        if (g === 'D') return 'grade-d';
+        if (g === 'F') return 'grade-f';
+        return '';
+    }
+
+    function getConfidenceClass(conf) {
+        if (!conf) return 'conf-lean';
+        const c = conf.toLowerCase();
+        if (c === 'strong' || c === 'high') return 'conf-strong';
+        if (c === 'moderate' || c === 'medium') return 'conf-moderate';
+        return 'conf-lean';
+    }
+
+    function getResultBadge(result) {
+        if (!result) return { cls: 'result-pending', text: 'PENDING' };
+        const r = result.toUpperCase();
+        if (r === 'W' || r === 'WIN') return { cls: 'result-win', text: 'W' };
+        if (r === 'L' || r === 'LOSS') return { cls: 'result-loss', text: 'L' };
+        if (r === 'P' || r === 'PUSH') return { cls: 'result-push', text: 'P' };
+        return { cls: 'result-pending', text: 'PENDING' };
+    }
+
+    // ===== RENDER RECORD =====
+    function renderRecord(record) {
+        const card = document.getElementById('recordCard');
+        if (!record) {
+            card.innerHTML = '<div class="empty-state"><div class="msg">No record data available.</div></div>';
+            return;
+        }
+
+        const w = record.wins || 0;
+        const l = record.losses || 0;
+        const p = record.pushes || 0;
+        const total = w + l;
+        const roi = record.roi;
+        const streak = record.streak || 0;
+
+        let roiHtml = '';
+        if (roi !== undefined && roi !== null) {
+            const roiClass = roi > 0 ? 'roi-pos' : roi < 0 ? 'roi-neg' : 'roi-flat';
+            const roiSign = roi > 0 ? '+' : '';
+            roiHtml = `
+                <div class="record-divider"></div>
+                <div class="record-stat">
+                    <div class="value ${roiClass}">${roiSign}${roi.toFixed(1)}%</div>
+                    <div class="label">ROI</div>
+                </div>`;
+        }
+
+        let streakHtml = '';
+        if (streak !== 0) {
+            const absStreak = Math.abs(streak);
+            const isWin = streak > 0;
+            streakHtml = `
+                <div class="record-divider"></div>
+                <div class="record-stat">
+                    <span class="streak-badge ${isWin ? 'win-streak' : 'loss-streak'}">
+                        ${isWin ? 'W' : 'L'}${absStreak}
+                    </span>
+                    <div class="label" style="margin-top:6px">STREAK</div>
+                </div>`;
+        } else {
+            streakHtml = `
+                <div class="record-divider"></div>
+                <div class="record-stat">
+                    <span class="streak-badge no-streak">--</span>
+                    <div class="label" style="margin-top:6px">STREAK</div>
+                </div>`;
+        }
+
+        card.innerHTML = `
+            <div class="record-stat">
+                <div class="value wins">${w}</div>
+                <div class="label">WINS</div>
+            </div>
+            <div class="record-divider"></div>
+            <div class="record-stat">
+                <div class="value losses">${l}</div>
+                <div class="label">LOSSES</div>
+            </div>
+            <div class="record-divider"></div>
+            <div class="record-stat">
+                <div class="value pushes">${p}</div>
+                <div class="label">PUSHES</div>
+            </div>
+            ${roiHtml}
+            ${streakHtml}
+        `;
+    }
+
+    // ===== RENDER PICKS =====
+    function renderPicks(picks) {
+        const list = document.getElementById('picksList');
+
+        if (!picks || picks.length === 0) {
+            list.innerHTML = `
+                <div class="empty-state">
+                    <div class="icon">&#9898;</div>
+                    <div class="msg">No picks locked in yet today.</div>
+                </div>`;
+            return;
+        }
+
+        list.innerHTML = picks.map(pick => {
+            const sportCls = getSportClass(pick.sport);
+            const sportLabel = (pick.sport || 'PICK').toUpperCase();
+            const matchup = pick.matchup || pick.game || '---';
+            const selection = pick.selection || pick.pick || '';
+            const line = pick.line || pick.spread || '';
+            const odds = pick.odds || '';
+            const units = pick.units || pick.unit || '';
+            const grade = pick.grade || '';
+            const confidence = pick.confidence || '';
+            const result = getResultBadge(pick.result);
+
+            let metaItems = '';
+            if (selection) metaItems += `<span class="pick-selection">${escHtml(selection)}</span>`;
+            if (line) metaItems += `<span class="pick-line">${escHtml(String(line))}</span>`;
+            if (odds) metaItems += `<span class="pick-odds">(${escHtml(String(odds))})</span>`;
+            metaItems += '<span class="pick-spacer"></span>';
+            if (grade) {
+                const gc = getGradeClass(grade);
+                metaItems += `<span class="grade-badge ${gc}">${escHtml(grade)}</span>`;
+            }
+            if (confidence) {
+                const cc = getConfidenceClass(confidence);
+                metaItems += `<span class="confidence-badge ${cc}">${escHtml(confidence)}</span>`;
+            }
+            if (units) metaItems += `<span class="pick-units">${escHtml(String(units))}u</span>`;
+
+            return `
+                <div class="pick-card">
+                    <div class="pick-top">
+                        <span class="pick-sport-badge ${sportCls}">${sportLabel}</span>
+                        <span class="pick-matchup">${escHtml(matchup)}</span>
+                        <span class="pick-result-badge ${result.cls}">${result.text}</span>
+                    </div>
+                    <div class="pick-bottom">
+                        ${metaItems}
+                    </div>
+                </div>`;
+        }).join('');
+    }
+
+    function escHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    // ===== RENDER ERROR =====
+    function renderError(container, msg) {
+        container.innerHTML = `
+            <div class="error-state">
+                <div>${escHtml(msg)}</div>
+                <button class="retry-btn" onclick="location.reload()">Retry</button>
+            </div>`;
+    }
+
+    // ===== LOAD DATA =====
+    async function loadHomepage() {
+        document.getElementById('picksDate').textContent = todayStr();
+        document.getElementById('footerUpdated').textContent = 'Loading...';
+
+        try {
+            const resp = await fetch(`/api/crew/${encodeURIComponent(userId)}/homepage`);
+            if (!resp.ok) throw new Error(`Failed to load profile (${resp.status})`);
+
+            const data = await resp.json();
+            const member = data.member || {};
+            const picks = data.today_picks || [];
+            const record = data.record || { wins: 0, losses: 0, pushes: 0 };
+
+            // Apply member info
+            const displayName = member.display_name || member.id || userId;
+            document.getElementById('memberName').textContent = displayName;
+            document.title = `${displayName} — Edge Crew`;
+
+            if (member.color) {
+                applyMemberColor(member.color);
+            }
+
+            // Methodology
+            const methodEl = document.getElementById('methodText');
+            if (member.methodology) {
+                methodEl.textContent = member.methodology;
+                methodEl.classList.remove('loading');
+            } else {
+                methodEl.textContent = 'Methodology not set yet.';
+                methodEl.classList.remove('loading');
+                methodEl.style.opacity = '0.4';
+            }
+
+            // Record
+            renderRecord(record);
+
+            // Picks — filter to this member if needed
+            const memberPicks = filterMemberPicks(picks, member);
+            renderPicks(memberPicks);
+
+            // Footer
+            const now = new Date();
+            document.getElementById('footerUpdated').textContent =
+                `Last updated ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+
+        } catch (err) {
+            console.error('Homepage load error:', err);
+            document.getElementById('methodText').textContent = 'Failed to load.';
+            document.getElementById('methodText').classList.remove('loading');
+            renderError(document.getElementById('recordCard'), 'Could not load record.');
+            renderError(document.getElementById('picksList'), err.message || 'Could not load picks.');
+            document.getElementById('footerUpdated').textContent = 'Error loading data';
+        }
+    }
+
+    function filterMemberPicks(picks, member) {
+        if (!picks || !picks.length) return [];
+        // If the API already filtered, return as-is
+        // Otherwise filter by member name/id
+        const name = (member.display_name || '').toLowerCase();
+        const id = (member.id || '').toLowerCase();
+
+        // Check if picks look pre-filtered (no submitter field or all same submitter)
+        const hasSubmitter = picks[0] && (picks[0].submitter || picks[0].submitted_by || picks[0].crew_member);
+        if (!hasSubmitter) return picks;
+
+        return picks.filter(p => {
+            const sub = (p.submitter || p.submitted_by || p.crew_member || '').toLowerCase();
+            return sub === name || sub === id;
+        });
+    }
+
+    // ===== FALLBACK: TRY PICKS ENDPOINT =====
+    async function loadPicksFallback() {
+        try {
+            const resp = await fetch(`/api/picks?date=today`);
+            if (!resp.ok) return [];
+            const data = await resp.json();
+            return Array.isArray(data) ? data : (data.picks || []);
+        } catch {
+            return [];
+        }
+    }
+
+    // ===== INIT =====
+    loadHomepage();
+
+})();
+</script>
+</body>
+</html>

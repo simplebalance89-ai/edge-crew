@@ -446,6 +446,14 @@ async def _prefetch_loop():
 @app.on_event("startup")
 async def start_background_tasks():
     await db.init_schema()
+    # Cleanup removed crew members' picks
+    removed_members = ["Sinton.ia", "Midday Edge \u2014 Alyssa x Renzo", "Padrino", "Los", "Sportsbook.ag"]
+    picks_data = _read_picks()
+    original_count = len(picks_data.get("picks", []))
+    picks_data["picks"] = [p for p in picks_data.get("picks", []) if p.get("name") not in removed_members]
+    if len(picks_data["picks"]) < original_count:
+        _write_picks(picks_data)
+        logger.info(f"Startup cleanup: removed {original_count - len(picks_data['picks'])} picks from retired members")
     asyncio.create_task(_autograde_loop())
     asyncio.create_task(_daily_slate_pull())
     asyncio.create_task(_warm_analysis_cache())
@@ -501,17 +509,20 @@ PROFILES_FILE = os.path.join(_CREW_DATA_DIR, "crew_profiles.json")  # persistent
 _sessions = {}  # token -> {id, display_name, color, is_admin}
 
 DEFAULT_CREW = [
-    {"id": "peter", "display_name": "Peter", "color": "#D4A017", "is_admin": True},
-    {"id": "jimmy", "display_name": "Jimmy", "color": "#60A5FA", "is_admin": False},
-    {"id": "chinny", "display_name": "Chinny", "color": "#FF6B35", "is_admin": False},
-    {"id": "alyssa", "display_name": "Alyssa", "color": "#41EAD4", "is_admin": False},
-    {"id": "sintonia", "display_name": "Sinton.ia", "color": "#F72585", "is_admin": False},
-    {"id": "midday_edge", "display_name": "Midday Edge \u2014 Alyssa x Renzo", "color": "#22C55E", "is_admin": False},
-    {"id": "tunk", "display_name": "Tunk", "color": "#FF4500", "is_admin": False},
-    {"id": "padrino", "display_name": "Padrino", "color": "#C0A062", "is_admin": False},
-    {"id": "los", "display_name": "Los", "color": "#38BDF8", "is_admin": False},
-    {"id": "renzo", "display_name": "Renzo", "color": "#9B59B6", "is_admin": False},
-    {"id": "dj", "display_name": "DJ", "color": "#E74C3C", "is_admin": False},
+    {"id": "peter", "display_name": "Peter", "color": "#D4A017", "is_admin": True,
+     "methodology": "The Director. 20 years of pattern recognition. I don't trust models — I trust the board. If a team is winning without their stars, the injuries are priced. Fresh scratches move lines. Stale absences don't. I feel the edge before the numbers confirm it."},
+    {"id": "jimmy", "display_name": "Jimmy", "color": "#60A5FA", "is_admin": False,
+     "methodology": "The Amplifier. I take what Peter finds and make it 5x. Music brain — I feel rhythm in the numbers. When a parlay flows, I know."},
+    {"id": "chinny", "display_name": "Chinny", "color": "#FF6B35", "is_admin": False,
+     "methodology": "Props Master. Player performance trends, usage rates, matchup advantages. I find the over/under lines where books are sleeping on recent form. Last Shot energy."},
+    {"id": "alyssa", "display_name": "Alyssa", "color": "#41EAD4", "is_admin": False,
+     "methodology": "Architect. 20-variable composite matrix across all 10 sports. DeepSeek-V3.2 thinker with Claude Sonnet 4.6 challenger. I weight star player status, line movement, sharp vs public money, pace matchups, and 16 other variables. Every game gets scored 1-10 on each variable, weighted by sport-specific importance. A- or higher = actionable edge."},
+    {"id": "tunk", "display_name": "Tunk", "color": "#FF4500", "is_admin": False,
+     "methodology": "Gut and grind. I trust what I see on the court. No algorithms, no matrices — just basketball feel and live reads."},
+    {"id": "renzo", "display_name": "Renzo", "color": "#9B59B6", "is_admin": False,
+     "methodology": "Edge Finder. I dig into the data the engine misses — injury freshness, L5 adaptation records, line lag on props. If the book is slow to adjust, that's where the money is. BallDontLie stats + DraftKings lines. I find the gaps."},
+    {"id": "dj", "display_name": "DJ", "color": "#E74C3C", "is_admin": False,
+     "methodology": "NCAAB Brain. Conference matchups, tournament pressure, coaching tendencies. College basketball is about rhythm and matchups, not just talent. I watch the games. The data confirms what I see."},
 ]
 
 
@@ -534,8 +545,7 @@ def _write_profiles(data):
 
 
 CREW_DEFAULT_PINS = {"peter": "1234", "jimmy": "0000", "chinny": "0000",
-                     "alyssa": "0000", "sintonia": "0000", "midday_edge": "0000",
-                     "tunk": "1525", "padrino": "0726", "los": "4200",
+                     "alyssa": "0000", "tunk": "1525",
                      "renzo": "0000", "dj": "0000"}
 
 def _seed_profiles():
@@ -553,12 +563,13 @@ def _seed_profiles():
                 "pin_hash": expected_hash,
                 "color": member["color"],
                 "is_admin": member["is_admin"],
+                "methodology": member.get("methodology", ""),
                 "created_at": datetime.now(PST).strftime("%Y-%m-%d %H:%M:%S"),
                 "last_login": None,
             })
             updated = True
         else:
-            # Sync display_name, color, is_admin, and ensure PIN hash matches
+            # Sync display_name, color, is_admin, methodology, and ensure PIN hash matches
             p = existing[member["id"]]
             if p["pin_hash"] != expected_hash:
                 p["pin_hash"] = expected_hash
@@ -571,6 +582,9 @@ def _seed_profiles():
                 updated = True
             if p.get("is_admin") != member["is_admin"]:
                 p["is_admin"] = member["is_admin"]
+                updated = True
+            if p.get("methodology") != member.get("methodology", ""):
+                p["methodology"] = member.get("methodology", "")
                 updated = True
     if updated:
         _write_profiles(data)
@@ -4841,9 +4855,48 @@ async def get_analysis(sport: str, cached_only: bool = False, force: bool = Fals
     except Exception as e:
         print(f"ESPN injury fetch error: {e}")
 
-    # P1: Force conservative warning if injury context is effectively empty
-    if not injury_context or len(injury_context.strip()) < 20:
-        injury_context = "CRITICAL: ALL INJURY DATA SOURCES FAILED. No CBS Sports, no RotoWire, no ESPN, no API-Sports data available. Do NOT assume any team is healthy. Grade ALL games conservatively — injury_impact for every game MUST state 'Injury data unavailable from all sources.'"
+    # Build injury source health report
+    injury_sources = {}
+    if "CBS Sports" in injury_context and "no parseable" not in injury_context.lower():
+        injury_sources["cbs"] = "ok"
+    elif "CBS Sports" in injury_context:
+        injury_sources["cbs"] = "parse_failed"
+    else:
+        injury_sources["cbs"] = "no_response"
+
+    if "ESPN INJURY" in injury_context and "No injuries listed" not in injury_context:
+        injury_sources["espn"] = "ok"
+    elif "ESPN INJURY" in injury_context:
+        injury_sources["espn"] = "empty_or_failed"
+    else:
+        injury_sources["espn"] = "no_response"
+
+    if "LINEUP PAGE FLAGS" in injury_context:
+        injury_sources["rotowire"] = "ok"
+    else:
+        injury_sources["rotowire"] = "no_response"
+
+    logger.info(f"Injury source health: {injury_sources}")
+
+    # P1: Force conservative warning if injury context is effectively empty or has no real player data
+    has_real_injury_data = False
+    injury_keywords = ["OUT", "GTD", "QUESTIONABLE", "DOUBTFUL", "DAY-TO-DAY", "PROBABLE"]
+    for keyword in injury_keywords:
+        if keyword in injury_context.upper():
+            has_real_injury_data = True
+            break
+
+    if not injury_context or len(injury_context.strip()) < 20 or not has_real_injury_data:
+        injury_context = (
+            "⚠️ CRITICAL: ALL INJURY DATA SOURCES RETURNED EMPTY OR FAILED.\n"
+            "CBS Sports, ESPN, RotoWire, and API-Sports all failed to return player injury data.\n"
+            "Do NOT assume either team is healthy. Grade conservatively.\n"
+            "Set injury_impact to: 'Injury data unavailable — graded with extreme caution.'\n"
+            "If you have any knowledge of current injuries for these teams, mention them but flag as unverified.\n"
+            "Consider downgrading composite by 0.5 points due to data uncertainty.\n"
+            + injury_context  # Preserve whatever error messages came back for debugging
+        )
+        logger.warning(f"INJURY FEED FAILURE: No real injury data found for analysis. All sources may have failed.")
 
     # ===== P3: TEAM RECENT FORM (L5 records for prompt) =====
     form_context = ""
@@ -8363,6 +8416,49 @@ async def get_inactive_crew():
     return JSONResponse({"inactive_members": inactive, "rule": "3-day pick requirement", "count": len(inactive)})
 
 
+@app.get("/api/crew/{member_id}/homepage")
+async def crew_homepage(member_id: str):
+    """Get crew member homepage data: profile + methodology + today's picks + record"""
+    profiles = _read_profiles()
+    member = None
+    for p in profiles.get("profiles", []):
+        if p["id"] == member_id:
+            member = p
+            break
+    if not member:
+        raise HTTPException(status_code=404, detail=f"Crew member '{member_id}' not found")
+
+    # Get today's picks for this member
+    today = datetime.now(PST).strftime("%Y-%m-%d")
+    picks_data = _read_picks()
+    all_picks = picks_data.get("picks", [])
+    today_picks = [p for p in all_picks if p.get("name") == member["display_name"] and p.get("date") == today]
+
+    # Calculate record
+    member_picks = [p for p in all_picks if p.get("name") == member["display_name"]]
+    wins = sum(1 for p in member_picks if p.get("result") == "W")
+    losses = sum(1 for p in member_picks if p.get("result") == "L")
+    pushes = sum(1 for p in member_picks if p.get("result") == "P")
+
+    return {
+        "member": {
+            "id": member["id"],
+            "display_name": member["display_name"],
+            "color": member.get("color", "#6c5ce7"),
+            "methodology": member.get("methodology", "No methodology defined yet."),
+            "is_admin": member.get("is_admin", False)
+        },
+        "today_picks": today_picks,
+        "record": {"wins": wins, "losses": losses, "pushes": pushes},
+        "total_picks": len(member_picks)
+    }
+
+
+@app.get("/home/{user_id}")
+async def serve_crew_home(user_id: str):
+    return FileResponse("static/crew-home.html", headers=NO_CACHE_HEADERS)
+
+
 @app.delete("/api/crew/{member_name}")
 async def remove_crew_member(member_name: str):
     """Remove a crew member profile. Does NOT delete their picks — use /api/picks/crew/{name} for that."""
@@ -9180,7 +9276,12 @@ async def _fetch_espn_injuries(sport):
                 injury_lines.extend(team_injuries)
 
         if injury_count == 0:
-            return f"\nESPN INJURY REPORT ({sport.upper()}): No injuries listed — verify independently, ESPN may have gaps."
+            return (
+                f"\nESPN INJURY REPORT ({sport.upper()}): ⚠️ ZERO INJURIES RETURNED.\n"
+                f"ESPN returned team data but listed NO injured players for {sport.upper()}.\n"
+                f"This is likely an API gap, NOT proof of full health. Do NOT treat this as 'all healthy'.\n"
+                f"Cross-reference with CBS Sports and RotoWire before assuming any team is at full strength."
+            )
 
         result = "\n".join(injury_lines)
         _set_cache(cache_key, result)
