@@ -1087,15 +1087,29 @@ API_SPORTS_LEAGUES["soccer"] = [v["api_sports_id"] for v in SOCCER_LEAGUES.value
 # Azure OpenAI config
 AZURE_ENDPOINT = os.environ.get("AZURE_OPENAI_ENDPOINT", "")
 AZURE_KEY = os.environ.get("AZURE_OPENAI_KEY", "")
-AZURE_MODEL = os.environ.get("AZURE_OPENAI_MODEL", "DeepSeek-V3.2")
+AZURE_MODEL = os.environ.get("AZURE_OPENAI_MODEL", "gpt-4.1")
 REALTIME_DEPLOYMENT = "gpt-4o-realtime"
 AZURE_BASE = AZURE_ENDPOINT.rstrip("/")
 
 # Two-model analysis engine: Grok reasons, DeepSeek formats
 ANALYSIS_THINKER = os.environ.get("ANALYSIS_THINKER", "grok-4-1-fast-reasoning")
-ANALYSIS_FORMATTER = os.environ.get("ANALYSIS_FORMATTER", "DeepSeek-V3.2")
+ANALYSIS_FORMATTER = os.environ.get("ANALYSIS_FORMATTER", "gpt-4.1")
 ANALYSIS_MODE = os.environ.get("ANALYSIS_MODE", "twomodel")  # "twomodel" or "single"
 THINKER_ENDPOINT = os.environ.get("THINKER_ENDPOINT", "https://pwgcerp-9302-resource.services.ai.azure.com/openai/v1/")
+
+# Sport-specific thinker models — Grok for NBA (best edge analysis), gpt-4.1 for speed sports
+SPORT_MODELS = {
+    "nba": {"thinker": "grok-4-1-fast-reasoning", "timeout": 300},
+    "nhl": {"thinker": "gpt-4.1", "timeout": 90},
+    "ncaab": {"thinker": "gpt-4.1", "timeout": 90},
+    "mlb": {"thinker": "gpt-4.1", "timeout": 90},
+    "mma": {"thinker": "gpt-4.1", "timeout": 90},
+    "boxing": {"thinker": "gpt-4.1", "timeout": 90},
+    "soccer": {"thinker": "gpt-4.1", "timeout": 90},
+    "wnba": {"thinker": "gpt-4.1", "timeout": 90},
+    "ncaaf": {"thinker": "gpt-4.1", "timeout": 90},
+    "tennis": {"thinker": "gpt-4.1", "timeout": 90},
+}
 
 # Anthropic config
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
@@ -5648,24 +5662,29 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
     # ── Core model call functions ──
     def _call_thinker(prompt_text, batch_idx=0):
         """Call the reasoning model. Returns (raw_analysis_text, metadata)."""
+        # Sport-specific model routing
+        sport_config = SPORT_MODELS.get(sport.lower() if sport else "", {})
+        thinker_model = sport_config.get("thinker", ANALYSIS_THINKER)
+        thinker_timeout = sport_config.get("timeout", 180)
+
         # Use AzureOpenAI if thinker is on Azure, OpenAI for external endpoints (Grok)
         if "openai.azure.com" in THINKER_ENDPOINT:
             client = AzureOpenAI(
                 azure_endpoint=THINKER_ENDPOINT,
                 api_key=AZURE_KEY,
                 api_version="2024-10-21",
-                timeout=180,
+                timeout=thinker_timeout,
             )
         else:
             client = OpenAI(
                 base_url=THINKER_ENDPOINT,
                 api_key=AZURE_KEY,
-                timeout=180,
+                timeout=thinker_timeout,
             )
-        logger.info(f"[THINKER] Batch {batch_idx} ({sport.upper()}) → {ANALYSIS_THINKER} via {THINKER_ENDPOINT}")
+        logger.info(f"[THINKER] Batch {batch_idx} ({sport.upper()}) → {thinker_model} via {THINKER_ENDPOINT} (timeout={thinker_timeout}s)")
         think_start = time.time()
         think_response = client.chat.completions.create(
-            model=ANALYSIS_THINKER,
+            model=thinker_model,
             messages=[{"role": "user", "content": prompt_text}],
             max_tokens=16000,
         )
@@ -5673,7 +5692,7 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
         think_secs = round(time.time() - think_start, 1)
         think_tokens = getattr(think_response.usage, 'total_tokens', '?')
         logger.info(f"[THINKER] Done in {think_secs}s, {think_tokens} tokens, {len(raw_analysis)} chars")
-        return raw_analysis, {"secs": think_secs, "tokens": think_tokens, "chars": len(raw_analysis)}
+        return raw_analysis, {"secs": think_secs, "tokens": think_tokens, "chars": len(raw_analysis), "model": thinker_model}
 
     def _call_formatter(raw_analysis, is_first_batch, batch_idx=0, attempt=1):
         """Call the formatting model (DeepSeek). Returns (parsed_json, metadata)."""
@@ -5709,7 +5728,7 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
         logger.info(f"[FORMATTER] Done in {fmt_secs}s, {fmt_tokens} tokens, {games_with_ms}/{total_games} games with matrix_scores")
         return result, {"secs": fmt_secs, "tokens": fmt_tokens}
 
-    def _call_single_model(prompt_text, model_name=None):
+    def _call_single_model(prompt_text, model_name=None, engine_status=None):
         """Fallback: single-model call with full JSON prompt. Routes to AI Services or Azure OpenAI."""
         use_model = model_name or AZURE_MODEL
         # Route: GPT/o-series → Azure OpenAI, everything else → AI Services
@@ -5743,6 +5762,7 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
             game["_thinker"] = use_model
             game["_formatter"] = use_model
             game["_think_time"] = fb_secs
+            game["engine_status"] = engine_status or f"{use_model} (single-model)"
         return result
 
     def _call_challenger(prompt_text, batch_idx=0):
@@ -5865,7 +5885,10 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
         ANALYSIS_MODE='twomodel': Grok reasons → DeepSeek formats → fallback if needed.
         model_override: if set, force single-model with this deployment (e.g. 'gpt-4.1-mini' for DJ page).
         """
-        logger.info(f"[ANALYSIS MODE] {ANALYSIS_MODE} — thinker={ANALYSIS_THINKER}, formatter={ANALYSIS_FORMATTER}")
+        # Sport-specific model routing
+        sport_config = SPORT_MODELS.get(sport.lower() if sport else "", {})
+        active_thinker = sport_config.get("thinker", ANALYSIS_THINKER)
+        logger.info(f"[ANALYSIS MODE] {ANALYSIS_MODE} — thinker={active_thinker}, formatter={ANALYSIS_FORMATTER}")
 
         # ── Model override (e.g. DJ page uses gpt-4.1-mini) ──
         if model_override:
@@ -5892,13 +5915,13 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
             raw_analysis, think_meta = _call_thinker(thinker_prompt, batch_idx)
         except Exception as e:
             logger.error(f"[THINKER FAIL] {e} — falling back to {AZURE_MODEL} single-model")
-            return _call_single_model(prompt_text)
+            return _call_single_model(prompt_text, engine_status=f"FALLBACK — {ANALYSIS_THINKER} failed: {e}")
 
         # Step 3: Validate thinker output (non-blocking)
         if len(raw_analysis) < 200:
             logger.warning(f"[THINKER] Output too short ({len(raw_analysis)} chars) — falling back to {AZURE_MODEL}")
             _save_raw_analysis(raw_analysis, batch_idx)
-            return _call_single_model(prompt_text)
+            return _call_single_model(prompt_text, engine_status=f"FALLBACK — thinker output too short")
 
         if batch_games:
             _validate_thinker_output(raw_analysis, batch_games)
@@ -5920,18 +5943,19 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
                 if attempt == 2:
                     _save_raw_analysis(raw_analysis, batch_idx)
                     logger.info(f"[FALLBACK] Using {AZURE_MODEL} single-model for batch {batch_idx}")
-                    return _call_single_model(prompt_text)
+                    return _call_single_model(prompt_text, engine_status=f"FALLBACK — {ANALYSIS_FORMATTER} formatter failed")
 
         if result is None:
             _save_raw_analysis(raw_analysis, batch_idx)
             logger.info(f"[FALLBACK] Formatter failed both attempts — using {AZURE_MODEL} single-model for batch {batch_idx}")
-            return _call_single_model(prompt_text)
+            return _call_single_model(prompt_text, engine_status=f"FALLBACK — {ANALYSIS_FORMATTER} formatter failed both attempts")
 
         # Step 5: Tag games with model metadata
         for game in result.get("games", []):
-            game["_thinker"] = ANALYSIS_THINKER
+            game["_thinker"] = think_meta.get("model", ANALYSIS_THINKER)
             game["_formatter"] = ANALYSIS_FORMATTER
             game["_think_time"] = think_meta["secs"]
+            game["engine_status"] = f"{game['_thinker']} → {ANALYSIS_FORMATTER}"
 
         return result
 
