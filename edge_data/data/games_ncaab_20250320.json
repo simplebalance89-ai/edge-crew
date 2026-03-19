@@ -13,7 +13,14 @@
       "away_abbrev": "SIUE",
       "away_espn_id": "2565",
       "time": "2025-03-20T18:00",
-      "odds": {},
+      "odds": {
+        "spread_home": -28.5,
+        "total": 127.5,
+        "ml_away": 4000,
+        "ml_home": -100000,
+        "details": "HOU -28.5",
+        "provider": "ESPN BET"
+      },
       "away_profile": {
         "L5": "3-2",
         "L10": "7-3",
@@ -66,7 +73,14 @@
       "away_abbrev": "ALST",
       "away_espn_id": "2011",
       "time": "2025-03-20T18:50",
-      "odds": {},
+      "odds": {
+        "spread_home": -32.5,
+        "total": 148.5,
+        "ml_away": 3000,
+        "ml_home": -25000,
+        "details": "AUB -32.5",
+        "provider": "ESPN BET"
+      },
       "away_profile": {
         "L5": "5-0",
         "L10": "9-1",
@@ -119,7 +133,14 @@
       "away_abbrev": "WOF",
       "away_espn_id": "2747",
       "time": "2025-03-20T22:50",
-      "odds": {},
+      "odds": {
+        "spread_home": -18.5,
+        "total": 135.5,
+        "ml_away": 1100,
+        "ml_home": -2500,
+        "details": "TENN -18.5",
+        "provider": "ESPN BET"
+      },
       "away_profile": {
         "L5": "4-1",
         "L10": "7-3",
@@ -172,7 +193,14 @@
       "away_abbrev": "OMA",
       "away_espn_id": "2437",
       "time": "2025-03-21T01:58",
-      "odds": {},
+      "odds": {
+        "spread_home": -19.5,
+        "total": 150.5,
+        "ml_away": 1200,
+        "ml_home": -3000,
+        "details": "SJU -19.5",
+        "provider": "ESPN BET"
+      },
       "away_profile": {
         "L5": "5-0",
         "L10": "8-2",
@@ -225,7 +253,14 @@
       "away_abbrev": "MONT",
       "away_espn_id": "149",
       "time": "2025-03-20T17:30",
-      "odds": {},
+      "odds": {
+        "spread_home": -16.5,
+        "total": 152.5,
+        "ml_away": 750,
+        "ml_home": -1400,
+        "details": "WIS -16.5",
+        "provider": "ESPN BET"
+      },
       "away_profile": {
         "L5": "4-1",
         "L10": "9-1",
@@ -278,7 +313,14 @@
       "away_abbrev": "UNCW",
       "away_espn_id": "350",
       "time": "2025-03-21T02:42",
-      "odds": {},
+      "odds": {
+        "spread_home": -15.5,
+        "total": 143.5,
+        "ml_away": 800,
+        "ml_home": -1600,
+        "details": "TTU -15.5",
+        "provider": "ESPN BET"
+      },
       "away_profile": {
         "L5": "5-0",
         "L10": "8-2",
@@ -331,7 +373,14 @@
       "away_abbrev": "HPU",
       "away_espn_id": "2272",
       "time": "2025-03-20T16:40",
-      "odds": {},
+      "odds": {
+        "spread_home": -7.5,
+        "total": 153.5,
+        "ml_away": 280,
+        "ml_home": -360,
+        "details": "PUR -7.5",
+        "provider": "ESPN BET"
+      },
       "away_profile": {
         "L5": "5-0",
         "L10": "10-0",
@@ -384,7 +433,14 @@
       "away_abbrev": "YALE",
       "away_espn_id": "43",
       "time": "2025-03-20T23:25",
-      "odds": {},
+      "odds": {
+        "spread_home": -7.5,
+        "total": 141.5,
+        "ml_away": 250,
+        "ml_home": -300,
+        "details": "TA&M -7.5",
+        "provider": "ESPN BET"
+      },
       "away_profile": {
         "L5": "4-1",
         "L10": "9-1",
@@ -437,7 +493,14 @@
       "away_abbrev": "MCN",
       "away_espn_id": "2377",
       "time": "2025-03-20T19:29",
-      "odds": {},
+      "odds": {
+        "spread_home": -7.5,
+        "total": 136.5,
+        "ml_away": 230,
+        "ml_home": -280,
+        "details": "CLEM -7.5",
+        "provider": "ESPN BET"
+      },
       "away_profile": {
         "L5": "5-0",
         "L10": "10-0",
@@ -490,7 +553,14 @@
       "away_abbrev": "UCSD",
       "away_espn_id": "28",
       "time": "2025-03-21T02:00",
-      "odds": {},
+      "odds": {
+        "spread_home": -1.5,
+        "total": 144.5,
+        "ml_away": 120,
+        "ml_home": -140,
+        "details": "MICH -1.5",
+        "provider": "ESPN BET"
+      },
       "away_profile": {
         "L5": "5-0",
         "L10": "10-0",
@@ -543,7 +613,14 @@
       "away_abbrev": "VCU",
       "away_espn_id": "2670",
       "time": "2025-03-20T20:05",
-      "odds": {},
+      "odds": {
+        "spread_home": -1.5,
+        "total": 148.5,
+        "ml_away": 110,
+        "ml_home": -130,
+        "details": "BYU -1.5",
+        "provider": "ESPN BET"
+      },
       "away_profile": {
         "L5": "4-1",
         "L10": "9-1",
@@ -596,7 +673,14 @@
       "away_abbrev": "DRKE",
       "away_espn_id": "2181",
       "time": "2025-03-20T23:51",
-      "odds": {},
+      "odds": {
+        "spread_home": -5.5,
+        "total": 133.5,
+        "ml_away": 200,
+        "ml_home": -240,
+        "details": "MIZ -5.5",
+        "provider": "ESPN BET"
+      },
       "away_profile": {
         "L5": "5-0",
         "L10": "9-1",
@@ -649,7 +733,14 @@
       "away_abbrev": "ARK",
       "away_espn_id": "8",
       "time": "2025-03-20T23:10",
-      "odds": {},
+      "odds": {
+        "spread_home": -5.5,
+        "total": 146.5,
+        "ml_away": 175,
+        "ml_home": -210,
+        "details": "KU -5.5",
+        "provider": "ESPN BET"
+      },
       "away_profile": {
         "L5": "3-2",
         "L10": "6-4",
@@ -702,7 +793,14 @@
       "away_abbrev": "USU",
       "away_espn_id": "328",
       "time": "2025-03-21T01:25",
-      "odds": {},
+      "odds": {
+        "spread_home": -5.5,
+        "total": 143.5,
+        "ml_away": 200,
+        "ml_home": -240,
+        "details": "UCLA -5.5",
+        "provider": "ESPN BET"
+      },
       "away_profile": {
         "L5": "2-3",
         "L10": "6-4",
@@ -755,7 +853,14 @@
       "away_abbrev": "CREI",
       "away_espn_id": "156",
       "time": "2025-03-20T16:15",
-      "odds": {},
+      "odds": {
+        "spread_home": -3.5,
+        "total": 145.5,
+        "ml_away": 140,
+        "ml_home": -165,
+        "details": "LOU -3.5",
+        "provider": "ESPN BET"
+      },
       "away_profile": {
         "L5": "4-1",
         "L10": "6-4",
@@ -808,7 +913,14 @@
       "away_abbrev": "UGA",
       "away_espn_id": "61",
       "time": "2025-03-20T20:35",
-      "odds": {},
+      "odds": {
+        "spread_home": -7.5,
+        "total": 153.5,
+        "ml_away": 280,
+        "ml_home": -360,
+        "details": "GONZ -7.5",
+        "provider": "ESPN BET"
+      },
       "away_profile": {
         "L5": "4-1",
         "L10": "5-5",

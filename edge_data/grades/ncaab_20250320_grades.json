@@ -1,7 +1,7 @@
 {
   "sport": "NCAAB",
   "date": "2025-03-20",
-  "graded_at": "2026-03-19T03:56:19.569623",
+  "graded_at": "2026-03-19T04:47:35.502216",
   "profiles_used": [
     "sintonia",
     "renzo",
@@ -18,11 +18,11 @@
           "game_id": "401745972",
           "profile": "sintonia",
           "pick_side": "home",
-          "grade": "B-",
-          "composite": 5.67,
+          "grade": "C+",
+          "composite": 5.46,
           "chain_bonus": 0.0,
-          "final": 5.67,
-          "pick": "Houston Cougars ?",
+          "final": 5.46,
+          "pick": "Houston Cougars -28.5",
           "sizing": "PASS",
           "variables": {
             "offensive_efficiency": {
@@ -62,10 +62,10 @@
               "note": "Avg margin L10: +9.2 \u2014 comfortable wins | Close: 0/10 | Blowouts: 0/10"
             },
             "tournament_context": {
-              "score": 8,
+              "score": 4,
               "weight": 8,
-              "weighted": 64,
-              "note": "Close matchup (0) \u2014 competitive game"
+              "weighted": 32,
+              "note": "Massive spread (28.5) \u2014 1 vs 16 type"
             },
             "public_money_bias": {
               "score": 3,
@@ -162,7 +162,7 @@
           "composite": 6.27,
           "chain_bonus": 0,
           "final": 6.27,
-          "pick": "Houston Cougars ?",
+          "pick": "Houston Cougars -28.5",
           "sizing": "PASS",
           "variables": {
             "Q1_whos_missing": {
@@ -205,11 +205,11 @@
           "profile": "claude",
           "thesis": "Market disagreement \u2014 fading public overreaction, recency bias, and name-value inflation",
           "pick_side": "home",
-          "grade": "C",
-          "composite": 4.57,
+          "grade": "B-",
+          "composite": 5.56,
           "chain_bonus": 0.0,
-          "final": 4.57,
-          "pick": "Houston Cougars ?",
+          "final": 5.56,
+          "pick": "Houston Cougars -28.5",
           "sizing": "PASS",
           "variables": {
             "public_pct_split": {
@@ -234,10 +234,10 @@
               "available": true
             },
             "blue_blood_tax": {
-              "score": 5,
+              "score": 9,
               "weight": 9,
-              "weighted": 45,
-              "note": "Talent gap (0%) roughly matches spread (0)",
+              "weighted": 81,
+              "note": "Win rates close (0% diff) but spread 28.5 \u2014 brand name tax",
               "available": true
             },
             "recency_bias": {
@@ -255,17 +255,17 @@
               "available": true
             },
             "primetime_inflation": {
-              "score": 5,
+              "score": 7,
               "weight": 7,
-              "weighted": 35,
-              "note": "Spread: 0 \u2014 no inflation signal",
+              "weighted": 49,
+              "note": "Large spread (28.5) barely moving \u2014 potential name/primetime tax",
               "available": true
             },
             "spread_value": {
-              "score": 5,
+              "score": 7,
               "weight": 6,
-              "weighted": 30,
-              "note": "Win rate: 50% | Spread: 0",
+              "weighted": 42,
+              "note": "Dog at 28.5 with 50% win rate \u2014 value spot",
               "available": true
             }
           },
@@ -278,11 +278,11 @@
           "profile": "edge",
           "thesis": "Calendar/motivation spot \u2014 schedule traps, travel fatigue, lookahead, and situational context",
           "pick_side": "home",
-          "grade": "C+",
-          "composite": 5.43,
+          "grade": "B-",
+          "composite": 5.57,
           "chain_bonus": 0.0,
-          "final": 5.43,
-          "pick": "Houston Cougars ?",
+          "final": 5.57,
+          "pick": "Houston Cougars -28.5",
           "sizing": "PASS",
           "variables": {
             "schedule_spot": {
@@ -293,10 +293,10 @@
               "available": true
             },
             "lookahead_trap": {
-              "score": 5,
+              "score": 8,
               "weight": 9,
-              "weighted": 45,
-              "note": "No clear lookahead signal",
+              "weighted": 72,
+              "note": "Massive spread (28.5) \u2014 motivation/lookahead concern",
               "available": true
             },
             "letdown_spot": {
@@ -314,10 +314,10 @@
               "available": true
             },
             "tournament_pressure": {
-              "score": 7,
+              "score": 5,
               "weight": 9,
-              "weighted": 63,
-              "note": "Close tournament matchup \u2014 pressure on both sides",
+              "weighted": 45,
+              "note": "Large spread \u2014 less pressure-dependent",
               "available": true
             },
             "travel_unfamiliarity": {
@@ -351,14 +351,21 @@
         "game_id": "401745972",
         "profile": "peter_rules",
         "pick_side": "home",
-        "flags": [],
-        "adjustment": 0,
+        "flags": [
+          {
+            "rule": "ncaab_massive_spread",
+            "action": "DOWNGRADE",
+            "severity": "WARNING",
+            "note": "NCAAB spread 28.5 \u2014 massive spreads ATS unreliable in tournament"
+          }
+        ],
+        "adjustment": -1.0,
         "has_kill": false,
-        "flag_count": 0
+        "flag_count": 1
       },
-      "consensus_avg": 5.48,
-      "consensus_grade": "C+",
-      "consensus_raw": 5.48,
+      "consensus_avg": 4.71,
+      "consensus_grade": "C",
+      "consensus_raw": 5.71,
       "ev": {
         "profile": "ev",
         "status": "no_ml_data",
@@ -375,10 +382,10 @@
           "game_id": "401745957",
           "profile": "sintonia",
           "pick_side": "away",
-          "grade": "B-",
-          "composite": 5.56,
+          "grade": "C+",
+          "composite": 5.35,
           "chain_bonus": 0.0,
-          "final": 5.56,
+          "final": 5.35,
           "pick": "Alabama State Hornets ?",
           "sizing": "PASS",
           "variables": {
@@ -419,10 +426,10 @@
               "note": "Avg margin L10: +10.0 \u2014 dominating | Close: 0/10 | Blowouts: 0/10"
             },
             "tournament_context": {
-              "score": 8,
+              "score": 4,
               "weight": 8,
-              "weighted": 64,
-              "note": "Close matchup (0) \u2014 competitive game"
+              "weighted": 32,
+              "note": "Massive spread (32.5) \u2014 1 vs 16 type"
             },
             "public_money_bias": {
               "score": 3,
@@ -562,10 +569,10 @@
           "profile": "claude",
           "thesis": "Market disagreement \u2014 fading public overreaction, recency bias, and name-value inflation",
           "pick_side": "away",
-          "grade": "C",
-          "composite": 4.57,
+          "grade": "B-",
+          "composite": 5.56,
           "chain_bonus": 0.0,
-          "final": 4.57,
+          "final": 5.56,
           "pick": "Alabama State Hornets ?",
           "sizing": "PASS",
           "variables": {
@@ -591,10 +598,10 @@
               "available": true
             },
             "blue_blood_tax": {
-              "score": 5,
+              "score": 9,
               "weight": 9,
-              "weighted": 45,
-              "note": "Talent gap (0%) roughly matches spread (0)",
+              "weighted": 81,
+              "note": "Win rates close (0% diff) but spread 32.5 \u2014 brand name tax",
               "available": true
             },
             "recency_bias": {
@@ -612,17 +619,17 @@
               "available": true
             },
             "primetime_inflation": {
-              "score": 5,
+              "score": 7,
               "weight": 7,
-              "weighted": 35,
-              "note": "Spread: 0 \u2014 no inflation signal",
+              "weighted": 49,
+              "note": "Large spread (32.5) barely moving \u2014 potential name/primetime tax",
               "available": true
             },
             "spread_value": {
-              "score": 5,
+              "score": 7,
               "weight": 6,
-              "weighted": 30,
-              "note": "Win rate: 50% | Spread: 0",
+              "weighted": 42,
+              "note": "Dog at 32.5 with 50% win rate \u2014 value spot",
               "available": true
             }
           },
@@ -635,10 +642,10 @@
           "profile": "edge",
           "thesis": "Calendar/motivation spot \u2014 schedule traps, travel fatigue, lookahead, and situational context",
           "pick_side": "away",
-          "grade": "C",
-          "composite": 4.88,
+          "grade": "C+",
+          "composite": 5.02,
           "chain_bonus": 0.0,
-          "final": 4.88,
+          "final": 5.02,
           "pick": "Alabama State Hornets ?",
           "sizing": "PASS",
           "variables": {
@@ -650,10 +657,10 @@
               "available": true
             },
             "lookahead_trap": {
-              "score": 5,
+              "score": 8,
               "weight": 9,
-              "weighted": 45,
-              "note": "No clear lookahead signal",
+              "weighted": 72,
+              "note": "Massive spread (32.5) \u2014 motivation/lookahead concern",
               "available": true
             },
             "letdown_spot": {
@@ -671,10 +678,10 @@
               "available": true
             },
             "tournament_pressure": {
-              "score": 7,
+              "score": 5,
               "weight": 9,
-              "weighted": 63,
-              "note": "Close tournament matchup \u2014 pressure on both sides",
+              "weighted": 45,
+              "note": "Large spread \u2014 less pressure-dependent",
               "available": true
             },
             "travel_unfamiliarity": {
@@ -708,14 +715,21 @@
         "game_id": "401745957",
         "profile": "peter_rules",
         "pick_side": "away",
-        "flags": [],
-        "adjustment": 0,
+        "flags": [
+          {
+            "rule": "ncaab_massive_spread",
+            "action": "DOWNGRADE",
+            "severity": "WARNING",
+            "note": "NCAAB spread 32.5 \u2014 massive spreads ATS unreliable in tournament"
+          }
+        ],
+        "adjustment": -1.0,
         "has_kill": false,
-        "flag_count": 0
+        "flag_count": 1
       },
-      "consensus_avg": 5.29,
-      "consensus_grade": "C+",
-      "consensus_raw": 5.29,
+      "consensus_avg": 4.52,
+      "consensus_grade": "C",
+      "consensus_raw": 5.52,
       "ev": {
         "profile": "ev",
         "status": "no_ml_data",
@@ -733,9 +747,9 @@
           "profile": "sintonia",
           "pick_side": "away",
           "grade": "B-",
-          "composite": 5.99,
+          "composite": 5.83,
           "chain_bonus": 0.0,
-          "final": 5.99,
+          "final": 5.83,
           "pick": "Wofford Terriers ?",
           "sizing": "PASS",
           "variables": {
@@ -776,10 +790,10 @@
               "note": "Avg margin L10: +9.9 \u2014 comfortable wins | Close: 0/10 | Blowouts: 0/10"
             },
             "tournament_context": {
-              "score": 8,
+              "score": 5,
               "weight": 8,
-              "weighted": 64,
-              "note": "Close matchup (0) \u2014 competitive game"
+              "weighted": 40,
+              "note": "Big spread (18.5) \u2014 likely mismatch"
             },
             "public_money_bias": {
               "score": 3,
@@ -919,10 +933,10 @@
           "profile": "claude",
           "thesis": "Market disagreement \u2014 fading public overreaction, recency bias, and name-value inflation",
           "pick_side": "away",
-          "grade": "C",
-          "composite": 4.57,
+          "grade": "B-",
+          "composite": 5.56,
           "chain_bonus": 0.0,
-          "final": 4.57,
+          "final": 5.56,
           "pick": "Wofford Terriers ?",
           "sizing": "PASS",
           "variables": {
@@ -948,10 +962,10 @@
               "available": true
             },
             "blue_blood_tax": {
-              "score": 5,
+              "score": 9,
               "weight": 9,
-              "weighted": 45,
-              "note": "Talent gap (0%) roughly matches spread (0)",
+              "weighted": 81,
+              "note": "Win rates close (0% diff) but spread 18.5 \u2014 brand name tax",
               "available": true
             },
             "recency_bias": {
@@ -969,17 +983,17 @@
               "available": true
             },
             "primetime_inflation": {
-              "score": 5,
+              "score": 7,
               "weight": 7,
-              "weighted": 35,
-              "note": "Spread: 0 \u2014 no inflation signal",
+              "weighted": 49,
+              "note": "Large spread (18.5) barely moving \u2014 potential name/primetime tax",
               "available": true
             },
             "spread_value": {
-              "score": 5,
+              "score": 7,
               "weight": 6,
-              "weighted": 30,
-              "note": "Win rate: 50% | Spread: 0",
+              "weighted": 42,
+              "note": "Dog at 18.5 with 50% win rate \u2014 value spot",
               "available": true
             }
           },
@@ -993,9 +1007,9 @@
           "thesis": "Calendar/motivation spot \u2014 schedule traps, travel fatigue, lookahead, and situational context",
           "pick_side": "away",
           "grade": "C+",
-          "composite": 5.02,
+          "composite": 5.15,
           "chain_bonus": 0.0,
-          "final": 5.02,
+          "final": 5.15,
           "pick": "Wofford Terriers ?",
           "sizing": "PASS",
           "variables": {
@@ -1007,10 +1021,10 @@
               "available": true
             },
             "lookahead_trap": {
-              "score": 5,
+              "score": 8,
               "weight": 9,
-              "weighted": 45,
-              "note": "No clear lookahead signal",
+              "weighted": 72,
+              "note": "Massive spread (18.5) \u2014 motivation/lookahead concern",
               "available": true
             },
             "letdown_spot": {
@@ -1028,10 +1042,10 @@
               "available": true
             },
             "tournament_pressure": {
-              "score": 7,
+              "score": 5,
               "weight": 9,
-              "weighted": 63,
-              "note": "Close tournament matchup \u2014 pressure on both sides",
+              "weighted": 45,
+              "note": "Large spread \u2014 less pressure-dependent",
               "available": true
             },
             "travel_unfamiliarity": {
@@ -1070,9 +1084,9 @@
         "has_kill": false,
         "flag_count": 0
       },
-      "consensus_avg": 5.32,
-      "consensus_grade": "C+",
-      "consensus_raw": 5.32,
+      "consensus_avg": 5.56,
+      "consensus_grade": "B-",
+      "consensus_raw": 5.56,
       "ev": {
         "profile": "ev",
         "status": "no_ml_data",
@@ -1090,9 +1104,9 @@
           "profile": "sintonia",
           "pick_side": "away",
           "grade": "B",
-          "composite": 6.17,
+          "composite": 6.01,
           "chain_bonus": 0.0,
-          "final": 6.17,
+          "final": 6.01,
           "pick": "Omaha Mavericks ?",
           "sizing": "PASS",
           "variables": {
@@ -1133,10 +1147,10 @@
               "note": "Avg margin L10: +7.7 \u2014 comfortable wins | Close: 0/10 | Blowouts: 0/10"
             },
             "tournament_context": {
-              "score": 8,
+              "score": 5,
               "weight": 8,
-              "weighted": 64,
-              "note": "Close matchup (0) \u2014 competitive game"
+              "weighted": 40,
+              "note": "Big spread (19.5) \u2014 likely mismatch"
             },
             "public_money_bias": {
               "score": 3,
@@ -1276,10 +1290,10 @@
           "profile": "claude",
           "thesis": "Market disagreement \u2014 fading public overreaction, recency bias, and name-value inflation",
           "pick_side": "away",
-          "grade": "C",
-          "composite": 4.57,
+          "grade": "B-",
+          "composite": 5.56,
           "chain_bonus": 0.0,
-          "final": 4.57,
+          "final": 5.56,
           "pick": "Omaha Mavericks ?",
           "sizing": "PASS",
           "variables": {
@@ -1305,10 +1319,10 @@
               "available": true
             },
             "blue_blood_tax": {
-              "score": 5,
+              "score": 9,
               "weight": 9,
-              "weighted": 45,
-              "note": "Talent gap (0%) roughly matches spread (0)",
+              "weighted": 81,
+              "note": "Win rates close (0% diff) but spread 19.5 \u2014 brand name tax",
               "available": true
             },
             "recency_bias": {
@@ -1326,17 +1340,17 @@
               "available": true
             },
             "primetime_inflation": {
-              "score": 5,
+              "score": 7,
               "weight": 7,
-              "weighted": 35,
-              "note": "Spread: 0 \u2014 no inflation signal",
+              "weighted": 49,
+              "note": "Large spread (19.5) barely moving \u2014 potential name/primetime tax",
               "available": true
             },
             "spread_value": {
-              "score": 5,
+              "score": 7,
               "weight": 6,
-              "weighted": 30,
-              "note": "Win rate: 50% | Spread: 0",
+              "weighted": 42,
+              "note": "Dog at 19.5 with 50% win rate \u2014 value spot",
               "available": true
             }
           },
@@ -1350,9 +1364,9 @@
           "thesis": "Calendar/motivation spot \u2014 schedule traps, travel fatigue, lookahead, and situational context",
           "pick_side": "away",
           "grade": "B-",
-          "composite": 5.57,
+          "composite": 5.71,
           "chain_bonus": 0.0,
-          "final": 5.57,
+          "final": 5.71,
           "pick": "Omaha Mavericks ?",
           "sizing": "PASS",
           "variables": {
@@ -1364,10 +1378,10 @@
               "available": true
             },
             "lookahead_trap": {
-              "score": 5,
+              "score": 8,
               "weight": 9,
-              "weighted": 45,
-              "note": "No clear lookahead signal",
+              "weighted": 72,
+              "note": "Massive spread (19.5) \u2014 motivation/lookahead concern",
               "available": true
             },
             "letdown_spot": {
@@ -1385,10 +1399,10 @@
               "available": true
             },
             "tournament_pressure": {
-              "score": 7,
+              "score": 5,
               "weight": 9,
-              "weighted": 63,
-              "note": "Close tournament matchup \u2014 pressure on both sides",
+              "weighted": 45,
+              "note": "Large spread \u2014 less pressure-dependent",
               "available": true
             },
             "travel_unfamiliarity": {
@@ -1427,9 +1441,9 @@
         "has_kill": false,
         "flag_count": 0
       },
-      "consensus_avg": 5.46,
-      "consensus_grade": "C+",
-      "consensus_raw": 5.46,
+      "consensus_avg": 5.7,
+      "consensus_grade": "B-",
+      "consensus_raw": 5.7,
       "ev": {
         "profile": "ev",
         "status": "no_ml_data",
@@ -1447,9 +1461,9 @@
           "profile": "sintonia",
           "pick_side": "away",
           "grade": "B-",
-          "composite": 5.79,
+          "composite": 5.63,
           "chain_bonus": 0.0,
-          "final": 5.79,
+          "final": 5.63,
           "pick": "Montana Grizzlies ?",
           "sizing": "PASS",
           "variables": {
@@ -1490,10 +1504,10 @@
               "note": "Avg margin L10: +8.1 \u2014 comfortable wins | Close: 0/10 | Blowouts: 0/10"
             },
             "tournament_context": {
-              "score": 8,
+              "score": 5,
               "weight": 8,
-              "weighted": 64,
-              "note": "Close matchup (0) \u2014 competitive game"
+              "weighted": 40,
+              "note": "Big spread (16.5) \u2014 likely mismatch"
             },
             "public_money_bias": {
               "score": 3,
@@ -1633,10 +1647,10 @@
           "profile": "claude",
           "thesis": "Market disagreement \u2014 fading public overreaction, recency bias, and name-value inflation",
           "pick_side": "away",
-          "grade": "C",
-          "composite": 4.57,
+          "grade": "B-",
+          "composite": 5.56,
           "chain_bonus": 0.0,
-          "final": 4.57,
+          "final": 5.56,
           "pick": "Montana Grizzlies ?",
           "sizing": "PASS",
           "variables": {
@@ -1662,10 +1676,10 @@
               "available": true
             },
             "blue_blood_tax": {
-              "score": 5,
+              "score": 9,
               "weight": 9,
-              "weighted": 45,
-              "note": "Talent gap (0%) roughly matches spread (0)",
+              "weighted": 81,
+              "note": "Win rates close (0% diff) but spread 16.5 \u2014 brand name tax",
               "available": true
             },
             "recency_bias": {
@@ -1683,17 +1697,17 @@
               "available": true
             },
             "primetime_inflation": {
-              "score": 5,
+              "score": 7,
               "weight": 7,
-              "weighted": 35,
-              "note": "Spread: 0 \u2014 no inflation signal",
+              "weighted": 49,
+              "note": "Large spread (16.5) barely moving \u2014 potential name/primetime tax",
               "available": true
             },
             "spread_value": {
-              "score": 5,
+              "score": 7,
               "weight": 6,
-              "weighted": 30,
-              "note": "Win rate: 50% | Spread: 0",
+              "weighted": 42,
+              "note": "Dog at 16.5 with 50% win rate \u2014 value spot",
               "available": true
             }
           },
@@ -1706,10 +1720,10 @@
           "profile": "edge",
           "thesis": "Calendar/motivation spot \u2014 schedule traps, travel fatigue, lookahead, and situational context",
           "pick_side": "away",
-          "grade": "C+",
-          "composite": 5.38,
+          "grade": "B-",
+          "composite": 5.52,
           "chain_bonus": 0.0,
-          "final": 5.38,
+          "final": 5.52,
           "pick": "Montana Grizzlies ?",
           "sizing": "PASS",
           "variables": {
@@ -1721,10 +1735,10 @@
               "available": true
             },
             "lookahead_trap": {
-              "score": 5,
+              "score": 8,
               "weight": 9,
-              "weighted": 45,
-              "note": "No clear lookahead signal",
+              "weighted": 72,
+              "note": "Massive spread (16.5) \u2014 motivation/lookahead concern",
               "available": true
             },
             "letdown_spot": {
@@ -1742,10 +1756,10 @@
               "available": true
             },
             "tournament_pressure": {
-              "score": 7,
+              "score": 5,
               "weight": 9,
-              "weighted": 63,
-              "note": "Close tournament matchup \u2014 pressure on both sides",
+              "weighted": 45,
+              "note": "Large spread \u2014 less pressure-dependent",
               "available": true
             },
             "travel_unfamiliarity": {
@@ -1784,9 +1798,9 @@
         "has_kill": false,
         "flag_count": 0
       },
-      "consensus_avg": 5.39,
-      "consensus_grade": "C+",
-      "consensus_raw": 5.39,
+      "consensus_avg": 5.63,
+      "consensus_grade": "B-",
+      "consensus_raw": 5.63,
       "ev": {
         "profile": "ev",
         "status": "no_ml_data",
@@ -1803,10 +1817,10 @@
           "game_id": "401745986",
           "profile": "sintonia",
           "pick_side": "away",
-          "grade": "B",
-          "composite": 6.15,
+          "grade": "B-",
+          "composite": 5.99,
           "chain_bonus": 0.0,
-          "final": 6.15,
+          "final": 5.99,
           "pick": "UNC Wilmington Seahawks ?",
           "sizing": "PASS",
           "variables": {
@@ -1847,10 +1861,10 @@
               "note": "Avg margin L10: +7.5 \u2014 comfortable wins | Close: 0/10 | Blowouts: 0/10"
             },
             "tournament_context": {
-              "score": 8,
+              "score": 5,
               "weight": 8,
-              "weighted": 64,
-              "note": "Close matchup (0) \u2014 competitive game"
+              "weighted": 40,
+              "note": "Big spread (15.5) \u2014 likely mismatch"
             },
             "public_money_bias": {
               "score": 3,
@@ -1990,10 +2004,10 @@
           "profile": "claude",
           "thesis": "Market disagreement \u2014 fading public overreaction, recency bias, and name-value inflation",
           "pick_side": "away",
-          "grade": "C",
-          "composite": 4.57,
+          "grade": "B-",
+          "composite": 5.56,
           "chain_bonus": 0.0,
-          "final": 4.57,
+          "final": 5.56,
           "pick": "UNC Wilmington Seahawks ?",
           "sizing": "PASS",
           "variables": {
@@ -2019,10 +2033,10 @@
               "available": true
             },
             "blue_blood_tax": {
-              "score": 5,
+              "score": 9,
               "weight": 9,
-              "weighted": 45,
-              "note": "Talent gap (0%) roughly matches spread (0)",
+              "weighted": 81,
+              "note": "Win rates close (0% diff) but spread 15.5 \u2014 brand name tax",
               "available": true
             },
             "recency_bias": {
@@ -2040,17 +2054,17 @@
               "available": true
             },
             "primetime_inflation": {
-              "score": 5,
+              "score": 7,
               "weight": 7,
-              "weighted": 35,
-              "note": "Spread: 0 \u2014 no inflation signal",
+              "weighted": 49,
+              "note": "Large spread (15.5) barely moving \u2014 potential name/primetime tax",
               "available": true
             },
             "spread_value": {
-              "score": 5,
+              "score": 7,
               "weight": 6,
-              "weighted": 30,
-              "note": "Win rate: 50% | Spread: 0",
+              "weighted": 42,
+              "note": "Dog at 15.5 with 50% win rate \u2014 value spot",
               "available": true
             }
           },
@@ -2063,10 +2077,10 @@
           "profile": "edge",
           "thesis": "Calendar/motivation spot \u2014 schedule traps, travel fatigue, lookahead, and situational context",
           "pick_side": "away",
-          "grade": "C",
-          "composite": 4.88,
+          "grade": "C+",
+          "composite": 5.02,
           "chain_bonus": 0.0,
-          "final": 4.88,
+          "final": 5.02,
           "pick": "UNC Wilmington Seahawks ?",
           "sizing": "PASS",
           "variables": {
@@ -2078,10 +2092,10 @@
               "available": true
             },
             "lookahead_trap": {
-              "score": 5,
+              "score": 8,
               "weight": 9,
-              "weighted": 45,
-              "note": "No clear lookahead signal",
+              "weighted": 72,
+              "note": "Massive spread (15.5) \u2014 motivation/lookahead concern",
               "available": true
             },
             "letdown_spot": {
@@ -2099,10 +2113,10 @@
               "available": true
             },
             "tournament_pressure": {
-              "score": 7,
+              "score": 5,
               "weight": 9,
-              "weighted": 63,
-              "note": "Close tournament matchup \u2014 pressure on both sides",
+              "weighted": 45,
+              "note": "Large spread \u2014 less pressure-dependent",
               "available": true
             },
             "travel_unfamiliarity": {
@@ -2141,9 +2155,9 @@
         "has_kill": false,
         "flag_count": 0
       },
-      "consensus_avg": 5.36,
-      "consensus_grade": "C+",
-      "consensus_raw": 5.36,
+      "consensus_avg": 5.6,
+      "consensus_grade": "B-",
+      "consensus_raw": 5.6,
       "ev": {
         "profile": "ev",
         "status": "no_ml_data",
@@ -2161,9 +2175,9 @@
           "profile": "sintonia",
           "pick_side": "away",
           "grade": "B",
-          "composite": 6.33,
+          "composite": 6.23,
           "chain_bonus": 0.0,
-          "final": 6.33,
+          "final": 6.23,
           "pick": "High Point Panthers ?",
           "sizing": "PASS",
           "variables": {
@@ -2204,10 +2218,10 @@
               "note": "Avg margin L10: +14.4 \u2014 dominating | Close: 0/10 | Blowouts: 0/10"
             },
             "tournament_context": {
-              "score": 8,
+              "score": 6,
               "weight": 8,
-              "weighted": 64,
-              "note": "Close matchup (0) \u2014 competitive game"
+              "weighted": 48,
+              "note": "Regular tournament context"
             },
             "public_money_bias": {
               "score": 3,
@@ -2347,10 +2361,10 @@
           "profile": "claude",
           "thesis": "Market disagreement \u2014 fading public overreaction, recency bias, and name-value inflation",
           "pick_side": "away",
-          "grade": "C",
-          "composite": 4.57,
+          "grade": "C+",
+          "composite": 5.33,
           "chain_bonus": 0.0,
-          "final": 4.57,
+          "final": 5.33,
           "pick": "High Point Panthers ?",
           "sizing": "PASS",
           "variables": {
@@ -2376,10 +2390,10 @@
               "available": true
             },
             "blue_blood_tax": {
-              "score": 5,
+              "score": 9,
               "weight": 9,
-              "weighted": 45,
-              "note": "Talent gap (0%) roughly matches spread (0)",
+              "weighted": 81,
+              "note": "Win rates close (0% diff) but spread 7.5 \u2014 brand name tax",
               "available": true
             },
             "recency_bias": {
@@ -2400,14 +2414,14 @@
               "score": 5,
               "weight": 7,
               "weighted": 35,
-              "note": "Spread: 0 \u2014 no inflation signal",
+              "note": "Spread: 7.5 \u2014 no inflation signal",
               "available": true
             },
             "spread_value": {
-              "score": 5,
+              "score": 7,
               "weight": 6,
-              "weighted": 30,
-              "note": "Win rate: 50% | Spread: 0",
+              "weighted": 42,
+              "note": "Dog at 7.5 with 50% win rate \u2014 value spot",
               "available": true
             }
           },
@@ -2421,9 +2435,9 @@
           "thesis": "Calendar/motivation spot \u2014 schedule traps, travel fatigue, lookahead, and situational context",
           "pick_side": "away",
           "grade": "C",
-          "composite": 4.88,
+          "composite": 4.6,
           "chain_bonus": 0.0,
-          "final": 4.88,
+          "final": 4.6,
           "pick": "High Point Panthers ?",
           "sizing": "PASS",
           "variables": {
@@ -2456,10 +2470,10 @@
               "available": true
             },
             "tournament_pressure": {
-              "score": 7,
+              "score": 5,
               "weight": 9,
-              "weighted": 63,
-              "note": "Close tournament matchup \u2014 pressure on both sides",
+              "weighted": 45,
+              "note": "Large spread \u2014 less pressure-dependent",
               "available": true
             },
             "travel_unfamiliarity": {
@@ -2498,9 +2512,9 @@
         "has_kill": false,
         "flag_count": 0
       },
-      "consensus_avg": 5.48,
-      "consensus_grade": "C+",
-      "consensus_raw": 5.48,
+      "consensus_avg": 5.58,
+      "consensus_grade": "B-",
+      "consensus_raw": 5.58,
       "ev": {
         "profile": "ev",
         "status": "no_ml_data",
@@ -2518,9 +2532,9 @@
           "profile": "sintonia",
           "pick_side": "away",
           "grade": "C+",
-          "composite": 5.35,
+          "composite": 5.25,
           "chain_bonus": 0.0,
-          "final": 5.35,
+          "final": 5.25,
           "pick": "Yale Bulldogs ?",
           "sizing": "PASS",
           "variables": {
@@ -2561,10 +2575,10 @@
               "note": "Avg margin L10: +9.0 \u2014 comfortable wins | Close: 0/10 | Blowouts: 0/10"
             },
             "tournament_context": {
-              "score": 8,
+              "score": 6,
               "weight": 8,
-              "weighted": 64,
-              "note": "Close matchup (0) \u2014 competitive game"
+              "weighted": 48,
+              "note": "Regular tournament context"
             },
             "public_money_bias": {
               "score": 3,
@@ -2704,10 +2718,10 @@
           "profile": "claude",
           "thesis": "Market disagreement \u2014 fading public overreaction, recency bias, and name-value inflation",
           "pick_side": "away",
-          "grade": "C",
-          "composite": 4.57,
+          "grade": "C+",
+          "composite": 5.33,
           "chain_bonus": 0.0,
-          "final": 4.57,
+          "final": 5.33,
           "pick": "Yale Bulldogs ?",
           "sizing": "PASS",
           "variables": {
@@ -2733,10 +2747,10 @@
               "available": true
             },
             "blue_blood_tax": {
-              "score": 5,
+              "score": 9,
               "weight": 9,
-              "weighted": 45,
-              "note": "Talent gap (0%) roughly matches spread (0)",
+              "weighted": 81,
+              "note": "Win rates close (0% diff) but spread 7.5 \u2014 brand name tax",
               "available": true
             },
             "recency_bias": {
@@ -2757,14 +2771,14 @@
               "score": 5,
               "weight": 7,
               "weighted": 35,
-              "note": "Spread: 0 \u2014 no inflation signal",
+              "note": "Spread: 7.5 \u2014 no inflation signal",
               "available": true
             },
             "spread_value": {
-              "score": 5,
+              "score": 7,
               "weight": 6,
-              "weighted": 30,
-              "note": "Win rate: 50% | Spread: 0",
+              "weighted": 42,
+              "note": "Dog at 7.5 with 50% win rate \u2014 value spot",
               "available": true
             }
           },
@@ -2777,10 +2791,10 @@
           "profile": "edge",
           "thesis": "Calendar/motivation spot \u2014 schedule traps, travel fatigue, lookahead, and situational context",
           "pick_side": "away",
-          "grade": "C+",
-          "composite": 5.02,
+          "grade": "C",
+          "composite": 4.74,
           "chain_bonus": 0.0,
-          "final": 5.02,
+          "final": 4.74,
           "pick": "Yale Bulldogs ?",
           "sizing": "PASS",
           "variables": {
@@ -2813,10 +2827,10 @@
               "available": true
             },
             "tournament_pressure": {
-              "score": 7,
+              "score": 5,
               "weight": 9,
-              "weighted": 63,
-              "note": "Close tournament matchup \u2014 pressure on both sides",
+              "weighted": 45,
+              "note": "Large spread \u2014 less pressure-dependent",
               "available": true
             },
             "travel_unfamiliarity": {
@@ -2855,9 +2869,9 @@
         "has_kill": false,
         "flag_count": 0
       },
-      "consensus_avg": 5.23,
+      "consensus_avg": 5.33,
       "consensus_grade": "C+",
-      "consensus_raw": 5.23,
+      "consensus_raw": 5.33,
       "ev": {
         "profile": "ev",
         "status": "no_ml_data",
@@ -2875,9 +2889,9 @@
           "profile": "sintonia",
           "pick_side": "away",
           "grade": "B",
-          "composite": 6.44,
+          "composite": 6.33,
           "chain_bonus": 0.0,
-          "final": 6.44,
+          "final": 6.33,
           "pick": "McNeese Cowboys ?",
           "sizing": "PASS",
           "variables": {
@@ -2918,10 +2932,10 @@
               "note": "Avg margin L10: +16.3 \u2014 dominating | Close: 0/10 | Blowouts: 0/10"
             },
             "tournament_context": {
-              "score": 8,
+              "score": 6,
               "weight": 8,
-              "weighted": 64,
-              "note": "Close matchup (0) \u2014 competitive game"
+              "weighted": 48,
+              "note": "Regular tournament context"
             },
             "public_money_bias": {
               "score": 3,
@@ -3061,10 +3075,10 @@
           "profile": "claude",
           "thesis": "Market disagreement \u2014 fading public overreaction, recency bias, and name-value inflation",
           "pick_side": "away",
-          "grade": "C",
-          "composite": 4.57,
+          "grade": "C+",
+          "composite": 5.33,
           "chain_bonus": 0.0,
-          "final": 4.57,
+          "final": 5.33,
           "pick": "McNeese Cowboys ?",
           "sizing": "PASS",
           "variables": {
@@ -3090,10 +3104,10 @@
               "available": true
             },
             "blue_blood_tax": {
-              "score": 5,
+              "score": 9,
               "weight": 9,
-              "weighted": 45,
-              "note": "Talent gap (0%) roughly matches spread (0)",
+              "weighted": 81,
+              "note": "Win rates close (0% diff) but spread 7.5 \u2014 brand name tax",
               "available": true
             },
             "recency_bias": {
@@ -3114,14 +3128,14 @@
               "score": 5,
               "weight": 7,
               "weighted": 35,
-              "note": "Spread: 0 \u2014 no inflation signal",
+              "note": "Spread: 7.5 \u2014 no inflation signal",
               "available": true
             },
             "spread_value": {
-              "score": 5,
+              "score": 7,
               "weight": 6,
-              "weighted": 30,
-              "note": "Win rate: 50% | Spread: 0",
+              "weighted": 42,
+              "note": "Dog at 7.5 with 50% win rate \u2014 value spot",
               "available": true
             }
           },
@@ -3135,9 +3149,9 @@
           "thesis": "Calendar/motivation spot \u2014 schedule traps, travel fatigue, lookahead, and situational context",
           "pick_side": "away",
           "grade": "C",
-          "composite": 4.88,
+          "composite": 4.6,
           "chain_bonus": 0.0,
-          "final": 4.88,
+          "final": 4.6,
           "pick": "McNeese Cowboys ?",
           "sizing": "PASS",
           "variables": {
@@ -3170,10 +3184,10 @@
               "available": true
             },
             "tournament_pressure": {
-              "score": 7,
+              "score": 5,
               "weight": 9,
-              "weighted": 63,
-              "note": "Close tournament matchup \u2014 pressure on both sides",
+              "weighted": 45,
+              "note": "Large spread \u2014 less pressure-dependent",
               "available": true
             },
             "travel_unfamiliarity": {
@@ -3212,9 +3226,9 @@
         "has_kill": false,
         "flag_count": 0
       },
-      "consensus_avg": 5.43,
-      "consensus_grade": "C+",
-      "consensus_raw": 5.43,
+      "consensus_avg": 5.52,
+      "consensus_grade": "B-",
+      "consensus_raw": 5.52,
       "ev": {
         "profile": "ev",
         "status": "no_ml_data",
@@ -3278,7 +3292,7 @@
               "score": 8,
               "weight": 8,
               "weighted": 64,
-              "note": "Close matchup (0) \u2014 competitive game"
+              "note": "Close matchup (1.5) \u2014 competitive game"
             },
             "public_money_bias": {
               "score": 3,
@@ -3450,7 +3464,7 @@
               "score": 5,
               "weight": 9,
               "weighted": 45,
-              "note": "Talent gap (0%) roughly matches spread (0)",
+              "note": "Talent gap (0%) roughly matches spread (1.5)",
               "available": true
             },
             "recency_bias": {
@@ -3471,14 +3485,14 @@
               "score": 5,
               "weight": 7,
               "weighted": 35,
-              "note": "Spread: 0 \u2014 no inflation signal",
+              "note": "Spread: 1.5 \u2014 no inflation signal",
               "available": true
             },
             "spread_value": {
               "score": 5,
               "weight": 6,
               "weighted": 30,
-              "note": "Win rate: 50% | Spread: 0",
+              "note": "Win rate: 50% | Spread: 1.5",
               "available": true
             }
           },
@@ -3635,7 +3649,7 @@
               "score": 8,
               "weight": 8,
               "weighted": 64,
-              "note": "Close matchup (0) \u2014 competitive game"
+              "note": "Close matchup (1.5) \u2014 competitive game"
             },
             "public_money_bias": {
               "score": 3,
@@ -3807,7 +3821,7 @@
               "score": 5,
               "weight": 9,
               "weighted": 45,
-              "note": "Talent gap (0%) roughly matches spread (0)",
+              "note": "Talent gap (0%) roughly matches spread (1.5)",
               "available": true
             },
             "recency_bias": {
@@ -3828,14 +3842,14 @@
               "score": 5,
               "weight": 7,
               "weighted": 35,
-              "note": "Spread: 0 \u2014 no inflation signal",
+              "note": "Spread: 1.5 \u2014 no inflation signal",
               "available": true
             },
             "spread_value": {
               "score": 5,
               "weight": 6,
               "weighted": 30,
-              "note": "Win rate: 50% | Spread: 0",
+              "note": "Win rate: 50% | Spread: 1.5",
               "available": true
             }
           },
@@ -3946,9 +3960,9 @@
           "profile": "sintonia",
           "pick_side": "away",
           "grade": "B-",
-          "composite": 5.69,
+          "composite": 5.58,
           "chain_bonus": 0.0,
-          "final": 5.69,
+          "final": 5.58,
           "pick": "Drake Bulldogs ?",
           "sizing": "PASS",
           "variables": {
@@ -3989,10 +4003,10 @@
               "note": "Avg margin L10: +8.3 \u2014 comfortable wins | Close: 0/10 | Blowouts: 0/10"
             },
             "tournament_context": {
-              "score": 8,
+              "score": 6,
               "weight": 8,
-              "weighted": 64,
-              "note": "Close matchup (0) \u2014 competitive game"
+              "weighted": 48,
+              "note": "Regular tournament context"
             },
             "public_money_bias": {
               "score": 3,
@@ -4132,10 +4146,10 @@
           "profile": "claude",
           "thesis": "Market disagreement \u2014 fading public overreaction, recency bias, and name-value inflation",
           "pick_side": "away",
-          "grade": "C",
-          "composite": 4.57,
+          "grade": "C+",
+          "composite": 5.33,
           "chain_bonus": 0.0,
-          "final": 4.57,
+          "final": 5.33,
           "pick": "Drake Bulldogs ?",
           "sizing": "PASS",
           "variables": {
@@ -4161,10 +4175,10 @@
               "available": true
             },
             "blue_blood_tax": {
-              "score": 5,
+              "score": 9,
               "weight": 9,
-              "weighted": 45,
-              "note": "Talent gap (0%) roughly matches spread (0)",
+              "weighted": 81,
+              "note": "Win rates close (0% diff) but spread 5.5 \u2014 brand name tax",
               "available": true
             },
             "recency_bias": {
@@ -4185,14 +4199,14 @@
               "score": 5,
               "weight": 7,
               "weighted": 35,
-              "note": "Spread: 0 \u2014 no inflation signal",
+              "note": "Spread: 5.5 \u2014 no inflation signal",
               "available": true
             },
             "spread_value": {
-              "score": 5,
+              "score": 7,
               "weight": 6,
-              "weighted": 30,
-              "note": "Win rate: 50% | Spread: 0",
+              "weighted": 42,
+              "note": "Dog at 5.5 with 50% win rate \u2014 value spot",
               "available": true
             }
           },
@@ -4206,9 +4220,9 @@
           "thesis": "Calendar/motivation spot \u2014 schedule traps, travel fatigue, lookahead, and situational context",
           "pick_side": "away",
           "grade": "C",
-          "composite": 4.88,
+          "composite": 4.74,
           "chain_bonus": 0.0,
-          "final": 4.88,
+          "final": 4.74,
           "pick": "Drake Bulldogs ?",
           "sizing": "PASS",
           "variables": {
@@ -4241,10 +4255,10 @@
               "available": true
             },
             "tournament_pressure": {
-              "score": 7,
+              "score": 6,
               "weight": 9,
-              "weighted": 63,
-              "note": "Close tournament matchup \u2014 pressure on both sides",
+              "weighted": 54,
+              "note": "Moderate spread \u2014 some pressure dynamics",
               "available": true
             },
             "travel_unfamiliarity": {
@@ -4283,9 +4297,9 @@
         "has_kill": false,
         "flag_count": 0
       },
-      "consensus_avg": 5.32,
+      "consensus_avg": 5.45,
       "consensus_grade": "C+",
-      "consensus_raw": 5.32,
+      "consensus_raw": 5.45,
       "ev": {
         "profile": "ev",
         "status": "no_ml_data",
@@ -4303,9 +4317,9 @@
           "profile": "sintonia",
           "pick_side": "away",
           "grade": "C+",
-          "composite": 5.16,
+          "composite": 5.06,
           "chain_bonus": 0.0,
-          "final": 5.16,
+          "final": 5.06,
           "pick": "Arkansas Razorbacks ?",
           "sizing": "PASS",
           "variables": {
@@ -4346,10 +4360,10 @@
               "note": "Avg margin L10: +0.5 \u2014 close games | Close: 0/10 | Blowouts: 0/10"
             },
             "tournament_context": {
-              "score": 8,
+              "score": 6,
               "weight": 8,
-              "weighted": 64,
-              "note": "Close matchup (0) \u2014 competitive game"
+              "weighted": 48,
+              "note": "Regular tournament context"
             },
             "public_money_bias": {
               "score": 3,
@@ -4489,10 +4503,10 @@
           "profile": "claude",
           "thesis": "Market disagreement \u2014 fading public overreaction, recency bias, and name-value inflation",
           "pick_side": "away",
-          "grade": "C",
-          "composite": 4.46,
+          "grade": "C+",
+          "composite": 5.22,
           "chain_bonus": 0.0,
-          "final": 4.46,
+          "final": 5.22,
           "pick": "Arkansas Razorbacks ?",
           "sizing": "PASS",
           "variables": {
@@ -4518,10 +4532,10 @@
               "available": true
             },
             "blue_blood_tax": {
-              "score": 5,
+              "score": 9,
               "weight": 9,
-              "weighted": 45,
-              "note": "Talent gap (0%) roughly matches spread (0)",
+              "weighted": 81,
+              "note": "Win rates close (0% diff) but spread 5.5 \u2014 brand name tax",
               "available": true
             },
             "recency_bias": {
@@ -4542,14 +4556,14 @@
               "score": 5,
               "weight": 7,
               "weighted": 35,
-              "note": "Spread: 0 \u2014 no inflation signal",
+              "note": "Spread: 5.5 \u2014 no inflation signal",
               "available": true
             },
             "spread_value": {
-              "score": 5,
+              "score": 7,
               "weight": 6,
-              "weighted": 30,
-              "note": "Win rate: 50% | Spread: 0",
+              "weighted": 42,
+              "note": "Dog at 5.5 with 50% win rate \u2014 value spot",
               "available": true
             }
           },
@@ -4563,9 +4577,9 @@
           "thesis": "Calendar/motivation spot \u2014 schedule traps, travel fatigue, lookahead, and situational context",
           "pick_side": "away",
           "grade": "C+",
-          "composite": 5.15,
+          "composite": 5.02,
           "chain_bonus": 0.0,
-          "final": 5.15,
+          "final": 5.02,
           "pick": "Arkansas Razorbacks ?",
           "sizing": "PASS",
           "variables": {
@@ -4598,10 +4612,10 @@
               "available": true
             },
             "tournament_pressure": {
-              "score": 7,
+              "score": 6,
               "weight": 9,
-              "weighted": 63,
-              "note": "Close tournament matchup \u2014 pressure on both sides",
+              "weighted": 54,
+              "note": "Moderate spread \u2014 some pressure dynamics",
               "available": true
             },
             "travel_unfamiliarity": {
@@ -4640,9 +4654,9 @@
         "has_kill": false,
         "flag_count": 0
       },
-      "consensus_avg": 4.98,
-      "consensus_grade": "C",
-      "consensus_raw": 4.98,
+      "consensus_avg": 5.11,
+      "consensus_grade": "C+",
+      "consensus_raw": 5.11,
       "ev": {
         "profile": "ev",
         "status": "no_ml_data",
@@ -4660,10 +4674,10 @@
           "profile": "sintonia",
           "pick_side": "home",
           "grade": "C+",
-          "composite": 5.27,
+          "composite": 5.16,
           "chain_bonus": 0.0,
-          "final": 5.27,
-          "pick": "UCLA Bruins ?",
+          "final": 5.16,
+          "pick": "UCLA Bruins -5.5",
           "sizing": "PASS",
           "variables": {
             "offensive_efficiency": {
@@ -4703,10 +4717,10 @@
               "note": "Avg margin L10: +3.5 \u2014 close games | Close: 0/10 | Blowouts: 0/10"
             },
             "tournament_context": {
-              "score": 8,
+              "score": 6,
               "weight": 8,
-              "weighted": 64,
-              "note": "Close matchup (0) \u2014 competitive game"
+              "weighted": 48,
+              "note": "Regular tournament context"
             },
             "public_money_bias": {
               "score": 3,
@@ -4803,7 +4817,7 @@
           "composite": 5.27,
           "chain_bonus": 0,
           "final": 5.27,
-          "pick": "UCLA Bruins ?",
+          "pick": "UCLA Bruins -5.5",
           "sizing": "PASS",
           "variables": {
             "Q1_whos_missing": {
@@ -4846,11 +4860,11 @@
           "profile": "claude",
           "thesis": "Market disagreement \u2014 fading public overreaction, recency bias, and name-value inflation",
           "pick_side": "home",
-          "grade": "C",
-          "composite": 4.46,
+          "grade": "C+",
+          "composite": 5.22,
           "chain_bonus": 0.0,
-          "final": 4.46,
-          "pick": "UCLA Bruins ?",
+          "final": 5.22,
+          "pick": "UCLA Bruins -5.5",
           "sizing": "PASS",
           "variables": {
             "public_pct_split": {
@@ -4875,10 +4889,10 @@
               "available": true
             },
             "blue_blood_tax": {
-              "score": 5,
+              "score": 9,
               "weight": 9,
-              "weighted": 45,
-              "note": "Talent gap (0%) roughly matches spread (0)",
+              "weighted": 81,
+              "note": "Win rates close (0% diff) but spread 5.5 \u2014 brand name tax",
               "available": true
             },
             "recency_bias": {
@@ -4899,14 +4913,14 @@
               "score": 5,
               "weight": 7,
               "weighted": 35,
-              "note": "Spread: 0 \u2014 no inflation signal",
+              "note": "Spread: 5.5 \u2014 no inflation signal",
               "available": true
             },
             "spread_value": {
-              "score": 5,
+              "score": 7,
               "weight": 6,
-              "weighted": 30,
-              "note": "Win rate: 50% | Spread: 0",
+              "weighted": 42,
+              "note": "Dog at 5.5 with 50% win rate \u2014 value spot",
               "available": true
             }
           },
@@ -4920,10 +4934,10 @@
           "thesis": "Calendar/motivation spot \u2014 schedule traps, travel fatigue, lookahead, and situational context",
           "pick_side": "home",
           "grade": "C+",
-          "composite": 5.15,
+          "composite": 5.02,
           "chain_bonus": 0.0,
-          "final": 5.15,
-          "pick": "UCLA Bruins ?",
+          "final": 5.02,
+          "pick": "UCLA Bruins -5.5",
           "sizing": "PASS",
           "variables": {
             "schedule_spot": {
@@ -4955,10 +4969,10 @@
               "available": true
             },
             "tournament_pressure": {
-              "score": 7,
+              "score": 6,
               "weight": 9,
-              "weighted": 63,
-              "note": "Close tournament matchup \u2014 pressure on both sides",
+              "weighted": 54,
+              "note": "Moderate spread \u2014 some pressure dynamics",
               "available": true
             },
             "travel_unfamiliarity": {
@@ -4997,9 +5011,9 @@
         "has_kill": false,
         "flag_count": 0
       },
-      "consensus_avg": 5.04,
+      "consensus_avg": 5.17,
       "consensus_grade": "C+",
-      "consensus_raw": 5.04,
+      "consensus_raw": 5.17,
       "ev": {
         "profile": "ev",
         "status": "no_ml_data",
@@ -5063,7 +5077,7 @@
               "score": 8,
               "weight": 8,
               "weighted": 64,
-              "note": "Close matchup (0) \u2014 competitive game"
+              "note": "Close matchup (3.5) \u2014 competitive game"
             },
             "public_money_bias": {
               "score": 3,
@@ -5204,9 +5218,9 @@
           "thesis": "Market disagreement \u2014 fading public overreaction, recency bias, and name-value inflation",
           "pick_side": "away",
           "grade": "C",
-          "composite": 4.79,
+          "composite": 4.89,
           "chain_bonus": 0.0,
-          "final": 4.79,
+          "final": 4.89,
           "pick": "Creighton Bluejays ?",
           "sizing": "PASS",
           "variables": {
@@ -5235,7 +5249,7 @@
               "score": 5,
               "weight": 9,
               "weighted": 45,
-              "note": "Talent gap (0%) roughly matches spread (0)",
+              "note": "Talent gap (0%) roughly matches spread (3.5)",
               "available": true
             },
             "recency_bias": {
@@ -5256,14 +5270,14 @@
               "score": 5,
               "weight": 7,
               "weighted": 35,
-              "note": "Spread: 0 \u2014 no inflation signal",
+              "note": "Spread: 3.5 \u2014 no inflation signal",
               "available": true
             },
             "spread_value": {
-              "score": 5,
+              "score": 6,
               "weight": 6,
-              "weighted": 30,
-              "note": "Win rate: 50% | Spread: 0",
+              "weighted": 36,
+              "note": "Moderate dog value (50% at +3.5)",
               "available": true
             }
           },
@@ -5277,9 +5291,9 @@
           "thesis": "Calendar/motivation spot \u2014 schedule traps, travel fatigue, lookahead, and situational context",
           "pick_side": "away",
           "grade": "C+",
-          "composite": 5.15,
+          "composite": 5.02,
           "chain_bonus": 0.0,
-          "final": 5.15,
+          "final": 5.02,
           "pick": "Creighton Bluejays ?",
           "sizing": "PASS",
           "variables": {
@@ -5312,10 +5326,10 @@
               "available": true
             },
             "tournament_pressure": {
-              "score": 7,
+              "score": 6,
               "weight": 9,
-              "weighted": 63,
-              "note": "Close tournament matchup \u2014 pressure on both sides",
+              "weighted": 54,
+              "note": "Moderate spread \u2014 some pressure dynamics",
               "available": true
             },
             "travel_unfamiliarity": {
@@ -5374,10 +5388,10 @@
           "profile": "sintonia",
           "pick_side": "home",
           "grade": "B-",
-          "composite": 5.82,
+          "composite": 5.71,
           "chain_bonus": 0.0,
-          "final": 5.82,
-          "pick": "Gonzaga Bulldogs ?",
+          "final": 5.71,
+          "pick": "Gonzaga Bulldogs -7.5",
           "sizing": "PASS",
           "variables": {
             "offensive_efficiency": {
@@ -5417,10 +5431,10 @@
               "note": "Avg margin L10: +16.9 \u2014 dominating | Close: 0/10 | Blowouts: 0/10"
             },
             "tournament_context": {
-              "score": 8,
+              "score": 6,
               "weight": 8,
-              "weighted": 64,
-              "note": "Close matchup (0) \u2014 competitive game"
+              "weighted": 48,
+              "note": "Regular tournament context"
             },
             "public_money_bias": {
               "score": 3,
@@ -5517,7 +5531,7 @@
           "composite": 5.65,
           "chain_bonus": 0,
           "final": 5.65,
-          "pick": "Gonzaga Bulldogs ?",
+          "pick": "Gonzaga Bulldogs -7.5",
           "sizing": "PASS",
           "variables": {
             "Q1_whos_missing": {
@@ -5560,11 +5574,11 @@
           "profile": "claude",
           "thesis": "Market disagreement \u2014 fading public overreaction, recency bias, and name-value inflation",
           "pick_side": "home",
-          "grade": "C",
-          "composite": 4.57,
+          "grade": "C+",
+          "composite": 5.33,
           "chain_bonus": 0.0,
-          "final": 4.57,
-          "pick": "Gonzaga Bulldogs ?",
+          "final": 5.33,
+          "pick": "Gonzaga Bulldogs -7.5",
           "sizing": "PASS",
           "variables": {
             "public_pct_split": {
@@ -5589,10 +5603,10 @@
               "available": true
             },
             "blue_blood_tax": {
-              "score": 5,
+              "score": 9,
               "weight": 9,
-              "weighted": 45,
-              "note": "Talent gap (0%) roughly matches spread (0)",
+              "weighted": 81,
+              "note": "Win rates close (0% diff) but spread 7.5 \u2014 brand name tax",
               "available": true
             },
             "recency_bias": {
@@ -5613,14 +5627,14 @@
               "score": 5,
               "weight": 7,
               "weighted": 35,
-              "note": "Spread: 0 \u2014 no inflation signal",
+              "note": "Spread: 7.5 \u2014 no inflation signal",
               "available": true
             },
             "spread_value": {
-              "score": 5,
+              "score": 7,
               "weight": 6,
-              "weighted": 30,
-              "note": "Win rate: 50% | Spread: 0",
+              "weighted": 42,
+              "note": "Dog at 7.5 with 50% win rate \u2014 value spot",
               "available": true
             }
           },
@@ -5633,11 +5647,11 @@
           "profile": "edge",
           "thesis": "Calendar/motivation spot \u2014 schedule traps, travel fatigue, lookahead, and situational context",
           "pick_side": "home",
-          "grade": "C+",
-          "composite": 5.02,
+          "grade": "C",
+          "composite": 4.74,
           "chain_bonus": 0.0,
-          "final": 5.02,
-          "pick": "Gonzaga Bulldogs ?",
+          "final": 4.74,
+          "pick": "Gonzaga Bulldogs -7.5",
           "sizing": "PASS",
           "variables": {
             "schedule_spot": {
@@ -5669,10 +5683,10 @@
               "available": true
             },
             "tournament_pressure": {
-              "score": 7,
+              "score": 5,
               "weight": 9,
-              "weighted": 63,
-              "note": "Close tournament matchup \u2014 pressure on both sides",
+              "weighted": 45,
+              "note": "Large spread \u2014 less pressure-dependent",
               "available": true
             },
             "travel_unfamiliarity": {
@@ -5711,9 +5725,9 @@
         "has_kill": false,
         "flag_count": 0
       },
-      "consensus_avg": 5.27,
+      "consensus_avg": 5.36,
       "consensus_grade": "C+",
-      "consensus_raw": 5.27,
+      "consensus_raw": 5.36,
       "ev": {
         "profile": "ev",
         "status": "no_ml_data",
