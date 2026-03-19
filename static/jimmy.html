@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DJ's Edge Agent — Casa EV</title>
+<title>Jimmy's Edge Agent — The Window</title>
 <style>
   :root {
     --bg: #0d0d14;
@@ -629,7 +629,7 @@
     color: var(--red); text-decoration: line-through; opacity: 0.6;
   }
 
-  /* DJ results comparison */
+  /* Jimmy results comparison */
   .dj-result-badge {
     display: inline-flex; align-items: center; gap: 6px;
     padding: 3px 8px; border-radius: 6px; font-size: 0.65rem;
@@ -881,11 +881,11 @@
 <body>
 
 <div class="header" id="headerBar" style="display:none;">
-  <h1>DJ'S EDGE AGENT &mdash; <span class="sport-label" id="sportLabel">NCAAB</span> <span class="date-label" id="dateLabel"></span></h1>
+  <h1>JIMMY'S EDGE AGENT &mdash; <span class="sport-label" id="sportLabel">NCAAB</span> <span class="date-label" id="dateLabel"></span></h1>
   <div class="pills" id="sportPills"></div>
   <div class="pills" style="margin-top:6px;">
     <div class="pill" id="tabSlate" onclick="switchView('slate')" style="background:var(--pill-active);color:#fff;border-color:var(--accent);">Slate</div>
-    <div class="pill" id="tabMatrix" onclick="switchView('matrix')">DJ's Matrix</div>
+    <div class="pill" id="tabMatrix" onclick="switchView('matrix')">Jimmy's Matrix</div>
     <div class="pill" id="tabReview" onclick="switchView('review')">Review Matrix</div>
     <div class="pill" id="tabFeedback" onclick="switchView('feedback')" style="border-color:rgba(255,215,0,0.3);">&#x1F4DD; Feedback</div>
   </div>
@@ -902,7 +902,7 @@
 
 <div class="footer" id="footer" style="display:none;">
   <div id="lastAnalyzed"></div>
-  <div style="margin-top:4px;">DJ's Edge Agent &mdash; Casa EV</div>
+  <div style="margin-top:4px;">Jimmy's Edge Agent &mdash; Casa EV</div>
 </div>
 
 <!-- Agent overlay -->
@@ -951,8 +951,8 @@
 <audio id="rtcAudio" autoplay style="display:none;"></audio>
 
 <script>
-const AGENT_USER_ID = 'dj';
-let SPORTS = ['ncaab','nba','mlb'];  // default fallback; replaced dynamically by init()
+const AGENT_USER_ID = 'jimmy';
+let SPORTS = ['nba','nhl','ncaab','mlb'];  // default fallback; replaced dynamically by init()
 const SPORT_LABELS = {ncaab:'NCAAB',nba:'NBA',nhl:'NHL',mlb:'MLB',soccer:'Soccer',tennis:'Tennis',mma:'MMA',boxing:'Boxing',wnba:'WNBA',ncaaf:'NCAAF'};
 
 // Default matrix definitions — the 20-variable scoring system per sport
@@ -1038,7 +1038,7 @@ let _djGameDataMap = {};
 // Agent state
 let agentProfile = null;
 let agentMatrix = {};     // sport -> matrix data
-let djAnalysis = {};      // sport -> DJ's custom analysis
+let djAnalysis = {};      // sport -> Jimmy's custom analysis
 let rtcPC = null;
 let rtcDC = null;
 let rtcMicStream = null;
@@ -1076,22 +1076,32 @@ function showLanding() {
 
   document.getElementById('landingPage').innerHTML = `
     <div class="landing">
-      <h2>DJ'S EDGE AGENT</h2>
-      <div class="subtitle">Your matrix. Your weights. Your edge.</div>
+      <h2>JIMMY'S WINDOW</h2>
+      <div class="subtitle">The Crew's man at Hard Rock. Execute the plays.</div>
+
+      <div style="background:linear-gradient(135deg,#00b894,#00796b);border-radius:16px;padding:24px;margin-bottom:24px;text-align:center;box-shadow:0 0 30px rgba(0,184,148,0.2);">
+        <h3 style="font-size:1.1rem;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">BET QUEUE</h3>
+        <div id="betQueueCount" style="font-family:monospace;font-size:3rem;font-weight:900;color:#fff;">--</div>
+        <div style="font-size:0.75rem;color:rgba(255,255,255,0.7);text-transform:uppercase;letter-spacing:1px;">bets waiting to be placed</div>
+        <div style="margin-top:16px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+          <button onclick="loadBetQueue()" style="padding:10px 24px;border-radius:10px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);color:#fff;font-size:0.85rem;font-weight:700;cursor:pointer;">View Queue</button>
+          <a href="https://www.hardrocksportsbook.com" target="_blank" style="padding:10px 24px;border-radius:10px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);color:#fff;font-size:0.85rem;font-weight:700;cursor:pointer;text-decoration:none;">Open Hard Rock</a>
+        </div>
+      </div>
 
       <div class="what-we-do" style="text-align:left;max-width:560px;margin:24px auto;">
-        <h3 style="font-size:0.85rem;margin-bottom:10px;">What This Does</h3>
+        <h3 style="font-size:0.85rem;margin-bottom:10px;">Your Job</h3>
         <ul style="font-size:0.78rem;line-height:1.8;">
-          <li><strong>20-Variable Weighted Matrix</strong> per sport &mdash; every game scored across injuries, rest, matchup, trends, sharp money, and more</li>
-          <li><strong>Your Custom Weights</strong> &mdash; talk to your agent to bump, add, or drop variables. Your matrix, your grades</li>
-          <li><strong>Multi-Book Lines</strong> &mdash; same line across 12+ books side by side. Best number highlighted</li>
-          <li><strong>Prop Screener</strong> &mdash; player game logs vs book lines. Floor beats line = mispriced</li>
-          <li><strong>Injury Gap Detection</strong> &mdash; star OUT, role player absorbs, book didn't adjust = edge</li>
-          <li><strong>"Analyze DJ's Way"</strong> &mdash; re-run the full slate through YOUR custom weights and see how your grades differ from defaults</li>
+          <li><strong>Check the Bet Queue</strong> &mdash; Peter and the crew load picks. You place them at Hard Rock.</li>
+          <li><strong>Confirm placement</strong> &mdash; paste your ticket number back to confirm the bet is live.</li>
+          <li><strong>Line shop</strong> &mdash; if Hard Rock has a better line than what's in the queue, take it and note the difference.</li>
+          <li><strong>Browse the slate</strong> &mdash; NBA, NHL, NCAAB, MLB. See the edges. Add your own picks.</li>
+          <li><strong>Props screener</strong> &mdash; find player props with edge. Same tools as the crew.</li>
+          <li><strong>Print bet slip</strong> &mdash; tap any queued bet to get a printable slip with all the details.</li>
         </ul>
 
-        <div style="margin-top:18px;padding:12px;background:rgba(108,92,231,0.08);border:1px solid rgba(108,92,231,0.2);border-radius:8px;font-size:0.78rem;color:var(--text-dim);line-height:1.6;">
-          <strong style="color:var(--accent-glow);">How to start:</strong> Pick a sport below. Talk to your agent &mdash; hit Conversation or Take Turns at the bottom. Say things like "bump venue to 8" or "add tight rims" to customize your matrix. Then hit "Analyze DJ's Way" to see your custom grades.
+        <div style="margin-top:18px;padding:12px;background:rgba(0,184,148,0.08);border:1px solid rgba(0,184,148,0.3);border-radius:8px;font-size:0.78rem;color:var(--green);line-height:1.6;font-weight:600;">
+          Jimmy gets 15% of profits. Losses = Peter absorbs. Execute clean, execute fast. When the crew locks a play, it shows up here. Place it at Hard Rock and confirm.
         </div>
       </div>
 
@@ -1100,6 +1110,9 @@ function showLanding() {
         ${SPORTS.map(s => `<button class="landing-btn" onclick="startSport('${s}')">${SPORT_LABELS[s]}</button>`).join('')}
       </div>
     </div>`;
+
+  // Load bet queue count
+  loadBetQueueCount();
 }
 
 function startSport(sport) {
@@ -1157,7 +1170,7 @@ async function loadSport(sport) {
     screenerCache[sport] = screener;
     oddsCache[sport] = odds;
 
-    // Show ALL analysis games (the analysis IS the demo — DJ needs to see the full system)
+    // Show ALL analysis games (the analysis IS the demo — Jimmy needs to see the full system)
     // Only fall back to odds-only upcoming games when no analysis exists
     const now = Date.now();
     const allOddsGames = odds.games || [];
@@ -1690,7 +1703,7 @@ function renderGameCard(game, screenerHits, oddsGame, cardIdx) {
     <div class="card-actions">
       ${edgeBadgeHtml(game.composite_score)}
       <div class="grade-badge ${gradeClass(grade)}">${esc(grade)}</div>
-      ${renderDJBadge(matchup)}
+      ${renderJimmyBadge(matchup)}
       <button class="reanalyze-btn small" onclick="reanalyzeGame('${currentSport}', '${esc(awayName)}', '${esc(homeName)}')" title="Re-analyze this game">RE-ANALYZE</button>
     </div>
   </div>`;
@@ -1776,7 +1789,7 @@ function renderGameCard(game, screenerHits, oddsGame, cardIdx) {
   // Multi-book line comparison
   html += renderMultiBookCard(oddsGame, cardIdx);
 
-  // Screener hits — DJ page: hide PASS, show CLOSE and above only
+  // Screener hits — Jimmy page: hide PASS, show CLOSE and above only
   const closeHits = screenerHits.filter(h => (h.verdict || h.signal || '') !== 'PASS');
   if (closeHits.length > 0) {
     html += `<div class="screener-section">
@@ -1884,7 +1897,7 @@ function submitFeedback() {
   fetch('/api/dj-feedback', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({ message: msg, category: cat, from: 'DJ' })
+    body: JSON.stringify({ message: msg, category: cat, from: 'Jimmy' })
   }).then(r => r.json()).then(data => {
     btn.textContent = 'SENT ✓';
     btn.style.background = 'linear-gradient(135deg,#10B981,#059669)';
@@ -2033,7 +2046,7 @@ function renderMatrixView() {
   const sport = currentSport || 'ncaab';
   const matrix = DEFAULT_MATRICES[sport];
   const userMatrix = agentMatrix[sport] || { matrix: [], excluded: [] };
-  const name = agentProfile ? agentProfile.display_name : 'DJ';
+  const name = agentProfile ? agentProfile.display_name : 'Jimmy';
 
   // Build a lookup: key -> current weight (override if set, else default)
   const overrideLookup = {};
@@ -2209,7 +2222,7 @@ function voiceQuick(text) {
 
 // === AGENT FUNCTIONS ===
 
-function renderDJBadge(matchup) {
+function renderJimmyBadge(matchup) {
   if (!currentSport || !djAnalysis[currentSport]) return '';
   const djGames = djAnalysis[currentSport].games || [];
   const djGame = djGames.find(g => g.matchup === matchup);
@@ -2223,12 +2236,12 @@ function renderDJBadge(matchup) {
   const diff = (djScore - defScore).toFixed(1);
   const cls = diff > 0 ? 'dj-delta-up' : (diff < 0 ? 'dj-delta-down' : 'dj-delta-same');
   const arrow = diff > 0 ? '\u2191' : (diff < 0 ? '\u2193' : '=');
-  return `<span class="dj-result-badge ${cls}">DJ: ${esc(djGame.grade)} (${djScore.toFixed(1)}) ${arrow}${Math.abs(diff)}</span>`;
+  return `<span class="dj-result-badge ${cls}">Jimmy: ${esc(djGame.grade)} (${djScore.toFixed(1)}) ${arrow}${Math.abs(diff)}</span>`;
 }
 
 function renderAgentPanel(sport) {
   const matrix = agentMatrix[sport] || { matrix: [], excluded: [] };
-  const name = agentProfile ? agentProfile.display_name : 'DJ';
+  const name = agentProfile ? agentProfile.display_name : 'Jimmy';
   const toggleId = 'matrixPanel_' + sport;
 
   let html = `<div class="agent-panel">
@@ -2239,7 +2252,7 @@ function renderAgentPanel(sport) {
     </div>
     <button class="analyze-my-way" id="analyzeMyWayBtn" onclick="analyzeMyWay('${sport}')">ANALYZE ${esc(name).toUpperCase()}'S WAY</button>`;
 
-  // DJ results summary (if exists)
+  // Jimmy results summary (if exists)
   if (djAnalysis[sport] && djAnalysis[sport].games) {
     const defData = analysisCache[sport] || {};
     const defGames = defData.games || [];
@@ -2306,7 +2319,7 @@ async function analyzeMyWay(sport) {
 
   const loading = document.getElementById('loadingState');
   loading.style.display = 'block';
-  document.getElementById('loadingText').textContent = 'Running DJ\'s custom analysis... 1-2 minutes';
+  document.getElementById('loadingText').textContent = 'Running Jimmy\'s custom analysis... 1-2 minutes';
 
   try {
     const resp = await fetch(`/api/analysis/${sport}?force=true&model=gpt-4.1-mini&user_id=${AGENT_USER_ID}`);
@@ -2331,7 +2344,7 @@ async function analyzeMyWay(sport) {
     if (btn) {
       btn.disabled = false;
       btn.classList.remove('running');
-      const name = agentProfile ? agentProfile.display_name : 'DJ';
+      const name = agentProfile ? agentProfile.display_name : 'Jimmy';
       btn.textContent = 'ANALYZE ' + name.toUpperCase() + '\'S WAY';
     }
   }
@@ -2370,7 +2383,7 @@ async function startVoiceMode() {
   const overlay = document.getElementById('voiceConnecting');
   const connectText = document.getElementById('voiceConnectText');
   if (overlay) overlay.classList.add('visible');
-  if (connectText) connectText.textContent = 'Connecting to DJ\'s Edge Agent...';
+  if (connectText) connectText.textContent = 'Connecting to Jimmy\'s Edge Agent...';
 
   try {
     // 1. Token with user_id
@@ -2444,7 +2457,7 @@ async function startVoiceMode() {
         : 'Conversation mode. Just talk.';
 
       // Greeting — onboarding-aware
-      const name = agentProfile ? agentProfile.display_name : 'DJ';
+      const name = agentProfile ? agentProfile.display_name : 'Jimmy';
       const sport = currentSport ? currentSport.toUpperCase() : 'the slate';
       const hasCustomizations = agentProfile && agentProfile.matrices && Object.keys(agentProfile.matrices).some(s => {
         const m = agentProfile.matrices[s];
@@ -2745,6 +2758,113 @@ function renderEVPanel(panel, ev, g, awayAbbr, homeAbbr) {
 function collapseEVPanel(closeBtn) {
   var panel = closeBtn.closest('.ev-panel');
   if (panel) { panel.style.display = 'none'; panel.innerHTML = ''; var evBtn = panel.parentElement.querySelector('.ev-btn'); if (evBtn) evBtn.innerHTML = '&#9889; Create Expected Value'; }
+}
+
+// === BET QUEUE FUNCTIONS ===
+async function loadBetQueueCount() {
+  try {
+    const resp = await fetch('/api/picks?status=pending');
+    if (resp.ok) {
+      const data = await resp.json();
+      const picks = (data.picks || data.data || []).filter(p =>
+        p.confidence === 'Strong' || p.confidence === 'Lock' || p.confidence === 'Fire' || p.confidence === 'Hammer'
+      );
+      const el = document.getElementById('betQueueCount');
+      if (el) el.textContent = picks.length;
+    }
+  } catch(e) { console.log('Bet queue count failed'); }
+}
+
+async function loadBetQueue() {
+  const container = document.getElementById('gamesContainer');
+  const headerBar = document.getElementById('headerBar');
+  const landingPage = document.getElementById('landingPage');
+  const footer = document.getElementById('footer');
+  if (landingPage) landingPage.innerHTML = '';
+  if (headerBar) headerBar.style.display = 'block';
+  if (footer) footer.style.display = 'block';
+  document.getElementById('sportLabel').textContent = 'BET QUEUE';
+
+  container.innerHTML = '<div class="loading"><div class="spinner"></div><div>Loading bet queue...</div></div>';
+
+  try {
+    const resp = await fetch('/api/picks');
+    if (!resp.ok) throw new Error('Failed to load picks');
+    const data = await resp.json();
+    const today = new Date().toISOString().slice(0, 10);
+    const picks = (data.picks || data.data || []).filter(p => {
+      const pDate = (p.created_at || p.timestamp || '').slice(0, 10);
+      return pDate === today && p.result === null;
+    });
+
+    if (picks.length === 0) {
+      container.innerHTML = '<div class="empty-state"><div class="icon">&#9989;</div><p>No pending bets in the queue. Check back before tip.</p></div>';
+      return;
+    }
+
+    let html = '';
+    picks.forEach(p => {
+      const conf = p.confidence || '';
+      const confColor = conf === 'Lock' || conf === 'Fire' ? 'var(--red)' :
+                        conf === 'Strong' ? 'var(--green)' :
+                        conf === 'Moderate' ? 'var(--yellow)' : 'var(--text-dim)';
+      html += `
+        <div class="game-card" style="margin-bottom:12px;padding:16px;background:var(--card-bg);border:1px solid var(--card-border);border-radius:12px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span style="font-size:0.7rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1px;">${p.sport || ''}</span>
+            <span style="font-size:0.7rem;font-weight:800;color:${confColor};text-transform:uppercase;">${conf} ${p.units ? p.units + 'u' : ''}</span>
+          </div>
+          <div style="font-size:0.95rem;font-weight:700;color:var(--text);margin-bottom:4px;">${p.selection || ''}</div>
+          <div style="font-size:0.8rem;color:var(--text-dim);margin-bottom:8px;">${p.matchup || ''} | ${p.type || ''} | ${p.odds || ''}</div>
+          <div style="font-size:0.75rem;color:var(--text-dim);line-height:1.5;">${p.notes || ''}</div>
+          <div style="margin-top:12px;display:flex;gap:8px;">
+            <button onclick="window.open('https://www.hardrocksportsbook.com','_blank')" style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--green);background:rgba(0,214,143,0.1);color:var(--green);font-size:0.75rem;font-weight:700;cursor:pointer;">PLACE AT HARD ROCK</button>
+            <button onclick="printBetSlip(this, '${(p.selection||'').replace(/'/g,"\\'")}', '${(p.matchup||'').replace(/'/g,"\\'")}', '${p.odds||''}', '${p.units||''}', '${p.sport||''}')" style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--accent);background:rgba(108,92,231,0.1);color:var(--accent);font-size:0.75rem;font-weight:700;cursor:pointer;">PRINT SLIP</button>
+          </div>
+          <div style="margin-top:8px;">
+            <input type="text" placeholder="Paste ticket # to confirm" style="width:100%;padding:8px 12px;border-radius:8px;border:1px solid var(--card-border);background:var(--bg);color:var(--text);font-size:0.8rem;" onkeydown="if(event.key==='Enter')confirmBet(this,'${p.id||''}')">
+          </div>
+          <div style="font-size:0.65rem;color:var(--text-dim);margin-top:4px;">By: ${p.name || ''} | ${(p.created_at || p.timestamp || '').slice(11,16)}</div>
+        </div>`;
+    });
+
+    container.innerHTML = html;
+  } catch(e) {
+    container.innerHTML = '<div class="empty-state"><p>Error loading queue: ' + e.message + '</p></div>';
+  }
+}
+
+function printBetSlip(btn, selection, matchup, odds, units, sport) {
+  const slip = window.open('', '_blank', 'width=400,height=500');
+  slip.document.write(`
+    <html><head><title>Bet Slip</title>
+    <style>body{font-family:monospace;padding:30px;background:#fff;color:#000;}
+    h1{font-size:18px;text-align:center;border-bottom:2px solid #000;padding-bottom:10px;}
+    .row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed #ccc;}
+    .label{font-weight:bold;font-size:12px;} .value{font-size:12px;}
+    .footer{text-align:center;margin-top:20px;font-size:10px;color:#666;}
+    </style></head><body>
+    <h1>EDGE CREW &mdash; BET SLIP</h1>
+    <div class="row"><span class="label">Sport:</span><span class="value">${sport}</span></div>
+    <div class="row"><span class="label">Selection:</span><span class="value">${selection}</span></div>
+    <div class="row"><span class="label">Matchup:</span><span class="value">${matchup}</span></div>
+    <div class="row"><span class="label">Odds:</span><span class="value">${odds}</span></div>
+    <div class="row"><span class="label">Units:</span><span class="value">${units}</span></div>
+    <div class="row"><span class="label">Date:</span><span class="value">${new Date().toLocaleDateString()}</span></div>
+    <div class="footer">Place at Hard Rock Sportsbook &mdash; Edge Crew</div>
+    </body></html>`);
+  slip.document.close();
+  slip.print();
+}
+
+function confirmBet(input, pickId) {
+  const ticket = input.value.trim();
+  if (!ticket) return;
+  input.disabled = true;
+  input.style.borderColor = 'var(--green)';
+  input.value = 'CONFIRMED: ' + ticket;
+  // Could POST to /api/bets to log the confirmation
+  showAgentToast('Bet confirmed: ' + ticket);
 }
 
 init();
