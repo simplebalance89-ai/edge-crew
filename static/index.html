@@ -10670,38 +10670,6 @@ function renderProEdgeGames(games, container) {
         var dim = _dimClass(grade);
         var gColor = _gradeColor(grade);
 
-        // EV info
-        var evStr = '';
-        if (gr && gr.ev && gr.ev.ev_pct != null) {
-            var evPct = gr.ev.ev_pct;
-            var evColor = evPct > 0 ? '#10B981' : '#ef4444';
-            evStr = '<span style="color:' + evColor + ';font-size:12px;font-weight:700;margin-left:8px;">EV: ' + (evPct > 0 ? '+' : '') + evPct.toFixed(1) + '%</span>';
-        }
-
-        // Odds
-        var oddsStr = '';
-        if (g.odds) {
-            var sp = g.odds.spread_home || g.odds.spread;
-            var ml = pickSide === 'home' ? (g.odds.ml_home || g.odds.home_ml) : (g.odds.ml_away || g.odds.away_ml);
-            if (sp) oddsStr += '<span style="color:rgba(255,255,255,0.5);font-size:11px;">Spread: ' + sp + '</span> ';
-            if (ml) oddsStr += '<span style="color:rgba(255,255,255,0.5);font-size:11px;">ML: ' + ml + '</span>';
-        }
-
-        // Race summary
-        var raceStr = '';
-        if (g.race) {
-            raceStr = '<span style="font-size:11px;color:rgba(255,255,255,0.5);">Race: ' + g.race.home_score + '-' + g.race.away_score + ' → ' + (g.race.pick_team || '?') + ' (' + (g.race.confidence || '?') + ')</span>';
-        }
-
-        // Peter flags
-        var flagsStr = '';
-        if (gr && gr.peter_rules && gr.peter_rules.flags && gr.peter_rules.flags.length > 0) {
-            gr.peter_rules.flags.forEach(function(f) {
-                var fc = f.action === 'KILL' ? '#ef4444' : (f.action === 'BOOST' ? '#10B981' : '#d4a024');
-                flagsStr += '<span style="background:rgba(255,255,255,0.06);border:1px solid ' + fc + ';color:' + fc + ';font-size:10px;padding:2px 6px;border-radius:4px;margin-right:4px;">' + f.action + ': ' + f.rule + '</span>';
-            });
-        }
-
         // Time
         var timeStr = '';
         if (g.time) {
@@ -10711,118 +10679,201 @@ function renderProEdgeGames(games, container) {
             } catch(e) { timeStr = g.time; }
         }
 
-        html += '<div class="profedge-card" style="' + dim + 'background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;margin-bottom:10px;cursor:pointer;" onclick="toggleProEdgeDetail(' + idx + ')">';
+        html += '<div class="profedge-card" style="' + dim + 'background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;margin-bottom:14px;">';
 
-        // Header row
-        html += '<div style="display:flex;justify-content:space-between;align-items:center;">';
-        html += '<div>';
-        html += '<div style="font-size:15px;font-weight:800;color:#fff;">' + g.matchup + '</div>';
-        html += '<div style="margin-top:2px;">' + oddsStr + ' <span style="color:rgba(255,255,255,0.3);font-size:11px;">' + timeStr + '</span></div>';
-        html += '</div>';
-        html += '<div style="text-align:right;">';
-        html += '<div style="font-size:28px;font-weight:900;color:' + gColor + ';">' + grade + '</div>';
-        html += '<div style="font-size:11px;color:rgba(255,255,255,0.5);">Score: ' + avg + '</div>';
-        html += '</div>';
+        // ── MATCHUP HEADER ──
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.06);">';
+        html += '<div style="font-size:16px;font-weight:800;color:#fff;">' + g.matchup + ' <span style="color:rgba(255,255,255,0.3);font-size:11px;font-weight:400;">' + timeStr + '</span></div>';
+        html += '<div style="text-align:right;"><span style="font-size:28px;font-weight:900;color:' + gColor + ';">' + grade + '</span> <span style="font-size:11px;color:rgba(255,255,255,0.4);">' + avg + '</span></div>';
         html += '</div>';
 
-        // Pick row
-        html += '<div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">';
-        if (pickTeam && grade !== '?') {
-            var sizing = '';
-            if (gr && gr.profiles && gr.profiles.sintonia) sizing = gr.profiles.sintonia.sizing || '';
-            html += '<span style="background:rgba(247,37,133,0.12);border:1px solid rgba(247,37,133,0.3);color:#F72585;font-size:12px;font-weight:800;padding:4px 10px;border-radius:6px;">PICK: ' + pickTeam + (sizing && sizing !== 'PASS' ? ' (' + sizing + ')' : '') + '</span>';
-        }
-        html += evStr;
-        html += raceStr;
+        // ── 5-STEP PIPELINE (horizontal scroll) ──
+        html += '<div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:8px;scrollbar-width:thin;-webkit-overflow-scrolling:touch;">';
+
+        // ═══ STEP 1: RAW DATA ═══
+        html += '<div style="min-width:170px;flex-shrink:0;background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.2);border-radius:10px;padding:10px;">';
+        html += '<div style="font-size:9px;font-weight:800;color:#6366f1;letter-spacing:1px;margin-bottom:6px;">STEP 1 — DATA</div>';
+        var odds = g.odds || {};
+        var spH = odds.spread_home || odds.spread || '--';
+        var ouVal = odds.total || odds.over_under || '--';
+        var mlH = odds.ml_home || odds.home_ml || '--';
+        var mlA = odds.ml_away || odds.away_ml || '--';
+        html += '<div style="font-size:11px;color:rgba(255,255,255,0.6);line-height:1.6;">';
+        html += 'Spread: <span style="color:#fff;font-weight:700;">' + spH + '</span><br>';
+        html += 'O/U: <span style="color:#fff;font-weight:700;">' + ouVal + '</span><br>';
+        html += 'ML: <span style="color:#fff;font-weight:700;">' + mlH + ' / ' + mlA + '</span>';
         html += '</div>';
-        if (flagsStr) html += '<div style="margin-top:6px;">' + flagsStr + '</div>';
+        html += '</div>';
 
-        // Expandable detail
-        html += '<div id="profedge-detail-' + idx + '" style="display:none;margin-top:12px;border-top:1px solid rgba(255,255,255,0.06);padding-top:12px;">';
-
-        // Profile comparison
-        if (gr && gr.profiles) {
-            html += '<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;">';
-            Object.keys(gr.profiles).forEach(function(pname) {
-                var p = gr.profiles[pname];
-                var pc = pname === 'sintonia' ? '#F72585' : '#818cf8';
-                html += '<div style="flex:1;min-width:140px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:10px;">';
-                html += '<div style="font-size:11px;color:' + pc + ';font-weight:700;text-transform:uppercase;margin-bottom:6px;">' + pname + '</div>';
-                html += '<div style="font-size:22px;font-weight:900;color:' + _gradeColor(p.grade) + ';">' + (p.grade || '?') + ' <span style="font-size:12px;color:rgba(255,255,255,0.4);">' + (p.final || 0).toFixed(1) + '</span></div>';
-                // Variables
-                if (p.variables) {
-                    html += '<div style="margin-top:8px;">';
-                    Object.keys(p.variables).forEach(function(vname) {
-                        var v = p.variables[vname];
-                        var vs = v.score || 0;
-                        var vc = vs >= 7 ? '#10B981' : (vs >= 5 ? '#d4a024' : '#ef4444');
-                        html += '<div style="display:flex;justify-content:space-between;font-size:11px;padding:2px 0;border-bottom:1px solid rgba(255,255,255,0.03);">';
-                        html += '<span style="color:rgba(255,255,255,0.5);">' + vname.replace(/_/g, ' ') + '</span>';
-                        html += '<span style="color:' + vc + ';font-weight:700;">' + vs + '/10</span>';
-                        html += '</div>';
-                    });
-                    html += '</div>';
-                }
-                // Chains
-                if (p.chains_fired && p.chains_fired.length > 0) {
-                    html += '<div style="margin-top:6px;">';
-                    p.chains_fired.forEach(function(c) {
-                        html += '<span style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);color:#10B981;font-size:10px;padding:2px 6px;border-radius:4px;margin-right:4px;">⛓ ' + c + '</span>';
-                    });
-                    html += '</div>';
-                }
-                html += '</div>';
-            });
-            html += '</div>';
-        }
-
-        // Team comparison
-        html += '<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:8px;">';
+        // ═══ STEP 2: ENRICHMENT ═══
+        html += '<div style="min-width:200px;flex-shrink:0;background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.2);border-radius:10px;padding:10px;">';
+        html += '<div style="font-size:9px;font-weight:800;color:#38BDF8;letter-spacing:1px;margin-bottom:6px;">STEP 2 — ENRICHMENT</div>';
         ['away', 'home'].forEach(function(side) {
             var prof = g[side + '_profile'] || {};
-            var team = side === 'home' ? g.home : g.away;
-            var abbrev = side === 'home' ? g.home_abbrev : g.away_abbrev;
-            html += '<div style="flex:1;min-width:140px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:10px;">';
-            html += '<div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:6px;">' + (abbrev || team) + ' <span style="color:rgba(255,255,255,0.3);font-size:10px;">' + side.toUpperCase() + '</span></div>';
-            if (prof.L5) html += '<div style="font-size:11px;color:rgba(255,255,255,0.5);">L5: ' + prof.L5 + ' | L10: ' + (prof.L10 || '?') + '</div>';
-            if (prof.ppg_L5) html += '<div style="font-size:11px;color:rgba(255,255,255,0.5);">PPG L5: ' + prof.ppg_L5.toFixed(1) + ' | Opp: ' + (prof.opp_ppg_L5 || 0).toFixed(1) + '</div>';
-            if (prof.streak) html += '<div style="font-size:11px;color:rgba(255,255,255,0.5);">Streak: ' + prof.streak + ' | Rest: ' + (prof.rest_days || '?') + 'd</div>';
-
-            // Injuries
+            var abbrev = side === 'home' ? (g.home_abbrev || g.home) : (g.away_abbrev || g.away);
+            var tag = side === 'home' ? 'HOME' : 'AWAY';
+            html += '<div style="margin-bottom:4px;">';
+            html += '<span style="font-size:10px;font-weight:700;color:#fff;">' + abbrev + '</span> <span style="font-size:9px;color:rgba(255,255,255,0.3);">' + tag + '</span><br>';
+            if (prof.L5) html += '<span style="font-size:10px;color:rgba(255,255,255,0.5);">L5: ' + prof.L5 + ' | L10: ' + (prof.L10 || '?') + '</span><br>';
+            if (prof.ppg_L5) html += '<span style="font-size:10px;color:rgba(255,255,255,0.5);">PPG: ' + prof.ppg_L5.toFixed(1) + ' | Opp: ' + (prof.opp_ppg_L5 || 0).toFixed(1) + '</span><br>';
+            if (prof.streak) html += '<span style="font-size:10px;color:rgba(255,255,255,0.5);">Streak: ' + prof.streak + ' | Rest: ' + (prof.rest_days || '?') + 'd</span><br>';
+            // Injuries count
             var inj = (g.injuries && g.injuries[side]) || [];
             if (inj.length > 0) {
                 var outCount = inj.filter(function(i){return i.status === 'OUT';}).length;
-                html += '<div style="margin-top:4px;font-size:11px;color:#ef4444;">Injuries: ' + inj.length + ' (' + outCount + ' OUT)</div>';
-                inj.forEach(function(i) {
-                    html += '<div style="font-size:10px;color:rgba(255,255,255,0.4);padding-left:8px;">' + (i.status || '?') + ' — ' + i.player + ' (' + (i.pos || '?') + ')</div>';
-                });
+                html += '<span style="font-size:10px;color:#ef4444;">' + inj.length + ' injuries (' + outCount + ' OUT)</span>';
             }
             html += '</div>';
         });
         html += '</div>';
 
-        // Race lanes
-        if (g.race && g.race.lanes) {
-            html += '<div style="margin-top:8px;"><div style="font-size:11px;color:rgba(255,255,255,0.4);font-weight:700;margin-bottom:4px;">SWIM LANE RACE</div>';
-            g.race.lanes.forEach(function(lane) {
-                var winner = lane.winner;
-                var hc = winner === 'home' ? '#10B981' : 'rgba(255,255,255,0.3)';
-                var ac = winner === 'away' ? '#10B981' : 'rgba(255,255,255,0.3)';
-                html += '<div style="display:flex;justify-content:space-between;font-size:11px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.03);">';
-                html += '<span style="color:rgba(255,255,255,0.5);flex:1;">' + lane.heat + '</span>';
-                html += '<span style="color:' + hc + ';width:60px;text-align:center;font-weight:700;">' + (lane.home.grade || lane.home.score || '-') + '</span>';
-                html += '<span style="color:' + ac + ';width:60px;text-align:center;font-weight:700;">' + (lane.away.grade || lane.away.score || '-') + '</span>';
+        // ═══ STEP 3: VARIABLES ═══
+        html += '<div style="min-width:200px;flex-shrink:0;background:rgba(212,160,36,0.06);border:1px solid rgba(212,160,36,0.2);border-radius:10px;padding:10px;">';
+        html += '<div style="font-size:9px;font-weight:800;color:#d4a024;letter-spacing:1px;margin-bottom:6px;">STEP 3 — VARIABLES</div>';
+        if (gr && gr.profiles) {
+            // Collect all unique variable names from first profile
+            var firstProfile = gr.profiles[Object.keys(gr.profiles)[0]];
+            if (firstProfile && firstProfile.variables) {
+                var vars = firstProfile.variables;
+                var varNames = Object.keys(vars);
+                // Show top 8 by score (highest impact)
+                varNames.sort(function(a,b) { return (vars[b].score || 0) - (vars[a].score || 0); });
+                var showVars = varNames.slice(0, 8);
+                showVars.forEach(function(vname) {
+                    var v = vars[vname];
+                    var vs = v.score || 0;
+                    var vc = vs >= 7 ? '#10B981' : (vs >= 5 ? '#d4a024' : '#ef4444');
+                    html += '<div style="display:flex;justify-content:space-between;font-size:10px;padding:1px 0;">';
+                    html += '<span style="color:rgba(255,255,255,0.5);">' + vname.replace(/_/g, ' ') + '</span>';
+                    html += '<span style="color:' + vc + ';font-weight:700;">' + vs + '</span>';
+                    html += '</div>';
+                });
+                if (varNames.length > 8) {
+                    html += '<div style="font-size:9px;color:rgba(255,255,255,0.3);margin-top:2px;">+' + (varNames.length - 8) + ' more</div>';
+                }
+            } else {
+                html += '<div style="font-size:10px;color:rgba(255,255,255,0.3);font-style:italic;">No variables</div>';
+            }
+        } else {
+            html += '<div style="font-size:10px;color:rgba(255,255,255,0.3);font-style:italic;">Not graded</div>';
+        }
+        html += '</div>';
+
+        // ═══ STEP 4: GRADERS (swim lanes) ═══
+        html += '<div style="min-width:220px;flex-shrink:0;background:rgba(247,37,133,0.06);border:1px solid rgba(247,37,133,0.2);border-radius:10px;padding:10px;">';
+        html += '<div style="font-size:9px;font-weight:800;color:#F72585;letter-spacing:1px;margin-bottom:6px;">STEP 4 — GRADERS</div>';
+        if (gr && gr.profiles) {
+            var profileNames = Object.keys(gr.profiles);
+            html += '<div style="display:grid;grid-template-columns:' + (profileNames.length > 1 ? '1fr 1fr' : '1fr') + ';gap:6px;">';
+            profileNames.forEach(function(pname) {
+                var p = gr.profiles[pname];
+                var pc = pname === 'sintonia' ? '#F72585' : (pname === 'renzo' ? '#818cf8' : (pname === 'peter' ? '#10B981' : '#38BDF8'));
+                html += '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:8px;text-align:center;">';
+                html += '<div style="font-size:9px;font-weight:800;color:' + pc + ';letter-spacing:0.5px;text-transform:uppercase;">' + pname + '</div>';
+                html += '<div style="font-size:24px;font-weight:900;color:' + _gradeColor(p.grade) + ';line-height:1.2;">' + (p.grade || '?') + '</div>';
+                html += '<div style="font-size:10px;color:rgba(255,255,255,0.4);">' + (p.final || 0).toFixed(1) + '</div>';
+                if (p.sizing) html += '<div style="font-size:9px;color:rgba(255,255,255,0.5);margin-top:2px;">' + p.sizing + '</div>';
+                html += '</div>';
+            });
+            html += '</div>';
+            // Peter rules flags
+            if (gr.peter_rules && gr.peter_rules.flags && gr.peter_rules.flags.length > 0) {
+                html += '<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:3px;">';
+                gr.peter_rules.flags.forEach(function(f) {
+                    var fc = f.action === 'KILL' ? '#ef4444' : (f.action === 'BOOST' ? '#10B981' : '#d4a024');
+                    html += '<span style="font-size:9px;padding:2px 5px;border-radius:3px;background:rgba(255,255,255,0.04);border:1px solid ' + fc + ';color:' + fc + ';">' + f.action + '</span>';
+                });
+                html += '</div>';
+            }
+        } else {
+            html += '<div style="font-size:10px;color:rgba(255,255,255,0.3);font-style:italic;">Not graded</div>';
+        }
+        html += '</div>';
+
+        // ═══ STEP 5: ENGINE VERDICT ═══
+        html += '<div style="min-width:180px;flex-shrink:0;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:10px;text-align:center;display:flex;flex-direction:column;justify-content:center;">';
+        html += '<div style="font-size:9px;font-weight:800;color:#10B981;letter-spacing:1px;margin-bottom:8px;">STEP 5 — ENGINE</div>';
+        html += '<div style="font-size:36px;font-weight:900;color:' + gColor + ';line-height:1;">' + grade + '</div>';
+        html += '<div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:2px;">Score: ' + avg + '</div>';
+        if (pickTeam && grade !== '?') {
+            var sizing = '';
+            if (gr && gr.profiles && gr.profiles.sintonia) sizing = gr.profiles.sintonia.sizing || '';
+            html += '<div style="margin-top:8px;background:rgba(247,37,133,0.15);border:1px solid rgba(247,37,133,0.3);color:#F72585;font-size:12px;font-weight:800;padding:6px 10px;border-radius:6px;">' + pickTeam + (sizing && sizing !== 'PASS' ? ' (' + sizing + ')' : '') + '</div>';
+        }
+        // EV
+        if (gr && gr.ev && gr.ev.ev_pct != null) {
+            var evPct = gr.ev.ev_pct;
+            var evColor = evPct > 0 ? '#10B981' : '#ef4444';
+            html += '<div style="margin-top:4px;font-size:11px;font-weight:700;color:' + evColor + ';">EV: ' + (evPct > 0 ? '+' : '') + evPct.toFixed(1) + '%</div>';
+        }
+        // Race
+        if (g.race) {
+            html += '<div style="margin-top:4px;font-size:10px;color:rgba(255,255,255,0.5);">Race: ' + g.race.home_score + '-' + g.race.away_score + '</div>';
+            html += '<div style="font-size:10px;color:rgba(255,255,255,0.4);">' + (g.race.confidence || '') + '</div>';
+        }
+        // Regrade
+        html += '<button onclick="event.stopPropagation();regradeProEdge(\'' + g.game_id + '\')" style="margin-top:8px;background:rgba(247,37,133,0.12);border:1px solid rgba(247,37,133,0.3);color:#F72585;font-size:10px;font-weight:700;padding:5px 12px;border-radius:6px;cursor:pointer;">RE-GRADE</button>';
+        html += '</div>';
+
+        html += '</div>'; // end pipeline row
+
+        // ── EXPANDABLE DETAIL (tap matchup header to toggle) ──
+        html += '<div id="profedge-detail-' + idx + '" style="display:none;margin-top:10px;border-top:1px solid rgba(255,255,255,0.06);padding-top:10px;cursor:pointer;" onclick="toggleProEdgeDetail(' + idx + ')">';
+
+        // Full variable breakdown per profile
+        if (gr && gr.profiles) {
+            html += '<div style="display:flex;gap:10px;flex-wrap:wrap;">';
+            Object.keys(gr.profiles).forEach(function(pname) {
+                var p = gr.profiles[pname];
+                var pc = pname === 'sintonia' ? '#F72585' : '#818cf8';
+                html += '<div style="flex:1;min-width:200px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:10px;">';
+                html += '<div style="font-size:10px;color:' + pc + ';font-weight:700;text-transform:uppercase;margin-bottom:4px;">' + pname + ' — ALL VARIABLES</div>';
+                if (p.variables) {
+                    Object.keys(p.variables).forEach(function(vname) {
+                        var v = p.variables[vname];
+                        var vs = v.score || 0;
+                        var vc = vs >= 7 ? '#10B981' : (vs >= 5 ? '#d4a024' : '#ef4444');
+                        html += '<div style="display:flex;justify-content:space-between;font-size:10px;padding:2px 0;border-bottom:1px solid rgba(255,255,255,0.03);">';
+                        html += '<span style="color:rgba(255,255,255,0.5);">' + vname.replace(/_/g, ' ') + '</span>';
+                        html += '<span style="color:' + vc + ';font-weight:700;">' + vs + '/10</span>';
+                        html += '</div>';
+                    });
+                }
+                if (p.chains_fired && p.chains_fired.length > 0) {
+                    html += '<div style="margin-top:4px;">';
+                    p.chains_fired.forEach(function(c) {
+                        html += '<span style="font-size:9px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);color:#10B981;padding:2px 5px;border-radius:3px;margin-right:3px;">&#9939; ' + c + '</span>';
+                    });
+                    html += '</div>';
+                }
                 html += '</div>';
             });
             html += '</div>';
         }
 
-        // Regrade button
-        html += '<div style="margin-top:10px;text-align:right;">';
-        html += '<button onclick="event.stopPropagation();regradeProEdge(\'' + g.game_id + '\')" style="background:rgba(247,37,133,0.12);border:1px solid rgba(247,37,133,0.3);color:#F72585;font-size:11px;font-weight:700;padding:6px 14px;border-radius:6px;cursor:pointer;">RE-GRADE</button>';
+        // Injuries detail
+        html += '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;">';
+        ['away', 'home'].forEach(function(side) {
+            var inj = (g.injuries && g.injuries[side]) || [];
+            if (inj.length > 0) {
+                var team = side === 'home' ? (g.home_abbrev || g.home) : (g.away_abbrev || g.away);
+                html += '<div style="flex:1;min-width:200px;">';
+                html += '<div style="font-size:10px;color:#ef4444;font-weight:700;margin-bottom:2px;">' + team + ' INJURIES</div>';
+                inj.forEach(function(i) {
+                    html += '<div style="font-size:10px;color:rgba(255,255,255,0.4);">' + (i.status || '?') + ' — ' + i.player + ' (' + (i.pos || '?') + ')</div>';
+                });
+                html += '</div>';
+            }
+        });
         html += '</div>';
 
         html += '</div>'; // end detail
+
+        // Make header clickable for expand
+        html += '<div style="text-align:center;margin-top:6px;cursor:pointer;" onclick="toggleProEdgeDetail(' + idx + ')">';
+        html += '<span style="font-size:10px;color:rgba(255,255,255,0.25);">tap for full breakdown</span>';
+        html += '</div>';
+
         html += '</div>'; // end card
     });
 
