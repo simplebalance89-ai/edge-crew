@@ -1952,16 +1952,19 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <div class="gotcha-banner" style="border-color:rgba(247,37,133,0.4);background:rgba(247,37,133,0.06);">
     <div style="display:flex;justify-content:space-between;align-items:center;">
         <h3 style="color:#F72585;">PRO EDGE <span style="font-size:11px;color:rgba(255,255,255,0.4);font-weight:400;">V3 Pipeline</span></h3>
-        <div style="display:flex;gap:6px;">
-            <select id="profedgeSportSelect" onchange="loadProEdge(this.value)" style="background:rgba(255,255,255,0.06);color:#fff;border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:6px 10px;font-size:12px;cursor:pointer;">
-                <option value="nba">NBA</option>
-                <option value="ncaab">NCAAB</option>
-                <option value="nhl">NHL</option>
-            </select>
-            <button style="cursor:pointer;padding:6px 14px;border-radius:6px;background:rgba(247,37,133,0.2);color:#F72585;font-size:11px;font-weight:700;border:none;letter-spacing:0.5px;" onclick="loadProEdge(document.getElementById('profedgeSportSelect').value)">LOAD</button>
-        </div>
     </div>
-    <p style="color:rgba(255,255,255,0.4);font-size:12px;margin-top:4px;">Sinton.ia + Renzo + Peter Rules consensus. Expandable game cards with full variable breakdown.</p>
+    <div id="profedgeSportTabs" style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">
+        <button class="pe-sport-tab pe-active" onclick="switchProEdgeSport(this,'nba')" style="padding:6px 14px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid #F72585;background:rgba(247,37,133,0.2);color:#F72585;cursor:pointer;letter-spacing:0.5px;transition:all 0.2s;">NBA</button>
+        <button class="pe-sport-tab" onclick="switchProEdgeSport(this,'ncaab')" style="padding:6px 14px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;letter-spacing:0.5px;transition:all 0.2s;">NCAAB</button>
+        <button class="pe-sport-tab" onclick="switchProEdgeSport(this,'nhl')" style="padding:6px 14px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;letter-spacing:0.5px;transition:all 0.2s;">NHL</button>
+        <button class="pe-sport-tab" onclick="switchProEdgeSport(this,'nfl')" style="padding:6px 14px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;letter-spacing:0.5px;transition:all 0.2s;">NFL</button>
+        <button class="pe-sport-tab" onclick="switchProEdgeSport(this,'mlb')" style="padding:6px 14px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;letter-spacing:0.5px;transition:all 0.2s;">MLB</button>
+        <button class="pe-sport-tab" onclick="switchProEdgeSport(this,'soccer')" style="padding:6px 14px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;letter-spacing:0.5px;transition:all 0.2s;">Soccer</button>
+        <button class="pe-sport-tab" onclick="switchProEdgeSport(this,'mma')" style="padding:6px 14px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;letter-spacing:0.5px;transition:all 0.2s;">MMA</button>
+        <button class="pe-sport-tab" onclick="switchProEdgeSport(this,'tennis')" style="padding:6px 14px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;letter-spacing:0.5px;transition:all 0.2s;">Tennis</button>
+        <button class="pe-sport-tab" onclick="switchProEdgeSport(this,'wnba')" style="padding:6px 14px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;letter-spacing:0.5px;transition:all 0.2s;">WNBA</button>
+        <button class="pe-sport-tab" onclick="switchProEdgeSport(this,'boxing')" style="padding:6px 14px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;letter-spacing:0.5px;transition:all 0.2s;">Boxing</button>
+    </div>
 </div>
 <!-- Pro Edge Stats Bar -->
 <div id="profedgeStats" style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap;"></div>
@@ -10606,6 +10609,20 @@ window.addEventListener('pageshow', function(e) {
 // ── Pro Edge V3 ──────────────────────────────────────────────────────────────
 var _profedgeCurrentSport = 'nba';
 var _profedgeData = null;
+
+function switchProEdgeSport(btn, sport) {
+    document.querySelectorAll('.pe-sport-tab').forEach(function(t) {
+        t.classList.remove('pe-active');
+        t.style.borderColor = 'rgba(255,255,255,0.15)';
+        t.style.background = 'transparent';
+        t.style.color = 'rgba(255,255,255,0.5)';
+    });
+    btn.classList.add('pe-active');
+    btn.style.borderColor = '#F72585';
+    btn.style.background = 'rgba(247,37,133,0.2)';
+    btn.style.color = '#F72585';
+    loadProEdge(sport);
+}
 
 function loadProEdge(sport) {
     _profedgeCurrentSport = sport;
