@@ -1,0 +1,454 @@
+{
+  "sport": "NBA",
+  "date": "20260319",
+  "races": [
+    {
+      "matchup": "Orlando Magic @ Charlotte Hornets",
+      "home": "Charlotte Hornets",
+      "away": "Orlando Magic",
+      "lanes": [
+        {
+          "heat": "Team Profile",
+          "home": {
+            "grade": "C+",
+            "score": 6.46
+          },
+          "away": {
+            "grade": "B+",
+            "score": 8.1
+          },
+          "winner": "away",
+          "margin": 1.5
+        },
+        {
+          "heat": "Player Chains",
+          "home": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "away": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "winner": "push",
+          "margin": 0.0
+        },
+        {
+          "heat": "Matchup (Off vs Def)",
+          "home": {
+            "off_l5": 111.4,
+            "vs_opp_def": 121.4,
+            "edge": -10.0
+          },
+          "away": {
+            "off_l5": 121.0,
+            "vs_opp_def": 108.4,
+            "edge": 12.6
+          },
+          "winner": "away",
+          "margin": 22.6
+        }
+      ],
+      "home_score": 0,
+      "away_score": 2,
+      "margin": 2,
+      "race_winner": "away",
+      "pick_team": "Orlando Magic",
+      "pick_spread": null,
+      "bet_size": "1u",
+      "confidence": "High"
+    },
+    {
+      "matchup": "Detroit Pistons @ Washington Wizards",
+      "home": "Washington Wizards",
+      "away": "Detroit Pistons",
+      "lanes": [
+        {
+          "heat": "Team Profile",
+          "home": {
+            "grade": "F",
+            "score": 2.61
+          },
+          "away": {
+            "grade": "B+",
+            "score": 8.0
+          },
+          "winner": "away",
+          "margin": 6.2
+        },
+        {
+          "heat": "Player Chains",
+          "home": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "away": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "winner": "push",
+          "margin": 0.0
+        },
+        {
+          "heat": "Matchup (Off vs Def)",
+          "home": {
+            "off_l5": 118.8,
+            "vs_opp_def": 111.0,
+            "edge": 7.8
+          },
+          "away": {
+            "off_l5": 126.6,
+            "vs_opp_def": 130.4,
+            "edge": -3.8
+          },
+          "winner": "home",
+          "margin": 11.6
+        }
+      ],
+      "home_score": 1,
+      "away_score": 1,
+      "margin": 0,
+      "race_winner": "push",
+      "pick_team": "PASS",
+      "pick_spread": null,
+      "bet_size": "PASS",
+      "confidence": "Low"
+    },
+    {
+      "matchup": "Los Angeles Lakers @ Miami Heat",
+      "home": "Miami Heat",
+      "away": "Los Angeles Lakers",
+      "lanes": [
+        {
+          "heat": "Team Profile",
+          "home": {
+            "grade": "C-",
+            "score": 5.65
+          },
+          "away": {
+            "grade": "A-",
+            "score": 8.43
+          },
+          "winner": "away",
+          "margin": 1.2
+        },
+        {
+          "heat": "Player Chains",
+          "home": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "away": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "winner": "push",
+          "margin": 0.0
+        },
+        {
+          "heat": "Matchup (Off vs Def)",
+          "home": {
+            "off_l5": 121.2,
+            "vs_opp_def": 110.0,
+            "edge": 11.2
+          },
+          "away": {
+            "off_l5": 119.8,
+            "vs_opp_def": 120.2,
+            "edge": -0.4
+          },
+          "winner": "home",
+          "margin": 11.6
+        }
+      ],
+      "home_score": 1,
+      "away_score": 1,
+      "margin": 0,
+      "race_winner": "push",
+      "pick_team": "PASS",
+      "pick_spread": null,
+      "bet_size": "PASS",
+      "confidence": "Low"
+    },
+    {
+      "matchup": "Cleveland Cavaliers @ Chicago Bulls",
+      "home": "Chicago Bulls",
+      "away": "Cleveland Cavaliers",
+      "lanes": [
+        {
+          "heat": "Team Profile",
+          "home": {
+            "grade": "D",
+            "score": 4.25
+          },
+          "away": {
+            "grade": "B-",
+            "score": 7.17
+          },
+          "winner": "away",
+          "margin": 0.7
+        },
+        {
+          "heat": "Player Chains",
+          "home": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "away": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "winner": "push",
+          "margin": 0.0
+        },
+        {
+          "heat": "Matchup (Off vs Def)",
+          "home": {
+            "off_l5": 122.0,
+            "vs_opp_def": 116.0,
+            "edge": 6.0
+          },
+          "away": {
+            "off_l5": 123.6,
+            "vs_opp_def": 123.6,
+            "edge": 0.0
+          },
+          "winner": "home",
+          "margin": 6.0
+        }
+      ],
+      "home_score": 1,
+      "away_score": 1,
+      "margin": 0,
+      "race_winner": "push",
+      "pick_team": "PASS",
+      "pick_spread": null,
+      "bet_size": "PASS",
+      "confidence": "Low"
+    },
+    {
+      "matchup": "LA Clippers @ New Orleans Pelicans",
+      "home": "New Orleans Pelicans",
+      "away": "LA Clippers",
+      "lanes": [
+        {
+          "heat": "Team Profile",
+          "home": {
+            "grade": "F",
+            "score": 3.9
+          },
+          "away": {
+            "grade": "C",
+            "score": 6.22
+          },
+          "winner": "away",
+          "margin": 1.0
+        },
+        {
+          "heat": "Player Chains",
+          "home": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "away": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "winner": "push",
+          "margin": 0.0
+        },
+        {
+          "heat": "Matchup (Off vs Def)",
+          "home": {
+            "off_l5": 122.0,
+            "vs_opp_def": 118.2,
+            "edge": 3.8
+          },
+          "away": {
+            "off_l5": 124.4,
+            "vs_opp_def": 113.0,
+            "edge": 11.4
+          },
+          "winner": "away",
+          "margin": 7.6
+        }
+      ],
+      "home_score": 0,
+      "away_score": 2,
+      "margin": 2,
+      "race_winner": "away",
+      "pick_team": "LA Clippers",
+      "pick_spread": null,
+      "bet_size": "1u",
+      "confidence": "High"
+    },
+    {
+      "matchup": "Phoenix Suns @ San Antonio Spurs",
+      "home": "San Antonio Spurs",
+      "away": "Phoenix Suns",
+      "lanes": [
+        {
+          "heat": "Team Profile",
+          "home": {
+            "grade": "A-",
+            "score": 8.47
+          },
+          "away": {
+            "grade": "C-",
+            "score": 5.71
+          },
+          "winner": "home",
+          "margin": 1.5
+        },
+        {
+          "heat": "Player Chains",
+          "home": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "away": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "winner": "push",
+          "margin": 0.0
+        },
+        {
+          "heat": "Matchup (Off vs Def)",
+          "home": {
+            "off_l5": 124.4,
+            "vs_opp_def": 116.0,
+            "edge": 8.4
+          },
+          "away": {
+            "off_l5": 116.6,
+            "vs_opp_def": 114.6,
+            "edge": 2.0
+          },
+          "winner": "home",
+          "margin": 6.4
+        }
+      ],
+      "home_score": 2,
+      "away_score": 0,
+      "margin": 2,
+      "race_winner": "home",
+      "pick_team": "San Antonio Spurs",
+      "pick_spread": "?",
+      "bet_size": "1u",
+      "confidence": "High"
+    },
+    {
+      "matchup": "Milwaukee Bucks @ Utah Jazz",
+      "home": "Utah Jazz",
+      "away": "Milwaukee Bucks",
+      "lanes": [
+        {
+          "heat": "Team Profile",
+          "home": {
+            "grade": "F",
+            "score": 2.83
+          },
+          "away": {
+            "grade": "C-",
+            "score": 5.45
+          },
+          "winner": "away",
+          "margin": 2.5
+        },
+        {
+          "heat": "Player Chains",
+          "home": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "away": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "winner": "push",
+          "margin": 0.0
+        },
+        {
+          "heat": "Matchup (Off vs Def)",
+          "home": {
+            "off_l5": 112.0,
+            "vs_opp_def": 121.8,
+            "edge": -9.8
+          },
+          "away": {
+            "off_l5": 113.6,
+            "vs_opp_def": 120.6,
+            "edge": -7.0
+          },
+          "winner": "away",
+          "margin": 2.8
+        }
+      ],
+      "home_score": 0,
+      "away_score": 2,
+      "margin": 2,
+      "race_winner": "away",
+      "pick_team": "Milwaukee Bucks",
+      "pick_spread": "?",
+      "bet_size": "1u",
+      "confidence": "High"
+    },
+    {
+      "matchup": "Philadelphia 76ers @ Sacramento Kings",
+      "home": "Sacramento Kings",
+      "away": "Philadelphia 76ers",
+      "lanes": [
+        {
+          "heat": "Team Profile",
+          "home": {
+            "grade": "F",
+            "score": 2.7
+          },
+          "away": {
+            "grade": "D+",
+            "score": 4.88
+          },
+          "winner": "away",
+          "margin": 2.5
+        },
+        {
+          "heat": "Player Chains",
+          "home": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "away": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "winner": "push",
+          "margin": 0.0
+        },
+        {
+          "heat": "Matchup (Off vs Def)",
+          "home": {
+            "off_l5": 112.2,
+            "vs_opp_def": 116.8,
+            "edge": -4.6
+          },
+          "away": {
+            "off_l5": 111.4,
+            "vs_opp_def": 115.6,
+            "edge": -4.2
+          },
+          "winner": "push",
+          "margin": 0.4
+        }
+      ],
+      "home_score": 0,
+      "away_score": 1,
+      "margin": 1,
+      "race_winner": "away",
+      "pick_team": "Philadelphia 76ers",
+      "pick_spread": "?",
+      "bet_size": "0.5u",
+      "confidence": "Moderate"
+    }
+  ]
+}

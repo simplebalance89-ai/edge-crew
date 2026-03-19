@@ -1,0 +1,166 @@
+{
+  "game": "PHX @ SAS",
+  "date": "2026-03-19",
+  "venue": "Frost Bank Center, San Antonio",
+  "tip_time": "8:00 PM CT",
+  "teams": {
+    "Phoenix Suns": {
+      "record": "39-30",
+      "conference_standing": "7th Western Conference",
+      "l5_record": "2-3",
+      "l5_results": [
+        {"date": "2026-03-17", "opponent": "BOS", "result": "L", "score": "112-120"},
+        {"date": "2026-03-14", "opponent": "TOR", "result": "L", "score": "115-122"},
+        {"date": "2026-03-12", "opponent": "NOP", "result": "W", "score": "118-116"},
+        {"date": "2026-03-10", "opponent": "CHI", "result": "L", "score": "103-105"},
+        {"date": "2026-03-08", "opponent": "SAC", "result": "W", "score": "114-103"}
+      ],
+      "starters": [
+        {"name": "Devin Booker", "position": "PG/SG", "ppg": 25.4, "rpg": 4.0, "apg": 6.0},
+        {"name": "Jalen Green", "position": "SG/SF", "ppg": 20.0, "note": "Acquired in KD trade from Houston"},
+        {"name": "Royce O'Neale", "position": "SF", "status": "Questionable (left knee soreness)"},
+        {"name": "Dillon Brooks", "position": "PF", "status": "OUT (left hand fracture)"},
+        {"name": "Mark Williams", "position": "C", "status": "OUT (left foot stress reaction)"}
+      ],
+      "bench": [
+        {"name": "Grayson Allen", "status": "Questionable (left knee soreness)"},
+        {"name": "Khaman Maluach", "position": "C", "note": "Rookie"},
+        {"name": "Rasheer Fleming", "position": "PF", "note": "Rookie"}
+      ],
+      "injuries": {
+        "out": ["Dillon Brooks (left hand fracture)", "Mark Williams (left foot stress reaction)"],
+        "questionable": ["Grayson Allen (left knee soreness)", "Royce O'Neale (left knee soreness)"]
+      },
+      "team_stats": {
+        "ortg": 116.7,
+        "ortg_rank": 12,
+        "drtg": 114.3,
+        "drtg_rank": 13,
+        "net_rating": 2.4,
+        "ppg": 113.5,
+        "papg": 112.8
+      },
+      "coaching": "Shaun Ott (1st full season)",
+      "home_away": "AWAY",
+      "model_grades": {
+        "grok_3": {
+          "grade": "C+",
+          "composite_score": 6.2,
+          "confidence": "Moderate",
+          "key_notes": "Suns face a tough road game against a strong Spurs team (49-18). Devin Booker remains a key offensive force (25.4 PPG), supported by Jalen Green's scoring (20+ PPG). However, injuries to Dillon Brooks (OUT) and Mark Williams (OUT), along with questionable statuses for Royce O'Neale and Grayson Allen, weaken lineup depth and defense. Recent form (2-3 in L5) shows inconsistency, and facing a top-2 Western Conference team on the road lowers confidence. Rebounding and defensive efficiency may struggle against Wembanyama and Fox."
+        },
+        "grok_4_1_fast_reasoning": {
+          "grade": "C",
+          "composite_score": 5.74,
+          "confidence": "Medium",
+          "key_notes": "Solid star power from Booker (25.4 PPG) and Green (20+ PPG), decent efficiency rankings (ORTG 12th, DRTG 13th). However, significant injury concerns: Brooks OUT (hand), Williams OUT (foot), O'Neale/Allen questionable. Mediocre recent form, away vs elite Spurs (49-18). Limited depth with rookie C Maluach."
+        },
+        "deepseek_v3_2": {
+          "grade": "C-",
+          "composite_score": 5.2,
+          "confidence": "Low",
+          "key_notes": "Injury-ravaged roster with 2 key players OUT (Brooks, Williams) and 2 rotation players questionable (Allen, O'Neale). Facing a top-tier Spurs team on the road. Recent form is inconsistent (2-3 L5). Offensive and defensive ratings are league average, but missing key defenders severely impacts matchup vs. elite Spurs offense. Booker/Green must carry heavy load."
+        },
+        "gpt_4_1": {
+          "grade": "C+",
+          "composite_score": 5.7,
+          "confidence": "Moderate-Low",
+          "key_notes": "Suns are 7th in the West (39-30), coming off a 2-3 stretch with close losses. Booker (25.4 PPG) and Green (20+ PPG) provide star power, but injuries to Brooks (starter), Williams (rotation C), and questionable status for Allen & O'Neale hurt lineup health and bench depth. ORTG (116.7, 12th) and DRTG (114.3, 13th) are above average, but not elite. Facing Spurs (49-18, 2nd West) away is a tough matchup, especially with Wembanyama/Fox. Suns' motivation is high for playoff seeding, but health and recent form lower confidence."
+        }
+      },
+      "consensus": {
+        "avg_composite_score": 5.71,
+        "consensus_grade": "C+",
+        "model_agreement": "Strong (all models C- to C+)",
+        "key_theme": "Injury-depleted roster on the road against elite opposition. Star power from Booker/Green not enough to offset missing pieces."
+      }
+    },
+    "San Antonio Spurs": {
+      "record": "49-18",
+      "conference_standing": "2nd Western Conference",
+      "l5_record": "4-1",
+      "l5_results": [
+        {"date": "2026-03-18", "opponent": "SAC", "result": "W", "score": "132-104"},
+        {"date": "2026-03-16", "opponent": "LAC", "result": "W", "score": "119-115"},
+        {"date": "2026-03-15", "opponent": "CHA", "result": "W", "score": "115-102"}
+      ],
+      "starters": [
+        {"name": "De'Aaron Fox", "position": "PG", "note": "Acquired via trade from Sacramento"},
+        {"name": "Stephon Castle", "position": "SG", "note": "2nd year"},
+        {"name": "Devin Vassell", "position": "SF", "status": "OUT (ankle)"},
+        {"name": "Harrison Barnes", "position": "PF"},
+        {"name": "Victor Wembanyama", "position": "C", "ppg": 24.3, "rpg": 11.2, "bpg": 3.0}
+      ],
+      "bench": [
+        {"name": "Dylan Harper", "status": "Questionable (calf)"},
+        {"name": "Julian Champagnie", "position": "SF/PF"},
+        {"name": "Keldon Johnson", "position": "SF"},
+        {"name": "Jeremy Sochan", "position": "PF"},
+        {"name": "Luke Kornet", "position": "C"},
+        {"name": "Kelly Olynyk", "position": "C/PF"},
+        {"name": "Jordan McLaughlin", "position": "PG"}
+      ],
+      "injuries": {
+        "out": ["Devin Vassell (ankle)"],
+        "questionable": ["Dylan Harper (calf)"]
+      },
+      "team_stats": {
+        "ortg": 119.1,
+        "ortg_rank": 6,
+        "drtg": 112.8,
+        "drtg_rank": 5,
+        "net_rating": 6.3,
+        "ppg": 119.0,
+        "papg": 112.8
+      },
+      "coaching": "Mitch Johnson",
+      "home_away": "HOME",
+      "model_grades": {
+        "grok_3": {
+          "grade": "A-",
+          "composite_score": 8.5,
+          "confidence": "High",
+          "key_notes": "Spurs in excellent form with a 49-18 record, 2nd in the West. Victor Wembanyama dominating (24.3 PPG, 11.2 RPG, 3.0 BPG). Strong recent wins (L5: 4-1), elite ORTG (119.1, 6th) and DRTG (112.8, 5th). Home advantage at Frost Bank Center vs Suns (39-30). Injury concerns with Vassell OUT and Harper questionable, but core lineup remains potent with Fox, Castle, and Barnes. High confidence in continued success barring major injury impact."
+        },
+        "grok_4_1_fast_reasoning": {
+          "grade": "A-",
+          "composite_score": 8.2,
+          "confidence": "High",
+          "key_notes": "Elite 49-18 record (2nd West), 4-1 L5 with strong wins. Wembanyama dominant (24.3/11.2/3.0). Top-6 ORTG/DRTG. Home vs 7th-seed Suns. Vassell OUT (ankle), Harper Q (calf). Solid depth with Fox, Castle, Barnes."
+        },
+        "deepseek_v3_2": {
+          "grade": "A-",
+          "composite_score": 8.4,
+          "confidence": "Very High",
+          "key_notes": "Elite 49-18 record, 2nd in West. Wembanyama is a dominant two-way force. Strong recent form (4-1) with high-scoring wins. Home court advantage. Defense (5th) and offense (6th) both top-tier. Main concern is Devin Vassell's absence, slightly offset by depth. Harper's questionable status minor. Facing a lower-seeded Suns team at home."
+        },
+        "gpt_4_1": {
+          "grade": "A",
+          "composite_score": 8.8,
+          "confidence": "High",
+          "key_notes": "Spurs are in strong form (4-1 L5), holding 2nd in West with a 49-18 record. Wembanyama is a dominant star (24.3 PPG, 11.2 RPG, 3.0 BPG), supported by Fox and Castle. Offense (ORTG 119.1, 6th) and defense (DRTG 112.8, 5th) are elite. Vassell is out (ankle), Harper questionable (calf), but overall lineup depth remains solid. Home advantage vs Suns (Booker/Green). Motivation high with playoff seeding at stake."
+        }
+      },
+      "consensus": {
+        "avg_composite_score": 8.48,
+        "consensus_grade": "A-",
+        "model_agreement": "Very Strong (all models A- to A)",
+        "key_theme": "Elite team at home, dominant two-way star in Wembanyama, strong recent form. Only minor concern is Vassell's absence."
+      }
+    }
+  },
+  "matchup_summary": {
+    "edge": "San Antonio Spurs",
+    "spread_lean": "SAS -7 to -9",
+    "score_differential": 2.77,
+    "key_factor": "Spurs' elite home record + Wembanyama dominance vs injury-depleted Suns on a 3-game losing streak",
+    "phx_avg_score": 5.71,
+    "sas_avg_score": 8.48
+  },
+  "metadata": {
+    "generated_by": "Alyssa (Architect)",
+    "generated_at": "2026-03-18T23:30:00Z",
+    "models_used": ["grok-3", "grok-4-1-fast-reasoning", "DeepSeek-V3.2", "gpt-4.1"],
+    "data_sources": ["ESPN", "Basketball-Reference", "CBS Sports", "StatMuse", "SI.com", "Covers.com"]
+  }
+}

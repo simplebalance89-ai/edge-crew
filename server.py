@@ -12113,9 +12113,11 @@ async def get_simple_slate(sport: str):
 
 # ── Pro Edge V3 Pipeline ────────────────────────────────────────────────────
 
+# Try local repo bundle first (for Render), then edge_engine path (for local dev)
+_LOCAL_EDGE = Path(__file__).parent / "edge_data"
 EDGE_ENGINE_DIR = Path(os.environ.get("EDGE_ENGINE_DIR", r"C:\Users\GCTII\edge_engine"))
-EDGE_DATA_DIR = EDGE_ENGINE_DIR / "data"
-EDGE_GRADES_DIR = EDGE_ENGINE_DIR / "grades"
+EDGE_DATA_DIR = _LOCAL_EDGE / "data" if (_LOCAL_EDGE / "data").exists() else EDGE_ENGINE_DIR / "data"
+EDGE_GRADES_DIR = _LOCAL_EDGE / "grades" if (_LOCAL_EDGE / "grades").exists() else EDGE_ENGINE_DIR / "grades"
 
 @app.get("/api/profedge/{sport}")
 async def get_profedge(sport: str):

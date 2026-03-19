@@ -1,0 +1,163 @@
+{
+  "game": "LAL @ MIA",
+  "date": "2026-03-19",
+  "generated": "2026-03-18T23:45:00Z",
+  "data_sources": {
+    "web_searches": [
+      "landofbasketball.com",
+      "basketball-reference.com",
+      "espn.com",
+      "statmuse.com",
+      "cbssports.com",
+      "heavy.com",
+      "therx.com",
+      "silverscreenandroll.com"
+    ],
+    "azure_models": ["grok-3", "grok-4-1-fast-reasoning", "DeepSeek-V3.2", "gpt-4.1"]
+  },
+  "teams": {
+    "Los Angeles Lakers": {
+      "record": "43-25",
+      "conference": "5th Western",
+      "division": "1st Pacific",
+      "l5_record": "5-0",
+      "l5_results": [
+        {"date": "2026-03-16", "opponent": "HOU", "result": "W 100-92"},
+        {"date": "2026-03-14", "opponent": "DEN", "result": "W 127-125 OT"},
+        {"date": "2026-03-12", "opponent": "CHI", "result": "W 142-130"},
+        {"date": "2026-03-10", "opponent": "MIN", "result": "W 120-106"},
+        {"date": "2026-03-08", "opponent": "NYK", "result": "W 110-97"}
+      ],
+      "l5_avg_scored": 119.8,
+      "l5_avg_allowed": 110.0,
+      "l5_margin": 9.8,
+      "home_away": "AWAY",
+      "coach": "JJ Redick",
+      "key_players": {
+        "Luka Doncic": {"ppg": 32.9, "rpg": 7.9, "apg": 8.5, "status": "Active", "note": "MVP-level production, game-winner vs DEN"},
+        "LeBron James": {"ppg": 19.0, "status": "Active", "note": "Complementary role alongside Doncic"},
+        "Deandre Ayton": {"position": "C", "status": "Active"},
+        "Marcus Smart": {"position": "G", "status": "Active"},
+        "Austin Reaves": {"status": "Active", "note": "Returned from Grade 2 left calf strain"},
+        "Rui Hachimura": {"status": "Active", "note": "Dealt with calf soreness, available"}
+      },
+      "injuries": {
+        "Austin Reaves": "Returned from calf strain - available",
+        "Rui Hachimura": "Calf soreness - available"
+      },
+      "offensive_rating": {"value": 117.7, "rank": 8},
+      "defensive_rating": {"value": 117.3, "rank": 22},
+      "model_grades": {
+        "grok-3": {
+          "grade": "B+",
+          "composite_score": 82.5,
+          "confidence": "High",
+          "key_notes": "The Lakers are in excellent form with a 5-0 record in their last 5 games, led by Luka Doncic's elite production (32.9 PPG, 7.9 RPG, 8.5 APG). LeBron James plays a complementary role, while Deandre Ayton and Marcus Smart bolster the lineup. Offensively, they rank 8th with an ORTG of 117.7, but their defense is a concern at 22nd (DRTG 117.3). Key players like Austin Reaves and Rui Hachimura are available despite recent injury concerns. Facing the Miami Heat on the road poses a challenge, but their current momentum and star power provide a strong edge. Coaching under JJ Redick and clutch performance potential add to their outlook, though defensive lapses could be exploited."
+        },
+        "grok-4-1-fast-reasoning": {
+          "grade": "B+",
+          "composite_score": 7.7,
+          "confidence": "High",
+          "key_notes": "5-0 L5 streak with Doncic dominating (32.9 PPG), healthy key players (Reaves back, Hachimura available), strong ORTG (8th) but weak DRTG (22nd), away vs Heat."
+        },
+        "DeepSeek-V3.2": {
+          "grade": "A-",
+          "composite_score": 8.2,
+          "confidence": "High",
+          "key_notes": "Elite star power with Doncic & James; red-hot 5-0 streak with high-scoring wins; offense efficient but defense is a significant concern (22nd DRTG); key players returning from injury; strong motivation as 5th seed in tight West; playing away vs. Miami is a challenge."
+        },
+        "gpt-4.1": {
+          "grade": "B+",
+          "composite_score": 7.8,
+          "confidence": "High-moderate",
+          "key_notes": "Doncic's elite production (32.9/7.9/8.5) and LeBron's steady support drive the offense (8th ORTG). Reaves' return boosts depth; Hachimura is available. Defense remains a liability (22nd DRTG). Team is mostly healthy, motivated, and in strong form, but road setting and defensive lapses are risks."
+        }
+      },
+      "consensus": {
+        "grade": "B+",
+        "avg_composite_score": 7.9,
+        "confidence": "High",
+        "strengths": ["5-0 L5 hot streak", "Doncic MVP-level production", "Healthy roster", "Top-8 offense"],
+        "weaknesses": ["22nd-ranked defense", "Away game in Miami", "Austin Reaves rust factor post-injury"]
+      }
+    },
+    "Miami Heat": {
+      "record": "38-30",
+      "conference": "7th Eastern",
+      "division": "1st Southeast",
+      "l5_record": "2-3",
+      "l5_results": [
+        {"date": "2026-03-17", "opponent": "CHA", "result": "L 106-136"},
+        {"date": "2026-03-14", "opponent": "ORL", "result": "L 117-121"},
+        {"note": "7-game win streak snapped by ORL loss"}
+      ],
+      "l5_avg_scored": 121.4,
+      "home_away": "HOME",
+      "coach": "Erik Spoelstra",
+      "key_players": {
+        "Bam Adebayo": {"ppg": 24.0, "rpg": 9.3, "status": "DOUBTFUL (calf)", "note": "Scored 83 pts vs WAS on Mar 10 - 2nd most in NBA history"},
+        "Tyler Herro": {"ppg": 21.5, "rpg": 4.6, "apg": 3.8, "status": "Limited - only 6 games played this season"},
+        "Andrew Wiggins": {"status": "OUT (toe) - 6 straight absences"},
+        "Terry Rozier": {"status": "AWAY from team"},
+        "Nikola Jovic": {"status": "Probable (back) - returning after 11 games missed"},
+        "Kel'el Ware": {"status": "Active"},
+        "Pelle Larsson": {"status": "Probable (bruised elbow)"}
+      },
+      "injuries": {
+        "Bam Adebayo": "Right calf tightness - DOUBTFUL",
+        "Andrew Wiggins": "Toe - OUT (6 straight games)",
+        "Terry Rozier": "Away from team",
+        "Tyler Herro": "Limited all season - only 6 games played",
+        "Nikola Jovic": "Back - Probable, returning from 11-game absence"
+      },
+      "offensive_rating": {"value": 114.5, "rank": 20},
+      "defensive_rating": {"value": 112.8, "rank": 4},
+      "net_rating": {"value": 1.7, "rank": 13},
+      "model_grades": {
+        "grok-3": {
+          "grade": "C+",
+          "composite_score": 6.2,
+          "confidence": "Moderate",
+          "key_notes": "Miami Heat (38-30, 7th East) face challenges with key injuries: Bam Adebayo (doubtful, calf), Andrew Wiggins (out, toe), and limited Tyler Herro (6 games played). Strong defense (DRTG 112.8, 4th) contrasts with middling offense (ORTG 114.5, 20th). Recent 7-game win streak snapped with 2 heavy losses in L5. Home game vs Lakers offers slight edge under Coach Spoelstra's leadership, but injury impact and inconsistent form lower expectations."
+        },
+        "grok-4-1-fast-reasoning": {
+          "grade": "C",
+          "composite_score": 5.7,
+          "confidence": "Medium",
+          "key_notes": "Heavy injuries (Bam doubtful, Wiggins out, Rozier away, Herro limited, Jovic probable); strong DRTG (4th) but poor ORTG (20th) and L5 form; home vs Lakers with Spoelstra coaching."
+        },
+        "DeepSeek-V3.2": {
+          "grade": "C-",
+          "composite_score": 5.6,
+          "confidence": "Low",
+          "key_notes": "Severe injury crisis with Adebayo (doubtful), Wiggins (out), Rozier (away), and Herro limited all season. Elite defense (4th) anchors team, but offense is poor (20th). Recent 7-game win streak snapped, now in a slump. Facing Lakers at home provides some lift, but missing multiple key players is devastating."
+        },
+        "gpt-4.1": {
+          "grade": "C",
+          "composite_score": 5.1,
+          "confidence": "Low-Medium",
+          "key_notes": "Heat are 7th in East, 1st in Southeast, but recent 2-3 stretch includes blowout loss to CHA and loss to ORL, snapping a 7-game win streak. Bam Adebayo (star, ~24 PPG) is doubtful (calf), Wiggins (starter) remains out, Herro (star) has played only 6 games all season and is still limited, Jovic (rotation) probable after 11-game absence. Offensive rating is below average (20th), but defense remains elite (4th DRTG). Depth and scoring are compromised by injuries, especially if Bam sits. Coaching is a plus (Spoelstra), but lineup health and recent form are concerns. Home court helps, but overall outlook is shaky vs Lakers."
+        }
+      },
+      "consensus": {
+        "grade": "C",
+        "avg_composite_score": 5.65,
+        "confidence": "Low-Medium",
+        "strengths": ["4th-ranked defense", "Home court", "Spoelstra coaching", "Bam's explosive ceiling (83-pt game)"],
+        "weaknesses": ["Massive injury crisis (Bam doubtful, Wiggins out, Rozier away, Herro limited)", "20th-ranked offense", "2-3 L5 slump after win streak snapped", "Bench depth decimated"]
+      }
+    }
+  },
+  "matchup_edge": {
+    "favored": "Los Angeles Lakers",
+    "grade_differential": "B+ vs C (2.25 composite gap)",
+    "key_factors": [
+      "Lakers 5-0 hot streak vs Heat 2-3 slump",
+      "Doncic MVP-level production with no answer from depleted Heat",
+      "Heat missing up to 3 starters (Bam doubtful, Wiggins out, Rozier away)",
+      "Lakers offense (8th) vs Heat offense (20th) - significant gap",
+      "Heat defense (4th) is elite but may not compensate for missing scorers",
+      "Home court advantage for Miami is the Heat's strongest factor"
+    ]
+  }
+}

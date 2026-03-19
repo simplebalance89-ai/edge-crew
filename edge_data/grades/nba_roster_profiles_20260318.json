@@ -1,0 +1,599 @@
+{
+  "type": "nba_roster_profiles",
+  "date": "20260318",
+  "generated_at": "2026-03-18T20:00:10.307580",
+  "teams": [
+    {
+      "team": "Atlanta Hawks",
+      "side": "away",
+      "date": "2026-03-18",
+      "opponent": "Dallas Mavericks",
+      "game_time": "2026-03-19T00:30:00.000Z",
+      "l5_profile": {
+        "record": "37-31",
+        "l5": "5-0",
+        "l10": "10-0",
+        "streak": "W10",
+        "ppg_l5": 120.6,
+        "opp_ppg_l5": 107.2,
+        "margin_l5": 13.4,
+        "margin_l10": 18.1,
+        "rest_days": 2,
+        "is_b2b": false,
+        "games_last_7d": 4,
+        "road_trip_len": 0,
+        "home_stand_len": 5
+      },
+      "injuries": {
+        "out": [],
+        "gtd": [],
+        "count_out": 0
+      },
+      "sintonia_matrix": {
+        "variables": {
+          "star_player_status": {
+            "score": 9,
+            "weight": 9,
+            "note": "0 OUT, 0 GTD",
+            "weighted": 81
+          },
+          "rest_advantage": {
+            "score": 7,
+            "weight": 9,
+            "note": "2 days rest | B2B: False",
+            "weighted": 63
+          },
+          "off_ranking": {
+            "score": 8,
+            "weight": 8,
+            "note": "120.6 PPG L5",
+            "weighted": 64
+          },
+          "def_ranking": {
+            "score": 8,
+            "weight": 8,
+            "note": "107.2 OPP PPG L5",
+            "weighted": 64
+          },
+          "three_pt_matchup": {
+            "score": 8,
+            "weight": 7,
+            "note": "Proxy: +13.4 margin L5 (no opp 3PT data)",
+            "weighted": 56
+          },
+          "pace_matchup": {
+            "score": 8,
+            "weight": 7,
+            "note": "Pace L5: 227.8 | L10: 227.7 | delta: 0.1",
+            "weighted": 56
+          },
+          "recent_form": {
+            "score": 10,
+            "weight": 7,
+            "note": "L5: 5-0 | streak: W10",
+            "weighted": 70
+          },
+          "road_trip_length": {
+            "score": 9,
+            "weight": 7,
+            "note": "Road trip: 0g | Home stand: 5g",
+            "weighted": 63
+          },
+          "h2h_season": {
+            "score": 5,
+            "weight": 6,
+            "note": "Season: 37-31 (54% win rate)",
+            "weighted": 30
+          },
+          "paint_scoring": {
+            "score": 7,
+            "weight": 6,
+            "note": "PPG L5: 120.6 vs season: 117.8 (delta: +2.8)",
+            "weighted": 42
+          },
+          "fast_break": {
+            "score": 9,
+            "weight": 6,
+            "note": "Margin L10: +18.1 (proxy)",
+            "weighted": 54
+          },
+          "ats_trend": {
+            "score": 10,
+            "weight": 6,
+            "note": "L10: 10-0 | Blowouts: 5 | Close: 0 (ATS data unavailable)",
+            "weighted": 60
+          },
+          "sharp_vs_public": {
+            "score": 5,
+            "weight": 5,
+            "note": "4 games in last 7 days (fatigue proxy \u2014 no line data)",
+            "weighted": 25
+          },
+          "home_away": {
+            "score": 5,
+            "weight": 5,
+            "note": "Home: 19-16 (54%) | Away: 18-15 (55%)",
+            "weighted": 25
+          },
+          "depth_injuries": {
+            "score": 10,
+            "weight": 4,
+            "note": "0 players OUT",
+            "weighted": 40
+          }
+        },
+        "composite": 7.93,
+        "total_weighted": 793,
+        "total_weight": 100,
+        "grade": "A",
+        "sizing": "1.5u"
+      },
+      "model_grades": {
+        "gpt41": {
+          "model": "gpt41",
+          "model_name": "gpt-4.1",
+          "status": "ok",
+          "grade": "A",
+          "score": 7.5,
+          "sizing": "2u",
+          "form_assessment": "Buy \u2014 Atlanta is on a dominant 10-game win streak (L10: 10-0), with a +13.4 average margin in the last 5 and +18.1 in the last 10, indicating elite current form and strong momentum.",
+          "injury_impact": "No players are listed as OUT or GTD, maximizing roster depth and raising their ceiling.",
+          "situational_flags": "With 2 days rest and no back-to-back, fatigue is minimal despite 4 games in the last week.",
+          "grade_reasoning": "I agree with the math grade; the Hawks' recent dominance and full health outweigh moderate season-long concerns, making them a premium betting asset right now.",
+          "key_edge": "The Hawks' elite recent form and full roster health make them a high-confidence buy.",
+          "confidence": "high"
+        },
+        "grok": {
+          "model": "grok",
+          "model_name": "grok-3",
+          "status": "ok",
+          "grade": "A",
+          "score": 8.0,
+          "sizing": "2u",
+          "form_assessment": "Buy \u2014 The Hawks are on a blistering 10-0 streak over their last 10 games, with a +13.4 average margin of victory in the last 5, and their 120.6 PPG offensively against 107.2 OPP PPG defensively shows dominant form. This level of consistency and blowout potential makes them a strong betting asset right now.",
+          "injury_impact": "With no players listed as OUT or GTD, the Hawks are at full strength, maximizing their ceiling.",
+          "situational_flags": "No fatigue concerns with 2 rest days and only 4 games in the last 7 days, plus a favorable home stand (Game #5).",
+          "grade_reasoning": "I agree with the math grade of A due to the Hawks' exceptional recent form (10-0 L10), lack of injuries, and strong situational factors; I've slightly raised the score to 8.0 to reflect their peak performance.",
+          "key_edge": "Unstoppable 10-game win streak with double-digit margins signals elite betting value.",
+          "confidence": "high"
+        },
+        "deepseek": {
+          "model": "deepseek",
+          "model_name": "DeepSeek-V3.2",
+          "status": "ok",
+          "grade": "A",
+          "score": 8.2,
+          "sizing": "1.5u",
+          "form_assessment": "Buy \u2014 The Hawks are the hottest team in the league, riding a 10-game win streak with a dominant +13.4 avg margin in their L5 and a perfect 5-0 record. This surge in form, including 5 blowouts in the L10, indicates they are significantly outperforming their season-long 37-31 baseline.",
+          "injury_impact": "With zero players listed as OUT or GTD, the roster is at full strength, maximizing their on-court chemistry and execution.",
+          "situational_flags": "Having played 4 games in the last 7 days is a fatigue concern, but it is mitigated by 2 days of rest and being in game 5 of a home stand.",
+          "grade_reasoning": "I agree with the A grade due to elite recent form and perfect health, but I slightly elevate the score to account for the extreme momentum and situational advantage of a long home stand, offsetting the minor fatigue flag.",
+          "key_edge": "Peak form with a fully healthy roster executing at a historically high level during a long home stand.",
+          "confidence": "high"
+        },
+        "grok_fast": {
+          "model": "grok_fast",
+          "model_name": "grok-4-1-fast-reasoning",
+          "status": "ok",
+          "grade": "A+",
+          "score": 8.7,
+          "sizing": "2u",
+          "form_assessment": "Buy \u2014 Hawks are scorching hot with L10 10-0 record, W10 streak, +18.1 avg margin L10, and L5 5-0 with 120.6 PPG vs 107.2 OPP PPG (+13.4 margin). This elite recent dominance overrides .544 season win rate, making them a prime betting asset.",
+          "injury_impact": "Fully healthy roster with zero OUT or GTD players maximizes depth and ceiling at 10/10.",
+          "situational_flags": "Game 5 of home stand with 2 rest days and no B2B is solid, though 4 games in last 7 days flags minor fatigue risk.",
+          "grade_reasoning": "Strongly agree with A math grade but upgrade to A+ as perfect recent form (10/10), ATS trends, and injury depth dominate over season record and fatigue concerns.",
+          "key_edge": "Unprecedented W10 streak with consistent double-digit blowouts confirms peak betting value.",
+          "confidence": "high"
+        }
+      },
+      "consensus": {
+        "grade": "A",
+        "avg_score": 8.1,
+        "sizing": "1.5u",
+        "models_ok": 4,
+        "grades": [
+          "A",
+          "A",
+          "A",
+          "A+"
+        ]
+      }
+    },
+    {
+      "team": "Los Angeles Lakers",
+      "side": "away",
+      "date": "2026-03-18",
+      "opponent": "Houston Rockets",
+      "game_time": "2026-03-19T01:30:00.000Z",
+      "l5_profile": {
+        "record": "43-25",
+        "l5": "5-0",
+        "l10": "9-1",
+        "streak": "W6",
+        "ppg_l5": 119.8,
+        "opp_ppg_l5": 110.0,
+        "margin_l5": 9.8,
+        "margin_l10": 11.4,
+        "rest_days": 1,
+        "is_b2b": true,
+        "games_last_7d": 4,
+        "road_trip_len": 1,
+        "home_stand_len": 0
+      },
+      "injuries": {
+        "out": [
+          "Maxi Kleber"
+        ],
+        "gtd": [],
+        "count_out": 1
+      },
+      "sintonia_matrix": {
+        "variables": {
+          "star_player_status": {
+            "score": 6,
+            "weight": 9,
+            "note": "1 OUT, 0 GTD",
+            "weighted": 54
+          },
+          "rest_advantage": {
+            "score": 3,
+            "weight": 9,
+            "note": "1 days rest | B2B: True",
+            "weighted": 27
+          },
+          "off_ranking": {
+            "score": 6,
+            "weight": 8,
+            "note": "119.8 PPG L5",
+            "weighted": 48
+          },
+          "def_ranking": {
+            "score": 8,
+            "weight": 8,
+            "note": "110.0 OPP PPG L5",
+            "weighted": 64
+          },
+          "three_pt_matchup": {
+            "score": 7,
+            "weight": 7,
+            "note": "Proxy: +9.8 margin L5 (no opp 3PT data)",
+            "weighted": 49
+          },
+          "pace_matchup": {
+            "score": 8,
+            "weight": 7,
+            "note": "Pace L5: 229.8 | L10: 230.0 | delta: 0.2",
+            "weighted": 56
+          },
+          "recent_form": {
+            "score": 10,
+            "weight": 7,
+            "note": "L5: 5-0 | streak: W6",
+            "weighted": 70
+          },
+          "road_trip_length": {
+            "score": 5,
+            "weight": 7,
+            "note": "Road trip: 1g | Home stand: 0g",
+            "weighted": 35
+          },
+          "h2h_season": {
+            "score": 7,
+            "weight": 6,
+            "note": "Season: 43-25 (63% win rate)",
+            "weighted": 42
+          },
+          "paint_scoring": {
+            "score": 7,
+            "weight": 6,
+            "note": "PPG L5: 119.8 vs season: 116.2 (delta: +3.6)",
+            "weighted": 42
+          },
+          "fast_break": {
+            "score": 9,
+            "weight": 6,
+            "note": "Margin L10: +11.4 (proxy)",
+            "weighted": 54
+          },
+          "ats_trend": {
+            "score": 10,
+            "weight": 6,
+            "note": "L10: 9-1 | Blowouts: 2 | Close: 1 (ATS data unavailable)",
+            "weighted": 60
+          },
+          "sharp_vs_public": {
+            "score": 5,
+            "weight": 5,
+            "note": "4 games in last 7 days (fatigue proxy \u2014 no line data)",
+            "weighted": 25
+          },
+          "home_away": {
+            "score": 7,
+            "weight": 5,
+            "note": "Home: 23-12 (66%) | Away: 20-13 (61%)",
+            "weighted": 35
+          },
+          "depth_injuries": {
+            "score": 8,
+            "weight": 4,
+            "note": "1 players OUT",
+            "weighted": 32
+          }
+        },
+        "composite": 6.93,
+        "total_weighted": 693,
+        "total_weight": 100,
+        "grade": "B+",
+        "sizing": "1u"
+      },
+      "model_grades": {
+        "gpt41": {
+          "model": "gpt41",
+          "model_name": "gpt-4.1",
+          "status": "ok",
+          "grade": "A-",
+          "score": 7.5,
+          "sizing": "2u",
+          "form_assessment": "Buy \u2014 The Lakers are red-hot with a 5-0 record in their last 5, 9-1 in their last 10, and a +9.8 average margin over the last 5 games. Their current W6 streak and strong ATS trend (9-1 L10) indicate elite recent performance.",
+          "injury_impact": "Maxi Kleber is out, but his absence has minimal impact on the Lakers' ceiling given their current depth and form.",
+          "situational_flags": "Fatigue is a concern with 4 games in the last 7 days and a back-to-back tonight, which could affect energy and sharpness.",
+          "grade_reasoning": "The math grade is slightly conservative; recent dominance and ATS trends warrant an upgrade to A- despite mild fatigue concerns.",
+          "key_edge": "The Lakers' elite recent form and ATS dominance outweigh minor fatigue risks.",
+          "confidence": "high"
+        },
+        "deepseek": {
+          "model": "deepseek",
+          "model_name": "DeepSeek-V3.2",
+          "status": "ok",
+          "grade": "B-",
+          "score": 6.5,
+          "sizing": "1u",
+          "form_assessment": "Buy \u2014 The team is on a 6-game win streak, going 5-0 L5 with a dominant +9.8 avg margin and a 9-1 L10 record. Their offense is humming at 119.8 PPG L5, and they are consistently covering spreads, as indicated by the 10/10 ATS trend.",
+          "injury_impact": "Maxi Kleber's absence is a minor depth loss but does not significantly impact the core rotation or the team's current ceiling.",
+          "situational_flags": "The team is on a back-to-back (B2B) with only 1 day of rest and is playing the first game of a road trip, introducing notable fatigue and travel concerns.",
+          "grade_reasoning": "While the elite form and ATS performance are compelling, the situational fatigue from a B2B and 4 games in 7 days on the road significantly tempers their betting value, warranting a downgrade from the math grade.",
+          "key_edge": "Elite recent form and blowout wins are countered by a high-fatigue B2B road spot.",
+          "confidence": "medium"
+        },
+        "grok": {
+          "model": "grok",
+          "model_name": "grok-3",
+          "status": "ok",
+          "grade": "A-",
+          "score": 7.8,
+          "sizing": "1.5u",
+          "form_assessment": "Buy \u2014 The Lakers are on a scorching 5-0 run in their last 5 games with a +9.8 average margin of victory, and their L10 record of 9-1 with a +11.4 margin shows sustained dominance. Their offensive output of 119.8 PPG in L5 further supports their status as a strong betting asset right now.",
+          "injury_impact": "Maxi Kleber's absence is negligible for the Lakers as he is not on their roster, suggesting no significant impact on their ceiling.",
+          "situational_flags": "Fatigue is a concern with a back-to-back tonight and 4 games in the last 7 days, potentially impacting performance.",
+          "grade_reasoning": "Upgrading to A- due to exceptional recent form (5-0 L5, 9-1 L10) and high offensive efficiency, though tempered slightly by fatigue concerns from the B2B and recent game density.",
+          "key_edge": "Recent form with a 5-0 L5 record and +9.8 margin is the strongest reason to back them.",
+          "confidence": "medium"
+        },
+        "grok_fast": {
+          "model": "grok_fast",
+          "model_name": "grok-4-1-fast-reasoning",
+          "status": "ok",
+          "grade": "A-",
+          "score": 8.1,
+          "sizing": "1.5u",
+          "form_assessment": "Buy \u2014 Lakers are on fire with 5-0 L5 record, +9.8 avg margin, and 9-1 L10 at +11.4 margin. W6 streak and 119.8 PPG L5 show offensive dominance. Form screams value despite situational spots.",
+          "injury_impact": "Maxi Kleber out is negligible for Lakers' core stars, with no GTDs keeping ceiling intact.",
+          "situational_flags": "B2B tonight with 1 rest day after 4 games in last 7 days and road trip opener flags fatigue risk.",
+          "grade_reasoning": "Override to A- as scorching L5/L10 form and ATS trends outweigh rest/road concerns, proven by large win margins.",
+          "key_edge": "Dominant 5-0 L5 (+9.8 margin) and 9-1 L10 despite dense schedule proves betting reliability.",
+          "confidence": "medium"
+        }
+      },
+      "consensus": {
+        "grade": "A-",
+        "avg_score": 7.47,
+        "sizing": "1u",
+        "models_ok": 4,
+        "grades": [
+          "A-",
+          "B-",
+          "A-",
+          "A-"
+        ]
+      }
+    },
+    {
+      "team": "Boston Celtics",
+      "side": "home",
+      "date": "2026-03-18",
+      "opponent": "Golden State Warriors",
+      "game_time": "2026-03-18T23:00:00.000Z",
+      "l5_profile": {
+        "record": "45-23",
+        "l5": "3-2",
+        "l10": "7-3",
+        "streak": "W2",
+        "ppg_l5": 111.6,
+        "opp_ppg_l5": 107.8,
+        "margin_l5": 3.8,
+        "margin_l10": 9.0,
+        "rest_days": 2,
+        "is_b2b": false,
+        "games_last_7d": 4,
+        "road_trip_len": 0,
+        "home_stand_len": 2
+      },
+      "injuries": {
+        "out": [
+          "Nikola Vucevic"
+        ],
+        "gtd": [],
+        "count_out": 1
+      },
+      "sintonia_matrix": {
+        "variables": {
+          "star_player_status": {
+            "score": 6,
+            "weight": 9,
+            "note": "1 OUT, 0 GTD",
+            "weighted": 54
+          },
+          "rest_advantage": {
+            "score": 7,
+            "weight": 9,
+            "note": "2 days rest | B2B: False",
+            "weighted": 63
+          },
+          "off_ranking": {
+            "score": 4,
+            "weight": 8,
+            "note": "111.6 PPG L5",
+            "weighted": 32
+          },
+          "def_ranking": {
+            "score": 8,
+            "weight": 8,
+            "note": "107.8 OPP PPG L5",
+            "weighted": 64
+          },
+          "three_pt_matchup": {
+            "score": 5,
+            "weight": 7,
+            "note": "Proxy: +3.8 margin L5 (no opp 3PT data)",
+            "weighted": 35
+          },
+          "pace_matchup": {
+            "score": 8,
+            "weight": 7,
+            "note": "Pace L5: 219.4 | L10: 218.4 | delta: 1.0",
+            "weighted": 56
+          },
+          "recent_form": {
+            "score": 6,
+            "weight": 7,
+            "note": "L5: 3-2 | streak: W2",
+            "weighted": 42
+          },
+          "road_trip_length": {
+            "score": 7,
+            "weight": 7,
+            "note": "Road trip: 0g | Home stand: 2g",
+            "weighted": 49
+          },
+          "h2h_season": {
+            "score": 9,
+            "weight": 6,
+            "note": "Season: 45-23 (66% win rate)",
+            "weighted": 54
+          },
+          "paint_scoring": {
+            "score": 4,
+            "weight": 6,
+            "note": "PPG L5: 111.6 vs season: 114.3 (delta: -2.7)",
+            "weighted": 24
+          },
+          "fast_break": {
+            "score": 7,
+            "weight": 6,
+            "note": "Margin L10: +9.0 (proxy)",
+            "weighted": 42
+          },
+          "ats_trend": {
+            "score": 7,
+            "weight": 6,
+            "note": "L10: 7-3 | Blowouts: 5 | Close: 1 (ATS data unavailable)",
+            "weighted": 42
+          },
+          "sharp_vs_public": {
+            "score": 5,
+            "weight": 5,
+            "note": "4 games in last 7 days (fatigue proxy \u2014 no line data)",
+            "weighted": 25
+          },
+          "home_away": {
+            "score": 9,
+            "weight": 5,
+            "note": "Home: 23-10 (70%) | Away: 22-13 (63%)",
+            "weighted": 45
+          },
+          "depth_injuries": {
+            "score": 8,
+            "weight": 4,
+            "note": "1 players OUT",
+            "weighted": 32
+          }
+        },
+        "composite": 6.59,
+        "total_weighted": 659,
+        "total_weight": 100,
+        "grade": "B+",
+        "sizing": "1u"
+      },
+      "model_grades": {
+        "gpt41": {
+          "model": "gpt41",
+          "model_name": "gpt-4.1",
+          "status": "ok",
+          "grade": "A-",
+          "score": 7.5,
+          "sizing": "2u",
+          "form_assessment": "Buy \u2014 The Celtics are 3-2 in their last 5 and 7-3 in their last 10, with a +3.8 margin L5 and +9.0 margin L10, indicating strong consistency and positive momentum (W2 streak). Their home/away splits remain elite, and they are outperforming most opponents recently.",
+          "injury_impact": "Minimal impact as only Nikola Vucevic is out, preserving core depth and ceiling.",
+          "situational_flags": "No fatigue concerns with 2 rest days and no back-to-back; home stand advantage in Game 2.",
+          "grade_reasoning": "I upgrade the math grade due to strong win margins, healthy roster, and favorable schedule, outweighing minor offensive dip.",
+          "key_edge": "Elite home/away consistency and depth make Boston a high-confidence pick.",
+          "confidence": "high"
+        },
+        "deepseek": {
+          "model": "deepseek",
+          "model_name": "DeepSeek-V3.2",
+          "status": "ok",
+          "grade": "B-",
+          "score": 6.8,
+          "sizing": "1u",
+          "form_assessment": "Fade \u2014 The L5 metrics show a team underperforming its season-long profile, with PPG down 2.7 from their season average and a modest +3.8 margin that's significantly lower than their L10 average of +9.0, indicating recent inconsistency despite the 3-2 record.",
+          "injury_impact": "Losing a key frontcourt piece like Nikola Vucevic (OUT) significantly limits their interior scoring and rebounding, lowering their overall ceiling.",
+          "situational_flags": "Having played 4 games in the last 7 days introduces a fatigue factor, though 2 days of rest and being in a home stand (game #2) offers a slight situational advantage.",
+          "grade_reasoning": "I disagree slightly; the math grade overweights strong season-long home/away splits and record, but the recent offensive dip, key injury, and compressed schedule lower the immediate betting value from a B+ to a B-.",
+          "key_edge": "Fade due to a significant drop in offensive production (111.6 PPG L5) coinciding with a key frontcourt absence.",
+          "confidence": "medium"
+        },
+        "grok": {
+          "model": "grok",
+          "model_name": "grok-3",
+          "status": "ok",
+          "grade": "A-",
+          "score": 7.5,
+          "sizing": "1.5u",
+          "form_assessment": "Buy \u2014 The Celtics are showing strong form with a 3-2 record over L5 games and a +3.8 average margin, complemented by a robust 7-3 L10 record with a +9.0 margin. Their scoring at 111.6 PPG L5 remains competitive despite a slight dip from the season average of 114.3.",
+          "injury_impact": "Nikola Vucevic being OUT may slightly limit their frontcourt depth and rebounding, potentially capping their ceiling against stronger paint teams.",
+          "situational_flags": "With 2 rest days and no back-to-back games, the Celtics have a fatigue advantage and are in a favorable spot during their second home stand game.",
+          "grade_reasoning": "Upgrading to A- due to strong recent form (7-3 L10, +9.0 margin), favorable rest situation, and solid home performance (23-10), despite minor injury concern and slight offensive dip.",
+          "key_edge": "Strong L10 performance (+9.0 margin) signals consistent winning potential.",
+          "confidence": "medium"
+        },
+        "grok_fast": {
+          "model": "grok_fast",
+          "model_name": "grok-4-1-fast-reasoning",
+          "status": "ok",
+          "grade": "A-",
+          "score": 7.8,
+          "sizing": "1.5u",
+          "form_assessment": "Buy \u2014 L5 record of 3-2 with +3.8 margin shows resilience despite PPG dipping to 111.6; L10 7-3 with +9.0 avg margin and W2 streak indicate strong momentum. Season 45-23 record reinforces reliability as a betting asset.",
+          "injury_impact": "Minimal impact from one player out (Nikola Vucevic) with depth rated 8/10, preserving high ceiling.",
+          "situational_flags": "Advantages include 2 rest days, no B2B, and second game of home stand despite 4 games in last 7 days.",
+          "grade_reasoning": "Upgrade from math grade due to elite season record (45-23), strong home/away splits (70%/63%), and L10 dominance outweighing L5 offensive dip and concerns.",
+          "key_edge": "L10 +9.0 margin and 45-23 season record provide strong betting value despite minor L5 offense regression.",
+          "confidence": "high"
+        }
+      },
+      "consensus": {
+        "grade": "A-",
+        "avg_score": 7.4,
+        "sizing": "1u",
+        "models_ok": 4,
+        "grades": [
+          "A-",
+          "B-",
+          "A-",
+          "A-"
+        ]
+      }
+    }
+  ]
+}

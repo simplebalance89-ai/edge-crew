@@ -1,0 +1,1522 @@
+{
+  "sport": "NHL",
+  "date": "2026-03-18",
+  "graded_at": "2026-03-18T17:19:31.311465",
+  "profiles_used": [
+    "sintonia",
+    "renzo"
+  ],
+  "games": [
+    {
+      "game_id": "G3FVuGakj5kxyzyxaSmi",
+      "matchup": "New Jersey Devils @ New York Rangers",
+      "pick_side": "away",
+      "profiles": {
+        "sintonia": {
+          "game_id": "G3FVuGakj5kxyzyxaSmi",
+          "profile": "sintonia",
+          "pick_side": "away",
+          "grade": "C",
+          "composite": 4.15,
+          "chain_bonus": 0.0,
+          "final": 4.15,
+          "pick": "New Jersey Devils -1.5",
+          "sizing": "PASS",
+          "variables": {
+            "goalie_confirmed": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No goalie injury reported \u2014 assume starter"
+            },
+            "star_player_status": {
+              "score": 4,
+              "weight": 9,
+              "weighted": 36,
+              "note": "No significant injuries"
+            },
+            "pp_pk": {
+              "score": 5,
+              "weight": 8,
+              "weighted": 40,
+              "note": "PP/PK proxy from margin L5: -0.4"
+            },
+            "b2b_fatigue": {
+              "score": 1,
+              "weight": 8,
+              "weighted": 8,
+              "note": "Us: 1d rest | Them: 2d rest | WE on B2B; Rest deficit -1d"
+            },
+            "off_ranking": {
+              "score": 4,
+              "weight": 7,
+              "weighted": 28,
+              "note": "PPG L5: 2.4 | OPP allows: 4.6 | Margin L5: -0.4"
+            },
+            "def_ranking": {
+              "score": 6,
+              "weight": 7,
+              "weighted": 42,
+              "note": "Allow L5: 2.8 | They score L5: 2.4"
+            },
+            "recent_form": {
+              "score": 4,
+              "weight": 7,
+              "weighted": 28,
+              "note": "L5: 2-3 (margin -0.4) | Streak: L2 | OPP L5: 1-4 (margin -2.2)"
+            },
+            "road_trip_length": {
+              "score": 4,
+              "weight": 7,
+              "weighted": 28,
+              "note": "Road trip: 3 games"
+            },
+            "h2h_season": {
+              "score": 3,
+              "weight": 6,
+              "weighted": 18,
+              "note": "H2H: 1-2 this season (3 games)"
+            },
+            "corsi_xg": {
+              "score": 6,
+              "weight": 6,
+              "weighted": 36,
+              "note": "corsi_xg proxy \u2014 Allow L5: 2.8 | They score L5: 2.4"
+            },
+            "save_pct_trend": {
+              "score": 6,
+              "weight": 6,
+              "weighted": 36,
+              "note": "save_pct_trend proxy \u2014 Allow L5: 2.8 | They score L5: 2.4"
+            },
+            "ats_trend": {
+              "score": 4,
+              "weight": 6,
+              "weighted": 24,
+              "note": "Avg margin L10: -0.5 \u2014 losing close | Close: 10/10 | Blowouts: 0/10"
+            },
+            "sharp_vs_public": {
+              "score": 3,
+              "weight": 5,
+              "weighted": 15,
+              "note": "Line flat \u2014 no sharp signal | ML shifted"
+            },
+            "home_away": {
+              "score": 3,
+              "weight": 5,
+              "weighted": 15,
+              "note": "Away: 12-21 (12/33)"
+            },
+            "depth_injuries": {
+              "score": 4,
+              "weight": 4,
+              "weighted": 16,
+              "note": "WE missing more: 1 vs their 0"
+            }
+          },
+          "chains_fired": []
+        },
+        "renzo": {
+          "game_id": "G3FVuGakj5kxyzyxaSmi",
+          "profile": "renzo",
+          "pick_side": "away",
+          "grade": "C+",
+          "composite": 5.0,
+          "chain_bonus": 0,
+          "final": 5.0,
+          "pick": "New Jersey Devils -1.5",
+          "sizing": "PASS",
+          "variables": {
+            "Q1_whos_missing": {
+              "score": 5,
+              "weight": 9,
+              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
+            },
+            "Q2_line_reflects": {
+              "score": 5,
+              "weight": 9,
+              "note": "Line moved 0.0 pts | Injuries roughly priced"
+            },
+            "Q3_recent_form": {
+              "score": 7,
+              "weight": 8,
+              "note": "Us L5: 2-3 | Them L5: 1-4 | Edge: +2"
+            },
+            "Q4_best_on_court": {
+              "score": 6,
+              "weight": 8,
+              "note": "Both sides mostly healthy"
+            },
+            "Q5_schedule_rest": {
+              "score": 3,
+              "weight": 7,
+              "note": "Streak: L2 | Away"
+            },
+            "thesis_edge": {
+              "score": 4,
+              "weight": 10,
+              "note": "No clear thesis edge found"
+            }
+          },
+          "chains_fired": [],
+          "mathurin_test": "FAIL",
+          "mathurin_note": "No clear thesis edge found"
+        }
+      },
+      "peter_rules": {
+        "game_id": "G3FVuGakj5kxyzyxaSmi",
+        "profile": "peter_rules",
+        "pick_side": "away",
+        "flags": [],
+        "adjustment": 0,
+        "has_kill": false,
+        "flag_count": 0
+      },
+      "consensus_avg": 4.58,
+      "consensus_grade": "C",
+      "consensus_raw": 4.58,
+      "ev": {
+        "profile": "ev",
+        "game_id": "G3FVuGakj5kxyzyxaSmi",
+        "pick_side": "away",
+        "moneyline": -120,
+        "implied_prob": 0.5455,
+        "true_prob": 0.5329,
+        "edge": -0.0126,
+        "decimal_odds": 1.833,
+        "ev_pct": -2.31,
+        "ev_grade": "F",
+        "kelly_full": -0.0277,
+        "kelly_quarter": 0,
+        "kelly_units": "PASS",
+        "status": "ok"
+      },
+      "model_grades": {
+        "gpt41": {
+          "model": "gpt-4.1",
+          "model_key": "gpt41",
+          "pick": "New York Rangers ML +100",
+          "score": 6.0,
+          "grade": "B",
+          "sizing": "PASS",
+          "reasoning": "Despite the Rangers' poor recent form (2-8 L10, 1-4 L5), they are at home and now available at even money (+100) versus a Devils team that is just 12-21 on the road. Both teams are struggling, but the market move from -125 to +100 on the Rangers creates slight value in a coin-flip matchup. However, neither team has a clear edge per model grades, so this is a low conviction spot.",
+          "key_factor": "Market movement to +100 on the home team in an otherwise even matchup.",
+          "confidence": "low",
+          "raw_response": "{\n  \"pick\": \"New York Rangers ML +100\",\n  \"score\": 6.0,\n  \"grade\": \"B\",\n  \"sizing\": \"PASS\",\n  \"reasoning\": \"Despite the Rangers' poor recent form (2-8 L10, 1-4 L5), they are at home and now available at even money (+100) versus a Devils team that is just 12-21 on the road. Both teams are struggling, but the market move from -125 to +100 on the Rangers creates slight value in a coin-flip matchup. However, neither team has a clear edge per model grades, so this is a low conviction spot.\",\n  \"key_factor\": \"Market movement to +100 on the home team in an otherwise even matchup.\",\n  \"confidence\": \"low\"\n}",
+          "called_at": "2026-03-18T17:31:53.519947",
+          "status": "ok",
+          "game_id": "G3FVuGakj5kxyzyxaSmi",
+          "matchup": "New Jersey Devils @ New York Rangers"
+        },
+        "deepseek": {
+          "model": "DeepSeek-V3.2",
+          "model_key": "deepseek",
+          "pick": "New Jersey Devils ML",
+          "score": 7.2,
+          "grade": "A-",
+          "sizing": "1u",
+          "reasoning": "The Devils have a far superior overall record (37-31 vs 26-41) and road record (12-21 vs 10-25), and the Rangers' defense has been porous, allowing 4.6 goals per game over their last five. While the Rangers are at home, their recent form (1-4 L5, 2-8 L10) and defensive collapse provide significant value on the Devils at -120.",
+          "key_factor": "Rangers' defensive collapse, allowing 4.6 PPG over their last five games.",
+          "confidence": "medium",
+          "raw_response": "{\n  \"pick\": \"New Jersey Devils ML\",\n  \"score\": 7.2,\n  \"grade\": \"A-\",\n  \"sizing\": \"1u\",\n  \"reasoning\": \"The Devils have a far superior overall record (37-31 vs 26-41) and road record (12-21 vs 10-25), and the Rangers' defense has been porous, allowing 4.6 goals per game over their last five. While the Rangers are at home, their recent form (1-4 L5, 2-8 L10) and defensive collapse provide significant value on the Devils at -120.\",\n  \"key_factor\": \"Rangers' defensive collapse, allowing 4.6 PPG over their last five games.\",\n  \"confidence\": \"medium\"\n}",
+          "called_at": "2026-03-18T17:31:53.764079",
+          "status": "ok",
+          "game_id": "G3FVuGakj5kxyzyxaSmi",
+          "matchup": "New Jersey Devils @ New York Rangers"
+        },
+        "grok": {
+          "model": "grok-3",
+          "model_key": "grok",
+          "pick": "New Jersey Devils ML",
+          "score": 7.8,
+          "grade": "A",
+          "sizing": "1.5u",
+          "reasoning": "The New Jersey Devils have a significant edge in this matchup with a better overall record (37-31 vs. 26-41) and a strong home performance (25-10), while the Rangers struggle on the road (10-25). Additionally, the Rangers have been in poor form, going 2-8 in their last 10 games and allowing 4.6 goals per game over their last 5, compared to the Devils' more manageable 2.8 goals against per game in the same span. The current moneyline of -120 for the Devils offers reasonable value given these disparities.",
+          "key_factor": "Devils' superior record and Rangers' defensive struggles.",
+          "confidence": "medium",
+          "raw_response": "{\n  \"pick\": \"New Jersey Devils ML\",\n  \"score\": 7.8,\n  \"grade\": \"A\",\n  \"sizing\": \"1.5u\",\n  \"reasoning\": \"The New Jersey Devils have a significant edge in this matchup with a better overall record (37-31 vs. 26-41) and a strong home performance (25-10), while the Rangers struggle on the road (10-25). Additionally, the Rangers have been in poor form, going 2-8 in their last 10 games and allowing 4.6 goals per game over their last 5, compared to the Devils' more manageable 2.8 goals against per game in the same span. The current moneyline of -120 for the Devils offers reasonable value given these disparities.\",\n  \"key_factor\": \"Devils' superior record and Rangers' defensive struggles.\",\n  \"confidence\": \"medium\"\n}",
+          "called_at": "2026-03-18T17:31:55.995580",
+          "status": "ok",
+          "game_id": "G3FVuGakj5kxyzyxaSmi",
+          "matchup": "New Jersey Devils @ New York Rangers"
+        },
+        "grok-fast": {
+          "model": "grok-4-1-fast-reasoning",
+          "model_key": "grok-fast",
+          "pick": "New Jersey Devils ML",
+          "score": 7.2,
+          "grade": "A-",
+          "sizing": "1u",
+          "reasoning": "Devils hold a superior overall record at 37-31 compared to Rangers' dismal 26-41, and Rangers are hemorrhaging 4.6 goals per game over their last 5 while Devils score 2.4 PPG in that span. Despite Devils' poor away mark (12-21), Rangers' brutal L10 (2-8) and home record (16-16) make the -120 ML a strong value against a slumping foe. Models see cover potential but pass, supporting moneyline edge.",
+          "key_factor": "Rangers allowing 4.6 OPP PPG L5 vs Devils' 2.4 PPG L5.",
+          "confidence": "medium",
+          "raw_response": "{\n  \"pick\": \"New Jersey Devils ML\",\n  \"score\": 7.2,\n  \"grade\": \"A-\",\n  \"sizing\": \"1u\",\n  \"reasoning\": \"Devils hold a superior overall record at 37-31 compared to Rangers' dismal 26-41, and Rangers are hemorrhaging 4.6 goals per game over their last 5 while Devils score 2.4 PPG in that span. Despite Devils' poor away mark (12-21), Rangers' brutal L10 (2-8) and home record (16-16) make the -120 ML a strong value against a slumping foe. Models see cover potential but pass, supporting moneyline edge.\",\n  \"key_factor\": \"Rangers allowing 4.6 OPP PPG L5 vs Devils' 2.4 PPG L5.\",\n  \"confidence\": \"medium\"\n}",
+          "called_at": "2026-03-18T17:52:01.115560",
+          "status": "ok",
+          "game_id": "G3FVuGakj5kxyzyxaSmi",
+          "matchup": "New Jersey Devils @ New York Rangers"
+        }
+      }
+    },
+    {
+      "game_id": "J4gorJsuBk4SqzFNjAVR",
+      "matchup": "Pittsburgh Penguins @ Carolina Hurricanes",
+      "pick_side": "home",
+      "profiles": {
+        "sintonia": {
+          "game_id": "J4gorJsuBk4SqzFNjAVR",
+          "profile": "sintonia",
+          "pick_side": "home",
+          "grade": "A-",
+          "composite": 6.0,
+          "chain_bonus": 1.0,
+          "final": 7.0,
+          "pick": "Carolina Hurricanes -1.5",
+          "sizing": "1u",
+          "variables": {
+            "goalie_confirmed": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No goalie injury reported \u2014 assume starter"
+            },
+            "star_player_status": {
+              "score": 6,
+              "weight": 9,
+              "weighted": 54,
+              "note": "No significant injuries"
+            },
+            "pp_pk": {
+              "score": 5,
+              "weight": 8,
+              "weighted": 40,
+              "note": "PP/PK proxy from margin L5: +0.8"
+            },
+            "b2b_fatigue": {
+              "score": 1,
+              "weight": 8,
+              "weighted": 8,
+              "note": "Us: 1d rest | Them: 2d rest | WE on B2B; Rest deficit -1d"
+            },
+            "off_ranking": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "PPG L5: 2.8 | OPP allows: 2.6 | Margin L5: +0.8"
+            },
+            "def_ranking": {
+              "score": 9,
+              "weight": 7,
+              "weighted": 63,
+              "note": "Allow L5: 2.0 | They score L5: 2.8"
+            },
+            "recent_form": {
+              "score": 8,
+              "weight": 7,
+              "weighted": 56,
+              "note": "L5: 4-1 (margin +0.8) | Streak: W2 | OPP L5: 2-3 (margin +0.2)"
+            },
+            "road_trip_length": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "Road game 1"
+            },
+            "h2h_season": {
+              "score": 7,
+              "weight": 6,
+              "weighted": 42,
+              "note": "H2H: 2-1 this season (3 games)"
+            },
+            "corsi_xg": {
+              "score": 9,
+              "weight": 6,
+              "weighted": 54,
+              "note": "corsi_xg proxy \u2014 Allow L5: 2.0 | They score L5: 2.8"
+            },
+            "save_pct_trend": {
+              "score": 9,
+              "weight": 6,
+              "weighted": 54,
+              "note": "save_pct_trend proxy \u2014 Allow L5: 2.0 | They score L5: 2.8"
+            },
+            "ats_trend": {
+              "score": 6,
+              "weight": 6,
+              "weighted": 36,
+              "note": "Avg margin L10: +0.1 \u2014 close games | Close: 10/10 | Blowouts: 0/10"
+            },
+            "sharp_vs_public": {
+              "score": 3,
+              "weight": 5,
+              "weighted": 15,
+              "note": "Line flat \u2014 no sharp signal | ML shifted"
+            },
+            "home_away": {
+              "score": 7,
+              "weight": 5,
+              "weighted": 35,
+              "note": "Home: 18-13 (18/31)"
+            },
+            "depth_injuries": {
+              "score": 7,
+              "weight": 4,
+              "weighted": 28,
+              "note": "OPP missing 3 vs our 1"
+            }
+          },
+          "chains_fired": [
+            "TRAP_GAME"
+          ]
+        },
+        "renzo": {
+          "game_id": "J4gorJsuBk4SqzFNjAVR",
+          "profile": "renzo",
+          "pick_side": "home",
+          "grade": "B",
+          "composite": 6.0,
+          "chain_bonus": 0,
+          "final": 6.0,
+          "pick": "Carolina Hurricanes -1.5",
+          "sizing": "PASS",
+          "variables": {
+            "Q1_whos_missing": {
+              "score": 5,
+              "weight": 9,
+              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
+            },
+            "Q2_line_reflects": {
+              "score": 5,
+              "weight": 9,
+              "note": "Line moved 0.0 pts | Injuries roughly priced"
+            },
+            "Q3_recent_form": {
+              "score": 9,
+              "weight": 8,
+              "note": "Us L5: 4-1 | Them L5: 2-3 | Edge: +4"
+            },
+            "Q4_best_on_court": {
+              "score": 6,
+              "weight": 8,
+              "note": "Both sides mostly healthy"
+            },
+            "Q5_schedule_rest": {
+              "score": 8,
+              "weight": 7,
+              "note": "Streak: W2 | Home"
+            },
+            "thesis_edge": {
+              "score": 4,
+              "weight": 10,
+              "note": "No clear thesis edge found"
+            }
+          },
+          "chains_fired": [],
+          "mathurin_test": "FAIL",
+          "mathurin_note": "No clear thesis edge found"
+        }
+      },
+      "peter_rules": {
+        "game_id": "J4gorJsuBk4SqzFNjAVR",
+        "profile": "peter_rules",
+        "pick_side": "home",
+        "flags": [],
+        "adjustment": 0,
+        "has_kill": false,
+        "flag_count": 0
+      },
+      "consensus_avg": 6.5,
+      "consensus_grade": "B+",
+      "consensus_raw": 6.5,
+      "ev": {
+        "profile": "ev",
+        "game_id": "J4gorJsuBk4SqzFNjAVR",
+        "pick_side": "home",
+        "moneyline": -140,
+        "implied_prob": 0.5833,
+        "true_prob": 0.6283,
+        "edge": 0.045,
+        "decimal_odds": 1.714,
+        "ev_pct": 7.71,
+        "ev_grade": "A",
+        "kelly_full": 0.108,
+        "kelly_quarter": 0.027,
+        "kelly_units": "1u",
+        "status": "ok"
+      },
+      "model_grades": {
+        "grok": {
+          "model": "grok-3",
+          "model_key": "grok",
+          "pick": "Carolina Hurricanes -1.5",
+          "score": 7.2,
+          "grade": "A-",
+          "sizing": "1u",
+          "reasoning": "Carolina Hurricanes have a strong recent performance with a 4-1 record in their last 5 games and a 7-3 record in their last 10, compared to Pittsburgh's 2-3 and 4-6 respectively. Additionally, Carolina's defense has been solid, allowing only 2.0 goals per game over their last 5, while Pittsburgh has multiple key injuries including Blake Lizotte and Samuel Girard, potentially weakening their lineup.",
+          "key_factor": "Carolina's superior recent form and defensive stability.",
+          "confidence": "medium",
+          "raw_response": "{\n  \"pick\": \"Carolina Hurricanes -1.5\",\n  \"score\": 7.2,\n  \"grade\": \"A-\",\n  \"sizing\": \"1u\",\n  \"reasoning\": \"Carolina Hurricanes have a strong recent performance with a 4-1 record in their last 5 games and a 7-3 record in their last 10, compared to Pittsburgh's 2-3 and 4-6 respectively. Additionally, Carolina's defense has been solid, allowing only 2.0 goals per game over their last 5, while Pittsburgh has multiple key injuries including Blake Lizotte and Samuel Girard, potentially weakening their lineup.\",\n  \"key_factor\": \"Carolina's superior recent form and defensive stability.\",\n  \"confidence\": \"medium\"\n}",
+          "called_at": "2026-03-18T17:21:39.118196",
+          "status": "ok",
+          "game_id": "J4gorJsuBk4SqzFNjAVR",
+          "matchup": "Pittsburgh Penguins @ Carolina Hurricanes"
+        },
+        "deepseek": {
+          "model": "DeepSeek-V3.2",
+          "model_key": "deepseek",
+          "pick": "Carolina Hurricanes -1.5",
+          "score": 7.0,
+          "grade": "A-",
+          "sizing": "1u",
+          "reasoning": "Carolina has superior form (7-3 L10, 4-1 L5) and a significant defensive edge, allowing only 2.0 PPG over their last five compared to Pittsburgh's 2.6. The Penguins' key injuries to Girard and Lizotte weaken their depth, while the Hurricanes' injury report is minimal, supporting their ability to cover the spread at home.",
+          "key_factor": "Carolina's strong defensive form (2.0 OPPG L5) against a depleted Pittsburgh roster.",
+          "confidence": "medium",
+          "raw_response": "{\n  \"pick\": \"Carolina Hurricanes -1.5\",\n  \"score\": 7.0,\n  \"grade\": \"A-\",\n  \"sizing\": \"1u\",\n  \"reasoning\": \"Carolina has superior form (7-3 L10, 4-1 L5) and a significant defensive edge, allowing only 2.0 PPG over their last five compared to Pittsburgh's 2.6. The Penguins' key injuries to Girard and Lizotte weaken their depth, while the Hurricanes' injury report is minimal, supporting their ability to cover the spread at home.\",\n  \"key_factor\": \"Carolina's strong defensive form (2.0 OPPG L5) against a depleted Pittsburgh roster.\",\n  \"confidence\": \"medium\"\n}",
+          "called_at": "2026-03-18T17:27:03.099861",
+          "status": "ok",
+          "game_id": "J4gorJsuBk4SqzFNjAVR",
+          "matchup": "Pittsburgh Penguins @ Carolina Hurricanes"
+        },
+        "gpt41": {
+          "model": "gpt-4.1",
+          "model_key": "gpt41",
+          "pick": "Carolina Hurricanes -1.5",
+          "score": 7.0,
+          "grade": "A-",
+          "sizing": "1u",
+          "reasoning": "Carolina is in strong form (7-3 L10, 4-1 L5) and has allowed just 2.0 goals per game over their last five, while Pittsburgh is only 4-6 in their last ten and missing key contributors. The Hurricanes' home record (18-13) and recent defensive edge make the -1.5 spread attractive, especially with Pittsburgh's injuries on both offense and defense. The market's move toward Carolina (ML from -120 to -140) supports the value on the puck line.",
+          "key_factor": "Carolina's recent defensive dominance (2.0 OPP PPG L5) vs. a depleted Penguins lineup.",
+          "confidence": "medium",
+          "raw_response": "{\n  \"pick\": \"Carolina Hurricanes -1.5\",\n  \"score\": 7.0,\n  \"grade\": \"A-\",\n  \"sizing\": \"1u\",\n  \"reasoning\": \"Carolina is in strong form (7-3 L10, 4-1 L5) and has allowed just 2.0 goals per game over their last five, while Pittsburgh is only 4-6 in their last ten and missing key contributors. The Hurricanes' home record (18-13) and recent defensive edge make the -1.5 spread attractive, especially with Pittsburgh's injuries on both offense and defense. The market's move toward Carolina (ML from -120 to -140) supports the value on the puck line.\",\n  \"key_factor\": \"Carolina's recent defensive dominance (2.0 OPP PPG L5) vs. a depleted Penguins lineup.\",\n  \"confidence\": \"medium\"\n}",
+          "called_at": "2026-03-18T17:27:55.584024",
+          "status": "ok",
+          "game_id": "J4gorJsuBk4SqzFNjAVR",
+          "matchup": "Pittsburgh Penguins @ Carolina Hurricanes"
+        },
+        "grok-fast": {
+          "model": "grok-4-1-fast-reasoning",
+          "model_key": "grok-fast",
+          "pick": "Carolina Hurricanes -1.5",
+          "score": 7.2,
+          "grade": "A-",
+          "sizing": "1u",
+          "reasoning": "Carolina is 7-3 in L10 and 4-1 in L5, allowing just 2.0 OPP PPG L5 compared to Pittsburgh's 2.6 allowed, giving them a clear edge to cover -1.5 at home. Pittsburgh is missing key center Lizotte, defenseman Girard, and RW Hayes, weakening their lineup significantly. Both teams score 2.8 PPG L5 but Carolina's superior recent defense and form make the spread the best value over ML -140.",
+          "key_factor": "Carolina's elite L5 defensive suppression (2.0 OPP PPG) vs Pittsburgh's injuries and 2.6 allowed.",
+          "confidence": "high",
+          "raw_response": "{\n  \"pick\": \"Carolina Hurricanes -1.5\",\n  \"score\": 7.2,\n  \"grade\": \"A-\",\n  \"sizing\": \"1u\",\n  \"reasoning\": \"Carolina is 7-3 in L10 and 4-1 in L5, allowing just 2.0 OPP PPG L5 compared to Pittsburgh's 2.6 allowed, giving them a clear edge to cover -1.5 at home. Pittsburgh is missing key center Lizotte, defenseman Girard, and RW Hayes, weakening their lineup significantly. Both teams score 2.8 PPG L5 but Carolina's superior recent defense and form make the spread the best value over ML -140.\",\n  \"key_factor\": \"Carolina's elite L5 defensive suppression (2.0 OPP PPG) vs Pittsburgh's injuries and 2.6 allowed.\",\n  \"confidence\": \"high\"\n}",
+          "called_at": "2026-03-18T17:47:13.674707",
+          "status": "ok",
+          "game_id": "J4gorJsuBk4SqzFNjAVR",
+          "matchup": "Pittsburgh Penguins @ Carolina Hurricanes"
+        }
+      }
+    },
+    {
+      "game_id": "ncDa1sqaWM9LjaQxy9MV",
+      "matchup": "Ottawa Senators @ Washington Capitals",
+      "pick_side": "away",
+      "profiles": {
+        "sintonia": {
+          "game_id": "ncDa1sqaWM9LjaQxy9MV",
+          "profile": "sintonia",
+          "pick_side": "away",
+          "grade": "B+",
+          "composite": 5.74,
+          "chain_bonus": 1.0,
+          "final": 6.74,
+          "pick": "Ottawa Senators -1.5",
+          "sizing": "1u",
+          "variables": {
+            "goalie_confirmed": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No goalie injury reported \u2014 assume starter"
+            },
+            "star_player_status": {
+              "score": 4,
+              "weight": 9,
+              "weighted": 36,
+              "note": "No significant injuries"
+            },
+            "pp_pk": {
+              "score": 5,
+              "weight": 8,
+              "weighted": 40,
+              "note": "PP/PK proxy from margin L5: +1.0"
+            },
+            "b2b_fatigue": {
+              "score": 4,
+              "weight": 8,
+              "weighted": 32,
+              "note": "Us: 2d rest | Them: 4d rest | Rest deficit -2d"
+            },
+            "off_ranking": {
+              "score": 8,
+              "weight": 7,
+              "weighted": 56,
+              "note": "PPG L5: 3.8 | OPP allows: 2.8 | Margin L5: +1.0"
+            },
+            "def_ranking": {
+              "score": 6,
+              "weight": 7,
+              "weighted": 42,
+              "note": "Allow L5: 2.8 | They score L5: 2.8"
+            },
+            "recent_form": {
+              "score": 8,
+              "weight": 7,
+              "weighted": 56,
+              "note": "L5: 4-1 (margin +1.0) | Streak: L1 | OPP L5: 3-2 (margin +0.0)"
+            },
+            "road_trip_length": {
+              "score": 7,
+              "weight": 7,
+              "weighted": 49,
+              "note": "Home stand: 6 games \u2014 well rested at home"
+            },
+            "h2h_season": {
+              "score": 9,
+              "weight": 6,
+              "weighted": 54,
+              "note": "H2H: 2-0 this season (2 games)"
+            },
+            "corsi_xg": {
+              "score": 6,
+              "weight": 6,
+              "weighted": 36,
+              "note": "corsi_xg proxy \u2014 Allow L5: 2.8 | They score L5: 2.8"
+            },
+            "save_pct_trend": {
+              "score": 6,
+              "weight": 6,
+              "weighted": 36,
+              "note": "save_pct_trend proxy \u2014 Allow L5: 2.8 | They score L5: 2.8"
+            },
+            "ats_trend": {
+              "score": 6,
+              "weight": 6,
+              "weighted": 36,
+              "note": "Avg margin L10: +1.8 \u2014 close games | Close: 10/10 | Blowouts: 0/10"
+            },
+            "sharp_vs_public": {
+              "score": 3,
+              "weight": 5,
+              "weighted": 15,
+              "note": "Line flat \u2014 no sharp signal | ML shifted"
+            },
+            "home_away": {
+              "score": 5,
+              "weight": 5,
+              "weighted": 25,
+              "note": "Away: 20-13 (20/33)"
+            },
+            "depth_injuries": {
+              "score": 4,
+              "weight": 4,
+              "weighted": 16,
+              "note": "WE missing more: 2 vs their 1"
+            }
+          },
+          "chains_fired": [
+            "TRAP_GAME"
+          ]
+        },
+        "renzo": {
+          "game_id": "ncDa1sqaWM9LjaQxy9MV",
+          "profile": "renzo",
+          "pick_side": "away",
+          "grade": "C+",
+          "composite": 5.14,
+          "chain_bonus": 0,
+          "final": 5.14,
+          "pick": "Ottawa Senators -1.5",
+          "sizing": "PASS",
+          "variables": {
+            "Q1_whos_missing": {
+              "score": 5,
+              "weight": 9,
+              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
+            },
+            "Q2_line_reflects": {
+              "score": 5,
+              "weight": 9,
+              "note": "Line moved 0.0 pts | Injuries roughly priced"
+            },
+            "Q3_recent_form": {
+              "score": 7,
+              "weight": 8,
+              "note": "Us L5: 4-1 | Them L5: 3-2 | Edge: +2"
+            },
+            "Q4_best_on_court": {
+              "score": 6,
+              "weight": 8,
+              "note": "Both sides mostly healthy"
+            },
+            "Q5_schedule_rest": {
+              "score": 4,
+              "weight": 7,
+              "note": "Streak: L1 | Away"
+            },
+            "thesis_edge": {
+              "score": 4,
+              "weight": 10,
+              "note": "No clear thesis edge found"
+            }
+          },
+          "chains_fired": [],
+          "mathurin_test": "FAIL",
+          "mathurin_note": "No clear thesis edge found"
+        }
+      },
+      "peter_rules": {
+        "game_id": "ncDa1sqaWM9LjaQxy9MV",
+        "profile": "peter_rules",
+        "pick_side": "away",
+        "flags": [],
+        "adjustment": 0,
+        "has_kill": false,
+        "flag_count": 0
+      },
+      "consensus_avg": 5.94,
+      "consensus_grade": "B-",
+      "consensus_raw": 5.94,
+      "ev": {
+        "profile": "ev",
+        "game_id": "ncDa1sqaWM9LjaQxy9MV",
+        "pick_side": "away",
+        "moneyline": -130,
+        "implied_prob": 0.5652,
+        "true_prob": 0.5934,
+        "edge": 0.0282,
+        "decimal_odds": 1.769,
+        "ev_pct": 4.99,
+        "ev_grade": "B",
+        "kelly_full": 0.0649,
+        "kelly_quarter": 0.0162,
+        "kelly_units": "0.5u",
+        "status": "ok"
+      },
+      "model_grades": {
+        "deepseek": {
+          "model": "DeepSeek-V3.2",
+          "model_key": "deepseek",
+          "pick": "Ottawa Senators ML",
+          "score": 7.2,
+          "grade": "A-",
+          "sizing": "1u",
+          "reasoning": "Ottawa is the superior team with a 42-25 record and an 8-2 L10 mark, while Washington is 31-35. The Senators' offense is hotter, averaging 3.8 PPG over their last 5 compared to the Capitals' 2.8, and the defensive metrics are equal. The line move from -125 to -130 on Ottawa's moneyline indicates sharp action supporting the better team.",
+          "key_factor": "Ottawa's significant edge in overall record and recent offensive form.",
+          "confidence": "medium",
+          "raw_response": "{\n  \"pick\": \"Ottawa Senators ML\",\n  \"score\": 7.2,\n  \"grade\": \"A-\",\n  \"sizing\": \"1u\",\n  \"reasoning\": \"Ottawa is the superior team with a 42-25 record and an 8-2 L10 mark, while Washington is 31-35. The Senators' offense is hotter, averaging 3.8 PPG over their last 5 compared to the Capitals' 2.8, and the defensive metrics are equal. The line move from -125 to -130 on Ottawa's moneyline indicates sharp action supporting the better team.\",\n  \"key_factor\": \"Ottawa's significant edge in overall record and recent offensive form.\",\n  \"confidence\": \"medium\"\n}",
+          "called_at": "2026-03-18T17:36:39.007402",
+          "status": "ok",
+          "game_id": "ncDa1sqaWM9LjaQxy9MV",
+          "matchup": "Ottawa Senators @ Washington Capitals"
+        },
+        "gpt41": {
+          "model": "gpt-4.1",
+          "model_key": "gpt41",
+          "pick": "Ottawa Senators ML",
+          "score": 7.2,
+          "grade": "A-",
+          "sizing": "1u",
+          "reasoning": "Ottawa has a superior record (42-25 vs 31-35), stronger recent form (8-2 L10, 4-1 L5), and is scoring a full goal more per game over the last five (3.8 vs 2.8). The market has moved slightly toward Ottawa (-130), indicating support, and Washington is missing a key center. The Senators' edge in scoring and form outweighs minor defensive injuries.",
+          "key_factor": "Ottawa's recent offensive production and overall form.",
+          "confidence": "medium",
+          "raw_response": "{\n  \"pick\": \"Ottawa Senators ML\",\n  \"score\": 7.2,\n  \"grade\": \"A-\",\n  \"sizing\": \"1u\",\n  \"reasoning\": \"Ottawa has a superior record (42-25 vs 31-35), stronger recent form (8-2 L10, 4-1 L5), and is scoring a full goal more per game over the last five (3.8 vs 2.8). The market has moved slightly toward Ottawa (-130), indicating support, and Washington is missing a key center. The Senators' edge in scoring and form outweighs minor defensive injuries.\",\n  \"key_factor\": \"Ottawa's recent offensive production and overall form.\",\n  \"confidence\": \"medium\"\n}",
+          "called_at": "2026-03-18T17:36:39.431631",
+          "status": "ok",
+          "game_id": "ncDa1sqaWM9LjaQxy9MV",
+          "matchup": "Ottawa Senators @ Washington Capitals"
+        },
+        "grok": {
+          "model": "grok-3",
+          "model_key": "grok",
+          "pick": "Ottawa Senators ML",
+          "score": 7.8,
+          "grade": "A",
+          "sizing": "1.5u",
+          "reasoning": "Ottawa Senators have a strong record of 42-25 compared to Washington Capitals' 31-35, and their recent form is superior with an 8-2 record over the last 10 games versus Washington's 6-4. Additionally, Ottawa's offensive output of 3.8 PPG over the last 5 games significantly outpaces Washington's 2.8 PPG, giving them a clear edge despite playing on the road. The current moneyline of -130 offers reasonable value given these disparities.",
+          "key_factor": "Ottawa's superior recent form and offensive output.",
+          "confidence": "high",
+          "raw_response": "{\n  \"pick\": \"Ottawa Senators ML\",\n  \"score\": 7.8,\n  \"grade\": \"A\",\n  \"sizing\": \"1.5u\",\n  \"reasoning\": \"Ottawa Senators have a strong record of 42-25 compared to Washington Capitals' 31-35, and their recent form is superior with an 8-2 record over the last 10 games versus Washington's 6-4. Additionally, Ottawa's offensive output of 3.8 PPG over the last 5 games significantly outpaces Washington's 2.8 PPG, giving them a clear edge despite playing on the road. The current moneyline of -130 offers reasonable value given these disparities.\",\n  \"key_factor\": \"Ottawa's superior recent form and offensive output.\",\n  \"confidence\": \"high\"\n}",
+          "called_at": "2026-03-18T17:36:44.633515",
+          "status": "ok",
+          "game_id": "ncDa1sqaWM9LjaQxy9MV",
+          "matchup": "Ottawa Senators @ Washington Capitals"
+        },
+        "grok-fast": {
+          "model": "grok-4-1-fast-reasoning",
+          "model_key": "grok-fast",
+          "pick": "Ottawa Senators ML",
+          "score": 7.2,
+          "grade": "A-",
+          "sizing": "1u",
+          "reasoning": "Ottawa's 42-25 record (.627 win%) and 20-13 away mark starkly outperform Washington's 31-35 (.470) and dismal 15-19 home record (.441). Their L10 form (8-2 vs 6-4) and L5 scoring (3.8 PPG allowed 2.8) indicate a clear edge, even with defensive injuries. At -130 (56.5% implied), it undervalues their ~62% win probability based on records and streaks.",
+          "key_factor": "Ottawa's superior overall and road records vs Washington's weak home performance.",
+          "confidence": "high",
+          "raw_response": "{\n  \"pick\": \"Ottawa Senators ML\",\n  \"score\": 7.2,\n  \"grade\": \"A-\",\n  \"sizing\": \"1u\",\n  \"reasoning\": \"Ottawa's 42-25 record (.627 win%) and 20-13 away mark starkly outperform Washington's 31-35 (.470) and dismal 15-19 home record (.441). Their L10 form (8-2 vs 6-4) and L5 scoring (3.8 PPG allowed 2.8) indicate a clear edge, even with defensive injuries. At -130 (56.5% implied), it undervalues their ~62% win probability based on records and streaks.\",\n  \"key_factor\": \"Ottawa's superior overall and road records vs Washington's weak home performance.\",\n  \"confidence\": \"high\"\n}",
+          "called_at": "2026-03-18T17:46:46.355444",
+          "status": "ok",
+          "game_id": "ncDa1sqaWM9LjaQxy9MV",
+          "matchup": "Ottawa Senators @ Washington Capitals"
+        }
+      }
+    },
+    {
+      "game_id": "OvS22ZRQkG6XV9o7lAoj",
+      "matchup": "St. Louis Blues @ Calgary Flames",
+      "pick_side": "away",
+      "profiles": {
+        "sintonia": {
+          "game_id": "OvS22ZRQkG6XV9o7lAoj",
+          "profile": "sintonia",
+          "pick_side": "away",
+          "grade": "B+",
+          "composite": 6.54,
+          "chain_bonus": 0.0,
+          "final": 6.54,
+          "pick": "St. Louis Blues -1.5",
+          "sizing": "1u",
+          "variables": {
+            "goalie_confirmed": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No goalie injury reported \u2014 assume starter"
+            },
+            "star_player_status": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No significant injuries"
+            },
+            "pp_pk": {
+              "score": 5,
+              "weight": 8,
+              "weighted": 40,
+              "note": "PP/PK proxy from margin L5: +1.0"
+            },
+            "b2b_fatigue": {
+              "score": 10,
+              "weight": 8,
+              "weighted": 80,
+              "note": "Us: 3d rest | Them: 0d rest | OPP on B2B; Rest edge +3d"
+            },
+            "off_ranking": {
+              "score": 8,
+              "weight": 7,
+              "weighted": 56,
+              "note": "PPG L5: 3.0 | OPP allows: 4.0 | Margin L5: +1.0"
+            },
+            "def_ranking": {
+              "score": 9,
+              "weight": 7,
+              "weighted": 63,
+              "note": "Allow L5: 2.0 | They score L5: 4.2"
+            },
+            "recent_form": {
+              "score": 6,
+              "weight": 7,
+              "weighted": 42,
+              "note": "L5: 3-2 (margin +1.0) | Streak: L1 | OPP L5: 2-3 (margin +0.2)"
+            },
+            "road_trip_length": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "Road game 1"
+            },
+            "h2h_season": {
+              "score": 9,
+              "weight": 6,
+              "weighted": 54,
+              "note": "H2H: 2-0 this season (2 games)"
+            },
+            "corsi_xg": {
+              "score": 9,
+              "weight": 6,
+              "weighted": 54,
+              "note": "corsi_xg proxy \u2014 Allow L5: 2.0 | They score L5: 4.2"
+            },
+            "save_pct_trend": {
+              "score": 9,
+              "weight": 6,
+              "weighted": 54,
+              "note": "save_pct_trend proxy \u2014 Allow L5: 2.0 | They score L5: 4.2"
+            },
+            "ats_trend": {
+              "score": 6,
+              "weight": 6,
+              "weighted": 36,
+              "note": "Avg margin L10: +1.1 \u2014 close games | Close: 10/10 | Blowouts: 0/10"
+            },
+            "sharp_vs_public": {
+              "score": 3,
+              "weight": 5,
+              "weighted": 15,
+              "note": "Line flat \u2014 no sharp signal | ML shifted"
+            },
+            "home_away": {
+              "score": 3,
+              "weight": 5,
+              "weighted": 15,
+              "note": "Away: 12-21 (12/33)"
+            },
+            "depth_injuries": {
+              "score": 5,
+              "weight": 4,
+              "weighted": 20,
+              "note": "Similar injury loads (them 0, us 0)"
+            }
+          },
+          "chains_fired": []
+        },
+        "renzo": {
+          "game_id": "OvS22ZRQkG6XV9o7lAoj",
+          "profile": "renzo",
+          "pick_side": "away",
+          "grade": "C+",
+          "composite": 5.14,
+          "chain_bonus": 0,
+          "final": 5.14,
+          "pick": "St. Louis Blues -1.5",
+          "sizing": "PASS",
+          "variables": {
+            "Q1_whos_missing": {
+              "score": 5,
+              "weight": 9,
+              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
+            },
+            "Q2_line_reflects": {
+              "score": 5,
+              "weight": 9,
+              "note": "Line moved 0.0 pts | Injuries roughly priced"
+            },
+            "Q3_recent_form": {
+              "score": 7,
+              "weight": 8,
+              "note": "Us L5: 3-2 | Them L5: 2-3 | Edge: +2"
+            },
+            "Q4_best_on_court": {
+              "score": 6,
+              "weight": 8,
+              "note": "Both sides mostly healthy"
+            },
+            "Q5_schedule_rest": {
+              "score": 4,
+              "weight": 7,
+              "note": "Streak: L1 | Away"
+            },
+            "thesis_edge": {
+              "score": 4,
+              "weight": 10,
+              "note": "No clear thesis edge found"
+            }
+          },
+          "chains_fired": [],
+          "mathurin_test": "FAIL",
+          "mathurin_note": "No clear thesis edge found"
+        }
+      },
+      "peter_rules": {
+        "game_id": "OvS22ZRQkG6XV9o7lAoj",
+        "profile": "peter_rules",
+        "pick_side": "away",
+        "flags": [],
+        "adjustment": 0,
+        "has_kill": false,
+        "flag_count": 0
+      },
+      "consensus_avg": 5.84,
+      "consensus_grade": "B-",
+      "consensus_raw": 5.84,
+      "ev": {
+        "profile": "ev",
+        "game_id": "OvS22ZRQkG6XV9o7lAoj",
+        "pick_side": "away",
+        "moneyline": -125,
+        "implied_prob": 0.5556,
+        "true_prob": 0.5808,
+        "edge": 0.0252,
+        "decimal_odds": 1.8,
+        "ev_pct": 4.54,
+        "ev_grade": "B",
+        "kelly_full": 0.0567,
+        "kelly_quarter": 0.0142,
+        "kelly_units": "0.5u",
+        "status": "ok"
+      },
+      "model_grades": {
+        "deepseek": {
+          "model": "DeepSeek-V3.2",
+          "model_key": "deepseek",
+          "pick": "St. Louis Blues ML",
+          "score": 7.2,
+          "grade": "A-",
+          "sizing": "1u",
+          "reasoning": "The Blues are 7-3 in their last 10 games with a +1.0 goal differential per game, while the Flames are 3-7 with a -0.2 differential, showing a significant recent form disparity. Despite the Flames' better overall record, the market has moved the Blues from -105 to -125 favorites, indicating sharp action, and the Blues' underlying defensive form (2.0 OPP PPG L5) is far superior to Calgary's recent 4.0 OPP PPG L5.",
+          "key_factor": "Sharp line move toward St. Louis ML despite Calgary's superior season record, supported by St. Louis's vastly better recent 10-game form.",
+          "confidence": "medium",
+          "raw_response": "{\n  \"pick\": \"St. Louis Blues ML\",\n  \"score\": 7.2,\n  \"grade\": \"A-\",\n  \"sizing\": \"1u\",\n  \"reasoning\": \"The Blues are 7-3 in their last 10 games with a +1.0 goal differential per game, while the Flames are 3-7 with a -0.2 differential, showing a significant recent form disparity. Despite the Flames' better overall record, the market has moved the Blues from -105 to -125 favorites, indicating sharp action, and the Blues' underlying defensive form (2.0 OPP PPG L5) is far superior to Calgary's recent 4.0 OPP PPG L5.\",\n  \"key_factor\": \"Sharp line move toward St. Louis ML despite Calgary's superior season record, supported by St. Louis's vastly better recent 10-game form.\",\n  \"confidence\": \"medium\"\n}",
+          "called_at": "2026-03-18T17:36:42.516841",
+          "status": "ok",
+          "game_id": "OvS22ZRQkG6XV9o7lAoj",
+          "matchup": "St. Louis Blues @ Calgary Flames"
+        },
+        "gpt41": {
+          "model": "gpt-4.1",
+          "model_key": "gpt41",
+          "pick": "St. Louis Blues ML",
+          "score": 7.0,
+          "grade": "A-",
+          "sizing": "1u",
+          "reasoning": "The Blues have won 7 of their last 10 games (7-3 L10) and are allowing just 2.0 goals per game over their last 5, while Calgary is struggling defensively, conceding 4.0 goals per game in that span and going just 3-7 in their last 10. The market move toward St. Louis (from -105 to -125) signals sharp support, and the Blues' recent form and defensive edge provide value at this price.",
+          "key_factor": "St. Louis' strong recent form (7-3 L10) vs. Calgary's poor defense (4.0 OPP PPG L5).",
+          "confidence": "medium",
+          "raw_response": "{\n  \"pick\": \"St. Louis Blues ML\",\n  \"score\": 7.0,\n  \"grade\": \"A-\",\n  \"sizing\": \"1u\",\n  \"reasoning\": \"The Blues have won 7 of their last 10 games (7-3 L10) and are allowing just 2.0 goals per game over their last 5, while Calgary is struggling defensively, conceding 4.0 goals per game in that span and going just 3-7 in their last 10. The market move toward St. Louis (from -105 to -125) signals sharp support, and the Blues' recent form and defensive edge provide value at this price.\",\n  \"key_factor\": \"St. Louis' strong recent form (7-3 L10) vs. Calgary's poor defense (4.0 OPP PPG L5).\",\n  \"confidence\": \"medium\"\n}",
+          "called_at": "2026-03-18T17:36:42.597116",
+          "status": "ok",
+          "game_id": "OvS22ZRQkG6XV9o7lAoj",
+          "matchup": "St. Louis Blues @ Calgary Flames"
+        },
+        "grok-fast": {
+          "model": "grok-4-1-fast-reasoning",
+          "model_key": "grok-fast",
+          "pick": "St. Louis Blues ML",
+          "score": 7.2,
+          "grade": "A-",
+          "sizing": "1u",
+          "reasoning": "Blues are surging at 7-3 in L10 and 3-2 in L5, scoring 3.0 PPG while allowing just 2.0, compared to Flames' 3-7 L10 and 2-3 L5 where they allow 4.0 PPG despite scoring 4.2. Flames' home record (20-12) is solid but recent slump outweighs it against Blues' momentum. ML at -125 undervalues Blues' form edge over slumping Flames.",
+          "key_factor": "Blues 7-3 L10 vs Flames 3-7 L10 with superior defensive efficiency (2.0 OPP PPG L5).",
+          "confidence": "medium",
+          "raw_response": "{\n  \"pick\": \"St. Louis Blues ML\",\n  \"score\": 7.2,\n  \"grade\": \"A-\",\n  \"sizing\": \"1u\",\n  \"reasoning\": \"Blues are surging at 7-3 in L10 and 3-2 in L5, scoring 3.0 PPG while allowing just 2.0, compared to Flames' 3-7 L10 and 2-3 L5 where they allow 4.0 PPG despite scoring 4.2. Flames' home record (20-12) is solid but recent slump outweighs it against Blues' momentum. ML at -125 undervalues Blues' form edge over slumping Flames.\",\n  \"key_factor\": \"Blues 7-3 L10 vs Flames 3-7 L10 with superior defensive efficiency (2.0 OPP PPG L5).\",\n  \"confidence\": \"medium\"\n}",
+          "called_at": "2026-03-18T17:36:46.018213",
+          "status": "ok",
+          "game_id": "OvS22ZRQkG6XV9o7lAoj",
+          "matchup": "St. Louis Blues @ Calgary Flames"
+        },
+        "grok": {
+          "model": "grok-3",
+          "model_key": "grok",
+          "pick": "St. Louis Blues ML",
+          "score": 7.2,
+          "grade": "A-",
+          "sizing": "1u",
+          "reasoning": "Despite Calgary Flames having a better overall record at 41-25 compared to St. Louis Blues at 27-40, the Blues have shown stronger recent form with a 7-3 record in their last 10 games versus Calgary's 3-7. Additionally, the Blues' moneyline has moved from -105 to -125, indicating market confidence, and their recent scoring average of 3.0 PPG over the last 5 games supports a potential upset on the road.",
+          "key_factor": "St. Louis Blues' superior recent form (7-3 in L10) over Calgary's slump (3-7 in L10).",
+          "confidence": "medium",
+          "raw_response": "{\n  \"pick\": \"St. Louis Blues ML\",\n  \"score\": 7.2,\n  \"grade\": \"A-\",\n  \"sizing\": \"1u\",\n  \"reasoning\": \"Despite Calgary Flames having a better overall record at 41-25 compared to St. Louis Blues at 27-40, the Blues have shown stronger recent form with a 7-3 record in their last 10 games versus Calgary's 3-7. Additionally, the Blues' moneyline has moved from -105 to -125, indicating market confidence, and their recent scoring average of 3.0 PPG over the last 5 games supports a potential upset on the road.\",\n  \"key_factor\": \"St. Louis Blues' superior recent form (7-3 in L10) over Calgary's slump (3-7 in L10).\",\n  \"confidence\": \"medium\"\n}",
+          "called_at": "2026-03-18T17:36:48.288635",
+          "status": "ok",
+          "game_id": "OvS22ZRQkG6XV9o7lAoj",
+          "matchup": "St. Louis Blues @ Calgary Flames"
+        }
+      }
+    },
+    {
+      "game_id": "liwVxPiAmb29E5r5nowy",
+      "matchup": "Dallas Stars @ Colorado Avalanche",
+      "pick_side": "away",
+      "profiles": {
+        "sintonia": {
+          "game_id": "liwVxPiAmb29E5r5nowy",
+          "profile": "sintonia",
+          "pick_side": "away",
+          "grade": "C",
+          "composite": 4.61,
+          "chain_bonus": 0.0,
+          "final": 4.61,
+          "pick": "Dallas Stars 1.5",
+          "sizing": "PASS",
+          "variables": {
+            "goalie_confirmed": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No goalie injury reported \u2014 assume starter"
+            },
+            "star_player_status": {
+              "score": 6,
+              "weight": 9,
+              "weighted": 54,
+              "note": "No significant injuries"
+            },
+            "pp_pk": {
+              "score": 5,
+              "weight": 8,
+              "weighted": 40,
+              "note": "PP/PK proxy from margin L5: -0.8"
+            },
+            "b2b_fatigue": {
+              "score": 9,
+              "weight": 8,
+              "weighted": 72,
+              "note": "Us: 3d rest | Them: 1d rest | OPP on B2B; Rest edge +2d"
+            },
+            "off_ranking": {
+              "score": 3,
+              "weight": 7,
+              "weighted": 21,
+              "note": "PPG L5: 2.4 | OPP allows: 3.0 | Margin L5: -0.8"
+            },
+            "def_ranking": {
+              "score": 4,
+              "weight": 7,
+              "weighted": 28,
+              "note": "Allow L5: 3.2 | They score L5: 2.8"
+            },
+            "recent_form": {
+              "score": 4,
+              "weight": 7,
+              "weighted": 28,
+              "note": "L5: 2-3 (margin -0.8) | Streak: W1 | OPP L5: 2-3 (margin -0.2)"
+            },
+            "road_trip_length": {
+              "score": 4,
+              "weight": 7,
+              "weighted": 28,
+              "note": "Road trip: 4 games"
+            },
+            "h2h_season": {
+              "score": 3,
+              "weight": 6,
+              "weighted": 18,
+              "note": "H2H: 1-2 this season (3 games)"
+            },
+            "corsi_xg": {
+              "score": 4,
+              "weight": 6,
+              "weighted": 24,
+              "note": "corsi_xg proxy \u2014 Allow L5: 3.2 | They score L5: 2.8"
+            },
+            "save_pct_trend": {
+              "score": 4,
+              "weight": 6,
+              "weighted": 24,
+              "note": "save_pct_trend proxy \u2014 Allow L5: 3.2 | They score L5: 2.8"
+            },
+            "ats_trend": {
+              "score": 4,
+              "weight": 6,
+              "weighted": 24,
+              "note": "Avg margin L10: -0.1 \u2014 losing close | Close: 10/10 | Blowouts: 0/10"
+            },
+            "sharp_vs_public": {
+              "score": 3,
+              "weight": 5,
+              "weighted": 15,
+              "note": "Line flat \u2014 no sharp signal | ML shifted"
+            },
+            "home_away": {
+              "score": 4,
+              "weight": 5,
+              "weighted": 20,
+              "note": "Away: 15-19 (15/34)"
+            },
+            "depth_injuries": {
+              "score": 5,
+              "weight": 4,
+              "weighted": 20,
+              "note": "Similar injury loads (them 2, us 1)"
+            }
+          },
+          "chains_fired": []
+        },
+        "renzo": {
+          "game_id": "liwVxPiAmb29E5r5nowy",
+          "profile": "renzo",
+          "pick_side": "away",
+          "grade": "C+",
+          "composite": 5.1,
+          "chain_bonus": 0,
+          "final": 5.1,
+          "pick": "Dallas Stars 1.5",
+          "sizing": "PASS",
+          "variables": {
+            "Q1_whos_missing": {
+              "score": 5,
+              "weight": 9,
+              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
+            },
+            "Q2_line_reflects": {
+              "score": 5,
+              "weight": 9,
+              "note": "Line moved 0.0 pts | Injuries roughly priced"
+            },
+            "Q3_recent_form": {
+              "score": 5,
+              "weight": 8,
+              "note": "Us L5: 2-3 | Them L5: 2-3 | Edge: +0"
+            },
+            "Q4_best_on_court": {
+              "score": 6,
+              "weight": 8,
+              "note": "Both sides mostly healthy"
+            },
+            "Q5_schedule_rest": {
+              "score": 6,
+              "weight": 7,
+              "note": "Streak: W1 | Away"
+            },
+            "thesis_edge": {
+              "score": 4,
+              "weight": 10,
+              "note": "No clear thesis edge found"
+            }
+          },
+          "chains_fired": [],
+          "mathurin_test": "FAIL",
+          "mathurin_note": "No clear thesis edge found"
+        }
+      },
+      "peter_rules": {
+        "game_id": "liwVxPiAmb29E5r5nowy",
+        "profile": "peter_rules",
+        "pick_side": "away",
+        "flags": [],
+        "adjustment": 0,
+        "has_kill": false,
+        "flag_count": 0
+      },
+      "consensus_avg": 4.86,
+      "consensus_grade": "C",
+      "consensus_raw": 4.86,
+      "ev": {
+        "profile": "ev",
+        "game_id": "liwVxPiAmb29E5r5nowy",
+        "pick_side": "away",
+        "moneyline": 125,
+        "implied_prob": 0.4444,
+        "true_prob": 0.4402,
+        "edge": -0.0042,
+        "decimal_odds": 2.25,
+        "ev_pct": -0.94,
+        "ev_grade": "F",
+        "kelly_full": -0.0076,
+        "kelly_quarter": 0,
+        "kelly_units": "PASS",
+        "status": "ok"
+      },
+      "model_grades": {
+        "gpt41": {
+          "model": "gpt-4.1",
+          "model_key": "gpt41",
+          "pick": "Dallas Stars ML",
+          "score": 5.1,
+          "grade": "C+",
+          "sizing": "PASS",
+          "reasoning": "Dallas has a superior record (37-30 vs 29-40) and is 6-4 in their last 10, while Colorado is just 2-8 in that span. However, the market has moved sharply against Dallas, with Colorado now -145 ML despite multiple key injuries, suggesting little actionable value remains. Model grades are lukewarm and show no clear edge.",
+          "key_factor": "Market movement favors Colorado despite poor recent form and injuries.",
+          "confidence": "low",
+          "raw_response": "{\n  \"pick\": \"Dallas Stars ML\",\n  \"score\": 5.1,\n  \"grade\": \"C+\",\n  \"sizing\": \"PASS\",\n  \"reasoning\": \"Dallas has a superior record (37-30 vs 29-40) and is 6-4 in their last 10, while Colorado is just 2-8 in that span. However, the market has moved sharply against Dallas, with Colorado now -145 ML despite multiple key injuries, suggesting little actionable value remains. Model grades are lukewarm and show no clear edge.\",\n  \"key_factor\": \"Market movement favors Colorado despite poor recent form and injuries.\",\n  \"confidence\": \"low\"\n}",
+          "called_at": "2026-03-18T17:31:55.911438",
+          "status": "ok",
+          "game_id": "liwVxPiAmb29E5r5nowy",
+          "matchup": "Dallas Stars @ Colorado Avalanche"
+        },
+        "deepseek": {
+          "model": "DeepSeek-V3.2",
+          "model_key": "deepseek",
+          "pick": "Dallas Stars 1.5 PASS",
+          "score": 6.8,
+          "grade": "B+",
+          "sizing": "1u",
+          "reasoning": "The line move from Colorado -1.5 at +0.0 to a -145 moneyline suggests sharp money on the Avalanche, but the spread remains a key number. Dallas's superior overall record (37-30 vs 29-40) and strong 6-4 L10 form compared to Colorado's 2-8 L10, despite key injuries, provide enough value to take the 1.5 goals. The total's 1.0 goal move to 6.5 is an overreaction to recent defensive lapses (Stars OPP PPG L5: 3.2, Avs OPP PPG L5: 3.0).",
+          "key_factor": "Dallas's significantly better recent form (6-4 L10) and full-season record against a struggling Colorado team (2-8 L10) provides value with the key 1.5 goal cushion.",
+          "confidence": "medium",
+          "raw_response": "{\n  \"pick\": \"Dallas Stars 1.5 PASS\",\n  \"score\": 6.8,\n  \"grade\": \"B+\",\n  \"sizing\": \"1u\",\n  \"reasoning\": \"The line move from Colorado -1.5 at +0.0 to a -145 moneyline suggests sharp money on the Avalanche, but the spread remains a key number. Dallas's superior overall record (37-30 vs 29-40) and strong 6-4 L10 form compared to Colorado's 2-8 L10, despite key injuries, provide enough value to take the 1.5 goals. The total's 1.0 goal move to 6.5 is an overreaction to recent defensive lapses (Stars OPP PPG L5: 3.2, Avs OPP PPG L5: 3.0).\",\n  \"key_factor\": \"Dallas's significantly better recent form (6-4 L10) and full-season record against a struggling Colorado team (2-8 L10) provides value with the key 1.5 goal cushion.\",\n  \"confidence\": \"medium\"\n}",
+          "called_at": "2026-03-18T17:31:56.839024",
+          "status": "ok",
+          "game_id": "liwVxPiAmb29E5r5nowy",
+          "matchup": "Dallas Stars @ Colorado Avalanche"
+        },
+        "grok": {
+          "model": "grok-3",
+          "model_key": "grok",
+          "pick": "Dallas Stars ML",
+          "score": 7.2,
+          "grade": "A-",
+          "sizing": "1u",
+          "reasoning": "The Dallas Stars at +125 on the moneyline offer value due to Colorado's recent poor form, with a 2-8 record in their last 10 games compared to Dallas' 6-4. Additionally, Colorado is dealing with significant injuries to key players like Landeskog and Lehkonen, which could impact their offensive output against a Dallas team that has a decent away record of 15-19.",
+          "key_factor": "Colorado's poor recent form and key injuries.",
+          "confidence": "medium",
+          "raw_response": "{\n  \"pick\": \"Dallas Stars ML\",\n  \"score\": 7.2,\n  \"grade\": \"A-\",\n  \"sizing\": \"1u\",\n  \"reasoning\": \"The Dallas Stars at +125 on the moneyline offer value due to Colorado's recent poor form, with a 2-8 record in their last 10 games compared to Dallas' 6-4. Additionally, Colorado is dealing with significant injuries to key players like Landeskog and Lehkonen, which could impact their offensive output against a Dallas team that has a decent away record of 15-19.\",\n  \"key_factor\": \"Colorado's poor recent form and key injuries.\",\n  \"confidence\": \"medium\"\n}",
+          "called_at": "2026-03-18T17:31:57.000234",
+          "status": "ok",
+          "game_id": "liwVxPiAmb29E5r5nowy",
+          "matchup": "Dallas Stars @ Colorado Avalanche"
+        },
+        "grok-fast": {
+          "model": "grok-4-1-fast-reasoning",
+          "model_key": "grok-fast",
+          "pick": "Dallas Stars ML",
+          "score": 7.5,
+          "grade": "A-",
+          "sizing": "1u",
+          "reasoning": "Dallas boasts a superior record (37-30 vs. 29-40) and far better recent form (6-4 L10 vs. 2-8), yet opened as a pick'em (+120) and now sits at +125 undervalued despite Colorado's line movement to -145. Both teams are missing key centers/forwards (Hintz out for Dallas, Landeskog/Lehkonen out for Colorado), neutralizing injury edges. Dallas's away record (15-19) is comparable to Colorado's home (17-19), supporting ML value.",
+          "key_factor": "Dallas's stronger overall and L10 record vs. market-favored Colorado.",
+          "confidence": "high",
+          "raw_response": "{\n  \"pick\": \"Dallas Stars ML\",\n  \"score\": 7.5,\n  \"grade\": \"A-\",\n  \"sizing\": \"1u\",\n  \"reasoning\": \"Dallas boasts a superior record (37-30 vs. 29-40) and far better recent form (6-4 L10 vs. 2-8), yet opened as a pick'em (+120) and now sits at +125 undervalued despite Colorado's line movement to -145. Both teams are missing key centers/forwards (Hintz out for Dallas, Landeskog/Lehkonen out for Colorado), neutralizing injury edges. Dallas's away record (15-19) is comparable to Colorado's home (17-19), supporting ML value.\",\n  \"key_factor\": \"Dallas's stronger overall and L10 record vs. market-favored Colorado.\",\n  \"confidence\": \"high\"\n}",
+          "called_at": "2026-03-18T17:32:01.043596",
+          "status": "ok",
+          "game_id": "liwVxPiAmb29E5r5nowy",
+          "matchup": "Dallas Stars @ Colorado Avalanche"
+        }
+      }
+    },
+    {
+      "game_id": "fo8Rb2VyAhBlfOonOncD",
+      "matchup": "Philadelphia Flyers @ Anaheim Ducks",
+      "pick_side": "home",
+      "profiles": {
+        "sintonia": {
+          "game_id": "fo8Rb2VyAhBlfOonOncD",
+          "profile": "sintonia",
+          "pick_side": "home",
+          "grade": "C",
+          "composite": 4.54,
+          "chain_bonus": 0.0,
+          "final": 4.54,
+          "pick": "Anaheim Ducks -1.5",
+          "sizing": "PASS",
+          "variables": {
+            "goalie_confirmed": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No goalie injury reported \u2014 assume starter"
+            },
+            "star_player_status": {
+              "score": 4,
+              "weight": 9,
+              "weighted": 36,
+              "note": "No significant injuries"
+            },
+            "pp_pk": {
+              "score": 5,
+              "weight": 8,
+              "weighted": 40,
+              "note": "PP/PK proxy from margin L5: -0.8"
+            },
+            "b2b_fatigue": {
+              "score": 9,
+              "weight": 8,
+              "weighted": 72,
+              "note": "Us: 3d rest | Them: 1d rest | OPP on B2B; Rest edge +2d"
+            },
+            "off_ranking": {
+              "score": 3,
+              "weight": 7,
+              "weighted": 21,
+              "note": "PPG L5: 2.4 | OPP allows: 3.2 | Margin L5: -0.8"
+            },
+            "def_ranking": {
+              "score": 4,
+              "weight": 7,
+              "weighted": 28,
+              "note": "Allow L5: 3.2 | They score L5: 2.4"
+            },
+            "recent_form": {
+              "score": 4,
+              "weight": 7,
+              "weighted": 28,
+              "note": "L5: 2-3 (margin -0.8) | Streak: W1 | OPP L5: 2-3 (margin -0.8)"
+            },
+            "road_trip_length": {
+              "score": 4,
+              "weight": 7,
+              "weighted": 28,
+              "note": "Road trip: 4 games"
+            },
+            "h2h_season": {
+              "score": 3,
+              "weight": 6,
+              "weighted": 18,
+              "note": "H2H: 1-2 this season (3 games)"
+            },
+            "corsi_xg": {
+              "score": 4,
+              "weight": 6,
+              "weighted": 24,
+              "note": "corsi_xg proxy \u2014 Allow L5: 3.2 | They score L5: 2.4"
+            },
+            "save_pct_trend": {
+              "score": 4,
+              "weight": 6,
+              "weighted": 24,
+              "note": "save_pct_trend proxy \u2014 Allow L5: 3.2 | They score L5: 2.4"
+            },
+            "ats_trend": {
+              "score": 4,
+              "weight": 6,
+              "weighted": 24,
+              "note": "Avg margin L10: -0.1 \u2014 losing close | Close: 10/10 | Blowouts: 0/10"
+            },
+            "sharp_vs_public": {
+              "score": 3,
+              "weight": 5,
+              "weighted": 15,
+              "note": "Line flat \u2014 no sharp signal | ML shifted"
+            },
+            "home_away": {
+              "score": 7,
+              "weight": 5,
+              "weighted": 35,
+              "note": "Home: 22-11 (22/33)"
+            },
+            "depth_injuries": {
+              "score": 4,
+              "weight": 4,
+              "weighted": 16,
+              "note": "WE missing more: 1 vs their 0"
+            }
+          },
+          "chains_fired": []
+        },
+        "renzo": {
+          "game_id": "fo8Rb2VyAhBlfOonOncD",
+          "profile": "renzo",
+          "pick_side": "home",
+          "grade": "C+",
+          "composite": 5.24,
+          "chain_bonus": 0,
+          "final": 5.24,
+          "pick": "Anaheim Ducks -1.5",
+          "sizing": "PASS",
+          "variables": {
+            "Q1_whos_missing": {
+              "score": 5,
+              "weight": 9,
+              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
+            },
+            "Q2_line_reflects": {
+              "score": 5,
+              "weight": 9,
+              "note": "Line moved 0.0 pts | Injuries roughly priced"
+            },
+            "Q3_recent_form": {
+              "score": 5,
+              "weight": 8,
+              "note": "Us L5: 2-3 | Them L5: 2-3 | Edge: +0"
+            },
+            "Q4_best_on_court": {
+              "score": 6,
+              "weight": 8,
+              "note": "Both sides mostly healthy"
+            },
+            "Q5_schedule_rest": {
+              "score": 7,
+              "weight": 7,
+              "note": "Streak: W1 | Home"
+            },
+            "thesis_edge": {
+              "score": 4,
+              "weight": 10,
+              "note": "No clear thesis edge found"
+            }
+          },
+          "chains_fired": [],
+          "mathurin_test": "FAIL",
+          "mathurin_note": "No clear thesis edge found"
+        }
+      },
+      "peter_rules": {
+        "game_id": "fo8Rb2VyAhBlfOonOncD",
+        "profile": "peter_rules",
+        "pick_side": "home",
+        "flags": [],
+        "adjustment": 0,
+        "has_kill": false,
+        "flag_count": 0
+      },
+      "consensus_avg": 4.89,
+      "consensus_grade": "C",
+      "consensus_raw": 4.89,
+      "ev": {
+        "profile": "ev",
+        "game_id": "fo8Rb2VyAhBlfOonOncD",
+        "pick_side": "home",
+        "moneyline": -150,
+        "implied_prob": 0.6,
+        "true_prob": 0.5967,
+        "edge": -0.0033,
+        "decimal_odds": 1.667,
+        "ev_pct": -0.55,
+        "ev_grade": "F",
+        "kelly_full": -0.0083,
+        "kelly_quarter": 0,
+        "kelly_units": "PASS",
+        "status": "ok"
+      },
+      "model_grades": {
+        "gpt41": {
+          "model": "gpt-4.1",
+          "model_key": "gpt41",
+          "pick": "Anaheim Ducks ML",
+          "score": 5.2,
+          "grade": "C+",
+          "sizing": "PASS",
+          "reasoning": "Anaheim is the better team at home (22-11) versus the Flyers' poor road record (12-21), and the Ducks have a stronger recent form (6-4 L10) compared to Philadelphia (3-7 L10). However, the current -150 ML price offers little value given the modest statistical edge and the models show no clear thesis. The spread and total also lack value based on projections.",
+          "key_factor": "Anaheim's strong home record vs. Flyers' weak road form.",
+          "confidence": "low",
+          "raw_response": "{\n  \"pick\": \"Anaheim Ducks ML\",\n  \"score\": 5.2,\n  \"grade\": \"C+\",\n  \"sizing\": \"PASS\",\n  \"reasoning\": \"Anaheim is the better team at home (22-11) versus the Flyers' poor road record (12-21), and the Ducks have a stronger recent form (6-4 L10) compared to Philadelphia (3-7 L10). However, the current -150 ML price offers little value given the modest statistical edge and the models show no clear thesis. The spread and total also lack value based on projections.\",\n  \"key_factor\": \"Anaheim's strong home record vs. Flyers' weak road form.\",\n  \"confidence\": \"low\"\n}",
+          "called_at": "2026-03-18T17:36:44.574121",
+          "status": "ok",
+          "game_id": "fo8Rb2VyAhBlfOonOncD",
+          "matchup": "Philadelphia Flyers @ Anaheim Ducks"
+        },
+        "deepseek": {
+          "model": "DeepSeek-V3.2",
+          "model_key": "deepseek",
+          "pick": "Anaheim Ducks ML",
+          "score": 7.2,
+          "grade": "A-",
+          "sizing": "1u",
+          "reasoning": "Anaheim holds a significant 12-game advantage in the standings and a dominant 22-11 home record, while Philadelphia is a poor 12-21 on the road. The Ducks' -150 moneyline offers solid value given the stark disparity in team quality and venue, especially with Philadelphia's defense allowing 3.2 goals per game over their last five.",
+          "key_factor": "Anaheim's strong home-ice advantage (22-11 record) against a weak road team.",
+          "confidence": "medium",
+          "raw_response": "{\n  \"pick\": \"Anaheim Ducks ML\",\n  \"score\": 7.2,\n  \"grade\": \"A-\",\n  \"sizing\": \"1u\",\n  \"reasoning\": \"Anaheim holds a significant 12-game advantage in the standings and a dominant 22-11 home record, while Philadelphia is a poor 12-21 on the road. The Ducks' -150 moneyline offers solid value given the stark disparity in team quality and venue, especially with Philadelphia's defense allowing 3.2 goals per game over their last five.\",\n  \"key_factor\": \"Anaheim's strong home-ice advantage (22-11 record) against a weak road team.\",\n  \"confidence\": \"medium\"\n}",
+          "called_at": "2026-03-18T17:36:44.851921",
+          "status": "ok",
+          "game_id": "fo8Rb2VyAhBlfOonOncD",
+          "matchup": "Philadelphia Flyers @ Anaheim Ducks"
+        },
+        "grok": {
+          "model": "grok-3",
+          "model_key": "grok",
+          "pick": "Anaheim Ducks ML",
+          "score": 7.8,
+          "grade": "A",
+          "sizing": "1.5u",
+          "reasoning": "The Anaheim Ducks have a significant edge with a 22-11 home record compared to the Flyers' 12-21 away record, indicating a strong performance disparity. Additionally, the Ducks' recent form (6-4 in L10) contrasts with the Flyers' struggles (3-7 in L10), and the moneyline shift from 120 to -150 reflects growing market confidence in Anaheim. Despite similar PPG and OPP PPG in the last 5 games, the Ducks' home advantage and overall record (37-30 vs. 25-42) make this a favorable bet.",
+          "key_factor": "Anaheim Ducks' strong 22-11 home record vs. Flyers' poor 12-21 away record.",
+          "confidence": "high",
+          "raw_response": "{\n  \"pick\": \"Anaheim Ducks ML\",\n  \"score\": 7.8,\n  \"grade\": \"A\",\n  \"sizing\": \"1.5u\",\n  \"reasoning\": \"The Anaheim Ducks have a significant edge with a 22-11 home record compared to the Flyers' 12-21 away record, indicating a strong performance disparity. Additionally, the Ducks' recent form (6-4 in L10) contrasts with the Flyers' struggles (3-7 in L10), and the moneyline shift from 120 to -150 reflects growing market confidence in Anaheim. Despite similar PPG and OPP PPG in the last 5 games, the Ducks' home advantage and overall record (37-30 vs. 25-42) make this a favorable bet.\",\n  \"key_factor\": \"Anaheim Ducks' strong 22-11 home record vs. Flyers' poor 12-21 away record.\",\n  \"confidence\": \"high\"\n}",
+          "called_at": "2026-03-18T17:36:49.077679",
+          "status": "ok",
+          "game_id": "fo8Rb2VyAhBlfOonOncD",
+          "matchup": "Philadelphia Flyers @ Anaheim Ducks"
+        },
+        "grok-fast": {
+          "model": "grok-4-1-fast-reasoning",
+          "model_key": "grok-fast",
+          "pick": "Anaheim Ducks ML",
+          "score": 7.2,
+          "grade": "A-",
+          "sizing": "1u",
+          "reasoning": "Ducks boast a strong 22-11 home record (.667 win%) against Flyers' dismal 12-21 away mark (.364 win%), with overall records of 37-30 vs 25-42 favoring Anaheim. Recent form shows Ducks 6-4 in L10 compared to Flyers 3-7, and ML shifted from even to -150 indicating market agreement but still value at ~60% implied probability vs true ~67% edge. Minimal injury impact with only Ducks' depth LW out.",
+          "key_factor": "Ducks' superior home dominance (22-11) vs Flyers' road struggles (12-21).",
+          "confidence": "medium",
+          "raw_response": "{\n  \"pick\": \"Anaheim Ducks ML\",\n  \"score\": 7.2,\n  \"grade\": \"A-\",\n  \"sizing\": \"1u\",\n  \"reasoning\": \"Ducks boast a strong 22-11 home record (.667 win%) against Flyers' dismal 12-21 away mark (.364 win%), with overall records of 37-30 vs 25-42 favoring Anaheim. Recent form shows Ducks 6-4 in L10 compared to Flyers 3-7, and ML shifted from even to -150 indicating market agreement but still value at ~60% implied probability vs true ~67% edge. Minimal injury impact with only Ducks' depth LW out.\",\n  \"key_factor\": \"Ducks' superior home dominance (22-11) vs Flyers' road struggles (12-21).\",\n  \"confidence\": \"medium\"\n}",
+          "called_at": "2026-03-18T17:56:53.911147",
+          "status": "ok",
+          "game_id": "fo8Rb2VyAhBlfOonOncD",
+          "matchup": "Philadelphia Flyers @ Anaheim Ducks"
+        }
+      }
+    }
+  ],
+  "count": 6
+}

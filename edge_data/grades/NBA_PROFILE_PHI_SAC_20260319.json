@@ -1,0 +1,131 @@
+{
+  "game": "PHI @ SAC",
+  "date": "2026-03-19",
+  "generated": "2026-03-18T23:45:00Z",
+  "teams": {
+    "Philadelphia 76ers": {
+      "record": "37-32",
+      "conference": "8th Eastern",
+      "l5": "3-2",
+      "l5_ppg": 122.4,
+      "l5_papg": 116.4,
+      "l5_margin": 6.0,
+      "home_away": "AWAY",
+      "ortg": 115.3,
+      "ortg_rank": 15,
+      "drtg": 114.3,
+      "drtg_rank": 14,
+      "net_rating": 1.0,
+      "coach": "Nick Nurse",
+      "key_players": [
+        {"name": "Tyrese Maxey", "ppg": 29.0, "apg": 6.7, "status": "OUT - finger strain"},
+        {"name": "Joel Embiid", "status": "OUT - oblique strain"},
+        {"name": "Paul George", "status": "OUT - suspension"},
+        {"name": "VJ Edgecombe", "ppg": 15.4, "rpg": 5.6, "apg": 3.9, "status": "Active - rookie, 3rd overall pick"},
+        {"name": "Andre Drummond", "rpg": 8.4, "ppg": 8.9, "status": "Active"},
+        {"name": "Quentin Grimes", "note": "31 pts recent game", "status": "Active"},
+        {"name": "Justin Edwards", "status": "Active"},
+        {"name": "Kelly Oubre Jr", "status": "OUT - left elbow sprain"}
+      ],
+      "injuries": {
+        "out": ["Tyrese Maxey (finger strain)", "Joel Embiid (oblique strain)", "Paul George (suspension)", "Kelly Oubre Jr (left elbow sprain)"],
+        "impact": "CRITICAL - 4 key rotation players out including top 3 scorers"
+      },
+      "h2h_this_season": "Won 113-111 on Jan 29, 2026",
+      "model_grades": {
+        "grok-3": {
+          "grade": "C-",
+          "composite_score": 5.2,
+          "confidence": "Low",
+          "key_notes": "Severe injury impact with Maxey, Embiid, George, and Oubre out; reliance on rookies and bench players like Edgecombe and Grimes; decent recent form (3-2) and slight offensive edge (ORTG 115.3) but facing challenges away at Sacramento; poor lineup health significantly lowers competitiveness despite opponent's weak record (18-51)."
+        },
+        "grok-4-1-fast-reasoning": {
+          "grade": "C",
+          "composite_score": 5.2,
+          "confidence": "Medium",
+          "key_notes": "Heavy injuries (Maxey, Embiid, PG, Oubre OUT); Edgecombe (15.4 PPG), Grimes hot; L5 3-2 strong scoring (+6.0 margin); vs weak Kings (18-51), recent H2H win; average ORTG/DRTG; away game."
+        },
+        "DeepSeek-V3.2": {
+          "grade": "C-",
+          "composite_score": 4.9,
+          "confidence": "Low",
+          "key_notes": "Severely depleted roster with Maxey, Embiid, George, Oubre all OUT. Relying heavily on rookie VJ Edgecombe and role players like Grimes & Drummond. Recent 3-2 record is misleading given current injury crisis. Facing a weak SAC team on the road is the only saving grace."
+        },
+        "gpt-4.1": {
+          "grade": "C-",
+          "composite_score": 4.2,
+          "confidence": "Low",
+          "key_notes": "76ers are severely shorthanded with Maxey, Embiid, George, and Oubre all out, removing their top scoring and defensive options. Recent form is solid, but lineup health and injury impact are major negatives. Offense and defense are league average (ORTG 115.3, DRTG 114.3), but lack of star power, bench depth, and scoring reliability hurt outlook. Playing away vs a weak Kings team offers some hope, but roster is depleted. Coaching edge with Nick Nurse, but overall confidence is low given the absences."
+        }
+      },
+      "consensus_grade": "C-",
+      "consensus_score": 4.88
+    },
+    "Sacramento Kings": {
+      "record": "18-51",
+      "conference": "15th Western (worst in conference)",
+      "l5": "2-3",
+      "l5_ppg": 113.2,
+      "l5_papg": 126.6,
+      "l5_margin": -13.4,
+      "home_away": "HOME",
+      "ortg": 110.0,
+      "ortg_rank": 29,
+      "drtg": 120.0,
+      "drtg_rank": 27,
+      "net_rating": -10.3,
+      "coach": "Doug Christie (1st year)",
+      "key_players": [
+        {"name": "DeMar DeRozan", "ppg": 18.8, "apg": 4.0, "rpg": 3.0, "fg_pct": 49.8, "note": "Hot streak - 35.7 PPG over L3", "status": "Active"},
+        {"name": "Domantas Sabonis", "status": "OUT - season-ending knee surgery (torn meniscus)"},
+        {"name": "De'Aaron Fox", "status": "TRADED to San Antonio Spurs"},
+        {"name": "Keegan Murray", "status": "OUT - left ankle sprain (re-eval in 2 weeks)"},
+        {"name": "Zach LaVine", "status": "OUT - season-ending right hand surgery"},
+        {"name": "De'Andre Hunter", "status": "OUT - season-ending eye surgery"},
+        {"name": "Drew Eubanks", "status": "OUT - torn UCL thumb surgery"},
+        {"name": "Devin Carter", "status": "Day-to-day - right calf contusion"}
+      ],
+      "injuries": {
+        "out": ["Domantas Sabonis (season-ending knee)", "Keegan Murray (ankle sprain)", "Zach LaVine (season-ending hand)", "De'Andre Hunter (season-ending eye)", "Drew Eubanks (thumb surgery)"],
+        "day_to_day": ["Devin Carter (right calf contusion)"],
+        "traded": ["De'Aaron Fox (to SAS)"],
+        "impact": "CATASTROPHIC - 5 season-ending/extended absences, franchise player traded, only DeRozan healthy among key rotation"
+      },
+      "h2h_this_season": "Lost 111-113 on Jan 29, 2026",
+      "model_grades": {
+        "grok-3": {
+          "grade": "F",
+          "composite_score": 2.1,
+          "confidence": "High",
+          "key_notes": "Struggling with a 18-51 record (15th in West); multiple key injuries (Sabonis, LaVine, Hunter, Eubanks out for season, Murray out, Carter DTD); DeMar DeRozan on hot streak (35.7 PPG last 3 games) but not enough to offset poor team performance; Fox traded; poor offensive (ORTG 110, 29th) and defensive (DRTG 120, 27th) ratings; recent form shows -13.4 point margin; facing PHI at home with historical close loss (111-113 on Jan 29)."
+        },
+        "grok-4-1-fast-reasoning": {
+          "grade": "F",
+          "composite_score": 3.6,
+          "confidence": "High",
+          "key_notes": "Decimated roster: Fox traded, Sabonis/LaVine/Hunter/Eubanks season-ending OUT, Murray OUT, Carter DTD. DeRozan hot (35.7 PPG L3) lone star. Dismal 18-51 record, poor eff (ORTG 29th, DRTG 27th), bad L5 margins. Home vs 37-32 PHI (prior close L)."
+        },
+        "DeepSeek-V3.2": {
+          "grade": "D-",
+          "composite_score": 2.8,
+          "confidence": "Extremely Low",
+          "key_notes": "Roster is decimated by injuries (Sabonis, Fox, Murray, LaVine, Hunter, Eubanks all out). DeRozan on a hot streak is the lone bright spot. Team ranks near bottom in both offense and defense, with a massive negative net rating and point differential. Facing a .500+ opponent with a severely depleted lineup at home offers minimal advantage."
+        },
+        "gpt-4.1": {
+          "grade": "D-",
+          "composite_score": 2.3,
+          "confidence": "Very Low",
+          "key_notes": "Star power diminished (Sabonis, LaVine, Fox all out); DeRozan hot but alone. Record is league-worst. Home court offers little edge. L5 form poor (-13.4 margin). Rest neutral. Lineup health catastrophic (6 rotation players out, 3 season-ending). Offense (ORTG 110, 29th) and defense (DRTG 120, 27th) both bottom tier. Rebounding, TO margin, bench depth all likely negative. H2H: lost by 2 in Jan but with healthier roster. Coaching inexperience. Motivation low given standings. Injury impact is devastating."
+        }
+      },
+      "consensus_grade": "F+",
+      "consensus_score": 2.70
+    }
+  },
+  "matchup_summary": {
+    "edge": "Philadelphia 76ers",
+    "spread_lean": "PHI favored despite road game and injuries — SAC is historically bad this season",
+    "key_factor": "Both teams decimated by injuries. PHI missing Maxey/Embiid/PG/Oubre but still 37-32. SAC missing Sabonis/Fox(traded)/LaVine/Murray/Hunter — worst record in West at 18-51. DeRozan hot streak (35.7 PPG L3) is SAC's only threat.",
+    "caution": "PHI's injury crisis makes this closer than record differential suggests. DeRozan capable of single-handedly keeping SAC competitive. Classic trap game potential for a depleted PHI squad on the road."
+  }
+}

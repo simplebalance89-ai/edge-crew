@@ -1,0 +1,150 @@
+{
+  "game": "CLE @ CHI",
+  "date": "2026-03-19",
+  "generated": "2026-03-18T23:00:00Z",
+  "teams": {
+    "Cleveland Cavaliers": {
+      "record": "41-27",
+      "conference_standing": "4th Eastern Conference",
+      "division": "2nd Central",
+      "l5_record": "4-1",
+      "l5_results": [
+        "W vs MIL 123-116",
+        "W vs ORL",
+        "W vs PHI",
+        "L vs DAL 120-130",
+        "W"
+      ],
+      "home_away": "Away",
+      "coach": "Kenny Atkinson (2nd year)",
+      "starters": ["James Harden", "Donovan Mitchell", "Keon Ellis", "Dean Wade", "Evan Mobley"],
+      "key_players": {
+        "Donovan Mitchell": {"ppg": 28.0, "role": "Star SG"},
+        "James Harden": {"ppg": 19.3, "apg": 8.0, "rpg": 5.1, "role": "PG (traded from LAC Feb 4)"},
+        "Evan Mobley": {"ppg": 18.1, "rpg": 8.9, "apg": 3.6, "role": "PF/C, DPOY"}
+      },
+      "injuries": {
+        "Jarrett Allen": {"status": "OUT", "injury": "knee"},
+        "Craig Porter Jr": {"status": "OUT", "injury": "groin"},
+        "Tyrese Proctor": {"status": "OUT", "injury": "quad"}
+      },
+      "team_stats": {
+        "ortg": 116.3,
+        "ortg_rank": 11,
+        "drtg": 114.2,
+        "drtg_rank": 12,
+        "net_rating": 2.1,
+        "net_rank": 12
+      },
+      "h2h_vs_opponent": "1-2 (L on Dec 17: 111-127, L on Dec 19: 125-136, W on Nov 8: 128-122)",
+      "model_grades": {
+        "grok-3": {
+          "grade": "B+",
+          "composite_score": 7.8,
+          "confidence": "Moderate",
+          "key_notes": "Strong recent form with a 4-1 record in last 5 games; Donovan Mitchell leading with 28.0 PPG; injuries to key players like Jarrett Allen may impact interior defense and rebounding; solid offensive and defensive ratings but middling net rating; facing a weaker Chicago Bulls team (28-40) on the road with a 1-2 H2H record this season."
+        },
+        "grok-4-1-fast-reasoning": {
+          "grade": "B-",
+          "composite_score": 6.8,
+          "confidence": "Medium",
+          "key_notes": "Elite stars Mitchell (28 PPG) & Harden (19/8); Mobley DPOY (18/9/4); hot 4-1 L5; solid ORTG/DRTG; but road @ CHI (poor 1-2 H2H), Allen OUT (knee), other injuries impact frontcourt depth."
+        },
+        "DeepSeek-V3.2": {
+          "grade": "B-",
+          "composite_score": 6.8,
+          "confidence": "Moderate-High",
+          "key_notes": "Strong recent form and star power (Mitchell, Harden, Mobley) offset by significant injury to Jarrett Allen, poor H2H vs CHI, and road game. Defense likely compromised without Allen, but offense should keep them competitive."
+        },
+        "gpt-4.1": {
+          "grade": "B+",
+          "composite_score": 7.3,
+          "confidence": "Moderate-High",
+          "key_notes": "Cavs are surging (4-1 L5), led by Donovan Mitchell (28.0 PPG) and James Harden (19.3/8.0). Mobley anchors defense (DPOY candidate). Offense (116.3 ORTG, 11th) and defense (114.2 DRTG, 12th) are both above average, with a +2.1 net rating. Missing Jarrett Allen (knee) and key rotation guards (Porter Jr, Proctor) hurts depth and rim protection. Recent win over top teams (MIL, PHI) boosts confidence. Road game at Chicago (Cavs 1-2 vs Bulls this season) is a challenge, but Bulls are 28-40 and 11th in East. Coaching stability (Atkinson 2nd year) and playoff motivation are positives, but injuries and H2H deficit lower ceiling."
+        }
+      },
+      "consensus_grade": "B",
+      "avg_composite_score": 7.18
+    },
+    "Chicago Bulls": {
+      "record": "28-40",
+      "conference_standing": "11th Eastern Conference",
+      "division": "3rd Central",
+      "l5_record": "2-3",
+      "l5_results": [
+        "W vs MEM 132-107",
+        "L vs LAL 130-142",
+        "L vs LAC 108-119"
+      ],
+      "home_away": "Home",
+      "coach": "Billy Donovan",
+      "starters": ["Josh Giddey", "Collin Sexton", "Rob Dillingham", "Guerschon Yabusele", "Nick Richards"],
+      "key_players": {
+        "Josh Giddey": {"ppg": 17.9, "rpg": 8.4, "apg": 8.8, "recent_avg": "19.0/12.0/11.7 L7", "role": "Primary playmaker, triple-double machine"},
+        "Collin Sexton": {"ppg": 15.1, "ppg_march": 25.0, "role": "Scoring guard (acquired from CHA at deadline)"},
+        "Guerschon Yabusele": {"role": "Stretch 4 (acquired at deadline)"},
+        "Nick Richards": {"role": "Center (acquired at deadline)"},
+        "Rob Dillingham": {"role": "Young guard (acquired at deadline)"}
+      },
+      "injuries": {
+        "Jaden Ivey": {"status": "OUT", "injury": "knee"},
+        "Anfernee Simons": {"status": "OUT", "injury": "wrist"},
+        "Isaac Okoro": {"status": "OUT", "injury": "right knee (5th straight game)"},
+        "Zach Collins": {"status": "OUT", "injury": "season-ending toe surgery"},
+        "Noa Essengue": {"status": "OUT", "injury": "season-ending left shoulder surgery"}
+      },
+      "team_stats": {
+        "ortg": 114.4,
+        "ortg_rank": 20,
+        "drtg": 117.9,
+        "drtg_rank": 25,
+        "net_rating": -3.5,
+        "net_rank": 23
+      },
+      "h2h_vs_opponent": "2-1 (W on Dec 17: 127-111, W on Dec 19: 136-125, L on Nov 8: 122-128)",
+      "roster_context": "Bulls completed 7 trades at deadline, trading away Coby White, Nikola Vucevic, Ayo Dosunmu, Kevin Huerter, Dale DeRozan. Full rebuild mode.",
+      "model_grades": {
+        "grok-3": {
+          "grade": "C-",
+          "composite_score": 4.2,
+          "confidence": "Low",
+          "key_notes": "Bulls struggling with a 28-40 record and multiple key injuries (Ivey, Simons, Okoro, Collins, Essengue out). Josh Giddey performing well with near triple-double averages, and Collin Sexton heating up in March. Poor defensive rating (117.9, 25th) and negative net rating (-3.5) hurt their chances. Facing a strong Cleveland team (41-27) despite a 2-1 H2H edge."
+        },
+        "grok-4-1-fast-reasoning": {
+          "grade": "D",
+          "composite_score": 4.8,
+          "confidence": "Medium",
+          "key_notes": "28-40 record, poor ORTG/DRTG (20th/25th), multiple injuries (Ivey, Simons, Okoro, Collins out), but home vs CLE (2-1 H2H), Giddey triple-double avg, Sexton 25 PPG in March."
+        },
+        "DeepSeek-V3.2": {
+          "grade": "D+",
+          "composite_score": 3.8,
+          "confidence": "Low",
+          "key_notes": "Severely depleted roster with 5 key players out for season or game, including Ivey and Simons. Recent form mixed despite Giddey triple-double surge and Sexton hot scoring. Defense is a major liability (25th DRTG). H2H advantage vs CLE is offset by catastrophic injury situation and poor team efficiency metrics."
+        },
+        "gpt-4.1": {
+          "grade": "D+",
+          "composite_score": 4.2,
+          "confidence": "Low to moderate",
+          "key_notes": "Giddey is posting near triple-double averages and Sexton is scoring efficiently since returning, but the team is decimated by injuries (Ivey, Simons, Okoro, Collins, Essengue all out). Offense is below average (ORTG 114.4, 20th), defense is poor (DRTG 117.9, 25th), and net rating is -3.5. Recent form is mixed; bench and depth are thin. H2H vs CLE is positive (2-1), but overall record (28-40, 11th East) and lineup health are major concerns."
+        }
+      },
+      "consensus_grade": "D+",
+      "avg_composite_score": 4.25
+    }
+  },
+  "edge_summary": {
+    "favored": "Cleveland Cavaliers",
+    "edge_delta": 2.93,
+    "cle_avg_score": 7.18,
+    "chi_avg_score": 4.25,
+    "risk_factors": [
+      "CLE 1-2 H2H vs CHI this season - Bulls own this matchup",
+      "Jarrett Allen OUT - major rim protection and rebounding loss",
+      "CHI home game - Bulls competitive at United Center",
+      "Giddey triple-double form could keep it close",
+      "Sexton 25 PPG in March - hot hand"
+    ],
+    "model_consensus": "All 4 models favor Cleveland (B/B- range) over Chicago (D/D+ range). CLE star power + form vs CHI injuries + poor defense. Road game and H2H deficit are the main CLE risks."
+  }
+}

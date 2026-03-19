@@ -1,0 +1,145 @@
+{
+  "game": "MIL @ UTA",
+  "date": "2026-03-19",
+  "generated": "2026-03-18T22:45:00Z",
+  "data_sources": {
+    "records": ["basketball-reference.com", "statmuse.com", "espn.com"],
+    "injuries": ["cbssports.com", "brewhoop.com", "slcdunk.com", "espn.com"],
+    "ratings": ["basketball-reference.com", "foxsports.com", "nba.com"]
+  },
+  "teams": {
+    "Milwaukee Bucks": {
+      "record": "28-40",
+      "conference": "Eastern",
+      "standing": "11th",
+      "l5_record": "4-1",
+      "l5_ppg": 117.4,
+      "l5_papg": 111.6,
+      "l5_margin": 5.8,
+      "offensive_rating": 114.0,
+      "defensive_rating": 117.6,
+      "net_rating": -3.6,
+      "ppg": 112.1,
+      "papg": 117.6,
+      "def_rank": "23rd",
+      "home_away": "Away",
+      "starters": [
+        "Cole Anthony / Kevin Porter Jr (PG)",
+        "Gary Trent Jr (SG)",
+        "AJ Green / Taurean Prince (SF)",
+        "Kyle Kuzma (PF)",
+        "TBD (C)"
+      ],
+      "key_players": [
+        "Kyle Kuzma",
+        "Gary Trent Jr",
+        "Cole Anthony",
+        "Kevin Porter Jr",
+        "AJ Green",
+        "Taurean Prince"
+      ],
+      "injuries": [
+        {"player": "Giannis Antetokounmpo", "status": "OUT", "injury": "Hyperextended knee, bone bruise — team wants season shutdown", "impact": "CRITICAL"},
+        {"player": "Damian Lillard", "status": "WAIVED", "injury": "Torn Achilles (2024-25 playoffs) — waived, signed by Portland", "impact": "CRITICAL"}
+      ],
+      "model_grades": {
+        "grok-3": {
+          "grade": "C-",
+          "composite_score": 5.2,
+          "confidence": "Low",
+          "key_notes": "Strong recent form (4-1 L5) with a +5.8 point margin, but overall record (28-40) and defensive struggles (23rd Def Rating, -3.6 Net Rating) weigh heavily. Giannis OUT with knee injury (potential shutdown) and Lillard waived severely impact star power and lineup health. Facing a depleted Utah Jazz offers a winnable game, but injury impact and inconsistent season performance lower confidence."
+        },
+        "grok-4-1-fast-reasoning": {
+          "grade": "6",
+          "composite_score": 6.2,
+          "confidence": "Medium-High",
+          "key_notes": "Hot L5 streak (4-1, +5.8 net) with solid scoring (117.4 PPG), but dismal season (28-40, -3.6 net, poor def 23rd). Giannis OUT (knee shutdown), no Lillard (waived); makeshift lineup (Trent, Anthony/Porter, Green/Prince, Kuzma). Favorable vs tanking Jazz (20-46, 0-5 L5, massive injuries)."
+        },
+        "DeepSeek-V3.2": {
+          "grade": "C+",
+          "composite_score": 6.2,
+          "confidence": "Medium-High",
+          "key_notes": "Strong recent form (4-1 L5) and facing a severely depleted, struggling Jazz team are major positives. However, the season-long profile is poor (28-40, 23rd-ranked defense), and the roster is missing its foundational star (Giannis shutdown) and former star (Lillard waived). Offense is average, defense is a liability. Motivation and opponent context provide a significant boost."
+        },
+        "gpt-4.1": {
+          "grade": "C-",
+          "composite_score": 4.2,
+          "confidence": "Low-Medium",
+          "key_notes": "Bucks are 28-40 (11th East), trending poorly overall but have won 4 of last 5 vs weak competition. Giannis (MVP-level) is OUT (hyperextended knee, likely shutdown), and Lillard (star PG) is gone (waived after Achilles tear), leaving the team without both superstars. Current lineup is thin. Offense is average (114.0 ORtg), but defense is poor (117.6 DRtg, 23rd). Bench depth is questionable, and injury impact is severe."
+        }
+      },
+      "composite_avg": 5.45,
+      "consensus_grade": "C"
+    },
+    "Utah Jazz": {
+      "record": "20-46",
+      "conference": "Western",
+      "standing": "14th",
+      "l5_record": "0-5",
+      "l5_ppg": 113.4,
+      "l5_papg": 124.0,
+      "l5_margin": -10.6,
+      "offensive_rating": 110.0,
+      "defensive_rating": 122.1,
+      "net_rating": -12.1,
+      "ppg": 117.7,
+      "papg": 122.0,
+      "def_rank": "30th (worst)",
+      "home_away": "Home",
+      "starters": [
+        "Collin Sexton (SG/PG)",
+        "Jordan Clarkson (SG)",
+        "Taylor Hendricks (PF)",
+        "TBD (SF)",
+        "TBD (C)"
+      ],
+      "key_players": [
+        "Collin Sexton",
+        "Jordan Clarkson",
+        "Taylor Hendricks",
+        "Georges Niang"
+      ],
+      "injuries": [
+        {"player": "Lauri Markkanen", "status": "OUT", "injury": "Hip impingement with inflammation and bone bruise — week-to-week", "impact": "CRITICAL"},
+        {"player": "Keyonte George", "status": "OUT", "injury": "Grade 2 hamstring strain — 2-week re-evaluation", "impact": "HIGH"},
+        {"player": "Walker Kessler", "status": "OUT", "injury": "Left shoulder surgery — season-ending", "impact": "HIGH"},
+        {"player": "Jusuf Nurkic", "status": "OUT", "injury": "Nose surgery — season-ending", "impact": "MODERATE"}
+      ],
+      "model_grades": {
+        "grok-3": {
+          "grade": "D-",
+          "composite_score": 3.2,
+          "confidence": "Low",
+          "key_notes": "Utah Jazz are in a dire situation with a 20-46 record (14th in West), compounded by significant injuries to key players. Their defense is the worst in the league (Def Rating: 122.1), and recent form is abysmal (0-5 in L5, -10.6 margin). Offense is decent (PPG: 117.7), but lineup health and injury impact severely limit their competitiveness. Remaining roster (Hendricks, Sexton, Clarkson) provides some scoring, but overall outlook is grim."
+        },
+        "grok-4-1-fast-reasoning": {
+          "grade": "F",
+          "composite_score": 3.0,
+          "confidence": "High",
+          "key_notes": "Decimated by injuries: Markkanen (OUT week-to-week), George (OUT 2 weeks), Kessler/Nurkic (season-ending). 0-5 L5, worst Def Rating (122.1). Thin lineup (Sexton, Clarkson, Hendricks). Low Off Rating (~110), poor record (20-46)."
+        },
+        "DeepSeek-V3.2": {
+          "grade": "D-",
+          "composite_score": 2.9,
+          "confidence": "Very Low",
+          "key_notes": "Severely depleted roster with 4 key players out (Markkanen, George, Kessler, Nurkic). Worst defense in NBA (122.1 DefRtg). On 5-game losing streak with large negative margin. Facing Bucks team with better recent form despite Giannis' absence. Motivation and bench depth are primary limited positives."
+        },
+        "gpt-4.1": {
+          "grade": "D-",
+          "composite_score": 2.2,
+          "confidence": "Very Low",
+          "key_notes": "Severely depleted roster with four starters out, including both star players (Markkanen, Kessler) and key contributors (George, Nurkic); worst defensive rating in NBA (122.1); negative scoring margin (-10.6) and poor recent form; limited bench depth and diminished offensive efficiency; motivation low with season lost, but facing Bucks without Giannis offers slight hope."
+        }
+      },
+      "composite_avg": 2.83,
+      "consensus_grade": "D-"
+    }
+  },
+  "matchup_summary": {
+    "edge": "Milwaukee Bucks",
+    "spread_lean": "MIL favored (road)",
+    "key_factor": "Both teams severely depleted — MIL missing Giannis, UTA missing Markkanen + George + Kessler + Nurkic. MIL has better recent form (4-1 vs 0-5) and slightly stronger remaining roster. UTA has worst defense in NBA and is in full tank mode.",
+    "model_consensus": "All 4 models grade MIL significantly higher (C avg) than UTA (D-/F avg). High confidence in UTA being the weaker profile.",
+    "caution": "Tank vs tank matchup. Both teams have little playoff motivation. Giannis absence makes MIL unpredictable. Low-quality NBA game."
+  }
+}

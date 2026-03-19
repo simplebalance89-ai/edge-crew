@@ -1,0 +1,1418 @@
+{
+  "sport": "NBA",
+  "date": "2026-03-19",
+  "graded_at": "2026-03-18T20:43:05.990284",
+  "profiles_used": [
+    "sintonia",
+    "renzo"
+  ],
+  "games": [
+    {
+      "game_id": "401810863",
+      "matchup": "Orlando Magic @ Charlotte Hornets",
+      "pick_side": "home",
+      "profiles": {
+        "sintonia": {
+          "game_id": "401810863",
+          "profile": "sintonia",
+          "pick_side": "home",
+          "grade": "B-",
+          "composite": 5.72,
+          "chain_bonus": 0.0,
+          "final": 5.72,
+          "pick": "Charlotte Hornets ?",
+          "sizing": "PASS",
+          "variables": {
+            "star_player_status": {
+              "score": 6,
+              "weight": 9,
+              "weighted": 54,
+              "note": "No significant injuries"
+            },
+            "rest_advantage": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "Us: 2d rest | Them: 2d rest"
+            },
+            "off_ranking": {
+              "score": 8,
+              "weight": 8,
+              "weighted": 64,
+              "note": "PPG L5: 111.4 | OPP allows: 121.4 | Margin L5: +3.0"
+            },
+            "def_ranking": {
+              "score": 6,
+              "weight": 8,
+              "weighted": 48,
+              "note": "Allow L5: 108.4 | They score L5: 121.0"
+            },
+            "three_pt_matchup": {
+              "score": 8,
+              "weight": 7,
+              "weighted": 56,
+              "note": "3PT proxy \u2014 PPG L5: 111.4 | OPP allows: 121.4 | Margin L5: +3.0"
+            },
+            "pace_matchup": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "No pace data"
+            },
+            "recent_form": {
+              "score": 6,
+              "weight": 7,
+              "weighted": 42,
+              "note": "L5: 3-2 (margin +3.0) | Streak: W1 | OPP L5: 3-2 (margin -0.4)"
+            },
+            "road_trip_length": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "No road trip data"
+            },
+            "h2h_season": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "No H2H games this season"
+            },
+            "paint_scoring": {
+              "score": 3,
+              "weight": 6,
+              "weighted": 18,
+              "note": "paint_scoring proxy: PPG diff -9.6"
+            },
+            "fast_break": {
+              "score": 3,
+              "weight": 6,
+              "weighted": 18,
+              "note": "fast_break proxy: PPG diff -9.6"
+            },
+            "ats_trend": {
+              "score": 9,
+              "weight": 6,
+              "weighted": 54,
+              "note": "Avg margin L10: +10.3 \u2014 dominating | Close: 0/10 | Blowouts: 0/10"
+            },
+            "sharp_vs_public": {
+              "score": 3,
+              "weight": 5,
+              "weighted": 15,
+              "note": "Line flat \u2014 no sharp signal"
+            },
+            "home_away": {
+              "score": 6,
+              "weight": 5,
+              "weighted": 30,
+              "note": "Home: 15-17 (15/32)"
+            },
+            "depth_injuries": {
+              "score": 7,
+              "weight": 4,
+              "weighted": 28,
+              "note": "OPP missing 3 vs our 1"
+            }
+          },
+          "chains_fired": []
+        },
+        "renzo": {
+          "game_id": "401810863",
+          "profile": "renzo",
+          "pick_side": "home",
+          "grade": "C+",
+          "composite": 5.24,
+          "chain_bonus": 0,
+          "final": 5.24,
+          "pick": "Charlotte Hornets ?",
+          "sizing": "PASS",
+          "variables": {
+            "Q1_whos_missing": {
+              "score": 5,
+              "weight": 9,
+              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
+            },
+            "Q2_line_reflects": {
+              "score": 5,
+              "weight": 9,
+              "note": "Line moved 0 pts | Injuries roughly priced"
+            },
+            "Q3_recent_form": {
+              "score": 5,
+              "weight": 8,
+              "note": "Us L5: 3-2 | Them L5: 3-2 | Edge: +0"
+            },
+            "Q4_best_on_court": {
+              "score": 6,
+              "weight": 8,
+              "note": "Both sides mostly healthy"
+            },
+            "Q5_schedule_rest": {
+              "score": 7,
+              "weight": 7,
+              "note": "Streak: W1 | Home"
+            },
+            "thesis_edge": {
+              "score": 4,
+              "weight": 10,
+              "note": "No clear thesis edge found"
+            }
+          },
+          "chains_fired": [],
+          "mathurin_test": "FAIL",
+          "mathurin_note": "No clear thesis edge found"
+        }
+      },
+      "peter_rules": {
+        "game_id": "401810863",
+        "profile": "peter_rules",
+        "pick_side": "home",
+        "flags": [],
+        "adjustment": 0,
+        "has_kill": false,
+        "flag_count": 0
+      },
+      "consensus_avg": 5.48,
+      "consensus_grade": "C+",
+      "consensus_raw": 5.48,
+      "ev": {
+        "profile": "ev",
+        "status": "no_ml_data",
+        "ev_pct": null,
+        "kelly_size": null
+      }
+    },
+    {
+      "game_id": "401810864",
+      "matchup": "Detroit Pistons @ Washington Wizards",
+      "pick_side": "away",
+      "profiles": {
+        "sintonia": {
+          "game_id": "401810864",
+          "profile": "sintonia",
+          "pick_side": "away",
+          "grade": "A-",
+          "composite": 6.46,
+          "chain_bonus": 1.0,
+          "final": 7.46,
+          "pick": "Detroit Pistons ?",
+          "sizing": "1u",
+          "variables": {
+            "star_player_status": {
+              "score": 6,
+              "weight": 9,
+              "weighted": 54,
+              "note": "No significant injuries"
+            },
+            "rest_advantage": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "Us: 2d rest | Them: 2d rest"
+            },
+            "off_ranking": {
+              "score": 10,
+              "weight": 8,
+              "weighted": 80,
+              "note": "PPG L5: 126.6 | OPP allows: 130.4 | Margin L5: +15.6"
+            },
+            "def_ranking": {
+              "score": 5,
+              "weight": 8,
+              "weighted": 40,
+              "note": "Allow L5: 111.0 | They score L5: 118.8"
+            },
+            "three_pt_matchup": {
+              "score": 10,
+              "weight": 7,
+              "weighted": 70,
+              "note": "3PT proxy \u2014 PPG L5: 126.6 | OPP allows: 130.4 | Margin L5: +15.6"
+            },
+            "pace_matchup": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "No pace data"
+            },
+            "recent_form": {
+              "score": 9,
+              "weight": 7,
+              "weighted": 63,
+              "note": "L5: 4-1 (margin +15.6) | Streak: W1 | OPP L5: 0-5 (margin -11.6)"
+            },
+            "road_trip_length": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "No road trip data"
+            },
+            "h2h_season": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "No H2H games this season"
+            },
+            "paint_scoring": {
+              "score": 7,
+              "weight": 6,
+              "weighted": 42,
+              "note": "paint_scoring proxy: PPG diff +7.8"
+            },
+            "fast_break": {
+              "score": 7,
+              "weight": 6,
+              "weighted": 42,
+              "note": "fast_break proxy: PPG diff +7.8"
+            },
+            "ats_trend": {
+              "score": 7,
+              "weight": 6,
+              "weighted": 42,
+              "note": "Avg margin L10: +6.0 \u2014 comfortable wins | Close: 0/10 | Blowouts: 0/10"
+            },
+            "sharp_vs_public": {
+              "score": 3,
+              "weight": 5,
+              "weighted": 15,
+              "note": "Line flat \u2014 no sharp signal"
+            },
+            "home_away": {
+              "score": 5,
+              "weight": 5,
+              "weighted": 25,
+              "note": "Away: 23-11 (23/34)"
+            },
+            "depth_injuries": {
+              "score": 7,
+              "weight": 4,
+              "weighted": 28,
+              "note": "OPP missing 6 vs our 3"
+            }
+          },
+          "chains_fired": [
+            "TRAP_GAME"
+          ]
+        },
+        "renzo": {
+          "game_id": "401810864",
+          "profile": "renzo",
+          "pick_side": "away",
+          "grade": "B-",
+          "composite": 5.73,
+          "chain_bonus": 0,
+          "final": 5.73,
+          "pick": "Detroit Pistons ?",
+          "sizing": "PASS",
+          "variables": {
+            "Q1_whos_missing": {
+              "score": 5,
+              "weight": 9,
+              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
+            },
+            "Q2_line_reflects": {
+              "score": 5,
+              "weight": 9,
+              "note": "Line moved 0 pts | Injuries roughly priced"
+            },
+            "Q3_recent_form": {
+              "score": 9,
+              "weight": 8,
+              "note": "Us L5: 4-1 | Them L5: 0-5 | Edge: +8"
+            },
+            "Q4_best_on_court": {
+              "score": 6,
+              "weight": 8,
+              "note": "Both sides mostly healthy"
+            },
+            "Q5_schedule_rest": {
+              "score": 6,
+              "weight": 7,
+              "note": "Streak: W1 | Away"
+            },
+            "thesis_edge": {
+              "score": 4,
+              "weight": 10,
+              "note": "No clear thesis edge found"
+            }
+          },
+          "chains_fired": [],
+          "mathurin_test": "FAIL",
+          "mathurin_note": "No clear thesis edge found"
+        }
+      },
+      "peter_rules": {
+        "game_id": "401810864",
+        "profile": "peter_rules",
+        "pick_side": "away",
+        "flags": [],
+        "adjustment": 0,
+        "has_kill": false,
+        "flag_count": 0
+      },
+      "consensus_avg": 6.6,
+      "consensus_grade": "B+",
+      "consensus_raw": 6.6,
+      "ev": {
+        "profile": "ev",
+        "status": "no_ml_data",
+        "ev_pct": null,
+        "kelly_size": null
+      }
+    },
+    {
+      "game_id": "401810865",
+      "matchup": "Los Angeles Lakers @ Miami Heat",
+      "pick_side": "away",
+      "profiles": {
+        "sintonia": {
+          "game_id": "401810865",
+          "profile": "sintonia",
+          "pick_side": "away",
+          "grade": "A-",
+          "composite": 6.26,
+          "chain_bonus": 1.0,
+          "final": 7.26,
+          "pick": "Los Angeles Lakers ?",
+          "sizing": "1u",
+          "variables": {
+            "star_player_status": {
+              "score": 6,
+              "weight": 9,
+              "weighted": 54,
+              "note": "No significant injuries"
+            },
+            "rest_advantage": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "Us: 2d rest | Them: 2d rest"
+            },
+            "off_ranking": {
+              "score": 9,
+              "weight": 8,
+              "weighted": 72,
+              "note": "PPG L5: 119.8 | OPP allows: 120.2 | Margin L5: +9.8"
+            },
+            "def_ranking": {
+              "score": 6,
+              "weight": 8,
+              "weighted": 48,
+              "note": "Allow L5: 110.0 | They score L5: 121.2"
+            },
+            "three_pt_matchup": {
+              "score": 9,
+              "weight": 7,
+              "weighted": 63,
+              "note": "3PT proxy \u2014 PPG L5: 119.8 | OPP allows: 120.2 | Margin L5: +9.8"
+            },
+            "pace_matchup": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "No pace data"
+            },
+            "recent_form": {
+              "score": 10,
+              "weight": 7,
+              "weighted": 70,
+              "note": "L5: 5-0 (margin +9.8) | Streak: W6 | OPP L5: 3-2 (margin +1.0)"
+            },
+            "road_trip_length": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "No road trip data"
+            },
+            "h2h_season": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "No H2H games this season"
+            },
+            "paint_scoring": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "paint_scoring proxy: PPG diff -1.4"
+            },
+            "fast_break": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "fast_break proxy: PPG diff -1.4"
+            },
+            "ats_trend": {
+              "score": 9,
+              "weight": 6,
+              "weighted": 54,
+              "note": "Avg margin L10: +11.4 \u2014 dominating | Close: 0/10 | Blowouts: 0/10"
+            },
+            "sharp_vs_public": {
+              "score": 3,
+              "weight": 5,
+              "weighted": 15,
+              "note": "Line flat \u2014 no sharp signal"
+            },
+            "home_away": {
+              "score": 5,
+              "weight": 5,
+              "weighted": 25,
+              "note": "Away: 20-13 (20/33)"
+            },
+            "depth_injuries": {
+              "score": 5,
+              "weight": 4,
+              "weighted": 20,
+              "note": "Similar injury loads (them 2, us 1)"
+            }
+          },
+          "chains_fired": [
+            "TRAP_GAME"
+          ]
+        },
+        "renzo": {
+          "game_id": "401810865",
+          "profile": "renzo",
+          "pick_side": "away",
+          "grade": "B",
+          "composite": 6.14,
+          "chain_bonus": 0,
+          "final": 6.14,
+          "pick": "Los Angeles Lakers ?",
+          "sizing": "PASS",
+          "variables": {
+            "Q1_whos_missing": {
+              "score": 5,
+              "weight": 9,
+              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
+            },
+            "Q2_line_reflects": {
+              "score": 5,
+              "weight": 9,
+              "note": "Line moved 0 pts | Injuries roughly priced"
+            },
+            "Q3_recent_form": {
+              "score": 9,
+              "weight": 8,
+              "note": "Us L5: 5-0 | Them L5: 3-2 | Edge: +4"
+            },
+            "Q4_best_on_court": {
+              "score": 6,
+              "weight": 8,
+              "note": "Both sides mostly healthy"
+            },
+            "Q5_schedule_rest": {
+              "score": 9,
+              "weight": 7,
+              "note": "Streak: W6 | Away"
+            },
+            "thesis_edge": {
+              "score": 4,
+              "weight": 10,
+              "note": "No clear thesis edge found"
+            }
+          },
+          "chains_fired": [],
+          "mathurin_test": "FAIL",
+          "mathurin_note": "No clear thesis edge found"
+        }
+      },
+      "peter_rules": {
+        "game_id": "401810865",
+        "profile": "peter_rules",
+        "pick_side": "away",
+        "flags": [],
+        "adjustment": 0,
+        "has_kill": false,
+        "flag_count": 0
+      },
+      "consensus_avg": 6.7,
+      "consensus_grade": "B+",
+      "consensus_raw": 6.7,
+      "ev": {
+        "profile": "ev",
+        "status": "no_ml_data",
+        "ev_pct": null,
+        "kelly_size": null
+      }
+    },
+    {
+      "game_id": "401810866",
+      "matchup": "Cleveland Cavaliers @ Chicago Bulls",
+      "pick_side": "away",
+      "profiles": {
+        "sintonia": {
+          "game_id": "401810866",
+          "profile": "sintonia",
+          "pick_side": "away",
+          "grade": "B-",
+          "composite": 5.51,
+          "chain_bonus": 0.0,
+          "final": 5.51,
+          "pick": "Cleveland Cavaliers ?",
+          "sizing": "PASS",
+          "variables": {
+            "star_player_status": {
+              "score": 6,
+              "weight": 9,
+              "weighted": 54,
+              "note": "No significant injuries"
+            },
+            "rest_advantage": {
+              "score": 1,
+              "weight": 9,
+              "weighted": 9,
+              "note": "Us: 1d rest | Them: 2d rest | WE on B2B; Rest deficit -1d"
+            },
+            "off_ranking": {
+              "score": 10,
+              "weight": 8,
+              "weighted": 80,
+              "note": "PPG L5: 123.6 | OPP allows: 123.6 | Margin L5: +7.6"
+            },
+            "def_ranking": {
+              "score": 4,
+              "weight": 8,
+              "weighted": 32,
+              "note": "Allow L5: 116.0 | They score L5: 122.0"
+            },
+            "three_pt_matchup": {
+              "score": 10,
+              "weight": 7,
+              "weighted": 70,
+              "note": "3PT proxy \u2014 PPG L5: 123.6 | OPP allows: 123.6 | Margin L5: +7.6"
+            },
+            "pace_matchup": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "No pace data"
+            },
+            "recent_form": {
+              "score": 6,
+              "weight": 7,
+              "weighted": 42,
+              "note": "L5: 3-2 (margin +7.6) | Streak: W1 | OPP L5: 2-3 (margin -1.6)"
+            },
+            "road_trip_length": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "No road trip data"
+            },
+            "h2h_season": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "No H2H games this season"
+            },
+            "paint_scoring": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "paint_scoring proxy: PPG diff +1.6"
+            },
+            "fast_break": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "fast_break proxy: PPG diff +1.6"
+            },
+            "ats_trend": {
+              "score": 6,
+              "weight": 6,
+              "weighted": 36,
+              "note": "Avg margin L10: +3.0 \u2014 close games | Close: 0/10 | Blowouts: 0/10"
+            },
+            "sharp_vs_public": {
+              "score": 3,
+              "weight": 5,
+              "weighted": 15,
+              "note": "Line flat \u2014 no sharp signal"
+            },
+            "home_away": {
+              "score": 5,
+              "weight": 5,
+              "weighted": 25,
+              "note": "Away: 20-14 (20/34)"
+            },
+            "depth_injuries": {
+              "score": 7,
+              "weight": 4,
+              "weighted": 28,
+              "note": "OPP missing 5 vs our 3"
+            }
+          },
+          "chains_fired": []
+        },
+        "renzo": {
+          "game_id": "401810866",
+          "profile": "renzo",
+          "pick_side": "away",
+          "grade": "C+",
+          "composite": 5.41,
+          "chain_bonus": 0,
+          "final": 5.41,
+          "pick": "Cleveland Cavaliers ?",
+          "sizing": "PASS",
+          "variables": {
+            "Q1_whos_missing": {
+              "score": 5,
+              "weight": 9,
+              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
+            },
+            "Q2_line_reflects": {
+              "score": 5,
+              "weight": 9,
+              "note": "Line moved 0 pts | Injuries roughly priced"
+            },
+            "Q3_recent_form": {
+              "score": 7,
+              "weight": 8,
+              "note": "Us L5: 3-2 | Them L5: 2-3 | Edge: +2"
+            },
+            "Q4_best_on_court": {
+              "score": 6,
+              "weight": 8,
+              "note": "Both sides mostly healthy"
+            },
+            "Q5_schedule_rest": {
+              "score": 6,
+              "weight": 7,
+              "note": "Streak: W1 | Away"
+            },
+            "thesis_edge": {
+              "score": 4,
+              "weight": 10,
+              "note": "No clear thesis edge found"
+            }
+          },
+          "chains_fired": [],
+          "mathurin_test": "FAIL",
+          "mathurin_note": "No clear thesis edge found"
+        }
+      },
+      "peter_rules": {
+        "game_id": "401810866",
+        "profile": "peter_rules",
+        "pick_side": "away",
+        "flags": [],
+        "adjustment": 0,
+        "has_kill": false,
+        "flag_count": 0
+      },
+      "consensus_avg": 5.46,
+      "consensus_grade": "C+",
+      "consensus_raw": 5.46,
+      "ev": {
+        "profile": "ev",
+        "status": "no_ml_data",
+        "ev_pct": null,
+        "kelly_size": null
+      }
+    },
+    {
+      "game_id": "401810867",
+      "matchup": "LA Clippers @ New Orleans Pelicans",
+      "pick_side": "home",
+      "profiles": {
+        "sintonia": {
+          "game_id": "401810867",
+          "profile": "sintonia",
+          "pick_side": "home",
+          "grade": "B-",
+          "composite": 5.95,
+          "chain_bonus": 0.0,
+          "final": 5.95,
+          "pick": "New Orleans Pelicans ?",
+          "sizing": "PASS",
+          "variables": {
+            "star_player_status": {
+              "score": 6,
+              "weight": 9,
+              "weighted": 54,
+              "note": "No significant injuries"
+            },
+            "rest_advantage": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "Us: 2d rest | Them: 2d rest"
+            },
+            "off_ranking": {
+              "score": 10,
+              "weight": 8,
+              "weighted": 80,
+              "note": "PPG L5: 122.0 | OPP allows: 118.2 | Margin L5: +9.0"
+            },
+            "def_ranking": {
+              "score": 5,
+              "weight": 8,
+              "weighted": 40,
+              "note": "Allow L5: 113.0 | They score L5: 124.4"
+            },
+            "three_pt_matchup": {
+              "score": 10,
+              "weight": 7,
+              "weighted": 70,
+              "note": "3PT proxy \u2014 PPG L5: 122.0 | OPP allows: 118.2 | Margin L5: +9.0"
+            },
+            "pace_matchup": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "No pace data"
+            },
+            "recent_form": {
+              "score": 6,
+              "weight": 7,
+              "weighted": 42,
+              "note": "L5: 3-2 (margin +9.0) | Streak: W1 | OPP L5: 3-2 (margin +6.2)"
+            },
+            "road_trip_length": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "No road trip data"
+            },
+            "h2h_season": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "No H2H games this season"
+            },
+            "paint_scoring": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "paint_scoring proxy: PPG diff -2.4"
+            },
+            "fast_break": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "fast_break proxy: PPG diff -2.4"
+            },
+            "ats_trend": {
+              "score": 6,
+              "weight": 6,
+              "weighted": 36,
+              "note": "Avg margin L10: +4.7 \u2014 close games | Close: 0/10 | Blowouts: 0/10"
+            },
+            "sharp_vs_public": {
+              "score": 3,
+              "weight": 5,
+              "weighted": 15,
+              "note": "Line flat \u2014 no sharp signal"
+            },
+            "home_away": {
+              "score": 5,
+              "weight": 5,
+              "weighted": 25,
+              "note": "Home: 14-21 (14/35)"
+            },
+            "depth_injuries": {
+              "score": 7,
+              "weight": 4,
+              "weighted": 28,
+              "note": "OPP missing 4 vs our 1"
+            }
+          },
+          "chains_fired": []
+        },
+        "renzo": {
+          "game_id": "401810867",
+          "profile": "renzo",
+          "pick_side": "home",
+          "grade": "C+",
+          "composite": 5.24,
+          "chain_bonus": 0,
+          "final": 5.24,
+          "pick": "New Orleans Pelicans ?",
+          "sizing": "PASS",
+          "variables": {
+            "Q1_whos_missing": {
+              "score": 5,
+              "weight": 9,
+              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
+            },
+            "Q2_line_reflects": {
+              "score": 5,
+              "weight": 9,
+              "note": "Line moved 0 pts | Injuries roughly priced"
+            },
+            "Q3_recent_form": {
+              "score": 5,
+              "weight": 8,
+              "note": "Us L5: 3-2 | Them L5: 3-2 | Edge: +0"
+            },
+            "Q4_best_on_court": {
+              "score": 6,
+              "weight": 8,
+              "note": "Both sides mostly healthy"
+            },
+            "Q5_schedule_rest": {
+              "score": 7,
+              "weight": 7,
+              "note": "Streak: W1 | Home"
+            },
+            "thesis_edge": {
+              "score": 4,
+              "weight": 10,
+              "note": "No clear thesis edge found"
+            }
+          },
+          "chains_fired": [],
+          "mathurin_test": "FAIL",
+          "mathurin_note": "No clear thesis edge found"
+        }
+      },
+      "peter_rules": {
+        "game_id": "401810867",
+        "profile": "peter_rules",
+        "pick_side": "home",
+        "flags": [],
+        "adjustment": 0,
+        "has_kill": false,
+        "flag_count": 0
+      },
+      "consensus_avg": 5.6,
+      "consensus_grade": "B-",
+      "consensus_raw": 5.6,
+      "ev": {
+        "profile": "ev",
+        "status": "no_ml_data",
+        "ev_pct": null,
+        "kelly_size": null
+      }
+    },
+    {
+      "game_id": "401810868",
+      "matchup": "Phoenix Suns @ San Antonio Spurs",
+      "pick_side": "home",
+      "profiles": {
+        "sintonia": {
+          "game_id": "401810868",
+          "profile": "sintonia",
+          "pick_side": "home",
+          "grade": "A-",
+          "composite": 6.36,
+          "chain_bonus": 1.0,
+          "final": 7.36,
+          "pick": "San Antonio Spurs ?",
+          "sizing": "1u",
+          "variables": {
+            "star_player_status": {
+              "score": 4,
+              "weight": 9,
+              "weighted": 36,
+              "note": "No significant injuries"
+            },
+            "rest_advantage": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "Us: 1d rest | Them: 1d rest | Both B2B"
+            },
+            "off_ranking": {
+              "score": 10,
+              "weight": 8,
+              "weighted": 80,
+              "note": "PPG L5: 124.4 | OPP allows: 116.0 | Margin L5: +9.8"
+            },
+            "def_ranking": {
+              "score": 5,
+              "weight": 8,
+              "weighted": 40,
+              "note": "Allow L5: 114.6 | They score L5: 116.6"
+            },
+            "three_pt_matchup": {
+              "score": 10,
+              "weight": 7,
+              "weighted": 70,
+              "note": "3PT proxy \u2014 PPG L5: 124.4 | OPP allows: 116.0 | Margin L5: +9.8"
+            },
+            "pace_matchup": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "No pace data"
+            },
+            "recent_form": {
+              "score": 8,
+              "weight": 7,
+              "weighted": 56,
+              "note": "L5: 4-1 (margin +9.8) | Streak: W3 | OPP L5: 2-3 (margin +0.6)"
+            },
+            "road_trip_length": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "No road trip data"
+            },
+            "h2h_season": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "No H2H games this season"
+            },
+            "paint_scoring": {
+              "score": 7,
+              "weight": 6,
+              "weighted": 42,
+              "note": "paint_scoring proxy: PPG diff +7.8"
+            },
+            "fast_break": {
+              "score": 7,
+              "weight": 6,
+              "weighted": 42,
+              "note": "fast_break proxy: PPG diff +7.8"
+            },
+            "ats_trend": {
+              "score": 9,
+              "weight": 6,
+              "weighted": 54,
+              "note": "Avg margin L10: +10.8 \u2014 dominating | Close: 0/10 | Blowouts: 0/10"
+            },
+            "sharp_vs_public": {
+              "score": 3,
+              "weight": 5,
+              "weighted": 15,
+              "note": "Line flat \u2014 no sharp signal"
+            },
+            "home_away": {
+              "score": 8,
+              "weight": 5,
+              "weighted": 40,
+              "note": "Home: 26-7 (26/33)"
+            },
+            "depth_injuries": {
+              "score": 4,
+              "weight": 4,
+              "weighted": 16,
+              "note": "WE missing more: 1 vs their 0"
+            }
+          },
+          "chains_fired": [
+            "TRAP_GAME"
+          ]
+        },
+        "renzo": {
+          "game_id": "401810868",
+          "profile": "renzo",
+          "pick_side": "home",
+          "grade": "B",
+          "composite": 6.14,
+          "chain_bonus": 0,
+          "final": 6.14,
+          "pick": "San Antonio Spurs ?",
+          "sizing": "PASS",
+          "variables": {
+            "Q1_whos_missing": {
+              "score": 5,
+              "weight": 9,
+              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
+            },
+            "Q2_line_reflects": {
+              "score": 5,
+              "weight": 9,
+              "note": "Line moved 0 pts | Injuries roughly priced"
+            },
+            "Q3_recent_form": {
+              "score": 9,
+              "weight": 8,
+              "note": "Us L5: 4-1 | Them L5: 2-3 | Edge: +4"
+            },
+            "Q4_best_on_court": {
+              "score": 6,
+              "weight": 8,
+              "note": "Both sides mostly healthy"
+            },
+            "Q5_schedule_rest": {
+              "score": 9,
+              "weight": 7,
+              "note": "Streak: W3 | Home"
+            },
+            "thesis_edge": {
+              "score": 4,
+              "weight": 10,
+              "note": "No clear thesis edge found"
+            }
+          },
+          "chains_fired": [],
+          "mathurin_test": "FAIL",
+          "mathurin_note": "No clear thesis edge found"
+        }
+      },
+      "peter_rules": {
+        "game_id": "401810868",
+        "profile": "peter_rules",
+        "pick_side": "home",
+        "flags": [],
+        "adjustment": 0,
+        "has_kill": false,
+        "flag_count": 0
+      },
+      "consensus_avg": 6.75,
+      "consensus_grade": "B+",
+      "consensus_raw": 6.75,
+      "ev": {
+        "profile": "ev",
+        "status": "no_ml_data",
+        "ev_pct": null,
+        "kelly_size": null
+      }
+    },
+    {
+      "game_id": "401810869",
+      "matchup": "Milwaukee Bucks @ Utah Jazz",
+      "pick_side": "home",
+      "profiles": {
+        "sintonia": {
+          "game_id": "401810869",
+          "profile": "sintonia",
+          "pick_side": "home",
+          "grade": "C",
+          "composite": 4.78,
+          "chain_bonus": 0.0,
+          "final": 4.78,
+          "pick": "Utah Jazz ?",
+          "sizing": "PASS",
+          "variables": {
+            "star_player_status": {
+              "score": 3,
+              "weight": 9,
+              "weighted": 27,
+              "note": "No significant injuries"
+            },
+            "rest_advantage": {
+              "score": 9,
+              "weight": 9,
+              "weighted": 81,
+              "note": "Us: 3d rest | Them: 1d rest | OPP on B2B; Rest edge +2d"
+            },
+            "off_ranking": {
+              "score": 8,
+              "weight": 8,
+              "weighted": 64,
+              "note": "PPG L5: 112.0 | OPP allows: 121.8 | Margin L5: -8.6"
+            },
+            "def_ranking": {
+              "score": 2,
+              "weight": 8,
+              "weighted": 16,
+              "note": "Allow L5: 120.6 | They score L5: 113.6"
+            },
+            "three_pt_matchup": {
+              "score": 8,
+              "weight": 7,
+              "weighted": 56,
+              "note": "3PT proxy \u2014 PPG L5: 112.0 | OPP allows: 121.8 | Margin L5: -8.6"
+            },
+            "pace_matchup": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "No pace data"
+            },
+            "recent_form": {
+              "score": 2,
+              "weight": 7,
+              "weighted": 14,
+              "note": "L5: 1-4 (margin -8.6) | Streak: L3 | OPP L5: 1-4 (margin -8.2)"
+            },
+            "road_trip_length": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "No road trip data"
+            },
+            "h2h_season": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "No H2H games this season"
+            },
+            "paint_scoring": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "paint_scoring proxy: PPG diff -1.6"
+            },
+            "fast_break": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "fast_break proxy: PPG diff -1.6"
+            },
+            "ats_trend": {
+              "score": 2,
+              "weight": 6,
+              "weighted": 12,
+              "note": "Avg margin L10: -6.1 \u2014 getting blown out | Close: 0/10 | Blowouts: 0/10"
+            },
+            "sharp_vs_public": {
+              "score": 3,
+              "weight": 5,
+              "weighted": 15,
+              "note": "Line flat \u2014 no sharp signal"
+            },
+            "home_away": {
+              "score": 5,
+              "weight": 5,
+              "weighted": 25,
+              "note": "Home: 12-22 (12/34)"
+            },
+            "depth_injuries": {
+              "score": 2,
+              "weight": 4,
+              "weighted": 8,
+              "note": "WE badly depleted: 5 out vs their 1"
+            }
+          },
+          "chains_fired": []
+        },
+        "renzo": {
+          "game_id": "401810869",
+          "profile": "renzo",
+          "pick_side": "home",
+          "grade": "C",
+          "composite": 4.69,
+          "chain_bonus": 0,
+          "final": 4.69,
+          "pick": "Utah Jazz ?",
+          "sizing": "PASS",
+          "variables": {
+            "Q1_whos_missing": {
+              "score": 5,
+              "weight": 9,
+              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
+            },
+            "Q2_line_reflects": {
+              "score": 5,
+              "weight": 9,
+              "note": "Line moved 0 pts | Injuries roughly priced"
+            },
+            "Q3_recent_form": {
+              "score": 5,
+              "weight": 8,
+              "note": "Us L5: 1-4 | Them L5: 1-4 | Edge: +0"
+            },
+            "Q4_best_on_court": {
+              "score": 6,
+              "weight": 8,
+              "note": "Both sides mostly healthy"
+            },
+            "Q5_schedule_rest": {
+              "score": 3,
+              "weight": 7,
+              "note": "Streak: L3 | Home"
+            },
+            "thesis_edge": {
+              "score": 4,
+              "weight": 10,
+              "note": "No clear thesis edge found"
+            }
+          },
+          "chains_fired": [],
+          "mathurin_test": "FAIL",
+          "mathurin_note": "No clear thesis edge found"
+        }
+      },
+      "peter_rules": {
+        "game_id": "401810869",
+        "profile": "peter_rules",
+        "pick_side": "home",
+        "flags": [],
+        "adjustment": 0,
+        "has_kill": false,
+        "flag_count": 0
+      },
+      "consensus_avg": 4.74,
+      "consensus_grade": "C",
+      "consensus_raw": 4.74,
+      "ev": {
+        "profile": "ev",
+        "status": "no_ml_data",
+        "ev_pct": null,
+        "kelly_size": null
+      }
+    },
+    {
+      "game_id": "401810870",
+      "matchup": "Philadelphia 76ers @ Sacramento Kings",
+      "pick_side": "away",
+      "profiles": {
+        "sintonia": {
+          "game_id": "401810870",
+          "profile": "sintonia",
+          "pick_side": "away",
+          "grade": "C+",
+          "composite": 5.28,
+          "chain_bonus": 0.0,
+          "final": 5.28,
+          "pick": "Philadelphia 76ers ?",
+          "sizing": "PASS",
+          "variables": {
+            "star_player_status": {
+              "score": 6,
+              "weight": 9,
+              "weighted": 54,
+              "note": "No significant injuries"
+            },
+            "rest_advantage": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "Us: 1d rest | Them: 1d rest | Both B2B"
+            },
+            "off_ranking": {
+              "score": 8,
+              "weight": 8,
+              "weighted": 64,
+              "note": "PPG L5: 111.4 | OPP allows: 115.6 | Margin L5: -5.4"
+            },
+            "def_ranking": {
+              "score": 4,
+              "weight": 8,
+              "weighted": 32,
+              "note": "Allow L5: 116.8 | They score L5: 112.2"
+            },
+            "three_pt_matchup": {
+              "score": 8,
+              "weight": 7,
+              "weighted": 56,
+              "note": "3PT proxy \u2014 PPG L5: 111.4 | OPP allows: 115.6 | Margin L5: -5.4"
+            },
+            "pace_matchup": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "No pace data"
+            },
+            "recent_form": {
+              "score": 6,
+              "weight": 7,
+              "weighted": 42,
+              "note": "L5: 3-2 (margin -5.4) | Streak: L1 | OPP L5: 3-2 (margin -3.4)"
+            },
+            "road_trip_length": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "No road trip data"
+            },
+            "h2h_season": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "No H2H games this season"
+            },
+            "paint_scoring": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "paint_scoring proxy: PPG diff -0.8"
+            },
+            "fast_break": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "fast_break proxy: PPG diff -0.8"
+            },
+            "ats_trend": {
+              "score": 2,
+              "weight": 6,
+              "weighted": 12,
+              "note": "Avg margin L10: -10.2 \u2014 getting blown out | Close: 0/10 | Blowouts: 0/10"
+            },
+            "sharp_vs_public": {
+              "score": 3,
+              "weight": 5,
+              "weighted": 15,
+              "note": "Line flat \u2014 no sharp signal"
+            },
+            "home_away": {
+              "score": 4,
+              "weight": 5,
+              "weighted": 20,
+              "note": "Away: 17-16 (17/33)"
+            },
+            "depth_injuries": {
+              "score": 7,
+              "weight": 4,
+              "weighted": 28,
+              "note": "OPP missing 7 vs our 4"
+            }
+          },
+          "chains_fired": []
+        },
+        "renzo": {
+          "game_id": "401810870",
+          "profile": "renzo",
+          "pick_side": "away",
+          "grade": "C",
+          "composite": 4.82,
+          "chain_bonus": 0,
+          "final": 4.82,
+          "pick": "Philadelphia 76ers ?",
+          "sizing": "PASS",
+          "variables": {
+            "Q1_whos_missing": {
+              "score": 5,
+              "weight": 9,
+              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
+            },
+            "Q2_line_reflects": {
+              "score": 5,
+              "weight": 9,
+              "note": "Line moved 0 pts | Injuries roughly priced"
+            },
+            "Q3_recent_form": {
+              "score": 5,
+              "weight": 8,
+              "note": "Us L5: 3-2 | Them L5: 3-2 | Edge: +0"
+            },
+            "Q4_best_on_court": {
+              "score": 6,
+              "weight": 8,
+              "note": "Both sides mostly healthy"
+            },
+            "Q5_schedule_rest": {
+              "score": 4,
+              "weight": 7,
+              "note": "Streak: L1 | Away"
+            },
+            "thesis_edge": {
+              "score": 4,
+              "weight": 10,
+              "note": "No clear thesis edge found"
+            }
+          },
+          "chains_fired": [],
+          "mathurin_test": "FAIL",
+          "mathurin_note": "No clear thesis edge found"
+        }
+      },
+      "peter_rules": {
+        "game_id": "401810870",
+        "profile": "peter_rules",
+        "pick_side": "away",
+        "flags": [],
+        "adjustment": 0,
+        "has_kill": false,
+        "flag_count": 0
+      },
+      "consensus_avg": 5.05,
+      "consensus_grade": "C+",
+      "consensus_raw": 5.05,
+      "ev": {
+        "profile": "ev",
+        "status": "no_ml_data",
+        "ev_pct": null,
+        "kelly_size": null
+      }
+    }
+  ],
+  "count": 8
+}

@@ -1,0 +1,137 @@
+{
+  "game": "LAC @ NOP",
+  "date": "2026-03-19",
+  "generated": "2026-03-18T23:45:00Z",
+  "teams": {
+    "LA Clippers": {
+      "record": "34-34",
+      "conference_standing": "10th West",
+      "l5_record": "4-1",
+      "l5_ppg": 128.8,
+      "l5_papg": 117.8,
+      "l5_margin": 11.0,
+      "season_ppg": 112.5,
+      "offensive_rating": 113.0,
+      "defensive_rating": 118.5,
+      "def_rank": "25th",
+      "net_rating": -5.5,
+      "home_away": "Away",
+      "coach": "Ty Lue",
+      "avg_age": 33.2,
+      "key_players": {
+        "Kawhi Leonard": {"ppg": 28.3, "status": "Available (upgraded from ankle sprain)"},
+        "James Harden": {"ppg": 25.4, "apg": 8.1, "status": "Active"},
+        "Chris Paul": {"note": "Final season, veteran floor general", "status": "Active"},
+        "Brook Lopez": {"note": "Rim protector", "status": "Active"}
+      },
+      "injuries": {
+        "Darius Garland": {"status": "OUT", "reason": "Left toe injury management"},
+        "John Collins": {"status": "OUT", "reason": "Neck strain"},
+        "Bradley Beal": {"status": "OUT", "reason": "Season-ending hip fracture (Nov 8)"}
+      },
+      "model_grades": {
+        "grok-3": {
+          "grade": "B-",
+          "composite_score": 6.8,
+          "confidence": "Moderate",
+          "key_notes": "Strong recent form (4-1, +11.0 margin) and star power with Kawhi Leonard (28.3 PPG) and James Harden (25.4 PPG, 8.1 APG) drive optimism, but significant injuries (Beal out for season, Garland and Collins out) and poor defensive rating (118.5, 25th) are major concerns. Oldest roster in NBA history (avg 33.2 yrs) may impact stamina in away game vs. Pelicans (23-46). Offense (113.0 OffRtg) remains a strength under coach Ty Lue."
+        },
+        "grok-4-1-fast-reasoning": {
+          "grade": "6",
+          "composite_score": 5.6,
+          "confidence": "Medium",
+          "key_notes": "Hot L5 streak (4-1, 128.8 PPG scored), Kawhi Leonard available post-ankle sprain, Harden/CP3 leading. Key injuries: Garland/Collins OUT, Beal season-ending. Poor efficiencies (OffRtg 113.0, DefRtg 118.5 25th), oldest team (33.2 yrs avg). Away vs weak Pelicans (23-46)."
+        },
+        "DeepSeek-V3.2": {
+          "grade": "C+",
+          "composite_score": 6.4,
+          "confidence": "Medium-Low",
+          "key_notes": "Strong recent form (4-1, high-scoring) but severely hampered by injuries (Garland, Collins, Beal out). Offense is potent when healthy, but defense is a major liability (25th ranked). Oldest roster in NBA history raises stamina/durability concerns. Kawhi's return is a major boost, but overall lineup health and defensive metrics are significant drags. Playing away against a weak opponent helps."
+        },
+        "gpt-4.1": {
+          "grade": "C+",
+          "composite_score": 6.1,
+          "confidence": "Moderate",
+          "key_notes": "Kawhi Leonard and James Harden provide elite scoring; recent form is strong (4-1, +11 margin, high PPG). However, the roster is depleted with Garland, Collins, and Beal out, and the team is the oldest in NBA history (avg 33.2 yrs). Defense is weak (118.5 DefRtg, 25th), overall record is mediocre (34-34, 10th West), and bench depth is thin. Away game vs Pelicans (23-46) is favorable, but injuries and age limit upside. Coaching and clutch experience are positives; motivation is high for playoff push."
+        }
+      },
+      "consensus": {
+        "avg_composite_score": 6.225,
+        "grade_range": "C+ to B-",
+        "consensus_grade": "C+",
+        "summary": "All 4 models agree: LAC has elite star power (Leonard + Harden) and hot L5 form, but is significantly hampered by 3 key injuries, league-worst-tier defense (25th), and historic age concerns. Favorable matchup vs 23-46 NOP helps. Moderate confidence - injuries and defense cap upside."
+      }
+    },
+    "New Orleans Pelicans": {
+      "record": "23-46",
+      "conference_standing": "14th West",
+      "l5_record": "1-4",
+      "l5_ppg": 111.0,
+      "l5_papg": 115.4,
+      "l5_margin": -4.4,
+      "offensive_rating": 113.7,
+      "off_rank": "22nd",
+      "defensive_rating": 120.8,
+      "def_rank": "28th",
+      "net_rating": -7.1,
+      "net_rank": "27th",
+      "home_away": "Home",
+      "coach": "Willie Green",
+      "key_players": {
+        "Trey Murphy III": {"ppg": 21.9, "rpg": 5.7, "apg": 3.9, "status": "Active"},
+        "Dejounte Murray": {"ppg": 19.8, "rpg": 5.5, "apg": 5.2, "status": "Available (upgraded)"},
+        "Saddiq Bey": {"note": "Acquired from Washington", "status": "Active"},
+        "Jordan Poole": {"note": "Acquired from Washington", "status": "Active"},
+        "Herb Jones": {"note": "Elite defender", "status": "Active"},
+        "Derik Queen": {"note": "Rookie center", "status": "Active"}
+      },
+      "injuries": {
+        "Bryce McGowens": {"status": "OUT", "reason": "Right small toe fracture (4th straight game)"}
+      },
+      "model_grades": {
+        "grok-3": {
+          "grade": "C-",
+          "composite_score": 4.2,
+          "confidence": "Low",
+          "key_notes": "Pelicans struggle with a 23-46 record, ranking 14th in the West. Recent form is poor (1-4 in L5) with a negative scoring margin (-4.4). Offense (113.7, 22nd) and defense (120.8, 28th) are both below average, resulting in a poor NetRtg (-7.1, 27th). Key players like Trey Murphy III (21.9 PPG) and Dejounte Murray (19.8 PPG, now available) provide scoring, while Herb Jones anchors defense. Acquisitions of Saddiq Bey and Jordan Poole add depth, but team performance and efficiency metrics suggest a tough matchup."
+        },
+        "grok-4-1-fast-reasoning": {
+          "grade": "5",
+          "composite_score": 5.3,
+          "confidence": "Medium",
+          "key_notes": "Struggling with 23-46 record, 1-4 L5, poor OffRtg/DefRtg (22nd/28th). Stars Trey Murphy III (21.9 PPG) and Dejounte Murray (19.8 PPG, available) lead, supported by Herb Jones (elite D), recent acquisitions Bey/Poole. Home vs .500 Clippers, healthy lineup minus minor McGowens injury."
+        },
+        "DeepSeek-V3.2": {
+          "grade": "D+",
+          "composite_score": 2.9,
+          "confidence": "Low",
+          "key_notes": "Team is in deep rebuild with poor record and recent form. Offense and defense both rank near bottom of league. Major roster turnover with recent acquisitions (Poole, Bey) integrating. Key injury (McGowens) hurts depth. Only bright spots are Murray's availability and Murphy's scoring."
+        },
+        "gpt-4.1": {
+          "grade": "D",
+          "composite_score": 3.2,
+          "confidence": "Low",
+          "key_notes": "Pelicans are struggling, ranking 14th in the West with a poor 23-46 record and a -7.1 NetRtg (27th). Recent form is weak (1-4 L5, -4.4 margin). Trey Murphy III is a bright spot (21.9 PPG), and Dejounte Murray's return boosts the lineup, but overall health is mediocre (McGowens OUT). Offense is below average (113.7 OffRtg, 22nd), defense is a major liability (120.8 DefRtg, 28th). New additions (Bey, Poole) offer some upside, but team lacks cohesion and depth. Home game is a slight advantage."
+        }
+      },
+      "consensus": {
+        "avg_composite_score": 3.9,
+        "grade_range": "D to C-",
+        "consensus_grade": "D+",
+        "summary": "All 4 models agree: NOP is one of the worst teams in the West with poor record, poor L5 form, and bottom-tier offensive and defensive efficiency. Murphy and Murray provide individual scoring but team lacks cohesion with new acquisitions. Home court is the only real advantage. Low confidence across the board."
+      }
+    }
+  },
+  "matchup_edge": {
+    "favored": "LA Clippers",
+    "composite_gap": 2.325,
+    "key_factors": [
+      "LAC star power advantage: Leonard (28.3) + Harden (25.4) vs Murphy (21.9) + Murray (19.8)",
+      "LAC hot streak: 4-1 L5 with +11.0 margin vs NOP 1-4 L5 with -4.4 margin",
+      "LAC playoff motivation at 34-34 (10th seed) vs NOP eliminated from contention",
+      "NOP home court is only significant NOP advantage",
+      "LAC injury concerns: 3 key players OUT (Garland, Collins, Beal) - limits depth",
+      "Both teams have poor defensive ratings (LAC 25th, NOP 28th) - expect high-scoring game"
+    ]
+  }
+}

@@ -1,0 +1,115 @@
+{
+  "game": "ORL @ CHA",
+  "date": "2026-03-19",
+  "teams": {
+    "Orlando Magic": {
+      "record": "38-29 (5th East, 1st Southeast)",
+      "l5": "5-0 (avg 126.8 PPG, +16.2 margin)",
+      "grade": "B+/A-",
+      "composite": 8.1,
+      "models": {
+        "grok3": {
+          "team": "Orlando Magic",
+          "grade": "A-",
+          "composite_score": 8.5,
+          "confidence": "High",
+          "l5_record": "5-0",
+          "key_notes": "Orlando Magic are in excellent form with a 5-0 streak, boasting a strong +16.2 point margin in their last 5 games. Paolo Banchero is performing at an elite level (25.5 PPG, 9.4 RPG), and Desmond Bane's acquisition has added firepower (35 pts vs CLE). Recent clutch performances (Suggs' 3 vs DAL) and a dominant H2H record vs Charlotte (8-1 last 3 seasons) bolster their outlook. However, Franz Wagner's prolonged absence (40 games, ankle injury) is a significant concern for lineup health and depth. Offensively and defensively, they rank solidly (11th ORtg, 8th DRtg). As the 5th seed in the East, motivation remains high to secure playoff positioning. Facing Charlotte away, they are favored but must manage injury impacts."
+        },
+        "grok_fast": {
+          "team": "Orlando Magic",
+          "grade": "B+",
+          "composite_score": 7.6,
+          "confidence": "High",
+          "l5_record": "5-0",
+          "key_notes": "5-0 L5 streak (+16.2 margin), Banchero scorching (25.5/9.4/4.7), Bane key addition (35 vs CLE), Suggs clutch; 8-1 H2H vs CHA; top-11 ORtg/DRtg; Franz Wagner out long-term (40 games), Black nicked up; away at CHA."
+        },
+        "deepseek": {
+          "team": "Orlando Magic",
+          "grade": "B+",
+          "composite_score": 8.1,
+          "confidence": "High",
+          "l5_record": "5-0",
+          "key_notes": "On a 5-0 streak averaging 126.8 PPG. Paolo Banchero is a legit star, and Desmond Bane provides major scoring punch. Defense remains a top-10 strength. However, Franz Wagner's prolonged absence is a major offensive/playmaking loss. Dominant 8-1 vs Hornets in recent seasons. Playing away and managing Anthony Black's injury are minor concerns."
+        },
+        "gpt41": {
+          "team": "Orlando Magic",
+          "grade": "A-",
+          "composite_score": 8.2,
+          "confidence": "High",
+          "l5_record": "5-0",
+          "key_notes": "Magic on a 5-win streak, boasting elite recent offense. Banchero playing at All-NBA level, Bane providing scoring boost. Wagner's injury dampens lineup stability but team has adapted. Top-10 advanced metrics; strong head-to-head vs Hornets. Slight injury concerns, but motivation/playoff drive is strong."
+        }
+      },
+      "consensus": "B+/A- — All 4 models agree: Magic are hot (5-0 streak), Banchero is elite, Bane adds firepower. Wagner injury is the primary drag. Dominant H2H vs Charlotte. High confidence across all models.",
+      "key_injuries": ["Franz Wagner (OUT - high left ankle sprain, 40 games missed, no timetable)", "Anthony Black (day-to-day)"],
+      "key_players": ["Paolo Banchero (25.5 PPG/9.4 RPG/4.7 APG)", "Desmond Bane (35 pts vs CLE)", "Jalen Suggs (clutch performer)", "Wendell Carter Jr.", "Moritz Wagner"],
+      "advanced": {
+        "ortg": 115.8,
+        "ortg_rank": 11,
+        "drtg": 113.5,
+        "drtg_rank": 8,
+        "net": 2.3,
+        "net_rank": 10
+      },
+      "h2h_vs_opponent": "8-1 last 3 seasons (W 123-107 Oct 30, dominated Dec 26)"
+    },
+    "Charlotte Hornets": {
+      "record": "35-34 (10th East, 4th Southeast)",
+      "l5": "2-3 (inconsistent, W 117-109 vs SAC, beat ORL 120-105)",
+      "grade": "C/C+",
+      "composite": 6.46,
+      "models": {
+        "grok3": {
+          "team": "Charlotte Hornets",
+          "grade": "B-",
+          "composite_score": 6.8,
+          "confidence": "Moderate",
+          "l5_record": "2-3",
+          "key_notes": "Strong star power with LaMelo Ball and emerging talent in Brandon Miller; mid-season turnaround with pace-oriented offense; injury concerns with forward depth; recent win vs ORL provides hope despite poor historical H2H."
+        },
+        "grok_fast": {
+          "team": "Charlotte Hornets",
+          "grade": "C",
+          "composite_score": 6.0,
+          "confidence": "Medium",
+          "l5_record": "2-3",
+          "key_notes": "LaMelo Ball starring (25+ PPG/7+ APG); recent win vs ORL 120-105 despite poor 1-8 H2H history. Home vs Magic. Inconsistent L5 (2-3), forward depth hit by Salaun OUT but Williams returning. Pace offense, ORtg 113.8, play-in motivation."
+        },
+        "deepseek": {
+          "team": "Charlotte Hornets",
+          "grade": "C+",
+          "composite_score": 6.75,
+          "confidence": "Moderate",
+          "l5_record": "2-3",
+          "key_notes": "A talented but inconsistent playoff-bubble team with elite backcourt scoring (Ball, Miller), decent recent win vs. ORL, but poor historical H2H vs. Magic, depth concerns at forward with Salaun out, and middling efficiency ratings (ORtg 113.8). Motivation high for play-in positioning at home."
+        },
+        "gpt41": {
+          "team": "Charlotte Hornets",
+          "grade": "C+",
+          "composite_score": 6.3,
+          "confidence": "Medium",
+          "l5_record": "2-3",
+          "key_notes": "Star play from LaMelo Ball and Brandon Miller (strong scoring), but inconsistent recent results. Sitting just above .500 (35-34), 10th East—play-in motivation is high. Hornets have historically struggled vs Orlando (1-8 H2H last 3 years), but recently got a convincing win (120-105). Grant Williams' return boosts depth, but injury to Salaun exposes forward rotation. Offensive efficiency is decent (ORtg 113.8), but defense and rebounding inconsistent. Bench depth and 3PT shooting are average, system adaptable, but clutch performance and turnover issues remain."
+        }
+      },
+      "consensus": "C/C+ — All 4 models flag inconsistency (2-3 L5), terrible H2H vs Magic (1-8), and forward depth issues. LaMelo and Miller are legit stars but not enough to overcome systemic weaknesses. Recent 120-105 win over ORL is a bright spot. Play-in desperation adds motivation. Medium confidence.",
+      "key_injuries": ["Tidjane Salaun (OUT - forward depth concern)", "Grant Williams (returning)"],
+      "key_players": ["LaMelo Ball (25+ PPG/7+ APG)", "Brandon Miller (21.4 PPG/8.0 RPG/3.4 APG L7)", "Kon Knueppel (rookie, #4 pick)", "Miles Bridges", "Collin Sexton", "Spencer Dinwiddie"],
+      "advanced": {
+        "ortg": 113.8,
+        "drtg": "N/A (est. ~115)",
+        "net": "est. negative"
+      },
+      "h2h_vs_opponent": "1-8 last 3 seasons (but recent W 120-105 vs ORL)"
+    }
+  },
+  "model_consensus": {
+    "edge": "Orlando Magic",
+    "spread_lean": "ORL -3.5 to -5",
+    "avg_orl_composite": 8.1,
+    "avg_cha_composite": 6.46,
+    "differential": 1.64,
+    "summary": "Magic are the clear favorite across all 4 models. 5-0 streak, Banchero's elite play, dominant H2H, and stronger advanced metrics give them a meaningful edge despite playing away and missing Wagner. Charlotte's play-in desperation and recent blowout win over ORL are the only counter-arguments."
+  }
+}

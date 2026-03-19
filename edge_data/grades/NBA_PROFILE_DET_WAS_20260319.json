@@ -1,0 +1,137 @@
+{
+  "game": "DET @ WAS",
+  "date": "2026-03-19",
+  "generated": "2026-03-18T22:30:00Z",
+  "teams": {
+    "Detroit Pistons": {
+      "record": "49-19",
+      "conference_standing": "1st East",
+      "l5": "3-2",
+      "l5_detail": [
+        "W vs MEM 126-110",
+        "L vs TOR 108-119",
+        "W vs WAS 130-117",
+        "W vs PHI 131-109"
+      ],
+      "offensive_rating": 117.1,
+      "offensive_rating_rank": 9,
+      "defensive_rating": 110.5,
+      "defensive_rating_rank": 2,
+      "net_rating": 6.6,
+      "net_rating_rank": 5,
+      "papg": 109.6,
+      "papg_rank": 3,
+      "home_away": "Away",
+      "grade": "A-",
+      "composite_score": 8.0,
+      "consensus": "A- (all 4 models agree). Elite team profile despite significant injuries. Strong defense and record offset by missing franchise star Cade Cunningham. Should still handle worst-in-East Wizards on the road.",
+      "models": {
+        "grok3": {
+          "grade": "A-",
+          "composite_score": 8.2,
+          "confidence": "High",
+          "key_notes": "Strong 49-19 record (1st in East), excellent defensive rating (110.5, 2nd), and solid offensive efficiency (117.1, 9th). Despite Cade Cunningham's absence (OUT - back contusion) and other injuries (Stewart OUT, Thompson questionable), depth with Jalen Duren and expanded roles for Marcus Sasser provide stability."
+        },
+        "grok_fast": {
+          "grade": "B+",
+          "composite_score": 7.3,
+          "confidence": "High",
+          "key_notes": "Dominant 49-19 record (1st East), elite DefRtg (2nd) and NetRtg (5th); Cade Cunningham OUT (major loss), Stewart OUT, Ausar Q but bench steps up (Sasser, Harris, Duren); recent win vs Wizards; heavy favorites away vs 16-51 Wizards."
+        },
+        "deepseek": {
+          "grade": "A-",
+          "composite_score": 8.3,
+          "confidence": "High",
+          "key_notes": "Elite defense (2nd in DefRtg) and strong record offset by major injury to star Cade Cunningham. Facing a weak opponent (WAS 16-51) on the road. Recent win over WAS shows capability without Cade. Bench depth and Sasser's expanded role help mitigate injury impact."
+        },
+        "gpt41": {
+          "grade": "A-",
+          "composite_score": 8.2,
+          "confidence": "High",
+          "key_notes": "Pistons sit atop the East (49-19), showing strong recent form (3-2) despite injuries to star Cade Cunningham (OUT) and Isaiah Stewart (OUT), with Ausar Thompson questionable. Offense is efficient (117.1 OffRtg, 9th), defense elite (110.5 DefRtg, 2nd). Bench depth and Marcus Sasser's expanded role help mitigate injury impact."
+        }
+      },
+      "key_injuries": [
+        {"player": "Cade Cunningham", "status": "OUT", "injury": "Left back contusion", "impact": "Franchise star, 24.5 PPG / 9.9 APG"},
+        {"player": "Isaiah Stewart", "status": "OUT", "injury": "Grade 1 left calf strain", "impact": "Starting big, rim protection"},
+        {"player": "Ausar Thompson", "status": "Questionable", "injury": "Right ankle sprain", "impact": "Wing defender, energy player"}
+      ],
+      "key_players": [
+        {"name": "Cade Cunningham", "stats": "24.5 PPG / 9.9 APG / 5.6 RPG", "status": "OUT"},
+        {"name": "Jalen Duren", "stats": "Starting C, 88 OVR", "status": "Active"},
+        {"name": "Tobias Harris", "stats": "Veteran forward", "status": "Active"},
+        {"name": "Ron Holland", "stats": "Young wing", "status": "Active"},
+        {"name": "Duncan Robinson", "stats": "3PT specialist", "status": "Active"},
+        {"name": "Marcus Sasser", "stats": "Expanded role with injuries", "status": "Active"}
+      ],
+      "starters_projected": ["Marcus Sasser", "Ron Holland", "Ausar Thompson (GTD)", "Tobias Harris", "Jalen Duren"]
+    },
+    "Washington Wizards": {
+      "record": "16-51",
+      "conference_standing": "15th East (worst)",
+      "l5": "0-5",
+      "l5_detail": [
+        "L vs ORL (eliminated from playoffs)",
+        "L vs MIA 129-150",
+        "L vs UTA 112-122",
+        "L vs DET 117-130"
+      ],
+      "offensive_rating": 111.0,
+      "offensive_rating_rank": 27,
+      "defensive_rating": 121.2,
+      "defensive_rating_rank": 29,
+      "net_rating": -10.2,
+      "net_rating_rank": 30,
+      "point_differential": -736,
+      "home_away": "Home",
+      "grade": "D-",
+      "composite_score": 2.6,
+      "consensus": "D- (all 4 models agree). Worst record in the East, 5-game losing streak, decimated by injuries to Davis/George/Whitmore. Young talent (Sarr, Trae Young) provides some upside but overall profile is bottom of the league. Home court provides marginal benefit.",
+      "models": {
+        "grok3": {
+          "grade": "D-",
+          "composite_score": 2.85,
+          "confidence": "High",
+          "key_notes": "The Washington Wizards are in a dire state with a 16-51 record, the worst in the NBA. A current 5-game losing streak, abysmal net rating (-10.2, 30th), and significant injuries to key players (Anthony Davis, Paul George, Cam Whitmore) severely hamper their competitiveness."
+        },
+        "grok_fast": {
+          "grade": "D-",
+          "composite_score": 2.9,
+          "confidence": "High",
+          "key_notes": "0-5 losing streak, worst East record at 16-51, crippled by injuries to AD (finger), PG (UCL tear), Whitmore (season). Trae Young anchors stars but poor Off/Def Rtg (27th/29th), NetRtg 30th. Home vs elite Pistons; recent H2H loss."
+        },
+        "deepseek": {
+          "grade": "D-",
+          "composite_score": 2.1,
+          "confidence": "Extremely Low",
+          "key_notes": "Worst record in East (16-51), on 5-game losing streak. Catastrophic injury situation with Davis, George, and Whitmore all out. Worst NetRtg (-10.2) and point differential (-736) in NBA. Defense is 29th. Only bright spots are Sarr's development and Trae Young acquisition."
+        },
+        "gpt41": {
+          "grade": "D-",
+          "composite_score": 2.6,
+          "confidence": "Very Low",
+          "key_notes": "Wizards are on a 5-game losing streak, holding the NBA's worst record (16-51, 15th East). Star power diminished by injuries to Anthony Davis, Paul George, and Cam Whitmore (all OUT). Offensive (111.0, 27th) and defensive (121.2, 29th) ratings are among league's worst, with -10.2 net rating and -736 point differential."
+        }
+      },
+      "key_injuries": [
+        {"player": "Anthony Davis", "status": "OUT", "injury": "Finger, re-eval in 2 weeks", "impact": "Franchise big, elite two-way player"},
+        {"player": "Paul George", "status": "OUT", "injury": "Partial UCL tear left elbow, re-eval 3 weeks", "impact": "Star wing scorer"},
+        {"player": "Cam Whitmore", "status": "OUT (season)", "injury": "Venous condition", "impact": "Young wing, out for remainder of season"}
+      ],
+      "key_players": [
+        {"name": "Alex Sarr", "stats": "16.9 PPG / 7.5 RPG / 2.6 APG", "status": "Active"},
+        {"name": "Trae Young", "stats": "Acquired from ATL Jan 2026", "status": "Active"},
+        {"name": "Bilal Coulibaly", "stats": "Young wing, expanded role", "status": "Active"},
+        {"name": "Tre Johnson", "stats": "Rookie, #6 pick 2025", "status": "Active"},
+        {"name": "Justin Champagnie", "stats": "Rotation forward", "status": "Active"}
+      ],
+      "starters_projected": ["Trae Young", "Tre Johnson", "Bilal Coulibaly", "Justin Champagnie", "Alex Sarr"]
+    }
+  },
+  "matchup_summary": {
+    "edge": "Detroit Pistons",
+    "spread_lean": "DET favored heavily (even without Cade)",
+    "grade_gap": "A- vs D- (5.4 composite point gap)",
+    "caution": "Detroit missing Cade Cunningham (franchise player) — monitor motivation/letdown risk vs tanking team on second leg of back-to-back if applicable"
+  }
+}
