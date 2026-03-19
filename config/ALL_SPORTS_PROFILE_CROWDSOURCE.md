@@ -407,11 +407,48 @@ Weather/Condition Adaptability | 4 | Weather APIs/Historical splits | Output var
 
 ### TEAM PROFILE
 
-_Not yet retrieved — needs retry_
+Recent Offensive Volume | 8 | CompuBox/FightMetrics | Average punches thrown per round over last 5 bouts normalized against divisional mean and career baseline.
+Power Accuracy Premium | 9 | CompuBox | Ratio of power punches landed to thrown in last 5 fights versus career average, weighted by knockout conversion rate.
+Defensive Evasion Rate | 8 | CompuBox/Computer Vision | Percentage of opponent punches avoided via head movement, footwork, or blocking in last 5 contests.
+Chin Durability Index | 10 | BoxRec/Commission Reports | Composite score of knockdowns absorbed, recovery time from big hits, and stoppage history across career and last 5 fights.
+Late Round Output Retention | 8 | Round-by-Round CompuBox | Percentage of punch volume and accuracy maintained in rounds 9-12 versus rounds 1-4 over last 5 championship distance fights.
+Opposition Quality Rating | 9 | BoxRec/Elo Ratings | Aggregate win percentage and rating of last 5 opponents compared to career average competition level.
+Momentum Trajectory | 9 | Fight Results/CompuBox | Slope of performance metrics (aggression, accuracy, defense) across last 5 fights indicating improvement or decline.
+Reach Utilization Efficiency | 7 | CompuBox/Measurement Data | Jab landing rate and control time when fighting at maximum range versus closing distance in last 5 bouts.
+Inside Fighting Competence | 7 | CompuBox/Clinch Analytics | Punch output and defensive efficiency when engaged at clinch distance including break speed and dirty boxing sanctions.
+Weight Cut Stability | 8 | Commission Weigh-in/Hydration Tests | Hydration pass rate, weight class fluctuation history, and missed weight frequency over last 3 years.
+Hand Speed Consistency | 7 | High-speed Video/CompuBox | Punches per minute and combination completion rate during exchanges in last 5 fights.
+Cut/Physical Vulnerability | 8 | Fight Stoppage Records | Frequency of fights stopped due to cuts, hematomas, or doctor intervention in last 5 and career totals.
+Corner Intervention Quality | 6 | Between-Round Metric Shifts | Swelling reduction efficiency and strategic adjustment success measured by round-to-round performance deltas.
+Style-Specific Adaptation | 7 | Fight Database Analytics | Win rate and performance metrics against orthodox versus southpaw opponents in last 5 and career.
+Significant Strike Absorption | 9 | CompuBox | Power punches landed on fighter per round, comparing last 5 trend to career average to detect defensive slippage.
+KO Propensity Offensive | 9 | Fight Records/CompuBox | Knockdowns scored per power punch thrown ratio in last 5, plus first-half stoppage rate versus division average.
+Referee Risk Profile | 5 | Commission Data | Point deductions, warnings, and disqualification frequency indicating foul-prone behavior patterns.
+Layoff Rust Factor | 7 | Fight Dates/Training Reports | Inverse scoring based on months since last competitive round and camp continuity disruptions.
 
 ### PLAYER PROFILE
 
-_Not yet retrieved — needs retry_
+1. **One-Shot Power** | 10 | CompuBox/BoxStat KO% & Punch Velocity | Single-strike fight-ending probability driving Method of Victory and Round Group props.
+2. **Chin Composite** | 9 | Fight footage/Knockdown history & Recovery time | Knockdown resistance and post-impact recovery capacity directly correlating with Distance/Over round viability.
+3. **Cardio Trajectory** | 9 | Rounds 7-12 punch volume delta / Output decay rate | Late-round output retention determining Over/Under line edges and Decision prop confidence.
+4. **Volume Consistency** | 8 | CompuBox punches thrown per round / Activity variance | Sustained offensive baseline for judge favorability and Decision victory probability.
+5. **Defensive Evasion** | 8 | Punch stat % not landed / Head movement tracking | Clean punch absorption rate impacting Distance props and opponent connect percentage markets.
+6. **Finish Conversion** | 8 | Knockdown-to-win ratio / Hunt mode efficiency | Ability to capitalize on hurt opponents for Exact Round and Live Method of Victory markets.
+7. **Fight IQ Pivot** | 8 | Mid-fight momentum shift detection / Pattern break rate | Tactical adaptation speed affecting live betting volatility and round-specific momentum props.
+8. **Activity Recency** | 8 | Days since last bout / Sparring footage reports | Ring rust coefficient and timing sharpness impacting early-round accuracy and Under props.
+9. **Corner Efficacy** | 7 | Corner audio analysis / Between-round adjustment execution | Strategic modification quality affecting mid-fight momentum and live prop pricing.
+10. **Weight Cut Stress** | 7 | Commission hydration tests / Rehydration weight delta | Same-day performance degradation risk for early-round Under and Knockdown props.
+11. **Inside Fighting** | 7 | Clinch time / Body shots landed in phone booth | Dirty boxing durability affecting pace control and late-round fatigue markets.
+12. **Body Attack Investment** | 7 | Body punch % / Cumulative damage correlation | Late-fade accumulation potential driving Round 7-12 stoppage props.
+13. **Counter Accuracy** | 7 | Power counter connect % / First-strike defense | Reactive striking efficiency for sudden stoppage and flash knockdown probability.
+14. **Hand Speed Burst** | 7 | Punch velocity data / Combination initiation rate | Beat-the-punch capability affecting early-round action props.
+15. **Cut Vulnerability** | 6 | Commission medical history / Facial scar tissue mapping | Doctor stoppage likelihood affecting Fight to Go Distance and Round props.
+16. **Reach Utilization** | 6 | Jab rate / Distance control maintenance | Physical attribute exploitation for fight flow and tactical Decision probability.
+17. **Stance Asymmetry** | 5 | Southpaw proficiency vs Orthodox opponents / Lead hand accuracy | Matchup complexity coefficient for angle creation and line movement props.
+18. **Clinch Control** | 6 | Clinch escape rate / Referee break dependency | Mauling resistance maintaining activity levels for volume-based Decision props.
+ons and historical mid-fight improvement metrics.
+
+**Punch Selection Variety** | 5 | Punch breakdown analytics | Diversity ratio between head, body, and uppercut targets preventing defensive adaptation and sustaining damage output.
 
 ============================================================
 ## TENNIS
@@ -419,11 +456,33 @@ _Not yet retrieved — needs retry_
 
 ### TEAM PROFILE
 
-_Not yet retrieved — needs retry_
+**Tennis Team (Davis Cup/BJK Cup) Scouting Profile Criteria**
+
+| Name | Weight | Data Source | Description |
+|------|--------|-------------|-------------|
+| **Second Serve Vulnerability Index** | 9 | ATP/WTA Tour Stats | Inverse of second serve points won percentage averaged across the squad's last 5 singles rubbers and season, predictive of break-point hemorrhaging under pressure. |
+| **Injury Masking Indicator** | 10 | ATP/WTA Match Records + Medical Logs | Count of mid-match retirements, walkovers, or medical timeouts taken by roster players in last 10 individual matches, signaling imminent form collapse. |
+| **Depth Beyond Anchor** | 9 | ATP/WTA Ranking Points | Combined singles ranking points of #2-#4 players versus opponent's 2-4 depth chart, weighted by recent 5-match win rates. |
+| **Physical Fatigue Coefficient** | 9 | Tournament Logs + Flight Data | Cumulative court hours played by roster over last 14 days plus time zones crossed, adjusting for 5-set marathon recovery. |
+| **Surface Transition Delta** | 8 | ATP/WTA Surface-Specific ELO | Performance variance between current tie surface and each player's optimal surface based on last 18 months of individual data. |
+| **Clutch Break Point Conversion** | 8 | ATP/WTA Pressure Statistics | Aggregate percentage of break points converted when returning at 30-40 or deuce in deciding sets across last 5 team matches. |
+| **Quality of Opposition Adjustment** | 8 | Universal Tennis Rating (UTR) + ELO | Weighted average strength of opponents faced in last 5 individual matches compared to season-average opponent quality. |
+| **Doubles Pair Synergy Score** | 8 | ATP Doubles Stats + Davis Cup Historics | Chemistry metric derived from shared break-point conversion rates and first-return positioning efficiency in previous pairings. |
+| **Deciding Set Reliability** | 8 | ITF Match Results | Team win percentage when rubbers reach a final set (or fifth set in doubles), filtered to last 5 competitive team events. |
+| **Home Surface Manipulation** | 7 | Davis Cup/BJK Cup Historical Records | Win-rate delta when team selects surface (home ties) versus performance on neutral or away surfaces over last 3 years. |
+| **Tiebreak Mastery Score** | 7 | ATP/WTA Tiebreak Records | Squad aggregate tiebreak win percentage in last 5 matches, isolating nerve performance in pressure neutral-game scenarios. |
+| **Return Game Aggression Index** | 7 | ATP/WTA Return Stats | Percentage of opponent first-serve points won by the team's singles players, indicating ability to neutralize power servers. |
+| **Altitude/Condition Adjustment** | 7 | Tournament Meteorological + Elevation Data | Historical performance differential of roster at current altitude (sea level vs. 1000m+) and indoor versus outdoor splits. |
+| **Captain's Tactical Acumen** | 7 | ITF Lineup History | Historical success rate of reverse singles selections and doubles pairings in live fifth-rubber deciders. |
+| **Momentum Decay Rate** | 7 | Set-by-Set Scoring Patterns | Frequency of immediately losing serve after breaking opponent (consolidation failure) in last 5 matches per player. |
+| **First Serve Efficiency** | 6 | ATP/WTA Serve Statistics | First serve percentage in play multiplied by points won, averaged across roster's last 5 individual matches and season mean. |
+| **Left-Handed Matchup Penalty** | 6 | Head-to-Head Records | Historical performance degradation when roster faces left-handed serves, adjusted for backhand vulnerability and wide ad-court exposure. |
+| **Net Clearance Efficiency** | 6 | Hawk-Eye Tracking Data | Approach shot success rate minus unforced volley errors, relevant for fast-court doubles and singles net rushing. |
+| **Weather Adaptability** | 6 | On-Court Condition Logs | Performance variance in high humidity (>70%) versus dry conditions affecting ball weight, string tension, and grip across last 5 outdoor matches. |
 
 ### PLAYER PROFILE
 
-_Not yet retrieved — needs retry_
+_Not yet retrieved — needs retry with different model_
 
 ============================================================
 ## WNBA
@@ -431,8 +490,8 @@ _Not yet retrieved — needs retry_
 
 ### TEAM PROFILE
 
-_Not yet retrieved — needs retry_
+_Not yet retrieved — needs retry with different model_
 
 ### PLAYER PROFILE
 
-_Not yet retrieved — needs retry_
+_Not yet retrieved — needs retry with different model_
