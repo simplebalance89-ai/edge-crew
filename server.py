@@ -7034,6 +7034,143 @@ _NHL_ABBREVS = {
     "phi": "flyers", "tor": "maple leafs",
 }
 
+_NCAAB_ABBREVS = {
+    # Teams from ungraded picks
+    "day": "dayton flyers", "brad": "bradley braves", "hp": "high point panthers",
+    "wis": "wisconsin badgers", "murr": "murray state racers", "nev": "nevada wolf pack",
+    "kent": "kent state golden flashes", "ilst": "illinois state redbirds",
+    "ndsu": "north dakota state bison", "msu": "michigan state spartans",
+    "troy": "troy trojans", "neb": "nebraska cornhuskers", "siena": "siena saints",
+    "duke": "duke blue devils", "haw": "hawaii rainbow warriors",
+    "ark": "arkansas razorbacks", "pvamu": "prairie view a&m panthers",
+    "leh": "lehigh mountain hawks", "uic": "uic flames",
+    "cal": "california golden bears", "usf": "south florida bulls",
+    "lou": "louisville cardinals", "vcu": "vcu rams", "gw": "george washington colonials",
+    # Power conferences & major programs
+    "uk": "kentucky wildcats", "unc": "north carolina tar heels",
+    "ucla": "ucla bruins", "gonz": "gonzaga bulldogs", "ku": "kansas jayhawks",
+    "mich": "michigan wolverines", "osu": "ohio state buckeyes",
+    "pur": "purdue boilermakers", "ind": "indiana hoosiers",
+    "ill": "illinois fighting illini", "iowa": "iowa hawkeyes",
+    "aub": "auburn tigers", "bama": "alabama crimson tide", "ala": "alabama crimson tide",
+    "tenn": "tennessee volunteers", "uga": "georgia bulldogs",
+    "lsu": "lsu tigers", "miss": "mississippi rebels", "msst": "mississippi state bulldogs",
+    "sc": "south carolina gamecocks", "van": "vanderbilt commodores",
+    "tex": "texas longhorns", "bay": "baylor bears", "ttu": "texas tech red raiders",
+    "tcu": "tcu horned frogs", "okst": "oklahoma state cowboys",
+    "isu": "iowa state cyclones", "wvu": "west virginia mountaineers",
+    "ksu": "kansas state wildcats", "osu": "ohio state buckeyes",
+    "psu": "penn state nittany lions", "rut": "rutgers scarlet knights",
+    "nw": "northwestern wildcats", "minn": "minnesota golden gophers",
+    "wisc": "wisconsin badgers", "md": "maryland terrapins",
+    "uva": "virginia cavaliers", "vt": "virginia tech hokies",
+    "unc": "north carolina tar heels", "ncst": "nc state wolfpack",
+    "wake": "wake forest demon deacons", "clem": "clemson tigers",
+    "syr": "syracuse orange", "pitt": "pittsburgh panthers", "bc": "boston college eagles",
+    "nova": "villanova wildcats", "creigh": "creighton bluejays",
+    "xav": "xavier musketeers", "marq": "marquette golden eagles",
+    "conn": "connecticut huskies", "uconn": "connecticut huskies",
+    "shu": "seton hall pirates", "but": "butler bulldogs",
+    "sdsu": "san diego state aztecs", "bsu": "boise state broncos",
+    "unm": "new mexico lobos", "fres": "fresno state bulldogs",
+    "csu": "colorado state rams", "wyom": "wyoming cowboys",
+    "smb": "saint marys gaels", "smc": "saint marys gaels",
+    "byu": "byu cougars", "ore": "oregon ducks", "wash": "washington huskies",
+    "asu": "arizona state sun devils", "ariz": "arizona wildcats",
+    "col": "colorado buffaloes", "usc": "usc trojans", "stan": "stanford cardinal",
+    "utah": "utah utes", "orst": "oregon state beavers",
+    "mem": "memphis tigers", "hou": "houston cougars", "cin": "cincinnati bearcats",
+    "wic": "wichita state shockers", "smu": "smu mustangs",
+    "dav": "davidson wildcats", "rich": "richmond spiders",
+    "slu": "saint louis billikens", "drex": "drexel dragons",
+    "fdu": "fairleigh dickinson knights", "iona": "iona gaels",
+    "man": "manhattan jaspers", "niag": "niagara purple eagles",
+    "fair": "fairfield stags", "rider": "rider broncs",
+    "mon": "monmouth hawks", "quin": "quinnipiac bobcats",
+    "mare": "marist red foxes", "sien": "siena saints",
+    "cani": "canisius golden griffins", "stp": "st peters peacocks",
+    "stj": "st johns red storm", "gtown": "georgetown hoyas",
+    "prov": "providence friars", "depa": "depaul blue demons",
+    "wku": "western kentucky hilltoppers", "mtsu": "middle tennessee blue raiders",
+    "unt": "north texas mean green", "utsa": "utsa roadrunners",
+    "fau": "fau owls", "uab": "uab blazers", "rice": "rice owls",
+    "tulsa": "tulsa golden hurricane", "ecu": "east carolina pirates",
+    "temp": "temple owls", "navy": "navy midshipmen", "army": "army black knights",
+    "buck": "bucknell bison", "colg": "colgate raiders",
+    "hol": "holy cross crusaders", "laf": "lafayette leopards",
+    "pat": "patriot league", "chat": "chattanooga mocs",
+    "furm": "furman paladins", "etsu": "etsu buccaneers",
+    "merc": "mercer bears", "wof": "wofford terriers",
+    "unc": "north carolina tar heels", "fsu": "florida state seminoles",
+    "chas": "charleston cougars", "uncw": "unc wilmington seahawks",
+    "jmu": "james madison dukes", "odu": "old dominion monarchs",
+    "app": "appalachian state mountaineers", "gso": "georgia southern eagles",
+    "ccsu": "central connecticut blue devils", "sfa": "stephen f austin lumberjacks",
+    "sam": "sam houston bearkats", "shsu": "sam houston bearkats",
+    "lam": "lamar cardinals", "mcn": "mcneese cowboys",
+    "nic": "nicholls colonels", "sela": "southeastern louisiana lions",
+    "nwst": "northwestern state demons", "uca": "central arkansas bears",
+    "gram": "grambling tigers", "alcn": "alcorn state braves",
+    "jkst": "jackson state tigers", "sou": "southern jaguars",
+    "txso": "texas southern tigers", "mvsu": "mississippi valley state delta devils",
+    "aamu": "alabama a&m bulldogs", "alst": "alabama state hornets",
+    "beth": "bethune cookman wildcats", "copp": "coppin state eagles",
+    "del": "delaware state hornets", "famu": "florida a&m rattlers",
+    "hampt": "hampton pirates", "how": "howard bison",
+    "morgan": "morgan state bears", "ncat": "north carolina a&t aggies",
+    "nccu": "north carolina central eagles", "norf": "norfolk state spartans",
+    "scst": "south carolina state bulldogs",
+}
+
+_MLB_ABBREVS = {
+    "nyy": "yankees", "nym": "mets", "bos": "red sox", "tb": "rays",
+    "tbl": "rays", "bal": "orioles", "tor": "blue jays",
+    "cws": "white sox", "chw": "white sox", "cle": "guardians",
+    "det": "tigers", "kc": "royals", "kcr": "royals", "min": "twins",
+    "hou": "astros", "sea": "mariners", "tex": "rangers", "oak": "athletics",
+    "laa": "angels", "ana": "angels",
+    "atl": "braves", "phi": "phillies", "nym": "mets", "was": "nationals",
+    "mia": "marlins", "mil": "brewers", "chc": "cubs", "stl": "cardinals",
+    "pit": "pirates", "cin": "reds",
+    "lad": "dodgers", "sd": "padres", "sdp": "padres", "sf": "giants",
+    "sfg": "giants", "ari": "diamondbacks", "col": "rockies",
+}
+
+_SOCCER_ABBREVS = {
+    # EPL
+    "ars": "arsenal", "avl": "aston villa", "bha": "brighton",
+    "bou": "bournemouth", "bre": "brentford", "bur": "burnley",
+    "che": "chelsea", "cry": "crystal palace", "eve": "everton",
+    "ful": "fulham", "lei": "leicester", "liv": "liverpool",
+    "lut": "luton", "mci": "manchester city", "mun": "manchester united",
+    "new": "newcastle", "nfo": "nottingham forest", "shu": "sheffield united",
+    "tot": "tottenham", "whu": "west ham", "wol": "wolves",
+    # La Liga
+    "rma": "real madrid", "fcb": "barcelona", "atm": "atletico madrid",
+    "sev": "sevilla", "bet": "real betis", "rso": "real sociedad",
+    "vil": "villarreal", "ath": "athletic bilbao", "val": "valencia",
+    # Bundesliga
+    "bay": "bayern munich", "bvb": "borussia dortmund", "rbl": "rb leipzig",
+    "lev": "bayer leverkusen", "bmg": "borussia monchengladbach",
+    "wob": "wolfsburg", "sgf": "sc freiburg",
+    # Serie A
+    "juv": "juventus", "mil": "ac milan", "int": "inter milan",
+    "nap": "napoli", "rom": "roma", "laz": "lazio", "fio": "fiorentina",
+    "ata": "atalanta",
+    # Ligue 1
+    "psg": "paris saint germain", "olm": "olympique marseille",
+    "oly": "olympique lyonnais", "mon": "monaco", "lil": "lille",
+    # MLS
+    "lafc": "los angeles fc", "lag": "la galaxy", "atlu": "atlanta united",
+    "sea": "seattle sounders", "por": "portland timbers",
+    "nyrb": "new york red bulls", "nyfc": "new york city fc",
+    "cin": "fc cincinnati", "nsh": "nashville sc", "mia": "inter miami",
+    "col": "colorado rapids", "hou": "houston dynamo",
+    "dal": "fc dallas", "aus": "austin fc", "min": "minnesota united",
+    "phi": "philadelphia union", "ne": "new england revolution",
+    "clb": "columbus crew", "chi": "chicago fire", "dc": "dc united",
+}
+
 def _get_abbrevs_for_sport(sport: str) -> dict:
     """Return the correct abbreviation dict for the sport."""
     s = (sport or "").lower()
@@ -7041,10 +7178,16 @@ def _get_abbrevs_for_sport(sport: str) -> dict:
         return _NHL_ABBREVS
     if s in ("wnba",):
         return _WNBA_ABBREVS
+    if s in ("ncaab", "ncaaf", "college basketball", "college football"):
+        return _NCAAB_ABBREVS
+    if s in ("mlb", "baseball"):
+        return _MLB_ABBREVS
+    if s in ("soccer", "football", "epl", "la liga", "bundesliga", "serie a", "ligue 1", "mls"):
+        return _SOCCER_ABBREVS
     return _NBA_ABBREVS
 
 # Combined fallback for cases where sport isn't available
-_TEAM_ABBREVS = {**_NBA_ABBREVS, **_WNBA_ABBREVS, **_NHL_ABBREVS}
+_TEAM_ABBREVS = {**_NBA_ABBREVS, **_WNBA_ABBREVS, **_NHL_ABBREVS, **_NCAAB_ABBREVS, **_MLB_ABBREVS, **_SOCCER_ABBREVS}
 
 
 def _expand_abbrevs(text: str, sport: str = "") -> str:
