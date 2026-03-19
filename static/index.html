@@ -2803,23 +2803,33 @@ function loadLoginProfiles() {
 }
 
 // Check session on page load
-function checkSession() {
+function checkSession(retries) {
     if (!crewToken) {
         showLoginOverlay();
         return;
     }
+    retries = retries || 0;
     fetch('/api/auth/me', {
         headers: {'X-Crew-Token': crewToken}
     }).then(function(r) {
         if (r.ok) return r.json();
-        throw new Error('expired');
+        if (r.status === 401 || r.status === 403) throw new Error('expired');
+        throw new Error('network');
     }).then(function(data) {
         crewProfile = data.profile;
         onLoginSuccess();
-    }).catch(function() {
-        crewToken = '';
-        safeRemove('edgeCrewToken');
-        showLoginOverlay();
+    }).catch(function(err) {
+        if (err.message === 'expired') {
+            crewToken = '';
+            safeRemove('edgeCrewToken');
+            showLoginOverlay();
+        } else if (retries < 2) {
+            // Network error — retry after 2 seconds, don't nuke token
+            setTimeout(function() { checkSession(retries + 1); }, 2000);
+        } else {
+            // After 2 retries, proceed without auth check (offline mode)
+            onLoginSuccess();
+        }
     });
 }
 checkSession();
