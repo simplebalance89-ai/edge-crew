@@ -526,7 +526,8 @@ async def step25_run(sport: str = None):
     """Manually trigger Step 2.5 batch. ?sport=nba for one sport, omit for all."""
     if sport:
         result = await _step25_batch_sport(sport.lower())
-        return JSONResponse(result, default=str)
+        clean = json.loads(json.dumps(result, default=str))
+        return JSONResponse(clean)
     results = await _step25_batch_all()
     return JSONResponse({s: {"games": r.get("games_on_slate", 0), "steps": len(r.get("steps_completed", [])), "errors": len(r.get("errors", []))} for s, r in results.items() if isinstance(r, dict)})
 
