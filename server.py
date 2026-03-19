@@ -19,7 +19,7 @@ from zoneinfo import ZoneInfo
 logger = logging.getLogger("edge-crew")
 
 PST = ZoneInfo("America/Los_Angeles")
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, Response
 

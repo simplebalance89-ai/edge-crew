@@ -2815,6 +2815,11 @@ function checkSession() {
         throw new Error('expired');
     }).then(function(data) {
         crewProfile = data.profile;
+        // Redirect to personal homepage on session restore (same as fresh login)
+        if (crewProfile && crewProfile.id && window.location.pathname === '/') {
+            window.location.href = '/home/' + crewProfile.id;
+            return;
+        }
         onLoginSuccess();
     }).catch(function() {
         crewToken = '';
