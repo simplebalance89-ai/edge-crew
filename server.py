@@ -282,6 +282,14 @@ async def _daily_slate_pull():
                         except Exception as e:
                             print(f"[PRE-ANALYSIS] Error {sport}: {e}")
                         await asyncio.sleep(2)
+                # Step 2.5: Overnight batch — pre-compute all data layers (no AI calls)
+                if hour == 2:
+                    print(f"[STEP2.5] 2 AM — launching overnight batch")
+                    try:
+                        await _step25_batch_all()
+                    except Exception as e:
+                        print(f"[STEP2.5] Batch failed: {e}")
+
                 if hour == 6:
                     print(f"[PRE-ANALYSIS] 6 AM refresh — checking line movers")
                     for sport in active_sports:
@@ -488,6 +496,39 @@ async def shutdown():
 async def health_check():
     """Health check for Render auto-restart."""
     return JSONResponse({"status": "ok", "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ"), "version": BUILD_VERSION})
+
+@app.get("/api/step25")
+async def step25_status(sport: str = None):
+    """Check Step 2.5 batch status. ?sport=nba for one sport, omit for all."""
+    if sport:
+        data = _load_step25_batch(sport.lower())
+        if data:
+            return JSONResponse(data)
+        return JSONResponse({"error": f"No batch data for {sport}", "hint": "Batch runs at 2 AM PST or call /api/step25/run"}, status_code=404)
+    # Return summary for all sports
+    sports = _in_season_sports()
+    summary = {}
+    for s in sports:
+        data = _load_step25_batch(s)
+        if data:
+            summary[s] = {
+                "games": data.get("games_on_slate", 0),
+                "steps": len(data.get("steps_completed", [])),
+                "errors": len(data.get("errors", [])),
+                "built_at": data.get("built_at"),
+            }
+        else:
+            summary[s] = {"status": "not_run"}
+    return JSONResponse({"step25_batch": summary, "date": datetime.now(PST).strftime("%Y-%m-%d")})
+
+@app.post("/api/step25/run")
+async def step25_run(sport: str = None):
+    """Manually trigger Step 2.5 batch. ?sport=nba for one sport, omit for all."""
+    if sport:
+        result = await _step25_batch_sport(sport.lower())
+        return JSONResponse(result, default=str)
+    results = await _step25_batch_all()
+    return JSONResponse({s: {"games": r.get("games_on_slate", 0), "steps": len(r.get("steps_completed", [])), "errors": len(r.get("errors", []))} for s, r in results.items() if isinstance(r, dict)})
 
 @app.get("/api/version")
 async def get_version():
@@ -1002,6 +1043,156 @@ async def _refresh_pre_analysis(sport: str):
         print(f"[PRE-ANALYSIS] {sport} line movers: {line_movers}")
 
     return new_pre
+
+
+# ── Step 2.5: Overnight Batch Pre-Compute ─────────────────────────────────────
+STEP25_DIR = os.path.join(DATA_DIR, "step25_batch")
+os.makedirs(STEP25_DIR, exist_ok=True)
+
+def _step25_path(sport, date_str=None):
+    if not date_str:
+        date_str = datetime.now(PST).strftime("%Y-%m-%d")
+    return os.path.join(STEP25_DIR, f"{sport}_{date_str}.json")
+
+def _load_step25_batch(sport):
+    """Load Step 2.5 batch data if available and fresh (same day)."""
+    path = _step25_path(sport)
+    if os.path.exists(path):
+        try:
+            with open(path) as f:
+                data = json.load(f)
+            if data.get("date") == datetime.now(PST).strftime("%Y-%m-%d"):
+                return data
+        except Exception:
+            pass
+    return None
+
+async def _step25_batch_sport(sport: str):
+    """Pre-compute all data layers for a single sport. No AI calls — data assembly only."""
+    today = datetime.now(PST).strftime("%Y-%m-%d")
+    path = _step25_path(sport, today)
+    result = {
+        "sport": sport.upper(),
+        "date": today,
+        "built_at": _now_ts(),
+        "team_profiles": {},
+        "rosters": {},
+        "injuries": "",
+        "game_logs": {},
+        "gap_props": None,
+        "games_on_slate": 0,
+        "steps_completed": [],
+        "errors": [],
+    }
+
+    # Step 1: Load slate to know which teams are playing
+    slate = _load_daily_slate(sport)
+    if not slate or not slate.get("games"):
+        try:
+            resp = await get_odds(sport)
+            if hasattr(resp, 'body'):
+                data = json.loads(resp.body)
+                if data.get("games"):
+                    _save_daily_slate(sport, data["games"])
+                    slate = {"games": data["games"]}
+        except Exception as e:
+            result["errors"].append(f"slate_fetch: {e}")
+
+    if not slate or not slate.get("games"):
+        result["errors"].append("no_slate_available")
+        with open(path, "w") as f:
+            json.dump(result, f, indent=2)
+        return result
+
+    result["games_on_slate"] = len(slate["games"])
+
+    # Collect all teams playing today
+    teams = set()
+    for g in slate["games"]:
+        teams.add(g.get("away", g.get("away_team", "")))
+        teams.add(g.get("home", g.get("home_team", "")))
+    teams.discard("")
+
+    # Step 2: Team profiles (sync — from scores archive)
+    for team in sorted(teams):
+        try:
+            profile = _build_team_profile(team, sport)
+            if profile:
+                result["team_profiles"][team] = profile
+        except Exception as e:
+            result["errors"].append(f"team_profile:{team}: {e}")
+    result["steps_completed"].append("team_profiles")
+    print(f"[STEP2.5] {sport.upper()} team_profiles: {len(result['team_profiles'])}/{len(teams)}")
+
+    # Step 3: Rosters (async — ESPN)
+    try:
+        await get_rosters(sport)
+        roster_cache = _get_cached(f"rosters:{sport}", ttl=3600)
+        if roster_cache:
+            result["rosters"] = roster_cache.get("rosters", {})
+            result["steps_completed"].append("rosters")
+            print(f"[STEP2.5] {sport.upper()} rosters: {len(result['rosters'])} teams")
+    except Exception as e:
+        result["errors"].append(f"rosters: {e}")
+
+    # Step 4: Injuries (async — CBS + RotoWire + ESPN + Tank01)
+    try:
+        result["injuries"] = await _get_lineup_and_injury_context(sport)
+        result["steps_completed"].append("injuries")
+        inj_len = len(result["injuries"])
+        print(f"[STEP2.5] {sport.upper()} injuries: {inj_len} chars")
+    except Exception as e:
+        result["errors"].append(f"injuries: {e}")
+
+    # Step 5: Player game logs (async — ESPN/BDL)
+    try:
+        team_list = list(teams)
+        player_logs = await _fetch_player_game_logs(sport, team_list)
+        if player_logs:
+            result["game_logs"] = player_logs
+            result["steps_completed"].append("game_logs")
+            print(f"[STEP2.5] {sport.upper()} game_logs: {len(player_logs)} players")
+    except Exception as e:
+        result["errors"].append(f"game_logs: {e}")
+
+    # Step 6: Gap props (async — injury cascade)
+    try:
+        gap_resp = await get_gap_props(sport)
+        if hasattr(gap_resp, 'body'):
+            gap_data = json.loads(gap_resp.body)
+            if gap_data.get("gap_props"):
+                result["gap_props"] = gap_data["gap_props"]
+                result["steps_completed"].append("gap_props")
+                print(f"[STEP2.5] {sport.upper()} gap_props: {len(gap_data['gap_props'])} props")
+    except Exception as e:
+        result["errors"].append(f"gap_props: {e}")
+
+    # Save to disk
+    with open(path, "w") as f:
+        json.dump(result, f, default=str)
+    steps = len(result["steps_completed"])
+    errors = len(result["errors"])
+    print(f"[STEP2.5] {sport.upper()} DONE — {steps}/5 steps, {errors} errors, {result['games_on_slate']} games")
+    return result
+
+async def _step25_batch_all():
+    """Run Step 2.5 batch for all in-season sports. Called at 2 AM PST."""
+    sports = _in_season_sports()
+    print(f"[STEP2.5] ═══ OVERNIGHT BATCH START — {len(sports)} sports ═══")
+    start = time.time()
+    results = {}
+    for sport in sports:
+        try:
+            results[sport] = await _step25_batch_sport(sport)
+        except Exception as e:
+            print(f"[STEP2.5] {sport.upper()} FAILED: {e}")
+            results[sport] = {"error": str(e)}
+        await asyncio.sleep(5)  # Breathing room between sports
+    elapsed = time.time() - start
+    total_games = sum(r.get("games_on_slate", 0) for r in results.values() if isinstance(r, dict))
+    total_steps = sum(len(r.get("steps_completed", [])) for r in results.values() if isinstance(r, dict))
+    print(f"[STEP2.5] ═══ BATCH COMPLETE — {len(sports)} sports, {total_games} games, {total_steps} steps in {elapsed:.0f}s ═══")
+    return results
 
 
 def _save_analysis_cache(sport, analysis_data):
@@ -4932,6 +5123,21 @@ async def get_analysis(sport: str, cached_only: bool = False, force: bool = Fals
                              "gotcha": "Analysis is already running for this sport. Results will appear shortly — try again in 2-3 minutes."})
 
     _analysis_running.add(sport_lower)
+
+    # ===== STEP 2.5: Warm caches from overnight batch if available =====
+    _batch = _load_step25_batch(sport_lower)
+    if _batch and _batch.get("steps_completed"):
+        _step25_used = True
+        # Warm roster cache so get_rosters() is instant
+        if _batch.get("rosters") and "rosters" in _batch["steps_completed"]:
+            _set_cache(f"rosters:{sport_lower}", {"rosters": _batch["rosters"]})
+        # Warm game log cache so _fetch_player_game_logs() is instant
+        if _batch.get("game_logs") and "game_logs" in _batch["steps_completed"]:
+            teams_key = ":".join(sorted(_batch["game_logs"].keys())[:20])
+            _set_cache(f"gamelogs:{sport_lower}:{teams_key}", _batch["game_logs"])
+        logger.info(f"[STEP2.5] Warmed caches for {sport_lower} from overnight batch ({len(_batch['steps_completed'])} steps)")
+    else:
+        _step25_used = False
 
     # Get current odds for context
     odds_cache_key = f"{sport_lower}:h2h,spreads,totals"
