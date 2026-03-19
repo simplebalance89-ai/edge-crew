@@ -10655,19 +10655,34 @@ function renderProEdgeStats(data, bar) {
     var graded = data.graded || 0;
     var total = data.total || 0;
     var aPlus = 0, aGrade = 0, bPlus = 0;
+    var pctSum = 0;
     (data.games || []).forEach(function(g) {
         if (!g.grade) return;
         var gr = g.grade.consensus_grade || '';
         if (gr === 'A+') aPlus++;
         else if (gr === 'A' || gr === 'A-') aGrade++;
         else if (gr === 'B+') bPlus++;
+        // Calculate per-game completion
+        var steps = 0;
+        if (g.odds && (g.odds.spread_home || g.odds.total)) steps++;
+        if (g.home_profile && g.home_profile.L5) steps++;
+        if (g.grade && g.grade.profiles) {
+            var pk = Object.keys(g.grade.profiles);
+            if (pk.length > 0 && g.grade.profiles[pk[0]].variables) steps++;
+            if (pk.length > 0 && g.grade.profiles[pk[0]].grade) steps++;
+        }
+        if (gr && gr !== '?') steps++;
+        pctSum += Math.round((steps / 5) * 100);
     });
+    var avgPct = total > 0 ? Math.round(pctSum / total) : 0;
+    var avgPctColor = avgPct === 100 ? '#10B981' : avgPct >= 60 ? '#F59E0B' : '#EF4444';
     bar.innerHTML =
         '<div style="background:rgba(247,37,133,0.08);border:1px solid rgba(247,37,133,0.2);border-radius:8px;padding:8px 14px;"><div style="font-size:10px;color:rgba(255,255,255,0.4);">Games</div><div style="font-size:18px;font-weight:800;color:#F72585;">' + total + '</div></div>' +
         '<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:8px;padding:8px 14px;"><div style="font-size:10px;color:rgba(255,255,255,0.4);">Graded</div><div style="font-size:18px;font-weight:800;color:#10B981;">' + graded + '</div></div>' +
         '<div style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);border-radius:8px;padding:8px 14px;"><div style="font-size:10px;color:rgba(255,255,255,0.4);">A+</div><div style="font-size:18px;font-weight:800;color:#818cf8;">' + aPlus + '</div></div>' +
         '<div style="background:rgba(212,160,36,0.08);border:1px solid rgba(212,160,36,0.2);border-radius:8px;padding:8px 14px;"><div style="font-size:10px;color:rgba(255,255,255,0.4);">A/A-</div><div style="font-size:18px;font-weight:800;color:#d4a024;">' + aGrade + '</div></div>' +
         '<div style="background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.2);border-radius:8px;padding:8px 14px;"><div style="font-size:10px;color:rgba(255,255,255,0.4);">B+</div><div style="font-size:18px;font-weight:800;color:#38BDF8;">' + bPlus + '</div></div>' +
+        '<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 14px;"><div style="font-size:10px;color:rgba(255,255,255,0.4);">Pipeline</div><div style="font-size:18px;font-weight:800;color:' + avgPctColor + ';">' + avgPct + '%</div></div>' +
         '<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 14px;"><div style="font-size:10px;color:rgba(255,255,255,0.4);">Date</div><div style="font-size:13px;font-weight:700;color:#fff;">' + (data.date || '?') + '</div></div>';
 }
 
@@ -10697,6 +10712,19 @@ function renderProEdgeGames(games, container) {
         var dim = _dimClass(grade);
         var gColor = _gradeColor(grade);
 
+        // ── PERCENT COMPLETE PER CARD ──
+        var pctSteps = 0, pctTotal = 5;
+        if (g.odds && (g.odds.spread_home || g.odds.total)) pctSteps++;  // Step 1: odds loaded
+        if (g.home_profile && g.home_profile.L5) pctSteps++;  // Step 2: enrichment
+        if (gr && gr.profiles) {
+            var profKeys = Object.keys(gr.profiles);
+            if (profKeys.length > 0 && gr.profiles[profKeys[0]].variables) pctSteps++;  // Step 3: variables
+            if (profKeys.length > 0 && gr.profiles[profKeys[0]].grade) pctSteps++;  // Step 4: graders
+        }
+        if (gr && gr.consensus_grade && gr.consensus_grade !== '?') pctSteps++;  // Step 5: verdict
+        var pctComplete = Math.round((pctSteps / pctTotal) * 100);
+        var pctColor = pctComplete === 100 ? '#10B981' : pctComplete >= 60 ? '#F59E0B' : '#EF4444';
+
         // Time
         var timeStr = '';
         if (g.time) {
@@ -10711,7 +10739,7 @@ function renderProEdgeGames(games, container) {
         // ── MATCHUP HEADER ──
         html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.06);">';
         html += '<div style="font-size:16px;font-weight:800;color:#fff;">' + g.matchup + ' <span style="color:rgba(255,255,255,0.3);font-size:11px;font-weight:400;">' + timeStr + '</span></div>';
-        html += '<div style="text-align:right;"><span style="font-size:28px;font-weight:900;color:' + gColor + ';">' + grade + '</span> <span style="font-size:11px;color:rgba(255,255,255,0.4);">' + avg + '</span></div>';
+        html += '<div style="text-align:right;display:flex;align-items:center;gap:10px;"><span style="font-size:10px;font-weight:700;color:' + pctColor + ';background:rgba(' + (pctComplete===100?'16,185,129':pctComplete>=60?'245,158,11':'239,68,68') + ',0.12);padding:3px 8px;border-radius:10px;">' + pctComplete + '%</span><span style="font-size:28px;font-weight:900;color:' + gColor + ';">' + grade + '</span> <span style="font-size:11px;color:rgba(255,255,255,0.4);">' + avg + '</span></div>';
         html += '</div>';
 
         // ── 5-STEP PIPELINE (horizontal scroll) ──

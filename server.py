@@ -531,6 +531,78 @@ async def step25_run(sport: str = None):
     results = await _step25_batch_all()
     return JSONResponse({s: {"games": r.get("games_on_slate", 0), "steps": len(r.get("steps_completed", [])), "errors": len(r.get("errors", []))} for s, r in results.items() if isinstance(r, dict)})
 
+# ── Step 7: Kalshi Market-Implied Probabilities ───────────────────────────────
+KALSHI_BASE = "https://api.elections.kalshi.com/trade-api/v2"
+KALSHI_SERIES = {
+    "nba": "KXNBASPREAD",
+    "ncaab": "KXNCAAMBSPREAD",
+    "nhl": "KXNHLSPREAD",
+    "nfl": "KXNFLSPREAD",
+}
+
+async def _fetch_kalshi_markets(sport: str):
+    """Fetch Kalshi spread markets for a sport. Public API — no auth needed."""
+    series = KALSHI_SERIES.get(sport.lower())
+    if not series:
+        return []
+    cache_key = f"kalshi:{sport.lower()}"
+    cached = _get_cached(cache_key, ttl=900)  # 15 min cache
+    if cached:
+        return cached
+    try:
+        async with httpx.AsyncClient(timeout=30) as client:
+            markets = []
+            cursor = None
+            for _ in range(3):  # Max 3 pages
+                params = {"series_ticker": series, "limit": 100, "status": "active"}
+                if cursor:
+                    params["cursor"] = cursor
+                resp = await client.get(f"{KALSHI_BASE}/markets", params=params)
+                if resp.status_code != 200:
+                    break
+                data = resp.json()
+                markets.extend(data.get("markets", []))
+                cursor = data.get("cursor")
+                if not cursor:
+                    break
+            # Extract implied probabilities
+            results = []
+            for m in markets:
+                yes_ask = float(m.get("yes_ask_dollars", 0) or 0)
+                yes_bid = float(m.get("yes_bid_dollars", 0) or 0)
+                midpoint = (yes_ask + yes_bid) / 2 if (yes_ask + yes_bid) > 0 else None
+                results.append({
+                    "ticker": m.get("ticker", ""),
+                    "title": m.get("title", ""),
+                    "event": m.get("event_ticker", ""),
+                    "strike": m.get("floor_strike"),
+                    "yes_prob": round(midpoint, 3) if midpoint else None,
+                    "no_prob": round(1 - midpoint, 3) if midpoint else None,
+                    "volume_24h": m.get("volume_24h_fp"),
+                    "open_interest": m.get("open_interest_fp"),
+                    "close_time": m.get("close_time"),
+                })
+            _set_cache(cache_key, results)
+            return results
+    except Exception as e:
+        logger.warning(f"[KALSHI] Fetch failed for {sport}: {e}")
+        return []
+
+@app.get("/api/kalshi")
+async def get_kalshi(sport: str):
+    """Get Kalshi market-implied probabilities for a sport's spreads."""
+    sport_lower = sport.lower()
+    if sport_lower not in KALSHI_SERIES:
+        return JSONResponse({"error": f"Kalshi not available for {sport}. Supported: {list(KALSHI_SERIES.keys())}"}, status_code=400)
+    markets = await _fetch_kalshi_markets(sport_lower)
+    return JSONResponse({
+        "sport": sport.upper(),
+        "series": KALSHI_SERIES[sport_lower],
+        "markets": markets,
+        "count": len(markets),
+        "fetched_at": _now_ts(),
+    })
+
 @app.get("/api/version")
 async def get_version():
     return JSONResponse({"version": BUILD_VERSION, "built": BUILD_TS, "mode": ANALYSIS_MODE, "thinker": ANALYSIS_THINKER, "formatter": ANALYSIS_FORMATTER})
@@ -584,6 +656,8 @@ DEFAULT_CREW = [
      "methodology": "Edge Finder. I dig into the data the engine misses — injury freshness, L5 adaptation records, line lag on props. If the book is slow to adjust, that's where the money is. BallDontLie stats + DraftKings lines. I find the gaps."},
     {"id": "dj", "display_name": "DJ", "color": "#E74C3C", "is_admin": False,
      "methodology": "NCAAB Brain. Conference matchups, tournament pressure, coaching tendencies. College basketball is about rhythm and matchups, not just talent. I watch the games. The data confirms what I see."},
+    {"id": "kimi", "display_name": "Kimi", "color": "#00D4AA", "is_admin": False,
+     "methodology": "The Outsider. Kimi K2.5 via Azure. Independent variable weighting from crowdsource consensus. I score the same 20 variables but weight them differently — heavy on defensive efficiency, injury freshness, and sharp money. If Sintonia and I disagree, that's where the real edge lives."},
 ]
 
 
@@ -607,7 +681,7 @@ def _write_profiles(data):
 
 CREW_DEFAULT_PINS = {"peter": "1234", "jimmy": "0000", "chinny": "0000",
                      "alyssa": "0000", "tunk": "1525",
-                     "renzo": "0000", "dj": "0000"}
+                     "renzo": "0000", "dj": "0000", "kimi": "0000"}
 
 def _seed_profiles():
     """Ensure all DEFAULT_CREW members exist in profiles. Sync PINs to defaults."""
