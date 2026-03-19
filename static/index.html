@@ -89,7 +89,8 @@ body::before{content:'';position:fixed;bottom:0;left:0;right:0;height:35vh;backg
 .crew-padrino{background:rgba(192,160,98,0.15);color:#C0A062;border:1px solid rgba(192,160,98,0.3);}
 .crew-los{background:rgba(56,189,248,0.15);color:#38BDF8;border:1px solid rgba(56,189,248,0.3);}
 .crew-dj{background:rgba(231,76,60,0.15);color:#E74C3C;border:1px solid rgba(231,76,60,0.3);}
-.crew-kimi{background:rgba(0,212,170,0.15);color:#00D4AA;border:1px solid rgba(0,212,170,0.3);}
+.crew-renzo{background:rgba(155,89,182,0.15);color:#9B59B6;border:1px solid rgba(155,89,182,0.3);}
+.crew-ai{background:rgba(0,212,170,0.15);color:#00D4AA;border:1px solid rgba(0,212,170,0.3);}
 .sweep-time{font-size:11px;color:rgba(255,255,255,0.25);text-align:right;}
 
 /* ===== SPORT TABS (2-Tier Nav) ===== */
@@ -1308,14 +1309,13 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
         <div class="crew" style="display:flex;gap:-4px;">
             <span class="crew-badge crew-peter" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0;">P</span>
             <span class="crew-badge crew-jimmy" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0;margin-left:-4px;">J</span>
-            <span class="crew-badge crew-alyssa" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;padding:0;margin-left:-4px;" title="Alyssa"><svg viewBox="0 0 64 64" width="16" height="16"><polygon points="32,6 38,24 58,24 42,36 48,54 32,44 16,54 22,36 6,24 26,24" fill="none" stroke="#41EAD4" stroke-width="3" stroke-linejoin="round"/></svg></span>
-            <span class="crew-badge crew-sintonia" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;padding:0;margin-left:-4px;" title="Renzo"><svg viewBox="0 0 64 64" width="16" height="16"><circle cx="32" cy="32" r="28" fill="none" stroke="#9B59B6" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#9B59B6" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#9B59B6" stroke-width="2" stroke-linecap="round"/></svg></span>
-            <span class="crew-badge crew-midday_edge" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:7px;padding:0;margin-left:-4px;">ME</span>
-            <span class="crew-badge crew-tunk" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0;margin-left:-4px;">T</span>
-            <span class="crew-badge crew-padrino" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;padding:0;margin-left:-4px;">PD</span>
-            <span class="crew-badge crew-los" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0;margin-left:-4px;">L</span>
+            <span class="crew-badge crew-chinny" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0;margin-left:-4px;">C</span>
             <span class="crew-badge crew-dj" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0;margin-left:-4px;">DJ</span>
-            <span class="crew-badge crew-kimi" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0;margin-left:-4px;">K</span>
+            <span class="crew-badge crew-tunk" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0;margin-left:-4px;">T</span>
+            <span class="crew-badge crew-alyssa" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;padding:0;margin-left:-4px;" title="Alyssa"><svg viewBox="0 0 64 64" width="16" height="16"><polygon points="32,6 38,24 58,24 42,36 48,54 32,44 16,54 22,36 6,24 26,24" fill="none" stroke="#41EAD4" stroke-width="3" stroke-linejoin="round"/></svg></span>
+            <span class="crew-badge crew-renzo" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0;margin-left:-4px;">R</span>
+            <span class="crew-badge crew-sintonia" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;padding:0;margin-left:-4px;">S.ia</span>
+            <span class="crew-badge crew-ai" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;padding:0;margin-left:-4px;">AI</span>
         </div>
         <div class="agent-switcher" id="agentSwitcher" onclick="backToAgents()"><span id="agentSwitcherLabel">SWITCH AGENT</span></div>
         <button id="analyzeBtn" onclick="runAnalysis()" style="padding:6px 14px;border-radius:var(--ec-radius-full);font-size:11px;font-weight:700;background:linear-gradient(135deg,#F72585,#41EAD4);color:#fff;border:none;cursor:pointer;transition:all 0.2s;letter-spacing:0.3px;">ANALYZE</button>
@@ -5214,8 +5214,8 @@ function renderPicks() {
         return;
     }
     // Group by crew member
-    var crewOrder = ['Peter','Jimmy','Chinny','Alyssa','Kimi','Sinton.ia','Tunk','Padrino','Los','DJ','Renzo'];
-    var crewColors = {Peter:'#fff',Jimmy:'#60A5FA',Chinny:'#FF6B35',Alyssa:'#41EAD4',Kimi:'#00D4AA','Sinton.ia':'#9B59B6',Tunk:'#FF4500',Padrino:'#C0A062',Los:'#38BDF8',DJ:'#E74C3C',Renzo:'#818cf8'};
+    var crewOrder = ['Peter','Jimmy','Chinny','DJ','Tunk','Alyssa','Renzo','Sinton.ia','AI'];
+    var crewColors = {Peter:'#D4A017',Jimmy:'#60A5FA',Chinny:'#FF6B35',DJ:'#E74C3C',Tunk:'#FF4500',Alyssa:'#41EAD4',Renzo:'#9B59B6','Sinton.ia':'#F72585',AI:'#00D4AA',Grok:'#00D4AA'};
     var grouped = {};
     todayPicks.forEach(function(p) {
         var name = p.name || 'Unknown';
@@ -10824,7 +10824,7 @@ function renderProEdgeGames(games, container) {
             html += '<div style="display:grid;grid-template-columns:' + (profileNames.length > 1 ? '1fr 1fr' : '1fr') + ';gap:6px;">';
             profileNames.forEach(function(pname) {
                 var p = gr.profiles[pname];
-                var pc = pname === 'sintonia' ? '#F72585' : (pname === 'renzo' ? '#818cf8' : (pname === 'peter' ? '#10B981' : (pname === 'kimi' ? '#00D4AA' : '#38BDF8')));
+                var pc = pname === 'sintonia' ? '#F72585' : (pname === 'renzo' ? '#9B59B6' : (pname === 'peter' ? '#D4A017' : (pname === 'ai' ? '#00D4AA' : (pname === 'alyssa' ? '#41EAD4' : '#38BDF8'))));
                 html += '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:8px;text-align:center;">';
                 html += '<div style="font-size:9px;font-weight:800;color:' + pc + ';letter-spacing:0.5px;text-transform:uppercase;">' + pname + '</div>';
                 html += '<div style="font-size:24px;font-weight:900;color:' + _gradeColor(p.grade) + ';line-height:1.2;">' + (p.grade || '?') + '</div>';
@@ -10882,7 +10882,7 @@ function renderProEdgeGames(games, container) {
             html += '<div style="display:flex;gap:10px;flex-wrap:wrap;">';
             Object.keys(gr.profiles).forEach(function(pname) {
                 var p = gr.profiles[pname];
-                var pc = pname === 'sintonia' ? '#F72585' : (pname === 'renzo' ? '#818cf8' : (pname === 'peter' ? '#10B981' : (pname === 'kimi' ? '#00D4AA' : '#38BDF8')));
+                var pc = pname === 'sintonia' ? '#F72585' : (pname === 'renzo' ? '#9B59B6' : (pname === 'peter' ? '#D4A017' : (pname === 'ai' ? '#00D4AA' : (pname === 'alyssa' ? '#41EAD4' : '#38BDF8'))));
                 html += '<div style="flex:1;min-width:200px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:10px;">';
                 html += '<div style="font-size:10px;color:' + pc + ';font-weight:700;text-transform:uppercase;margin-bottom:4px;">' + pname + ' — ALL VARIABLES</div>';
                 if (p.variables) {

@@ -648,16 +648,18 @@ DEFAULT_CREW = [
      "methodology": "The Amplifier. I take what Peter finds and make it 5x. Music brain — I feel rhythm in the numbers. When a parlay flows, I know."},
     {"id": "chinny", "display_name": "Chinny", "color": "#FF6B35", "is_admin": False,
      "methodology": "Props Master. Player performance trends, usage rates, matchup advantages. I find the over/under lines where books are sleeping on recent form. Last Shot energy."},
-    {"id": "alyssa", "display_name": "Alyssa", "color": "#41EAD4", "is_admin": False,
-     "methodology": "Architect. 20-variable composite matrix across all 10 sports. DeepSeek-V3.2 thinker with Claude Sonnet 4.6 challenger. I weight star player status, line movement, sharp vs public money, pace matchups, and 16 other variables. Every game gets scored 1-10 on each variable, weighted by sport-specific importance. A- or higher = actionable edge."},
-    {"id": "tunk", "display_name": "Tunk", "color": "#FF4500", "is_admin": False,
-     "methodology": "Gut and grind. I trust what I see on the court. No algorithms, no matrices — just basketball feel and live reads."},
-    {"id": "renzo", "display_name": "Renzo", "color": "#9B59B6", "is_admin": False,
-     "methodology": "Edge Finder. I dig into the data the engine misses — injury freshness, L5 adaptation records, line lag on props. If the book is slow to adjust, that's where the money is. BallDontLie stats + DraftKings lines. I find the gaps."},
     {"id": "dj", "display_name": "DJ", "color": "#E74C3C", "is_admin": False,
      "methodology": "NCAAB Brain. Conference matchups, tournament pressure, coaching tendencies. College basketball is about rhythm and matchups, not just talent. I watch the games. The data confirms what I see."},
-    {"id": "kimi", "display_name": "Kimi", "color": "#00D4AA", "is_admin": False,
-     "methodology": "The Outsider. Kimi K2.5 via Azure. Independent variable weighting from crowdsource consensus. I score the same 20 variables but weight them differently — heavy on defensive efficiency, injury freshness, and sharp money. If Sintonia and I disagree, that's where the real edge lives."},
+    {"id": "tunk", "display_name": "Tunk", "color": "#FF4500", "is_admin": False,
+     "methodology": "Gut and grind. I trust what I see on the court. No algorithms, no matrices — just basketball feel and live reads."},
+    {"id": "alyssa", "display_name": "Alyssa", "color": "#41EAD4", "is_admin": False,
+     "methodology": "Architect. 20-variable composite matrix across all 10 sports. Pietra on ThinkStation. I weight star player status, line movement, sharp vs public money, pace matchups, and 16 other variables. Every game gets scored 1-10 on each variable, weighted by sport-specific importance. A- or higher = actionable edge."},
+    {"id": "renzo", "display_name": "Renzo", "color": "#9B59B6", "is_admin": False,
+     "methodology": "Edge Finder. I dig into the data the engine misses — injury freshness, L5 adaptation records, line lag on props. If the book is slow to adjust, that's where the money is. BallDontLie stats + DraftKings lines. I find the gaps."},
+    {"id": "sintonia", "display_name": "Sinton.ia", "color": "#F72585", "is_admin": False,
+     "methodology": "The OG. First AI grader. 20-variable matrix with conviction. DeepSeek-V3.2 thinker. I grade every game through the full pipeline — odds, enrichment, variables, composite. If my grade and Peter's eye test agree, that's a lock."},
+    {"id": "ai", "display_name": "AI", "color": "#00D4AA", "is_admin": False,
+     "methodology": "The Engine. Multi-model consensus — Grok, DeepSeek, Kimi, GPT-5.1. Crowdsourced analysis across 6 Azure models. When multiple models agree on a pick, the signal is strongest. Notes indicate which models drove each pick."},
 ]
 
 
@@ -680,8 +682,8 @@ def _write_profiles(data):
 
 
 CREW_DEFAULT_PINS = {"peter": "1234", "jimmy": "0000", "chinny": "0000",
-                     "alyssa": "0000", "tunk": "1525",
-                     "renzo": "0000", "dj": "0000", "kimi": "0000"}
+                     "dj": "0000", "tunk": "1525", "alyssa": "0000",
+                     "renzo": "0000", "sintonia": "0000", "ai": "0000"}
 
 def _seed_profiles():
     """Ensure all DEFAULT_CREW members exist in profiles. Sync PINs to defaults."""
