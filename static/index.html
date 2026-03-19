@@ -89,6 +89,7 @@ body::before{content:'';position:fixed;bottom:0;left:0;right:0;height:35vh;backg
 .crew-padrino{background:rgba(192,160,98,0.15);color:#C0A062;border:1px solid rgba(192,160,98,0.3);}
 .crew-los{background:rgba(56,189,248,0.15);color:#38BDF8;border:1px solid rgba(56,189,248,0.3);}
 .crew-dj{background:rgba(231,76,60,0.15);color:#E74C3C;border:1px solid rgba(231,76,60,0.3);}
+.crew-kimi{background:rgba(0,212,170,0.15);color:#00D4AA;border:1px solid rgba(0,212,170,0.3);}
 .sweep-time{font-size:11px;color:rgba(255,255,255,0.25);text-align:right;}
 
 /* ===== SPORT TABS (2-Tier Nav) ===== */
@@ -1314,6 +1315,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
             <span class="crew-badge crew-padrino" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;padding:0;margin-left:-4px;">PD</span>
             <span class="crew-badge crew-los" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0;margin-left:-4px;">L</span>
             <span class="crew-badge crew-dj" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0;margin-left:-4px;">DJ</span>
+            <span class="crew-badge crew-kimi" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;padding:0;margin-left:-4px;">K</span>
         </div>
         <div class="agent-switcher" id="agentSwitcher" onclick="backToAgents()"><span id="agentSwitcherLabel">SWITCH AGENT</span></div>
         <button id="analyzeBtn" onclick="runAnalysis()" style="padding:6px 14px;border-radius:var(--ec-radius-full);font-size:11px;font-weight:700;background:linear-gradient(135deg,#F72585,#41EAD4);color:#fff;border:none;cursor:pointer;transition:all 0.2s;letter-spacing:0.3px;">ANALYZE</button>
@@ -5212,8 +5214,8 @@ function renderPicks() {
         return;
     }
     // Group by crew member
-    var crewOrder = ['Peter','Jimmy','Chinny','Alyssa','Sinton.ia','Tunk','Padrino','Los'];
-    var crewColors = {Peter:'#fff',Jimmy:'#60A5FA',Chinny:'#FF6B35',Alyssa:'#41EAD4','Sinton.ia':'#9B59B6',Tunk:'#FF4500',Padrino:'#C0A062',Los:'#38BDF8'};
+    var crewOrder = ['Peter','Jimmy','Chinny','Alyssa','Kimi','Sinton.ia','Tunk','Padrino','Los','DJ','Renzo'];
+    var crewColors = {Peter:'#fff',Jimmy:'#60A5FA',Chinny:'#FF6B35',Alyssa:'#41EAD4',Kimi:'#00D4AA','Sinton.ia':'#9B59B6',Tunk:'#FF4500',Padrino:'#C0A062',Los:'#38BDF8',DJ:'#E74C3C',Renzo:'#818cf8'};
     var grouped = {};
     todayPicks.forEach(function(p) {
         var name = p.name || 'Unknown';
@@ -10822,7 +10824,7 @@ function renderProEdgeGames(games, container) {
             html += '<div style="display:grid;grid-template-columns:' + (profileNames.length > 1 ? '1fr 1fr' : '1fr') + ';gap:6px;">';
             profileNames.forEach(function(pname) {
                 var p = gr.profiles[pname];
-                var pc = pname === 'sintonia' ? '#F72585' : (pname === 'renzo' ? '#818cf8' : (pname === 'peter' ? '#10B981' : '#38BDF8'));
+                var pc = pname === 'sintonia' ? '#F72585' : (pname === 'renzo' ? '#818cf8' : (pname === 'peter' ? '#10B981' : (pname === 'kimi' ? '#00D4AA' : '#38BDF8')));
                 html += '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:8px;text-align:center;">';
                 html += '<div style="font-size:9px;font-weight:800;color:' + pc + ';letter-spacing:0.5px;text-transform:uppercase;">' + pname + '</div>';
                 html += '<div style="font-size:24px;font-weight:900;color:' + _gradeColor(p.grade) + ';line-height:1.2;">' + (p.grade || '?') + '</div>';
@@ -10880,7 +10882,7 @@ function renderProEdgeGames(games, container) {
             html += '<div style="display:flex;gap:10px;flex-wrap:wrap;">';
             Object.keys(gr.profiles).forEach(function(pname) {
                 var p = gr.profiles[pname];
-                var pc = pname === 'sintonia' ? '#F72585' : '#818cf8';
+                var pc = pname === 'sintonia' ? '#F72585' : (pname === 'renzo' ? '#818cf8' : (pname === 'peter' ? '#10B981' : (pname === 'kimi' ? '#00D4AA' : '#38BDF8')));
                 html += '<div style="flex:1;min-width:200px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:10px;">';
                 html += '<div style="font-size:10px;color:' + pc + ';font-weight:700;text-transform:uppercase;margin-bottom:4px;">' + pname + ' — ALL VARIABLES</div>';
                 if (p.variables) {
