@@ -1,5 +1,5 @@
 # All Sports — Team + Player Profile Crowdsource Results
-# Source: Kimi K2.5 via Azure AI Services
+# Source: Kimi K2.5 + DeepSeek V3 via Azure AI Services
 # Date: 2026-03-19 (Session 209)
 # Status: RAW — needs Peter review per sport
 
@@ -217,9 +217,7 @@ Goal Differential Momentum vs Season | 6 | NHL API | Compares goal differential 
 
 ### PLAYER PROFILE
 
-**NFL Player Prop Scoring Matrix**
-
-1. **Snap Share Trajectory** | 9 | NFL Next Gen Stats,
+_Not retrieved — model lacks sufficient data for this sport/type_
 
 ============================================================
 ## MLB
@@ -482,7 +480,74 @@ ons and historical mid-fight improvement metrics.
 
 ### PLAYER PROFILE
 
-_Not yet retrieved — needs retry with different model_
+Hereâ€™s a focused list of 15-20 criteria for grading a playerâ€™s scouting profile, optimized for betting analysis and match impact. Each is weighted by importance (1-10) and includes data sources and a concise description:  
+
+1. **Serve Rating (Weight: 9)** â€“ *ATP/WTA Stats, Match Charts*  
+   Combines ace rate, 1st/2nd serve win%, and unreturned servesâ€”critical for hold games and tiebreaks.  
+
+2. **Return Rating (Weight: 8)** â€“ *ATP/WTA Stats, Match Charts*  
+   Measures break point conversion, return games won, and ability to pressure serves.  
+
+3. **Recent Form (Weight: 7)** â€“ *Last 10 Matches, Elo Ratings*  
+   Performance trend over recent matches (e.g., wins vs. top-50 players, tournament results).  
+
+4. **Surface-Specific Win% (Weight: 8)** â€“ *Career/Season Stats*  
+   Clay/grass/hard win ratesâ€”key for matchup edges (e.g., Nadal on clay).  
+
+5. **Clutch Performance (Weight: 6)** â€“ *Tiebreak Win%, Deciding Sets*  
+   Ability to win tight sets (3rd/5th sets) and pressure moments.  
+
+6. **Fitness/Durability (Weight: 5)** â€“ *Retirement Stats, Match Lengths*  
+   Risk of mid-match withdrawals or fatigue in long rallies/baseline battles.  
+
+7. **Head-to-Head Record (Weight: 7)** â€“ *Historical Matchups*  
+   Psychological/tactical edges against specific opponents (e.g., Djokovic vs. Federer).  
+
+8. **Unforced Error Rate (Weight: 6)** â€“ *Match Stats*  
+   Consistency under pressure; high errors hurt in long rallies.  
+
+9. **Break Point Conversion (Weight: 7)** â€“ *ATP/WTA Stats*  
+   % of break points wonâ€”directly impacts game/set betting markets.  
+
+10. **Hold/Break Differential (Weight: 8)** â€“ *ATP/WTA Stats*  
+    Net games won (holds minus breaks)â€”predicts dominance in a matchup.  
+
+11. **First-Serve Percentage (Weight: 6)** â€“ *Match Stats*  
+    High 1st-serve% reduces double faults and cheap points lost.  
+
+12. **Net Play Efficiency (Weight: 4)** â€“ *Match Charts*  
+    Volley/approach successâ€”matters most vs. baseliners or on fast surfaces.  
+
+13. **Opponent-Specific Weaknesses (Weight: 6)** â€“ *Scouting Reports*  
+    Exploitable flaws (e.g., poor backhand returns against lefty servers).  
+
+14. **Tournament Performance (Weight: 5)** â€“ *Historical Results*  
+    Past success at the event (e.g., Federer at Wimbledon).  
+
+15. **Weather/Condition Adaptability (Weight: 4)** â€“ *Match Logs*  
+    Wind/heat tolerance (e.g., Isnerâ€™s serve in indoor vs. outdoor).  
+
+16. **Speed/Footwork (Weight: 5)** â€“ *Match Footage, Stats*  
+    Defensive skills (e.g., retrieving drop shots on clay).  
+
+17. **Mental Resilience (Weight: 6)** â€“ *Player Interviews, Comeback Wins*  
+    Recovery from setbacks (e.g., losing first set but winning match).  
+
+18. **Double Fault Frequency (Weight: 4)** â€“ *Match Stats*  
+    High DF% hurts service games and total games props.  
+
+19. **Average Rally Length (Weight: 5)** â€“ *Hawk-Eye Data*  
+    Preference for short/long pointsâ€”impacts over/under betting.  
+
+20. **Public Betting Sentiment (Weight: 3)** â€“ *Odds Movement*  
+    Market bias (e.g., overvalued favorites) for contrarian opportunities.  
+
+**Notes:**  
+- Weights prioritize *direct* match/game impact (e.g., serve/return > net play).  
+- Data sources lean on stats providers (ATP/WTA) and betting market signals.  
+- Surface, H2H, and clutch stats are **multipliers** for matchup edges.  
+
+Would you like adjustments for specific bet types (e.g., set handicaps, live betting)?
 
 ============================================================
 ## WNBA
@@ -490,8 +555,8 @@ _Not yet retrieved — needs retry with different model_
 
 ### TEAM PROFILE
 
-_Not yet retrieved — needs retry with different model_
+_Not retrieved — model lacks sufficient data for this sport/type_
 
 ### PLAYER PROFILE
 
-_Not yet retrieved — needs retry with different model_
+_Not retrieved — model lacks sufficient data for this sport/type_
