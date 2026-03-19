@@ -1287,6 +1287,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 </div>
 <div class="sport-tabs utility-row">
     <div class="sport-tab utility-tab" onclick="switchSport('edge', event)" style="border-color:var(--ec-accent)"><span class="tab-icon">🔥</span><span class="tab-label">EDGE</span></div>
+    <div class="sport-tab utility-tab" onclick="switchSport('profedge', event)" style="border-color:#F72585"><span class="tab-icon">⚡</span><span class="tab-label">Pro Edge</span></div>
     <div class="sport-tab utility-tab" onclick="switchSport('props', event)"><span class="tab-icon">📊</span><span class="tab-label">Props</span> <span class="tab-count">0</span></div>
     <div class="sport-tab utility-tab" onclick="switchSport('beat', event)"><span class="tab-icon">📰</span><span class="tab-label">Beat</span></div>
     <div class="sport-tab utility-tab" onclick="switchSport('arbscan', event)"><span class="tab-icon">💎</span><span class="tab-label">Arbs</span> <span class="tab-count">0</span></div>
@@ -1869,6 +1870,30 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <!-- Edge Content -->
 <div id="edgeContent" style="padding:8px 0;">
     <p style="color:rgba(255,255,255,0.3);font-style:italic;text-align:center;padding:40px;">Select a sport and hit SCAN to find edges...</p>
+</div>
+</div>
+
+<!-- ===== PRO EDGE V3 PIPELINE ===== -->
+<div class="sport-panel" id="panel-profedge">
+<div class="gotcha-banner" style="border-color:rgba(247,37,133,0.4);background:rgba(247,37,133,0.06);">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h3 style="color:#F72585;">PRO EDGE <span style="font-size:11px;color:rgba(255,255,255,0.4);font-weight:400;">V3 Pipeline</span></h3>
+        <div style="display:flex;gap:6px;">
+            <select id="profedgeSportSelect" onchange="loadProEdge(this.value)" style="background:rgba(255,255,255,0.06);color:#fff;border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:6px 10px;font-size:12px;cursor:pointer;">
+                <option value="nba">NBA</option>
+                <option value="ncaab">NCAAB</option>
+                <option value="nhl">NHL</option>
+            </select>
+            <button style="cursor:pointer;padding:6px 14px;border-radius:6px;background:rgba(247,37,133,0.2);color:#F72585;font-size:11px;font-weight:700;border:none;letter-spacing:0.5px;" onclick="loadProEdge(document.getElementById('profedgeSportSelect').value)">LOAD</button>
+        </div>
+    </div>
+    <p style="color:rgba(255,255,255,0.4);font-size:12px;margin-top:4px;">Sinton.ia + Renzo + Peter Rules consensus. Expandable game cards with full variable breakdown.</p>
+</div>
+<!-- Pro Edge Stats Bar -->
+<div id="profedgeStats" style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap;"></div>
+<!-- Pro Edge Games -->
+<div id="profedgeGames" style="padding:8px 0;">
+    <p style="color:rgba(255,255,255,0.3);font-style:italic;text-align:center;padding:40px;">Select a sport and hit LOAD to view V3 pipeline picks...</p>
 </div>
 </div>
 
@@ -3318,6 +3343,7 @@ function switchSport(sport, e) {
     if (sport === 'props') { loadPropsForSport(_currentPropsSport || 'nba'); }
     if (sport === 'scores') { loadScoreboard(); startScoreboardRefresh(); }
     if (sport === 'edge') { loadEdgeData(_edgeCurrentSport || 'nba'); }
+    if (sport === 'profedge') { loadProEdge(_profedgeCurrentSport || 'nba'); }
     if (typeof populateIntel === 'function') populateIntel(sport);
     // Auto-fetch Alyssa edge data for side-by-side view
     var sportList = ['nba','wnba','ncaab','ncaaf','nhl','mlb','tennis','soccer','mma','boxing'];
@@ -10203,6 +10229,276 @@ window.addEventListener('pageshow', function(e) {
         flakes = [];
     };
 })();
+
+// ── Pro Edge V3 ──────────────────────────────────────────────────────────────
+var _profedgeCurrentSport = 'nba';
+var _profedgeData = null;
+
+function loadProEdge(sport) {
+    _profedgeCurrentSport = sport;
+    var container = document.getElementById('profedgeGames');
+    var statsBar = document.getElementById('profedgeStats');
+    container.innerHTML = '<p style="color:rgba(255,255,255,0.3);font-style:italic;text-align:center;padding:40px;">Loading ' + sport.toUpperCase() + ' pipeline data...</p>';
+    statsBar.innerHTML = '';
+
+    // Highlight active option
+    var sel = document.getElementById('profedgeSportSelect');
+    if (sel) sel.value = sport;
+
+    fetch('/api/profedge/' + sport)
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            _profedgeData = data;
+            if (data.error || !data.games || data.games.length === 0) {
+                container.innerHTML = '<p style="color:rgba(255,255,255,0.3);text-align:center;padding:40px;">No data for ' + sport.toUpperCase() + '. Run pipeline first.</p>';
+                return;
+            }
+            renderProEdgeStats(data, statsBar);
+            renderProEdgeGames(data.games, container);
+        })
+        .catch(function(err) {
+            container.innerHTML = '<p style="color:#ef4444;text-align:center;padding:40px;">Error: ' + err.message + '</p>';
+        });
+}
+
+function renderProEdgeStats(data, bar) {
+    var graded = data.graded || 0;
+    var total = data.total || 0;
+    var aPlus = 0, aGrade = 0, bPlus = 0;
+    (data.games || []).forEach(function(g) {
+        if (!g.grade) return;
+        var gr = g.grade.consensus_grade || '';
+        if (gr === 'A+') aPlus++;
+        else if (gr === 'A' || gr === 'A-') aGrade++;
+        else if (gr === 'B+') bPlus++;
+    });
+    bar.innerHTML =
+        '<div style="background:rgba(247,37,133,0.08);border:1px solid rgba(247,37,133,0.2);border-radius:8px;padding:8px 14px;"><div style="font-size:10px;color:rgba(255,255,255,0.4);">Games</div><div style="font-size:18px;font-weight:800;color:#F72585;">' + total + '</div></div>' +
+        '<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:8px;padding:8px 14px;"><div style="font-size:10px;color:rgba(255,255,255,0.4);">Graded</div><div style="font-size:18px;font-weight:800;color:#10B981;">' + graded + '</div></div>' +
+        '<div style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);border-radius:8px;padding:8px 14px;"><div style="font-size:10px;color:rgba(255,255,255,0.4);">A+</div><div style="font-size:18px;font-weight:800;color:#818cf8;">' + aPlus + '</div></div>' +
+        '<div style="background:rgba(212,160,36,0.08);border:1px solid rgba(212,160,36,0.2);border-radius:8px;padding:8px 14px;"><div style="font-size:10px;color:rgba(255,255,255,0.4);">A/A-</div><div style="font-size:18px;font-weight:800;color:#d4a024;">' + aGrade + '</div></div>' +
+        '<div style="background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.2);border-radius:8px;padding:8px 14px;"><div style="font-size:10px;color:rgba(255,255,255,0.4);">B+</div><div style="font-size:18px;font-weight:800;color:#38BDF8;">' + bPlus + '</div></div>' +
+        '<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 14px;"><div style="font-size:10px;color:rgba(255,255,255,0.4);">Date</div><div style="font-size:13px;font-weight:700;color:#fff;">' + (data.date || '?') + '</div></div>';
+}
+
+function _gradeColor(grade) {
+    if (!grade) return 'rgba(255,255,255,0.3)';
+    if (grade.startsWith('A')) return '#10B981';
+    if (grade === 'B+') return '#38BDF8';
+    if (grade.startsWith('B')) return '#818cf8';
+    if (grade.startsWith('C')) return '#d4a024';
+    return '#ef4444';
+}
+
+function _dimClass(grade) {
+    if (!grade) return 'opacity:0.4;';
+    if (['C+','C','D','F'].indexOf(grade) !== -1) return 'opacity:0.45;';
+    return '';
+}
+
+function renderProEdgeGames(games, container) {
+    var html = '';
+    games.forEach(function(g, idx) {
+        var gr = g.grade;
+        var grade = gr ? gr.consensus_grade : '?';
+        var avg = gr ? gr.consensus_avg.toFixed(1) : '--';
+        var pickSide = gr ? gr.pick_side : '';
+        var pickTeam = pickSide === 'home' ? g.home : g.away;
+        var dim = _dimClass(grade);
+        var gColor = _gradeColor(grade);
+
+        // EV info
+        var evStr = '';
+        if (gr && gr.ev && gr.ev.ev_pct != null) {
+            var evPct = gr.ev.ev_pct;
+            var evColor = evPct > 0 ? '#10B981' : '#ef4444';
+            evStr = '<span style="color:' + evColor + ';font-size:12px;font-weight:700;margin-left:8px;">EV: ' + (evPct > 0 ? '+' : '') + evPct.toFixed(1) + '%</span>';
+        }
+
+        // Odds
+        var oddsStr = '';
+        if (g.odds) {
+            var sp = g.odds.spread_home || g.odds.spread;
+            var ml = pickSide === 'home' ? (g.odds.ml_home || g.odds.home_ml) : (g.odds.ml_away || g.odds.away_ml);
+            if (sp) oddsStr += '<span style="color:rgba(255,255,255,0.5);font-size:11px;">Spread: ' + sp + '</span> ';
+            if (ml) oddsStr += '<span style="color:rgba(255,255,255,0.5);font-size:11px;">ML: ' + ml + '</span>';
+        }
+
+        // Race summary
+        var raceStr = '';
+        if (g.race) {
+            raceStr = '<span style="font-size:11px;color:rgba(255,255,255,0.5);">Race: ' + g.race.home_score + '-' + g.race.away_score + ' → ' + (g.race.pick_team || '?') + ' (' + (g.race.confidence || '?') + ')</span>';
+        }
+
+        // Peter flags
+        var flagsStr = '';
+        if (gr && gr.peter_rules && gr.peter_rules.flags && gr.peter_rules.flags.length > 0) {
+            gr.peter_rules.flags.forEach(function(f) {
+                var fc = f.action === 'KILL' ? '#ef4444' : (f.action === 'BOOST' ? '#10B981' : '#d4a024');
+                flagsStr += '<span style="background:rgba(255,255,255,0.06);border:1px solid ' + fc + ';color:' + fc + ';font-size:10px;padding:2px 6px;border-radius:4px;margin-right:4px;">' + f.action + ': ' + f.rule + '</span>';
+            });
+        }
+
+        // Time
+        var timeStr = '';
+        if (g.time) {
+            try {
+                var dt = new Date(g.time);
+                timeStr = dt.toLocaleTimeString('en-US', {hour:'numeric',minute:'2-digit',hour12:true});
+            } catch(e) { timeStr = g.time; }
+        }
+
+        html += '<div class="profedge-card" style="' + dim + 'background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;margin-bottom:10px;cursor:pointer;" onclick="toggleProEdgeDetail(' + idx + ')">';
+
+        // Header row
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;">';
+        html += '<div>';
+        html += '<div style="font-size:15px;font-weight:800;color:#fff;">' + g.matchup + '</div>';
+        html += '<div style="margin-top:2px;">' + oddsStr + ' <span style="color:rgba(255,255,255,0.3);font-size:11px;">' + timeStr + '</span></div>';
+        html += '</div>';
+        html += '<div style="text-align:right;">';
+        html += '<div style="font-size:28px;font-weight:900;color:' + gColor + ';">' + grade + '</div>';
+        html += '<div style="font-size:11px;color:rgba(255,255,255,0.5);">Score: ' + avg + '</div>';
+        html += '</div>';
+        html += '</div>';
+
+        // Pick row
+        html += '<div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">';
+        if (pickTeam && grade !== '?') {
+            var sizing = '';
+            if (gr && gr.profiles && gr.profiles.sintonia) sizing = gr.profiles.sintonia.sizing || '';
+            html += '<span style="background:rgba(247,37,133,0.12);border:1px solid rgba(247,37,133,0.3);color:#F72585;font-size:12px;font-weight:800;padding:4px 10px;border-radius:6px;">PICK: ' + pickTeam + (sizing && sizing !== 'PASS' ? ' (' + sizing + ')' : '') + '</span>';
+        }
+        html += evStr;
+        html += raceStr;
+        html += '</div>';
+        if (flagsStr) html += '<div style="margin-top:6px;">' + flagsStr + '</div>';
+
+        // Expandable detail
+        html += '<div id="profedge-detail-' + idx + '" style="display:none;margin-top:12px;border-top:1px solid rgba(255,255,255,0.06);padding-top:12px;">';
+
+        // Profile comparison
+        if (gr && gr.profiles) {
+            html += '<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;">';
+            Object.keys(gr.profiles).forEach(function(pname) {
+                var p = gr.profiles[pname];
+                var pc = pname === 'sintonia' ? '#F72585' : '#818cf8';
+                html += '<div style="flex:1;min-width:140px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:10px;">';
+                html += '<div style="font-size:11px;color:' + pc + ';font-weight:700;text-transform:uppercase;margin-bottom:6px;">' + pname + '</div>';
+                html += '<div style="font-size:22px;font-weight:900;color:' + _gradeColor(p.grade) + ';">' + (p.grade || '?') + ' <span style="font-size:12px;color:rgba(255,255,255,0.4);">' + (p.final || 0).toFixed(1) + '</span></div>';
+                // Variables
+                if (p.variables) {
+                    html += '<div style="margin-top:8px;">';
+                    Object.keys(p.variables).forEach(function(vname) {
+                        var v = p.variables[vname];
+                        var vs = v.score || 0;
+                        var vc = vs >= 7 ? '#10B981' : (vs >= 5 ? '#d4a024' : '#ef4444');
+                        html += '<div style="display:flex;justify-content:space-between;font-size:11px;padding:2px 0;border-bottom:1px solid rgba(255,255,255,0.03);">';
+                        html += '<span style="color:rgba(255,255,255,0.5);">' + vname.replace(/_/g, ' ') + '</span>';
+                        html += '<span style="color:' + vc + ';font-weight:700;">' + vs + '/10</span>';
+                        html += '</div>';
+                    });
+                    html += '</div>';
+                }
+                // Chains
+                if (p.chains_fired && p.chains_fired.length > 0) {
+                    html += '<div style="margin-top:6px;">';
+                    p.chains_fired.forEach(function(c) {
+                        html += '<span style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);color:#10B981;font-size:10px;padding:2px 6px;border-radius:4px;margin-right:4px;">⛓ ' + c + '</span>';
+                    });
+                    html += '</div>';
+                }
+                html += '</div>';
+            });
+            html += '</div>';
+        }
+
+        // Team comparison
+        html += '<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:8px;">';
+        ['away', 'home'].forEach(function(side) {
+            var prof = g[side + '_profile'] || {};
+            var team = side === 'home' ? g.home : g.away;
+            var abbrev = side === 'home' ? g.home_abbrev : g.away_abbrev;
+            html += '<div style="flex:1;min-width:140px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:10px;">';
+            html += '<div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:6px;">' + (abbrev || team) + ' <span style="color:rgba(255,255,255,0.3);font-size:10px;">' + side.toUpperCase() + '</span></div>';
+            if (prof.L5) html += '<div style="font-size:11px;color:rgba(255,255,255,0.5);">L5: ' + prof.L5 + ' | L10: ' + (prof.L10 || '?') + '</div>';
+            if (prof.ppg_L5) html += '<div style="font-size:11px;color:rgba(255,255,255,0.5);">PPG L5: ' + prof.ppg_L5.toFixed(1) + ' | Opp: ' + (prof.opp_ppg_L5 || 0).toFixed(1) + '</div>';
+            if (prof.streak) html += '<div style="font-size:11px;color:rgba(255,255,255,0.5);">Streak: ' + prof.streak + ' | Rest: ' + (prof.rest_days || '?') + 'd</div>';
+
+            // Injuries
+            var inj = (g.injuries && g.injuries[side]) || [];
+            if (inj.length > 0) {
+                var outCount = inj.filter(function(i){return i.status === 'OUT';}).length;
+                html += '<div style="margin-top:4px;font-size:11px;color:#ef4444;">Injuries: ' + inj.length + ' (' + outCount + ' OUT)</div>';
+                inj.forEach(function(i) {
+                    html += '<div style="font-size:10px;color:rgba(255,255,255,0.4);padding-left:8px;">' + (i.status || '?') + ' — ' + i.player + ' (' + (i.pos || '?') + ')</div>';
+                });
+            }
+            html += '</div>';
+        });
+        html += '</div>';
+
+        // Race lanes
+        if (g.race && g.race.lanes) {
+            html += '<div style="margin-top:8px;"><div style="font-size:11px;color:rgba(255,255,255,0.4);font-weight:700;margin-bottom:4px;">SWIM LANE RACE</div>';
+            g.race.lanes.forEach(function(lane) {
+                var winner = lane.winner;
+                var hc = winner === 'home' ? '#10B981' : 'rgba(255,255,255,0.3)';
+                var ac = winner === 'away' ? '#10B981' : 'rgba(255,255,255,0.3)';
+                html += '<div style="display:flex;justify-content:space-between;font-size:11px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.03);">';
+                html += '<span style="color:rgba(255,255,255,0.5);flex:1;">' + lane.heat + '</span>';
+                html += '<span style="color:' + hc + ';width:60px;text-align:center;font-weight:700;">' + (lane.home.grade || lane.home.score || '-') + '</span>';
+                html += '<span style="color:' + ac + ';width:60px;text-align:center;font-weight:700;">' + (lane.away.grade || lane.away.score || '-') + '</span>';
+                html += '</div>';
+            });
+            html += '</div>';
+        }
+
+        // Regrade button
+        html += '<div style="margin-top:10px;text-align:right;">';
+        html += '<button onclick="event.stopPropagation();regradeProEdge(\'' + g.game_id + '\')" style="background:rgba(247,37,133,0.12);border:1px solid rgba(247,37,133,0.3);color:#F72585;font-size:11px;font-weight:700;padding:6px 14px;border-radius:6px;cursor:pointer;">RE-GRADE</button>';
+        html += '</div>';
+
+        html += '</div>'; // end detail
+        html += '</div>'; // end card
+    });
+
+    container.innerHTML = html;
+}
+
+function toggleProEdgeDetail(idx) {
+    var el = document.getElementById('profedge-detail-' + idx);
+    if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function regradeProEdge(gameId) {
+    var sport = _profedgeCurrentSport || 'nba';
+    var btn = event.target;
+    btn.textContent = 'GRADING...';
+    btn.disabled = true;
+
+    fetch('/api/profedge/regrade/' + gameId, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({sport: sport})
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        btn.textContent = 'RE-GRADE';
+        btn.disabled = false;
+        if (data.error) {
+            alert('Regrade error: ' + data.error);
+            return;
+        }
+        // Reload the panel
+        loadProEdge(sport);
+    })
+    .catch(function(err) {
+        btn.textContent = 'RE-GRADE';
+        btn.disabled = false;
+        alert('Regrade failed: ' + err.message);
+    });
+}
 </script>
 </body>
 </html>

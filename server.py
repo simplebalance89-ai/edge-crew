@@ -12,6 +12,7 @@ import statistics
 import db
 from openai import AzureOpenAI, OpenAI
 from datetime import datetime, timedelta
+from pathlib import Path
 from zoneinfo import ZoneInfo
 
 logger = logging.getLogger("edge-crew")
@@ -9707,6 +9708,248 @@ async def get_simple_slate(sport: str):
         "edge_count": len(games_with_edges),
         "updated_at": _now_ts(),
     })
+
+
+# ── Pro Edge V3 Pipeline ────────────────────────────────────────────────────
+
+EDGE_ENGINE_DIR = Path(os.environ.get("EDGE_ENGINE_DIR", r"C:\Users\GCTII\edge_engine"))
+EDGE_DATA_DIR = EDGE_ENGINE_DIR / "data"
+EDGE_GRADES_DIR = EDGE_ENGINE_DIR / "grades"
+
+@app.get("/api/profedge/{sport}")
+async def get_profedge(sport: str):
+    """Pro Edge V3 — returns merged game data + grades + race for a sport."""
+    sport_key = sport.lower()
+    today = datetime.now(PST).strftime("%Y%m%d")
+
+    # Try today first, then yesterday
+    dates_to_try = [today, (datetime.now(PST) - timedelta(days=1)).strftime("%Y%m%d")]
+
+    games_data = None
+    grades_data = None
+    race_data = None
+    used_date = today
+
+    for d in dates_to_try:
+        gf = EDGE_DATA_DIR / f"games_{sport_key}_{d}.json"
+        if gf.exists():
+            try:
+                with open(gf, "r", encoding="utf-8") as f:
+                    games_data = json.load(f)
+                used_date = d
+                break
+            except Exception:
+                continue
+
+    if not games_data:
+        return JSONResponse({"error": f"No game data for {sport_key}", "games": [], "grades": [], "race": []})
+
+    # Load grades
+    grf = EDGE_GRADES_DIR / f"{sport_key}_{used_date}_grades.json"
+    if grf.exists():
+        try:
+            with open(grf, "r", encoding="utf-8") as f:
+                grades_data = json.load(f)
+        except Exception:
+            pass
+
+    # Load race
+    rf = EDGE_GRADES_DIR / f"race_{sport_key}_{used_date}.json"
+    if rf.exists():
+        try:
+            with open(rf, "r", encoding="utf-8") as f:
+                race_data = json.load(f)
+        except Exception:
+            pass
+
+    # Load roster profiles
+    roster_data = None
+    rpf = EDGE_GRADES_DIR / f"{sport_key}_roster_profiles_{used_date}.json"
+    if rpf.exists():
+        try:
+            with open(rpf, "r", encoding="utf-8") as f:
+                roster_data = json.load(f)
+        except Exception:
+            pass
+
+    # Merge: attach grades and race to each game
+    games = games_data.get("games", [])
+    grades_list = grades_data.get("games", []) if grades_data else []
+    races_list = race_data.get("races", []) if race_data else []
+    roster_teams = roster_data.get("teams", []) if roster_data else []
+
+    # Index grades by game_id
+    grades_by_id = {g["game_id"]: g for g in grades_list}
+    # Index races by matchup
+    races_by_matchup = {r.get("matchup", ""): r for r in races_list}
+    # Index roster profiles by team name
+    roster_by_team = {}
+    for t in roster_teams:
+        tname = t.get("team", "")
+        if tname:
+            roster_by_team[tname] = t
+
+    merged = []
+    for game in games:
+        gid = game.get("game_id", "")
+        matchup = f"{game.get('away', '?')} @ {game.get('home', '?')}"
+
+        entry = {
+            "game_id": gid,
+            "matchup": matchup,
+            "home": game.get("home", ""),
+            "away": game.get("away", ""),
+            "home_abbrev": game.get("home_abbrev", ""),
+            "away_abbrev": game.get("away_abbrev", ""),
+            "time": game.get("time", ""),
+            "odds": game.get("odds", {}),
+            "home_profile": game.get("home_profile", {}),
+            "away_profile": game.get("away_profile", {}),
+            "injuries": game.get("injuries", {"home": [], "away": []}),
+        }
+
+        # Attach grade
+        grade = grades_by_id.get(gid)
+        if grade:
+            entry["grade"] = {
+                "consensus_grade": grade.get("consensus_grade", "?"),
+                "consensus_avg": grade.get("consensus_avg", 0),
+                "consensus_raw": grade.get("consensus_raw", 0),
+                "pick_side": grade.get("pick_side", ""),
+                "profiles": grade.get("profiles", {}),
+                "peter_rules": grade.get("peter_rules", {}),
+                "ev": grade.get("ev", {}),
+            }
+        else:
+            entry["grade"] = None
+
+        # Attach race
+        race = races_by_matchup.get(matchup)
+        if race:
+            entry["race"] = {
+                "lanes": race.get("lanes", []),
+                "home_score": race.get("home_score", 0),
+                "away_score": race.get("away_score", 0),
+                "race_winner": race.get("race_winner", ""),
+                "pick_team": race.get("pick_team", ""),
+                "bet_size": race.get("bet_size", ""),
+                "confidence": race.get("confidence", ""),
+            }
+        else:
+            entry["race"] = None
+
+        # Attach roster profiles
+        entry["roster_home"] = roster_by_team.get(game.get("home", ""))
+        entry["roster_away"] = roster_by_team.get(game.get("away", ""))
+
+        merged.append(entry)
+
+    # Sort: graded games first (by consensus_avg desc), then ungraded
+    merged.sort(key=lambda x: (
+        0 if x.get("grade") else 1,
+        -(x["grade"]["consensus_avg"] if x.get("grade") else 0)
+    ))
+
+    return JSONResponse({
+        "sport": sport_key.upper(),
+        "date": games_data.get("date", used_date),
+        "games": merged,
+        "total": len(merged),
+        "graded": sum(1 for m in merged if m.get("grade")),
+        "updated_at": games_data.get("fetched_at", ""),
+    })
+
+
+@app.post("/api/profedge/regrade/{game_id}")
+async def regrade_game(game_id: str, request: Request):
+    """Re-grade a single game using grade_engine."""
+    import sys as _sys
+    _sys.path.insert(0, str(EDGE_ENGINE_DIR))
+
+    try:
+        body = await request.json()
+        sport = body.get("sport", "NBA").upper()
+        sport_key = sport.lower()
+        today = datetime.now(PST).strftime("%Y%m%d")
+
+        # Find the date that has this game
+        dates_to_try = [today, (datetime.now(PST) - timedelta(days=1)).strftime("%Y%m%d")]
+        data_file = None
+        used_date = today
+
+        for d in dates_to_try:
+            candidate = EDGE_DATA_DIR / f"games_{sport_key}_{d}.json"
+            if candidate.exists():
+                data_file = candidate
+                used_date = d
+                break
+
+        if not data_file:
+            return JSONResponse({"error": "No game data found"}, status_code=404)
+
+        with open(data_file, "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        # Find the specific game
+        target_game = None
+        for g in data.get("games", []):
+            if str(g.get("game_id")) == str(game_id):
+                target_game = g
+                break
+
+        if not target_game:
+            return JSONResponse({"error": f"Game {game_id} not found"}, status_code=404)
+
+        # Import and run grade engine
+        from grade_engine import grade_sintonia, grade_renzo, grade_peter_rules, score_to_grade, calculate_ev
+
+        results = {}
+        for side in ["home", "away"]:
+            sintonia = grade_sintonia(target_game, side)
+            renzo = grade_renzo(target_game, side)
+            peter = grade_peter_rules(target_game, side)
+
+            avg_final = (sintonia["final"] + renzo["final"]) / 2
+            adjusted = round(avg_final + peter["adjustment"], 2)
+            adjusted = max(0, min(10, adjusted))
+            if peter.get("has_kill"):
+                adjusted = min(adjusted, 2.9)
+
+            ev = calculate_ev(target_game, side, adjusted)
+
+            results[side] = {
+                "profiles": {"sintonia": sintonia, "renzo": renzo},
+                "peter_rules": peter,
+                "consensus_avg": adjusted,
+                "consensus_grade": score_to_grade(adjusted),
+                "ev": ev,
+            }
+
+        # Pick best side
+        best_side = max(results, key=lambda s: results[s]["consensus_avg"])
+        best = results[best_side]
+        best["pick_side"] = best_side
+        best["game_id"] = game_id
+        best["matchup"] = f"{target_game.get('away', '?')} @ {target_game.get('home', '?')}"
+
+        # Update grades file
+        grades_file = EDGE_GRADES_DIR / f"{sport_key}_{used_date}_grades.json"
+        if grades_file.exists():
+            with open(grades_file, "r", encoding="utf-8") as f:
+                grades_data = json.load(f)
+            # Replace existing grade for this game
+            new_games = [g for g in grades_data.get("games", []) if str(g.get("game_id")) != str(game_id)]
+            new_games.append(best)
+            grades_data["games"] = new_games
+            grades_data["graded_at"] = datetime.now().isoformat()
+            with open(grades_file, "w", encoding="utf-8") as f:
+                json.dump(grades_data, f, indent=2)
+
+        return JSONResponse({"status": "ok", "game_id": game_id, "grade": best})
+
+    except Exception as e:
+        log_error("profedge-regrade", str(e))
+        return JSONResponse({"error": str(e)}, status_code=500)
 
 
 @app.get("/simple")
