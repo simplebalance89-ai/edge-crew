@@ -12125,24 +12125,27 @@ async def get_profedge(sport: str):
     sport_key = sport.lower()
     today = datetime.now(PST).strftime("%Y%m%d")
 
-    # Try today first, then yesterday
-    dates_to_try = [today, (datetime.now(PST) - timedelta(days=1)).strftime("%Y%m%d")]
-
+    # Find most recent data file for this sport
     games_data = None
     grades_data = None
     race_data = None
     used_date = today
 
-    for d in dates_to_try:
-        gf = EDGE_DATA_DIR / f"games_{sport_key}_{d}.json"
-        if gf.exists():
-            try:
-                with open(gf, "r", encoding="utf-8") as f:
-                    games_data = json.load(f)
-                used_date = d
-                break
-            except Exception:
-                continue
+    # Scan for all game files for this sport, pick most recent
+    import glob as _glob
+    game_files = sorted(
+        _glob.glob(str(EDGE_DATA_DIR / f"games_{sport_key}_*.json")),
+        reverse=True
+    )
+    for gf_path in game_files:
+        try:
+            with open(gf_path, "r", encoding="utf-8") as f:
+                games_data = json.load(f)
+            # Extract date from filename: games_nba_20260319.json -> 20260319
+            used_date = Path(gf_path).stem.split("_")[-1]
+            break
+        except Exception:
+            continue
 
     if not games_data:
         return JSONResponse({"error": f"No game data for {sport_key}", "games": [], "grades": [], "race": []})
