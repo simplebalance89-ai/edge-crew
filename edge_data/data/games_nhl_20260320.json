@@ -1,117 +1,143 @@
 {
   "sport": "NHL",
   "date": "2026-03-20",
-  "fetched_at": "2026-03-20T13:03:49.460305",
+  "fetched_at": "2026-03-20T14:14:48.859212",
   "games": [
     {
-      "game_id": "G3FVuGakj5kxyzyxaSmi",
+      "game_id": "nhl_20260320_1",
       "sport": "NHL",
-      "home": "New York Rangers",
-      "home_abbrev": "NYR",
-      "away": "New Jersey Devils",
-      "away_abbrev": "NJD",
-      "time": "2026-03-18T23:00",
+      "home": "Toronto Maple Leafs",
+      "home_abbrev": "TOR",
+      "away": "Carolina Hurricanes",
+      "away_abbrev": "CAR",
+      "time": "2026-03-20T19:00",
       "odds": {
-        "spread_home": "1.5",
-        "ml_home": "+100",
-        "ml_away": "-120",
+        "spread_home": "+1.5",
+        "spread_home_odds": "-135",
+        "spread_away": "-1.5",
+        "spread_away_odds": "+114",
         "total": "6.5",
-        "over_odds": "+105",
-        "under_odds": "-130",
-        "provider": "SGO"
+        "over_odds": "+102",
+        "under_odds": "-124",
+        "ml_home": "+180",
+        "ml_away": "-218",
+        "provider": "consensus"
       },
-      "home_profile": {},
-      "away_profile": {},
+      "home_profile": {
+        "L5": "1-2-2",
+        "L10": "2-5-3",
+        "ppg_L5": 3.13,
+        "opp_ppg_L5": 3.49,
+        "margin_L5": -0.36,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "L1",
+        "home_record": "17-12-7",
+        "away_record": "12-16-5",
+        "season_record": "29-28-12",
+        "gf": 216,
+        "ga": 241,
+        "gpg": 3.13,
+        "gapg": 3.49
+      },
+      "away_profile": {
+        "L5": "3-2-0",
+        "L10": "6-4-0",
+        "ppg_L5": 3.54,
+        "opp_ppg_L5": 2.97,
+        "margin_L5": 0.57,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "W1",
+        "home_record": "25-9-2",
+        "away_record": "18-10-4",
+        "season_record": "43-19-6",
+        "gf": 241,
+        "ga": 202,
+        "gpg": 3.54,
+        "gapg": 2.97
+      },
       "injuries": {
-        "home": [],
-        "away": []
+        "home": [
+          {
+            "player": "Auston Matthews",
+            "status": "Out",
+            "detail": "Knee - season-ending surgery (MCL)"
+          }
+        ],
+        "away": [
+          {
+            "player": "Pyotr Kochetkov",
+            "status": "Out",
+            "detail": "Hip - expected return April 11"
+          },
+          {
+            "player": "Shayne Gostisbehere",
+            "status": "Day-to-Day",
+            "detail": "Lower body"
+          }
+        ]
       },
       "lineup": {
         "home": [],
         "away": []
       },
-      "props": [],
-      "shifts": {
-        "away_ml": {
-          "open": -125,
-          "current": -120
-        },
-        "spread": {
-          "open": -1.5,
-          "current": -1.5
-        },
-        "total": {
-          "open": 6.5,
-          "current": 6.5
-        }
-      },
-      "fair_away_ml": -109,
-      "fair_home_ml": 109
+      "props": []
     },
     {
-      "game_id": "J4gorJsuBk4SqzFNjAVR",
-      "sport": "NHL",
-      "home": "Carolina Hurricanes",
-      "home_abbrev": "CAR",
-      "away": "Pittsburgh Penguins",
-      "away_abbrev": "PIT",
-      "time": "2026-03-18T23:00",
-      "odds": {
-        "spread_home": "-1.5",
-        "ml_home": "-140",
-        "ml_away": "+120",
-        "total": "6.5",
-        "over_odds": "-105",
-        "under_odds": "-115",
-        "provider": "SGO"
-      },
-      "home_profile": {},
-      "away_profile": {},
-      "injuries": {
-        "home": [],
-        "away": []
-      },
-      "lineup": {
-        "home": [],
-        "away": []
-      },
-      "props": [],
-      "shifts": {
-        "away_ml": {
-          "open": 150,
-          "current": 120
-        },
-        "spread": {
-          "open": 1.5,
-          "current": 1.5
-        },
-        "total": {
-          "open": 6.5,
-          "current": 6.5
-        }
-      },
-      "fair_away_ml": 130,
-      "fair_home_ml": -130
-    },
-    {
-      "game_id": "ncDa1sqaWM9LjaQxy9MV",
+      "game_id": "nhl_20260320_2",
       "sport": "NHL",
       "home": "Washington Capitals",
       "home_abbrev": "WSH",
-      "away": "Ottawa Senators",
-      "away_abbrev": "OTT",
-      "time": "2026-03-18T23:30",
+      "away": "New Jersey Devils",
+      "away_abbrev": "NJD",
+      "time": "2026-03-20T19:00",
       "odds": {
-        "spread_home": "1.5",
-        "ml_home": "+110",
-        "ml_away": "-130",
+        "spread_home": "-1.5",
+        "spread_home_odds": "+185",
+        "spread_away": "+1.5",
+        "spread_away_odds": "-225",
         "total": "5.5",
-        "over_odds": "-145",
-        "under_odds": "+115",
-        "provider": "SGO"
+        "over_odds": "-122",
+        "under_odds": "+102",
+        "ml_home": "-130",
+        "ml_away": "+110",
+        "provider": "consensus"
       },
-      "home_profile": {},
-      "away_profile": {},
+      "home_profile": {
+        "L5": "3-2-0",
+        "L10": "5-4-1",
+        "ppg_L5": 3.13,
+        "opp_ppg_L5": 2.96,
+        "margin_L5": 0.17,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "W1",
+        "home_record": "21-11-4",
+        "away_record": "13-16-4",
+        "season_record": "34-27-8",
+        "gf": 216,
+        "ga": 204,
+        "gpg": 3.13,
+        "gapg": 2.96
+      },
+      "away_profile": {
+        "L5": "4-1-0",
+        "L10": "7-3-0",
+        "ppg_L5": 2.74,
+        "opp_ppg_L5": 3.04,
+        "margin_L5": -0.3,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "W3",
+        "home_record": "18-15-2",
+        "away_record": "17-16-0",
+        "season_record": "35-31-2",
+        "gf": 186,
+        "ga": 207,
+        "gpg": 2.74,
+        "gapg": 3.04
+      },
       "injuries": {
         "home": [],
         "away": []
@@ -120,43 +146,243 @@
         "home": [],
         "away": []
       },
-      "props": [],
-      "shifts": {
-        "away_ml": {
-          "open": -125,
-          "current": -130
-        },
-        "spread": {
-          "open": -1.5,
-          "current": -1.5
-        },
-        "total": {
-          "open": 6.5,
-          "current": 5.5
-        }
-      },
-      "fair_away_ml": -120,
-      "fair_home_ml": 120
+      "props": []
     },
     {
-      "game_id": "OvS22ZRQkG6XV9o7lAoj",
+      "game_id": "nhl_20260320_3",
+      "sport": "NHL",
+      "home": "Chicago Blackhawks",
+      "home_abbrev": "CHI",
+      "away": "Colorado Avalanche",
+      "away_abbrev": "COL",
+      "time": "2026-03-20T20:30",
+      "odds": {
+        "spread_home": "+1.5",
+        "spread_home_odds": "-110",
+        "spread_away": "-1.5",
+        "spread_away_odds": "-110",
+        "total": "6.5",
+        "over_odds": "-105",
+        "under_odds": "-125",
+        "ml_home": "+210",
+        "ml_away": "-258",
+        "provider": "consensus"
+      },
+      "home_profile": {
+        "L5": "2-1-2",
+        "L10": "4-3-3",
+        "ppg_L5": 2.65,
+        "opp_ppg_L5": 3.21,
+        "margin_L5": -0.56,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "W1",
+        "home_record": "13-15-6",
+        "away_record": "13-15-6",
+        "season_record": "26-30-12",
+        "gf": 180,
+        "ga": 218,
+        "gpg": 2.65,
+        "gapg": 3.21
+      },
+      "away_profile": {
+        "L5": "3-2-0",
+        "L10": "6-3-1",
+        "ppg_L5": 3.73,
+        "opp_ppg_L5": 2.57,
+        "margin_L5": 1.16,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "L3",
+        "home_record": "23-6-5",
+        "away_record": "21-7-5",
+        "season_record": "44-13-10",
+        "gf": 250,
+        "ga": 172,
+        "gpg": 3.73,
+        "gapg": 2.57
+      },
+      "injuries": {
+        "home": [],
+        "away": [
+          {
+            "player": "Gabriel Landeskog",
+            "status": "Out",
+            "detail": "Lower body - week to week, expected March 22"
+          },
+          {
+            "player": "Artturi Lehkonen",
+            "status": "Out",
+            "detail": "Upper body - expected March 24"
+          },
+          {
+            "player": "Logan O'Connor",
+            "status": "Out",
+            "detail": "Hip - IR, expected March 22"
+          }
+        ]
+      },
+      "lineup": {
+        "home": [],
+        "away": []
+      },
+      "props": []
+    },
+    {
+      "game_id": "nhl_20260320_4",
       "sport": "NHL",
       "home": "Calgary Flames",
       "home_abbrev": "CGY",
-      "away": "St. Louis Blues",
-      "away_abbrev": "STL",
-      "time": "2026-03-19T01:30",
+      "away": "Florida Panthers",
+      "away_abbrev": "FLA",
+      "time": "2026-03-20T21:00",
       "odds": {
-        "spread_home": "1.5",
-        "ml_home": "+105",
-        "ml_away": "-125",
+        "spread_home": "+1.5",
+        "spread_home_odds": "-285",
+        "spread_away": "-1.5",
+        "spread_away_odds": "+230",
         "total": "5.5",
+        "over_odds": "-120",
+        "under_odds": "+100",
+        "ml_home": "+105",
+        "ml_away": "-115",
+        "provider": "consensus"
+      },
+      "home_profile": {
+        "L5": "2-3-0",
+        "L10": "3-6-1",
+        "ppg_L5": 2.49,
+        "opp_ppg_L5": 3.13,
+        "margin_L5": -0.64,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "W1",
+        "home_record": "17-12-4",
+        "away_record": "10-22-3",
+        "season_record": "27-34-7",
+        "gf": 169,
+        "ga": 213,
+        "gpg": 2.49,
+        "gapg": 3.13
+      },
+      "away_profile": {
+        "L5": "2-3-0",
+        "L10": "4-6-0",
+        "ppg_L5": 3.01,
+        "opp_ppg_L5": 3.31,
+        "margin_L5": -0.3,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "W1",
+        "home_record": "18-14-3",
+        "away_record": "16-17-0",
+        "season_record": "34-31-3",
+        "gf": 205,
+        "ga": 225,
+        "gpg": 3.01,
+        "gapg": 3.31
+      },
+      "injuries": {
+        "home": [
+          {
+            "player": "Jonathan Huberdeau",
+            "status": "Out",
+            "detail": "IR"
+          },
+          {
+            "player": "Samuel Honzek",
+            "status": "Out",
+            "detail": "IR"
+          },
+          {
+            "player": "Jake Bean",
+            "status": "Out",
+            "detail": "IR"
+          }
+        ],
+        "away": [
+          {
+            "player": "Aleksander Barkov",
+            "status": "Out",
+            "detail": "IR"
+          },
+          {
+            "player": "Sam Reinhart",
+            "status": "Day-to-Day",
+            "detail": "DTD"
+          },
+          {
+            "player": "Brad Marchand",
+            "status": "Day-to-Day",
+            "detail": "DTD"
+          },
+          {
+            "player": "Cole Schwindt",
+            "status": "Out",
+            "detail": "IR"
+          }
+        ]
+      },
+      "lineup": {
+        "home": [],
+        "away": []
+      },
+      "props": []
+    },
+    {
+      "game_id": "nhl_20260320_5",
+      "sport": "NHL",
+      "home": "Utah Mammoth",
+      "home_abbrev": "UTA",
+      "away": "Anaheim Ducks",
+      "away_abbrev": "ANA",
+      "time": "2026-03-20T22:00",
+      "odds": {
+        "spread_home": "-1.5",
+        "spread_home_odds": "+165",
+        "spread_away": "+1.5",
+        "spread_away_odds": "-200",
+        "total": "6.5",
         "over_odds": "-115",
         "under_odds": "-105",
-        "provider": "SGO"
+        "ml_home": "-122",
+        "ml_away": "+102",
+        "provider": "consensus"
       },
-      "home_profile": {},
-      "away_profile": {},
+      "home_profile": {
+        "L5": "2-2-1",
+        "L10": "5-3-2",
+        "ppg_L5": 3.16,
+        "opp_ppg_L5": 2.77,
+        "margin_L5": 0.39,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "W2",
+        "home_record": "18-11-3",
+        "away_record": "18-16-3",
+        "season_record": "36-27-6",
+        "gf": 218,
+        "ga": 191,
+        "gpg": 3.16,
+        "gapg": 2.77
+      },
+      "away_profile": {
+        "L5": "3-2-0",
+        "L10": "5-4-1",
+        "ppg_L5": 3.31,
+        "opp_ppg_L5": 3.47,
+        "margin_L5": -0.16,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "L1",
+        "home_record": "22-10-2",
+        "away_record": "15-17-2",
+        "season_record": "37-27-4",
+        "gf": 225,
+        "ga": 236,
+        "gpg": 3.31,
+        "gapg": 3.47
+      },
       "injuries": {
         "home": [],
         "away": []
@@ -165,114 +391,7 @@
         "home": [],
         "away": []
       },
-      "props": [],
-      "shifts": {
-        "away_ml": {
-          "open": -105,
-          "current": -125
-        },
-        "spread": {
-          "open": -1.5,
-          "current": -1.5
-        },
-        "total": {
-          "open": 5.5,
-          "current": 5.5
-        }
-      },
-      "fair_away_ml": -114,
-      "fair_home_ml": 114
-    },
-    {
-      "game_id": "liwVxPiAmb29E5r5nowy",
-      "sport": "NHL",
-      "home": "Colorado Avalanche",
-      "home_abbrev": "COL",
-      "away": "Dallas Stars",
-      "away_abbrev": "DAL",
-      "time": "2026-03-19T01:30",
-      "odds": {
-        "spread_home": "-1.5",
-        "ml_home": "-145",
-        "ml_away": "+125",
-        "total": "6.5",
-        "over_odds": "+105",
-        "under_odds": "-130",
-        "provider": "SGO"
-      },
-      "home_profile": {},
-      "away_profile": {},
-      "injuries": {
-        "home": [],
-        "away": []
-      },
-      "lineup": {
-        "home": [],
-        "away": []
-      },
-      "props": [],
-      "shifts": {
-        "away_ml": {
-          "open": 120,
-          "current": 125
-        },
-        "spread": {
-          "open": 1.5,
-          "current": 1.5
-        },
-        "total": {
-          "open": 5.5,
-          "current": 6.5
-        }
-      },
-      "fair_away_ml": 133,
-      "fair_home_ml": -133
-    },
-    {
-      "game_id": "fo8Rb2VyAhBlfOonOncD",
-      "sport": "NHL",
-      "home": "Anaheim Ducks",
-      "home_abbrev": "ANA",
-      "away": "Philadelphia Flyers",
-      "away_abbrev": "PHI",
-      "time": "2026-03-19T02:00",
-      "odds": {
-        "spread_home": "-1.5",
-        "ml_home": "-150",
-        "ml_away": "+130",
-        "total": "6.5",
-        "over_odds": "-105",
-        "under_odds": "-115",
-        "provider": "SGO"
-      },
-      "home_profile": {},
-      "away_profile": {},
-      "injuries": {
-        "home": [],
-        "away": []
-      },
-      "lineup": {
-        "home": [],
-        "away": []
-      },
-      "props": [],
-      "shifts": {
-        "away_ml": {
-          "open": 120,
-          "current": 130
-        },
-        "spread": {
-          "open": 1.5,
-          "current": 1.5
-        },
-        "total": {
-          "open": 6.5,
-          "current": 6.5
-        }
-      },
-      "fair_away_ml": 138,
-      "fair_home_ml": -138
+      "props": []
     }
-  ],
-  "count": 6
+  ]
 }

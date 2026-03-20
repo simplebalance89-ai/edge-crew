@@ -1,7 +1,7 @@
 {
   "sport": "NHL",
   "date": "2026-03-20",
-  "graded_at": "2026-03-20T13:12:18.517915",
+  "graded_at": "2026-03-20T14:15:01.339416",
   "profiles_used": [
     "sintonia",
     "renzo",
@@ -10,19 +10,19 @@
   ],
   "games": [
     {
-      "game_id": "G3FVuGakj5kxyzyxaSmi",
-      "matchup": "New Jersey Devils @ New York Rangers",
-      "pick_side": "home",
+      "game_id": "nhl_20260320_1",
+      "matchup": "Carolina Hurricanes @ Toronto Maple Leafs",
+      "pick_side": "away",
       "profiles": {
         "sintonia": {
-          "game_id": "G3FVuGakj5kxyzyxaSmi",
+          "game_id": "nhl_20260320_1",
           "profile": "sintonia",
-          "pick_side": "home",
+          "pick_side": "away",
           "grade": "C+",
-          "composite": 5.01,
+          "composite": 5.43,
           "chain_bonus": 0.0,
-          "final": 5.01,
-          "pick": "New York Rangers 1.5",
+          "final": 5.43,
+          "pick": "Carolina Hurricanes -1.5",
           "sizing": "PASS",
           "variables": {
             "goalie_confirmed": {
@@ -41,31 +41,31 @@
               "score": 5,
               "weight": 8,
               "weighted": 40,
-              "note": "PP/PK proxy from margin L5: +0.0"
+              "note": "PP/PK proxy from margin L5: +0.6"
             },
             "b2b_fatigue": {
               "score": 5,
               "weight": 8,
               "weighted": 40,
-              "note": "Rest data unavailable"
+              "note": "Us: 2d rest | Them: 2d rest"
             },
             "off_ranking": {
-              "score": 5,
+              "score": 8,
               "weight": 7,
-              "weighted": 35,
-              "note": "No PPG data"
+              "weighted": 56,
+              "note": "PPG L5: 3.54 | OPP allows: 3.49 | Margin L5: +0.6"
             },
             "def_ranking": {
-              "score": 5,
+              "score": 6,
               "weight": 7,
-              "weighted": 35,
-              "note": "No OPP PPG data"
+              "weighted": 42,
+              "note": "Allow L5: 2.97 | They score L5: 3.13"
             },
             "recent_form": {
-              "score": 5,
+              "score": 6,
               "weight": 7,
-              "weighted": 35,
-              "note": "No L5 data"
+              "weighted": 42,
+              "note": "L5: 3-2-0 (margin +0.6) | Streak: W1 | OPP L5: 1-2-2 (margin -0.4)"
             },
             "road_trip_length": {
               "score": 5,
@@ -80,16 +80,16 @@
               "note": "No H2H games this season"
             },
             "corsi_xg": {
-              "score": 5,
+              "score": 6,
               "weight": 6,
-              "weighted": 30,
-              "note": "corsi_xg proxy \u2014 No OPP PPG data"
+              "weighted": 36,
+              "note": "corsi_xg proxy \u2014 Allow L5: 2.97 | They score L5: 3.13"
             },
             "save_pct_trend": {
-              "score": 5,
+              "score": 6,
               "weight": 6,
-              "weighted": 30,
-              "note": "save_pct_trend proxy \u2014 No OPP PPG data"
+              "weighted": 36,
+              "note": "save_pct_trend proxy \u2014 Allow L5: 2.97 | They score L5: 3.13"
             },
             "ats_trend": {
               "score": 6,
@@ -104,10 +104,10 @@
               "note": "Line flat \u2014 no sharp signal"
             },
             "home_away": {
-              "score": 6,
+              "score": 5,
               "weight": 5,
-              "weighted": 30,
-              "note": "Home: ? (0/0)"
+              "weighted": 25,
+              "note": "Away: 18-10-4 (18/28)"
             },
             "depth_injuries": {
               "score": 5,
@@ -119,14 +119,14 @@
           "chains_fired": []
         },
         "renzo": {
-          "game_id": "G3FVuGakj5kxyzyxaSmi",
+          "game_id": "nhl_20260320_1",
           "profile": "renzo",
-          "pick_side": "home",
+          "pick_side": "away",
           "grade": "C+",
-          "composite": 5.1,
+          "composite": 5.41,
           "chain_bonus": 0,
-          "final": 5.1,
-          "pick": "New York Rangers 1.5",
+          "final": 5.41,
+          "pick": "Carolina Hurricanes -1.5",
           "sizing": "PASS",
           "variables": {
             "Q1_whos_missing": {
@@ -140,9 +140,9 @@
               "note": "Line moved 0 pts | Injuries roughly priced"
             },
             "Q3_recent_form": {
-              "score": 5,
+              "score": 7,
               "weight": 8,
-              "note": "Us L5: ? | Them L5: ? | Edge: +0"
+              "note": "Us L5: 3-2-0 | Them L5: 1-2-2 | Edge: +2"
             },
             "Q4_best_on_court": {
               "score": 6,
@@ -152,7 +152,7 @@
             "Q5_schedule_rest": {
               "score": 6,
               "weight": 7,
-              "note": "Streak:  | Home"
+              "note": "Streak: W1 | Away"
             },
             "thesis_edge": {
               "score": 4,
@@ -165,15 +165,15 @@
           "mathurin_note": "No clear thesis edge found"
         },
         "claude": {
-          "game_id": "G3FVuGakj5kxyzyxaSmi",
+          "game_id": "nhl_20260320_1",
           "profile": "claude",
           "thesis": "Market disagreement \u2014 fading public overreaction, recency bias, and name-value inflation",
-          "pick_side": "home",
+          "pick_side": "away",
           "grade": "C",
-          "composite": 4.43,
+          "composite": 4.55,
           "chain_bonus": 0.0,
-          "final": 4.43,
-          "pick": "New York Rangers 1.5",
+          "final": 4.55,
+          "pick": "Carolina Hurricanes -1.5",
           "sizing": "PASS",
           "variables": {
             "public_pct_split": {
@@ -198,10 +198,10 @@
               "available": true
             },
             "recency_bias": {
-              "score": 5,
+              "score": 6,
               "weight": 7,
-              "weighted": 35,
-              "note": "Streak:  \u2014 no strong recency signal",
+              "weighted": 42,
+              "note": "Winning (W1) \u2014 some recency bias possible",
               "available": true
             },
             "goalie_name_bias": {
@@ -238,15 +238,15 @@
           "vars_total": 8
         },
         "edge": {
-          "game_id": "G3FVuGakj5kxyzyxaSmi",
+          "game_id": "nhl_20260320_1",
           "profile": "edge",
           "thesis": "Calendar/motivation spot \u2014 schedule traps, travel fatigue, lookahead, and situational context",
-          "pick_side": "home",
+          "pick_side": "away",
           "grade": "C",
           "composite": 4.98,
           "chain_bonus": 0.0,
           "final": 4.98,
-          "pick": "New York Rangers 1.5",
+          "pick": "Carolina Hurricanes -1.5",
           "sizing": "PASS",
           "variables": {
             "schedule_spot": {
@@ -267,7 +267,7 @@
               "score": 5,
               "weight": 8,
               "weighted": 40,
-              "note": "No streak data",
+              "note": "Streak: W1 \u2014 no letdown signal",
               "available": true
             },
             "motivation_gap": {
@@ -312,17 +312,17 @@
         }
       },
       "peter_rules": {
-        "game_id": "G3FVuGakj5kxyzyxaSmi",
+        "game_id": "nhl_20260320_1",
         "profile": "peter_rules",
-        "pick_side": "home",
+        "pick_side": "away",
         "flags": [],
         "adjustment": 0,
         "has_kill": false,
         "flag_count": 0
       },
-      "consensus_avg": 4.88,
-      "consensus_grade": "C",
-      "consensus_raw": 4.88,
+      "consensus_avg": 5.09,
+      "consensus_grade": "C+",
+      "consensus_raw": 5.09,
       "ev": {
         "profile": "ev",
         "status": "no_ml_data",
@@ -331,19 +331,19 @@
       }
     },
     {
-      "game_id": "J4gorJsuBk4SqzFNjAVR",
-      "matchup": "Pittsburgh Penguins @ Carolina Hurricanes",
-      "pick_side": "home",
+      "game_id": "nhl_20260320_2",
+      "matchup": "New Jersey Devils @ Washington Capitals",
+      "pick_side": "away",
       "profiles": {
         "sintonia": {
-          "game_id": "J4gorJsuBk4SqzFNjAVR",
+          "game_id": "nhl_20260320_2",
           "profile": "sintonia",
-          "pick_side": "home",
-          "grade": "C+",
-          "composite": 5.01,
-          "chain_bonus": 0.0,
-          "final": 5.01,
-          "pick": "Carolina Hurricanes -1.5",
+          "pick_side": "away",
+          "grade": "B-",
+          "composite": 4.93,
+          "chain_bonus": 1.0,
+          "final": 5.93,
+          "pick": "New Jersey Devils 1.5",
           "sizing": "PASS",
           "variables": {
             "goalie_confirmed": {
@@ -362,31 +362,31 @@
               "score": 5,
               "weight": 8,
               "weighted": 40,
-              "note": "PP/PK proxy from margin L5: +0.0"
+              "note": "PP/PK proxy from margin L5: -0.3"
             },
             "b2b_fatigue": {
               "score": 5,
               "weight": 8,
               "weighted": 40,
-              "note": "Rest data unavailable"
+              "note": "Us: 2d rest | Them: 2d rest"
             },
             "off_ranking": {
               "score": 5,
               "weight": 7,
               "weighted": 35,
-              "note": "No PPG data"
+              "note": "PPG L5: 2.74 | OPP allows: 2.96 | Margin L5: -0.3"
             },
             "def_ranking": {
-              "score": 5,
+              "score": 4,
               "weight": 7,
-              "weighted": 35,
-              "note": "No OPP PPG data"
+              "weighted": 28,
+              "note": "Allow L5: 3.04 | They score L5: 3.13"
             },
             "recent_form": {
-              "score": 5,
+              "score": 8,
               "weight": 7,
-              "weighted": 35,
-              "note": "No L5 data"
+              "weighted": 56,
+              "note": "L5: 4-1-0 (margin -0.3) | Streak: W3 | OPP L5: 3-2-0 (margin +0.2)"
             },
             "road_trip_length": {
               "score": 5,
@@ -401,16 +401,16 @@
               "note": "No H2H games this season"
             },
             "corsi_xg": {
-              "score": 5,
+              "score": 4,
               "weight": 6,
-              "weighted": 30,
-              "note": "corsi_xg proxy \u2014 No OPP PPG data"
+              "weighted": 24,
+              "note": "corsi_xg proxy \u2014 Allow L5: 3.04 | They score L5: 3.13"
             },
             "save_pct_trend": {
-              "score": 5,
+              "score": 4,
               "weight": 6,
-              "weighted": 30,
-              "note": "save_pct_trend proxy \u2014 No OPP PPG data"
+              "weighted": 24,
+              "note": "save_pct_trend proxy \u2014 Allow L5: 3.04 | They score L5: 3.13"
             },
             "ats_trend": {
               "score": 6,
@@ -425,10 +425,10 @@
               "note": "Line flat \u2014 no sharp signal"
             },
             "home_away": {
-              "score": 6,
+              "score": 4,
               "weight": 5,
-              "weighted": 30,
-              "note": "Home: ? (0/0)"
+              "weighted": 20,
+              "note": "Away: 17-16-0 (17/33)"
             },
             "depth_injuries": {
               "score": 5,
@@ -437,17 +437,19 @@
               "note": "Similar injury loads (them 0, us 0)"
             }
           },
-          "chains_fired": []
+          "chains_fired": [
+            "TRAP_GAME"
+          ]
         },
         "renzo": {
-          "game_id": "J4gorJsuBk4SqzFNjAVR",
+          "game_id": "nhl_20260320_2",
           "profile": "renzo",
-          "pick_side": "home",
-          "grade": "C+",
-          "composite": 5.1,
+          "pick_side": "away",
+          "grade": "B-",
+          "composite": 5.69,
           "chain_bonus": 0,
-          "final": 5.1,
-          "pick": "Carolina Hurricanes -1.5",
+          "final": 5.69,
+          "pick": "New Jersey Devils 1.5",
           "sizing": "PASS",
           "variables": {
             "Q1_whos_missing": {
@@ -461,9 +463,9 @@
               "note": "Line moved 0 pts | Injuries roughly priced"
             },
             "Q3_recent_form": {
-              "score": 5,
+              "score": 7,
               "weight": 8,
-              "note": "Us L5: ? | Them L5: ? | Edge: +0"
+              "note": "Us L5: 4-1-0 | Them L5: 3-2-0 | Edge: +2"
             },
             "Q4_best_on_court": {
               "score": 6,
@@ -471,9 +473,9 @@
               "note": "Both sides mostly healthy"
             },
             "Q5_schedule_rest": {
-              "score": 6,
+              "score": 8,
               "weight": 7,
-              "note": "Streak:  | Home"
+              "note": "Streak: W3 | Away"
             },
             "thesis_edge": {
               "score": 4,
@@ -486,15 +488,15 @@
           "mathurin_note": "No clear thesis edge found"
         },
         "claude": {
-          "game_id": "J4gorJsuBk4SqzFNjAVR",
+          "game_id": "nhl_20260320_2",
           "profile": "claude",
           "thesis": "Market disagreement \u2014 fading public overreaction, recency bias, and name-value inflation",
-          "pick_side": "home",
+          "pick_side": "away",
           "grade": "C",
-          "composite": 4.43,
+          "composite": 4.55,
           "chain_bonus": 0.0,
-          "final": 4.43,
-          "pick": "Carolina Hurricanes -1.5",
+          "final": 4.55,
+          "pick": "New Jersey Devils 1.5",
           "sizing": "PASS",
           "variables": {
             "public_pct_split": {
@@ -519,10 +521,10 @@
               "available": true
             },
             "recency_bias": {
-              "score": 5,
+              "score": 6,
               "weight": 7,
-              "weighted": 35,
-              "note": "Streak:  \u2014 no strong recency signal",
+              "weighted": 42,
+              "note": "Winning (W3) \u2014 some recency bias possible",
               "available": true
             },
             "goalie_name_bias": {
@@ -559,15 +561,15 @@
           "vars_total": 8
         },
         "edge": {
-          "game_id": "J4gorJsuBk4SqzFNjAVR",
+          "game_id": "nhl_20260320_2",
           "profile": "edge",
           "thesis": "Calendar/motivation spot \u2014 schedule traps, travel fatigue, lookahead, and situational context",
-          "pick_side": "home",
+          "pick_side": "away",
           "grade": "C",
-          "composite": 4.98,
+          "composite": 4.86,
           "chain_bonus": 0.0,
-          "final": 4.98,
-          "pick": "Carolina Hurricanes -1.5",
+          "final": 4.86,
+          "pick": "New Jersey Devils 1.5",
           "sizing": "PASS",
           "variables": {
             "schedule_spot": {
@@ -585,10 +587,10 @@
               "available": true
             },
             "letdown_spot": {
-              "score": 5,
+              "score": 4,
               "weight": 8,
-              "weighted": 40,
-              "note": "No streak data",
+              "weighted": 32,
+              "note": "On W3 streak \u2014 some letdown risk",
               "available": true
             },
             "motivation_gap": {
@@ -633,17 +635,17 @@
         }
       },
       "peter_rules": {
-        "game_id": "J4gorJsuBk4SqzFNjAVR",
+        "game_id": "nhl_20260320_2",
         "profile": "peter_rules",
-        "pick_side": "home",
+        "pick_side": "away",
         "flags": [],
         "adjustment": 0,
         "has_kill": false,
         "flag_count": 0
       },
-      "consensus_avg": 4.88,
-      "consensus_grade": "C",
-      "consensus_raw": 4.88,
+      "consensus_avg": 5.26,
+      "consensus_grade": "C+",
+      "consensus_raw": 5.26,
       "ev": {
         "profile": "ev",
         "status": "no_ml_data",
@@ -652,660 +654,18 @@
       }
     },
     {
-      "game_id": "ncDa1sqaWM9LjaQxy9MV",
-      "matchup": "Ottawa Senators @ Washington Capitals",
-      "pick_side": "home",
+      "game_id": "nhl_20260320_3",
+      "matchup": "Colorado Avalanche @ Chicago Blackhawks",
+      "pick_side": "away",
       "profiles": {
         "sintonia": {
-          "game_id": "ncDa1sqaWM9LjaQxy9MV",
+          "game_id": "nhl_20260320_3",
           "profile": "sintonia",
-          "pick_side": "home",
+          "pick_side": "away",
           "grade": "C+",
-          "composite": 5.01,
+          "composite": 5.41,
           "chain_bonus": 0.0,
-          "final": 5.01,
-          "pick": "Washington Capitals 1.5",
-          "sizing": "PASS",
-          "variables": {
-            "goalie_confirmed": {
-              "score": 5,
-              "weight": 9,
-              "weighted": 45,
-              "note": "No goalie injury reported \u2014 assume starter"
-            },
-            "star_player_status": {
-              "score": 5,
-              "weight": 9,
-              "weighted": 45,
-              "note": "No significant injuries"
-            },
-            "pp_pk": {
-              "score": 5,
-              "weight": 8,
-              "weighted": 40,
-              "note": "PP/PK proxy from margin L5: +0.0"
-            },
-            "b2b_fatigue": {
-              "score": 5,
-              "weight": 8,
-              "weighted": 40,
-              "note": "Rest data unavailable"
-            },
-            "off_ranking": {
-              "score": 5,
-              "weight": 7,
-              "weighted": 35,
-              "note": "No PPG data"
-            },
-            "def_ranking": {
-              "score": 5,
-              "weight": 7,
-              "weighted": 35,
-              "note": "No OPP PPG data"
-            },
-            "recent_form": {
-              "score": 5,
-              "weight": 7,
-              "weighted": 35,
-              "note": "No L5 data"
-            },
-            "road_trip_length": {
-              "score": 5,
-              "weight": 7,
-              "weighted": 35,
-              "note": "No road trip data"
-            },
-            "h2h_season": {
-              "score": 5,
-              "weight": 6,
-              "weighted": 30,
-              "note": "No H2H games this season"
-            },
-            "corsi_xg": {
-              "score": 5,
-              "weight": 6,
-              "weighted": 30,
-              "note": "corsi_xg proxy \u2014 No OPP PPG data"
-            },
-            "save_pct_trend": {
-              "score": 5,
-              "weight": 6,
-              "weighted": 30,
-              "note": "save_pct_trend proxy \u2014 No OPP PPG data"
-            },
-            "ats_trend": {
-              "score": 6,
-              "weight": 6,
-              "weighted": 36,
-              "note": "Avg margin L10: +0.0 \u2014 close games | Close: 0/10 | Blowouts: 0/10"
-            },
-            "sharp_vs_public": {
-              "score": 3,
-              "weight": 5,
-              "weighted": 15,
-              "note": "Line flat \u2014 no sharp signal"
-            },
-            "home_away": {
-              "score": 6,
-              "weight": 5,
-              "weighted": 30,
-              "note": "Home: ? (0/0)"
-            },
-            "depth_injuries": {
-              "score": 5,
-              "weight": 4,
-              "weighted": 20,
-              "note": "Similar injury loads (them 0, us 0)"
-            }
-          },
-          "chains_fired": []
-        },
-        "renzo": {
-          "game_id": "ncDa1sqaWM9LjaQxy9MV",
-          "profile": "renzo",
-          "pick_side": "home",
-          "grade": "C+",
-          "composite": 5.1,
-          "chain_bonus": 0,
-          "final": 5.1,
-          "pick": "Washington Capitals 1.5",
-          "sizing": "PASS",
-          "variables": {
-            "Q1_whos_missing": {
-              "score": 5,
-              "weight": 9,
-              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
-            },
-            "Q2_line_reflects": {
-              "score": 5,
-              "weight": 9,
-              "note": "Line moved 0 pts | Injuries roughly priced"
-            },
-            "Q3_recent_form": {
-              "score": 5,
-              "weight": 8,
-              "note": "Us L5: ? | Them L5: ? | Edge: +0"
-            },
-            "Q4_best_on_court": {
-              "score": 6,
-              "weight": 8,
-              "note": "Both sides mostly healthy"
-            },
-            "Q5_schedule_rest": {
-              "score": 6,
-              "weight": 7,
-              "note": "Streak:  | Home"
-            },
-            "thesis_edge": {
-              "score": 4,
-              "weight": 10,
-              "note": "No clear thesis edge found"
-            }
-          },
-          "chains_fired": [],
-          "mathurin_test": "FAIL",
-          "mathurin_note": "No clear thesis edge found"
-        },
-        "claude": {
-          "game_id": "ncDa1sqaWM9LjaQxy9MV",
-          "profile": "claude",
-          "thesis": "Market disagreement \u2014 fading public overreaction, recency bias, and name-value inflation",
-          "pick_side": "home",
-          "grade": "C",
-          "composite": 4.43,
-          "chain_bonus": 0.0,
-          "final": 4.43,
-          "pick": "Washington Capitals 1.5",
-          "sizing": "PASS",
-          "variables": {
-            "public_pct_split": {
-              "score": 3,
-              "weight": 9,
-              "weighted": 27,
-              "note": "Line flat \u2014 no public split signal",
-              "available": true
-            },
-            "line_vs_public": {
-              "score": 5,
-              "weight": 9,
-              "weighted": 45,
-              "note": "Spread delta: +0.0",
-              "available": true
-            },
-            "sharp_money": {
-              "score": 3,
-              "weight": 8,
-              "weighted": 24,
-              "note": "No sharp signal \u2014 line stable",
-              "available": true
-            },
-            "recency_bias": {
-              "score": 5,
-              "weight": 7,
-              "weighted": 35,
-              "note": "Streak:  \u2014 no strong recency signal",
-              "available": true
-            },
-            "goalie_name_bias": {
-              "score": 5,
-              "weight": 8,
-              "weighted": 40,
-              "note": "Spread: 1.5 \u2014 no inflation signal",
-              "available": true
-            },
-            "primetime_inflation": {
-              "score": 5,
-              "weight": 7,
-              "weighted": 35,
-              "note": "Spread: 1.5 \u2014 no inflation signal",
-              "available": true
-            },
-            "spread_value": {
-              "score": 5,
-              "weight": 6,
-              "weighted": 30,
-              "note": "Win rate: 50% | Spread: 1.5",
-              "available": true
-            },
-            "dog_record_ats": {
-              "score": 5,
-              "weight": 6,
-              "weighted": 30,
-              "note": "Win rate: 50% | Spread: 1.5",
-              "available": true
-            }
-          },
-          "chains_fired": [],
-          "vars_available": 8,
-          "vars_total": 8
-        },
-        "edge": {
-          "game_id": "ncDa1sqaWM9LjaQxy9MV",
-          "profile": "edge",
-          "thesis": "Calendar/motivation spot \u2014 schedule traps, travel fatigue, lookahead, and situational context",
-          "pick_side": "home",
-          "grade": "C",
-          "composite": 4.98,
-          "chain_bonus": 0.0,
-          "final": 4.98,
-          "pick": "Washington Capitals 1.5",
-          "sizing": "PASS",
-          "variables": {
-            "schedule_spot": {
-              "score": 5,
-              "weight": 9,
-              "weighted": 45,
-              "note": "Schedule neutral (us: 0/7d, them: 0/7d)",
-              "available": true
-            },
-            "lookahead_trap": {
-              "score": 5,
-              "weight": 8,
-              "weighted": 40,
-              "note": "No clear lookahead signal",
-              "available": true
-            },
-            "letdown_spot": {
-              "score": 5,
-              "weight": 8,
-              "weighted": 40,
-              "note": "No streak data",
-              "available": true
-            },
-            "motivation_gap": {
-              "score": 5,
-              "weight": 8,
-              "weighted": 40,
-              "note": "Similar records (50% vs 50%) \u2014 both motivated",
-              "available": true
-            },
-            "travel_fatigue": {
-              "score": 5,
-              "weight": 8,
-              "weighted": 40,
-              "note": "Travel neutral (us road: 0, them: 0)",
-              "available": true
-            },
-            "goalie_workload": {
-              "score": 5,
-              "weight": 9,
-              "weighted": 45,
-              "note": "Goalie workload normal",
-              "available": true
-            },
-            "season_phase": {
-              "score": 4,
-              "weight": 7,
-              "weighted": 28,
-              "note": "Early season \u2014 high variance, small samples",
-              "available": true
-            },
-            "division_familiarity": {
-              "score": 6,
-              "weight": 6,
-              "weighted": 36,
-              "note": "Early in series (0-0) \u2014 edges still fresh",
-              "available": true
-            }
-          },
-          "chains_fired": [],
-          "vars_available": 8,
-          "vars_total": 8
-        }
-      },
-      "peter_rules": {
-        "game_id": "ncDa1sqaWM9LjaQxy9MV",
-        "profile": "peter_rules",
-        "pick_side": "home",
-        "flags": [],
-        "adjustment": 0,
-        "has_kill": false,
-        "flag_count": 0
-      },
-      "consensus_avg": 4.88,
-      "consensus_grade": "C",
-      "consensus_raw": 4.88,
-      "ev": {
-        "profile": "ev",
-        "status": "no_ml_data",
-        "ev_pct": null,
-        "kelly_size": null
-      }
-    },
-    {
-      "game_id": "OvS22ZRQkG6XV9o7lAoj",
-      "matchup": "St. Louis Blues @ Calgary Flames",
-      "pick_side": "home",
-      "profiles": {
-        "sintonia": {
-          "game_id": "OvS22ZRQkG6XV9o7lAoj",
-          "profile": "sintonia",
-          "pick_side": "home",
-          "grade": "C+",
-          "composite": 5.01,
-          "chain_bonus": 0.0,
-          "final": 5.01,
-          "pick": "Calgary Flames 1.5",
-          "sizing": "PASS",
-          "variables": {
-            "goalie_confirmed": {
-              "score": 5,
-              "weight": 9,
-              "weighted": 45,
-              "note": "No goalie injury reported \u2014 assume starter"
-            },
-            "star_player_status": {
-              "score": 5,
-              "weight": 9,
-              "weighted": 45,
-              "note": "No significant injuries"
-            },
-            "pp_pk": {
-              "score": 5,
-              "weight": 8,
-              "weighted": 40,
-              "note": "PP/PK proxy from margin L5: +0.0"
-            },
-            "b2b_fatigue": {
-              "score": 5,
-              "weight": 8,
-              "weighted": 40,
-              "note": "Rest data unavailable"
-            },
-            "off_ranking": {
-              "score": 5,
-              "weight": 7,
-              "weighted": 35,
-              "note": "No PPG data"
-            },
-            "def_ranking": {
-              "score": 5,
-              "weight": 7,
-              "weighted": 35,
-              "note": "No OPP PPG data"
-            },
-            "recent_form": {
-              "score": 5,
-              "weight": 7,
-              "weighted": 35,
-              "note": "No L5 data"
-            },
-            "road_trip_length": {
-              "score": 5,
-              "weight": 7,
-              "weighted": 35,
-              "note": "No road trip data"
-            },
-            "h2h_season": {
-              "score": 5,
-              "weight": 6,
-              "weighted": 30,
-              "note": "No H2H games this season"
-            },
-            "corsi_xg": {
-              "score": 5,
-              "weight": 6,
-              "weighted": 30,
-              "note": "corsi_xg proxy \u2014 No OPP PPG data"
-            },
-            "save_pct_trend": {
-              "score": 5,
-              "weight": 6,
-              "weighted": 30,
-              "note": "save_pct_trend proxy \u2014 No OPP PPG data"
-            },
-            "ats_trend": {
-              "score": 6,
-              "weight": 6,
-              "weighted": 36,
-              "note": "Avg margin L10: +0.0 \u2014 close games | Close: 0/10 | Blowouts: 0/10"
-            },
-            "sharp_vs_public": {
-              "score": 3,
-              "weight": 5,
-              "weighted": 15,
-              "note": "Line flat \u2014 no sharp signal"
-            },
-            "home_away": {
-              "score": 6,
-              "weight": 5,
-              "weighted": 30,
-              "note": "Home: ? (0/0)"
-            },
-            "depth_injuries": {
-              "score": 5,
-              "weight": 4,
-              "weighted": 20,
-              "note": "Similar injury loads (them 0, us 0)"
-            }
-          },
-          "chains_fired": []
-        },
-        "renzo": {
-          "game_id": "OvS22ZRQkG6XV9o7lAoj",
-          "profile": "renzo",
-          "pick_side": "home",
-          "grade": "C+",
-          "composite": 5.1,
-          "chain_bonus": 0,
-          "final": 5.1,
-          "pick": "Calgary Flames 1.5",
-          "sizing": "PASS",
-          "variables": {
-            "Q1_whos_missing": {
-              "score": 5,
-              "weight": 9,
-              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
-            },
-            "Q2_line_reflects": {
-              "score": 5,
-              "weight": 9,
-              "note": "Line moved 0 pts | Injuries roughly priced"
-            },
-            "Q3_recent_form": {
-              "score": 5,
-              "weight": 8,
-              "note": "Us L5: ? | Them L5: ? | Edge: +0"
-            },
-            "Q4_best_on_court": {
-              "score": 6,
-              "weight": 8,
-              "note": "Both sides mostly healthy"
-            },
-            "Q5_schedule_rest": {
-              "score": 6,
-              "weight": 7,
-              "note": "Streak:  | Home"
-            },
-            "thesis_edge": {
-              "score": 4,
-              "weight": 10,
-              "note": "No clear thesis edge found"
-            }
-          },
-          "chains_fired": [],
-          "mathurin_test": "FAIL",
-          "mathurin_note": "No clear thesis edge found"
-        },
-        "claude": {
-          "game_id": "OvS22ZRQkG6XV9o7lAoj",
-          "profile": "claude",
-          "thesis": "Market disagreement \u2014 fading public overreaction, recency bias, and name-value inflation",
-          "pick_side": "home",
-          "grade": "C",
-          "composite": 4.43,
-          "chain_bonus": 0.0,
-          "final": 4.43,
-          "pick": "Calgary Flames 1.5",
-          "sizing": "PASS",
-          "variables": {
-            "public_pct_split": {
-              "score": 3,
-              "weight": 9,
-              "weighted": 27,
-              "note": "Line flat \u2014 no public split signal",
-              "available": true
-            },
-            "line_vs_public": {
-              "score": 5,
-              "weight": 9,
-              "weighted": 45,
-              "note": "Spread delta: +0.0",
-              "available": true
-            },
-            "sharp_money": {
-              "score": 3,
-              "weight": 8,
-              "weighted": 24,
-              "note": "No sharp signal \u2014 line stable",
-              "available": true
-            },
-            "recency_bias": {
-              "score": 5,
-              "weight": 7,
-              "weighted": 35,
-              "note": "Streak:  \u2014 no strong recency signal",
-              "available": true
-            },
-            "goalie_name_bias": {
-              "score": 5,
-              "weight": 8,
-              "weighted": 40,
-              "note": "Spread: 1.5 \u2014 no inflation signal",
-              "available": true
-            },
-            "primetime_inflation": {
-              "score": 5,
-              "weight": 7,
-              "weighted": 35,
-              "note": "Spread: 1.5 \u2014 no inflation signal",
-              "available": true
-            },
-            "spread_value": {
-              "score": 5,
-              "weight": 6,
-              "weighted": 30,
-              "note": "Win rate: 50% | Spread: 1.5",
-              "available": true
-            },
-            "dog_record_ats": {
-              "score": 5,
-              "weight": 6,
-              "weighted": 30,
-              "note": "Win rate: 50% | Spread: 1.5",
-              "available": true
-            }
-          },
-          "chains_fired": [],
-          "vars_available": 8,
-          "vars_total": 8
-        },
-        "edge": {
-          "game_id": "OvS22ZRQkG6XV9o7lAoj",
-          "profile": "edge",
-          "thesis": "Calendar/motivation spot \u2014 schedule traps, travel fatigue, lookahead, and situational context",
-          "pick_side": "home",
-          "grade": "C",
-          "composite": 4.98,
-          "chain_bonus": 0.0,
-          "final": 4.98,
-          "pick": "Calgary Flames 1.5",
-          "sizing": "PASS",
-          "variables": {
-            "schedule_spot": {
-              "score": 5,
-              "weight": 9,
-              "weighted": 45,
-              "note": "Schedule neutral (us: 0/7d, them: 0/7d)",
-              "available": true
-            },
-            "lookahead_trap": {
-              "score": 5,
-              "weight": 8,
-              "weighted": 40,
-              "note": "No clear lookahead signal",
-              "available": true
-            },
-            "letdown_spot": {
-              "score": 5,
-              "weight": 8,
-              "weighted": 40,
-              "note": "No streak data",
-              "available": true
-            },
-            "motivation_gap": {
-              "score": 5,
-              "weight": 8,
-              "weighted": 40,
-              "note": "Similar records (50% vs 50%) \u2014 both motivated",
-              "available": true
-            },
-            "travel_fatigue": {
-              "score": 5,
-              "weight": 8,
-              "weighted": 40,
-              "note": "Travel neutral (us road: 0, them: 0)",
-              "available": true
-            },
-            "goalie_workload": {
-              "score": 5,
-              "weight": 9,
-              "weighted": 45,
-              "note": "Goalie workload normal",
-              "available": true
-            },
-            "season_phase": {
-              "score": 4,
-              "weight": 7,
-              "weighted": 28,
-              "note": "Early season \u2014 high variance, small samples",
-              "available": true
-            },
-            "division_familiarity": {
-              "score": 6,
-              "weight": 6,
-              "weighted": 36,
-              "note": "Early in series (0-0) \u2014 edges still fresh",
-              "available": true
-            }
-          },
-          "chains_fired": [],
-          "vars_available": 8,
-          "vars_total": 8
-        }
-      },
-      "peter_rules": {
-        "game_id": "OvS22ZRQkG6XV9o7lAoj",
-        "profile": "peter_rules",
-        "pick_side": "home",
-        "flags": [],
-        "adjustment": 0,
-        "has_kill": false,
-        "flag_count": 0
-      },
-      "consensus_avg": 4.88,
-      "consensus_grade": "C",
-      "consensus_raw": 4.88,
-      "ev": {
-        "profile": "ev",
-        "status": "no_ml_data",
-        "ev_pct": null,
-        "kelly_size": null
-      }
-    },
-    {
-      "game_id": "liwVxPiAmb29E5r5nowy",
-      "matchup": "Dallas Stars @ Colorado Avalanche",
-      "pick_side": "home",
-      "profiles": {
-        "sintonia": {
-          "game_id": "liwVxPiAmb29E5r5nowy",
-          "profile": "sintonia",
-          "pick_side": "home",
-          "grade": "C+",
-          "composite": 5.01,
-          "chain_bonus": 0.0,
-          "final": 5.01,
+          "final": 5.41,
           "pick": "Colorado Avalanche -1.5",
           "sizing": "PASS",
           "variables": {
@@ -1325,31 +685,31 @@
               "score": 5,
               "weight": 8,
               "weighted": 40,
-              "note": "PP/PK proxy from margin L5: +0.0"
+              "note": "PP/PK proxy from margin L5: +1.2"
             },
             "b2b_fatigue": {
               "score": 5,
               "weight": 8,
               "weighted": 40,
-              "note": "Rest data unavailable"
+              "note": "Us: 2d rest | Them: 2d rest"
             },
             "off_ranking": {
-              "score": 5,
+              "score": 8,
               "weight": 7,
-              "weighted": 35,
-              "note": "No PPG data"
+              "weighted": 56,
+              "note": "PPG L5: 3.73 | OPP allows: 3.21 | Margin L5: +1.2"
             },
             "def_ranking": {
-              "score": 5,
+              "score": 6,
               "weight": 7,
-              "weighted": 35,
-              "note": "No OPP PPG data"
+              "weighted": 42,
+              "note": "Allow L5: 2.57 | They score L5: 2.65"
             },
             "recent_form": {
               "score": 5,
               "weight": 7,
               "weighted": 35,
-              "note": "No L5 data"
+              "note": "L5: 3-2-0 (margin +1.2) | Streak: L3 | OPP L5: 2-1-2 (margin -0.6)"
             },
             "road_trip_length": {
               "score": 5,
@@ -1364,16 +724,16 @@
               "note": "No H2H games this season"
             },
             "corsi_xg": {
-              "score": 5,
+              "score": 6,
               "weight": 6,
-              "weighted": 30,
-              "note": "corsi_xg proxy \u2014 No OPP PPG data"
+              "weighted": 36,
+              "note": "corsi_xg proxy \u2014 Allow L5: 2.57 | They score L5: 2.65"
             },
             "save_pct_trend": {
-              "score": 5,
+              "score": 6,
               "weight": 6,
-              "weighted": 30,
-              "note": "save_pct_trend proxy \u2014 No OPP PPG data"
+              "weighted": 36,
+              "note": "save_pct_trend proxy \u2014 Allow L5: 2.57 | They score L5: 2.65"
             },
             "ats_trend": {
               "score": 6,
@@ -1391,7 +751,7 @@
               "score": 6,
               "weight": 5,
               "weighted": 30,
-              "note": "Home: ? (0/0)"
+              "note": "Away: 21-7-5 (21/28)"
             },
             "depth_injuries": {
               "score": 5,
@@ -1403,13 +763,13 @@
           "chains_fired": []
         },
         "renzo": {
-          "game_id": "liwVxPiAmb29E5r5nowy",
+          "game_id": "nhl_20260320_3",
           "profile": "renzo",
-          "pick_side": "home",
-          "grade": "C+",
-          "composite": 5.1,
+          "pick_side": "away",
+          "grade": "C",
+          "composite": 4.55,
           "chain_bonus": 0,
-          "final": 5.1,
+          "final": 4.55,
           "pick": "Colorado Avalanche -1.5",
           "sizing": "PASS",
           "variables": {
@@ -1426,7 +786,7 @@
             "Q3_recent_form": {
               "score": 5,
               "weight": 8,
-              "note": "Us L5: ? | Them L5: ? | Edge: +0"
+              "note": "Us L5: 3-2-0 | Them L5: 2-1-2 | Edge: +0"
             },
             "Q4_best_on_court": {
               "score": 6,
@@ -1434,9 +794,9 @@
               "note": "Both sides mostly healthy"
             },
             "Q5_schedule_rest": {
-              "score": 6,
+              "score": 2,
               "weight": 7,
-              "note": "Streak:  | Home"
+              "note": "Streak: L3 | Away"
             },
             "thesis_edge": {
               "score": 4,
@@ -1449,10 +809,10 @@
           "mathurin_note": "No clear thesis edge found"
         },
         "claude": {
-          "game_id": "liwVxPiAmb29E5r5nowy",
+          "game_id": "nhl_20260320_3",
           "profile": "claude",
           "thesis": "Market disagreement \u2014 fading public overreaction, recency bias, and name-value inflation",
-          "pick_side": "home",
+          "pick_side": "away",
           "grade": "C",
           "composite": 4.43,
           "chain_bonus": 0.0,
@@ -1485,7 +845,7 @@
               "score": 5,
               "weight": 7,
               "weighted": 35,
-              "note": "Streak:  \u2014 no strong recency signal",
+              "note": "Streak: L3 \u2014 no strong recency signal",
               "available": true
             },
             "goalie_name_bias": {
@@ -1522,14 +882,14 @@
           "vars_total": 8
         },
         "edge": {
-          "game_id": "liwVxPiAmb29E5r5nowy",
+          "game_id": "nhl_20260320_3",
           "profile": "edge",
           "thesis": "Calendar/motivation spot \u2014 schedule traps, travel fatigue, lookahead, and situational context",
-          "pick_side": "home",
-          "grade": "C",
-          "composite": 4.98,
+          "pick_side": "away",
+          "grade": "C+",
+          "composite": 5.24,
           "chain_bonus": 0.0,
-          "final": 4.98,
+          "final": 5.24,
           "pick": "Colorado Avalanche -1.5",
           "sizing": "PASS",
           "variables": {
@@ -1548,10 +908,10 @@
               "available": true
             },
             "letdown_spot": {
-              "score": 5,
+              "score": 7,
               "weight": 8,
-              "weighted": 40,
-              "note": "No streak data",
+              "weighted": 56,
+              "note": "OPP may be in letdown \u2014 we're hungry after L3",
               "available": true
             },
             "motivation_gap": {
@@ -1596,17 +956,17 @@
         }
       },
       "peter_rules": {
-        "game_id": "liwVxPiAmb29E5r5nowy",
+        "game_id": "nhl_20260320_3",
         "profile": "peter_rules",
-        "pick_side": "home",
+        "pick_side": "away",
         "flags": [],
         "adjustment": 0,
         "has_kill": false,
         "flag_count": 0
       },
-      "consensus_avg": 4.88,
+      "consensus_avg": 4.91,
       "consensus_grade": "C",
-      "consensus_raw": 4.88,
+      "consensus_raw": 4.91,
       "ev": {
         "profile": "ev",
         "status": "no_ml_data",
@@ -1615,19 +975,19 @@
       }
     },
     {
-      "game_id": "fo8Rb2VyAhBlfOonOncD",
-      "matchup": "Philadelphia Flyers @ Anaheim Ducks",
+      "game_id": "nhl_20260320_4",
+      "matchup": "Florida Panthers @ Calgary Flames",
       "pick_side": "home",
       "profiles": {
         "sintonia": {
-          "game_id": "fo8Rb2VyAhBlfOonOncD",
+          "game_id": "nhl_20260320_4",
           "profile": "sintonia",
           "pick_side": "home",
-          "grade": "C+",
-          "composite": 5.01,
+          "grade": "C",
+          "composite": 4.66,
           "chain_bonus": 0.0,
-          "final": 5.01,
-          "pick": "Anaheim Ducks -1.5",
+          "final": 4.66,
+          "pick": "Calgary Flames 1.5",
           "sizing": "PASS",
           "variables": {
             "goalie_confirmed": {
@@ -1646,31 +1006,31 @@
               "score": 5,
               "weight": 8,
               "weighted": 40,
-              "note": "PP/PK proxy from margin L5: +0.0"
+              "note": "PP/PK proxy from margin L5: -0.6"
             },
             "b2b_fatigue": {
               "score": 5,
               "weight": 8,
               "weighted": 40,
-              "note": "Rest data unavailable"
+              "note": "Us: 2d rest | Them: 2d rest"
             },
             "off_ranking": {
-              "score": 5,
+              "score": 3,
               "weight": 7,
-              "weighted": 35,
-              "note": "No PPG data"
+              "weighted": 21,
+              "note": "PPG L5: 2.49 | OPP allows: 3.31 | Margin L5: -0.6"
             },
             "def_ranking": {
-              "score": 5,
+              "score": 4,
               "weight": 7,
-              "weighted": 35,
-              "note": "No OPP PPG data"
+              "weighted": 28,
+              "note": "Allow L5: 3.13 | They score L5: 3.01"
             },
             "recent_form": {
-              "score": 5,
+              "score": 4,
               "weight": 7,
-              "weighted": 35,
-              "note": "No L5 data"
+              "weighted": 28,
+              "note": "L5: 2-3-0 (margin -0.6) | Streak: W1 | OPP L5: 2-3-0 (margin -0.3)"
             },
             "road_trip_length": {
               "score": 5,
@@ -1685,16 +1045,16 @@
               "note": "No H2H games this season"
             },
             "corsi_xg": {
-              "score": 5,
+              "score": 4,
               "weight": 6,
-              "weighted": 30,
-              "note": "corsi_xg proxy \u2014 No OPP PPG data"
+              "weighted": 24,
+              "note": "corsi_xg proxy \u2014 Allow L5: 3.13 | They score L5: 3.01"
             },
             "save_pct_trend": {
-              "score": 5,
+              "score": 4,
               "weight": 6,
-              "weighted": 30,
-              "note": "save_pct_trend proxy \u2014 No OPP PPG data"
+              "weighted": 24,
+              "note": "save_pct_trend proxy \u2014 Allow L5: 3.13 | They score L5: 3.01"
             },
             "ats_trend": {
               "score": 6,
@@ -1709,10 +1069,10 @@
               "note": "Line flat \u2014 no sharp signal"
             },
             "home_away": {
-              "score": 6,
+              "score": 7,
               "weight": 5,
-              "weighted": 30,
-              "note": "Home: ? (0/0)"
+              "weighted": 35,
+              "note": "Home: 17-12-4 (17/29)"
             },
             "depth_injuries": {
               "score": 5,
@@ -1724,14 +1084,14 @@
           "chains_fired": []
         },
         "renzo": {
-          "game_id": "fo8Rb2VyAhBlfOonOncD",
+          "game_id": "nhl_20260320_4",
           "profile": "renzo",
           "pick_side": "home",
           "grade": "C+",
-          "composite": 5.1,
+          "composite": 5.24,
           "chain_bonus": 0,
-          "final": 5.1,
-          "pick": "Anaheim Ducks -1.5",
+          "final": 5.24,
+          "pick": "Calgary Flames 1.5",
           "sizing": "PASS",
           "variables": {
             "Q1_whos_missing": {
@@ -1747,7 +1107,7 @@
             "Q3_recent_form": {
               "score": 5,
               "weight": 8,
-              "note": "Us L5: ? | Them L5: ? | Edge: +0"
+              "note": "Us L5: 2-3-0 | Them L5: 2-3-0 | Edge: +0"
             },
             "Q4_best_on_court": {
               "score": 6,
@@ -1755,9 +1115,9 @@
               "note": "Both sides mostly healthy"
             },
             "Q5_schedule_rest": {
-              "score": 6,
+              "score": 7,
               "weight": 7,
-              "note": "Streak:  | Home"
+              "note": "Streak: W1 | Home"
             },
             "thesis_edge": {
               "score": 4,
@@ -1770,7 +1130,7 @@
           "mathurin_note": "No clear thesis edge found"
         },
         "claude": {
-          "game_id": "fo8Rb2VyAhBlfOonOncD",
+          "game_id": "nhl_20260320_4",
           "profile": "claude",
           "thesis": "Market disagreement \u2014 fading public overreaction, recency bias, and name-value inflation",
           "pick_side": "home",
@@ -1778,7 +1138,7 @@
           "composite": 4.43,
           "chain_bonus": 0.0,
           "final": 4.43,
-          "pick": "Anaheim Ducks -1.5",
+          "pick": "Calgary Flames 1.5",
           "sizing": "PASS",
           "variables": {
             "public_pct_split": {
@@ -1806,7 +1166,7 @@
               "score": 5,
               "weight": 7,
               "weighted": 35,
-              "note": "Streak:  \u2014 no strong recency signal",
+              "note": "Streak: W1 \u2014 no strong recency signal",
               "available": true
             },
             "goalie_name_bias": {
@@ -1843,7 +1203,7 @@
           "vars_total": 8
         },
         "edge": {
-          "game_id": "fo8Rb2VyAhBlfOonOncD",
+          "game_id": "nhl_20260320_4",
           "profile": "edge",
           "thesis": "Calendar/motivation spot \u2014 schedule traps, travel fatigue, lookahead, and situational context",
           "pick_side": "home",
@@ -1851,7 +1211,7 @@
           "composite": 4.98,
           "chain_bonus": 0.0,
           "final": 4.98,
-          "pick": "Anaheim Ducks -1.5",
+          "pick": "Calgary Flames 1.5",
           "sizing": "PASS",
           "variables": {
             "schedule_spot": {
@@ -1872,7 +1232,7 @@
               "score": 5,
               "weight": 8,
               "weighted": 40,
-              "note": "No streak data",
+              "note": "Streak: W1 \u2014 no letdown signal",
               "available": true
             },
             "motivation_gap": {
@@ -1917,7 +1277,7 @@
         }
       },
       "peter_rules": {
-        "game_id": "fo8Rb2VyAhBlfOonOncD",
+        "game_id": "nhl_20260320_4",
         "profile": "peter_rules",
         "pick_side": "home",
         "flags": [],
@@ -1925,9 +1285,330 @@
         "has_kill": false,
         "flag_count": 0
       },
-      "consensus_avg": 4.88,
+      "consensus_avg": 4.83,
       "consensus_grade": "C",
-      "consensus_raw": 4.88,
+      "consensus_raw": 4.83,
+      "ev": {
+        "profile": "ev",
+        "status": "no_ml_data",
+        "ev_pct": null,
+        "kelly_size": null
+      }
+    },
+    {
+      "game_id": "nhl_20260320_5",
+      "matchup": "Anaheim Ducks @ Utah Mammoth",
+      "pick_side": "home",
+      "profiles": {
+        "sintonia": {
+          "game_id": "nhl_20260320_5",
+          "profile": "sintonia",
+          "pick_side": "home",
+          "grade": "C+",
+          "composite": 5.25,
+          "chain_bonus": 0.0,
+          "final": 5.25,
+          "pick": "Utah Mammoth -1.5",
+          "sizing": "PASS",
+          "variables": {
+            "goalie_confirmed": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No goalie injury reported \u2014 assume starter"
+            },
+            "star_player_status": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No significant injuries"
+            },
+            "pp_pk": {
+              "score": 5,
+              "weight": 8,
+              "weighted": 40,
+              "note": "PP/PK proxy from margin L5: +0.4"
+            },
+            "b2b_fatigue": {
+              "score": 5,
+              "weight": 8,
+              "weighted": 40,
+              "note": "Us: 2d rest | Them: 2d rest"
+            },
+            "off_ranking": {
+              "score": 6,
+              "weight": 7,
+              "weighted": 42,
+              "note": "PPG L5: 3.16 | OPP allows: 3.47 | Margin L5: +0.4"
+            },
+            "def_ranking": {
+              "score": 6,
+              "weight": 7,
+              "weighted": 42,
+              "note": "Allow L5: 2.77 | They score L5: 3.31"
+            },
+            "recent_form": {
+              "score": 4,
+              "weight": 7,
+              "weighted": 28,
+              "note": "L5: 2-2-1 (margin +0.4) | Streak: W2 | OPP L5: 3-2-0 (margin -0.2)"
+            },
+            "road_trip_length": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "No road trip data"
+            },
+            "h2h_season": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "No H2H games this season"
+            },
+            "corsi_xg": {
+              "score": 6,
+              "weight": 6,
+              "weighted": 36,
+              "note": "corsi_xg proxy \u2014 Allow L5: 2.77 | They score L5: 3.31"
+            },
+            "save_pct_trend": {
+              "score": 6,
+              "weight": 6,
+              "weighted": 36,
+              "note": "save_pct_trend proxy \u2014 Allow L5: 2.77 | They score L5: 3.31"
+            },
+            "ats_trend": {
+              "score": 6,
+              "weight": 6,
+              "weighted": 36,
+              "note": "Avg margin L10: +0.0 \u2014 close games | Close: 0/10 | Blowouts: 0/10"
+            },
+            "sharp_vs_public": {
+              "score": 3,
+              "weight": 5,
+              "weighted": 15,
+              "note": "Line flat \u2014 no sharp signal"
+            },
+            "home_away": {
+              "score": 7,
+              "weight": 5,
+              "weighted": 35,
+              "note": "Home: 18-11-3 (18/29)"
+            },
+            "depth_injuries": {
+              "score": 5,
+              "weight": 4,
+              "weighted": 20,
+              "note": "Similar injury loads (them 0, us 0)"
+            }
+          },
+          "chains_fired": []
+        },
+        "renzo": {
+          "game_id": "nhl_20260320_5",
+          "profile": "renzo",
+          "pick_side": "home",
+          "grade": "C+",
+          "composite": 5.22,
+          "chain_bonus": 0,
+          "final": 5.22,
+          "pick": "Utah Mammoth -1.5",
+          "sizing": "PASS",
+          "variables": {
+            "Q1_whos_missing": {
+              "score": 5,
+              "weight": 9,
+              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
+            },
+            "Q2_line_reflects": {
+              "score": 5,
+              "weight": 9,
+              "note": "Line moved 0 pts | Injuries roughly priced"
+            },
+            "Q3_recent_form": {
+              "score": 4,
+              "weight": 8,
+              "note": "Us L5: 2-2-1 | Them L5: 3-2-0 | Edge: -1"
+            },
+            "Q4_best_on_court": {
+              "score": 6,
+              "weight": 8,
+              "note": "Both sides mostly healthy"
+            },
+            "Q5_schedule_rest": {
+              "score": 8,
+              "weight": 7,
+              "note": "Streak: W2 | Home"
+            },
+            "thesis_edge": {
+              "score": 4,
+              "weight": 10,
+              "note": "No clear thesis edge found"
+            }
+          },
+          "chains_fired": [],
+          "mathurin_test": "FAIL",
+          "mathurin_note": "No clear thesis edge found"
+        },
+        "claude": {
+          "game_id": "nhl_20260320_5",
+          "profile": "claude",
+          "thesis": "Market disagreement \u2014 fading public overreaction, recency bias, and name-value inflation",
+          "pick_side": "home",
+          "grade": "C",
+          "composite": 4.43,
+          "chain_bonus": 0.0,
+          "final": 4.43,
+          "pick": "Utah Mammoth -1.5",
+          "sizing": "PASS",
+          "variables": {
+            "public_pct_split": {
+              "score": 3,
+              "weight": 9,
+              "weighted": 27,
+              "note": "Line flat \u2014 no public split signal",
+              "available": true
+            },
+            "line_vs_public": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "Spread delta: +0.0",
+              "available": true
+            },
+            "sharp_money": {
+              "score": 3,
+              "weight": 8,
+              "weighted": 24,
+              "note": "No sharp signal \u2014 line stable",
+              "available": true
+            },
+            "recency_bias": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "Streak: W2 \u2014 no strong recency signal",
+              "available": true
+            },
+            "goalie_name_bias": {
+              "score": 5,
+              "weight": 8,
+              "weighted": 40,
+              "note": "Spread: 1.5 \u2014 no inflation signal",
+              "available": true
+            },
+            "primetime_inflation": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "Spread: 1.5 \u2014 no inflation signal",
+              "available": true
+            },
+            "spread_value": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Win rate: 50% | Spread: 1.5",
+              "available": true
+            },
+            "dog_record_ats": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Win rate: 50% | Spread: 1.5",
+              "available": true
+            }
+          },
+          "chains_fired": [],
+          "vars_available": 8,
+          "vars_total": 8
+        },
+        "edge": {
+          "game_id": "nhl_20260320_5",
+          "profile": "edge",
+          "thesis": "Calendar/motivation spot \u2014 schedule traps, travel fatigue, lookahead, and situational context",
+          "pick_side": "home",
+          "grade": "C",
+          "composite": 4.98,
+          "chain_bonus": 0.0,
+          "final": 4.98,
+          "pick": "Utah Mammoth -1.5",
+          "sizing": "PASS",
+          "variables": {
+            "schedule_spot": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "Schedule neutral (us: 0/7d, them: 0/7d)",
+              "available": true
+            },
+            "lookahead_trap": {
+              "score": 5,
+              "weight": 8,
+              "weighted": 40,
+              "note": "No clear lookahead signal",
+              "available": true
+            },
+            "letdown_spot": {
+              "score": 5,
+              "weight": 8,
+              "weighted": 40,
+              "note": "Streak: W2 \u2014 no letdown signal",
+              "available": true
+            },
+            "motivation_gap": {
+              "score": 5,
+              "weight": 8,
+              "weighted": 40,
+              "note": "Similar records (50% vs 50%) \u2014 both motivated",
+              "available": true
+            },
+            "travel_fatigue": {
+              "score": 5,
+              "weight": 8,
+              "weighted": 40,
+              "note": "Travel neutral (us road: 0, them: 0)",
+              "available": true
+            },
+            "goalie_workload": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "Goalie workload normal",
+              "available": true
+            },
+            "season_phase": {
+              "score": 4,
+              "weight": 7,
+              "weighted": 28,
+              "note": "Early season \u2014 high variance, small samples",
+              "available": true
+            },
+            "division_familiarity": {
+              "score": 6,
+              "weight": 6,
+              "weighted": 36,
+              "note": "Early in series (0-0) \u2014 edges still fresh",
+              "available": true
+            }
+          },
+          "chains_fired": [],
+          "vars_available": 8,
+          "vars_total": 8
+        }
+      },
+      "peter_rules": {
+        "game_id": "nhl_20260320_5",
+        "profile": "peter_rules",
+        "pick_side": "home",
+        "flags": [],
+        "adjustment": 0,
+        "has_kill": false,
+        "flag_count": 0
+      },
+      "consensus_avg": 4.97,
+      "consensus_grade": "C",
+      "consensus_raw": 4.97,
       "ev": {
         "profile": "ev",
         "status": "no_ml_data",
@@ -1936,5 +1617,5 @@
       }
     }
   ],
-  "count": 6
+  "count": 5
 }
