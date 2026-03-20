@@ -3415,6 +3415,12 @@ function switchSport(sport, e) {
     document.querySelectorAll('.sport-tab').forEach(function(t) { t.classList.remove('active'); });
     document.querySelectorAll('.sport-panel').forEach(function(p) { p.classList.remove('active'); });
     document.getElementById('panel-' + sport).classList.add('active');
+    // Hide hero stats + EV banner on tabs that have their own stats bar
+    var heroEl = document.getElementById('heroStats');
+    var evBanner = document.querySelector('[onclick="openEVAgent()"]');
+    var hideOnTabs = ['profedge','bankroll','results'];
+    if (heroEl) heroEl.style.display = (hideOnTabs.indexOf(sport) !== -1) ? 'none' : '';
+    if (evBanner) evBanner.style.display = (hideOnTabs.indexOf(sport) !== -1) ? 'none' : '';
     var ev = e || window.event;
     var foundTab = false;
     if (ev && ev.target) {
