@@ -1,7 +1,7 @@
 {
   "sport": "NCAAB",
   "date": "2026-03-20",
-  "graded_at": "2026-03-20T12:43:18.341848",
+  "graded_at": "2026-03-20T13:57:19.905919",
   "profiles_used": [
     "sintonia",
     "renzo",
@@ -12,30 +12,30 @@
     {
       "game_id": "401856525",
       "matchup": "Santa Clara Broncos @ Kentucky Wildcats",
-      "pick_side": "home",
+      "pick_side": "away",
       "profiles": {
         "sintonia": {
           "game_id": "401856525",
           "profile": "sintonia",
-          "pick_side": "home",
-          "grade": "C",
-          "composite": 4.8,
+          "pick_side": "away",
+          "grade": "B-",
+          "composite": 5.78,
           "chain_bonus": 0.0,
-          "final": 4.8,
-          "pick": "Kentucky Wildcats -3.5",
+          "final": 5.78,
+          "pick": "Santa Clara Broncos 3.5",
           "sizing": "PASS",
           "variables": {
             "offensive_efficiency": {
-              "score": 5,
+              "score": 9,
               "weight": 9,
-              "weighted": 45,
-              "note": "No PPG data"
+              "weighted": 81,
+              "note": "PPG L5: 82.9 | OPP allows: 73.8 | Margin L5: +10.5"
             },
             "defensive_efficiency": {
               "score": 5,
               "weight": 9,
               "weighted": 45,
-              "note": "No OPP PPG data"
+              "note": "Allow L5: 72.4 | They score L5: 80.8"
             },
             "star_player_status": {
               "score": 5,
@@ -56,10 +56,10 @@
               "note": "No pace data"
             },
             "ats_trend": {
-              "score": 6,
+              "score": 7,
               "weight": 8,
-              "weighted": 48,
-              "note": "Avg margin L10: +0.0 \u2014 close games | Close: 0/10 | Blowouts: 0/10"
+              "weighted": 56,
+              "note": "Avg margin L10: +9.0 \u2014 comfortable wins | Close: 0/10 | Blowouts: 0/10"
             },
             "tournament_context": {
               "score": 8,
@@ -74,10 +74,10 @@
               "note": "Public bias proxy \u2014 Line flat \u2014 no sharp signal"
             },
             "three_pt_reliance": {
-              "score": 5,
+              "score": 9,
               "weight": 7,
-              "weighted": 35,
-              "note": "3PT proxy \u2014 No PPG data"
+              "weighted": 63,
+              "note": "3PT proxy \u2014 PPG L5: 82.9 | OPP allows: 73.8 | Margin L5: +10.5"
             },
             "bench_depth": {
               "score": 5,
@@ -86,22 +86,22 @@
               "note": "Bench depth proxy \u2014 Similar injury loads (them 0, us 0)"
             },
             "rebounding": {
-              "score": 5,
+              "score": 8,
               "weight": 7,
-              "weighted": 35,
-              "note": "rebounding proxy from margin: +0.0"
+              "weighted": 56,
+              "note": "rebounding proxy from margin: +10.5"
             },
             "turnover_margin": {
-              "score": 5,
+              "score": 8,
               "weight": 7,
-              "weighted": 35,
-              "note": "turnover_margin proxy from margin: +0.0"
+              "weighted": 56,
+              "note": "turnover_margin proxy from margin: +10.5"
             },
             "recent_form": {
-              "score": 1,
+              "score": 6,
               "weight": 7,
-              "weighted": 7,
-              "note": "L5: 0-5 (margin +0.0) | Streak: L0 | OPP L5: 0-5 (margin +0.0)"
+              "weighted": 42,
+              "note": "L5: 3-2 (margin +10.5) | Streak: W2 | OPP L5: 3-2 (margin +7.0)"
             },
             "coaching_tournament_record": {
               "score": 5,
@@ -143,7 +143,7 @@
               "score": 5,
               "weight": 6,
               "weighted": 30,
-              "note": "Us: 2d rest | Them: 2d rest"
+              "note": "Us: 5d rest | Them: 5d rest"
             },
             "coaching_matchup": {
               "score": 5,
@@ -157,12 +157,12 @@
         "renzo": {
           "game_id": "401856525",
           "profile": "renzo",
-          "pick_side": "home",
+          "pick_side": "away",
           "grade": "C+",
-          "composite": 5.1,
+          "composite": 5.24,
           "chain_bonus": 0,
-          "final": 5.1,
-          "pick": "Kentucky Wildcats -3.5",
+          "final": 5.24,
+          "pick": "Santa Clara Broncos 3.5",
           "sizing": "PASS",
           "variables": {
             "Q1_whos_missing": {
@@ -178,7 +178,7 @@
             "Q3_recent_form": {
               "score": 5,
               "weight": 8,
-              "note": "Us L5: 0-5 | Them L5: 0-5 | Edge: +0"
+              "note": "Us L5: 3-2 | Them L5: 3-2 | Edge: +0"
             },
             "Q4_best_on_court": {
               "score": 6,
@@ -186,9 +186,9 @@
               "note": "Both sides mostly healthy"
             },
             "Q5_schedule_rest": {
-              "score": 6,
+              "score": 7,
               "weight": 7,
-              "note": "Streak: L0 | Home"
+              "note": "Streak: W2 | Away"
             },
             "thesis_edge": {
               "score": 4,
@@ -204,12 +204,12 @@
           "game_id": "401856525",
           "profile": "claude",
           "thesis": "Market disagreement \u2014 fading public overreaction, recency bias, and name-value inflation",
-          "pick_side": "home",
+          "pick_side": "away",
           "grade": "C",
           "composite": 4.67,
           "chain_bonus": 0.0,
           "final": 4.67,
-          "pick": "Kentucky Wildcats -3.5",
+          "pick": "Santa Clara Broncos 3.5",
           "sizing": "PASS",
           "variables": {
             "public_pct_split": {
@@ -244,7 +244,7 @@
               "score": 6,
               "weight": 7,
               "weighted": 42,
-              "note": "Losing (L0) \u2014 some overreaction possible",
+              "note": "Winning (W2) \u2014 some recency bias possible",
               "available": true
             },
             "seed_bias": {
@@ -277,12 +277,12 @@
           "game_id": "401856525",
           "profile": "edge",
           "thesis": "Calendar/motivation spot \u2014 schedule traps, travel fatigue, lookahead, and situational context",
-          "pick_side": "home",
+          "pick_side": "away",
           "grade": "C+",
           "composite": 5.02,
           "chain_bonus": 0.0,
           "final": 5.02,
-          "pick": "Kentucky Wildcats -3.5",
+          "pick": "Santa Clara Broncos 3.5",
           "sizing": "PASS",
           "variables": {
             "schedule_spot": {
@@ -303,7 +303,7 @@
               "score": 5,
               "weight": 9,
               "weighted": 45,
-              "note": "Streak: L0",
+              "note": "Streak: W2 \u2014 no letdown signal",
               "available": true
             },
             "motivation_gap": {
@@ -350,15 +350,15 @@
       "peter_rules": {
         "game_id": "401856525",
         "profile": "peter_rules",
-        "pick_side": "home",
+        "pick_side": "away",
         "flags": [],
         "adjustment": 0,
         "has_kill": false,
         "flag_count": 0
       },
-      "consensus_avg": 4.9,
-      "consensus_grade": "C",
-      "consensus_raw": 4.9,
+      "consensus_avg": 5.18,
+      "consensus_grade": "C+",
+      "consensus_raw": 5.18,
       "ev": {
         "profile": "ev",
         "status": "no_ml_data",
@@ -375,24 +375,24 @@
           "game_id": "401856520",
           "profile": "sintonia",
           "pick_side": "home",
-          "grade": "C",
-          "composite": 4.7,
+          "grade": "B-",
+          "composite": 5.61,
           "chain_bonus": 0.0,
-          "final": 4.7,
+          "final": 5.61,
           "pick": "Texas Tech Red Raiders -7.5",
           "sizing": "PASS",
           "variables": {
             "offensive_efficiency": {
-              "score": 5,
+              "score": 8,
               "weight": 9,
-              "weighted": 45,
-              "note": "No PPG data"
+              "weighted": 72,
+              "note": "PPG L5: 80.4 | OPP allows: 73.5 | Margin L5: +7.8"
             },
             "defensive_efficiency": {
               "score": 5,
               "weight": 9,
               "weighted": 45,
-              "note": "No OPP PPG data"
+              "note": "Allow L5: 72.6 | They score L5: 88.4"
             },
             "star_player_status": {
               "score": 5,
@@ -413,10 +413,10 @@
               "note": "No pace data"
             },
             "ats_trend": {
-              "score": 6,
+              "score": 7,
               "weight": 8,
-              "weighted": 48,
-              "note": "Avg margin L10: +0.0 \u2014 close games | Close: 0/10 | Blowouts: 0/10"
+              "weighted": 56,
+              "note": "Avg margin L10: +7.0 \u2014 comfortable wins | Close: 0/10 | Blowouts: 0/10"
             },
             "tournament_context": {
               "score": 6,
@@ -431,10 +431,10 @@
               "note": "Public bias proxy \u2014 Line flat \u2014 no sharp signal"
             },
             "three_pt_reliance": {
-              "score": 5,
+              "score": 8,
               "weight": 7,
-              "weighted": 35,
-              "note": "3PT proxy \u2014 No PPG data"
+              "weighted": 56,
+              "note": "3PT proxy \u2014 PPG L5: 80.4 | OPP allows: 73.5 | Margin L5: +7.8"
             },
             "bench_depth": {
               "score": 5,
@@ -443,22 +443,22 @@
               "note": "Bench depth proxy \u2014 Similar injury loads (them 0, us 0)"
             },
             "rebounding": {
-              "score": 5,
+              "score": 7,
               "weight": 7,
-              "weighted": 35,
-              "note": "rebounding proxy from margin: +0.0"
+              "weighted": 49,
+              "note": "rebounding proxy from margin: +7.8"
             },
             "turnover_margin": {
-              "score": 5,
+              "score": 7,
               "weight": 7,
-              "weighted": 35,
-              "note": "turnover_margin proxy from margin: +0.0"
+              "weighted": 49,
+              "note": "turnover_margin proxy from margin: +7.8"
             },
             "recent_form": {
-              "score": 1,
+              "score": 8,
               "weight": 7,
-              "weighted": 7,
-              "note": "L5: 0-5 (margin +0.0) | Streak: L0 | OPP L5: 0-5 (margin +0.0)"
+              "weighted": 56,
+              "note": "L5: 4-1 (margin +7.8) | Streak: W2 | OPP L5: 4-1 (margin +14.9)"
             },
             "coaching_tournament_record": {
               "score": 5,
@@ -497,10 +497,10 @@
               "note": "Rivalry proxy from H2H \u2014 No H2H games this season"
             },
             "fatigue_schedule": {
-              "score": 5,
+              "score": 6,
               "weight": 6,
-              "weighted": 30,
-              "note": "Us: 2d rest | Them: 2d rest"
+              "weighted": 36,
+              "note": "Us: 5d rest | Them: 4d rest | Rest edge +1d"
             },
             "coaching_matchup": {
               "score": 5,
@@ -516,9 +516,9 @@
           "profile": "renzo",
           "pick_side": "home",
           "grade": "C+",
-          "composite": 5.1,
+          "composite": 5.37,
           "chain_bonus": 0,
-          "final": 5.1,
+          "final": 5.37,
           "pick": "Texas Tech Red Raiders -7.5",
           "sizing": "PASS",
           "variables": {
@@ -535,7 +535,7 @@
             "Q3_recent_form": {
               "score": 5,
               "weight": 8,
-              "note": "Us L5: 0-5 | Them L5: 0-5 | Edge: +0"
+              "note": "Us L5: 4-1 | Them L5: 4-1 | Edge: +0"
             },
             "Q4_best_on_court": {
               "score": 6,
@@ -543,9 +543,9 @@
               "note": "Both sides mostly healthy"
             },
             "Q5_schedule_rest": {
-              "score": 6,
+              "score": 8,
               "weight": 7,
-              "note": "Streak: L0 | Home"
+              "note": "Streak: W2 | Home"
             },
             "thesis_edge": {
               "score": 4,
@@ -601,7 +601,7 @@
               "score": 6,
               "weight": 7,
               "weighted": 42,
-              "note": "Losing (L0) \u2014 some overreaction possible",
+              "note": "Winning (W2) \u2014 some recency bias possible",
               "available": true
             },
             "seed_bias": {
@@ -635,10 +635,10 @@
           "profile": "edge",
           "thesis": "Calendar/motivation spot \u2014 schedule traps, travel fatigue, lookahead, and situational context",
           "pick_side": "home",
-          "grade": "C",
-          "composite": 4.88,
+          "grade": "C+",
+          "composite": 5.15,
           "chain_bonus": 0.0,
-          "final": 4.88,
+          "final": 5.15,
           "pick": "Texas Tech Red Raiders -7.5",
           "sizing": "PASS",
           "variables": {
@@ -646,7 +646,7 @@
               "score": 5,
               "weight": 8,
               "weighted": 40,
-              "note": "Schedule neutral (us: 0/7d, them: 0/7d)",
+              "note": "Schedule neutral (us: 0/7d, them: 1/7d)",
               "available": true
             },
             "lookahead_trap": {
@@ -657,10 +657,10 @@
               "available": true
             },
             "letdown_spot": {
-              "score": 5,
+              "score": 7,
               "weight": 9,
-              "weighted": 45,
-              "note": "Streak: L0",
+              "weighted": 63,
+              "note": "Streak: W2 \u2014 no letdown signal | OPP on W3 \u2014 possible letdown",
               "available": true
             },
             "motivation_gap": {
@@ -713,9 +713,9 @@
         "has_kill": false,
         "flag_count": 0
       },
-      "consensus_avg": 5.0,
+      "consensus_avg": 5.37,
       "consensus_grade": "C+",
-      "consensus_raw": 5.0,
+      "consensus_raw": 5.37,
       "ev": {
         "profile": "ev",
         "status": "no_ml_data",
@@ -732,24 +732,24 @@
           "game_id": "401856529",
           "profile": "sintonia",
           "pick_side": "home",
-          "grade": "C",
-          "composite": 4.8,
+          "grade": "B",
+          "composite": 6.22,
           "chain_bonus": 0.0,
-          "final": 4.8,
+          "final": 6.22,
           "pick": "Arizona Wildcats ?",
           "sizing": "PASS",
           "variables": {
             "offensive_efficiency": {
-              "score": 5,
+              "score": 9,
               "weight": 9,
-              "weighted": 45,
-              "note": "No PPG data"
+              "weighted": 81,
+              "note": "PPG L5: 86.1 | OPP allows: 71.0 | Margin L5: +17.3"
             },
             "defensive_efficiency": {
-              "score": 5,
+              "score": 6,
               "weight": 9,
-              "weighted": 45,
-              "note": "No OPP PPG data"
+              "weighted": 54,
+              "note": "Allow L5: 68.8 | They score L5: 74.0"
             },
             "star_player_status": {
               "score": 5,
@@ -770,10 +770,10 @@
               "note": "No pace data"
             },
             "ats_trend": {
-              "score": 6,
+              "score": 9,
               "weight": 8,
-              "weighted": 48,
-              "note": "Avg margin L10: +0.0 \u2014 close games | Close: 0/10 | Blowouts: 0/10"
+              "weighted": 72,
+              "note": "Avg margin L10: +16.0 \u2014 dominating | Close: 0/10 | Blowouts: 0/10"
             },
             "tournament_context": {
               "score": 8,
@@ -788,10 +788,10 @@
               "note": "Public bias proxy \u2014 Line flat \u2014 no sharp signal"
             },
             "three_pt_reliance": {
-              "score": 5,
+              "score": 9,
               "weight": 7,
-              "weighted": 35,
-              "note": "3PT proxy \u2014 No PPG data"
+              "weighted": 63,
+              "note": "3PT proxy \u2014 PPG L5: 86.1 | OPP allows: 71.0 | Margin L5: +17.3"
             },
             "bench_depth": {
               "score": 5,
@@ -800,22 +800,22 @@
               "note": "Bench depth proxy \u2014 Similar injury loads (them 0, us 0)"
             },
             "rebounding": {
-              "score": 5,
+              "score": 9,
               "weight": 7,
-              "weighted": 35,
-              "note": "rebounding proxy from margin: +0.0"
+              "weighted": 63,
+              "note": "rebounding proxy from margin: +17.3"
             },
             "turnover_margin": {
-              "score": 5,
+              "score": 9,
               "weight": 7,
-              "weighted": 35,
-              "note": "turnover_margin proxy from margin: +0.0"
+              "weighted": 63,
+              "note": "turnover_margin proxy from margin: +17.3"
             },
             "recent_form": {
-              "score": 1,
+              "score": 10,
               "weight": 7,
-              "weighted": 7,
-              "note": "L5: 0-5 (margin +0.0) | Streak: L0 | OPP L5: 0-5 (margin +0.0)"
+              "weighted": 70,
+              "note": "L5: 5-0 (margin +17.3) | Streak: W8 | OPP L5: 3-2 (margin +3.0)"
             },
             "coaching_tournament_record": {
               "score": 5,
@@ -857,7 +857,7 @@
               "score": 5,
               "weight": 6,
               "weighted": 30,
-              "note": "Us: 2d rest | Them: 2d rest"
+              "note": "Us: 5d rest | Them: 5d rest"
             },
             "coaching_matchup": {
               "score": 5,
@@ -872,10 +872,10 @@
           "game_id": "401856529",
           "profile": "renzo",
           "pick_side": "home",
-          "grade": "C+",
-          "composite": 5.1,
+          "grade": "B",
+          "composite": 6.27,
           "chain_bonus": 0,
-          "final": 5.1,
+          "final": 6.27,
           "pick": "Arizona Wildcats ?",
           "sizing": "PASS",
           "variables": {
@@ -890,9 +890,9 @@
               "note": "Line moved 0 pts | Injuries roughly priced"
             },
             "Q3_recent_form": {
-              "score": 5,
+              "score": 9,
               "weight": 8,
-              "note": "Us L5: 0-5 | Them L5: 0-5 | Edge: +0"
+              "note": "Us L5: 5-0 | Them L5: 3-2 | Edge: +4"
             },
             "Q4_best_on_court": {
               "score": 6,
@@ -900,9 +900,9 @@
               "note": "Both sides mostly healthy"
             },
             "Q5_schedule_rest": {
-              "score": 6,
+              "score": 10,
               "weight": 7,
-              "note": "Streak: L0 | Home"
+              "note": "Streak: W8 | Home"
             },
             "thesis_edge": {
               "score": 4,
@@ -958,7 +958,7 @@
               "score": 6,
               "weight": 7,
               "weighted": 42,
-              "note": "Losing (L0) \u2014 some overreaction possible",
+              "note": "Winning (W8) \u2014 some recency bias possible",
               "available": true
             },
             "seed_bias": {
@@ -992,10 +992,10 @@
           "profile": "edge",
           "thesis": "Calendar/motivation spot \u2014 schedule traps, travel fatigue, lookahead, and situational context",
           "pick_side": "home",
-          "grade": "C+",
-          "composite": 5.15,
+          "grade": "C",
+          "composite": 4.88,
           "chain_bonus": 0.0,
-          "final": 5.15,
+          "final": 4.88,
           "pick": "Arizona Wildcats ?",
           "sizing": "PASS",
           "variables": {
@@ -1014,10 +1014,10 @@
               "available": true
             },
             "letdown_spot": {
-              "score": 5,
+              "score": 3,
               "weight": 9,
-              "weighted": 45,
-              "note": "Streak: L0",
+              "weighted": 27,
+              "note": "On W8 win streak \u2014 letdown risk HIGH",
               "available": true
             },
             "motivation_gap": {
@@ -1070,9 +1070,9 @@
         "has_kill": false,
         "flag_count": 0
       },
-      "consensus_avg": 4.91,
-      "consensus_grade": "C",
-      "consensus_raw": 4.91,
+      "consensus_avg": 5.48,
+      "consensus_grade": "C+",
+      "consensus_raw": 5.48,
       "ev": {
         "profile": "ev",
         "status": "no_ml_data",
@@ -1089,24 +1089,24 @@
           "game_id": "401856526",
           "profile": "sintonia",
           "pick_side": "home",
-          "grade": "C",
-          "composite": 4.65,
+          "grade": "B-",
+          "composite": 5.72,
           "chain_bonus": 0.0,
-          "final": 4.65,
+          "final": 5.72,
           "pick": "Virginia Cavaliers -18.5",
           "sizing": "PASS",
           "variables": {
             "offensive_efficiency": {
-              "score": 5,
+              "score": 8,
               "weight": 9,
-              "weighted": 45,
-              "note": "No PPG data"
+              "weighted": 72,
+              "note": "PPG L5: 80.6 | OPP allows: 73.4 | Margin L5: +12.2"
             },
             "defensive_efficiency": {
-              "score": 5,
+              "score": 6,
               "weight": 9,
-              "weighted": 45,
-              "note": "No OPP PPG data"
+              "weighted": 54,
+              "note": "Allow L5: 68.4 | They score L5: 80.7"
             },
             "star_player_status": {
               "score": 5,
@@ -1127,10 +1127,10 @@
               "note": "No pace data"
             },
             "ats_trend": {
-              "score": 6,
+              "score": 9,
               "weight": 8,
-              "weighted": 48,
-              "note": "Avg margin L10: +0.0 \u2014 close games | Close: 0/10 | Blowouts: 0/10"
+              "weighted": 72,
+              "note": "Avg margin L10: +11.0 \u2014 dominating | Close: 0/10 | Blowouts: 0/10"
             },
             "tournament_context": {
               "score": 5,
@@ -1145,10 +1145,10 @@
               "note": "Public bias proxy \u2014 Line flat \u2014 no sharp signal"
             },
             "three_pt_reliance": {
-              "score": 5,
+              "score": 8,
               "weight": 7,
-              "weighted": 35,
-              "note": "3PT proxy \u2014 No PPG data"
+              "weighted": 56,
+              "note": "3PT proxy \u2014 PPG L5: 80.6 | OPP allows: 73.4 | Margin L5: +12.2"
             },
             "bench_depth": {
               "score": 5,
@@ -1157,22 +1157,22 @@
               "note": "Bench depth proxy \u2014 Similar injury loads (them 0, us 0)"
             },
             "rebounding": {
-              "score": 5,
+              "score": 8,
               "weight": 7,
-              "weighted": 35,
-              "note": "rebounding proxy from margin: +0.0"
+              "weighted": 56,
+              "note": "rebounding proxy from margin: +12.2"
             },
             "turnover_margin": {
-              "score": 5,
+              "score": 8,
               "weight": 7,
-              "weighted": 35,
-              "note": "turnover_margin proxy from margin: +0.0"
+              "weighted": 56,
+              "note": "turnover_margin proxy from margin: +12.2"
             },
             "recent_form": {
-              "score": 1,
+              "score": 6,
               "weight": 7,
-              "weighted": 7,
-              "note": "L5: 0-5 (margin +0.0) | Streak: L0 | OPP L5: 0-5 (margin +0.0)"
+              "weighted": 42,
+              "note": "L5: 3-2 (margin +12.2) | Streak: W2 | OPP L5: 4-1 (margin +7.3)"
             },
             "coaching_tournament_record": {
               "score": 5,
@@ -1211,10 +1211,10 @@
               "note": "Rivalry proxy from H2H \u2014 No H2H games this season"
             },
             "fatigue_schedule": {
-              "score": 5,
+              "score": 6,
               "weight": 6,
-              "weighted": 30,
-              "note": "Us: 2d rest | Them: 2d rest"
+              "weighted": 36,
+              "note": "Us: 5d rest | Them: 4d rest | Rest edge +1d"
             },
             "coaching_matchup": {
               "score": 5,
@@ -1230,9 +1230,9 @@
           "profile": "renzo",
           "pick_side": "home",
           "grade": "C+",
-          "composite": 5.1,
+          "composite": 5.06,
           "chain_bonus": 0,
-          "final": 5.1,
+          "final": 5.06,
           "pick": "Virginia Cavaliers -18.5",
           "sizing": "PASS",
           "variables": {
@@ -1247,9 +1247,9 @@
               "note": "Line moved 0 pts | Injuries roughly priced"
             },
             "Q3_recent_form": {
-              "score": 5,
+              "score": 3,
               "weight": 8,
-              "note": "Us L5: 0-5 | Them L5: 0-5 | Edge: +0"
+              "note": "Us L5: 3-2 | Them L5: 4-1 | Edge: -2"
             },
             "Q4_best_on_court": {
               "score": 6,
@@ -1257,9 +1257,9 @@
               "note": "Both sides mostly healthy"
             },
             "Q5_schedule_rest": {
-              "score": 6,
+              "score": 8,
               "weight": 7,
-              "note": "Streak: L0 | Home"
+              "note": "Streak: W2 | Home"
             },
             "thesis_edge": {
               "score": 4,
@@ -1315,7 +1315,7 @@
               "score": 6,
               "weight": 7,
               "weighted": 42,
-              "note": "Losing (L0) \u2014 some overreaction possible",
+              "note": "Winning (W2) \u2014 some recency bias possible",
               "available": true
             },
             "seed_bias": {
@@ -1349,10 +1349,10 @@
           "profile": "edge",
           "thesis": "Calendar/motivation spot \u2014 schedule traps, travel fatigue, lookahead, and situational context",
           "pick_side": "home",
-          "grade": "C+",
-          "composite": 5.29,
+          "grade": "B-",
+          "composite": 5.57,
           "chain_bonus": 0.0,
-          "final": 5.29,
+          "final": 5.57,
           "pick": "Virginia Cavaliers -18.5",
           "sizing": "PASS",
           "variables": {
@@ -1360,7 +1360,7 @@
               "score": 5,
               "weight": 8,
               "weighted": 40,
-              "note": "Schedule neutral (us: 0/7d, them: 0/7d)",
+              "note": "Schedule neutral (us: 0/7d, them: 1/7d)",
               "available": true
             },
             "lookahead_trap": {
@@ -1371,10 +1371,10 @@
               "available": true
             },
             "letdown_spot": {
-              "score": 5,
+              "score": 7,
               "weight": 9,
-              "weighted": 45,
-              "note": "Streak: L0",
+              "weighted": 63,
+              "note": "Streak: W2 \u2014 no letdown signal | OPP on W3 \u2014 possible letdown",
               "available": true
             },
             "motivation_gap": {
@@ -1427,9 +1427,9 @@
         "has_kill": false,
         "flag_count": 0
       },
-      "consensus_avg": 5.15,
+      "consensus_avg": 5.48,
       "consensus_grade": "C+",
-      "consensus_raw": 5.15,
+      "consensus_raw": 5.48,
       "ev": {
         "profile": "ev",
         "status": "no_ml_data",
@@ -1446,24 +1446,24 @@
           "game_id": "401856524",
           "profile": "sintonia",
           "pick_side": "home",
-          "grade": "C",
-          "composite": 4.59,
+          "grade": "B-",
+          "composite": 5.97,
           "chain_bonus": 0.0,
-          "final": 4.59,
+          "final": 5.97,
           "pick": "Iowa State Cyclones -24.5",
           "sizing": "PASS",
           "variables": {
             "offensive_efficiency": {
-              "score": 5,
+              "score": 8,
               "weight": 9,
-              "weighted": 45,
-              "note": "No PPG data"
+              "weighted": 72,
+              "note": "PPG L5: 81.8 | OPP allows: 73.3 | Margin L5: +16.7"
             },
             "defensive_efficiency": {
-              "score": 5,
+              "score": 8,
               "weight": 9,
-              "weighted": 45,
-              "note": "No OPP PPG data"
+              "weighted": 72,
+              "note": "Allow L5: 65.1 | They score L5: 80.5"
             },
             "star_player_status": {
               "score": 5,
@@ -1484,10 +1484,10 @@
               "note": "No pace data"
             },
             "ats_trend": {
-              "score": 6,
+              "score": 9,
               "weight": 8,
-              "weighted": 48,
-              "note": "Avg margin L10: +0.0 \u2014 close games | Close: 0/10 | Blowouts: 0/10"
+              "weighted": 72,
+              "note": "Avg margin L10: +15.0 \u2014 dominating | Close: 0/10 | Blowouts: 0/10"
             },
             "tournament_context": {
               "score": 4,
@@ -1502,10 +1502,10 @@
               "note": "Public bias proxy \u2014 Line flat \u2014 no sharp signal"
             },
             "three_pt_reliance": {
-              "score": 5,
+              "score": 8,
               "weight": 7,
-              "weighted": 35,
-              "note": "3PT proxy \u2014 No PPG data"
+              "weighted": 56,
+              "note": "3PT proxy \u2014 PPG L5: 81.8 | OPP allows: 73.3 | Margin L5: +16.7"
             },
             "bench_depth": {
               "score": 5,
@@ -1514,22 +1514,22 @@
               "note": "Bench depth proxy \u2014 Similar injury loads (them 0, us 0)"
             },
             "rebounding": {
-              "score": 5,
+              "score": 9,
               "weight": 7,
-              "weighted": 35,
-              "note": "rebounding proxy from margin: +0.0"
+              "weighted": 63,
+              "note": "rebounding proxy from margin: +16.7"
             },
             "turnover_margin": {
-              "score": 5,
+              "score": 9,
               "weight": 7,
-              "weighted": 35,
-              "note": "turnover_margin proxy from margin: +0.0"
+              "weighted": 63,
+              "note": "turnover_margin proxy from margin: +16.7"
             },
             "recent_form": {
-              "score": 1,
+              "score": 8,
               "weight": 7,
-              "weighted": 7,
-              "note": "L5: 0-5 (margin +0.0) | Streak: L0 | OPP L5: 0-5 (margin +0.0)"
+              "weighted": 56,
+              "note": "L5: 4-1 (margin +16.7) | Streak: W3 | OPP L5: 3-2 (margin +7.2)"
             },
             "coaching_tournament_record": {
               "score": 5,
@@ -1568,10 +1568,10 @@
               "note": "Rivalry proxy from H2H \u2014 No H2H games this season"
             },
             "fatigue_schedule": {
-              "score": 5,
+              "score": 6,
               "weight": 6,
-              "weighted": 30,
-              "note": "Us: 2d rest | Them: 2d rest"
+              "weighted": 36,
+              "note": "Us: 5d rest | Them: 4d rest | Rest edge +1d"
             },
             "coaching_matchup": {
               "score": 5,
@@ -1586,10 +1586,10 @@
           "game_id": "401856524",
           "profile": "renzo",
           "pick_side": "home",
-          "grade": "C+",
-          "composite": 5.1,
+          "grade": "B-",
+          "composite": 5.82,
           "chain_bonus": 0,
-          "final": 5.1,
+          "final": 5.82,
           "pick": "Iowa State Cyclones -24.5",
           "sizing": "PASS",
           "variables": {
@@ -1604,9 +1604,9 @@
               "note": "Line moved 0 pts | Injuries roughly priced"
             },
             "Q3_recent_form": {
-              "score": 5,
+              "score": 7,
               "weight": 8,
-              "note": "Us L5: 0-5 | Them L5: 0-5 | Edge: +0"
+              "note": "Us L5: 4-1 | Them L5: 3-2 | Edge: +2"
             },
             "Q4_best_on_court": {
               "score": 6,
@@ -1614,9 +1614,9 @@
               "note": "Both sides mostly healthy"
             },
             "Q5_schedule_rest": {
-              "score": 6,
+              "score": 9,
               "weight": 7,
-              "note": "Streak: L0 | Home"
+              "note": "Streak: W3 | Home"
             },
             "thesis_edge": {
               "score": 4,
@@ -1672,7 +1672,7 @@
               "score": 6,
               "weight": 7,
               "weighted": 42,
-              "note": "Losing (L0) \u2014 some overreaction possible",
+              "note": "Winning (W3) \u2014 some recency bias possible",
               "available": true
             },
             "seed_bias": {
@@ -1707,9 +1707,9 @@
           "thesis": "Calendar/motivation spot \u2014 schedule traps, travel fatigue, lookahead, and situational context",
           "pick_side": "home",
           "grade": "C+",
-          "composite": 5.29,
+          "composite": 5.15,
           "chain_bonus": 0.0,
-          "final": 5.29,
+          "final": 5.15,
           "pick": "Iowa State Cyclones -24.5",
           "sizing": "PASS",
           "variables": {
@@ -1717,7 +1717,7 @@
               "score": 5,
               "weight": 8,
               "weighted": 40,
-              "note": "Schedule neutral (us: 0/7d, them: 0/7d)",
+              "note": "Schedule neutral (us: 0/7d, them: 1/7d)",
               "available": true
             },
             "lookahead_trap": {
@@ -1728,10 +1728,10 @@
               "available": true
             },
             "letdown_spot": {
-              "score": 5,
+              "score": 4,
               "weight": 9,
-              "weighted": 45,
-              "note": "Streak: L0",
+              "weighted": 36,
+              "note": "On W3 streak \u2014 some letdown risk",
               "available": true
             },
             "motivation_gap": {
@@ -1791,9 +1791,9 @@
         "has_kill": false,
         "flag_count": 1
       },
-      "consensus_avg": 4.13,
+      "consensus_avg": 4.62,
       "consensus_grade": "C",
-      "consensus_raw": 5.13,
+      "consensus_raw": 5.62,
       "ev": {
         "profile": "ev",
         "status": "no_ml_data",
@@ -1810,24 +1810,24 @@
           "game_id": "401856521",
           "profile": "sintonia",
           "pick_side": "home",
-          "grade": "C",
-          "composite": 4.7,
+          "grade": "B-",
+          "composite": 5.59,
           "chain_bonus": 0.0,
-          "final": 4.7,
+          "final": 5.59,
           "pick": "Alabama Crimson Tide -11.5",
           "sizing": "PASS",
           "variables": {
             "offensive_efficiency": {
-              "score": 5,
+              "score": 9,
               "weight": 9,
-              "weighted": 45,
-              "note": "No PPG data"
+              "weighted": 81,
+              "note": "PPG L5: 91.7 | OPP allows: 66.1 | Margin L5: +8.2"
             },
             "defensive_efficiency": {
-              "score": 5,
+              "score": 3,
               "weight": 9,
-              "weighted": 45,
-              "note": "No OPP PPG data"
+              "weighted": 27,
+              "note": "Allow L5: 83.5 | They score L5: 75.6"
             },
             "star_player_status": {
               "score": 5,
@@ -1848,10 +1848,10 @@
               "note": "No pace data"
             },
             "ats_trend": {
-              "score": 6,
+              "score": 7,
               "weight": 8,
-              "weighted": 48,
-              "note": "Avg margin L10: +0.0 \u2014 close games | Close: 0/10 | Blowouts: 0/10"
+              "weighted": 56,
+              "note": "Avg margin L10: +7.5 \u2014 comfortable wins | Close: 0/10 | Blowouts: 0/10"
             },
             "tournament_context": {
               "score": 6,
@@ -1866,10 +1866,10 @@
               "note": "Public bias proxy \u2014 Line flat \u2014 no sharp signal"
             },
             "three_pt_reliance": {
-              "score": 5,
+              "score": 9,
               "weight": 7,
-              "weighted": 35,
-              "note": "3PT proxy \u2014 No PPG data"
+              "weighted": 63,
+              "note": "3PT proxy \u2014 PPG L5: 91.7 | OPP allows: 66.1 | Margin L5: +8.2"
             },
             "bench_depth": {
               "score": 5,
@@ -1878,22 +1878,22 @@
               "note": "Bench depth proxy \u2014 Similar injury loads (them 0, us 0)"
             },
             "rebounding": {
-              "score": 5,
+              "score": 7,
               "weight": 7,
-              "weighted": 35,
-              "note": "rebounding proxy from margin: +0.0"
+              "weighted": 49,
+              "note": "rebounding proxy from margin: +8.2"
             },
             "turnover_margin": {
-              "score": 5,
+              "score": 7,
               "weight": 7,
-              "weighted": 35,
-              "note": "turnover_margin proxy from margin: +0.0"
+              "weighted": 49,
+              "note": "turnover_margin proxy from margin: +8.2"
             },
             "recent_form": {
-              "score": 1,
+              "score": 8,
               "weight": 7,
-              "weighted": 7,
-              "note": "L5: 0-5 (margin +0.0) | Streak: L0 | OPP L5: 0-5 (margin +0.0)"
+              "weighted": 56,
+              "note": "L5: 4-1 (margin +8.2) | Streak: W2 | OPP L5: 4-1 (margin +9.5)"
             },
             "coaching_tournament_record": {
               "score": 5,
@@ -1932,10 +1932,10 @@
               "note": "Rivalry proxy from H2H \u2014 No H2H games this season"
             },
             "fatigue_schedule": {
-              "score": 5,
+              "score": 6,
               "weight": 6,
-              "weighted": 30,
-              "note": "Us: 2d rest | Them: 2d rest"
+              "weighted": 36,
+              "note": "Us: 5d rest | Them: 4d rest | Rest edge +1d"
             },
             "coaching_matchup": {
               "score": 5,
@@ -1951,9 +1951,9 @@
           "profile": "renzo",
           "pick_side": "home",
           "grade": "C+",
-          "composite": 5.1,
+          "composite": 5.37,
           "chain_bonus": 0,
-          "final": 5.1,
+          "final": 5.37,
           "pick": "Alabama Crimson Tide -11.5",
           "sizing": "PASS",
           "variables": {
@@ -1970,7 +1970,7 @@
             "Q3_recent_form": {
               "score": 5,
               "weight": 8,
-              "note": "Us L5: 0-5 | Them L5: 0-5 | Edge: +0"
+              "note": "Us L5: 4-1 | Them L5: 4-1 | Edge: +0"
             },
             "Q4_best_on_court": {
               "score": 6,
@@ -1978,9 +1978,9 @@
               "note": "Both sides mostly healthy"
             },
             "Q5_schedule_rest": {
-              "score": 6,
+              "score": 8,
               "weight": 7,
-              "note": "Streak: L0 | Home"
+              "note": "Streak: W2 | Home"
             },
             "thesis_edge": {
               "score": 4,
@@ -2036,7 +2036,7 @@
               "score": 6,
               "weight": 7,
               "weighted": 42,
-              "note": "Losing (L0) \u2014 some overreaction possible",
+              "note": "Winning (W2) \u2014 some recency bias possible",
               "available": true
             },
             "seed_bias": {
@@ -2070,10 +2070,10 @@
           "profile": "edge",
           "thesis": "Calendar/motivation spot \u2014 schedule traps, travel fatigue, lookahead, and situational context",
           "pick_side": "home",
-          "grade": "C",
-          "composite": 4.88,
+          "grade": "C+",
+          "composite": 5.15,
           "chain_bonus": 0.0,
-          "final": 4.88,
+          "final": 5.15,
           "pick": "Alabama Crimson Tide -11.5",
           "sizing": "PASS",
           "variables": {
@@ -2081,7 +2081,7 @@
               "score": 5,
               "weight": 8,
               "weighted": 40,
-              "note": "Schedule neutral (us: 0/7d, them: 0/7d)",
+              "note": "Schedule neutral (us: 0/7d, them: 1/7d)",
               "available": true
             },
             "lookahead_trap": {
@@ -2092,10 +2092,10 @@
               "available": true
             },
             "letdown_spot": {
-              "score": 5,
+              "score": 7,
               "weight": 9,
-              "weighted": 45,
-              "note": "Streak: L0",
+              "weighted": 63,
+              "note": "Streak: W2 \u2014 no letdown signal | OPP on W3 \u2014 possible letdown",
               "available": true
             },
             "motivation_gap": {
@@ -2148,9 +2148,9 @@
         "has_kill": false,
         "flag_count": 0
       },
-      "consensus_avg": 5.06,
+      "consensus_avg": 5.42,
       "consensus_grade": "C+",
-      "consensus_raw": 5.06,
+      "consensus_raw": 5.42,
       "ev": {
         "profile": "ev",
         "status": "no_ml_data",
@@ -2161,30 +2161,30 @@
     {
       "game_id": "401856528",
       "matchup": "Utah State Aggies @ Villanova Wildcats",
-      "pick_side": "home",
+      "pick_side": "away",
       "profiles": {
         "sintonia": {
           "game_id": "401856528",
           "profile": "sintonia",
-          "pick_side": "home",
-          "grade": "C",
-          "composite": 4.8,
+          "pick_side": "away",
+          "grade": "B-",
+          "composite": 5.88,
           "chain_bonus": 0.0,
-          "final": 4.8,
-          "pick": "Villanova Wildcats 1.5",
+          "final": 5.88,
+          "pick": "Utah State Aggies -1.5",
           "sizing": "PASS",
           "variables": {
             "offensive_efficiency": {
-              "score": 5,
+              "score": 9,
               "weight": 9,
-              "weighted": 45,
-              "note": "No PPG data"
+              "weighted": 81,
+              "note": "PPG L5: 82.5 | OPP allows: 70.8 | Margin L5: +12.1"
             },
             "defensive_efficiency": {
               "score": 5,
               "weight": 9,
               "weighted": 45,
-              "note": "No OPP PPG data"
+              "note": "Allow L5: 70.4 | They score L5: 77.2"
             },
             "star_player_status": {
               "score": 5,
@@ -2205,10 +2205,10 @@
               "note": "No pace data"
             },
             "ats_trend": {
-              "score": 6,
+              "score": 9,
               "weight": 8,
-              "weighted": 48,
-              "note": "Avg margin L10: +0.0 \u2014 close games | Close: 0/10 | Blowouts: 0/10"
+              "weighted": 72,
+              "note": "Avg margin L10: +10.5 \u2014 dominating | Close: 0/10 | Blowouts: 0/10"
             },
             "tournament_context": {
               "score": 8,
@@ -2223,10 +2223,10 @@
               "note": "Public bias proxy \u2014 Line flat \u2014 no sharp signal"
             },
             "three_pt_reliance": {
-              "score": 5,
+              "score": 9,
               "weight": 7,
-              "weighted": 35,
-              "note": "3PT proxy \u2014 No PPG data"
+              "weighted": 63,
+              "note": "3PT proxy \u2014 PPG L5: 82.5 | OPP allows: 70.8 | Margin L5: +12.1"
             },
             "bench_depth": {
               "score": 5,
@@ -2235,22 +2235,22 @@
               "note": "Bench depth proxy \u2014 Similar injury loads (them 0, us 0)"
             },
             "rebounding": {
-              "score": 5,
+              "score": 8,
               "weight": 7,
-              "weighted": 35,
-              "note": "rebounding proxy from margin: +0.0"
+              "weighted": 56,
+              "note": "rebounding proxy from margin: +12.1"
             },
             "turnover_margin": {
-              "score": 5,
+              "score": 8,
               "weight": 7,
-              "weighted": 35,
-              "note": "turnover_margin proxy from margin: +0.0"
+              "weighted": 56,
+              "note": "turnover_margin proxy from margin: +12.1"
             },
             "recent_form": {
-              "score": 1,
+              "score": 6,
               "weight": 7,
-              "weighted": 7,
-              "note": "L5: 0-5 (margin +0.0) | Streak: L0 | OPP L5: 0-5 (margin +0.0)"
+              "weighted": 42,
+              "note": "L5: 3-2 (margin +12.1) | Streak: L1 | OPP L5: 3-2 (margin +6.4)"
             },
             "coaching_tournament_record": {
               "score": 5,
@@ -2292,7 +2292,7 @@
               "score": 5,
               "weight": 6,
               "weighted": 30,
-              "note": "Us: 2d rest | Them: 2d rest"
+              "note": "Us: 5d rest | Them: 5d rest"
             },
             "coaching_matchup": {
               "score": 5,
@@ -2306,12 +2306,12 @@
         "renzo": {
           "game_id": "401856528",
           "profile": "renzo",
-          "pick_side": "home",
-          "grade": "C+",
-          "composite": 5.1,
+          "pick_side": "away",
+          "grade": "C",
+          "composite": 4.82,
           "chain_bonus": 0,
-          "final": 5.1,
-          "pick": "Villanova Wildcats 1.5",
+          "final": 4.82,
+          "pick": "Utah State Aggies -1.5",
           "sizing": "PASS",
           "variables": {
             "Q1_whos_missing": {
@@ -2327,7 +2327,7 @@
             "Q3_recent_form": {
               "score": 5,
               "weight": 8,
-              "note": "Us L5: 0-5 | Them L5: 0-5 | Edge: +0"
+              "note": "Us L5: 3-2 | Them L5: 3-2 | Edge: +0"
             },
             "Q4_best_on_court": {
               "score": 6,
@@ -2335,9 +2335,9 @@
               "note": "Both sides mostly healthy"
             },
             "Q5_schedule_rest": {
-              "score": 6,
+              "score": 4,
               "weight": 7,
-              "note": "Streak: L0 | Home"
+              "note": "Streak: L1 | Away"
             },
             "thesis_edge": {
               "score": 4,
@@ -2353,12 +2353,12 @@
           "game_id": "401856528",
           "profile": "claude",
           "thesis": "Market disagreement \u2014 fading public overreaction, recency bias, and name-value inflation",
-          "pick_side": "home",
+          "pick_side": "away",
           "grade": "C",
-          "composite": 4.57,
+          "composite": 4.46,
           "chain_bonus": 0.0,
-          "final": 4.57,
-          "pick": "Villanova Wildcats 1.5",
+          "final": 4.46,
+          "pick": "Utah State Aggies -1.5",
           "sizing": "PASS",
           "variables": {
             "public_pct_split": {
@@ -2390,10 +2390,10 @@
               "available": true
             },
             "recency_bias": {
-              "score": 6,
+              "score": 5,
               "weight": 7,
-              "weighted": 42,
-              "note": "Losing (L0) \u2014 some overreaction possible",
+              "weighted": 35,
+              "note": "Streak: L1 \u2014 no strong recency signal",
               "available": true
             },
             "seed_bias": {
@@ -2426,12 +2426,12 @@
           "game_id": "401856528",
           "profile": "edge",
           "thesis": "Calendar/motivation spot \u2014 schedule traps, travel fatigue, lookahead, and situational context",
-          "pick_side": "home",
+          "pick_side": "away",
           "grade": "C+",
           "composite": 5.15,
           "chain_bonus": 0.0,
           "final": 5.15,
-          "pick": "Villanova Wildcats 1.5",
+          "pick": "Utah State Aggies -1.5",
           "sizing": "PASS",
           "variables": {
             "schedule_spot": {
@@ -2452,7 +2452,7 @@
               "score": 5,
               "weight": 9,
               "weighted": 45,
-              "note": "Streak: L0",
+              "note": "Streak: L1",
               "available": true
             },
             "motivation_gap": {
@@ -2499,15 +2499,15 @@
       "peter_rules": {
         "game_id": "401856528",
         "profile": "peter_rules",
-        "pick_side": "home",
+        "pick_side": "away",
         "flags": [],
         "adjustment": 0,
         "has_kill": false,
         "flag_count": 0
       },
-      "consensus_avg": 4.91,
-      "consensus_grade": "C",
-      "consensus_raw": 4.91,
+      "consensus_avg": 5.08,
+      "consensus_grade": "C+",
+      "consensus_raw": 5.08,
       "ev": {
         "profile": "ev",
         "status": "no_ml_data",
@@ -2518,30 +2518,30 @@
     {
       "game_id": "401856527",
       "matchup": "Miami (OH) RedHawks @ Tennessee Volunteers",
-      "pick_side": "away",
+      "pick_side": "home",
       "profiles": {
         "sintonia": {
           "game_id": "401856527",
           "profile": "sintonia",
-          "pick_side": "away",
-          "grade": "C+",
-          "composite": 5.32,
+          "pick_side": "home",
+          "grade": "B-",
+          "composite": 5.82,
           "chain_bonus": 0.0,
-          "final": 5.32,
-          "pick": "Miami (OH) RedHawks 11.5",
+          "final": 5.82,
+          "pick": "Tennessee Volunteers -11.5",
           "sizing": "PASS",
           "variables": {
             "offensive_efficiency": {
-              "score": 9,
+              "score": 8,
               "weight": 9,
-              "weighted": 81,
-              "note": "PPG L5: 89.0 | OPP allows: 0 | Margin L5: +10.0"
+              "weighted": 72,
+              "note": "PPG L5: 79.5 | OPP allows: 75.4 | Margin L5: +10.1"
             },
             "defensive_efficiency": {
-              "score": 3,
+              "score": 6,
               "weight": 9,
-              "weighted": 27,
-              "note": "Allow L5: 79.0 | They score L5: 0"
+              "weighted": 54,
+              "note": "Allow L5: 69.4 | They score L5: 90.6"
             },
             "star_player_status": {
               "score": 5,
@@ -2562,10 +2562,10 @@
               "note": "No pace data"
             },
             "ats_trend": {
-              "score": 9,
+              "score": 7,
               "weight": 8,
-              "weighted": 72,
-              "note": "Avg margin L10: +10.0 \u2014 dominating | Close: 0/10 | Blowouts: 0/10"
+              "weighted": 56,
+              "note": "Avg margin L10: +9.0 \u2014 comfortable wins | Close: 0/10 | Blowouts: 0/10"
             },
             "tournament_context": {
               "score": 6,
@@ -2580,10 +2580,10 @@
               "note": "Public bias proxy \u2014 Line flat \u2014 no sharp signal"
             },
             "three_pt_reliance": {
-              "score": 9,
+              "score": 8,
               "weight": 7,
-              "weighted": 63,
-              "note": "3PT proxy \u2014 PPG L5: 89.0 | OPP allows: 0 | Margin L5: +10.0"
+              "weighted": 56,
+              "note": "3PT proxy \u2014 PPG L5: 79.5 | OPP allows: 75.4 | Margin L5: +10.1"
             },
             "bench_depth": {
               "score": 5,
@@ -2595,19 +2595,19 @@
               "score": 8,
               "weight": 7,
               "weighted": 56,
-              "note": "rebounding proxy from margin: +10.0"
+              "note": "rebounding proxy from margin: +10.1"
             },
             "turnover_margin": {
               "score": 8,
               "weight": 7,
               "weighted": 56,
-              "note": "turnover_margin proxy from margin: +10.0"
+              "note": "turnover_margin proxy from margin: +10.1"
             },
             "recent_form": {
-              "score": 2,
+              "score": 6,
               "weight": 7,
-              "weighted": 14,
-              "note": "L5: 1-0 (margin +10.0) | Streak: W1 | OPP L5: 0-5 (margin +0.0)"
+              "weighted": 42,
+              "note": "L5: 3-2 (margin +10.1) | Streak: W1 | OPP L5: 4-1 (margin +15.2)"
             },
             "coaching_tournament_record": {
               "score": 5,
@@ -2646,10 +2646,10 @@
               "note": "Rivalry proxy from H2H \u2014 No H2H games this season"
             },
             "fatigue_schedule": {
-              "score": 1,
+              "score": 10,
               "weight": 6,
-              "weighted": 6,
-              "note": "Us: 1d rest | Them: 2d rest | WE on B2B; Rest deficit -1d"
+              "weighted": 60,
+              "note": "Us: 5d rest | Them: 1d rest | OPP on B2B; Rest edge +4d"
             },
             "coaching_matchup": {
               "score": 5,
@@ -2663,12 +2663,12 @@
         "renzo": {
           "game_id": "401856527",
           "profile": "renzo",
-          "pick_side": "away",
-          "grade": "B-",
-          "composite": 5.73,
+          "pick_side": "home",
+          "grade": "C",
+          "composite": 4.92,
           "chain_bonus": 0,
-          "final": 5.73,
-          "pick": "Miami (OH) RedHawks 11.5",
+          "final": 4.92,
+          "pick": "Tennessee Volunteers -11.5",
           "sizing": "PASS",
           "variables": {
             "Q1_whos_missing": {
@@ -2682,9 +2682,9 @@
               "note": "Line moved 0 pts | Injuries roughly priced"
             },
             "Q3_recent_form": {
-              "score": 9,
+              "score": 3,
               "weight": 8,
-              "note": "Us L5: 1-0 | Them L5: 0-5 | Edge: +6"
+              "note": "Us L5: 3-2 | Them L5: 4-1 | Edge: -2"
             },
             "Q4_best_on_court": {
               "score": 6,
@@ -2692,9 +2692,9 @@
               "note": "Both sides mostly healthy"
             },
             "Q5_schedule_rest": {
-              "score": 6,
+              "score": 7,
               "weight": 7,
-              "note": "Streak: W1 | Away"
+              "note": "Streak: W1 | Home"
             },
             "thesis_edge": {
               "score": 4,
@@ -2710,12 +2710,12 @@
           "game_id": "401856527",
           "profile": "claude",
           "thesis": "Market disagreement \u2014 fading public overreaction, recency bias, and name-value inflation",
-          "pick_side": "away",
-          "grade": "C+",
-          "composite": 5.44,
+          "pick_side": "home",
+          "grade": "B-",
+          "composite": 5.56,
           "chain_bonus": 0.0,
-          "final": 5.44,
-          "pick": "Miami (OH) RedHawks 11.5",
+          "final": 5.56,
+          "pick": "Tennessee Volunteers -11.5",
           "sizing": "PASS",
           "variables": {
             "public_pct_split": {
@@ -2747,10 +2747,10 @@
               "available": true
             },
             "recency_bias": {
-              "score": 5,
+              "score": 6,
               "weight": 7,
-              "weighted": 35,
-              "note": "Streak: W1 \u2014 no strong recency signal",
+              "weighted": 42,
+              "note": "Winning (W1) \u2014 some recency bias possible",
               "available": true
             },
             "seed_bias": {
@@ -2783,19 +2783,19 @@
           "game_id": "401856527",
           "profile": "edge",
           "thesis": "Calendar/motivation spot \u2014 schedule traps, travel fatigue, lookahead, and situational context",
-          "pick_side": "away",
-          "grade": "C",
-          "composite": 4.51,
+          "pick_side": "home",
+          "grade": "C+",
+          "composite": 5.37,
           "chain_bonus": 0.0,
-          "final": 4.51,
-          "pick": "Miami (OH) RedHawks 11.5",
+          "final": 5.37,
+          "pick": "Tennessee Volunteers -11.5",
           "sizing": "PASS",
           "variables": {
             "schedule_spot": {
-              "score": 2,
+              "score": 9,
               "weight": 8,
-              "weighted": 16,
-              "note": "WE on B2B, they're rested \u2014 bad spot",
+              "weighted": 72,
+              "note": "OPP on B2B, we're rested \u2014 schedule gold",
               "available": true
             },
             "lookahead_trap": {
@@ -2856,15 +2856,15 @@
       "peter_rules": {
         "game_id": "401856527",
         "profile": "peter_rules",
-        "pick_side": "away",
+        "pick_side": "home",
         "flags": [],
         "adjustment": 0,
         "has_kill": false,
         "flag_count": 0
       },
-      "consensus_avg": 5.25,
+      "consensus_avg": 5.42,
       "consensus_grade": "C+",
-      "consensus_raw": 5.25,
+      "consensus_raw": 5.42,
       "ev": {
         "profile": "ev",
         "status": "no_ml_data",
@@ -2875,30 +2875,30 @@
     {
       "game_id": "401856522",
       "matchup": "Iowa Hawkeyes @ Clemson Tigers",
-      "pick_side": "home",
+      "pick_side": "away",
       "profiles": {
         "sintonia": {
           "game_id": "401856522",
           "profile": "sintonia",
-          "pick_side": "home",
-          "grade": "C",
-          "composite": 4.8,
+          "pick_side": "away",
+          "grade": "C+",
+          "composite": 5.33,
           "chain_bonus": 0.0,
-          "final": 4.8,
-          "pick": "Clemson Tigers 2.0",
+          "final": 5.33,
+          "pick": "Iowa Hawkeyes -2.0",
           "sizing": "PASS",
           "variables": {
             "offensive_efficiency": {
-              "score": 5,
+              "score": 7,
               "weight": 9,
-              "weighted": 45,
-              "note": "No PPG data"
+              "weighted": 63,
+              "note": "PPG L5: 75.4 | OPP allows: 68.0 | Margin L5: +3.4"
             },
             "defensive_efficiency": {
               "score": 5,
               "weight": 9,
               "weighted": 45,
-              "note": "No OPP PPG data"
+              "note": "Allow L5: 72.0 | They score L5: 76.0"
             },
             "star_player_status": {
               "score": 5,
@@ -2922,7 +2922,7 @@
               "score": 6,
               "weight": 8,
               "weighted": 48,
-              "note": "Avg margin L10: +0.0 \u2014 close games | Close: 0/10 | Blowouts: 0/10"
+              "note": "Avg margin L10: +2.5 \u2014 close games | Close: 0/10 | Blowouts: 0/10"
             },
             "tournament_context": {
               "score": 8,
@@ -2937,10 +2937,10 @@
               "note": "Public bias proxy \u2014 Line flat \u2014 no sharp signal"
             },
             "three_pt_reliance": {
-              "score": 5,
+              "score": 7,
               "weight": 7,
-              "weighted": 35,
-              "note": "3PT proxy \u2014 No PPG data"
+              "weighted": 49,
+              "note": "3PT proxy \u2014 PPG L5: 75.4 | OPP allows: 68.0 | Margin L5: +3.4"
             },
             "bench_depth": {
               "score": 5,
@@ -2949,22 +2949,22 @@
               "note": "Bench depth proxy \u2014 Similar injury loads (them 0, us 0)"
             },
             "rebounding": {
-              "score": 5,
+              "score": 6,
               "weight": 7,
-              "weighted": 35,
-              "note": "rebounding proxy from margin: +0.0"
+              "weighted": 42,
+              "note": "rebounding proxy from margin: +3.4"
             },
             "turnover_margin": {
-              "score": 5,
+              "score": 6,
               "weight": 7,
-              "weighted": 35,
-              "note": "turnover_margin proxy from margin: +0.0"
+              "weighted": 42,
+              "note": "turnover_margin proxy from margin: +3.4"
             },
             "recent_form": {
-              "score": 1,
+              "score": 6,
               "weight": 7,
-              "weighted": 7,
-              "note": "L5: 0-5 (margin +0.0) | Streak: L0 | OPP L5: 0-5 (margin +0.0)"
+              "weighted": 42,
+              "note": "L5: 3-2 (margin +3.4) | Streak: W1 | OPP L5: 3-2 (margin +8.0)"
             },
             "coaching_tournament_record": {
               "score": 5,
@@ -3006,7 +3006,7 @@
               "score": 5,
               "weight": 6,
               "weighted": 30,
-              "note": "Us: 2d rest | Them: 2d rest"
+              "note": "Us: 5d rest | Them: 5d rest"
             },
             "coaching_matchup": {
               "score": 5,
@@ -3020,12 +3020,12 @@
         "renzo": {
           "game_id": "401856522",
           "profile": "renzo",
-          "pick_side": "home",
+          "pick_side": "away",
           "grade": "C+",
           "composite": 5.1,
           "chain_bonus": 0,
           "final": 5.1,
-          "pick": "Clemson Tigers 2.0",
+          "pick": "Iowa Hawkeyes -2.0",
           "sizing": "PASS",
           "variables": {
             "Q1_whos_missing": {
@@ -3041,7 +3041,7 @@
             "Q3_recent_form": {
               "score": 5,
               "weight": 8,
-              "note": "Us L5: 0-5 | Them L5: 0-5 | Edge: +0"
+              "note": "Us L5: 3-2 | Them L5: 3-2 | Edge: +0"
             },
             "Q4_best_on_court": {
               "score": 6,
@@ -3051,7 +3051,7 @@
             "Q5_schedule_rest": {
               "score": 6,
               "weight": 7,
-              "note": "Streak: L0 | Home"
+              "note": "Streak: W1 | Away"
             },
             "thesis_edge": {
               "score": 4,
@@ -3067,12 +3067,12 @@
           "game_id": "401856522",
           "profile": "claude",
           "thesis": "Market disagreement \u2014 fading public overreaction, recency bias, and name-value inflation",
-          "pick_side": "home",
+          "pick_side": "away",
           "grade": "C",
           "composite": 4.57,
           "chain_bonus": 0.0,
           "final": 4.57,
-          "pick": "Clemson Tigers 2.0",
+          "pick": "Iowa Hawkeyes -2.0",
           "sizing": "PASS",
           "variables": {
             "public_pct_split": {
@@ -3107,7 +3107,7 @@
               "score": 6,
               "weight": 7,
               "weighted": 42,
-              "note": "Losing (L0) \u2014 some overreaction possible",
+              "note": "Winning (W1) \u2014 some recency bias possible",
               "available": true
             },
             "seed_bias": {
@@ -3140,12 +3140,12 @@
           "game_id": "401856522",
           "profile": "edge",
           "thesis": "Calendar/motivation spot \u2014 schedule traps, travel fatigue, lookahead, and situational context",
-          "pick_side": "home",
+          "pick_side": "away",
           "grade": "C+",
           "composite": 5.15,
           "chain_bonus": 0.0,
           "final": 5.15,
-          "pick": "Clemson Tigers 2.0",
+          "pick": "Iowa Hawkeyes -2.0",
           "sizing": "PASS",
           "variables": {
             "schedule_spot": {
@@ -3166,7 +3166,7 @@
               "score": 5,
               "weight": 9,
               "weighted": 45,
-              "note": "Streak: L0",
+              "note": "Streak: W1 \u2014 no letdown signal",
               "available": true
             },
             "motivation_gap": {
@@ -3213,15 +3213,15 @@
       "peter_rules": {
         "game_id": "401856522",
         "profile": "peter_rules",
-        "pick_side": "home",
+        "pick_side": "away",
         "flags": [],
         "adjustment": 0,
         "has_kill": false,
         "flag_count": 0
       },
-      "consensus_avg": 4.91,
-      "consensus_grade": "C",
-      "consensus_raw": 4.91,
+      "consensus_avg": 5.04,
+      "consensus_grade": "C+",
+      "consensus_raw": 5.04,
       "ev": {
         "profile": "ev",
         "status": "no_ml_data",
@@ -3238,24 +3238,24 @@
           "game_id": "401856494",
           "profile": "sintonia",
           "pick_side": "home",
-          "grade": "C",
-          "composite": 4.7,
+          "grade": "B-",
+          "composite": 5.92,
           "chain_bonus": 0.0,
-          "final": 4.7,
+          "final": 5.92,
           "pick": "St. John's Red Storm -9.5",
           "sizing": "PASS",
           "variables": {
             "offensive_efficiency": {
-              "score": 5,
+              "score": 8,
               "weight": 9,
-              "weighted": 45,
-              "note": "No PPG data"
+              "weighted": 72,
+              "note": "PPG L5: 81.6 | OPP allows: 61.3 | Margin L5: +13.6"
             },
             "defensive_efficiency": {
-              "score": 5,
+              "score": 6,
               "weight": 9,
-              "weighted": 45,
-              "note": "No OPP PPG data"
+              "weighted": 54,
+              "note": "Allow L5: 68.0 | They score L5: 69.9"
             },
             "star_player_status": {
               "score": 5,
@@ -3276,10 +3276,10 @@
               "note": "No pace data"
             },
             "ats_trend": {
-              "score": 6,
+              "score": 9,
               "weight": 8,
-              "weighted": 48,
-              "note": "Avg margin L10: +0.0 \u2014 close games | Close: 0/10 | Blowouts: 0/10"
+              "weighted": 72,
+              "note": "Avg margin L10: +12.0 \u2014 dominating | Close: 0/10 | Blowouts: 0/10"
             },
             "tournament_context": {
               "score": 6,
@@ -3294,10 +3294,10 @@
               "note": "Public bias proxy \u2014 Line flat \u2014 no sharp signal"
             },
             "three_pt_reliance": {
-              "score": 5,
+              "score": 8,
               "weight": 7,
-              "weighted": 35,
-              "note": "3PT proxy \u2014 No PPG data"
+              "weighted": 56,
+              "note": "3PT proxy \u2014 PPG L5: 81.6 | OPP allows: 61.3 | Margin L5: +13.6"
             },
             "bench_depth": {
               "score": 5,
@@ -3306,22 +3306,22 @@
               "note": "Bench depth proxy \u2014 Similar injury loads (them 0, us 0)"
             },
             "rebounding": {
-              "score": 5,
+              "score": 8,
               "weight": 7,
-              "weighted": 35,
-              "note": "rebounding proxy from margin: +0.0"
+              "weighted": 56,
+              "note": "rebounding proxy from margin: +13.6"
             },
             "turnover_margin": {
-              "score": 5,
+              "score": 8,
               "weight": 7,
-              "weighted": 35,
-              "note": "turnover_margin proxy from margin: +0.0"
+              "weighted": 56,
+              "note": "turnover_margin proxy from margin: +13.6"
             },
             "recent_form": {
-              "score": 1,
+              "score": 10,
               "weight": 7,
-              "weighted": 7,
-              "note": "L5: 0-5 (margin +0.0) | Streak: L0 | OPP L5: 0-5 (margin +0.0)"
+              "weighted": 70,
+              "note": "L5: 5-0 (margin +13.6) | Streak: W5 | OPP L5: 3-2 (margin +8.6)"
             },
             "coaching_tournament_record": {
               "score": 5,
@@ -3363,7 +3363,7 @@
               "score": 5,
               "weight": 6,
               "weighted": 30,
-              "note": "Us: 2d rest | Them: 2d rest"
+              "note": "Us: 5d rest | Them: 5d rest"
             },
             "coaching_matchup": {
               "score": 5,
@@ -3378,10 +3378,10 @@
           "game_id": "401856494",
           "profile": "renzo",
           "pick_side": "home",
-          "grade": "C+",
-          "composite": 5.1,
+          "grade": "B",
+          "composite": 6.27,
           "chain_bonus": 0,
-          "final": 5.1,
+          "final": 6.27,
           "pick": "St. John's Red Storm -9.5",
           "sizing": "PASS",
           "variables": {
@@ -3396,9 +3396,9 @@
               "note": "Line moved 0 pts | Injuries roughly priced"
             },
             "Q3_recent_form": {
-              "score": 5,
+              "score": 9,
               "weight": 8,
-              "note": "Us L5: 0-5 | Them L5: 0-5 | Edge: +0"
+              "note": "Us L5: 5-0 | Them L5: 3-2 | Edge: +4"
             },
             "Q4_best_on_court": {
               "score": 6,
@@ -3406,9 +3406,9 @@
               "note": "Both sides mostly healthy"
             },
             "Q5_schedule_rest": {
-              "score": 6,
+              "score": 10,
               "weight": 7,
-              "note": "Streak: L0 | Home"
+              "note": "Streak: W5 | Home"
             },
             "thesis_edge": {
               "score": 4,
@@ -3464,7 +3464,7 @@
               "score": 6,
               "weight": 7,
               "weighted": 42,
-              "note": "Losing (L0) \u2014 some overreaction possible",
+              "note": "Winning (W5) \u2014 some recency bias possible",
               "available": true
             },
             "seed_bias": {
@@ -3499,9 +3499,9 @@
           "thesis": "Calendar/motivation spot \u2014 schedule traps, travel fatigue, lookahead, and situational context",
           "pick_side": "home",
           "grade": "C",
-          "composite": 4.88,
+          "composite": 4.6,
           "chain_bonus": 0.0,
-          "final": 4.88,
+          "final": 4.6,
           "pick": "St. John's Red Storm -9.5",
           "sizing": "PASS",
           "variables": {
@@ -3520,10 +3520,10 @@
               "available": true
             },
             "letdown_spot": {
-              "score": 5,
+              "score": 3,
               "weight": 9,
-              "weighted": 45,
-              "note": "Streak: L0",
+              "weighted": 27,
+              "note": "On W5 win streak \u2014 letdown risk HIGH",
               "available": true
             },
             "motivation_gap": {
@@ -3576,9 +3576,9 @@
         "has_kill": false,
         "flag_count": 0
       },
-      "consensus_avg": 5.06,
-      "consensus_grade": "C+",
-      "consensus_raw": 5.06,
+      "consensus_avg": 5.59,
+      "consensus_grade": "B-",
+      "consensus_raw": 5.59,
       "ev": {
         "profile": "ev",
         "status": "no_ml_data",
@@ -3595,24 +3595,24 @@
           "game_id": "401856496",
           "profile": "sintonia",
           "pick_side": "home",
-          "grade": "C",
-          "composite": 4.7,
+          "grade": "B-",
+          "composite": 5.72,
           "chain_bonus": 0.0,
-          "final": 4.7,
+          "final": 5.72,
           "pick": "UCLA Bruins -5.5",
           "sizing": "PASS",
           "variables": {
             "offensive_efficiency": {
-              "score": 5,
+              "score": 8,
               "weight": 9,
-              "weighted": 45,
-              "note": "No PPG data"
+              "weighted": 72,
+              "note": "PPG L5: 78.5 | OPP allows: 78.5 | Margin L5: +10.5"
             },
             "defensive_efficiency": {
-              "score": 5,
+              "score": 6,
               "weight": 9,
-              "weighted": 45,
-              "note": "No OPP PPG data"
+              "weighted": 54,
+              "note": "Allow L5: 68.0 | They score L5: 81.0"
             },
             "star_player_status": {
               "score": 5,
@@ -3633,10 +3633,10 @@
               "note": "No pace data"
             },
             "ats_trend": {
-              "score": 6,
+              "score": 7,
               "weight": 8,
-              "weighted": 48,
-              "note": "Avg margin L10: +0.0 \u2014 close games | Close: 0/10 | Blowouts: 0/10"
+              "weighted": 56,
+              "note": "Avg margin L10: +9.0 \u2014 comfortable wins | Close: 0/10 | Blowouts: 0/10"
             },
             "tournament_context": {
               "score": 6,
@@ -3651,10 +3651,10 @@
               "note": "Public bias proxy \u2014 Line flat \u2014 no sharp signal"
             },
             "three_pt_reliance": {
-              "score": 5,
+              "score": 8,
               "weight": 7,
-              "weighted": 35,
-              "note": "3PT proxy \u2014 No PPG data"
+              "weighted": 56,
+              "note": "3PT proxy \u2014 PPG L5: 78.5 | OPP allows: 78.5 | Margin L5: +10.5"
             },
             "bench_depth": {
               "score": 5,
@@ -3663,22 +3663,22 @@
               "note": "Bench depth proxy \u2014 Similar injury loads (them 0, us 0)"
             },
             "rebounding": {
-              "score": 5,
+              "score": 8,
               "weight": 7,
-              "weighted": 35,
-              "note": "rebounding proxy from margin: +0.0"
+              "weighted": 56,
+              "note": "rebounding proxy from margin: +10.5"
             },
             "turnover_margin": {
-              "score": 5,
+              "score": 8,
               "weight": 7,
-              "weighted": 35,
-              "note": "turnover_margin proxy from margin: +0.0"
+              "weighted": 56,
+              "note": "turnover_margin proxy from margin: +10.5"
             },
             "recent_form": {
-              "score": 1,
+              "score": 8,
               "weight": 7,
-              "weighted": 7,
-              "note": "L5: 0-5 (margin +0.0) | Streak: L0 | OPP L5: 0-5 (margin +0.0)"
+              "weighted": 56,
+              "note": "L5: 4-1 (margin +10.5) | Streak: W2 | OPP L5: 3-2 (margin +2.5)"
             },
             "coaching_tournament_record": {
               "score": 5,
@@ -3720,7 +3720,7 @@
               "score": 5,
               "weight": 6,
               "weighted": 30,
-              "note": "Us: 2d rest | Them: 2d rest"
+              "note": "Us: 5d rest | Them: 5d rest"
             },
             "coaching_matchup": {
               "score": 5,
@@ -3735,10 +3735,10 @@
           "game_id": "401856496",
           "profile": "renzo",
           "pick_side": "home",
-          "grade": "C+",
-          "composite": 5.1,
+          "grade": "B-",
+          "composite": 5.69,
           "chain_bonus": 0,
-          "final": 5.1,
+          "final": 5.69,
           "pick": "UCLA Bruins -5.5",
           "sizing": "PASS",
           "variables": {
@@ -3753,9 +3753,9 @@
               "note": "Line moved 0 pts | Injuries roughly priced"
             },
             "Q3_recent_form": {
-              "score": 5,
+              "score": 7,
               "weight": 8,
-              "note": "Us L5: 0-5 | Them L5: 0-5 | Edge: +0"
+              "note": "Us L5: 4-1 | Them L5: 3-2 | Edge: +2"
             },
             "Q4_best_on_court": {
               "score": 6,
@@ -3763,9 +3763,9 @@
               "note": "Both sides mostly healthy"
             },
             "Q5_schedule_rest": {
-              "score": 6,
+              "score": 8,
               "weight": 7,
-              "note": "Streak: L0 | Home"
+              "note": "Streak: W2 | Home"
             },
             "thesis_edge": {
               "score": 4,
@@ -3821,7 +3821,7 @@
               "score": 6,
               "weight": 7,
               "weighted": 42,
-              "note": "Losing (L0) \u2014 some overreaction possible",
+              "note": "Winning (W2) \u2014 some recency bias possible",
               "available": true
             },
             "seed_bias": {
@@ -3880,7 +3880,7 @@
               "score": 5,
               "weight": 9,
               "weighted": 45,
-              "note": "Streak: L0",
+              "note": "Streak: W2 \u2014 no letdown signal",
               "available": true
             },
             "motivation_gap": {
@@ -3933,9 +3933,9 @@
         "has_kill": false,
         "flag_count": 0
       },
-      "consensus_avg": 5.04,
+      "consensus_avg": 5.44,
       "consensus_grade": "C+",
-      "consensus_raw": 5.04,
+      "consensus_raw": 5.44,
       "ev": {
         "profile": "ev",
         "status": "no_ml_data",
@@ -3952,24 +3952,24 @@
           "game_id": "401856519",
           "profile": "sintonia",
           "pick_side": "home",
-          "grade": "C",
-          "composite": 4.8,
+          "grade": "B-",
+          "composite": 5.87,
           "chain_bonus": 0.0,
-          "final": 4.8,
+          "final": 5.87,
           "pick": "Purdue Boilermakers ?",
           "sizing": "PASS",
           "variables": {
             "offensive_efficiency": {
-              "score": 5,
+              "score": 8,
               "weight": 9,
-              "weighted": 45,
-              "note": "No PPG data"
+              "weighted": 72,
+              "note": "PPG L5: 81.7 | OPP allows: 72.0 | Margin L5: +11.6"
             },
             "defensive_efficiency": {
               "score": 5,
               "weight": 9,
               "weighted": 45,
-              "note": "No OPP PPG data"
+              "note": "Allow L5: 70.1 | They score L5: 70.0"
             },
             "star_player_status": {
               "score": 5,
@@ -3990,10 +3990,10 @@
               "note": "No pace data"
             },
             "ats_trend": {
-              "score": 6,
+              "score": 9,
               "weight": 8,
-              "weighted": 48,
-              "note": "Avg margin L10: +0.0 \u2014 close games | Close: 0/10 | Blowouts: 0/10"
+              "weighted": 72,
+              "note": "Avg margin L10: +10.5 \u2014 dominating | Close: 0/10 | Blowouts: 0/10"
             },
             "tournament_context": {
               "score": 8,
@@ -4008,10 +4008,10 @@
               "note": "Public bias proxy \u2014 Line flat \u2014 no sharp signal"
             },
             "three_pt_reliance": {
-              "score": 5,
+              "score": 8,
               "weight": 7,
-              "weighted": 35,
-              "note": "3PT proxy \u2014 No PPG data"
+              "weighted": 56,
+              "note": "3PT proxy \u2014 PPG L5: 81.7 | OPP allows: 72.0 | Margin L5: +11.6"
             },
             "bench_depth": {
               "score": 5,
@@ -4020,22 +4020,22 @@
               "note": "Bench depth proxy \u2014 Similar injury loads (them 0, us 0)"
             },
             "rebounding": {
-              "score": 5,
+              "score": 8,
               "weight": 7,
-              "weighted": 35,
-              "note": "rebounding proxy from margin: +0.0"
+              "weighted": 56,
+              "note": "rebounding proxy from margin: +11.6"
             },
             "turnover_margin": {
-              "score": 5,
+              "score": 8,
               "weight": 7,
-              "weighted": 35,
-              "note": "turnover_margin proxy from margin: +0.0"
+              "weighted": 56,
+              "note": "turnover_margin proxy from margin: +11.6"
             },
             "recent_form": {
-              "score": 1,
+              "score": 8,
               "weight": 7,
-              "weighted": 7,
-              "note": "L5: 0-5 (margin +0.0) | Streak: L0 | OPP L5: 0-5 (margin +0.0)"
+              "weighted": 56,
+              "note": "L5: 4-1 (margin +11.6) | Streak: W3 | OPP L5: 3-2 (margin -2.0)"
             },
             "coaching_tournament_record": {
               "score": 5,
@@ -4077,7 +4077,7 @@
               "score": 5,
               "weight": 6,
               "weighted": 30,
-              "note": "Us: 2d rest | Them: 2d rest"
+              "note": "Us: 5d rest | Them: 5d rest"
             },
             "coaching_matchup": {
               "score": 5,
@@ -4092,10 +4092,10 @@
           "game_id": "401856519",
           "profile": "renzo",
           "pick_side": "home",
-          "grade": "C+",
-          "composite": 5.1,
+          "grade": "B-",
+          "composite": 5.82,
           "chain_bonus": 0,
-          "final": 5.1,
+          "final": 5.82,
           "pick": "Purdue Boilermakers ?",
           "sizing": "PASS",
           "variables": {
@@ -4110,9 +4110,9 @@
               "note": "Line moved 0 pts | Injuries roughly priced"
             },
             "Q3_recent_form": {
-              "score": 5,
+              "score": 7,
               "weight": 8,
-              "note": "Us L5: 0-5 | Them L5: 0-5 | Edge: +0"
+              "note": "Us L5: 4-1 | Them L5: 3-2 | Edge: +2"
             },
             "Q4_best_on_court": {
               "score": 6,
@@ -4120,9 +4120,9 @@
               "note": "Both sides mostly healthy"
             },
             "Q5_schedule_rest": {
-              "score": 6,
+              "score": 9,
               "weight": 7,
-              "note": "Streak: L0 | Home"
+              "note": "Streak: W3 | Home"
             },
             "thesis_edge": {
               "score": 4,
@@ -4178,7 +4178,7 @@
               "score": 6,
               "weight": 7,
               "weighted": 42,
-              "note": "Losing (L0) \u2014 some overreaction possible",
+              "note": "Winning (W3) \u2014 some recency bias possible",
               "available": true
             },
             "seed_bias": {
@@ -4213,9 +4213,9 @@
           "thesis": "Calendar/motivation spot \u2014 schedule traps, travel fatigue, lookahead, and situational context",
           "pick_side": "home",
           "grade": "C+",
-          "composite": 5.15,
+          "composite": 5.02,
           "chain_bonus": 0.0,
-          "final": 5.15,
+          "final": 5.02,
           "pick": "Purdue Boilermakers ?",
           "sizing": "PASS",
           "variables": {
@@ -4234,10 +4234,10 @@
               "available": true
             },
             "letdown_spot": {
-              "score": 5,
+              "score": 4,
               "weight": 9,
-              "weighted": 45,
-              "note": "Streak: L0",
+              "weighted": 36,
+              "note": "On W3 streak \u2014 some letdown risk",
               "available": true
             },
             "motivation_gap": {
@@ -4290,9 +4290,9 @@
         "has_kill": false,
         "flag_count": 0
       },
-      "consensus_avg": 4.91,
-      "consensus_grade": "C",
-      "consensus_raw": 4.91,
+      "consensus_avg": 5.32,
+      "consensus_grade": "C+",
+      "consensus_raw": 5.32,
       "ev": {
         "profile": "ev",
         "status": "no_ml_data",
@@ -4303,30 +4303,30 @@
     {
       "game_id": "401856523",
       "matchup": "Prairie View A&M Panthers @ Florida Gators",
-      "pick_side": "away",
+      "pick_side": "home",
       "profiles": {
         "sintonia": {
           "game_id": "401856523",
           "profile": "sintonia",
-          "pick_side": "away",
-          "grade": "C+",
-          "composite": 5.25,
+          "pick_side": "home",
+          "grade": "B",
+          "composite": 6.03,
           "chain_bonus": 0.0,
-          "final": 5.25,
-          "pick": "Prairie View A&M Panthers 35.5",
+          "final": 6.03,
+          "pick": "Florida Gators -35.5",
           "sizing": "PASS",
           "variables": {
             "offensive_efficiency": {
-              "score": 4,
-              "weight": 9,
-              "weighted": 36,
-              "note": "PPG L5: 67.0 | OPP allows: 0 | Margin L5: +12.0"
-            },
-            "defensive_efficiency": {
               "score": 9,
               "weight": 9,
               "weighted": 81,
-              "note": "Allow L5: 55.0 | They score L5: 0"
+              "note": "PPG L5: 86.8 | OPP allows: 78.0 | Margin L5: +14.8"
+            },
+            "defensive_efficiency": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "Allow L5: 72.0 | They score L5: 75.0"
             },
             "star_player_status": {
               "score": 5,
@@ -4350,7 +4350,7 @@
               "score": 9,
               "weight": 8,
               "weighted": 72,
-              "note": "Avg margin L10: +12.0 \u2014 dominating | Close: 0/10 | Blowouts: 0/10"
+              "note": "Avg margin L10: +13.5 \u2014 dominating | Close: 0/10 | Blowouts: 0/10"
             },
             "tournament_context": {
               "score": 4,
@@ -4365,10 +4365,10 @@
               "note": "Public bias proxy \u2014 Line flat \u2014 no sharp signal"
             },
             "three_pt_reliance": {
-              "score": 4,
+              "score": 9,
               "weight": 7,
-              "weighted": 28,
-              "note": "3PT proxy \u2014 PPG L5: 67.0 | OPP allows: 0 | Margin L5: +12.0"
+              "weighted": 63,
+              "note": "3PT proxy \u2014 PPG L5: 86.8 | OPP allows: 78.0 | Margin L5: +14.8"
             },
             "bench_depth": {
               "score": 5,
@@ -4377,22 +4377,22 @@
               "note": "Bench depth proxy \u2014 Similar injury loads (them 0, us 0)"
             },
             "rebounding": {
-              "score": 8,
+              "score": 9,
               "weight": 7,
-              "weighted": 56,
-              "note": "rebounding proxy from margin: +12.0"
+              "weighted": 63,
+              "note": "rebounding proxy from margin: +14.8"
             },
             "turnover_margin": {
-              "score": 8,
+              "score": 9,
               "weight": 7,
-              "weighted": 56,
-              "note": "turnover_margin proxy from margin: +12.0"
+              "weighted": 63,
+              "note": "turnover_margin proxy from margin: +14.8"
             },
             "recent_form": {
-              "score": 3,
+              "score": 10,
               "weight": 7,
-              "weighted": 21,
-              "note": "L5: 1-0 (margin +12.0) | Streak: W1 | OPP L5: 0-5 (margin +0.0)"
+              "weighted": 70,
+              "note": "L5: 5-0 (margin +14.8) | Streak: W5 | OPP L5: 3-2 (margin -3.0)"
             },
             "coaching_tournament_record": {
               "score": 5,
@@ -4431,10 +4431,10 @@
               "note": "Rivalry proxy from H2H \u2014 No H2H games this season"
             },
             "fatigue_schedule": {
-              "score": 5,
+              "score": 7,
               "weight": 6,
-              "weighted": 30,
-              "note": "Us: 2d rest | Them: 2d rest"
+              "weighted": 42,
+              "note": "Us: 5d rest | Them: 2d rest | Rest edge +3d"
             },
             "coaching_matchup": {
               "score": 5,
@@ -4448,12 +4448,12 @@
         "renzo": {
           "game_id": "401856523",
           "profile": "renzo",
-          "pick_side": "away",
-          "grade": "B-",
-          "composite": 5.73,
+          "pick_side": "home",
+          "grade": "B",
+          "composite": 6.27,
           "chain_bonus": 0,
-          "final": 5.73,
-          "pick": "Prairie View A&M Panthers 35.5",
+          "final": 6.27,
+          "pick": "Florida Gators -35.5",
           "sizing": "PASS",
           "variables": {
             "Q1_whos_missing": {
@@ -4469,7 +4469,7 @@
             "Q3_recent_form": {
               "score": 9,
               "weight": 8,
-              "note": "Us L5: 1-0 | Them L5: 0-5 | Edge: +6"
+              "note": "Us L5: 5-0 | Them L5: 3-2 | Edge: +4"
             },
             "Q4_best_on_court": {
               "score": 6,
@@ -4477,9 +4477,9 @@
               "note": "Both sides mostly healthy"
             },
             "Q5_schedule_rest": {
-              "score": 6,
+              "score": 10,
               "weight": 7,
-              "note": "Streak: W1 | Away"
+              "note": "Streak: W5 | Home"
             },
             "thesis_edge": {
               "score": 4,
@@ -4495,12 +4495,12 @@
           "game_id": "401856523",
           "profile": "claude",
           "thesis": "Market disagreement \u2014 fading public overreaction, recency bias, and name-value inflation",
-          "pick_side": "away",
-          "grade": "C+",
-          "composite": 5.44,
+          "pick_side": "home",
+          "grade": "B-",
+          "composite": 5.56,
           "chain_bonus": 0.0,
-          "final": 5.44,
-          "pick": "Prairie View A&M Panthers 35.5",
+          "final": 5.56,
+          "pick": "Florida Gators -35.5",
           "sizing": "PASS",
           "variables": {
             "public_pct_split": {
@@ -4532,10 +4532,10 @@
               "available": true
             },
             "recency_bias": {
-              "score": 5,
+              "score": 6,
               "weight": 7,
-              "weighted": 35,
-              "note": "Streak: W1 \u2014 no strong recency signal",
+              "weighted": 42,
+              "note": "Winning (W5) \u2014 some recency bias possible",
               "available": true
             },
             "seed_bias": {
@@ -4568,19 +4568,19 @@
           "game_id": "401856523",
           "profile": "edge",
           "thesis": "Calendar/motivation spot \u2014 schedule traps, travel fatigue, lookahead, and situational context",
-          "pick_side": "away",
+          "pick_side": "home",
           "grade": "C+",
-          "composite": 5.29,
+          "composite": 5.02,
           "chain_bonus": 0.0,
-          "final": 5.29,
-          "pick": "Prairie View A&M Panthers 35.5",
+          "final": 5.02,
+          "pick": "Florida Gators -35.5",
           "sizing": "PASS",
           "variables": {
             "schedule_spot": {
               "score": 5,
               "weight": 8,
               "weighted": 40,
-              "note": "Schedule neutral (us: 1/7d, them: 0/7d)",
+              "note": "Schedule neutral (us: 0/7d, them: 1/7d)",
               "available": true
             },
             "lookahead_trap": {
@@ -4591,10 +4591,10 @@
               "available": true
             },
             "letdown_spot": {
-              "score": 5,
+              "score": 3,
               "weight": 9,
-              "weighted": 45,
-              "note": "Streak: W1 \u2014 no letdown signal",
+              "weighted": 27,
+              "note": "On W5 win streak \u2014 letdown risk HIGH",
               "available": true
             },
             "motivation_gap": {
@@ -4641,7 +4641,7 @@
       "peter_rules": {
         "game_id": "401856523",
         "profile": "peter_rules",
-        "pick_side": "away",
+        "pick_side": "home",
         "flags": [
           {
             "rule": "ncaab_massive_spread",
@@ -4654,9 +4654,9 @@
         "has_kill": false,
         "flag_count": 1
       },
-      "consensus_avg": 4.43,
+      "consensus_avg": 4.72,
       "consensus_grade": "C",
-      "consensus_raw": 5.43,
+      "consensus_raw": 5.72,
       "ev": {
         "profile": "ev",
         "status": "no_ml_data",
@@ -4667,30 +4667,30 @@
     {
       "game_id": "401856495",
       "matchup": "California Baptist Lancers @ Kansas Jayhawks",
-      "pick_side": "home",
+      "pick_side": "away",
       "profiles": {
         "sintonia": {
           "game_id": "401856495",
           "profile": "sintonia",
-          "pick_side": "home",
-          "grade": "C",
-          "composite": 4.65,
+          "pick_side": "away",
+          "grade": "C+",
+          "composite": 5.24,
           "chain_bonus": 0.0,
-          "final": 4.65,
-          "pick": "Kansas Jayhawks -14.5",
+          "final": 5.24,
+          "pick": "California Baptist Lancers 14.5",
           "sizing": "PASS",
           "variables": {
             "offensive_efficiency": {
-              "score": 5,
+              "score": 6,
               "weight": 9,
-              "weighted": 45,
-              "note": "No PPG data"
+              "weighted": 54,
+              "note": "PPG L5: 73.0 | OPP allows: 69.4 | Margin L5: +5.4"
             },
             "defensive_efficiency": {
-              "score": 5,
+              "score": 6,
               "weight": 9,
-              "weighted": 45,
-              "note": "No OPP PPG data"
+              "weighted": 54,
+              "note": "Allow L5: 67.6 | They score L5: 75.6"
             },
             "star_player_status": {
               "score": 5,
@@ -4711,10 +4711,10 @@
               "note": "No pace data"
             },
             "ats_trend": {
-              "score": 6,
+              "score": 7,
               "weight": 8,
-              "weighted": 48,
-              "note": "Avg margin L10: +0.0 \u2014 close games | Close: 0/10 | Blowouts: 0/10"
+              "weighted": 56,
+              "note": "Avg margin L10: +5.0 \u2014 comfortable wins | Close: 0/10 | Blowouts: 0/10"
             },
             "tournament_context": {
               "score": 5,
@@ -4729,10 +4729,10 @@
               "note": "Public bias proxy \u2014 Line flat \u2014 no sharp signal"
             },
             "three_pt_reliance": {
-              "score": 5,
+              "score": 6,
               "weight": 7,
-              "weighted": 35,
-              "note": "3PT proxy \u2014 No PPG data"
+              "weighted": 42,
+              "note": "3PT proxy \u2014 PPG L5: 73.0 | OPP allows: 69.4 | Margin L5: +5.4"
             },
             "bench_depth": {
               "score": 5,
@@ -4741,22 +4741,22 @@
               "note": "Bench depth proxy \u2014 Similar injury loads (them 0, us 0)"
             },
             "rebounding": {
-              "score": 5,
+              "score": 6,
               "weight": 7,
-              "weighted": 35,
-              "note": "rebounding proxy from margin: +0.0"
+              "weighted": 42,
+              "note": "rebounding proxy from margin: +5.4"
             },
             "turnover_margin": {
-              "score": 5,
+              "score": 6,
               "weight": 7,
-              "weighted": 35,
-              "note": "turnover_margin proxy from margin: +0.0"
+              "weighted": 42,
+              "note": "turnover_margin proxy from margin: +5.4"
             },
             "recent_form": {
-              "score": 1,
+              "score": 8,
               "weight": 7,
-              "weighted": 7,
-              "note": "L5: 0-5 (margin +0.0) | Streak: L0 | OPP L5: 0-5 (margin +0.0)"
+              "weighted": 56,
+              "note": "L5: 4-1 (margin +5.4) | Streak: W3 | OPP L5: 3-2 (margin +6.2)"
             },
             "coaching_tournament_record": {
               "score": 5,
@@ -4795,10 +4795,10 @@
               "note": "Rivalry proxy from H2H \u2014 No H2H games this season"
             },
             "fatigue_schedule": {
-              "score": 5,
+              "score": 4,
               "weight": 6,
-              "weighted": 30,
-              "note": "Us: 2d rest | Them: 2d rest"
+              "weighted": 24,
+              "note": "Us: 4d rest | Them: 5d rest | Rest deficit -1d"
             },
             "coaching_matchup": {
               "score": 5,
@@ -4812,12 +4812,12 @@
         "renzo": {
           "game_id": "401856495",
           "profile": "renzo",
-          "pick_side": "home",
-          "grade": "C+",
-          "composite": 5.1,
+          "pick_side": "away",
+          "grade": "B-",
+          "composite": 5.69,
           "chain_bonus": 0,
-          "final": 5.1,
-          "pick": "Kansas Jayhawks -14.5",
+          "final": 5.69,
+          "pick": "California Baptist Lancers 14.5",
           "sizing": "PASS",
           "variables": {
             "Q1_whos_missing": {
@@ -4831,9 +4831,9 @@
               "note": "Line moved 0 pts | Injuries roughly priced"
             },
             "Q3_recent_form": {
-              "score": 5,
+              "score": 7,
               "weight": 8,
-              "note": "Us L5: 0-5 | Them L5: 0-5 | Edge: +0"
+              "note": "Us L5: 4-1 | Them L5: 3-2 | Edge: +2"
             },
             "Q4_best_on_court": {
               "score": 6,
@@ -4841,9 +4841,9 @@
               "note": "Both sides mostly healthy"
             },
             "Q5_schedule_rest": {
-              "score": 6,
+              "score": 8,
               "weight": 7,
-              "note": "Streak: L0 | Home"
+              "note": "Streak: W3 | Away"
             },
             "thesis_edge": {
               "score": 4,
@@ -4859,12 +4859,12 @@
           "game_id": "401856495",
           "profile": "claude",
           "thesis": "Market disagreement \u2014 fading public overreaction, recency bias, and name-value inflation",
-          "pick_side": "home",
+          "pick_side": "away",
           "grade": "B-",
           "composite": 5.56,
           "chain_bonus": 0.0,
           "final": 5.56,
-          "pick": "Kansas Jayhawks -14.5",
+          "pick": "California Baptist Lancers 14.5",
           "sizing": "PASS",
           "variables": {
             "public_pct_split": {
@@ -4899,7 +4899,7 @@
               "score": 6,
               "weight": 7,
               "weighted": 42,
-              "note": "Losing (L0) \u2014 some overreaction possible",
+              "note": "Winning (W3) \u2014 some recency bias possible",
               "available": true
             },
             "seed_bias": {
@@ -4932,19 +4932,19 @@
           "game_id": "401856495",
           "profile": "edge",
           "thesis": "Calendar/motivation spot \u2014 schedule traps, travel fatigue, lookahead, and situational context",
-          "pick_side": "home",
+          "pick_side": "away",
           "grade": "C+",
-          "composite": 5.29,
+          "composite": 5.15,
           "chain_bonus": 0.0,
-          "final": 5.29,
-          "pick": "Kansas Jayhawks -14.5",
+          "final": 5.15,
+          "pick": "California Baptist Lancers 14.5",
           "sizing": "PASS",
           "variables": {
             "schedule_spot": {
               "score": 5,
               "weight": 8,
               "weighted": 40,
-              "note": "Schedule neutral (us: 0/7d, them: 0/7d)",
+              "note": "Schedule neutral (us: 1/7d, them: 0/7d)",
               "available": true
             },
             "lookahead_trap": {
@@ -4955,10 +4955,10 @@
               "available": true
             },
             "letdown_spot": {
-              "score": 5,
+              "score": 4,
               "weight": 9,
-              "weighted": 45,
-              "note": "Streak: L0",
+              "weighted": 36,
+              "note": "On W3 streak \u2014 some letdown risk",
               "available": true
             },
             "motivation_gap": {
@@ -5005,15 +5005,15 @@
       "peter_rules": {
         "game_id": "401856495",
         "profile": "peter_rules",
-        "pick_side": "home",
+        "pick_side": "away",
         "flags": [],
         "adjustment": 0,
         "has_kill": false,
         "flag_count": 0
       },
-      "consensus_avg": 5.15,
+      "consensus_avg": 5.41,
       "consensus_grade": "C+",
-      "consensus_raw": 5.15,
+      "consensus_raw": 5.41,
       "ev": {
         "profile": "ev",
         "status": "no_ml_data",
@@ -5030,24 +5030,24 @@
           "game_id": "401856497",
           "profile": "sintonia",
           "pick_side": "home",
-          "grade": "C",
-          "composite": 4.8,
+          "grade": "B",
+          "composite": 6.03,
           "chain_bonus": 0.0,
-          "final": 4.8,
+          "final": 6.03,
           "pick": "UConn Huskies ?",
           "sizing": "PASS",
           "variables": {
             "offensive_efficiency": {
-              "score": 5,
+              "score": 9,
               "weight": 9,
-              "weighted": 45,
-              "note": "No PPG data"
+              "weighted": 81,
+              "note": "PPG L5: 82.0 | OPP allows: 70.8 | Margin L5: +14.0"
             },
             "defensive_efficiency": {
-              "score": 5,
+              "score": 6,
               "weight": 9,
-              "weighted": 45,
-              "note": "No OPP PPG data"
+              "weighted": 54,
+              "note": "Allow L5: 68.0 | They score L5: 76.5"
             },
             "star_player_status": {
               "score": 5,
@@ -5068,10 +5068,10 @@
               "note": "No pace data"
             },
             "ats_trend": {
-              "score": 6,
+              "score": 9,
               "weight": 8,
-              "weighted": 48,
-              "note": "Avg margin L10: +0.0 \u2014 close games | Close: 0/10 | Blowouts: 0/10"
+              "weighted": 72,
+              "note": "Avg margin L10: +13.0 \u2014 dominating | Close: 0/10 | Blowouts: 0/10"
             },
             "tournament_context": {
               "score": 8,
@@ -5086,10 +5086,10 @@
               "note": "Public bias proxy \u2014 Line flat \u2014 no sharp signal"
             },
             "three_pt_reliance": {
-              "score": 5,
+              "score": 9,
               "weight": 7,
-              "weighted": 35,
-              "note": "3PT proxy \u2014 No PPG data"
+              "weighted": 63,
+              "note": "3PT proxy \u2014 PPG L5: 82.0 | OPP allows: 70.8 | Margin L5: +14.0"
             },
             "bench_depth": {
               "score": 5,
@@ -5098,22 +5098,22 @@
               "note": "Bench depth proxy \u2014 Similar injury loads (them 0, us 0)"
             },
             "rebounding": {
-              "score": 5,
+              "score": 8,
               "weight": 7,
-              "weighted": 35,
-              "note": "rebounding proxy from margin: +0.0"
+              "weighted": 56,
+              "note": "rebounding proxy from margin: +14.0"
             },
             "turnover_margin": {
-              "score": 5,
+              "score": 8,
               "weight": 7,
-              "weighted": 35,
-              "note": "turnover_margin proxy from margin: +0.0"
+              "weighted": 56,
+              "note": "turnover_margin proxy from margin: +14.0"
             },
             "recent_form": {
-              "score": 1,
+              "score": 8,
               "weight": 7,
-              "weighted": 7,
-              "note": "L5: 0-5 (margin +0.0) | Streak: L0 | OPP L5: 0-5 (margin +0.0)"
+              "weighted": 56,
+              "note": "L5: 4-1 (margin +14.0) | Streak: W4 | OPP L5: 3-2 (margin +5.7)"
             },
             "coaching_tournament_record": {
               "score": 5,
@@ -5155,7 +5155,7 @@
               "score": 5,
               "weight": 6,
               "weighted": 30,
-              "note": "Us: 2d rest | Them: 2d rest"
+              "note": "Us: 5d rest | Them: 5d rest"
             },
             "coaching_matchup": {
               "score": 5,
@@ -5170,10 +5170,10 @@
           "game_id": "401856497",
           "profile": "renzo",
           "pick_side": "home",
-          "grade": "C+",
-          "composite": 5.1,
+          "grade": "B-",
+          "composite": 5.96,
           "chain_bonus": 0,
-          "final": 5.1,
+          "final": 5.96,
           "pick": "UConn Huskies ?",
           "sizing": "PASS",
           "variables": {
@@ -5188,9 +5188,9 @@
               "note": "Line moved 0 pts | Injuries roughly priced"
             },
             "Q3_recent_form": {
-              "score": 5,
+              "score": 7,
               "weight": 8,
-              "note": "Us L5: 0-5 | Them L5: 0-5 | Edge: +0"
+              "note": "Us L5: 4-1 | Them L5: 3-2 | Edge: +2"
             },
             "Q4_best_on_court": {
               "score": 6,
@@ -5198,9 +5198,9 @@
               "note": "Both sides mostly healthy"
             },
             "Q5_schedule_rest": {
-              "score": 6,
+              "score": 10,
               "weight": 7,
-              "note": "Streak: L0 | Home"
+              "note": "Streak: W4 | Home"
             },
             "thesis_edge": {
               "score": 4,
@@ -5256,7 +5256,7 @@
               "score": 6,
               "weight": 7,
               "weighted": 42,
-              "note": "Losing (L0) \u2014 some overreaction possible",
+              "note": "Winning (W4) \u2014 some recency bias possible",
               "available": true
             },
             "seed_bias": {
@@ -5291,9 +5291,9 @@
           "thesis": "Calendar/motivation spot \u2014 schedule traps, travel fatigue, lookahead, and situational context",
           "pick_side": "home",
           "grade": "C+",
-          "composite": 5.15,
+          "composite": 5.02,
           "chain_bonus": 0.0,
-          "final": 5.15,
+          "final": 5.02,
           "pick": "UConn Huskies ?",
           "sizing": "PASS",
           "variables": {
@@ -5312,10 +5312,10 @@
               "available": true
             },
             "letdown_spot": {
-              "score": 5,
+              "score": 4,
               "weight": 9,
-              "weighted": 45,
-              "note": "Streak: L0",
+              "weighted": 36,
+              "note": "On W4 streak \u2014 some letdown risk",
               "available": true
             },
             "motivation_gap": {
@@ -5368,9 +5368,9 @@
         "has_kill": false,
         "flag_count": 0
       },
-      "consensus_avg": 4.91,
-      "consensus_grade": "C",
-      "consensus_raw": 4.91,
+      "consensus_avg": 5.39,
+      "consensus_grade": "C+",
+      "consensus_raw": 5.39,
       "ev": {
         "profile": "ev",
         "status": "no_ml_data",
@@ -5387,24 +5387,24 @@
           "game_id": "401856518",
           "profile": "sintonia",
           "pick_side": "home",
-          "grade": "C",
-          "composite": 4.8,
+          "grade": "B-",
+          "composite": 5.67,
           "chain_bonus": 0.0,
-          "final": 4.8,
+          "final": 5.67,
           "pick": "Miami Hurricanes -1.5",
           "sizing": "PASS",
           "variables": {
             "offensive_efficiency": {
-              "score": 5,
+              "score": 8,
               "weight": 9,
-              "weighted": 45,
-              "note": "No PPG data"
+              "weighted": 72,
+              "note": "PPG L5: 81.9 | OPP allows: 75.3 | Margin L5: +10.7"
             },
             "defensive_efficiency": {
               "score": 5,
               "weight": 9,
               "weighted": 45,
-              "note": "No OPP PPG data"
+              "note": "Allow L5: 71.2 | They score L5: 79.7"
             },
             "star_player_status": {
               "score": 5,
@@ -5425,10 +5425,10 @@
               "note": "No pace data"
             },
             "ats_trend": {
-              "score": 6,
+              "score": 7,
               "weight": 8,
-              "weighted": 48,
-              "note": "Avg margin L10: +0.0 \u2014 close games | Close: 0/10 | Blowouts: 0/10"
+              "weighted": 56,
+              "note": "Avg margin L10: +9.5 \u2014 comfortable wins | Close: 0/10 | Blowouts: 0/10"
             },
             "tournament_context": {
               "score": 8,
@@ -5443,10 +5443,10 @@
               "note": "Public bias proxy \u2014 Line flat \u2014 no sharp signal"
             },
             "three_pt_reliance": {
-              "score": 5,
+              "score": 8,
               "weight": 7,
-              "weighted": 35,
-              "note": "3PT proxy \u2014 No PPG data"
+              "weighted": 56,
+              "note": "3PT proxy \u2014 PPG L5: 81.9 | OPP allows: 75.3 | Margin L5: +10.7"
             },
             "bench_depth": {
               "score": 5,
@@ -5455,22 +5455,22 @@
               "note": "Bench depth proxy \u2014 Similar injury loads (them 0, us 0)"
             },
             "rebounding": {
-              "score": 5,
+              "score": 8,
               "weight": 7,
-              "weighted": 35,
-              "note": "rebounding proxy from margin: +0.0"
+              "weighted": 56,
+              "note": "rebounding proxy from margin: +10.7"
             },
             "turnover_margin": {
-              "score": 5,
+              "score": 8,
               "weight": 7,
-              "weighted": 35,
-              "note": "turnover_margin proxy from margin: +0.0"
+              "weighted": 56,
+              "note": "turnover_margin proxy from margin: +10.7"
             },
             "recent_form": {
-              "score": 1,
+              "score": 6,
               "weight": 7,
-              "weighted": 7,
-              "note": "L5: 0-5 (margin +0.0) | Streak: L0 | OPP L5: 0-5 (margin +0.0)"
+              "weighted": 42,
+              "note": "L5: 3-2 (margin +10.7) | Streak: W1 | OPP L5: 3-2 (margin +4.4)"
             },
             "coaching_tournament_record": {
               "score": 5,
@@ -5512,7 +5512,7 @@
               "score": 5,
               "weight": 6,
               "weighted": 30,
-              "note": "Us: 2d rest | Them: 2d rest"
+              "note": "Us: 5d rest | Them: 5d rest"
             },
             "coaching_matchup": {
               "score": 5,
@@ -5528,9 +5528,9 @@
           "profile": "renzo",
           "pick_side": "home",
           "grade": "C+",
-          "composite": 5.1,
+          "composite": 5.24,
           "chain_bonus": 0,
-          "final": 5.1,
+          "final": 5.24,
           "pick": "Miami Hurricanes -1.5",
           "sizing": "PASS",
           "variables": {
@@ -5547,7 +5547,7 @@
             "Q3_recent_form": {
               "score": 5,
               "weight": 8,
-              "note": "Us L5: 0-5 | Them L5: 0-5 | Edge: +0"
+              "note": "Us L5: 3-2 | Them L5: 3-2 | Edge: +0"
             },
             "Q4_best_on_court": {
               "score": 6,
@@ -5555,9 +5555,9 @@
               "note": "Both sides mostly healthy"
             },
             "Q5_schedule_rest": {
-              "score": 6,
+              "score": 7,
               "weight": 7,
-              "note": "Streak: L0 | Home"
+              "note": "Streak: W1 | Home"
             },
             "thesis_edge": {
               "score": 4,
@@ -5613,7 +5613,7 @@
               "score": 6,
               "weight": 7,
               "weighted": 42,
-              "note": "Losing (L0) \u2014 some overreaction possible",
+              "note": "Winning (W1) \u2014 some recency bias possible",
               "available": true
             },
             "seed_bias": {
@@ -5672,7 +5672,7 @@
               "score": 5,
               "weight": 9,
               "weighted": 45,
-              "note": "Streak: L0",
+              "note": "Streak: W1 \u2014 no letdown signal",
               "available": true
             },
             "motivation_gap": {
@@ -5725,9 +5725,9 @@
         "has_kill": false,
         "flag_count": 0
       },
-      "consensus_avg": 4.91,
-      "consensus_grade": "C",
-      "consensus_raw": 4.91,
+      "consensus_avg": 5.16,
+      "consensus_grade": "C+",
+      "consensus_raw": 5.16,
       "ev": {
         "profile": "ev",
         "status": "no_ml_data",
