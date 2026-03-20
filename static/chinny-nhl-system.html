@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NHL Grading System — Chinny's Edge</title>
+<style>
+:root { --bg:#0d0d14; --card:#161622; --border:#1e1e30; --text:#e8e8f0; --dim:#8888a0; --accent:#FF6B35; --green:#00d68f; --red:#ff5555; --gold:#FF6B35; --orange:#ff9f43; --cyan:#00cec9; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif; min-height:100vh; padding:20px 16px 80px; }
+.container { max-width:720px; margin:0 auto; }
+h1 { font-size:1.3rem; color:var(--gold); text-align:center; margin-bottom:4px; letter-spacing:0.5px; }
+.subtitle { text-align:center; color:var(--dim); font-size:0.8rem; margin-bottom:24px; }
+.back { display:inline-block; color:var(--accent); font-size:0.8rem; text-decoration:none; margin-bottom:16px; }
+.section { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:16px; margin-bottom:14px; }
+.section h2 { font-size:0.95rem; color:var(--gold); margin-bottom:10px; border-bottom:1px solid var(--border); padding-bottom:8px; }
+.section h3 { font-size:0.82rem; color:var(--accent); margin:12px 0 6px; }
+p, li { font-size:0.78rem; line-height:1.7; color:var(--text); }
+ul { padding-left:18px; }
+li { margin-bottom:4px; }
+.grade-row { display:flex; align-items:center; gap:10px; padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
+.grade-badge { width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.75rem; flex-shrink:0; }
+.grade-A { background:rgba(0,214,143,0.15); color:var(--green); }
+.grade-B { background:rgba(255,107,53,0.15); color:var(--accent); }
+.grade-C { background:rgba(255,159,67,0.12); color:var(--orange); }
+.grade-D { background:rgba(255,85,85,0.12); color:var(--red); }
+.grade-desc { flex:1; font-size:0.75rem; }
+.grade-range { color:var(--dim); font-size:0.68rem; }
+.var-grid { display:grid; grid-template-columns:1fr; gap:4px; margin-top:8px; }
+.var-item { background:rgba(255,255,255,0.03); border-radius:6px; padding:6px 10px; font-size:0.72rem; display:flex; align-items:center; gap:8px; }
+.var-name { color:var(--accent); font-size:0.68rem; font-family:monospace; min-width:160px; flex-shrink:0; }
+.var-weight { color:var(--gold); font-weight:700; font-size:0.72rem; min-width:18px; text-align:center; flex-shrink:0; }
+.var-desc { color:var(--dim); font-size:0.68rem; flex:1; }
+.engine-label { display:inline-block; padding:3px 8px; border-radius:4px; font-size:0.65rem; font-weight:700; text-transform:uppercase; margin-right:6px; }
+.engine-ai { background:rgba(255,107,53,0.15); color:var(--accent); }
+.engine-math { background:rgba(255,107,53,0.15); color:var(--gold); }
+.engine-grok { background:rgba(0,206,201,0.15); color:var(--cyan); }
+.engine-ds { background:rgba(0,214,143,0.15); color:var(--green); }
+.engine-fallback { background:rgba(255,159,67,0.12); color:var(--orange); }
+.callout { background:rgba(0,214,143,0.06); border:1px solid rgba(0,214,143,0.2); border-radius:8px; padding:12px; margin-top:12px; font-size:0.75rem; line-height:1.7; }
+.chain { background:rgba(255,107,53,0.06); border:1px solid rgba(255,107,53,0.2); border-radius:8px; padding:10px 12px; margin-top:6px; font-size:0.73rem; line-height:1.6; }
+.chain-name { color:var(--accent); font-weight:700; }
+.chain-bonus { color:var(--green); font-weight:700; }
+.pipeline { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:10px 0; font-size:0.75rem; }
+.pipeline-step { background:rgba(255,255,255,0.04); border-radius:6px; padding:6px 10px; text-align:center; }
+.pipeline-arrow { color:var(--dim); font-size:1rem; }
+.data-src { display:inline-block; background:rgba(255,255,255,0.04); border-radius:4px; padding:2px 6px; font-size:0.68rem; color:var(--dim); margin:2px; }
+.consensus-tag { display:inline-block; background:rgba(0,214,143,0.12); color:var(--green); font-size:0.6rem; font-weight:700; padding:1px 5px; border-radius:3px; margin-left:6px; text-transform:uppercase; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="/chinny" class="back">&larr; Back to Chinny's Edge Agent</a>
+<h1>NHL Grading System</h1>
+<div class="subtitle">Two-model AI pipeline, 21-variable matrix, chain detection, server-verified math</div>
+
+<div class="section">
+<h2>Two-Model AI Pipeline</h2>
+<p>Every NHL game runs through a <strong>two-model pipeline</strong> designed by Sinton.ia. No single model does everything -- each has a role:</p>
+
+<div class="pipeline">
+<div class="pipeline-step"><span class="engine-label engine-grok">THINKER</span><br><strong>Grok</strong><br><span style="font-size:0.65rem;color:var(--dim);">grok-4.1-fast-reasoning<br>2M context</span></div>
+<div class="pipeline-arrow">&rarr;</div>
+<div class="pipeline-step"><span class="engine-label engine-ds">FORMATTER</span><br><strong>DeepSeek-V3.2</strong><br><span style="font-size:0.65rem;color:var(--dim);">Structures JSON output<br>matrix_scores + grades</span></div>
+<div class="pipeline-arrow">&rarr;</div>
+<div class="pipeline-step"><span class="engine-label engine-ai">SERVER</span><br><strong>Recalculates</strong><br><span style="font-size:0.65rem;color:var(--dim);">Weighted sum / max<br>Never trusts GPT math</span></div>
+</div>
+
+<h3><span class="engine-label engine-grok">STEP 1</span> Grok Reasons Freely</h3>
+<p>Grok gets the full game context -- goalie confirmations, injury reports, Corsi/xG data, line movement, sharp money signals -- and <strong>reasons through it with no JSON constraints</strong>. Pure analysis. 2M context window means nothing gets cut.</p>
+
+<h3><span class="engine-label engine-ds">STEP 2</span> DeepSeek Formats</h3>
+<p>DeepSeek-V3.2 takes Grok's raw analysis and structures it into clean JSON: <code>matrix_scores</code> (all 21 variables), <code>edge_question</code>, letter grades. This separation means Grok thinks freely while DeepSeek handles the schema.</p>
+
+<h3><span class="engine-label engine-ai">STEP 3</span> Server Recalculates</h3>
+<p>The server <strong>never trusts GPT's math</strong>. It takes the 21 matrix scores, applies the real weights, computes: <code>(weighted_sum / max_possible) * 10</code>. Then it runs chain detection for bonus signals. The composite score you see is always server-calculated.</p>
+
+<h3><span class="engine-label engine-fallback">FALLBACK</span> gpt-4.1</h3>
+<p>If the two-model pipeline fails (Grok timeout, DeepSeek parse error), a single-model fallback using <strong>gpt-4.1</strong> catches the game so nothing gets dropped.</p>
+</div>
+
+<div class="section">
+<h2>The 21-Variable NHL Matrix</h2>
+<p>Each variable scored 1-10, weighted by importance. Server computes the real composite from these weights:</p>
+<div class="var-grid">
+<div class="var-item"><div class="var-weight">10</div><div class="var-name">thesis_edge</div><div class="var-desc">Core thesis -- why is the market WRONG?</div></div>
+<div class="var-item"><div class="var-weight">9</div><div class="var-name">goalie_confirmed</div><div class="var-desc">Goalie confirmed starter -- THE #1 hockey variable<span class="consensus-tag">LOCK 10.0</span></div></div>
+<div class="var-item"><div class="var-weight">9</div><div class="var-name">star_player_status</div><div class="var-desc">Top line center, #1 D-man out or limited</div></div>
+<div class="var-item"><div class="var-weight">9</div><div class="var-name">line_movement</div><div class="var-desc">Line movement since open -- sharp action, reverse moves<span class="consensus-tag">LOCK 7.75</span></div></div>
+<div class="var-item"><div class="var-weight">8</div><div class="var-name">corsi_xg</div><div class="var-desc">Corsi / expected goals differential -- process over results<span class="consensus-tag">LOCK 9.5</span></div></div>
+<div class="var-item"><div class="var-weight">8</div><div class="var-name">pp_pk</div><div class="var-desc">Power play / penalty kill efficiency rankings<span class="consensus-tag">LOCK 7.5</span></div></div>
+<div class="var-item"><div class="var-weight">8</div><div class="var-name">b2b_fatigue</div><div class="var-desc">Back-to-back / schedule fatigue<span class="consensus-tag">LOCK 7.0</span></div></div>
+<div class="var-item"><div class="var-weight">7</div><div class="var-name">goalie_fatigue</div><div class="var-desc">Goalie games/minutes in last 7 days -- workload tracking</div></div>
+<div class="var-item"><div class="var-weight">7</div><div class="var-name">sharp_vs_public</div><div class="var-desc">Sharp money vs public betting split<span class="consensus-tag">LOCK 7.75</span></div></div>
+<div class="var-item"><div class="var-weight">7</div><div class="var-name">off_ranking</div><div class="var-desc">Goals for, shooting %, offensive zone time</div></div>
+<div class="var-item"><div class="var-weight">7</div><div class="var-name">def_ranking</div><div class="var-desc">Goals against, shots against, high-danger chances against</div></div>
+<div class="var-item"><div class="var-weight">7</div><div class="var-name">recent_form</div><div class="var-desc">Recent form / streak (last 5-10 games)<span class="consensus-tag">LOCK 7.75</span></div></div>
+<div class="var-item"><div class="var-weight">7</div><div class="var-name">road_trip_length</div><div class="var-desc">Road trip fatigue -- games on the road, time zone crosses</div></div>
+<div class="var-item"><div class="var-weight">7</div><div class="var-name">penalty_discipline</div><div class="var-desc">Penalty minutes trend -- drawn vs taken differential</div></div>
+<div class="var-item"><div class="var-weight">6</div><div class="var-name">h2h_season</div><div class="var-desc">Head-to-head this season</div></div>
+<div class="var-item"><div class="var-weight">6</div><div class="var-name">save_pct_trend</div><div class="var-desc">Goalie save % trend (last 5 starts)<span class="consensus-tag">LOCK 7.75</span></div></div>
+<div class="var-item"><div class="var-weight">6</div><div class="var-name">puck_luck</div><div class="var-desc">PDO / shooting % anomalies -- regression indicator<span class="consensus-tag">LOCK 8.5</span></div></div>
+<div class="var-item"><div class="var-weight">6</div><div class="var-name">ats_trend</div><div class="var-desc">ATS trend (last 7/14 days)</div></div>
+<div class="var-item"><div class="var-weight">6</div><div class="var-name">line_vs_model</div><div class="var-desc">Composite vs line spread -- meta-edge signal</div></div>
+<div class="var-item"><div class="var-weight">5</div><div class="var-name">home_away</div><div class="var-desc">Home/away record and xG-based home splits<span class="consensus-tag">LOCK 8.25</span></div></div>
+<div class="var-item"><div class="var-weight">4</div><div class="var-name">depth_injuries</div><div class="var-desc">Role player / bench injuries -- top-4 D cascade effects<span class="consensus-tag">LOCK 6.0</span></div></div>
+</div>
+<p style="margin-top:10px;color:var(--dim);font-size:0.7rem;">Max possible: each variable's weight * 10 summed. Server formula: (weighted_sum / max_possible) * 10 = composite.</p>
+<div class="callout" style="background:rgba(255,107,53,0.06);border-color:rgba(255,107,53,0.2);">
+<strong>Consensus Tags:</strong> Variables marked LOCK were validated by 4 independent AI models (GPT-4.1, GPT-5.1-instant, Kimi K2.5, Grok 4.1). The number shows the consensus average weight. Some live weights differ from consensus -- rebalancing is in progress.
+</div>
+</div>
+
+<div class="section">
+<h2>Chain Detection Bonuses</h2>
+<p>When multiple signals align, the server detects compound patterns and adds bonus points to the composite:</p>
+
+<div class="chain">
+<span class="chain-name">THE MISPRICING</span> <span class="chain-bonus">+1.0</span><br>
+<span style="color:var(--dim);font-size:0.68rem;">star_player_status &ge; 8 AND line_movement &le; 4 AND sharp_vs_public &ge; 7</span><br>
+Star out + sharp money disagrees + line hasn't moved. The book is sleeping on a key absence.
+</div>
+
+<div class="chain">
+<span class="chain-name">GOALIE EDGE</span> <span class="chain-bonus">+1.5</span><br>
+<span style="color:var(--dim);font-size:0.68rem;">goalie_confirmed &ge; 8 AND save_pct_trend &ge; 7 AND goalie_fatigue &ge; 7 AND corsi_xg &ge; 7</span><br>
+Confirmed starter, hot save %, rested, strong underlying numbers. Highest bonus -- hardest to trigger (4 conditions).
+</div>
+
+<div class="chain">
+<span class="chain-name">FATIGUE FADE</span> <span class="chain-bonus">+1.0</span><br>
+<span style="color:var(--dim);font-size:0.68rem;">b2b_fatigue &ge; 8 AND road_trip_length &ge; 7 AND depth_injuries &ge; 6</span><br>
+B2B + long road trip + depth issues. Fade the tired team.
+</div>
+
+<div class="chain">
+<span class="chain-name">TRAP GAME</span> <span class="chain-bonus">+0.5</span><br>
+<span style="color:var(--dim);font-size:0.68rem;">sharp_vs_public &le; 3 AND line_movement &ge; 8</span><br>
+Public piling on one side but sharps + line movement disagree. Classic trap.
+</div>
+
+<div class="chain">
+<span class="chain-name">THE REGRESSION HAMMER</span> <span class="chain-bonus">+1.0</span><br>
+<span style="color:var(--dim);font-size:0.68rem;">puck_luck &ge; 8 AND corsi_xg &ge; 7 AND sharp_vs_public &ge; 7</span><br>
+PDO extreme + weak xG process + public bias on wrong side. All 4 consensus models flagged this as a top-tier combo. The fade is automatic.
+</div>
+
+<div class="chain">
+<span class="chain-name">BACKUP FATIGUE FADE</span> <span class="chain-bonus">+1.0</span><br>
+<span style="color:var(--dim);font-size:0.68rem;">goalie_confirmed &le; 4 AND b2b_fatigue &ge; 8 AND sharp_vs_public &ge; 7</span><br>
+Backup goalie confirmed + B2B fatigue + sharp money against. Markets rarely discount enough for this combo.
+</div>
+
+<div class="chain">
+<span class="chain-name">THE INJURY CASCADE</span> <span class="chain-bonus">+0.75</span><br>
+<span style="color:var(--dim);font-size:0.68rem;">depth_injuries &ge; 7 AND def_ranking &le; 4 AND pp_pk &ge; 7</span><br>
+Key defensive injuries + declining high-danger against metrics + PP/PK matchup exploit. Missing top-4 D has cascading effects the market underprices.
+</div>
+</div>
+
+<div class="section">
+<h2>Grade Scale</h2>
+<p>Server-calculated composite maps to letter grades:</p>
+<div class="grade-row"><div class="grade-badge grade-A">A+</div><div class="grade-desc"><strong>Elite edge.</strong> <span class="grade-range">Composite 8.5+</span></div></div>
+<div class="grade-row"><div class="grade-badge grade-A">A</div><div class="grade-desc"><strong>Strong edge -- book is wrong.</strong> <span class="grade-range">Composite 7.8+</span></div></div>
+<div class="grade-row"><div class="grade-badge grade-A">A-</div><div class="grade-desc"><strong>Good edge.</strong> <span class="grade-range">Composite 7.0+</span></div></div>
+<div class="grade-row"><div class="grade-badge grade-B">B+</div><div class="grade-desc"><strong>Lean.</strong> Slight edge detected, worth a look. <span class="grade-range">Composite 6.5+</span></div></div>
+<div class="grade-row"><div class="grade-badge grade-B">B</div><div class="grade-desc"><strong>Marginal.</strong> Some factors favor a side. <span class="grade-range">Composite 6.0+</span></div></div>
+<div class="grade-row"><div class="grade-badge grade-B">B-</div><div class="grade-desc"><strong>Thin edge.</strong> Barely worth tracking. <span class="grade-range">Composite 5.5+</span></div></div>
+<div class="grade-row"><div class="grade-badge grade-C">C+</div><div class="grade-desc"><strong>Coin flip.</strong> No meaningful edge. <span class="grade-range">Composite 5.0+</span></div></div>
+<div class="grade-row"><div class="grade-badge grade-C">C</div><div class="grade-desc"><strong>No edge.</strong> Fair line. Pass. <span class="grade-range">Composite 4.0+</span></div></div>
+<div class="grade-row"><div class="grade-badge grade-D">D</div><div class="grade-desc"><strong>Bad spot.</strong> <span class="grade-range">Composite 3.0+</span></div></div>
+<div class="grade-row"><div class="grade-badge grade-D">F</div><div class="grade-desc"><strong>Trap.</strong> Stay away. <span class="grade-range">Below 3.0</span></div></div>
+</div>
+
+<div class="section">
+<h2>Chinny's Props Engine</h2>
+<p><span class="engine-label engine-math">MATH ENGINE</span> Independent from the AI pipeline. Pure expected value math:</p>
+<ul>
+<li><strong>Mathurin Screener</strong> -- pulls last 5 game logs from ESPN. Computes the FLOOR (lowest of L5) vs the book's line. Floor &gt; line = mispriced.</li>
+<li><strong>Multi-Book Comparison</strong> -- lines from 12+ sportsbooks across us, us2, eu, uk, au regions. Flags gaps &gt; 10 cents ML or &gt; 0.5 spread.</li>
+<li><strong>Injury Gap Detection</strong> -- star OUT, identify which role players absorb minutes/usage. If the book hasn't adjusted their props = free money.</li>
+<li><strong>EV Calculation</strong> -- <code>(our_prob * payout) - (1 - our_prob)</code>. Positive EV = bet. Negative = pass.</li>
+</ul>
+</div>
+
+<div class="section">
+<h2>Data Sources</h2>
+<p>
+<span class="data-src">The Odds API (paid)</span>
+<span class="data-src">ESPN injuries</span>
+<span class="data-src">CBS Sports injuries</span>
+<span class="data-src">RotoWire injuries</span>
+<span class="data-src">ESPN game logs</span>
+<span class="data-src">ESPN rosters</span>
+<span class="data-src">Natural Stat Trick</span>
+<span class="data-src">MoneyPuck</span>
+<span class="data-src">Evolving Hockey</span>
+<span class="data-src">NHL API</span>
+</p>
+<p style="margin-top:6px;color:var(--dim);font-size:0.7rem;">Hockey analysis runs best late night -- less line movement, more stable data. Goalie confirmations typically come 30-60 minutes before puck drop.</p>
+</div>
+
+<div class="section">
+<h2>The Rule</h2>
+<div class="callout">
+<strong>The Mathurin Test:</strong> Before placing any bet -- "Can you show a NUMBER that proves the book is wrong?"<br><br>
+<strong>YES:</strong> "Starter's GSAx is +8.2, backup is -3.1, line only moved half a goal. Gap is massive." &rarr; BET IT.<br>
+<strong>NO:</strong> "I think they'll cover." &rarr; PASS. That's an opinion, not an edge.<br><br>
+No opinions. Only math. The board IS the data.
+</div>
+</div>
+
+<div style="text-align:center;margin-top:20px;font-size:0.7rem;color:var(--dim);">Chinny's Edge Agent &mdash; Casa EV</div>
+</div>
+</body>
+</html>

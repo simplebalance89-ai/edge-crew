@@ -51,7 +51,7 @@ li { margin-bottom:4px; }
 <div class="container">
 <a href="/dj" class="back">&larr; Back to Edge Finder</a>
 <h1>NCAAB Grading System</h1>
-<div class="subtitle">Two-model AI pipeline, 20-variable matrix, chain detection, server-verified math</div>
+<div class="subtitle">Two-model AI pipeline, 27-variable matrix, 8-chain detection, server-verified math</div>
 
 <div class="section">
 <h2>Two-Model AI Pipeline</h2>
@@ -69,63 +69,114 @@ li { margin-bottom:4px; }
 <p>Grok gets the full game context -- injuries, matchups, trends, sharp money signals, line movement -- and <strong>reasons through it with no JSON constraints</strong>. Pure analysis. 2M context window means nothing gets cut.</p>
 
 <h3><span class="engine-label engine-ds">STEP 2</span> DeepSeek Formats</h3>
-<p>DeepSeek-V3.2 takes Grok's raw analysis and structures it into clean JSON: <code>matrix_scores</code> (all 20 variables), <code>edge_question</code>, letter grades. This separation means Grok thinks freely while DeepSeek handles the schema.</p>
+<p>DeepSeek-V3.2 takes Grok's raw analysis and structures it into clean JSON: <code>matrix_scores</code> (all 27 variables), <code>edge_question</code>, letter grades. This separation means Grok thinks freely while DeepSeek handles the schema.</p>
 
 <h3><span class="engine-label engine-ai">STEP 3</span> Server Recalculates</h3>
-<p>The server <strong>never trusts GPT's math</strong>. It takes the 20 matrix scores, applies the real weights, computes: <code>(weighted_sum / max_possible) * 10</code>. Then it runs chain detection for bonus signals. The composite score you see is always server-calculated.</p>
+<p>The server <strong>never trusts GPT's math</strong>. It takes the 27 matrix scores, applies the real weights, computes: <code>(weighted_sum / max_possible) * 10</code>. Then it runs 8-chain detection for bonus signals. The composite score you see is always server-calculated.</p>
 
 <h3><span class="engine-label engine-fallback">FALLBACK</span> gpt-4.1</h3>
 <p>If the two-model pipeline fails (Grok timeout, DeepSeek parse error), a single-model fallback using <strong>gpt-4.1</strong> catches the game so nothing gets dropped.</p>
 </div>
 
 <div class="section">
-<h2>The 20-Variable Matrix</h2>
-<p>Each variable scored 1-10, weighted by importance. Server computes the real composite from these weights:</p>
+<h2>The 27-Variable Matrix</h2>
+<p>Each variable scored 1-10, weighted by importance. 5-model consensus validated (GPT-4.1, GPT-5.1-instant, Kimi K2.5, Grok 4.1, DeepSeek V3). Server computes the real composite from these weights:</p>
+
+<h3>Tier 1 -- Core Edge Drivers (w9)</h3>
 <div class="var-grid">
-<div class="var-item"><div class="var-weight">9</div><div class="var-name">tempo_matchup</div><div class="var-desc">Pace / tempo matchup -- fast vs slow, possessions per game</div></div>
-<div class="var-item"><div class="var-weight">8</div><div class="var-name">three_pt_reliance</div><div class="var-desc">3PT shooting reliance vs opponent 3PT defense</div></div>
-<div class="var-item"><div class="var-weight">8</div><div class="var-name">sharp_vs_public</div><div class="var-desc">Sharp money vs public betting split</div></div>
-<div class="var-item"><div class="var-weight">8</div><div class="var-name">line_movement</div><div class="var-desc">Line movement since open -- sharp action, reverse moves</div></div>
-<div class="var-item"><div class="var-weight">8</div><div class="var-name">ats_trend</div><div class="var-desc">ATS trend (last 7/14 days)</div></div>
-<div class="var-item"><div class="var-weight">8</div><div class="var-name">defensive_efficiency</div><div class="var-desc">KenPom adjusted defensive efficiency</div></div>
-<div class="var-item"><div class="var-weight">8</div><div class="var-name">offensive_efficiency</div><div class="var-desc">KenPom adjusted offensive efficiency</div></div>
-<div class="var-item"><div class="var-weight">7</div><div class="var-name">star_player_status</div><div class="var-desc">Key player out or limited</div></div>
-<div class="var-item"><div class="var-weight">7</div><div class="var-name">bench_depth</div><div class="var-desc">Bench depth -- minutes distribution, bench scoring</div></div>
-<div class="var-item"><div class="var-weight">7</div><div class="var-name">conference_strength</div><div class="var-desc">Conference strength of schedule adjustment</div></div>
-<div class="var-item"><div class="var-weight">7</div><div class="var-name">turnover_margin</div><div class="var-desc">Turnover margin -- live ball turnovers, steals</div></div>
-<div class="var-item"><div class="var-weight">7</div><div class="var-name">rebounding</div><div class="var-desc">Offensive + defensive rebounding differential</div></div>
-<div class="var-item"><div class="var-weight">7</div><div class="var-name">recent_form</div><div class="var-desc">Recent form / streak (last 5-10 games)</div></div>
-<div class="var-item"><div class="var-weight">6</div><div class="var-name">home_court</div><div class="var-desc">Home court advantage -- elevation, crowd, venue factor</div></div>
-<div class="var-item"><div class="var-weight">6</div><div class="var-name">coaching_matchup</div><div class="var-desc">Coaching matchup -- timeout usage, in-game adjustments</div></div>
-<div class="var-item"><div class="var-weight">6</div><div class="var-name">ft_shooting</div><div class="var-desc">Free throw shooting % and FTA rate</div></div>
-<div class="var-item"><div class="var-weight">6</div><div class="var-name">rivalry_motivation</div><div class="var-desc">Rivalry / motivation factor -- tourney implications</div></div>
-<div class="var-item"><div class="var-weight">6</div><div class="var-name">b2b_fatigue</div><div class="var-desc">Back-to-back or 3-in-5 schedule fatigue</div></div>
-<div class="var-item"><div class="var-weight">5</div><div class="var-name">travel_distance</div><div class="var-desc">Travel distance / time zone adjustment</div></div>
-<div class="var-item"><div class="var-weight">5</div><div class="var-name">line_vs_model</div><div class="var-desc">Our composite vs the line spread -- meta-edge signal</div></div>
+<div class="var-item"><div class="var-weight">9</div><div class="var-name">defensive_efficiency</div><div class="var-desc">KenPom/Torvik adjusted defensive efficiency -- most stable predictor, defense travels</div></div>
+<div class="var-item"><div class="var-weight">9</div><div class="var-name">offensive_efficiency</div><div class="var-desc">KenPom/Torvik adjusted offensive efficiency -- foundational, pair with regression check</div></div>
+<div class="var-item"><div class="var-weight">9</div><div class="var-name">line_movement</div><div class="var-desc">Line movement since open -- sharp money signal, most direct mispricing indicator</div></div>
+<div class="var-item"><div class="var-weight">9</div><div class="var-name">coaching_tournament_record</div><div class="var-desc">Coach's tournament track record -- March coaching is a different skill (5/5 unanimous)</div></div>
+<div class="var-item"><div class="var-weight">9</div><div class="var-name">public_money_bias</div><div class="var-desc">Blue blood public bias -- March brand bias is the #1 market error</div></div>
 </div>
-<p style="margin-top:10px;color:var(--dim);font-size:0.7rem;">Max possible: each variable's weight * 10 summed. Server formula: (weighted_sum / max_possible) * 10 = composite.</p>
+
+<h3>Tier 2 -- High-Priority Situational (w8)</h3>
+<div class="var-grid">
+<div class="var-item"><div class="var-weight">8</div><div class="var-name">tempo_matchup</div><div class="var-desc">Pace/tempo matchup -- pace shock creates spread edges on neutral floors</div></div>
+<div class="var-item"><div class="var-weight">8</div><div class="var-name">three_pt_reliance</div><div class="var-desc">3PT shooting reliance vs opponent 3PT defense -- single-elimination amplifies variance</div></div>
+<div class="var-item"><div class="var-weight">8</div><div class="var-name">tournament_context</div><div class="var-desc">Elimination pressure, round dynamics, seeding, bye advantage</div></div>
+<div class="var-item"><div class="var-weight">8</div><div class="var-name">neutral_site_performance</div><div class="var-desc">Team efficiency splits home vs neutral court -- gap &gt;5 pts = mispriced</div></div>
+<div class="var-item"><div class="var-weight">8</div><div class="var-name">public_brand_fade</div><div class="var-desc">Quantified contrarian signal when &gt;70% public on blue bloods but metrics favor the dog</div></div>
+<div class="var-item"><div class="var-weight">8</div><div class="var-name">travel_rest_disparity</div><div class="var-desc">Rest days + cross-country travel gap -- West Coast noon EST underperformance</div></div>
+<div class="var-item"><div class="var-weight">8</div><div class="var-name">bench_depth</div><div class="var-desc">Rotation depth -- foul trouble and back-to-back fatigue critical in tournament</div></div>
+</div>
+
+<h3>Tier 3 -- Fundamentals and Multipliers (w7)</h3>
+<div class="var-grid">
+<div class="var-item"><div class="var-weight">7</div><div class="var-name">turnover_margin</div><div class="var-desc">Turnover resistance critical in March pressure</div></div>
+<div class="var-item"><div class="var-weight">7</div><div class="var-name">rebounding</div><div class="var-desc">Offensive + defensive rebounding differential -- extra possessions in grinding games</div></div>
+<div class="var-item"><div class="var-weight">7</div><div class="var-name">ft_shooting</div><div class="var-desc">Free throw shooting % and FTA rate -- close tournament games decided at the line</div></div>
+<div class="var-item"><div class="var-weight">7</div><div class="var-name">regression_markers</div><div class="var-desc">Composite: unsustainable 3PT%, FT luck, TO luck, close-game luck</div></div>
+<div class="var-item"><div class="var-weight">7</div><div class="var-name">late_game_fundamentals</div><div class="var-desc">FT%, press break ability, TO rate under pressure last 5 min</div></div>
+<div class="var-item"><div class="var-weight">7</div><div class="var-name">conference_tourney_fatigue</div><div class="var-desc">3+ conf tourney games on short rest -- Sunday champs fading Thursday</div></div>
+<div class="var-item"><div class="var-weight">7</div><div class="var-name">net_ranking_gap</div><div class="var-desc">NET/RPI ranking differential -- seed vs efficiency mismatches</div></div>
+<div class="var-item"><div class="var-weight">7</div><div class="var-name">recent_form</div><div class="var-desc">Recent form / streak (last 5-10 games) -- must pair with regression markers</div></div>
+</div>
+
+<h3>Tier 4 -- Niche and Regression Flags (w6)</h3>
+<div class="var-grid">
+<div class="var-item"><div class="var-weight">6</div><div class="var-name">star_player_status</div><div class="var-desc">Key player out/limited -- market already prices injuries, depth matters more</div></div>
+<div class="var-item"><div class="var-weight">6</div><div class="var-name">ats_trend</div><div class="var-desc">ATS trend -- backward-looking, regular season ATS is noise in tournament</div></div>
+<div class="var-item"><div class="var-weight">6</div><div class="var-name">referee_whistle_profile</div><div class="var-desc">Ref crew foul rate tendencies -- high-foul crews boost physical underdogs</div></div>
+<div class="var-item"><div class="var-weight">6</div><div class="var-name">foul_trouble_risk</div><div class="var-desc">Star-dependent teams vulnerable to whistle variance -- volatility favors dogs</div></div>
+<div class="var-item"><div class="var-weight">6</div><div class="var-name">conference_strength</div><div class="var-desc">Strength of schedule -- fake defense detection for weak-conference teams</div></div>
+<div class="var-item"><div class="var-weight">6</div><div class="var-name">neutral_site</div><div class="var-desc">Venue-specific shooting backdrop effects -- proximity to venue matters</div></div>
+</div>
+
+<p style="margin-top:10px;color:var(--dim);font-size:0.7rem;">+ thesis_edge (w10) always included. Max possible: each variable's weight * 10 summed. Server formula: (weighted_sum / max_possible) * 10 = composite.</p>
 </div>
 
 <div class="section">
-<h2>Chain Detection Bonuses</h2>
-<p>When multiple signals align, the server detects compound patterns and adds bonus points to the composite:</p>
+<h2>Chain Detection Bonuses (8 Chains)</h2>
+<p>When multiple signals align, the server detects compound patterns and adds bonus points to the composite. Expanded from 5 to 8 chains based on 5-model consensus:</p>
 
 <div class="chain">
-<span class="chain-name">TEMPO TRAP</span> <span class="chain-bonus">+1.0</span><br>
-<span style="color:var(--dim);font-size:0.68rem;">tempo_matchup &ge; 8 AND sharp_vs_public &ge; 7 AND three_pt_reliance &ge; 7</span><br>
-Pace mismatch + sharp money + 3PT variance = the book undervalues tempo.
+<span class="chain-name">TEMPO TRAP</span> <span class="chain-bonus">+2.0</span><br>
+<span style="color:var(--dim);font-size:0.68rem;">tempo_matchup &ge; 8 AND three_pt_reliance &ge; 7 AND public_money_bias &ge; 7</span><br>
+Pace mismatch + public on the fast team + 3PT variance -- book undervalues tempo.
 </div>
 
 <div class="chain">
-<span class="chain-name">TOURNEY FADE</span> <span class="chain-bonus">+1.0</span><br>
-<span style="color:var(--dim);font-size:0.68rem;">b2b_fatigue &ge; 7 AND bench_depth &le; 4 AND home_court &ge; 7</span><br>
-Tired team, thin bench, opponent has home court. Fade the favorite.
+<span class="chain-name">BRAND TAX FADE</span> <span class="chain-bonus">+2.0</span><br>
+<span style="color:var(--dim);font-size:0.68rem;">public_money_bias &ge; 8 AND public_brand_fade &ge; 7 AND line_movement &le; 4</span><br>
+Public &gt;70% on blue blood + line moves WITH public + metrics favor dog. Biggest March market error. Historical +6% ROI.
 </div>
 
 <div class="chain">
-<span class="chain-name">FORM WAVE</span> <span class="chain-bonus">+1.5</span><br>
-<span style="color:var(--dim);font-size:0.68rem;">recent_form &ge; 8 AND offensive_efficiency &ge; 7 AND ats_trend &ge; 7 AND h2h_season &ge; 6</span><br>
-Hot team firing on all cylinders with ATS momentum. Highest bonus -- hardest to trigger (4 conditions).
+<span class="chain-name">CINDERELLA SIGNAL</span> <span class="chain-bonus">+2.0</span><br>
+<span style="color:var(--dim);font-size:0.68rem;">defensive_efficiency &ge; 7 AND turnover_margin &ge; 7 AND net_ranking_gap &ge; 7 AND recent_form &ge; 7</span><br>
+Mid-major with top-50 D + low TO rate + sustainable shooting -- classic tournament upset profile.
+</div>
+
+<div class="chain">
+<span class="chain-name">REGRESSION WAVE</span> <span class="chain-bonus">+2.0</span><br>
+<span style="color:var(--dim);font-size:0.68rem;">recent_form &ge; 8 AND regression_markers &ge; 7</span><br>
+Hot streak + 2+ regression markers flagged (unsustainable 3PT/FT/TO luck). Fade the streak.
+</div>
+
+<div class="chain">
+<span class="chain-name">TRAVEL BODY CLOCK</span> <span class="chain-bonus">+2.0</span><br>
+<span style="color:var(--dim);font-size:0.68rem;">travel_rest_disparity &ge; 7 AND neutral_site_performance &ge; 6</span><br>
+West Coast team + early EST tip + travel &gt;1000mi. Market undervalues fatigue/time zone. 12% ATS underperformance.
+</div>
+
+<div class="chain">
+<span class="chain-name">COACHING COMFORT</span> <span class="chain-bonus">+1.5</span><br>
+<span style="color:var(--dim);font-size:0.68rem;">coaching_tournament_record &ge; 8 AND tournament_context &ge; 7</span><br>
+Coach 4+ tourney wins vs coach &lt;2 tourney wins. Experience premium unpriced in early rounds.
+</div>
+
+<div class="chain">
+<span class="chain-name">REF WHISTLE EDGE</span> <span class="chain-bonus">+1.5</span><br>
+<span style="color:var(--dim);font-size:0.68rem;">referee_whistle_profile &ge; 7 AND foul_trouble_risk &ge; 7 AND bench_depth &ge; 7</span><br>
+High-foul ref crew + physical underdog + star-dependent favorite. Whistle variance favors depth teams.
+</div>
+
+<div class="chain">
+<span class="chain-name">TIRED LEGS TAX</span> <span class="chain-bonus">+1.5</span><br>
+<span style="color:var(--dim);font-size:0.68rem;">conference_tourney_fatigue &ge; 7 AND travel_rest_disparity &ge; 6 AND bench_depth &le; 5</span><br>
+3+ conf tourney games + &lt;2 days rest before NCAA Round 1. Fade in 1H spreads -- fatigue shows early.
 </div>
 </div>
 

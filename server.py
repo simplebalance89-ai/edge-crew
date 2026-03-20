@@ -467,6 +467,12 @@ async def _prefetch_loop():
             except Exception as e:
                 logger.warning(f"[PREFETCH] {sport} failed: {e}")
             await asyncio.sleep(2)  # Small gap between sports
+        # Pre-warm scoreboard cache so users never hit a cold fetch
+        try:
+            await get_scores()
+            logger.info("[PREFETCH] Scoreboard cache warmed")
+        except Exception as e:
+            logger.warning(f"[PREFETCH] Scoreboard warm failed: {e}")
         await asyncio.sleep(PREFETCH_INTERVAL)
 
 
@@ -1852,26 +1858,29 @@ NBA_MATRIX = [
 
 NHL_MATRIX = [
     ("thesis_edge", 10, "Core thesis — why is the market WRONG? Strength of the specific edge identified"),
-    ("goalie_confirmed", 9, "Goalie confirmed starter"),
+    ("goalie_confirmed", 10, "Goalie confirmed starter — THE #1 variable in hockey"),
+    ("backup_goalie_adj", 9, "Backup goalie playing — variance spike, market discount"),
+    ("xg_differential", 9, "Expected goals differential (xG%) — 5v5 process quality"),
     ("star_player_status", 9, "Top line center, #1 D-man out or limited"),
-    ("line_movement", 9, "Line movement since open — sharp action, reverse moves"),
     ("corsi_xg", 8, "Corsi / expected goals"),
     ("pp_pk", 8, "Power play / penalty kill rankings"),
-    ("b2b_fatigue", 8, "Back-to-back / schedule fatigue"),
+    ("sharp_vs_public", 8, "Where the money is (sharp vs public)"),
+    ("line_movement", 8, "Line movement since open — sharp action, reverse moves"),
+    ("home_away", 8, "Home/away record and home-ice advantage"),
+    ("puck_luck", 8, "Shooting % anomalies — overperformance regression signal (PDO)"),
+    ("save_pct_trend", 8, "Goalie save percentage trend (last 5)"),
     ("goalie_fatigue", 7, "Goalie games/minutes in last 7 days"),
-    ("sharp_vs_public", 7, "Where the money is (sharp vs public)"),
-    ("off_ranking", 7, "Goals for, shooting %, offensive zone time"),
-    ("def_ranking", 7, "Goals against, shots against"),
     ("recent_form", 7, "Recent form / streak (last 5-10 games)"),
+    ("b2b_fatigue", 7, "Back-to-back / schedule fatigue"),
+    ("rest_differential", 7, "Rest days differential between teams (beyond B2B)"),
     ("road_trip_length", 7, "Road trip fatigue (games on road, travel distance)"),
-    ("penalty_discipline", 7, "Penalty minutes trend — shorthanded exposure risk"),
-    ("h2h_season", 6, "Head-to-head this season (record, margins, trends)"),
-    ("save_pct_trend", 6, "Goalie save percentage trend (last 5)"),
-    ("puck_luck", 6, "Shooting % anomalies — overperformance regression signal"),
-    ("ats_trend", 6, "ATS trend (last 7/14 days)"),
-    ("line_vs_model", 6, "Our composite vs the line spread — meta-edge signal"),
-    ("home_away", 5, "Home/away record"),
-    ("depth_injuries", 4, "Role player / bench injuries"),
+    ("high_danger_chances", 6, "High-danger scoring chances differential"),
+    ("depth_injuries", 6, "Role player / bench injuries — esp top-4 D impact"),
+    ("travel_timezone", 6, "Time zone impact — East/West cross, 3+ hour shifts"),
+    ("team_motivation", 5, "Standings context — playoff push, elimination, tanking"),
+    ("penalty_discipline", 5, "Penalty minutes trend — shorthanded exposure risk"),
+    ("h2h_season", 4, "Head-to-head this season (record, margins, trends)"),
+    ("line_vs_model", 4, "Our composite vs the line spread — meta-edge signal"),
 ]
 
 SOCCER_MATRIX = [
@@ -1899,36 +1908,37 @@ SOCCER_MATRIX = [
 ]
 
 NCAAB_MATRIX = [
-    # Tier 1 — Weight 9 (Game Changers)
+    # Tier 1 — Weight 9 (Core Edge Drivers)
     ("thesis_edge", 10, "Core thesis — why is the market WRONG? Strength of the specific edge identified"),
-    ("offensive_efficiency", 9, "KenPom/Torvik adjusted offensive efficiency — THE predictor in college basketball"),
-    ("defensive_efficiency", 9, "KenPom/Torvik adjusted defensive efficiency"),
-    ("star_player_status", 9, "Key player (top 2) out/limited — 8-man rotation means losing 1 = losing 12-15% of offense"),
-    ("line_movement", 9, "Line movement since open — sharp action, reverse moves"),
-    # Tier 2 — Weight 8 (Major Factors)
-    ("tempo_matchup", 8, "Pace/tempo matchup — fast vs slow, possessions per game"),
-    ("ats_trend", 8, "ATS trend (last 7/14 days) — covering trends persist more in college than NBA"),
-    ("tournament_context", 8, "Tournament game? Conference tourney round? NCAA tournament? Single elimination psychology, bye advantage"),
-    ("public_money_bias", 8, "Blue blood public bias — Duke/UK/UNC get hammered by public, books shade lines. Fade inflated favorites"),
-    # Tier 3 — Weight 7 (Significant Factors)
-    ("three_pt_reliance", 7, "3PT shooting reliance vs opponent 3PT defense — higher variance than NBA, streakier"),
-    ("bench_depth", 7, "Rotation depth — college = 8-9 man rotations, thin bench + foul trouble = disaster"),
-    ("rebounding", 7, "Offensive + defensive rebounding differential — second chances matter more with lower FG%"),
-    ("turnover_margin", 7, "Turnover margin — live ball turnovers, steals. College teams turn it over more than NBA"),
-    ("recent_form", 7, "Recent form / streak (last 5-10 games) — late season form predicts tournament performance"),
-    ("coaching_tournament_record", 7, "Coach's tournament track record — some coaches consistently over/underperform in March"),
-    ("net_ranking_gap", 7, "NET/RPI ranking differential — NCAA's official ranking. Large gaps = chalk, small gaps = volatility"),
-    # Tier 4 — Weight 6 (Supporting Factors)
-    ("neutral_site", 6, "Neutral site factor — conference tourneys, NCAA tournament. No home court. Proximity to venue matters"),
-    ("conference_strength", 6, "Strength of schedule adjustment — Big Ten vs mid-major, adjusted by KenPom SOS"),
-    ("ft_shooting", 6, "Free throw shooting % and FTA rate — close games decided at the line, college FT% lower than NBA"),
-    ("rivalry_motivation", 6, "Rivalry, revenge spot, senior night, tournament implications — motivation is real for 19-21 year olds"),
-    ("fatigue_schedule", 6, "Conference tournament fatigue — 3rd game in 3 days, late-season schedule compression"),
-    ("coaching_matchup", 6, "Coach A vs Coach B history — more stable in college, coaches stay longer"),
-    # Tier 5 — Weight 5 (Contextual)
-    ("venue_factor", 5, "Arena-specific — tight rims, altitude, court dimensions, crowd noise in smaller gyms"),
-    ("transfer_portal_impact", 5, "Key transfers in/out, roster chemistry. By March this is baked into recent_form"),
-    ("line_vs_model", 5, "Our composite vs the line spread — meta-edge signal"),
+    ("defensive_efficiency", 9, "KenPom/Torvik adjusted defensive efficiency — most stable predictor, defense travels"),
+    ("offensive_efficiency", 9, "KenPom/Torvik adjusted offensive efficiency — foundational, pair with regression check"),
+    ("line_movement", 9, "Line movement since open — sharp money signal, most direct mispricing indicator"),
+    ("coaching_tournament_record", 9, "Coach's tournament track record — March coaching is a different skill, strongest consensus signal"),
+    ("public_money_bias", 9, "Blue blood public bias — March brand bias is the #1 market error. Duke/UK/UNC get hammered by public"),
+    # Tier 2 — Weight 8 (High-Priority Situational)
+    ("tempo_matchup", 8, "Pace/tempo matchup — pace shock creates spread edges on neutral floors"),
+    ("three_pt_reliance", 8, "3PT shooting reliance vs opponent 3PT defense — single-elimination amplifies variance massively"),
+    ("tournament_context", 8, "Tournament context — elimination pressure, round dynamics, seeding, bye advantage"),
+    ("neutral_site_performance", 8, "Team efficiency splits home vs neutral court — some teams crater off-campus, gap >5 pts = mispriced"),
+    ("public_brand_fade", 8, "Quantified contrarian signal when >70% public on blue bloods but metrics favor the dog"),
+    ("travel_rest_disparity", 8, "Rest days + cross-country travel gap — West Coast teams playing noon EST underperform, 2+ day rest edge ~2 pts"),
+    ("bench_depth", 8, "Rotation depth — foul trouble and back-to-back fatigue critical in tournament"),
+    # Tier 3 — Weight 7 (Fundamentals and Multipliers)
+    ("turnover_margin", 7, "Turnover margin — turnover resistance critical in March pressure"),
+    ("rebounding", 7, "Offensive + defensive rebounding differential — extra possessions in grinding tournament games"),
+    ("ft_shooting", 7, "Free throw shooting % and FTA rate — close tournament games decided at the line"),
+    ("regression_markers", 7, "Composite: unsustainable 3PT%, FT luck, TO luck, close-game luck — market slow to adjust"),
+    ("late_game_fundamentals", 7, "FT%, press break ability, TO rate under pressure last 5 min — March games decided here"),
+    ("conference_tourney_fatigue", 7, "3+ conf tourney games on short rest — Sunday champs fading Thursday, auto-fade signal"),
+    ("net_ranking_gap", 7, "NET/RPI ranking differential — seed vs efficiency mismatches"),
+    ("recent_form", 7, "Recent form / streak (last 5-10 games) — must pair with regression markers"),
+    # Tier 4 — Weight 6 (Niche and Regression Flags)
+    ("star_player_status", 6, "Key player out/limited — market already prices injuries, depth matters more in March"),
+    ("ats_trend", 6, "ATS trend — backward-looking, regular season ATS is noise in tournament, use as minor context"),
+    ("referee_whistle_profile", 6, "Ref crew foul rate tendencies — high-foul crews boost physical underdogs, hurt star-dependent teams"),
+    ("foul_trouble_risk", 6, "Star-dependent teams vulnerable to whistle variance — volatility favors dogs"),
+    ("conference_strength", 6, "Strength of schedule adjustment — fake defense detection for weak-conference teams"),
+    ("neutral_site", 6, "Venue-specific shooting backdrop effects — proximity to venue matters"),
 ]
 
 MLB_MATRIX = [
@@ -2150,19 +2160,43 @@ CHAINS = {
             "name": "GOALIE EDGE",
             "desc": "Confirmed starter with hot save %, rested, and strong underlying numbers",
             "bonus": 1.5,
-            "vars": {"goalie_confirmed": (">=", 8), "save_pct_trend": (">=", 7), "goalie_fatigue": (">=", 7), "corsi_xg": (">=", 7)},
+            "vars": {"goalie_confirmed": (">=", 8), "save_pct_trend": (">=", 7), "goalie_fatigue": (">=", 7), "xg_differential": (">=", 7)},
         },
         {
             "name": "FATIGUE FADE",
             "desc": "B2B fatigue + long road trip + depth issues — fade the tired team",
             "bonus": 1.0,
-            "vars": {"b2b_fatigue": (">=", 8), "road_trip_length": (">=", 7), "depth_injuries": (">=", 6)},
+            "vars": {"b2b_fatigue": (">=", 7), "rest_differential": (">=", 7), "travel_timezone": (">=", 6)},
         },
         {
             "name": "TRAP GAME",
             "desc": "Public on one side but sharps + line movement disagree",
             "bonus": 0.5,
             "vars": {"sharp_vs_public": ("<=", 3), "line_movement": (">=", 8)},
+        },
+        {
+            "name": "REGRESSION HAMMER",
+            "desc": "Unsustainable PDO + weak xG process + public piling on wrong side — fade the lucky team",
+            "bonus": 1.5,
+            "vars": {"puck_luck": (">=", 8), "xg_differential": ("<=", 4), "sharp_vs_public": (">=", 7)},
+        },
+        {
+            "name": "BACKUP FATIGUE FADE",
+            "desc": "Backup goalie + B2B or travel fatigue + sharp money against — highest variance spot",
+            "bonus": 1.5,
+            "vars": {"backup_goalie_adj": (">=", 8), "b2b_fatigue": (">=", 7), "sharp_vs_public": (">=", 7)},
+        },
+        {
+            "name": "INJURY CASCADE",
+            "desc": "Key D injuries + declining defensive metrics + PP/PK matchup exploit",
+            "bonus": 1.0,
+            "vars": {"depth_injuries": (">=", 7), "high_danger_chances": (">=", 7), "pp_pk": (">=", 7)},
+        },
+        {
+            "name": "SHARP PROCESS DOG",
+            "desc": "xG-strong underdog + home ice + reverse line movement — process dog getting sharp love",
+            "bonus": 1.0,
+            "vars": {"xg_differential": (">=", 7), "home_away": (">=", 8), "sharp_vs_public": (">=", 7)},
         },
     ],
     "soccer": [
@@ -2194,33 +2228,51 @@ CHAINS = {
     "ncaab": [
         {
             "name": "TEMPO TRAP",
-            "desc": "Pace mismatch + public on the fast team + 3PT variance",
-            "bonus": 1.0,
+            "desc": "Pace mismatch + public on the fast team + 3PT variance — book undervalues tempo",
+            "bonus": 2.0,
             "vars": {"tempo_matchup": (">=", 8), "three_pt_reliance": (">=", 7), "public_money_bias": (">=", 7)},
         },
         {
-            "name": "TOURNEY FADE",
-            "desc": "Tournament fatigue + thin bench + 3rd game in 3 days",
-            "bonus": 1.0,
-            "vars": {"tournament_context": (">=", 7), "fatigue_schedule": (">=", 7), "bench_depth": ("<=", 4)},
-        },
-        {
-            "name": "FORM WAVE",
-            "desc": "Hot team firing — ATS, form, efficiency all aligned heading into tournament",
-            "bonus": 1.5,
-            "vars": {"recent_form": (">=", 8), "ats_trend": (">=", 7), "offensive_efficiency": (">=", 7)},
-        },
-        {
-            "name": "BLUE BLOOD TRAP",
-            "desc": "Public hammering blue blood but line isn't moving and NET gap is small — book shaded for public money",
-            "bonus": 1.0,
-            "vars": {"public_money_bias": (">=", 8), "line_movement": ("<=", 4), "net_ranking_gap": ("<=", 5)},
+            "name": "BRAND TAX FADE",
+            "desc": "Public >70% on blue blood + line moves WITH public + metrics favor the dog — biggest March market error",
+            "bonus": 2.0,
+            "vars": {"public_money_bias": (">=", 8), "public_brand_fade": (">=", 7), "line_movement": ("<=", 4)},
         },
         {
             "name": "CINDERELLA SIGNAL",
-            "desc": "Lower seed with elite defense and hot recent form — classic tournament upset profile",
-            "bonus": 1.0,
-            "vars": {"net_ranking_gap": (">=", 7), "recent_form": (">=", 8), "defensive_efficiency": (">=", 7)},
+            "desc": "Mid-major with top-50 D + low TO rate + sustainable shooting — classic tournament upset profile",
+            "bonus": 2.0,
+            "vars": {"defensive_efficiency": (">=", 7), "turnover_margin": (">=", 7), "net_ranking_gap": (">=", 7), "recent_form": (">=", 7)},
+        },
+        {
+            "name": "REGRESSION WAVE",
+            "desc": "Hot streak + 2+ regression markers flagged (unsustainable 3PT/FT/TO luck) — fade the streak",
+            "bonus": 2.0,
+            "vars": {"recent_form": (">=", 8), "regression_markers": (">=", 7)},
+        },
+        {
+            "name": "TRAVEL BODY CLOCK",
+            "desc": "West Coast team + early EST tip + travel >1000mi — market undervalues fatigue/time zone",
+            "bonus": 2.0,
+            "vars": {"travel_rest_disparity": (">=", 7), "neutral_site_performance": (">=", 6)},
+        },
+        {
+            "name": "COACHING COMFORT",
+            "desc": "Coach 4+ tourney wins vs coach <2 tourney wins — experience premium unpriced in early rounds",
+            "bonus": 1.5,
+            "vars": {"coaching_tournament_record": (">=", 8), "tournament_context": (">=", 7)},
+        },
+        {
+            "name": "REF WHISTLE EDGE",
+            "desc": "High-foul ref crew + physical underdog + star-dependent favorite — whistle variance favors depth teams",
+            "bonus": 1.5,
+            "vars": {"referee_whistle_profile": (">=", 7), "foul_trouble_risk": (">=", 7), "bench_depth": (">=", 7)},
+        },
+        {
+            "name": "TIRED LEGS TAX",
+            "desc": "3+ conf tourney games + <2 days rest before NCAA Round 1 — fade in 1H spreads, fatigue shows early",
+            "bonus": 1.5,
+            "vars": {"conference_tourney_fatigue": (">=", 7), "travel_rest_disparity": (">=", 6), "bench_depth": ("<=", 5)},
         },
     ],
     "mlb": [
@@ -6995,17 +7047,22 @@ async def grade_pick(request: Request):
 
 
 @app.get("/api/scores")
-async def get_scores():
-    """Live scoreboard — all sports, today's games with scores."""
+async def get_scores(sport: str = None):
+    """Live scoreboard — today's games with scores. Optional sport filter (e.g. ?sport=nba)."""
     today_pst = datetime.now(PST).strftime("%Y-%m-%d")
     yesterday_pst = (datetime.now(PST) - timedelta(days=1)).strftime("%Y-%m-%d")
-    active_sports = ["nba", "nhl", "mlb", "wnba", "ncaab", "soccer", "mma", "boxing"]
+    all_sports = ["nba", "nhl", "mlb", "wnba", "ncaab", "soccer", "mma", "boxing"]
+    # If sport filter provided, only fetch that sport's keys
+    if sport and sport.lower() in SPORT_KEYS:
+        active_sports = [sport.lower()]
+    else:
+        active_sports = all_sports
     fetch_tasks = []
     fetch_sports = []
-    for sport in active_sports:
-        for key in SPORT_KEYS.get(sport, []):
+    for s in active_sports:
+        for key in SPORT_KEYS.get(s, []):
             fetch_tasks.append(_fetch_scores(key, cache_ttl=SCOREBOARD_CACHE_TTL))
-            fetch_sports.append(sport)
+            fetch_sports.append(s)
 
     results = await asyncio.gather(*fetch_tasks, return_exceptions=True)
     games = []
@@ -10637,6 +10694,11 @@ async def nba_system_page():
 @app.get("/chinny")
 async def chinny_page():
     return FileResponse("static/chinny.html", headers=NO_CACHE_HEADERS)
+
+
+@app.get("/chinny/nhl-system")
+async def chinny_nhl_system_page():
+    return FileResponse("static/chinny-nhl-system.html", headers=NO_CACHE_HEADERS)
 
 
 @app.get("/jimmy")
