@@ -1,0 +1,212 @@
+{
+  "sport": "NHL",
+  "games": [
+    {
+      "id": "Zua1jK0knqz9YgrZDXix",
+      "sport": "NHL",
+      "sport_key": "icehockey_nhl",
+      "league": "",
+      "league_flag": "",
+      "away": "Carolina Hurricanes",
+      "home": "Toronto Maple Leafs",
+      "time": "2026-03-20T23:00:00.000Z",
+      "bookmaker": "hardrockbet",
+      "markets": {},
+      "away_ml": -200,
+      "home_ml": 165,
+      "away_spread": -1.5,
+      "home_spread": 1.5,
+      "away_spread_odds": 115,
+      "home_spread_odds": -145,
+      "total": 6.5,
+      "over_odds": 105,
+      "under_odds": -130,
+      "lines_available": true,
+      "lines_complete": true,
+      "fetched_at": "12:02 AM PST \u2014 Mar 20, 2026",
+      "all_bookmakers": [],
+      "shifts": {
+        "away_ml": {
+          "open": -185,
+          "current": -200
+        },
+        "spread": {
+          "open": -1.5,
+          "current": -1.5
+        },
+        "total": {
+          "open": 6.5,
+          "current": 6.5
+        }
+      },
+      "fair_away_ml": -192,
+      "fair_home_ml": 192
+    },
+    {
+      "id": "aqawogawKjEdDknP9d4g",
+      "sport": "NHL",
+      "sport_key": "icehockey_nhl",
+      "league": "",
+      "league_flag": "",
+      "away": "New Jersey Devils",
+      "home": "Washington Capitals",
+      "time": "2026-03-20T23:00:00.000Z",
+      "bookmaker": "hardrockbet",
+      "markets": {},
+      "away_ml": 105,
+      "home_ml": -125,
+      "away_spread": 1.5,
+      "home_spread": -1.5,
+      "away_spread_odds": -250,
+      "home_spread_odds": 180,
+      "total": 5.5,
+      "over_odds": -145,
+      "under_odds": 115,
+      "lines_available": true,
+      "lines_complete": true,
+      "fetched_at": "12:02 AM PST \u2014 Mar 20, 2026",
+      "all_bookmakers": [],
+      "shifts": {
+        "away_ml": {
+          "open": 105,
+          "current": 105
+        },
+        "spread": {
+          "open": -1.5,
+          "current": 1.5
+        },
+        "total": {
+          "open": 5.5,
+          "current": 5.5
+        }
+      },
+      "fair_away_ml": 119,
+      "fair_home_ml": -119
+    },
+    {
+      "id": "WBJzLpD2oCNe8M7ClBp3",
+      "sport": "NHL",
+      "sport_key": "icehockey_nhl",
+      "league": "",
+      "league_flag": "",
+      "away": "Colorado Avalanche",
+      "home": "Chicago Blackhawks",
+      "time": "2026-03-21T00:30:00.000Z",
+      "bookmaker": "hardrockbet",
+      "markets": {},
+      "away_ml": -300,
+      "home_ml": 225,
+      "away_spread": -1.5,
+      "home_spread": 1.5,
+      "away_spread_odds": -120,
+      "home_spread_odds": 100,
+      "total": 6.5,
+      "over_odds": 100,
+      "under_odds": -120,
+      "lines_available": true,
+      "lines_complete": true,
+      "fetched_at": "12:02 AM PST \u2014 Mar 20, 2026",
+      "all_bookmakers": [],
+      "shifts": {
+        "away_ml": {
+          "open": -285,
+          "current": -300
+        },
+        "spread": {
+          "open": -1.5,
+          "current": -1.5
+        },
+        "total": {
+          "open": 6.5,
+          "current": 6.5
+        }
+      },
+      "fair_away_ml": -245,
+      "fair_home_ml": 245
+    },
+    {
+      "id": "5ld9o9dJAHErSA2vSWyA",
+      "sport": "NHL",
+      "sport_key": "icehockey_nhl",
+      "league": "",
+      "league_flag": "",
+      "away": "Florida Panthers",
+      "home": "Calgary Flames",
+      "time": "2026-03-21T01:00:00.000Z",
+      "bookmaker": "hardrockbet",
+      "markets": {},
+      "away_ml": -110,
+      "home_ml": -110,
+      "away_spread": -1.5,
+      "home_spread": 1.5,
+      "away_spread_odds": 200,
+      "home_spread_odds": -300,
+      "total": 5.5,
+      "over_odds": -130,
+      "under_odds": 105,
+      "lines_available": true,
+      "lines_complete": true,
+      "fetched_at": "12:02 AM PST \u2014 Mar 20, 2026",
+      "all_bookmakers": [],
+      "shifts": {
+        "away_ml": {
+          "open": -125,
+          "current": -110
+        },
+        "spread": {
+          "open": 2.5,
+          "current": -1.5
+        },
+        "total": {
+          "open": 5.5,
+          "current": 5.5
+        }
+      },
+      "fair_away_ml": -101,
+      "fair_home_ml": 101
+    },
+    {
+      "id": "eobcEm5tjFP6KCCAtZwT",
+      "sport": "NHL",
+      "sport_key": "icehockey_nhl",
+      "league": "",
+      "league_flag": "",
+      "away": "Anaheim Ducks",
+      "home": "Utah Mammoth",
+      "time": "2026-03-21T02:00:00.000Z",
+      "bookmaker": "hardrockbet",
+      "markets": {},
+      "away_ml": 100,
+      "home_ml": -120,
+      "away_spread": 1.5,
+      "home_spread": -1.5,
+      "away_spread_odds": -250,
+      "home_spread_odds": 180,
+      "total": 6.5,
+      "over_odds": -115,
+      "under_odds": -105,
+      "lines_available": true,
+      "lines_complete": true,
+      "fetched_at": "12:02 AM PST \u2014 Mar 20, 2026",
+      "all_bookmakers": [],
+      "shifts": {
+        "away_ml": {
+          "open": 105,
+          "current": 100
+        },
+        "spread": {
+          "open": 1.5,
+          "current": 1.5
+        },
+        "total": {
+          "open": 5.5,
+          "current": 6.5
+        }
+      },
+      "fair_away_ml": 113,
+      "fair_home_ml": -113
+    }
+  ],
+  "date": "2026-03-20",
+  "fetched_at": "2026-03-20T00:03:53.975581"
+}

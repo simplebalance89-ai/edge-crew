@@ -1,0 +1,217 @@
+{
+  "sport": "SOCCER",
+  "games": [
+    {
+      "id": "xoBoDJUvNGhFPU7HjZpZ",
+      "sport": "SOCCER",
+      "sport_key": "soccer_italy_serie_a",
+      "league": "Serie A",
+      "league_flag": "\ud83c\uddee\ud83c\uddf9",
+      "away": "Napoli",
+      "home": "Cagliari",
+      "time": "2026-03-20T17:30:00.000Z",
+      "bookmaker": "draftkings",
+      "markets": {},
+      "away_ml": "",
+      "home_ml": "",
+      "away_spread": -0.5,
+      "home_spread": 0.5,
+      "away_spread_odds": -135,
+      "home_spread_odds": 115,
+      "total": 2.5,
+      "over_odds": 120,
+      "under_odds": -175,
+      "lines_available": true,
+      "lines_complete": false,
+      "fetched_at": "12:02 AM PST \u2014 Mar 20, 2026",
+      "all_bookmakers": [],
+      "shifts": {
+        "spread": {
+          "open": -1.5,
+          "current": -0.5
+        },
+        "total": {
+          "open": 2.5,
+          "current": 2.5
+        }
+      }
+    },
+    {
+      "id": "U188JSnFv1S3U7NGrazX",
+      "sport": "SOCCER",
+      "sport_key": "soccer_germany_bundesliga",
+      "league": "Bundesliga",
+      "league_flag": "\ud83c\udde9\ud83c\uddea",
+      "away": "TSG Hoffenheim",
+      "home": "RB Leipzig",
+      "time": "2026-03-20T19:30:00.000Z",
+      "bookmaker": "draftkings",
+      "markets": {},
+      "away_ml": "",
+      "home_ml": "",
+      "away_spread": 0.5,
+      "home_spread": -0.5,
+      "away_spread_odds": -115,
+      "home_spread_odds": -110,
+      "total": 3.5,
+      "over_odds": -112,
+      "under_odds": -108,
+      "lines_available": true,
+      "lines_complete": false,
+      "fetched_at": "12:02 AM PST \u2014 Mar 20, 2026",
+      "all_bookmakers": [],
+      "shifts": {
+        "spread": {
+          "open": 1.5,
+          "current": 0.5
+        },
+        "total": {
+          "open": 3.5,
+          "current": 3.5
+        }
+      }
+    },
+    {
+      "id": "rOFnYhx2Kz9QylFoSwWp",
+      "sport": "SOCCER",
+      "sport_key": "soccer_france_ligue_one",
+      "league": "Ligue 1",
+      "league_flag": "\ud83c\uddeb\ud83c\uddf7",
+      "away": "Angers",
+      "home": "RC Lens",
+      "time": "2026-03-20T19:45:00.000Z",
+      "bookmaker": "draftkings",
+      "markets": {},
+      "away_ml": "",
+      "home_ml": "",
+      "away_spread": 1.5,
+      "home_spread": -1.5,
+      "away_spread_odds": 110,
+      "home_spread_odds": -155,
+      "total": 2.5,
+      "over_odds": -160,
+      "under_odds": 105,
+      "lines_available": true,
+      "lines_complete": false,
+      "fetched_at": "12:02 AM PST \u2014 Mar 20, 2026",
+      "all_bookmakers": [],
+      "shifts": {
+        "spread": {
+          "open": 1.5,
+          "current": 1.5
+        },
+        "total": {
+          "open": 3,
+          "current": 2.5
+        }
+      }
+    },
+    {
+      "id": "znnTUQs1bmd5gRLM610U",
+      "sport": "SOCCER",
+      "sport_key": "soccer_italy_serie_a",
+      "league": "Serie A",
+      "league_flag": "\ud83c\uddee\ud83c\uddf9",
+      "away": "Udinese",
+      "home": "Genoa",
+      "time": "2026-03-20T19:45:00.000Z",
+      "bookmaker": "draftkings",
+      "markets": {},
+      "away_ml": "",
+      "home_ml": "",
+      "away_spread": 0.5,
+      "home_spread": -0.5,
+      "away_spread_odds": -135,
+      "home_spread_odds": 110,
+      "total": 2.5,
+      "over_odds": 135,
+      "under_odds": -205,
+      "lines_available": true,
+      "lines_complete": false,
+      "fetched_at": "12:02 AM PST \u2014 Mar 20, 2026",
+      "all_bookmakers": [],
+      "shifts": {
+        "spread": {
+          "open": 0,
+          "current": 0.5
+        },
+        "total": {
+          "open": 2.5,
+          "current": 2.5
+        }
+      }
+    },
+    {
+      "id": "JtWiQcdDhiWgLKXSFhc7",
+      "sport": "SOCCER",
+      "sport_key": "soccer_spain_la_liga",
+      "league": "La Liga",
+      "league_flag": "\ud83c\uddea\ud83c\uddf8",
+      "away": "Real Sociedad",
+      "home": "Villarreal",
+      "time": "2026-03-20T20:00:00.000Z",
+      "bookmaker": "draftkings",
+      "markets": {},
+      "away_ml": "",
+      "home_ml": "",
+      "away_spread": 0.5,
+      "home_spread": -0.5,
+      "away_spread_odds": -120,
+      "home_spread_odds": -115,
+      "total": 2.5,
+      "over_odds": -124,
+      "under_odds": 102,
+      "lines_available": true,
+      "lines_complete": false,
+      "fetched_at": "12:02 AM PST \u2014 Mar 20, 2026",
+      "all_bookmakers": [],
+      "shifts": {
+        "spread": {
+          "open": 1.5,
+          "current": 0.5
+        },
+        "total": {
+          "open": 2.5,
+          "current": 2.5
+        }
+      }
+    },
+    {
+      "id": "oSxONFbYAYeawms32jYV",
+      "sport": "SOCCER",
+      "sport_key": "soccer_epl",
+      "league": "EPL",
+      "league_flag": "\ud83c\udff4",
+      "away": "Manchester United",
+      "home": "Bournemouth",
+      "time": "2026-03-20T20:00:00.000Z",
+      "bookmaker": "hardrockbet",
+      "markets": {},
+      "away_ml": "",
+      "home_ml": "",
+      "away_spread": -0.5,
+      "home_spread": 0.5,
+      "away_spread_odds": 100,
+      "home_spread_odds": -125,
+      "total": 3.5,
+      "over_odds": 135,
+      "under_odds": -170,
+      "lines_available": true,
+      "lines_complete": false,
+      "fetched_at": "12:02 AM PST \u2014 Mar 20, 2026",
+      "all_bookmakers": [],
+      "shifts": {
+        "spread": {
+          "open": -0.5,
+          "current": -0.5
+        },
+        "total": {
+          "open": 3.5,
+          "current": 3.5
+        }
+      }
+    }
+  ],
+  "date": "2026-03-20",
+  "fetched_at": "2026-03-20T00:03:53.976462"
+}

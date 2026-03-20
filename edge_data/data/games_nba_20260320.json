@@ -1,0 +1,253 @@
+{
+  "sport": "NBA",
+  "games": [
+    {
+      "id": "DIqDZJOoqsB5YmoDMXp4",
+      "sport": "NBA",
+      "sport_key": "basketball_nba",
+      "league": "",
+      "league_flag": "",
+      "away": "Golden State Warriors",
+      "home": "Detroit Pistons",
+      "time": "2026-03-20T23:30:00.000Z",
+      "bookmaker": "hardrockbet",
+      "markets": {},
+      "away_ml": 195,
+      "home_ml": -260,
+      "away_spread": 6.5,
+      "home_spread": -6.5,
+      "away_spread_odds": -115,
+      "home_spread_odds": -105,
+      "total": 217.5,
+      "over_odds": -110,
+      "under_odds": -110,
+      "lines_available": true,
+      "lines_complete": true,
+      "fetched_at": "12:02 AM PST \u2014 Mar 20, 2026",
+      "all_bookmakers": [],
+      "shifts": {
+        "away_ml": {
+          "open": -614,
+          "current": 195
+        },
+        "spread": {
+          "open": 5,
+          "current": 6.5
+        },
+        "total": {
+          "open": 217,
+          "current": 217.5
+        }
+      },
+      "fair_away_ml": 214,
+      "fair_home_ml": -214
+    },
+    {
+      "id": "eIhf34I2IG6xAxWn0OgM",
+      "sport": "NBA",
+      "sport_key": "basketball_nba",
+      "league": "",
+      "league_flag": "",
+      "away": "New York Knicks",
+      "home": "Brooklyn Nets",
+      "time": "2026-03-20T23:30:00.000Z",
+      "bookmaker": "hardrockbet",
+      "markets": {},
+      "away_ml": -2000,
+      "home_ml": 1000,
+      "away_spread": -18,
+      "home_spread": 18,
+      "away_spread_odds": -110,
+      "home_spread_odds": -110,
+      "total": 215.5,
+      "over_odds": -115,
+      "under_odds": -105,
+      "lines_available": true,
+      "lines_complete": true,
+      "fetched_at": "12:02 AM PST \u2014 Mar 20, 2026",
+      "all_bookmakers": [],
+      "shifts": {
+        "away_ml": {
+          "open": -614,
+          "current": -2000
+        },
+        "spread": {
+          "open": -18,
+          "current": -18
+        },
+        "total": {
+          "open": 214.5,
+          "current": 215.5
+        }
+      },
+      "fair_away_ml": -1048,
+      "fair_home_ml": 1048
+    },
+    {
+      "id": "DNVGwatVonLutWdE62iM",
+      "sport": "NBA",
+      "sport_key": "basketball_nba",
+      "league": "",
+      "league_flag": "",
+      "away": "Portland Trail Blazers",
+      "home": "Minnesota Timberwolves",
+      "time": "2026-03-21T00:00:00.000Z",
+      "bookmaker": "hardrockbet",
+      "markets": {},
+      "away_ml": 125,
+      "home_ml": -145,
+      "away_spread": 3,
+      "home_spread": -3,
+      "away_spread_odds": -110,
+      "home_spread_odds": -110,
+      "total": 229.5,
+      "over_odds": -110,
+      "under_odds": -110,
+      "lines_available": true,
+      "lines_complete": true,
+      "fetched_at": "12:02 AM PST \u2014 Mar 20, 2026",
+      "all_bookmakers": [],
+      "shifts": {
+        "away_ml": {
+          "open": -614,
+          "current": 125
+        },
+        "spread": {
+          "open": 2.5,
+          "current": 3
+        },
+        "total": {
+          "open": 228.5,
+          "current": 229.5
+        }
+      },
+      "fair_away_ml": 130,
+      "fair_home_ml": -130
+    },
+    {
+      "id": "TzAtHW1H50orc8973yA8",
+      "sport": "NBA",
+      "sport_key": "basketball_nba",
+      "league": "",
+      "league_flag": "",
+      "away": "Atlanta Hawks",
+      "home": "Houston Rockets",
+      "time": "2026-03-21T00:00:00.000Z",
+      "bookmaker": "hardrockbet",
+      "markets": {},
+      "away_ml": 140,
+      "home_ml": -170,
+      "away_spread": 4,
+      "home_spread": -4,
+      "away_spread_odds": -110,
+      "home_spread_odds": -110,
+      "total": 227.5,
+      "over_odds": -115,
+      "under_odds": -105,
+      "lines_available": true,
+      "lines_complete": true,
+      "fetched_at": "12:02 AM PST \u2014 Mar 20, 2026",
+      "all_bookmakers": [],
+      "shifts": {
+        "away_ml": {
+          "open": -614,
+          "current": 140
+        },
+        "spread": {
+          "open": 4.5,
+          "current": 4
+        },
+        "total": {
+          "open": 224.5,
+          "current": 227.5
+        }
+      },
+      "fair_away_ml": 152,
+      "fair_home_ml": -152
+    },
+    {
+      "id": "WrzFLferPvY7GlnKPxpp",
+      "sport": "NBA",
+      "sport_key": "basketball_nba",
+      "league": "",
+      "league_flag": "",
+      "away": "Boston Celtics",
+      "home": "Memphis Grizzlies",
+      "time": "2026-03-21T00:00:00.000Z",
+      "bookmaker": "hardrockbet",
+      "markets": {},
+      "away_ml": -1100,
+      "home_ml": 700,
+      "away_spread": -15,
+      "home_spread": 15,
+      "away_spread_odds": -110,
+      "home_spread_odds": -110,
+      "total": 228.5,
+      "over_odds": -105,
+      "under_odds": -115,
+      "lines_available": true,
+      "lines_complete": true,
+      "fetched_at": "12:02 AM PST \u2014 Mar 20, 2026",
+      "all_bookmakers": [],
+      "shifts": {
+        "away_ml": {
+          "open": -614,
+          "current": -1100
+        },
+        "spread": {
+          "open": -14.5,
+          "current": -15
+        },
+        "total": {
+          "open": 229,
+          "current": 228.5
+        }
+      },
+      "fair_away_ml": -734,
+      "fair_home_ml": 734
+    },
+    {
+      "id": "GmEYcVLT5RFrFwWweXFk",
+      "sport": "NBA",
+      "sport_key": "basketball_nba",
+      "league": "",
+      "league_flag": "",
+      "away": "Toronto Raptors",
+      "home": "Denver Nuggets",
+      "time": "2026-03-21T01:00:00.000Z",
+      "bookmaker": "hardrockbet",
+      "markets": {},
+      "away_ml": 200,
+      "home_ml": -275,
+      "away_spread": 6.5,
+      "home_spread": -6.5,
+      "away_spread_odds": -105,
+      "home_spread_odds": -115,
+      "total": 235.5,
+      "over_odds": -110,
+      "under_odds": -110,
+      "lines_available": true,
+      "lines_complete": true,
+      "fetched_at": "12:02 AM PST \u2014 Mar 20, 2026",
+      "all_bookmakers": [],
+      "shifts": {
+        "away_ml": {
+          "open": -614,
+          "current": 200
+        },
+        "spread": {
+          "open": 6,
+          "current": 6.5
+        },
+        "total": {
+          "open": 233,
+          "current": 235.5
+        }
+      },
+      "fair_away_ml": 229,
+      "fair_home_ml": -229
+    }
+  ],
+  "date": "2026-03-20",
+  "fetched_at": "2026-03-20T00:03:53.973933"
+}

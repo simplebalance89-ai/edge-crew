@@ -1,0 +1,3382 @@
+{
+  "sport": "NCAAB",
+  "games": [
+    {
+      "game_id": "QyBc3VxtKfrGPJ2GkLx7",
+      "matchup": "Santa Clara Broncos @ Kentucky Wildcats",
+      "pick_side": "home",
+      "consensus_grade": "C+",
+      "consensus_avg": 5.0,
+      "consensus_raw": 5.0,
+      "profiles": {
+        "sintonia": {
+          "game_id": "",
+          "profile": "sintonia",
+          "pick_side": "home",
+          "grade": "C",
+          "composite": 4.99,
+          "chain_bonus": 0.0,
+          "final": 4.99,
+          "pick": "Kentucky Wildcats ?",
+          "sizing": "PASS",
+          "variables": {
+            "offensive_efficiency": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No PPG data"
+            },
+            "defensive_efficiency": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No OPP PPG data"
+            },
+            "star_player_status": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No significant injuries"
+            },
+            "line_movement": {
+              "score": 3,
+              "weight": 9,
+              "weighted": 27,
+              "note": "Line flat \u2014 no sharp signal"
+            },
+            "tempo_matchup": {
+              "score": 5,
+              "weight": 8,
+              "weighted": 40,
+              "note": "No pace data"
+            },
+            "ats_trend": {
+              "score": 6,
+              "weight": 8,
+              "weighted": 48,
+              "note": "Avg margin L10: +0.0 \u2014 close games | Close: 0/10 | Blowouts: 0/10"
+            },
+            "tournament_context": {
+              "score": 8,
+              "weight": 8,
+              "weighted": 64,
+              "note": "Close matchup (0) \u2014 competitive game"
+            },
+            "public_money_bias": {
+              "score": 3,
+              "weight": 8,
+              "weighted": 24,
+              "note": "Public bias proxy \u2014 Line flat \u2014 no sharp signal"
+            },
+            "three_pt_reliance": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "3PT proxy \u2014 No PPG data"
+            },
+            "bench_depth": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "Bench depth proxy \u2014 Similar injury loads (them 0, us 0)"
+            },
+            "rebounding": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "rebounding proxy from margin: +0.0"
+            },
+            "turnover_margin": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "turnover_margin proxy from margin: +0.0"
+            },
+            "recent_form": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "No L5 data"
+            },
+            "coaching_tournament_record": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "Coaching data not available \u2014 neutral"
+            },
+            "net_ranking_gap": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "NET proxy: us 50% vs them 50% (diff +0%)"
+            },
+            "neutral_site": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Neutral site detection not implemented \u2014 neutral"
+            },
+            "conference_strength": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Conference strength data not available \u2014 neutral"
+            },
+            "ft_shooting": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "FT data not available \u2014 neutral"
+            },
+            "rivalry_motivation": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Rivalry proxy from H2H \u2014 No H2H games this season"
+            },
+            "fatigue_schedule": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Rest data unavailable"
+            },
+            "coaching_matchup": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Coaching data not available \u2014 neutral"
+            }
+          },
+          "chains_fired": []
+        },
+        "renzo": {
+          "game_id": "",
+          "profile": "renzo",
+          "pick_side": "home",
+          "grade": "C+",
+          "composite": 5.1,
+          "chain_bonus": 0,
+          "final": 5.1,
+          "pick": "Kentucky Wildcats ?",
+          "sizing": "PASS",
+          "variables": {
+            "Q1_whos_missing": {
+              "score": 5,
+              "weight": 9,
+              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
+            },
+            "Q2_line_reflects": {
+              "score": 5,
+              "weight": 9,
+              "note": "Line moved 0 pts | Injuries roughly priced"
+            },
+            "Q3_recent_form": {
+              "score": 5,
+              "weight": 8,
+              "note": "Us L5: ? | Them L5: ? | Edge: +0"
+            },
+            "Q4_best_on_court": {
+              "score": 6,
+              "weight": 8,
+              "note": "Both sides mostly healthy"
+            },
+            "Q5_schedule_rest": {
+              "score": 6,
+              "weight": 7,
+              "note": "Streak:  | Home"
+            },
+            "thesis_edge": {
+              "score": 4,
+              "weight": 10,
+              "note": "No clear thesis edge found"
+            }
+          },
+          "chains_fired": [],
+          "mathurin_test": "FAIL",
+          "mathurin_note": "No clear thesis edge found"
+        }
+      },
+      "peter_rules": {
+        "game_id": "",
+        "profile": "peter_rules",
+        "pick_side": "home",
+        "flags": [],
+        "adjustment": 0,
+        "has_kill": false,
+        "flag_count": 0
+      },
+      "ev": {
+        "profile": "ev",
+        "status": "no_ml_data",
+        "ev_pct": null,
+        "kelly_size": null
+      }
+    },
+    {
+      "game_id": "jgfwkWMdaoRLE1mdIc0J",
+      "matchup": "Akron Zips @ Texas Tech Red Raiders",
+      "pick_side": "home",
+      "consensus_grade": "C+",
+      "consensus_avg": 5.0,
+      "consensus_raw": 5.0,
+      "profiles": {
+        "sintonia": {
+          "game_id": "",
+          "profile": "sintonia",
+          "pick_side": "home",
+          "grade": "C",
+          "composite": 4.99,
+          "chain_bonus": 0.0,
+          "final": 4.99,
+          "pick": "Texas Tech Red Raiders ?",
+          "sizing": "PASS",
+          "variables": {
+            "offensive_efficiency": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No PPG data"
+            },
+            "defensive_efficiency": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No OPP PPG data"
+            },
+            "star_player_status": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No significant injuries"
+            },
+            "line_movement": {
+              "score": 3,
+              "weight": 9,
+              "weighted": 27,
+              "note": "Line flat \u2014 no sharp signal"
+            },
+            "tempo_matchup": {
+              "score": 5,
+              "weight": 8,
+              "weighted": 40,
+              "note": "No pace data"
+            },
+            "ats_trend": {
+              "score": 6,
+              "weight": 8,
+              "weighted": 48,
+              "note": "Avg margin L10: +0.0 \u2014 close games | Close: 0/10 | Blowouts: 0/10"
+            },
+            "tournament_context": {
+              "score": 8,
+              "weight": 8,
+              "weighted": 64,
+              "note": "Close matchup (0) \u2014 competitive game"
+            },
+            "public_money_bias": {
+              "score": 3,
+              "weight": 8,
+              "weighted": 24,
+              "note": "Public bias proxy \u2014 Line flat \u2014 no sharp signal"
+            },
+            "three_pt_reliance": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "3PT proxy \u2014 No PPG data"
+            },
+            "bench_depth": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "Bench depth proxy \u2014 Similar injury loads (them 0, us 0)"
+            },
+            "rebounding": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "rebounding proxy from margin: +0.0"
+            },
+            "turnover_margin": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "turnover_margin proxy from margin: +0.0"
+            },
+            "recent_form": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "No L5 data"
+            },
+            "coaching_tournament_record": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "Coaching data not available \u2014 neutral"
+            },
+            "net_ranking_gap": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "NET proxy: us 50% vs them 50% (diff +0%)"
+            },
+            "neutral_site": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Neutral site detection not implemented \u2014 neutral"
+            },
+            "conference_strength": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Conference strength data not available \u2014 neutral"
+            },
+            "ft_shooting": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "FT data not available \u2014 neutral"
+            },
+            "rivalry_motivation": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Rivalry proxy from H2H \u2014 No H2H games this season"
+            },
+            "fatigue_schedule": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Rest data unavailable"
+            },
+            "coaching_matchup": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Coaching data not available \u2014 neutral"
+            }
+          },
+          "chains_fired": []
+        },
+        "renzo": {
+          "game_id": "",
+          "profile": "renzo",
+          "pick_side": "home",
+          "grade": "C+",
+          "composite": 5.1,
+          "chain_bonus": 0,
+          "final": 5.1,
+          "pick": "Texas Tech Red Raiders ?",
+          "sizing": "PASS",
+          "variables": {
+            "Q1_whos_missing": {
+              "score": 5,
+              "weight": 9,
+              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
+            },
+            "Q2_line_reflects": {
+              "score": 5,
+              "weight": 9,
+              "note": "Line moved 0 pts | Injuries roughly priced"
+            },
+            "Q3_recent_form": {
+              "score": 5,
+              "weight": 8,
+              "note": "Us L5: ? | Them L5: ? | Edge: +0"
+            },
+            "Q4_best_on_court": {
+              "score": 6,
+              "weight": 8,
+              "note": "Both sides mostly healthy"
+            },
+            "Q5_schedule_rest": {
+              "score": 6,
+              "weight": 7,
+              "note": "Streak:  | Home"
+            },
+            "thesis_edge": {
+              "score": 4,
+              "weight": 10,
+              "note": "No clear thesis edge found"
+            }
+          },
+          "chains_fired": [],
+          "mathurin_test": "FAIL",
+          "mathurin_note": "No clear thesis edge found"
+        }
+      },
+      "peter_rules": {
+        "game_id": "",
+        "profile": "peter_rules",
+        "pick_side": "home",
+        "flags": [],
+        "adjustment": 0,
+        "has_kill": false,
+        "flag_count": 0
+      },
+      "ev": {
+        "profile": "ev",
+        "status": "no_ml_data",
+        "ev_pct": null,
+        "kelly_size": null
+      }
+    },
+    {
+      "game_id": "Ua3MNG0kBabBs4eXRZI5",
+      "matchup": "LIU Sharks @ Arizona Wildcats",
+      "pick_side": "home",
+      "consensus_grade": "C+",
+      "consensus_avg": 5.0,
+      "consensus_raw": 5.0,
+      "profiles": {
+        "sintonia": {
+          "game_id": "",
+          "profile": "sintonia",
+          "pick_side": "home",
+          "grade": "C",
+          "composite": 4.99,
+          "chain_bonus": 0.0,
+          "final": 4.99,
+          "pick": "Arizona Wildcats ?",
+          "sizing": "PASS",
+          "variables": {
+            "offensive_efficiency": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No PPG data"
+            },
+            "defensive_efficiency": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No OPP PPG data"
+            },
+            "star_player_status": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No significant injuries"
+            },
+            "line_movement": {
+              "score": 3,
+              "weight": 9,
+              "weighted": 27,
+              "note": "Line flat \u2014 no sharp signal"
+            },
+            "tempo_matchup": {
+              "score": 5,
+              "weight": 8,
+              "weighted": 40,
+              "note": "No pace data"
+            },
+            "ats_trend": {
+              "score": 6,
+              "weight": 8,
+              "weighted": 48,
+              "note": "Avg margin L10: +0.0 \u2014 close games | Close: 0/10 | Blowouts: 0/10"
+            },
+            "tournament_context": {
+              "score": 8,
+              "weight": 8,
+              "weighted": 64,
+              "note": "Close matchup (0) \u2014 competitive game"
+            },
+            "public_money_bias": {
+              "score": 3,
+              "weight": 8,
+              "weighted": 24,
+              "note": "Public bias proxy \u2014 Line flat \u2014 no sharp signal"
+            },
+            "three_pt_reliance": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "3PT proxy \u2014 No PPG data"
+            },
+            "bench_depth": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "Bench depth proxy \u2014 Similar injury loads (them 0, us 0)"
+            },
+            "rebounding": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "rebounding proxy from margin: +0.0"
+            },
+            "turnover_margin": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "turnover_margin proxy from margin: +0.0"
+            },
+            "recent_form": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "No L5 data"
+            },
+            "coaching_tournament_record": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "Coaching data not available \u2014 neutral"
+            },
+            "net_ranking_gap": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "NET proxy: us 50% vs them 50% (diff +0%)"
+            },
+            "neutral_site": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Neutral site detection not implemented \u2014 neutral"
+            },
+            "conference_strength": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Conference strength data not available \u2014 neutral"
+            },
+            "ft_shooting": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "FT data not available \u2014 neutral"
+            },
+            "rivalry_motivation": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Rivalry proxy from H2H \u2014 No H2H games this season"
+            },
+            "fatigue_schedule": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Rest data unavailable"
+            },
+            "coaching_matchup": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Coaching data not available \u2014 neutral"
+            }
+          },
+          "chains_fired": []
+        },
+        "renzo": {
+          "game_id": "",
+          "profile": "renzo",
+          "pick_side": "home",
+          "grade": "C+",
+          "composite": 5.1,
+          "chain_bonus": 0,
+          "final": 5.1,
+          "pick": "Arizona Wildcats ?",
+          "sizing": "PASS",
+          "variables": {
+            "Q1_whos_missing": {
+              "score": 5,
+              "weight": 9,
+              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
+            },
+            "Q2_line_reflects": {
+              "score": 5,
+              "weight": 9,
+              "note": "Line moved 0 pts | Injuries roughly priced"
+            },
+            "Q3_recent_form": {
+              "score": 5,
+              "weight": 8,
+              "note": "Us L5: ? | Them L5: ? | Edge: +0"
+            },
+            "Q4_best_on_court": {
+              "score": 6,
+              "weight": 8,
+              "note": "Both sides mostly healthy"
+            },
+            "Q5_schedule_rest": {
+              "score": 6,
+              "weight": 7,
+              "note": "Streak:  | Home"
+            },
+            "thesis_edge": {
+              "score": 4,
+              "weight": 10,
+              "note": "No clear thesis edge found"
+            }
+          },
+          "chains_fired": [],
+          "mathurin_test": "FAIL",
+          "mathurin_note": "No clear thesis edge found"
+        }
+      },
+      "peter_rules": {
+        "game_id": "",
+        "profile": "peter_rules",
+        "pick_side": "home",
+        "flags": [],
+        "adjustment": 0,
+        "has_kill": false,
+        "flag_count": 0
+      },
+      "ev": {
+        "profile": "ev",
+        "status": "no_ml_data",
+        "ev_pct": null,
+        "kelly_size": null
+      }
+    },
+    {
+      "game_id": "ykPgXOn5xNWArIqK11c2",
+      "matchup": "Wright State Raiders @ Virginia Cavaliers",
+      "pick_side": "home",
+      "consensus_grade": "C+",
+      "consensus_avg": 5.0,
+      "consensus_raw": 5.0,
+      "profiles": {
+        "sintonia": {
+          "game_id": "",
+          "profile": "sintonia",
+          "pick_side": "home",
+          "grade": "C",
+          "composite": 4.99,
+          "chain_bonus": 0.0,
+          "final": 4.99,
+          "pick": "Virginia Cavaliers ?",
+          "sizing": "PASS",
+          "variables": {
+            "offensive_efficiency": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No PPG data"
+            },
+            "defensive_efficiency": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No OPP PPG data"
+            },
+            "star_player_status": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No significant injuries"
+            },
+            "line_movement": {
+              "score": 3,
+              "weight": 9,
+              "weighted": 27,
+              "note": "Line flat \u2014 no sharp signal"
+            },
+            "tempo_matchup": {
+              "score": 5,
+              "weight": 8,
+              "weighted": 40,
+              "note": "No pace data"
+            },
+            "ats_trend": {
+              "score": 6,
+              "weight": 8,
+              "weighted": 48,
+              "note": "Avg margin L10: +0.0 \u2014 close games | Close: 0/10 | Blowouts: 0/10"
+            },
+            "tournament_context": {
+              "score": 8,
+              "weight": 8,
+              "weighted": 64,
+              "note": "Close matchup (0) \u2014 competitive game"
+            },
+            "public_money_bias": {
+              "score": 3,
+              "weight": 8,
+              "weighted": 24,
+              "note": "Public bias proxy \u2014 Line flat \u2014 no sharp signal"
+            },
+            "three_pt_reliance": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "3PT proxy \u2014 No PPG data"
+            },
+            "bench_depth": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "Bench depth proxy \u2014 Similar injury loads (them 0, us 0)"
+            },
+            "rebounding": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "rebounding proxy from margin: +0.0"
+            },
+            "turnover_margin": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "turnover_margin proxy from margin: +0.0"
+            },
+            "recent_form": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "No L5 data"
+            },
+            "coaching_tournament_record": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "Coaching data not available \u2014 neutral"
+            },
+            "net_ranking_gap": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "NET proxy: us 50% vs them 50% (diff +0%)"
+            },
+            "neutral_site": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Neutral site detection not implemented \u2014 neutral"
+            },
+            "conference_strength": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Conference strength data not available \u2014 neutral"
+            },
+            "ft_shooting": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "FT data not available \u2014 neutral"
+            },
+            "rivalry_motivation": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Rivalry proxy from H2H \u2014 No H2H games this season"
+            },
+            "fatigue_schedule": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Rest data unavailable"
+            },
+            "coaching_matchup": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Coaching data not available \u2014 neutral"
+            }
+          },
+          "chains_fired": []
+        },
+        "renzo": {
+          "game_id": "",
+          "profile": "renzo",
+          "pick_side": "home",
+          "grade": "C+",
+          "composite": 5.1,
+          "chain_bonus": 0,
+          "final": 5.1,
+          "pick": "Virginia Cavaliers ?",
+          "sizing": "PASS",
+          "variables": {
+            "Q1_whos_missing": {
+              "score": 5,
+              "weight": 9,
+              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
+            },
+            "Q2_line_reflects": {
+              "score": 5,
+              "weight": 9,
+              "note": "Line moved 0 pts | Injuries roughly priced"
+            },
+            "Q3_recent_form": {
+              "score": 5,
+              "weight": 8,
+              "note": "Us L5: ? | Them L5: ? | Edge: +0"
+            },
+            "Q4_best_on_court": {
+              "score": 6,
+              "weight": 8,
+              "note": "Both sides mostly healthy"
+            },
+            "Q5_schedule_rest": {
+              "score": 6,
+              "weight": 7,
+              "note": "Streak:  | Home"
+            },
+            "thesis_edge": {
+              "score": 4,
+              "weight": 10,
+              "note": "No clear thesis edge found"
+            }
+          },
+          "chains_fired": [],
+          "mathurin_test": "FAIL",
+          "mathurin_note": "No clear thesis edge found"
+        }
+      },
+      "peter_rules": {
+        "game_id": "",
+        "profile": "peter_rules",
+        "pick_side": "home",
+        "flags": [],
+        "adjustment": 0,
+        "has_kill": false,
+        "flag_count": 0
+      },
+      "ev": {
+        "profile": "ev",
+        "status": "no_ml_data",
+        "ev_pct": null,
+        "kelly_size": null
+      }
+    },
+    {
+      "game_id": "eZMY6Ye2stCw6nf3QmBD",
+      "matchup": "Tennessee State Tigers @ Iowa State Cyclones",
+      "pick_side": "home",
+      "consensus_grade": "C+",
+      "consensus_avg": 5.0,
+      "consensus_raw": 5.0,
+      "profiles": {
+        "sintonia": {
+          "game_id": "",
+          "profile": "sintonia",
+          "pick_side": "home",
+          "grade": "C",
+          "composite": 4.99,
+          "chain_bonus": 0.0,
+          "final": 4.99,
+          "pick": "Iowa State Cyclones ?",
+          "sizing": "PASS",
+          "variables": {
+            "offensive_efficiency": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No PPG data"
+            },
+            "defensive_efficiency": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No OPP PPG data"
+            },
+            "star_player_status": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No significant injuries"
+            },
+            "line_movement": {
+              "score": 3,
+              "weight": 9,
+              "weighted": 27,
+              "note": "Line flat \u2014 no sharp signal"
+            },
+            "tempo_matchup": {
+              "score": 5,
+              "weight": 8,
+              "weighted": 40,
+              "note": "No pace data"
+            },
+            "ats_trend": {
+              "score": 6,
+              "weight": 8,
+              "weighted": 48,
+              "note": "Avg margin L10: +0.0 \u2014 close games | Close: 0/10 | Blowouts: 0/10"
+            },
+            "tournament_context": {
+              "score": 8,
+              "weight": 8,
+              "weighted": 64,
+              "note": "Close matchup (0) \u2014 competitive game"
+            },
+            "public_money_bias": {
+              "score": 3,
+              "weight": 8,
+              "weighted": 24,
+              "note": "Public bias proxy \u2014 Line flat \u2014 no sharp signal"
+            },
+            "three_pt_reliance": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "3PT proxy \u2014 No PPG data"
+            },
+            "bench_depth": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "Bench depth proxy \u2014 Similar injury loads (them 0, us 0)"
+            },
+            "rebounding": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "rebounding proxy from margin: +0.0"
+            },
+            "turnover_margin": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "turnover_margin proxy from margin: +0.0"
+            },
+            "recent_form": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "No L5 data"
+            },
+            "coaching_tournament_record": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "Coaching data not available \u2014 neutral"
+            },
+            "net_ranking_gap": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "NET proxy: us 50% vs them 50% (diff +0%)"
+            },
+            "neutral_site": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Neutral site detection not implemented \u2014 neutral"
+            },
+            "conference_strength": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Conference strength data not available \u2014 neutral"
+            },
+            "ft_shooting": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "FT data not available \u2014 neutral"
+            },
+            "rivalry_motivation": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Rivalry proxy from H2H \u2014 No H2H games this season"
+            },
+            "fatigue_schedule": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Rest data unavailable"
+            },
+            "coaching_matchup": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Coaching data not available \u2014 neutral"
+            }
+          },
+          "chains_fired": []
+        },
+        "renzo": {
+          "game_id": "",
+          "profile": "renzo",
+          "pick_side": "home",
+          "grade": "C+",
+          "composite": 5.1,
+          "chain_bonus": 0,
+          "final": 5.1,
+          "pick": "Iowa State Cyclones ?",
+          "sizing": "PASS",
+          "variables": {
+            "Q1_whos_missing": {
+              "score": 5,
+              "weight": 9,
+              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
+            },
+            "Q2_line_reflects": {
+              "score": 5,
+              "weight": 9,
+              "note": "Line moved 0 pts | Injuries roughly priced"
+            },
+            "Q3_recent_form": {
+              "score": 5,
+              "weight": 8,
+              "note": "Us L5: ? | Them L5: ? | Edge: +0"
+            },
+            "Q4_best_on_court": {
+              "score": 6,
+              "weight": 8,
+              "note": "Both sides mostly healthy"
+            },
+            "Q5_schedule_rest": {
+              "score": 6,
+              "weight": 7,
+              "note": "Streak:  | Home"
+            },
+            "thesis_edge": {
+              "score": 4,
+              "weight": 10,
+              "note": "No clear thesis edge found"
+            }
+          },
+          "chains_fired": [],
+          "mathurin_test": "FAIL",
+          "mathurin_note": "No clear thesis edge found"
+        }
+      },
+      "peter_rules": {
+        "game_id": "",
+        "profile": "peter_rules",
+        "pick_side": "home",
+        "flags": [],
+        "adjustment": 0,
+        "has_kill": false,
+        "flag_count": 0
+      },
+      "ev": {
+        "profile": "ev",
+        "status": "no_ml_data",
+        "ev_pct": null,
+        "kelly_size": null
+      }
+    },
+    {
+      "game_id": "HqF1yO0jtneTBr9UvLiB",
+      "matchup": "Hofstra Pride @ Alabama Crimson Tide",
+      "pick_side": "home",
+      "consensus_grade": "C+",
+      "consensus_avg": 5.0,
+      "consensus_raw": 5.0,
+      "profiles": {
+        "sintonia": {
+          "game_id": "",
+          "profile": "sintonia",
+          "pick_side": "home",
+          "grade": "C",
+          "composite": 4.99,
+          "chain_bonus": 0.0,
+          "final": 4.99,
+          "pick": "Alabama Crimson Tide ?",
+          "sizing": "PASS",
+          "variables": {
+            "offensive_efficiency": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No PPG data"
+            },
+            "defensive_efficiency": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No OPP PPG data"
+            },
+            "star_player_status": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No significant injuries"
+            },
+            "line_movement": {
+              "score": 3,
+              "weight": 9,
+              "weighted": 27,
+              "note": "Line flat \u2014 no sharp signal"
+            },
+            "tempo_matchup": {
+              "score": 5,
+              "weight": 8,
+              "weighted": 40,
+              "note": "No pace data"
+            },
+            "ats_trend": {
+              "score": 6,
+              "weight": 8,
+              "weighted": 48,
+              "note": "Avg margin L10: +0.0 \u2014 close games | Close: 0/10 | Blowouts: 0/10"
+            },
+            "tournament_context": {
+              "score": 8,
+              "weight": 8,
+              "weighted": 64,
+              "note": "Close matchup (0) \u2014 competitive game"
+            },
+            "public_money_bias": {
+              "score": 3,
+              "weight": 8,
+              "weighted": 24,
+              "note": "Public bias proxy \u2014 Line flat \u2014 no sharp signal"
+            },
+            "three_pt_reliance": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "3PT proxy \u2014 No PPG data"
+            },
+            "bench_depth": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "Bench depth proxy \u2014 Similar injury loads (them 0, us 0)"
+            },
+            "rebounding": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "rebounding proxy from margin: +0.0"
+            },
+            "turnover_margin": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "turnover_margin proxy from margin: +0.0"
+            },
+            "recent_form": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "No L5 data"
+            },
+            "coaching_tournament_record": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "Coaching data not available \u2014 neutral"
+            },
+            "net_ranking_gap": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "NET proxy: us 50% vs them 50% (diff +0%)"
+            },
+            "neutral_site": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Neutral site detection not implemented \u2014 neutral"
+            },
+            "conference_strength": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Conference strength data not available \u2014 neutral"
+            },
+            "ft_shooting": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "FT data not available \u2014 neutral"
+            },
+            "rivalry_motivation": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Rivalry proxy from H2H \u2014 No H2H games this season"
+            },
+            "fatigue_schedule": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Rest data unavailable"
+            },
+            "coaching_matchup": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Coaching data not available \u2014 neutral"
+            }
+          },
+          "chains_fired": []
+        },
+        "renzo": {
+          "game_id": "",
+          "profile": "renzo",
+          "pick_side": "home",
+          "grade": "C+",
+          "composite": 5.1,
+          "chain_bonus": 0,
+          "final": 5.1,
+          "pick": "Alabama Crimson Tide ?",
+          "sizing": "PASS",
+          "variables": {
+            "Q1_whos_missing": {
+              "score": 5,
+              "weight": 9,
+              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
+            },
+            "Q2_line_reflects": {
+              "score": 5,
+              "weight": 9,
+              "note": "Line moved 0 pts | Injuries roughly priced"
+            },
+            "Q3_recent_form": {
+              "score": 5,
+              "weight": 8,
+              "note": "Us L5: ? | Them L5: ? | Edge: +0"
+            },
+            "Q4_best_on_court": {
+              "score": 6,
+              "weight": 8,
+              "note": "Both sides mostly healthy"
+            },
+            "Q5_schedule_rest": {
+              "score": 6,
+              "weight": 7,
+              "note": "Streak:  | Home"
+            },
+            "thesis_edge": {
+              "score": 4,
+              "weight": 10,
+              "note": "No clear thesis edge found"
+            }
+          },
+          "chains_fired": [],
+          "mathurin_test": "FAIL",
+          "mathurin_note": "No clear thesis edge found"
+        }
+      },
+      "peter_rules": {
+        "game_id": "",
+        "profile": "peter_rules",
+        "pick_side": "home",
+        "flags": [],
+        "adjustment": 0,
+        "has_kill": false,
+        "flag_count": 0
+      },
+      "ev": {
+        "profile": "ev",
+        "status": "no_ml_data",
+        "ev_pct": null,
+        "kelly_size": null
+      }
+    },
+    {
+      "game_id": "pAiSZQeTOkabZHFXPeV9",
+      "matchup": "Utah State Aggies @ Villanova Wildcats",
+      "pick_side": "home",
+      "consensus_grade": "C+",
+      "consensus_avg": 5.0,
+      "consensus_raw": 5.0,
+      "profiles": {
+        "sintonia": {
+          "game_id": "",
+          "profile": "sintonia",
+          "pick_side": "home",
+          "grade": "C",
+          "composite": 4.99,
+          "chain_bonus": 0.0,
+          "final": 4.99,
+          "pick": "Villanova Wildcats ?",
+          "sizing": "PASS",
+          "variables": {
+            "offensive_efficiency": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No PPG data"
+            },
+            "defensive_efficiency": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No OPP PPG data"
+            },
+            "star_player_status": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No significant injuries"
+            },
+            "line_movement": {
+              "score": 3,
+              "weight": 9,
+              "weighted": 27,
+              "note": "Line flat \u2014 no sharp signal"
+            },
+            "tempo_matchup": {
+              "score": 5,
+              "weight": 8,
+              "weighted": 40,
+              "note": "No pace data"
+            },
+            "ats_trend": {
+              "score": 6,
+              "weight": 8,
+              "weighted": 48,
+              "note": "Avg margin L10: +0.0 \u2014 close games | Close: 0/10 | Blowouts: 0/10"
+            },
+            "tournament_context": {
+              "score": 8,
+              "weight": 8,
+              "weighted": 64,
+              "note": "Close matchup (0) \u2014 competitive game"
+            },
+            "public_money_bias": {
+              "score": 3,
+              "weight": 8,
+              "weighted": 24,
+              "note": "Public bias proxy \u2014 Line flat \u2014 no sharp signal"
+            },
+            "three_pt_reliance": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "3PT proxy \u2014 No PPG data"
+            },
+            "bench_depth": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "Bench depth proxy \u2014 Similar injury loads (them 0, us 0)"
+            },
+            "rebounding": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "rebounding proxy from margin: +0.0"
+            },
+            "turnover_margin": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "turnover_margin proxy from margin: +0.0"
+            },
+            "recent_form": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "No L5 data"
+            },
+            "coaching_tournament_record": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "Coaching data not available \u2014 neutral"
+            },
+            "net_ranking_gap": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "NET proxy: us 50% vs them 50% (diff +0%)"
+            },
+            "neutral_site": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Neutral site detection not implemented \u2014 neutral"
+            },
+            "conference_strength": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Conference strength data not available \u2014 neutral"
+            },
+            "ft_shooting": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "FT data not available \u2014 neutral"
+            },
+            "rivalry_motivation": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Rivalry proxy from H2H \u2014 No H2H games this season"
+            },
+            "fatigue_schedule": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Rest data unavailable"
+            },
+            "coaching_matchup": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Coaching data not available \u2014 neutral"
+            }
+          },
+          "chains_fired": []
+        },
+        "renzo": {
+          "game_id": "",
+          "profile": "renzo",
+          "pick_side": "home",
+          "grade": "C+",
+          "composite": 5.1,
+          "chain_bonus": 0,
+          "final": 5.1,
+          "pick": "Villanova Wildcats ?",
+          "sizing": "PASS",
+          "variables": {
+            "Q1_whos_missing": {
+              "score": 5,
+              "weight": 9,
+              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
+            },
+            "Q2_line_reflects": {
+              "score": 5,
+              "weight": 9,
+              "note": "Line moved 0 pts | Injuries roughly priced"
+            },
+            "Q3_recent_form": {
+              "score": 5,
+              "weight": 8,
+              "note": "Us L5: ? | Them L5: ? | Edge: +0"
+            },
+            "Q4_best_on_court": {
+              "score": 6,
+              "weight": 8,
+              "note": "Both sides mostly healthy"
+            },
+            "Q5_schedule_rest": {
+              "score": 6,
+              "weight": 7,
+              "note": "Streak:  | Home"
+            },
+            "thesis_edge": {
+              "score": 4,
+              "weight": 10,
+              "note": "No clear thesis edge found"
+            }
+          },
+          "chains_fired": [],
+          "mathurin_test": "FAIL",
+          "mathurin_note": "No clear thesis edge found"
+        }
+      },
+      "peter_rules": {
+        "game_id": "",
+        "profile": "peter_rules",
+        "pick_side": "home",
+        "flags": [],
+        "adjustment": 0,
+        "has_kill": false,
+        "flag_count": 0
+      },
+      "ev": {
+        "profile": "ev",
+        "status": "no_ml_data",
+        "ev_pct": null,
+        "kelly_size": null
+      }
+    },
+    {
+      "game_id": "sddlGqvyJ3PkZsmtQdCb",
+      "matchup": "Miami (OH) RedHawks @ Tennessee Volunteers",
+      "pick_side": "home",
+      "consensus_grade": "C+",
+      "consensus_avg": 5.0,
+      "consensus_raw": 5.0,
+      "profiles": {
+        "sintonia": {
+          "game_id": "",
+          "profile": "sintonia",
+          "pick_side": "home",
+          "grade": "C",
+          "composite": 4.99,
+          "chain_bonus": 0.0,
+          "final": 4.99,
+          "pick": "Tennessee Volunteers ?",
+          "sizing": "PASS",
+          "variables": {
+            "offensive_efficiency": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No PPG data"
+            },
+            "defensive_efficiency": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No OPP PPG data"
+            },
+            "star_player_status": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No significant injuries"
+            },
+            "line_movement": {
+              "score": 3,
+              "weight": 9,
+              "weighted": 27,
+              "note": "Line flat \u2014 no sharp signal"
+            },
+            "tempo_matchup": {
+              "score": 5,
+              "weight": 8,
+              "weighted": 40,
+              "note": "No pace data"
+            },
+            "ats_trend": {
+              "score": 6,
+              "weight": 8,
+              "weighted": 48,
+              "note": "Avg margin L10: +0.0 \u2014 close games | Close: 0/10 | Blowouts: 0/10"
+            },
+            "tournament_context": {
+              "score": 8,
+              "weight": 8,
+              "weighted": 64,
+              "note": "Close matchup (0) \u2014 competitive game"
+            },
+            "public_money_bias": {
+              "score": 3,
+              "weight": 8,
+              "weighted": 24,
+              "note": "Public bias proxy \u2014 Line flat \u2014 no sharp signal"
+            },
+            "three_pt_reliance": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "3PT proxy \u2014 No PPG data"
+            },
+            "bench_depth": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "Bench depth proxy \u2014 Similar injury loads (them 0, us 0)"
+            },
+            "rebounding": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "rebounding proxy from margin: +0.0"
+            },
+            "turnover_margin": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "turnover_margin proxy from margin: +0.0"
+            },
+            "recent_form": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "No L5 data"
+            },
+            "coaching_tournament_record": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "Coaching data not available \u2014 neutral"
+            },
+            "net_ranking_gap": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "NET proxy: us 50% vs them 50% (diff +0%)"
+            },
+            "neutral_site": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Neutral site detection not implemented \u2014 neutral"
+            },
+            "conference_strength": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Conference strength data not available \u2014 neutral"
+            },
+            "ft_shooting": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "FT data not available \u2014 neutral"
+            },
+            "rivalry_motivation": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Rivalry proxy from H2H \u2014 No H2H games this season"
+            },
+            "fatigue_schedule": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Rest data unavailable"
+            },
+            "coaching_matchup": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Coaching data not available \u2014 neutral"
+            }
+          },
+          "chains_fired": []
+        },
+        "renzo": {
+          "game_id": "",
+          "profile": "renzo",
+          "pick_side": "home",
+          "grade": "C+",
+          "composite": 5.1,
+          "chain_bonus": 0,
+          "final": 5.1,
+          "pick": "Tennessee Volunteers ?",
+          "sizing": "PASS",
+          "variables": {
+            "Q1_whos_missing": {
+              "score": 5,
+              "weight": 9,
+              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
+            },
+            "Q2_line_reflects": {
+              "score": 5,
+              "weight": 9,
+              "note": "Line moved 0 pts | Injuries roughly priced"
+            },
+            "Q3_recent_form": {
+              "score": 5,
+              "weight": 8,
+              "note": "Us L5: ? | Them L5: ? | Edge: +0"
+            },
+            "Q4_best_on_court": {
+              "score": 6,
+              "weight": 8,
+              "note": "Both sides mostly healthy"
+            },
+            "Q5_schedule_rest": {
+              "score": 6,
+              "weight": 7,
+              "note": "Streak:  | Home"
+            },
+            "thesis_edge": {
+              "score": 4,
+              "weight": 10,
+              "note": "No clear thesis edge found"
+            }
+          },
+          "chains_fired": [],
+          "mathurin_test": "FAIL",
+          "mathurin_note": "No clear thesis edge found"
+        }
+      },
+      "peter_rules": {
+        "game_id": "",
+        "profile": "peter_rules",
+        "pick_side": "home",
+        "flags": [],
+        "adjustment": 0,
+        "has_kill": false,
+        "flag_count": 0
+      },
+      "ev": {
+        "profile": "ev",
+        "status": "no_ml_data",
+        "ev_pct": null,
+        "kelly_size": null
+      }
+    },
+    {
+      "game_id": "yA0BhTrAW2vclIItWz2l",
+      "matchup": "Iowa Hawkeyes @ Clemson Tigers",
+      "pick_side": "home",
+      "consensus_grade": "C+",
+      "consensus_avg": 5.0,
+      "consensus_raw": 5.0,
+      "profiles": {
+        "sintonia": {
+          "game_id": "",
+          "profile": "sintonia",
+          "pick_side": "home",
+          "grade": "C",
+          "composite": 4.99,
+          "chain_bonus": 0.0,
+          "final": 4.99,
+          "pick": "Clemson Tigers ?",
+          "sizing": "PASS",
+          "variables": {
+            "offensive_efficiency": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No PPG data"
+            },
+            "defensive_efficiency": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No OPP PPG data"
+            },
+            "star_player_status": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No significant injuries"
+            },
+            "line_movement": {
+              "score": 3,
+              "weight": 9,
+              "weighted": 27,
+              "note": "Line flat \u2014 no sharp signal"
+            },
+            "tempo_matchup": {
+              "score": 5,
+              "weight": 8,
+              "weighted": 40,
+              "note": "No pace data"
+            },
+            "ats_trend": {
+              "score": 6,
+              "weight": 8,
+              "weighted": 48,
+              "note": "Avg margin L10: +0.0 \u2014 close games | Close: 0/10 | Blowouts: 0/10"
+            },
+            "tournament_context": {
+              "score": 8,
+              "weight": 8,
+              "weighted": 64,
+              "note": "Close matchup (0) \u2014 competitive game"
+            },
+            "public_money_bias": {
+              "score": 3,
+              "weight": 8,
+              "weighted": 24,
+              "note": "Public bias proxy \u2014 Line flat \u2014 no sharp signal"
+            },
+            "three_pt_reliance": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "3PT proxy \u2014 No PPG data"
+            },
+            "bench_depth": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "Bench depth proxy \u2014 Similar injury loads (them 0, us 0)"
+            },
+            "rebounding": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "rebounding proxy from margin: +0.0"
+            },
+            "turnover_margin": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "turnover_margin proxy from margin: +0.0"
+            },
+            "recent_form": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "No L5 data"
+            },
+            "coaching_tournament_record": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "Coaching data not available \u2014 neutral"
+            },
+            "net_ranking_gap": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "NET proxy: us 50% vs them 50% (diff +0%)"
+            },
+            "neutral_site": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Neutral site detection not implemented \u2014 neutral"
+            },
+            "conference_strength": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Conference strength data not available \u2014 neutral"
+            },
+            "ft_shooting": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "FT data not available \u2014 neutral"
+            },
+            "rivalry_motivation": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Rivalry proxy from H2H \u2014 No H2H games this season"
+            },
+            "fatigue_schedule": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Rest data unavailable"
+            },
+            "coaching_matchup": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Coaching data not available \u2014 neutral"
+            }
+          },
+          "chains_fired": []
+        },
+        "renzo": {
+          "game_id": "",
+          "profile": "renzo",
+          "pick_side": "home",
+          "grade": "C+",
+          "composite": 5.1,
+          "chain_bonus": 0,
+          "final": 5.1,
+          "pick": "Clemson Tigers ?",
+          "sizing": "PASS",
+          "variables": {
+            "Q1_whos_missing": {
+              "score": 5,
+              "weight": 9,
+              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
+            },
+            "Q2_line_reflects": {
+              "score": 5,
+              "weight": 9,
+              "note": "Line moved 0 pts | Injuries roughly priced"
+            },
+            "Q3_recent_form": {
+              "score": 5,
+              "weight": 8,
+              "note": "Us L5: ? | Them L5: ? | Edge: +0"
+            },
+            "Q4_best_on_court": {
+              "score": 6,
+              "weight": 8,
+              "note": "Both sides mostly healthy"
+            },
+            "Q5_schedule_rest": {
+              "score": 6,
+              "weight": 7,
+              "note": "Streak:  | Home"
+            },
+            "thesis_edge": {
+              "score": 4,
+              "weight": 10,
+              "note": "No clear thesis edge found"
+            }
+          },
+          "chains_fired": [],
+          "mathurin_test": "FAIL",
+          "mathurin_note": "No clear thesis edge found"
+        }
+      },
+      "peter_rules": {
+        "game_id": "",
+        "profile": "peter_rules",
+        "pick_side": "home",
+        "flags": [],
+        "adjustment": 0,
+        "has_kill": false,
+        "flag_count": 0
+      },
+      "ev": {
+        "profile": "ev",
+        "status": "no_ml_data",
+        "ev_pct": null,
+        "kelly_size": null
+      }
+    },
+    {
+      "game_id": "nVOlvoOGTcIMz1g9bsAA",
+      "matchup": "Northern Iowa Panthers @ St. John's Red Storm",
+      "pick_side": "home",
+      "consensus_grade": "C+",
+      "consensus_avg": 5.0,
+      "consensus_raw": 5.0,
+      "profiles": {
+        "sintonia": {
+          "game_id": "",
+          "profile": "sintonia",
+          "pick_side": "home",
+          "grade": "C",
+          "composite": 4.99,
+          "chain_bonus": 0.0,
+          "final": 4.99,
+          "pick": "St. John's Red Storm ?",
+          "sizing": "PASS",
+          "variables": {
+            "offensive_efficiency": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No PPG data"
+            },
+            "defensive_efficiency": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No OPP PPG data"
+            },
+            "star_player_status": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No significant injuries"
+            },
+            "line_movement": {
+              "score": 3,
+              "weight": 9,
+              "weighted": 27,
+              "note": "Line flat \u2014 no sharp signal"
+            },
+            "tempo_matchup": {
+              "score": 5,
+              "weight": 8,
+              "weighted": 40,
+              "note": "No pace data"
+            },
+            "ats_trend": {
+              "score": 6,
+              "weight": 8,
+              "weighted": 48,
+              "note": "Avg margin L10: +0.0 \u2014 close games | Close: 0/10 | Blowouts: 0/10"
+            },
+            "tournament_context": {
+              "score": 8,
+              "weight": 8,
+              "weighted": 64,
+              "note": "Close matchup (0) \u2014 competitive game"
+            },
+            "public_money_bias": {
+              "score": 3,
+              "weight": 8,
+              "weighted": 24,
+              "note": "Public bias proxy \u2014 Line flat \u2014 no sharp signal"
+            },
+            "three_pt_reliance": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "3PT proxy \u2014 No PPG data"
+            },
+            "bench_depth": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "Bench depth proxy \u2014 Similar injury loads (them 0, us 0)"
+            },
+            "rebounding": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "rebounding proxy from margin: +0.0"
+            },
+            "turnover_margin": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "turnover_margin proxy from margin: +0.0"
+            },
+            "recent_form": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "No L5 data"
+            },
+            "coaching_tournament_record": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "Coaching data not available \u2014 neutral"
+            },
+            "net_ranking_gap": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "NET proxy: us 50% vs them 50% (diff +0%)"
+            },
+            "neutral_site": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Neutral site detection not implemented \u2014 neutral"
+            },
+            "conference_strength": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Conference strength data not available \u2014 neutral"
+            },
+            "ft_shooting": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "FT data not available \u2014 neutral"
+            },
+            "rivalry_motivation": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Rivalry proxy from H2H \u2014 No H2H games this season"
+            },
+            "fatigue_schedule": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Rest data unavailable"
+            },
+            "coaching_matchup": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Coaching data not available \u2014 neutral"
+            }
+          },
+          "chains_fired": []
+        },
+        "renzo": {
+          "game_id": "",
+          "profile": "renzo",
+          "pick_side": "home",
+          "grade": "C+",
+          "composite": 5.1,
+          "chain_bonus": 0,
+          "final": 5.1,
+          "pick": "St. John's Red Storm ?",
+          "sizing": "PASS",
+          "variables": {
+            "Q1_whos_missing": {
+              "score": 5,
+              "weight": 9,
+              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
+            },
+            "Q2_line_reflects": {
+              "score": 5,
+              "weight": 9,
+              "note": "Line moved 0 pts | Injuries roughly priced"
+            },
+            "Q3_recent_form": {
+              "score": 5,
+              "weight": 8,
+              "note": "Us L5: ? | Them L5: ? | Edge: +0"
+            },
+            "Q4_best_on_court": {
+              "score": 6,
+              "weight": 8,
+              "note": "Both sides mostly healthy"
+            },
+            "Q5_schedule_rest": {
+              "score": 6,
+              "weight": 7,
+              "note": "Streak:  | Home"
+            },
+            "thesis_edge": {
+              "score": 4,
+              "weight": 10,
+              "note": "No clear thesis edge found"
+            }
+          },
+          "chains_fired": [],
+          "mathurin_test": "FAIL",
+          "mathurin_note": "No clear thesis edge found"
+        }
+      },
+      "peter_rules": {
+        "game_id": "",
+        "profile": "peter_rules",
+        "pick_side": "home",
+        "flags": [],
+        "adjustment": 0,
+        "has_kill": false,
+        "flag_count": 0
+      },
+      "ev": {
+        "profile": "ev",
+        "status": "no_ml_data",
+        "ev_pct": null,
+        "kelly_size": null
+      }
+    },
+    {
+      "game_id": "71TOa7urA1cd1FYC5Xf5",
+      "matchup": "UCF Knights @ UCLA Bruins",
+      "pick_side": "home",
+      "consensus_grade": "C+",
+      "consensus_avg": 5.0,
+      "consensus_raw": 5.0,
+      "profiles": {
+        "sintonia": {
+          "game_id": "",
+          "profile": "sintonia",
+          "pick_side": "home",
+          "grade": "C",
+          "composite": 4.99,
+          "chain_bonus": 0.0,
+          "final": 4.99,
+          "pick": "UCLA Bruins ?",
+          "sizing": "PASS",
+          "variables": {
+            "offensive_efficiency": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No PPG data"
+            },
+            "defensive_efficiency": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No OPP PPG data"
+            },
+            "star_player_status": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No significant injuries"
+            },
+            "line_movement": {
+              "score": 3,
+              "weight": 9,
+              "weighted": 27,
+              "note": "Line flat \u2014 no sharp signal"
+            },
+            "tempo_matchup": {
+              "score": 5,
+              "weight": 8,
+              "weighted": 40,
+              "note": "No pace data"
+            },
+            "ats_trend": {
+              "score": 6,
+              "weight": 8,
+              "weighted": 48,
+              "note": "Avg margin L10: +0.0 \u2014 close games | Close: 0/10 | Blowouts: 0/10"
+            },
+            "tournament_context": {
+              "score": 8,
+              "weight": 8,
+              "weighted": 64,
+              "note": "Close matchup (0) \u2014 competitive game"
+            },
+            "public_money_bias": {
+              "score": 3,
+              "weight": 8,
+              "weighted": 24,
+              "note": "Public bias proxy \u2014 Line flat \u2014 no sharp signal"
+            },
+            "three_pt_reliance": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "3PT proxy \u2014 No PPG data"
+            },
+            "bench_depth": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "Bench depth proxy \u2014 Similar injury loads (them 0, us 0)"
+            },
+            "rebounding": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "rebounding proxy from margin: +0.0"
+            },
+            "turnover_margin": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "turnover_margin proxy from margin: +0.0"
+            },
+            "recent_form": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "No L5 data"
+            },
+            "coaching_tournament_record": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "Coaching data not available \u2014 neutral"
+            },
+            "net_ranking_gap": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "NET proxy: us 50% vs them 50% (diff +0%)"
+            },
+            "neutral_site": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Neutral site detection not implemented \u2014 neutral"
+            },
+            "conference_strength": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Conference strength data not available \u2014 neutral"
+            },
+            "ft_shooting": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "FT data not available \u2014 neutral"
+            },
+            "rivalry_motivation": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Rivalry proxy from H2H \u2014 No H2H games this season"
+            },
+            "fatigue_schedule": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Rest data unavailable"
+            },
+            "coaching_matchup": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Coaching data not available \u2014 neutral"
+            }
+          },
+          "chains_fired": []
+        },
+        "renzo": {
+          "game_id": "",
+          "profile": "renzo",
+          "pick_side": "home",
+          "grade": "C+",
+          "composite": 5.1,
+          "chain_bonus": 0,
+          "final": 5.1,
+          "pick": "UCLA Bruins ?",
+          "sizing": "PASS",
+          "variables": {
+            "Q1_whos_missing": {
+              "score": 5,
+              "weight": 9,
+              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
+            },
+            "Q2_line_reflects": {
+              "score": 5,
+              "weight": 9,
+              "note": "Line moved 0 pts | Injuries roughly priced"
+            },
+            "Q3_recent_form": {
+              "score": 5,
+              "weight": 8,
+              "note": "Us L5: ? | Them L5: ? | Edge: +0"
+            },
+            "Q4_best_on_court": {
+              "score": 6,
+              "weight": 8,
+              "note": "Both sides mostly healthy"
+            },
+            "Q5_schedule_rest": {
+              "score": 6,
+              "weight": 7,
+              "note": "Streak:  | Home"
+            },
+            "thesis_edge": {
+              "score": 4,
+              "weight": 10,
+              "note": "No clear thesis edge found"
+            }
+          },
+          "chains_fired": [],
+          "mathurin_test": "FAIL",
+          "mathurin_note": "No clear thesis edge found"
+        }
+      },
+      "peter_rules": {
+        "game_id": "",
+        "profile": "peter_rules",
+        "pick_side": "home",
+        "flags": [],
+        "adjustment": 0,
+        "has_kill": false,
+        "flag_count": 0
+      },
+      "ev": {
+        "profile": "ev",
+        "status": "no_ml_data",
+        "ev_pct": null,
+        "kelly_size": null
+      }
+    },
+    {
+      "game_id": "T1fMseoiLJaS4zUAq6yL",
+      "matchup": "Queens Royals @ Purdue Boilermakers",
+      "pick_side": "home",
+      "consensus_grade": "C+",
+      "consensus_avg": 5.0,
+      "consensus_raw": 5.0,
+      "profiles": {
+        "sintonia": {
+          "game_id": "",
+          "profile": "sintonia",
+          "pick_side": "home",
+          "grade": "C",
+          "composite": 4.99,
+          "chain_bonus": 0.0,
+          "final": 4.99,
+          "pick": "Purdue Boilermakers ?",
+          "sizing": "PASS",
+          "variables": {
+            "offensive_efficiency": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No PPG data"
+            },
+            "defensive_efficiency": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No OPP PPG data"
+            },
+            "star_player_status": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No significant injuries"
+            },
+            "line_movement": {
+              "score": 3,
+              "weight": 9,
+              "weighted": 27,
+              "note": "Line flat \u2014 no sharp signal"
+            },
+            "tempo_matchup": {
+              "score": 5,
+              "weight": 8,
+              "weighted": 40,
+              "note": "No pace data"
+            },
+            "ats_trend": {
+              "score": 6,
+              "weight": 8,
+              "weighted": 48,
+              "note": "Avg margin L10: +0.0 \u2014 close games | Close: 0/10 | Blowouts: 0/10"
+            },
+            "tournament_context": {
+              "score": 8,
+              "weight": 8,
+              "weighted": 64,
+              "note": "Close matchup (0) \u2014 competitive game"
+            },
+            "public_money_bias": {
+              "score": 3,
+              "weight": 8,
+              "weighted": 24,
+              "note": "Public bias proxy \u2014 Line flat \u2014 no sharp signal"
+            },
+            "three_pt_reliance": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "3PT proxy \u2014 No PPG data"
+            },
+            "bench_depth": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "Bench depth proxy \u2014 Similar injury loads (them 0, us 0)"
+            },
+            "rebounding": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "rebounding proxy from margin: +0.0"
+            },
+            "turnover_margin": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "turnover_margin proxy from margin: +0.0"
+            },
+            "recent_form": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "No L5 data"
+            },
+            "coaching_tournament_record": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "Coaching data not available \u2014 neutral"
+            },
+            "net_ranking_gap": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "NET proxy: us 50% vs them 50% (diff +0%)"
+            },
+            "neutral_site": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Neutral site detection not implemented \u2014 neutral"
+            },
+            "conference_strength": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Conference strength data not available \u2014 neutral"
+            },
+            "ft_shooting": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "FT data not available \u2014 neutral"
+            },
+            "rivalry_motivation": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Rivalry proxy from H2H \u2014 No H2H games this season"
+            },
+            "fatigue_schedule": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Rest data unavailable"
+            },
+            "coaching_matchup": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Coaching data not available \u2014 neutral"
+            }
+          },
+          "chains_fired": []
+        },
+        "renzo": {
+          "game_id": "",
+          "profile": "renzo",
+          "pick_side": "home",
+          "grade": "C+",
+          "composite": 5.1,
+          "chain_bonus": 0,
+          "final": 5.1,
+          "pick": "Purdue Boilermakers ?",
+          "sizing": "PASS",
+          "variables": {
+            "Q1_whos_missing": {
+              "score": 5,
+              "weight": 9,
+              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
+            },
+            "Q2_line_reflects": {
+              "score": 5,
+              "weight": 9,
+              "note": "Line moved 0 pts | Injuries roughly priced"
+            },
+            "Q3_recent_form": {
+              "score": 5,
+              "weight": 8,
+              "note": "Us L5: ? | Them L5: ? | Edge: +0"
+            },
+            "Q4_best_on_court": {
+              "score": 6,
+              "weight": 8,
+              "note": "Both sides mostly healthy"
+            },
+            "Q5_schedule_rest": {
+              "score": 6,
+              "weight": 7,
+              "note": "Streak:  | Home"
+            },
+            "thesis_edge": {
+              "score": 4,
+              "weight": 10,
+              "note": "No clear thesis edge found"
+            }
+          },
+          "chains_fired": [],
+          "mathurin_test": "FAIL",
+          "mathurin_note": "No clear thesis edge found"
+        }
+      },
+      "peter_rules": {
+        "game_id": "",
+        "profile": "peter_rules",
+        "pick_side": "home",
+        "flags": [],
+        "adjustment": 0,
+        "has_kill": false,
+        "flag_count": 0
+      },
+      "ev": {
+        "profile": "ev",
+        "status": "no_ml_data",
+        "ev_pct": null,
+        "kelly_size": null
+      }
+    },
+    {
+      "game_id": "OiP6Iqz5vDjFfR8VGnKG",
+      "matchup": "Prairie View A&M Panthers @ Florida Gators",
+      "pick_side": "home",
+      "consensus_grade": "C+",
+      "consensus_avg": 5.0,
+      "consensus_raw": 5.0,
+      "profiles": {
+        "sintonia": {
+          "game_id": "",
+          "profile": "sintonia",
+          "pick_side": "home",
+          "grade": "C",
+          "composite": 4.99,
+          "chain_bonus": 0.0,
+          "final": 4.99,
+          "pick": "Florida Gators ?",
+          "sizing": "PASS",
+          "variables": {
+            "offensive_efficiency": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No PPG data"
+            },
+            "defensive_efficiency": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No OPP PPG data"
+            },
+            "star_player_status": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No significant injuries"
+            },
+            "line_movement": {
+              "score": 3,
+              "weight": 9,
+              "weighted": 27,
+              "note": "Line flat \u2014 no sharp signal"
+            },
+            "tempo_matchup": {
+              "score": 5,
+              "weight": 8,
+              "weighted": 40,
+              "note": "No pace data"
+            },
+            "ats_trend": {
+              "score": 6,
+              "weight": 8,
+              "weighted": 48,
+              "note": "Avg margin L10: +0.0 \u2014 close games | Close: 0/10 | Blowouts: 0/10"
+            },
+            "tournament_context": {
+              "score": 8,
+              "weight": 8,
+              "weighted": 64,
+              "note": "Close matchup (0) \u2014 competitive game"
+            },
+            "public_money_bias": {
+              "score": 3,
+              "weight": 8,
+              "weighted": 24,
+              "note": "Public bias proxy \u2014 Line flat \u2014 no sharp signal"
+            },
+            "three_pt_reliance": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "3PT proxy \u2014 No PPG data"
+            },
+            "bench_depth": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "Bench depth proxy \u2014 Similar injury loads (them 0, us 0)"
+            },
+            "rebounding": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "rebounding proxy from margin: +0.0"
+            },
+            "turnover_margin": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "turnover_margin proxy from margin: +0.0"
+            },
+            "recent_form": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "No L5 data"
+            },
+            "coaching_tournament_record": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "Coaching data not available \u2014 neutral"
+            },
+            "net_ranking_gap": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "NET proxy: us 50% vs them 50% (diff +0%)"
+            },
+            "neutral_site": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Neutral site detection not implemented \u2014 neutral"
+            },
+            "conference_strength": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Conference strength data not available \u2014 neutral"
+            },
+            "ft_shooting": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "FT data not available \u2014 neutral"
+            },
+            "rivalry_motivation": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Rivalry proxy from H2H \u2014 No H2H games this season"
+            },
+            "fatigue_schedule": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Rest data unavailable"
+            },
+            "coaching_matchup": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Coaching data not available \u2014 neutral"
+            }
+          },
+          "chains_fired": []
+        },
+        "renzo": {
+          "game_id": "",
+          "profile": "renzo",
+          "pick_side": "home",
+          "grade": "C+",
+          "composite": 5.1,
+          "chain_bonus": 0,
+          "final": 5.1,
+          "pick": "Florida Gators ?",
+          "sizing": "PASS",
+          "variables": {
+            "Q1_whos_missing": {
+              "score": 5,
+              "weight": 9,
+              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
+            },
+            "Q2_line_reflects": {
+              "score": 5,
+              "weight": 9,
+              "note": "Line moved 0 pts | Injuries roughly priced"
+            },
+            "Q3_recent_form": {
+              "score": 5,
+              "weight": 8,
+              "note": "Us L5: ? | Them L5: ? | Edge: +0"
+            },
+            "Q4_best_on_court": {
+              "score": 6,
+              "weight": 8,
+              "note": "Both sides mostly healthy"
+            },
+            "Q5_schedule_rest": {
+              "score": 6,
+              "weight": 7,
+              "note": "Streak:  | Home"
+            },
+            "thesis_edge": {
+              "score": 4,
+              "weight": 10,
+              "note": "No clear thesis edge found"
+            }
+          },
+          "chains_fired": [],
+          "mathurin_test": "FAIL",
+          "mathurin_note": "No clear thesis edge found"
+        }
+      },
+      "peter_rules": {
+        "game_id": "",
+        "profile": "peter_rules",
+        "pick_side": "home",
+        "flags": [],
+        "adjustment": 0,
+        "has_kill": false,
+        "flag_count": 0
+      },
+      "ev": {
+        "profile": "ev",
+        "status": "no_ml_data",
+        "ev_pct": null,
+        "kelly_size": null
+      }
+    },
+    {
+      "game_id": "DVXi0sC4wismgeawehe4",
+      "matchup": "California Baptist Lancers @ Kansas Jayhawks",
+      "pick_side": "home",
+      "consensus_grade": "C+",
+      "consensus_avg": 5.0,
+      "consensus_raw": 5.0,
+      "profiles": {
+        "sintonia": {
+          "game_id": "",
+          "profile": "sintonia",
+          "pick_side": "home",
+          "grade": "C",
+          "composite": 4.99,
+          "chain_bonus": 0.0,
+          "final": 4.99,
+          "pick": "Kansas Jayhawks ?",
+          "sizing": "PASS",
+          "variables": {
+            "offensive_efficiency": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No PPG data"
+            },
+            "defensive_efficiency": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No OPP PPG data"
+            },
+            "star_player_status": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No significant injuries"
+            },
+            "line_movement": {
+              "score": 3,
+              "weight": 9,
+              "weighted": 27,
+              "note": "Line flat \u2014 no sharp signal"
+            },
+            "tempo_matchup": {
+              "score": 5,
+              "weight": 8,
+              "weighted": 40,
+              "note": "No pace data"
+            },
+            "ats_trend": {
+              "score": 6,
+              "weight": 8,
+              "weighted": 48,
+              "note": "Avg margin L10: +0.0 \u2014 close games | Close: 0/10 | Blowouts: 0/10"
+            },
+            "tournament_context": {
+              "score": 8,
+              "weight": 8,
+              "weighted": 64,
+              "note": "Close matchup (0) \u2014 competitive game"
+            },
+            "public_money_bias": {
+              "score": 3,
+              "weight": 8,
+              "weighted": 24,
+              "note": "Public bias proxy \u2014 Line flat \u2014 no sharp signal"
+            },
+            "three_pt_reliance": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "3PT proxy \u2014 No PPG data"
+            },
+            "bench_depth": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "Bench depth proxy \u2014 Similar injury loads (them 0, us 0)"
+            },
+            "rebounding": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "rebounding proxy from margin: +0.0"
+            },
+            "turnover_margin": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "turnover_margin proxy from margin: +0.0"
+            },
+            "recent_form": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "No L5 data"
+            },
+            "coaching_tournament_record": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "Coaching data not available \u2014 neutral"
+            },
+            "net_ranking_gap": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "NET proxy: us 50% vs them 50% (diff +0%)"
+            },
+            "neutral_site": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Neutral site detection not implemented \u2014 neutral"
+            },
+            "conference_strength": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Conference strength data not available \u2014 neutral"
+            },
+            "ft_shooting": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "FT data not available \u2014 neutral"
+            },
+            "rivalry_motivation": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Rivalry proxy from H2H \u2014 No H2H games this season"
+            },
+            "fatigue_schedule": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Rest data unavailable"
+            },
+            "coaching_matchup": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Coaching data not available \u2014 neutral"
+            }
+          },
+          "chains_fired": []
+        },
+        "renzo": {
+          "game_id": "",
+          "profile": "renzo",
+          "pick_side": "home",
+          "grade": "C+",
+          "composite": 5.1,
+          "chain_bonus": 0,
+          "final": 5.1,
+          "pick": "Kansas Jayhawks ?",
+          "sizing": "PASS",
+          "variables": {
+            "Q1_whos_missing": {
+              "score": 5,
+              "weight": 9,
+              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
+            },
+            "Q2_line_reflects": {
+              "score": 5,
+              "weight": 9,
+              "note": "Line moved 0 pts | Injuries roughly priced"
+            },
+            "Q3_recent_form": {
+              "score": 5,
+              "weight": 8,
+              "note": "Us L5: ? | Them L5: ? | Edge: +0"
+            },
+            "Q4_best_on_court": {
+              "score": 6,
+              "weight": 8,
+              "note": "Both sides mostly healthy"
+            },
+            "Q5_schedule_rest": {
+              "score": 6,
+              "weight": 7,
+              "note": "Streak:  | Home"
+            },
+            "thesis_edge": {
+              "score": 4,
+              "weight": 10,
+              "note": "No clear thesis edge found"
+            }
+          },
+          "chains_fired": [],
+          "mathurin_test": "FAIL",
+          "mathurin_note": "No clear thesis edge found"
+        }
+      },
+      "peter_rules": {
+        "game_id": "",
+        "profile": "peter_rules",
+        "pick_side": "home",
+        "flags": [],
+        "adjustment": 0,
+        "has_kill": false,
+        "flag_count": 0
+      },
+      "ev": {
+        "profile": "ev",
+        "status": "no_ml_data",
+        "ev_pct": null,
+        "kelly_size": null
+      }
+    },
+    {
+      "game_id": "FilsypmyO7o9tz3lFvjG",
+      "matchup": "Furman Paladins @ Connecticut Huskies",
+      "pick_side": "home",
+      "consensus_grade": "C+",
+      "consensus_avg": 5.0,
+      "consensus_raw": 5.0,
+      "profiles": {
+        "sintonia": {
+          "game_id": "",
+          "profile": "sintonia",
+          "pick_side": "home",
+          "grade": "C",
+          "composite": 4.99,
+          "chain_bonus": 0.0,
+          "final": 4.99,
+          "pick": "Connecticut Huskies ?",
+          "sizing": "PASS",
+          "variables": {
+            "offensive_efficiency": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No PPG data"
+            },
+            "defensive_efficiency": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No OPP PPG data"
+            },
+            "star_player_status": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No significant injuries"
+            },
+            "line_movement": {
+              "score": 3,
+              "weight": 9,
+              "weighted": 27,
+              "note": "Line flat \u2014 no sharp signal"
+            },
+            "tempo_matchup": {
+              "score": 5,
+              "weight": 8,
+              "weighted": 40,
+              "note": "No pace data"
+            },
+            "ats_trend": {
+              "score": 6,
+              "weight": 8,
+              "weighted": 48,
+              "note": "Avg margin L10: +0.0 \u2014 close games | Close: 0/10 | Blowouts: 0/10"
+            },
+            "tournament_context": {
+              "score": 8,
+              "weight": 8,
+              "weighted": 64,
+              "note": "Close matchup (0) \u2014 competitive game"
+            },
+            "public_money_bias": {
+              "score": 3,
+              "weight": 8,
+              "weighted": 24,
+              "note": "Public bias proxy \u2014 Line flat \u2014 no sharp signal"
+            },
+            "three_pt_reliance": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "3PT proxy \u2014 No PPG data"
+            },
+            "bench_depth": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "Bench depth proxy \u2014 Similar injury loads (them 0, us 0)"
+            },
+            "rebounding": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "rebounding proxy from margin: +0.0"
+            },
+            "turnover_margin": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "turnover_margin proxy from margin: +0.0"
+            },
+            "recent_form": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "No L5 data"
+            },
+            "coaching_tournament_record": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "Coaching data not available \u2014 neutral"
+            },
+            "net_ranking_gap": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "NET proxy: us 50% vs them 50% (diff +0%)"
+            },
+            "neutral_site": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Neutral site detection not implemented \u2014 neutral"
+            },
+            "conference_strength": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Conference strength data not available \u2014 neutral"
+            },
+            "ft_shooting": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "FT data not available \u2014 neutral"
+            },
+            "rivalry_motivation": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Rivalry proxy from H2H \u2014 No H2H games this season"
+            },
+            "fatigue_schedule": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Rest data unavailable"
+            },
+            "coaching_matchup": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Coaching data not available \u2014 neutral"
+            }
+          },
+          "chains_fired": []
+        },
+        "renzo": {
+          "game_id": "",
+          "profile": "renzo",
+          "pick_side": "home",
+          "grade": "C+",
+          "composite": 5.1,
+          "chain_bonus": 0,
+          "final": 5.1,
+          "pick": "Connecticut Huskies ?",
+          "sizing": "PASS",
+          "variables": {
+            "Q1_whos_missing": {
+              "score": 5,
+              "weight": 9,
+              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
+            },
+            "Q2_line_reflects": {
+              "score": 5,
+              "weight": 9,
+              "note": "Line moved 0 pts | Injuries roughly priced"
+            },
+            "Q3_recent_form": {
+              "score": 5,
+              "weight": 8,
+              "note": "Us L5: ? | Them L5: ? | Edge: +0"
+            },
+            "Q4_best_on_court": {
+              "score": 6,
+              "weight": 8,
+              "note": "Both sides mostly healthy"
+            },
+            "Q5_schedule_rest": {
+              "score": 6,
+              "weight": 7,
+              "note": "Streak:  | Home"
+            },
+            "thesis_edge": {
+              "score": 4,
+              "weight": 10,
+              "note": "No clear thesis edge found"
+            }
+          },
+          "chains_fired": [],
+          "mathurin_test": "FAIL",
+          "mathurin_note": "No clear thesis edge found"
+        }
+      },
+      "peter_rules": {
+        "game_id": "",
+        "profile": "peter_rules",
+        "pick_side": "home",
+        "flags": [],
+        "adjustment": 0,
+        "has_kill": false,
+        "flag_count": 0
+      },
+      "ev": {
+        "profile": "ev",
+        "status": "no_ml_data",
+        "ev_pct": null,
+        "kelly_size": null
+      }
+    },
+    {
+      "game_id": "3mkCpclDkQu2pxCcbiav",
+      "matchup": "Missouri Tigers @ Miami Hurricanes",
+      "pick_side": "home",
+      "consensus_grade": "C+",
+      "consensus_avg": 5.0,
+      "consensus_raw": 5.0,
+      "profiles": {
+        "sintonia": {
+          "game_id": "",
+          "profile": "sintonia",
+          "pick_side": "home",
+          "grade": "C",
+          "composite": 4.99,
+          "chain_bonus": 0.0,
+          "final": 4.99,
+          "pick": "Miami Hurricanes ?",
+          "sizing": "PASS",
+          "variables": {
+            "offensive_efficiency": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No PPG data"
+            },
+            "defensive_efficiency": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No OPP PPG data"
+            },
+            "star_player_status": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No significant injuries"
+            },
+            "line_movement": {
+              "score": 3,
+              "weight": 9,
+              "weighted": 27,
+              "note": "Line flat \u2014 no sharp signal"
+            },
+            "tempo_matchup": {
+              "score": 5,
+              "weight": 8,
+              "weighted": 40,
+              "note": "No pace data"
+            },
+            "ats_trend": {
+              "score": 6,
+              "weight": 8,
+              "weighted": 48,
+              "note": "Avg margin L10: +0.0 \u2014 close games | Close: 0/10 | Blowouts: 0/10"
+            },
+            "tournament_context": {
+              "score": 8,
+              "weight": 8,
+              "weighted": 64,
+              "note": "Close matchup (0) \u2014 competitive game"
+            },
+            "public_money_bias": {
+              "score": 3,
+              "weight": 8,
+              "weighted": 24,
+              "note": "Public bias proxy \u2014 Line flat \u2014 no sharp signal"
+            },
+            "three_pt_reliance": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "3PT proxy \u2014 No PPG data"
+            },
+            "bench_depth": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "Bench depth proxy \u2014 Similar injury loads (them 0, us 0)"
+            },
+            "rebounding": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "rebounding proxy from margin: +0.0"
+            },
+            "turnover_margin": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "turnover_margin proxy from margin: +0.0"
+            },
+            "recent_form": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "No L5 data"
+            },
+            "coaching_tournament_record": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "Coaching data not available \u2014 neutral"
+            },
+            "net_ranking_gap": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "NET proxy: us 50% vs them 50% (diff +0%)"
+            },
+            "neutral_site": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Neutral site detection not implemented \u2014 neutral"
+            },
+            "conference_strength": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Conference strength data not available \u2014 neutral"
+            },
+            "ft_shooting": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "FT data not available \u2014 neutral"
+            },
+            "rivalry_motivation": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Rivalry proxy from H2H \u2014 No H2H games this season"
+            },
+            "fatigue_schedule": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Rest data unavailable"
+            },
+            "coaching_matchup": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Coaching data not available \u2014 neutral"
+            }
+          },
+          "chains_fired": []
+        },
+        "renzo": {
+          "game_id": "",
+          "profile": "renzo",
+          "pick_side": "home",
+          "grade": "C+",
+          "composite": 5.1,
+          "chain_bonus": 0,
+          "final": 5.1,
+          "pick": "Miami Hurricanes ?",
+          "sizing": "PASS",
+          "variables": {
+            "Q1_whos_missing": {
+              "score": 5,
+              "weight": 9,
+              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
+            },
+            "Q2_line_reflects": {
+              "score": 5,
+              "weight": 9,
+              "note": "Line moved 0 pts | Injuries roughly priced"
+            },
+            "Q3_recent_form": {
+              "score": 5,
+              "weight": 8,
+              "note": "Us L5: ? | Them L5: ? | Edge: +0"
+            },
+            "Q4_best_on_court": {
+              "score": 6,
+              "weight": 8,
+              "note": "Both sides mostly healthy"
+            },
+            "Q5_schedule_rest": {
+              "score": 6,
+              "weight": 7,
+              "note": "Streak:  | Home"
+            },
+            "thesis_edge": {
+              "score": 4,
+              "weight": 10,
+              "note": "No clear thesis edge found"
+            }
+          },
+          "chains_fired": [],
+          "mathurin_test": "FAIL",
+          "mathurin_note": "No clear thesis edge found"
+        }
+      },
+      "peter_rules": {
+        "game_id": "",
+        "profile": "peter_rules",
+        "pick_side": "home",
+        "flags": [],
+        "adjustment": 0,
+        "has_kill": false,
+        "flag_count": 0
+      },
+      "ev": {
+        "profile": "ev",
+        "status": "no_ml_data",
+        "ev_pct": null,
+        "kelly_size": null
+      }
+    }
+  ],
+  "date": "2026-03-20"
+}
