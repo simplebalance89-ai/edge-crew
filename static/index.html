@@ -10724,12 +10724,12 @@ function renderProEdgeGames(games, container) {
     var html = '';
     games.forEach(function(g, idx) {
         var gr = g.grade;
-        var grade = gr ? gr.consensus_grade : '?';
+        var grade = gr ? gr.consensus_grade : 'N/A';
         var avg = gr ? gr.consensus_avg.toFixed(1) : '--';
         var pickSide = gr ? gr.pick_side : '';
         var pickTeam = pickSide === 'home' ? g.home : g.away;
-        var dim = _dimClass(grade);
-        var gColor = _gradeColor(grade);
+        var dim = (grade === 'N/A') ? 'opacity:0.6;' : _dimClass(grade);
+        var gColor = (grade === 'N/A') ? 'rgba(255,255,255,0.25)' : _gradeColor(grade);
 
         // ── PERCENT COMPLETE PER CARD ──
         var pctSteps = 0, pctTotal = 5;
@@ -10740,7 +10740,7 @@ function renderProEdgeGames(games, container) {
             if (profKeys.length > 0 && gr.profiles[profKeys[0]].variables) pctSteps++;  // Step 3: variables
             if (profKeys.length > 0 && gr.profiles[profKeys[0]].grade) pctSteps++;  // Step 4: graders
         }
-        if (gr && gr.consensus_grade && gr.consensus_grade !== '?') pctSteps++;  // Step 5: verdict
+        if (gr && gr.consensus_grade && gr.consensus_grade !== '?' && gr.consensus_grade !== 'N/A') pctSteps++;  // Step 5: verdict
         var pctComplete = Math.round((pctSteps / pctTotal) * 100);
         var pctColor = pctComplete === 100 ? '#10B981' : pctComplete >= 60 ? '#F59E0B' : '#EF4444';
 
@@ -10790,29 +10790,24 @@ function renderProEdgeGames(games, container) {
             html += '<div style="margin-bottom:4px;">';
             html += '<span style="font-size:10px;font-weight:700;color:#fff;">' + abbrev + '</span> <span style="font-size:9px;color:rgba(255,255,255,0.3);">' + tag + '</span><br>';
 
+            var hasAny = false;
+            // Record (all sports)
+            if (prof.L5 && prof.L5 !== '0-0') { html += '<span style="font-size:10px;color:rgba(255,255,255,0.5);">L5: ' + prof.L5 + ' | L10: ' + (prof.L10 || '--') + '</span><br>'; hasAny = true; }
+            // Sport-specific stats
             if (_profedgeCurrentSport === 'nhl') {
-                // NHL-specific enrichment
-                if (prof.L5) html += '<span style="font-size:10px;color:rgba(255,255,255,0.5);">L5: ' + prof.L5 + ' | L10: ' + (prof.L10 || '?') + '</span><br>';
-                if (prof.ppg_L5) html += '<span style="font-size:10px;color:rgba(255,255,255,0.5);">GF/G: ' + prof.ppg_L5.toFixed(1) + ' | GA/G: ' + (prof.opp_ppg_L5 || 0).toFixed(1) + '</span><br>';
-                if (prof.save_pct) html += '<span style="font-size:10px;color:rgba(255,255,255,0.5);">SV%: ' + prof.save_pct + '</span><br>';
-                if (prof.goalie) html += '<span style="font-size:10px;color:#38BDF8;">Goalie: ' + prof.goalie + '</span><br>';
-                if (prof.streak) html += '<span style="font-size:10px;color:rgba(255,255,255,0.5);">Streak: ' + prof.streak + ' | Rest: ' + (prof.rest_days || '?') + 'd</span><br>';
-                if (!prof.L5 && !prof.goalie) html += '<span style="font-size:10px;color:rgba(255,255,255,0.3);font-style:italic;">No enrichment data</span><br>';
-            } else if (_profedgeCurrentSport === 'ncaab') {
-                // NCAAB-specific enrichment
-                if (prof.L5) html += '<span style="font-size:10px;color:rgba(255,255,255,0.5);">L5: ' + prof.L5 + ' | L10: ' + (prof.L10 || '?') + '</span><br>';
-                if (prof.ppg_L5) html += '<span style="font-size:10px;color:rgba(255,255,255,0.5);">PPG: ' + prof.ppg_L5.toFixed(1) + ' | Opp: ' + (prof.opp_ppg_L5 || 0).toFixed(1) + '</span><br>';
-                if (prof.kenpom_off) html += '<span style="font-size:10px;color:rgba(255,255,255,0.5);">AdjO: ' + prof.kenpom_off + ' | AdjD: ' + (prof.kenpom_def || '?') + '</span><br>';
-                if (prof.tempo) html += '<span style="font-size:10px;color:rgba(255,255,255,0.5);">Tempo: ' + prof.tempo + '</span><br>';
-                if (prof.seed) html += '<span style="font-size:10px;color:#d4a024;">Seed: #' + prof.seed + '</span><br>';
-                if (prof.streak) html += '<span style="font-size:10px;color:rgba(255,255,255,0.5);">Streak: ' + prof.streak + ' | Rest: ' + (prof.rest_days || '?') + 'd</span><br>';
-                if (!prof.L5 && !prof.kenpom_off) html += '<span style="font-size:10px;color:rgba(255,255,255,0.3);font-style:italic;">No enrichment data</span><br>';
+                if (prof.ppg_L5) { html += '<span style="font-size:10px;color:rgba(255,255,255,0.5);">GF/G: ' + prof.ppg_L5.toFixed(1) + ' | GA/G: ' + (prof.opp_ppg_L5 || 0).toFixed(1) + '</span><br>'; hasAny = true; }
+                if (prof.save_pct) { html += '<span style="font-size:10px;color:rgba(255,255,255,0.5);">SV%: ' + prof.save_pct + '</span><br>'; hasAny = true; }
+                if (prof.goalie) { html += '<span style="font-size:10px;color:#38BDF8;">Goalie: ' + prof.goalie + '</span><br>'; hasAny = true; }
             } else {
-                // Default (NBA and others)
-                if (prof.L5) html += '<span style="font-size:10px;color:rgba(255,255,255,0.5);">L5: ' + prof.L5 + ' | L10: ' + (prof.L10 || '?') + '</span><br>';
-                if (prof.ppg_L5) html += '<span style="font-size:10px;color:rgba(255,255,255,0.5);">PPG: ' + prof.ppg_L5.toFixed(1) + ' | Opp: ' + (prof.opp_ppg_L5 || 0).toFixed(1) + '</span><br>';
-                if (prof.streak) html += '<span style="font-size:10px;color:rgba(255,255,255,0.5);">Streak: ' + prof.streak + ' | Rest: ' + (prof.rest_days || '?') + 'd</span><br>';
+                if (prof.ppg_L5) { html += '<span style="font-size:10px;color:rgba(255,255,255,0.5);">PPG: ' + prof.ppg_L5.toFixed(1) + ' | Opp: ' + (prof.opp_ppg_L5 || 0).toFixed(1) + '</span><br>'; hasAny = true; }
+                if (prof.kenpom_off) { html += '<span style="font-size:10px;color:rgba(255,255,255,0.5);">AdjO: ' + prof.kenpom_off + ' | AdjD: ' + (prof.kenpom_def || '?') + '</span><br>'; hasAny = true; }
+                if (prof.tempo) { html += '<span style="font-size:10px;color:rgba(255,255,255,0.5);">Tempo: ' + prof.tempo + '</span><br>'; hasAny = true; }
+                if (prof.seed) { html += '<span style="font-size:10px;color:#d4a024;">Seed: #' + prof.seed + '</span><br>'; hasAny = true; }
             }
+            // Common fields
+            if (prof.streak && prof.streak !== 'L0' && prof.streak !== 'W0') { html += '<span style="font-size:10px;color:rgba(255,255,255,0.5);">Streak: ' + prof.streak + ' | Rest: ' + (prof.rest_days != null ? prof.rest_days + 'd' : '--') + '</span><br>'; hasAny = true; }
+            else if (prof.rest_days != null) { html += '<span style="font-size:10px;color:rgba(255,255,255,0.5);">Rest: ' + prof.rest_days + 'd</span><br>'; hasAny = true; }
+            if (!hasAny) html += '<span style="font-size:10px;color:rgba(255,255,255,0.3);font-style:italic;">Awaiting data</span><br>';
 
             // Injuries (all sports)
             var inj = (g.injuries && g.injuries[side]) || [];
@@ -10852,7 +10847,7 @@ function renderProEdgeGames(games, container) {
                 html += '<div style="font-size:10px;color:rgba(255,255,255,0.3);font-style:italic;">No variables</div>';
             }
         } else {
-            html += '<div style="font-size:10px;color:rgba(255,255,255,0.3);font-style:italic;">Not graded</div>';
+            html += '<div style="font-size:10px;color:rgba(255,255,255,0.3);font-style:italic;">Awaiting analysis</div>';
         }
         html += '</div>';
 
@@ -10883,7 +10878,7 @@ function renderProEdgeGames(games, container) {
                 html += '</div>';
             }
         } else {
-            html += '<div style="font-size:10px;color:rgba(255,255,255,0.3);font-style:italic;">Not graded</div>';
+            html += '<div style="font-size:24px;font-weight:900;color:rgba(255,255,255,0.15);text-align:center;padding:12px 0;">N/A</div>';
         }
         html += '</div>';
 
