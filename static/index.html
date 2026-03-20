@@ -1329,13 +1329,13 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     </div>
 </div>
 
-<!-- BET REPORT TICKER -->
-<div class="ticker-bar" id="betTicker">
+<!-- BET REPORT TICKER (hidden — moved to profiles) -->
+<div class="ticker-bar" id="betTicker" style="display:none;">
     <div class="ticker-track" id="tickerTrack"></div>
 </div>
 
-<!-- LIVE INTEL FEED -->
-<div class="intel-bar" id="intelTicker" style="border-top:1px solid rgba(65,234,212,0.15);background:rgba(65,234,212,0.03);">
+<!-- LIVE INTEL FEED (hidden — moved to profiles) -->
+<div class="intel-bar" id="intelTicker" style="display:none;border-top:1px solid rgba(65,234,212,0.15);background:rgba(65,234,212,0.03);">
     <div class="intel-track" id="intelTrack"></div>
 </div>
 
@@ -1404,100 +1404,12 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <div class="sport-panel active" id="panel-landing">
 <div style="text-align:center;padding:30px 20px 16px;">
     <h1 style="font-family:var(--ec-font-heading);font-size:24px;font-weight:900;color:#fff;margin:0 0 4px;letter-spacing:-0.5px;">Edge Crew Dashboard</h1>
-    <p style="color:rgba(255,255,255,0.4);font-size:12px;margin:0;">AI-powered analysis across 10 sports. Grade-based picks. Find the edge.</p>
+    <p style="color:rgba(255,255,255,0.4);font-size:12px;margin:0;">Pick a sport. Find the edge.</p>
 </div>
 
-<!-- Best Bets — B+ or higher across all sports -->
-<div class="dash-section">
-    <h2>Best Bets</h2>
-    <div id="dashBestBets">
-        <div class="dash-empty">Run analysis on any sport to populate best bets</div>
-    </div>
-</div>
-
-<!-- Edge Alerts — Chain-triggered games -->
-<div class="dash-section">
-    <h2>Edge Alerts</h2>
-    <div id="dashEdgeAlerts">
-        <div class="dash-empty">Chain alerts appear here when compound signals fire</div>
-    </div>
-</div>
-
-<!-- Today's Slate — compact table -->
-<div class="dash-section">
-    <h2>Today's Slate</h2>
-    <div id="dashSlate">
-        <div class="dash-empty">Load sport slates to see today's games</div>
-    </div>
-</div>
-
-<!-- Crew Picks -->
-<div class="dash-section">
-    <h2>Crew Picks</h2>
-    <div id="dashCrewPicks">
-        <div class="dash-empty">Recent picks appear after submission</div>
-    </div>
-</div>
-
-<!-- Bankroll Summary -->
-<div class="dash-section">
-    <h2>Bankroll</h2>
-    <div id="dashTodayRecord" style="font-size:12px;font-weight:700;margin-bottom:8px;color:var(--ec-text-tertiary);"></div>
-    <div id="dashBankroll">
-        <div class="bankroll-strip">
-            <div class="bankroll-stat"><div class="stat-val" id="dashBalance">--</div><div class="stat-label">Balance</div></div>
-            <div class="bankroll-stat"><div class="stat-val" id="dashExposure">--</div><div class="stat-label">Exposure</div></div>
-            <div class="bankroll-stat"><div class="stat-val" id="dashStreak">--</div><div class="stat-label">Streak</div></div>
-            <div class="bankroll-stat"><div class="stat-val" id="dashROI">--</div><div class="stat-label">ROI</div></div>
-        </div>
-    </div>
-</div>
-
-<!-- Edge Crew Contract -->
-<div class="dash-section">
-    <h2 style="display:flex;align-items:center;gap:8px;">Edge Crew Partnership <span style="font-size:10px;padding:2px 8px;border-radius:12px;background:rgba(99,102,241,0.15);color:#818cf8;font-weight:700;">ACTIVE</span></h2>
-    <div style="background:linear-gradient(135deg,rgba(99,102,241,0.08),rgba(247,37,133,0.06));border:1px solid rgba(99,102,241,0.2);border-radius:12px;padding:16px;margin-bottom:12px;">
-        <div style="font-size:11px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;font-weight:700;">Profit Split Agreement</div>
-        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
-            <div style="background:rgba(212,160,23,0.1);border:1px solid rgba(212,160,23,0.25);border-radius:8px;padding:10px;text-align:center;">
-                <div style="font-size:22px;font-weight:900;color:#D4A017;">60%</div>
-                <div style="font-size:11px;font-weight:700;color:#D4A017;margin-top:2px;">Peter</div>
-                <div style="font-size:9px;color:rgba(255,255,255,0.3);margin-top:2px;">The Bank</div>
-            </div>
-            <div style="background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.25);border-radius:8px;padding:10px;text-align:center;">
-                <div style="font-size:22px;font-weight:900;color:#60A5FA;">15%</div>
-                <div style="font-size:11px;font-weight:700;color:#60A5FA;margin-top:2px;">Jimmy</div>
-                <div style="font-size:9px;color:rgba(255,255,255,0.3);margin-top:2px;">Execution</div>
-            </div>
-            <div style="background:linear-gradient(135deg,rgba(65,234,212,0.1),rgba(247,37,133,0.1));border:1px solid rgba(129,140,248,0.25);border-radius:8px;padding:10px;text-align:center;">
-                <div style="font-size:22px;font-weight:900;color:#818cf8;">20%</div>
-                <div style="font-size:11px;font-weight:700;margin-top:2px;"><span style="color:#41EAD4;">Alyssa</span> + <span style="color:#9B59B6;">Renzo</span></div>
-                <div style="font-size:9px;color:rgba(255,255,255,0.3);margin-top:2px;">AI Engine → Hardware Fund</div>
-            </div>
-            <div style="background:rgba(255,107,53,0.1);border:1px solid rgba(255,107,53,0.25);border-radius:8px;padding:10px;text-align:center;">
-                <div style="font-size:22px;font-weight:900;color:#FF6B35;">5%</div>
-                <div style="font-size:11px;font-weight:700;color:#FF6B35;margin-top:2px;">Chinny</div>
-                <div style="font-size:9px;color:rgba(255,255,255,0.3);margin-top:2px;">Picks</div>
-            </div>
-        </div>
-        <div style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06);">
-            <div style="display:flex;flex-wrap:wrap;gap:8px;font-size:10px;color:rgba(255,255,255,0.3);">
-                <span>Capital returns to Peter first</span>
-                <span style="color:rgba(255,255,255,0.1);">|</span>
-                <span>Split on NET profit only</span>
-                <span style="color:rgba(255,255,255,0.1);">|</span>
-                <span>Losses = Peter absorbs 100%</span>
-                <span style="color:rgba(255,255,255,0.1);">|</span>
-                <span>AI share → better compute = better edges</span>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<!-- Quick Nav -->
+<!-- Pick a Sport -->
 <div class="dash-section" style="padding-bottom:30px;">
-    <h2>Jump In</h2>
+    <h2>Pick a Sport</h2>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;">
         <div onclick="switchSport('nba',event)" style="cursor:pointer;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:14px 6px;text-align:center;transition:all 0.2s;"><div style="font-size:20px;">🏀</div><div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);margin-top:3px;">NBA</div></div>
         <div onclick="switchSport('nhl',event)" style="cursor:pointer;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:14px 6px;text-align:center;transition:all 0.2s;"><div style="font-size:20px;">🏒</div><div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);margin-top:3px;">NHL</div></div>

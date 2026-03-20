@@ -10691,6 +10691,11 @@ async def nba_system_page():
     return FileResponse("static/nba-system.html", headers=NO_CACHE_HEADERS)
 
 
+@app.get("/peter")
+async def peter_page():
+    return FileResponse("static/peter.html", headers=NO_CACHE_HEADERS)
+
+
 @app.get("/chinny")
 async def chinny_page():
     return FileResponse("static/chinny.html", headers=NO_CACHE_HEADERS)
@@ -10699,6 +10704,11 @@ async def chinny_page():
 @app.get("/chinny/nhl-system")
 async def chinny_nhl_system_page():
     return FileResponse("static/chinny-nhl-system.html", headers=NO_CACHE_HEADERS)
+
+
+@app.get("/pietra")
+async def pietra_page():
+    return FileResponse("static/pietra.html", headers=NO_CACHE_HEADERS)
 
 
 @app.get("/jimmy")

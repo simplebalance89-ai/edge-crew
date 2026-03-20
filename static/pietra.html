@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pietra — Operations</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0a0a0f;
+    color: #e0e0e0;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
+    padding: 0 0 60px 0;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    padding: 32px 20px 20px;
+    border-bottom: 2px solid #F72585;
+  }
+  .header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #F72585;
+    letter-spacing: 1px;
+  }
+  .header .subtitle {
+    font-size: 14px;
+    color: #888;
+    margin-top: 4px;
+  }
+  .header .timestamp {
+    font-size: 12px;
+    color: #555;
+    margin-top: 8px;
+  }
+
+  /* Sections */
+  .section {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 28px 20px 0;
+  }
+  .section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #F72585;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #1a1a2e;
+  }
+
+  /* Pipeline cards grid */
+  .pipeline-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 16px;
+  }
+  .pipeline-card {
+    background: #111118;
+    border: 1px solid #222;
+    border-left: 4px solid #555;
+    border-radius: 8px;
+    padding: 20px;
+    transition: border-color 0.3s;
+  }
+  .pipeline-card.green { border-left-color: #00e676; }
+  .pipeline-card.yellow { border-left-color: #ffab00; }
+  .pipeline-card.red { border-left-color: #ff1744; }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .card-sport {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .card-badge {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 12px;
+    text-transform: uppercase;
+  }
+  .card-badge.green { background: rgba(0,230,118,0.15); color: #00e676; }
+  .card-badge.yellow { background: rgba(255,171,0,0.15); color: #ffab00; }
+  .card-badge.red { background: rgba(255,23,68,0.15); color: #ff1744; }
+
+  .card-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .stat {
+    font-size: 13px;
+    color: #999;
+  }
+  .stat strong {
+    color: #ddd;
+  }
+
+  .progress-bar {
+    height: 6px;
+    background: #1a1a2e;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.5s ease;
+  }
+  .progress-fill.green { background: #00e676; }
+  .progress-fill.yellow { background: #ffab00; }
+  .progress-fill.red { background: #ff1744; }
+
+  .card-updated {
+    font-size: 11px;
+    color: #555;
+    margin-top: 10px;
+  }
+
+  /* Missing checklist */
+  .missing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 16px;
+  }
+  .missing-card {
+    background: #111118;
+    border: 1px solid #222;
+    border-radius: 8px;
+    padding: 20px;
+  }
+  .missing-card h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 12px;
+  }
+  .check-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+    font-size: 14px;
+    border-bottom: 1px solid #1a1a2e;
+  }
+  .check-item:last-child { border-bottom: none; }
+  .check-icon { font-size: 16px; flex-shrink: 0; width: 20px; text-align: center; }
+  .check-icon.good { color: #00e676; }
+  .check-icon.bad { color: #ff1744; }
+  .check-text.bad { color: #ff8a80; }
+
+  /* Crew status */
+  .crew-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+  }
+  .crew-card {
+    background: #111118;
+    border: 1px solid #222;
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .crew-info h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .crew-info .crew-sport {
+    font-size: 13px;
+    color: #888;
+    margin-top: 2px;
+  }
+  .crew-info .crew-matrix {
+    font-size: 12px;
+    color: #555;
+    margin-top: 4px;
+  }
+  .crew-link {
+    display: inline-block;
+    padding: 6px 16px;
+    background: rgba(247,37,133,0.12);
+    color: #F72585;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: background 0.2s;
+  }
+  .crew-link:hover { background: rgba(247,37,133,0.25); }
+
+  /* Notes */
+  .notes-container { max-width: 1100px; margin: 0 auto; padding: 28px 20px 0; }
+  .notes-textarea {
+    width: 100%;
+    min-height: 120px;
+    background: #111118;
+    border: 1px solid #333;
+    border-radius: 8px;
+    color: #e0e0e0;
+    font-family: inherit;
+    font-size: 14px;
+    padding: 14px;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .notes-textarea:focus { border-color: #F72585; }
+  .notes-saved {
+    font-size: 12px;
+    color: #555;
+    margin-top: 6px;
+    text-align: right;
+    min-height: 18px;
+  }
+
+  /* Loading */
+  .loading-text {
+    color: #555;
+    font-size: 14px;
+    text-align: center;
+    padding: 30px;
+  }
+
+  @media (max-width: 680px) {
+    .pipeline-grid, .missing-grid, .crew-grid {
+      grid-template-columns: 1fr;
+    }
+    .header h1 { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Pietra &mdash; Operations</h1>
+  <div class="subtitle">System health &amp; pipeline status</div>
+  <div class="timestamp" id="load-time"></div>
+</div>
+
+<!-- PIPELINE STATUS -->
+<div class="section">
+  <div class="section-title">Pipeline Status</div>
+  <div class="pipeline-grid" id="pipeline-grid">
+    <div class="loading-text">Loading pipeline data...</div>
+  </div>
+</div>
+
+<!-- WHAT'S MISSING -->
+<div class="section">
+  <div class="section-title">What's Missing</div>
+  <div class="missing-grid" id="missing-grid">
+    <div class="loading-text">Analyzing...</div>
+  </div>
+</div>
+
+<!-- CREW STATUS -->
+<div class="section">
+  <div class="section-title">Crew Status</div>
+  <div class="crew-grid" id="crew-grid">
+    <div class="loading-text">Checking crew pages...</div>
+  </div>
+</div>
+
+<!-- PETER'S NOTES -->
+<div class="notes-container">
+  <div class="section-title">Peter's Notes</div>
+  <textarea class="notes-textarea" id="peter-notes" placeholder="Tonight's priorities, things to watch, notes..."></textarea>
+  <div class="notes-saved" id="notes-status"></div>
+</div>
+
+<script>
+const SPORTS = [
+  { key: 'nba', label: 'NBA' },
+  { key: 'ncaab', label: 'NCAAB' },
+  { key: 'nhl', label: 'NHL' }
+];
+
+const CREW = [
+  { name: 'Peter', path: '/peter', sport: 'NBA', page: 'peter' },
+  { name: 'DJ', path: '/dj', sport: 'NCAAB', page: 'dj' },
+  { name: 'Chinny', path: '/chinny', sport: 'NHL', page: 'chinny' }
+];
+
+async function fetchSport(key) {
+  try {
+    const resp = await fetch('/api/profedge/' + key);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    return await resp.json();
+  } catch (e) {
+    return { error: e.message, sport: key.toUpperCase(), games: [], total: 0, graded: 0 };
+  }
+}
+
+function getHealthColor(data) {
+  if (data.error && (!data.games || data.games.length === 0)) return 'red';
+  if (!data.games || data.games.length === 0) return 'red';
+  if (data.graded >= data.total && data.total > 0) return 'green';
+  if (data.graded > 0) return 'yellow';
+  return 'red';
+}
+
+function getHealthLabel(color) {
+  if (color === 'green') return 'Healthy';
+  if (color === 'yellow') return 'Partial';
+  return 'Down';
+}
+
+function pipelinePercent(data) {
+  if (!data.total || data.total === 0) return 0;
+  var pct = 0;
+  var games = data.games || [];
+  // Games loaded = 25%
+  if (games.length > 0) pct += 25;
+  // Grading = 50%
+  if (data.total > 0) pct += 50 * ((data.graded || 0) / data.total);
+  // Enrichment = 15%
+  var withProfiles = 0;
+  for (var i = 0; i < games.length; i++) {
+    var hp = games[i].home_profile || {};
+    var ap = games[i].away_profile || {};
+    if (Object.keys(hp).length > 0 || Object.keys(ap).length > 0) withProfiles++;
+  }
+  if (games.length > 0) pct += 15 * (withProfiles / games.length);
+  // Injuries = 10%
+  var withInjuries = 0;
+  for (var j = 0; j < games.length; j++) {
+    var inj = games[j].injuries || {};
+    if ((inj.home && inj.home.length > 0) || (inj.away && inj.away.length > 0)) withInjuries++;
+  }
+  if (games.length > 0) pct += 10 * (withInjuries / games.length);
+  return Math.round(pct);
+}
+
+function renderPipelineCard(sportLabel, data) {
+  var color = getHealthColor(data);
+  var label = getHealthLabel(color);
+  var pct = pipelinePercent(data);
+
+  return '<div class="pipeline-card ' + color + '">' +
+    '<div class="card-header">' +
+      '<span class="card-sport">' + sportLabel + '</span>' +
+      '<span class="card-badge ' + color + '">' + label + '</span>' +
+    '</div>' +
+    '<div class="card-stats">' +
+      '<div class="stat">Games: <strong>' + (data.total || 0) + '</strong></div>' +
+      '<div class="stat">Graded: <strong>' + (data.graded || 0) + ' / ' + (data.total || 0) + '</strong></div>' +
+      '<div class="stat">Pipeline: <strong>' + pct + '%</strong></div>' +
+      '<div class="stat">Matrix vars: <strong>' + (data.matrix_count || 0) + '</strong></div>' +
+    '</div>' +
+    '<div class="progress-bar">' +
+      '<div class="progress-fill ' + color + '" style="width: ' + pct + '%"></div>' +
+    '</div>' +
+    '<div class="card-updated">Updated: ' + (data.updated_at || 'N/A') + '</div>' +
+  '</div>';
+}
+
+function renderMissingCard(sportLabel, data) {
+  var checks = [];
+  var games = data.games || [];
+  var hasGames = games.length > 0;
+
+  checks.push({
+    good: hasGames,
+    text: hasGames ? data.total + ' games loaded' : 'No game data'
+  });
+
+  if (hasGames) {
+    var allGraded = (data.graded || 0) >= data.total;
+    var ungraded = data.total - (data.graded || 0);
+    checks.push({
+      good: allGraded,
+      text: allGraded ? 'All games graded' : ungraded + ' game' + (ungraded !== 1 ? 's' : '') + ' ungraded'
+    });
+  }
+
+  if (hasGames) {
+    var withProfiles = 0;
+    for (var i = 0; i < games.length; i++) {
+      var hp = games[i].home_profile || {};
+      var ap = games[i].away_profile || {};
+      if (Object.keys(hp).length > 0 || Object.keys(ap).length > 0) withProfiles++;
+    }
+    checks.push({
+      good: withProfiles > 0,
+      text: withProfiles > 0 ? withProfiles + '/' + data.total + ' enriched' : 'No enrichment data'
+    });
+  }
+
+  if (hasGames) {
+    var withInjuries = 0;
+    for (var j = 0; j < games.length; j++) {
+      var inj = games[j].injuries || {};
+      if ((inj.home && inj.home.length > 0) || (inj.away && inj.away.length > 0)) withInjuries++;
+    }
+    checks.push({
+      good: withInjuries > 0,
+      text: withInjuries > 0 ? withInjuries + '/' + data.total + ' have injury data' : 'No injuries loaded'
+    });
+  }
+
+  var pct = pipelinePercent(data);
+  checks.push({
+    good: pct === 100,
+    text: pct === 100 ? 'Pipeline complete' : 'Pipeline at ' + pct + '%'
+  });
+
+  var rows = '';
+  for (var k = 0; k < checks.length; k++) {
+    var c = checks[k];
+    rows += '<div class="check-item">' +
+      '<span class="check-icon ' + (c.good ? 'good' : 'bad') + '">' + (c.good ? '\u2713' : '\u2717') + '</span>' +
+      '<span class="check-text ' + (c.good ? '' : 'bad') + '">' + c.text + '</span>' +
+    '</div>';
+  }
+
+  return '<div class="missing-card"><h3>' + sportLabel + '</h3>' + rows + '</div>';
+}
+
+function renderCrewCard(member) {
+  return '<div class="crew-card">' +
+    '<div class="crew-info">' +
+      '<h3>' + member.name + '</h3>' +
+      '<div class="crew-sport">' + member.sport + '</div>' +
+    '</div>' +
+    '<a href="' + member.path + '" class="crew-link">Open</a>' +
+  '</div>';
+}
+
+function initNotes() {
+  var textarea = document.getElementById('peter-notes');
+  var status = document.getElementById('notes-status');
+  var saved = localStorage.getItem('pietra_peter_notes');
+  if (saved) textarea.value = saved;
+
+  var timeout;
+  textarea.addEventListener('input', function() {
+    clearTimeout(timeout);
+    timeout = setTimeout(function() {
+      localStorage.setItem('pietra_peter_notes', textarea.value);
+      var now = new Date().toLocaleTimeString();
+      status.textContent = 'Saved at ' + now;
+    }, 500);
+  });
+}
+
+async function init() {
+  document.getElementById('load-time').textContent =
+    'Loaded: ' + new Date().toLocaleString();
+
+  // Fetch all sports in parallel
+  var results = await Promise.all(
+    SPORTS.map(function(s) { return fetchSport(s.key); })
+  );
+
+  // Pipeline cards
+  var pipelineHTML = '';
+  for (var i = 0; i < SPORTS.length; i++) {
+    pipelineHTML += renderPipelineCard(SPORTS[i].label, results[i]);
+  }
+  document.getElementById('pipeline-grid').innerHTML = pipelineHTML;
+
+  // Missing checklist
+  var missingHTML = '';
+  for (var j = 0; j < SPORTS.length; j++) {
+    missingHTML += renderMissingCard(SPORTS[j].label, results[j]);
+  }
+  document.getElementById('missing-grid').innerHTML = missingHTML;
+
+  // Crew cards
+  var crewHTML = '';
+  for (var k = 0; k < CREW.length; k++) {
+    crewHTML += renderCrewCard(CREW[k]);
+  }
+  document.getElementById('crew-grid').innerHTML = crewHTML;
+
+  // Init notes
+  initNotes();
+}
+
+init();
+</script>
+</body>
+</html>
