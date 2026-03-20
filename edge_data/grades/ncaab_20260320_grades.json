@@ -702,6 +702,24 @@
           "chains_fired": [],
           "vars_available": 8,
           "vars_total": 8
+        },
+        "gpt41": {
+          "grade": "B",
+          "final": 6.2,
+          "sizing": "1u",
+          "variables": {},
+          "chains_fired": [],
+          "note": "TTU home 14-2 but Akron scores 88 PPG. Covers but not a lock.",
+          "confidence": 72
+        },
+        "deepseek": {
+          "grade": "B+",
+          "final": 6.5,
+          "sizing": "1u",
+          "variables": {},
+          "chains_fired": [],
+          "note": "TTU controls tempo, wins by 10-12.",
+          "confidence": 70
         }
       },
       "peter_rules": {
@@ -713,8 +731,8 @@
         "has_kill": false,
         "flag_count": 0
       },
-      "consensus_avg": 5.37,
-      "consensus_grade": "C+",
+      "consensus_avg": 5.7,
+      "consensus_grade": "B-",
       "consensus_raw": 5.37,
       "ev": {
         "profile": "ev",
@@ -2851,6 +2869,24 @@
           "chains_fired": [],
           "vars_available": 8,
           "vars_total": 8
+        },
+        "gpt41": {
+          "grade": "C+",
+          "final": 5.2,
+          "sizing": "PASS",
+          "variables": {},
+          "chains_fired": [],
+          "note": "Miami OH on 1d rest vs 5d. Vols wear them down.",
+          "confidence": 61
+        },
+        "deepseek": {
+          "grade": "C+",
+          "final": 5.2,
+          "sizing": "PASS",
+          "variables": {},
+          "chains_fired": [],
+          "note": "Risky due to rest disadvantage.",
+          "confidence": 55
         }
       },
       "peter_rules": {
@@ -2862,7 +2898,7 @@
         "has_kill": false,
         "flag_count": 0
       },
-      "consensus_avg": 5.42,
+      "consensus_avg": 5.3,
       "consensus_grade": "C+",
       "consensus_raw": 5.42,
       "ev": {
@@ -3208,6 +3244,24 @@
           "chains_fired": [],
           "vars_available": 8,
           "vars_total": 8
+        },
+        "gpt41": {
+          "grade": "B",
+          "final": 6.2,
+          "sizing": "1u",
+          "variables": {},
+          "chains_fired": [],
+          "note": "Tight matchup, Iowa with points is sensible.",
+          "confidence": 70
+        },
+        "deepseek": {
+          "grade": "A",
+          "final": 8.0,
+          "sizing": "1.5u",
+          "variables": {},
+          "chains_fired": [],
+          "note": "Best value on the board. Iowa wins outright.",
+          "confidence": 85
         }
       },
       "peter_rules": {
@@ -3219,8 +3273,8 @@
         "has_kill": false,
         "flag_count": 0
       },
-      "consensus_avg": 5.04,
-      "consensus_grade": "C+",
+      "consensus_avg": 5.7,
+      "consensus_grade": "B-",
       "consensus_raw": 5.04,
       "ev": {
         "profile": "ev",
@@ -3565,6 +3619,24 @@
           "chains_fired": [],
           "vars_available": 8,
           "vars_total": 8
+        },
+        "gpt41": {
+          "grade": "B+",
+          "final": 6.7,
+          "sizing": "1u",
+          "variables": {},
+          "chains_fired": [],
+          "note": "N Iowa defense 61.3 opp PPG keeps it close. Strong dog.",
+          "confidence": 78
+        },
+        "deepseek": {
+          "grade": "B",
+          "final": 6.0,
+          "sizing": "1u",
+          "variables": {},
+          "chains_fired": [],
+          "note": "UNI covers in a 6-8 point loss.",
+          "confidence": 65
         }
       },
       "peter_rules": {
@@ -3576,7 +3648,7 @@
         "has_kill": false,
         "flag_count": 0
       },
-      "consensus_avg": 5.59,
+      "consensus_avg": 5.8,
       "consensus_grade": "B-",
       "consensus_raw": 5.59,
       "ev": {
@@ -5357,6 +5429,24 @@
           "chains_fired": [],
           "vars_available": 8,
           "vars_total": 8
+        },
+        "gpt41": {
+          "grade": "A",
+          "final": 8.0,
+          "sizing": "1.5u",
+          "variables": {},
+          "chains_fired": [],
+          "note": "UConn 16-1 home, blowout likely. Cover with ease.",
+          "confidence": 85
+        },
+        "deepseek": {
+          "grade": "A-",
+          "final": 7.5,
+          "sizing": "1u",
+          "variables": {},
+          "chains_fired": [],
+          "note": "UConn rolls by 25+ in a blowout.",
+          "confidence": 80
         }
       },
       "peter_rules": {
@@ -5368,8 +5458,8 @@
         "has_kill": false,
         "flag_count": 0
       },
-      "consensus_avg": 5.39,
-      "consensus_grade": "C+",
+      "consensus_avg": 6.2,
+      "consensus_grade": "B",
       "consensus_raw": 5.39,
       "ev": {
         "profile": "ev",
