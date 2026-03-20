@@ -12666,6 +12666,43 @@ async def get_profedge(sport: str):
         except Exception:
             pass
 
+    # --- NHL normalization: SGO raw format → normalized pipeline format ---
+    raw_games = games_data.get("games", [])
+    # Handle double-nested structure: {"games": {"sport":"NHL","games":[...]}}
+    if isinstance(raw_games, dict) and "games" in raw_games:
+        raw_games = raw_games["games"]
+        games_data["games"] = raw_games
+
+    for game in (raw_games if isinstance(raw_games, list) else []):
+        # Normalize game_id
+        if "game_id" not in game and "id" in game:
+            game["game_id"] = game["id"]
+        # Build nested odds from flat SGO fields
+        if "odds" not in game and ("away_ml" in game or "home_ml" in game):
+            game["odds"] = {
+                "spread_home": str(game.get("home_spread", "")),
+                "spread_away": str(game.get("away_spread", "")),
+                "total": str(game.get("total", "")),
+                "over_odds": str(game.get("over_odds", "")),
+                "under_odds": str(game.get("under_odds", "")),
+                "ml_home": str(game.get("home_ml", "")),
+                "ml_away": str(game.get("away_ml", "")),
+                "provider": "SGO",
+            }
+        # Ensure profile dicts exist
+        if "home_profile" not in game:
+            game["home_profile"] = {}
+        if "away_profile" not in game:
+            game["away_profile"] = {}
+        # Ensure injuries exist
+        if "injuries" not in game:
+            game["injuries"] = {"home": [], "away": []}
+        # Generate abbreviations from team name if missing
+        if "home_abbrev" not in game and game.get("home"):
+            game["home_abbrev"] = game["home"].split()[-1][:3].upper()
+        if "away_abbrev" not in game and game.get("away"):
+            game["away_abbrev"] = game["away"].split()[-1][:3].upper()
+
     # Merge: attach grades and race to each game
     games = games_data.get("games", [])
     grades_list = grades_data.get("games", []) if grades_data else []
@@ -12744,6 +12781,10 @@ async def get_profedge(sport: str):
         -(x["grade"]["consensus_avg"] if x.get("grade") else 0)
     ))
 
+    # Sport matrix and chains metadata
+    sport_matrix = SPORT_MATRICES.get(sport_key, [])
+    sport_chains = CHAINS.get(sport_key, [])
+
     return JSONResponse({
         "sport": sport_key.upper(),
         "date": games_data.get("date", used_date),
@@ -12751,6 +12792,10 @@ async def get_profedge(sport: str):
         "total": len(merged),
         "graded": sum(1 for m in merged if m.get("grade")),
         "updated_at": games_data.get("fetched_at", ""),
+        "matrix": [{"name": v[0], "weight": v[1], "desc": v[2]} for v in sport_matrix],
+        "matrix_count": len(sport_matrix),
+        "chains": [{"name": c["name"], "desc": c["desc"], "bonus": c["bonus"]} for c in sport_chains],
+        "chain_count": len(sport_chains),
     })
 
 

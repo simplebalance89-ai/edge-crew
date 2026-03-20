@@ -1,663 +1,999 @@
 {
   "sport": "NCAAB",
+  "date": "2026-03-20",
+  "fetched_at": "2026-03-19T23:58:08.272803",
   "games": [
     {
-      "id": "QyBc3VxtKfrGPJ2GkLx7",
+      "game_id": "401856525",
       "sport": "NCAAB",
-      "sport_key": "basketball_ncaab",
-      "league": "",
-      "league_flag": "",
-      "away": "Santa Clara Broncos",
       "home": "Kentucky Wildcats",
-      "time": "2026-03-20T16:15:00.000Z",
-      "bookmaker": "hardrockbet",
-      "markets": {},
-      "away_ml": 135,
-      "home_ml": -155,
-      "away_spread": 2.5,
-      "home_spread": -2.5,
-      "away_spread_odds": 100,
-      "home_spread_odds": -120,
-      "total": 157.5,
-      "over_odds": -115,
-      "under_odds": -105,
-      "lines_available": true,
-      "lines_complete": true,
-      "fetched_at": "12:02 AM PST \u2014 Mar 20, 2026",
-      "all_bookmakers": [],
-      "shifts": {
-        "away_ml": {
-          "open": 145,
-          "current": 135
-        },
-        "spread": {
-          "open": 4.5,
-          "current": 2.5
-        },
-        "total": {
-          "open": 160.5,
-          "current": 157.5
-        }
+      "home_abbrev": "UK",
+      "home_espn_id": "96",
+      "away": "Santa Clara Broncos",
+      "away_abbrev": "SCU",
+      "away_espn_id": "2541",
+      "time": "2026-03-20T16:15",
+      "odds": {
+        "spread_home": "-3.5",
+        "spread_home_odds": "-105",
+        "spread_away": "+3.5",
+        "spread_away_odds": "-120",
+        "total": null,
+        "over_odds": "-110",
+        "under_odds": "-113",
+        "ml_home": "-155",
+        "ml_away": "+125",
+        "provider": "SGO"
       },
-      "fair_away_ml": 137,
-      "fair_home_ml": -137
+      "away_profile": {
+        "L5": "0-5",
+        "L10": "0-10",
+        "ppg_L5": 0,
+        "opp_ppg_L5": 0,
+        "margin_L5": 0,
+        "avg_margin_L10": 0,
+        "ppg_L10": 0,
+        "opp_ppg_L10": 0,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "L0",
+        "home_record": "0-0",
+        "away_record": "0-0",
+        "games_last_7d": 0
+      },
+      "home_profile": {
+        "L5": "0-5",
+        "L10": "0-10",
+        "ppg_L5": 0,
+        "opp_ppg_L5": 0,
+        "margin_L5": 0,
+        "avg_margin_L10": 0,
+        "ppg_L10": 0,
+        "opp_ppg_L10": 0,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "L0",
+        "home_record": "0-0",
+        "away_record": "0-0",
+        "games_last_7d": 0
+      },
+      "injuries": {
+        "away": [],
+        "home": []
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
     },
     {
-      "id": "jgfwkWMdaoRLE1mdIc0J",
+      "game_id": "401856520",
       "sport": "NCAAB",
-      "sport_key": "basketball_ncaab",
-      "league": "",
-      "league_flag": "",
-      "away": "Akron Zips",
       "home": "Texas Tech Red Raiders",
-      "time": "2026-03-20T16:40:00.000Z",
-      "bookmaker": "hardrockbet",
-      "markets": {},
-      "away_ml": 260,
-      "home_ml": -350,
-      "away_spread": 7.5,
-      "home_spread": -7.5,
-      "away_spread_odds": -105,
-      "home_spread_odds": -115,
-      "total": 155.5,
-      "over_odds": -115,
-      "under_odds": -105,
-      "lines_available": true,
-      "lines_complete": true,
-      "fetched_at": "12:02 AM PST \u2014 Mar 20, 2026",
-      "all_bookmakers": [],
-      "shifts": {
-        "away_ml": {
-          "open": 245,
-          "current": 260
-        },
-        "spread": {
-          "open": 7.5,
-          "current": 7.5
-        },
-        "total": {
-          "open": 155.5,
-          "current": 155.5
-        }
+      "home_abbrev": "TTU",
+      "home_espn_id": "2641",
+      "away": "Akron Zips",
+      "away_abbrev": "AKR",
+      "away_espn_id": "2006",
+      "time": "2026-03-20T16:40",
+      "odds": {
+        "spread_home": "-7.5",
+        "spread_home_odds": "-113",
+        "spread_away": "+7.5",
+        "spread_away_odds": "-110",
+        "total": null,
+        "over_odds": "-115",
+        "under_odds": "-107",
+        "ml_home": "-325",
+        "ml_away": "+250",
+        "provider": "SGO"
       },
-      "fair_away_ml": 268,
-      "fair_home_ml": -268
+      "away_profile": {
+        "L5": "0-5",
+        "L10": "0-10",
+        "ppg_L5": 0,
+        "opp_ppg_L5": 0,
+        "margin_L5": 0,
+        "avg_margin_L10": 0,
+        "ppg_L10": 0,
+        "opp_ppg_L10": 0,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "L0",
+        "home_record": "0-0",
+        "away_record": "0-0",
+        "games_last_7d": 0
+      },
+      "home_profile": {
+        "L5": "0-5",
+        "L10": "0-10",
+        "ppg_L5": 0,
+        "opp_ppg_L5": 0,
+        "margin_L5": 0,
+        "avg_margin_L10": 0,
+        "ppg_L10": 0,
+        "opp_ppg_L10": 0,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "L0",
+        "home_record": "0-0",
+        "away_record": "0-0",
+        "games_last_7d": 0
+      },
+      "injuries": {
+        "away": [],
+        "home": []
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
     },
     {
-      "id": "Ua3MNG0kBabBs4eXRZI5",
+      "game_id": "401856529",
       "sport": "NCAAB",
-      "sport_key": "basketball_ncaab",
-      "league": "",
-      "league_flag": "",
-      "away": "LIU Sharks",
       "home": "Arizona Wildcats",
-      "time": "2026-03-20T17:35:00.000Z",
-      "bookmaker": "hardrockbet",
-      "markets": {},
-      "away_ml": 3000,
-      "home_ml": -100000,
-      "away_spread": 30.5,
-      "home_spread": -30.5,
-      "away_spread_odds": -105,
-      "home_spread_odds": -115,
-      "total": 149.5,
-      "over_odds": -115,
-      "under_odds": -105,
-      "lines_available": true,
-      "lines_complete": true,
-      "fetched_at": "12:02 AM PST \u2014 Mar 20, 2026",
-      "all_bookmakers": [],
-      "shifts": {
-        "away_ml": {
-          "open": 5000,
-          "current": 3000
-        },
-        "spread": {
-          "open": 30.5,
-          "current": 30.5
-        },
-        "total": {
-          "open": 150.5,
-          "current": 149.5
-        }
+      "home_abbrev": "ARIZ",
+      "home_espn_id": "12",
+      "away": "Long Island University Sharks",
+      "away_abbrev": "LIU",
+      "away_espn_id": "112358",
+      "time": "2026-03-20T17:35",
+      "odds": {},
+      "away_profile": {
+        "L5": "0-5",
+        "L10": "0-10",
+        "ppg_L5": 0,
+        "opp_ppg_L5": 0,
+        "margin_L5": 0,
+        "avg_margin_L10": 0,
+        "ppg_L10": 0,
+        "opp_ppg_L10": 0,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "L0",
+        "home_record": "0-0",
+        "away_record": "0-0",
+        "games_last_7d": 0
       },
-      "fair_away_ml": 5075,
-      "fair_home_ml": -5075
+      "home_profile": {
+        "L5": "0-5",
+        "L10": "0-10",
+        "ppg_L5": 0,
+        "opp_ppg_L5": 0,
+        "margin_L5": 0,
+        "avg_margin_L10": 0,
+        "ppg_L10": 0,
+        "opp_ppg_L10": 0,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "L0",
+        "home_record": "0-0",
+        "away_record": "0-0",
+        "games_last_7d": 0
+      },
+      "injuries": {
+        "away": [],
+        "home": []
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
     },
     {
-      "id": "ykPgXOn5xNWArIqK11c2",
+      "game_id": "401856526",
       "sport": "NCAAB",
-      "sport_key": "basketball_ncaab",
-      "league": "",
-      "league_flag": "",
-      "away": "Wright State Raiders",
       "home": "Virginia Cavaliers",
-      "time": "2026-03-20T17:50:00.000Z",
-      "bookmaker": "hardrockbet",
-      "markets": {},
-      "away_ml": 1200,
-      "home_ml": -3000,
-      "away_spread": 18.5,
-      "home_spread": -18.5,
-      "away_spread_odds": -130,
-      "home_spread_odds": 105,
-      "total": 145.5,
-      "over_odds": -110,
-      "under_odds": -110,
-      "lines_available": true,
-      "lines_complete": true,
-      "fetched_at": "12:02 AM PST \u2014 Mar 20, 2026",
-      "all_bookmakers": [],
-      "shifts": {
-        "away_ml": {
-          "open": 1100,
-          "current": 1200
-        },
-        "spread": {
-          "open": 18.5,
-          "current": 18.5
-        },
-        "total": {
-          "open": 145.5,
-          "current": 145.5
-        }
+      "home_abbrev": "UVA",
+      "home_espn_id": "258",
+      "away": "Wright State Raiders",
+      "away_abbrev": "WRST",
+      "away_espn_id": "2750",
+      "time": "2026-03-20T17:50",
+      "odds": {
+        "spread_home": "-18.5",
+        "spread_home_odds": "-105",
+        "spread_away": "+18.5",
+        "spread_away_odds": "-118",
+        "total": null,
+        "over_odds": "-110",
+        "under_odds": "-113",
+        "ml_home": "-3333",
+        "ml_away": "+1191",
+        "provider": "SGO"
       },
-      "fair_away_ml": 1258,
-      "fair_home_ml": -1258
+      "away_profile": {
+        "L5": "0-5",
+        "L10": "0-10",
+        "ppg_L5": 0,
+        "opp_ppg_L5": 0,
+        "margin_L5": 0,
+        "avg_margin_L10": 0,
+        "ppg_L10": 0,
+        "opp_ppg_L10": 0,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "L0",
+        "home_record": "0-0",
+        "away_record": "0-0",
+        "games_last_7d": 0
+      },
+      "home_profile": {
+        "L5": "0-5",
+        "L10": "0-10",
+        "ppg_L5": 0,
+        "opp_ppg_L5": 0,
+        "margin_L5": 0,
+        "avg_margin_L10": 0,
+        "ppg_L10": 0,
+        "opp_ppg_L10": 0,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "L0",
+        "home_record": "0-0",
+        "away_record": "0-0",
+        "games_last_7d": 0
+      },
+      "injuries": {
+        "away": [],
+        "home": []
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
     },
     {
-      "id": "eZMY6Ye2stCw6nf3QmBD",
+      "game_id": "401856524",
       "sport": "NCAAB",
-      "sport_key": "basketball_ncaab",
-      "league": "",
-      "league_flag": "",
-      "away": "Tennessee State Tigers",
       "home": "Iowa State Cyclones",
-      "time": "2026-03-20T18:50:00.000Z",
-      "bookmaker": "hardrockbet",
-      "markets": {},
-      "away_ml": 1750,
-      "home_ml": -8000,
-      "away_spread": 24.5,
-      "home_spread": -24.5,
-      "away_spread_odds": -105,
-      "home_spread_odds": -115,
-      "total": 147.5,
-      "over_odds": -115,
-      "under_odds": -105,
-      "lines_available": true,
-      "lines_complete": true,
-      "fetched_at": "12:02 AM PST \u2014 Mar 20, 2026",
-      "all_bookmakers": [],
-      "shifts": {
-        "away_ml": {
-          "open": 2000,
-          "current": 1750
-        },
-        "spread": {
-          "open": 24.5,
-          "current": 24.5
-        },
-        "total": {
-          "open": 148.5,
-          "current": 147.5
-        }
+      "home_abbrev": "ISU",
+      "home_espn_id": "66",
+      "away": "Tennessee State Tigers",
+      "away_abbrev": "TNST",
+      "away_espn_id": "2634",
+      "time": "2026-03-20T18:50",
+      "odds": {
+        "spread_home": "-24.5",
+        "spread_home_odds": "-110",
+        "spread_away": "+24.5",
+        "spread_away_odds": "-110",
+        "total": null,
+        "over_odds": "-108",
+        "under_odds": "-114",
+        "ml_home": "-10000",
+        "ml_away": "+2000",
+        "provider": "SGO"
       },
-      "fair_away_ml": 2079,
-      "fair_home_ml": -2079
+      "away_profile": {
+        "L5": "0-5",
+        "L10": "0-10",
+        "ppg_L5": 0,
+        "opp_ppg_L5": 0,
+        "margin_L5": 0,
+        "avg_margin_L10": 0,
+        "ppg_L10": 0,
+        "opp_ppg_L10": 0,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "L0",
+        "home_record": "0-0",
+        "away_record": "0-0",
+        "games_last_7d": 0
+      },
+      "home_profile": {
+        "L5": "0-5",
+        "L10": "0-10",
+        "ppg_L5": 0,
+        "opp_ppg_L5": 0,
+        "margin_L5": 0,
+        "avg_margin_L10": 0,
+        "ppg_L10": 0,
+        "opp_ppg_L10": 0,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "L0",
+        "home_record": "0-0",
+        "away_record": "0-0",
+        "games_last_7d": 0
+      },
+      "injuries": {
+        "away": [],
+        "home": []
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
     },
     {
-      "id": "HqF1yO0jtneTBr9UvLiB",
+      "game_id": "401856521",
       "sport": "NCAAB",
-      "sport_key": "basketball_ncaab",
-      "league": "",
-      "league_flag": "",
-      "away": "Hofstra Pride",
       "home": "Alabama Crimson Tide",
-      "time": "2026-03-20T19:15:00.000Z",
-      "bookmaker": "hardrockbet",
-      "markets": {},
-      "away_ml": 525,
-      "home_ml": -800,
-      "away_spread": 11.5,
-      "home_spread": -11.5,
-      "away_spread_odds": -115,
-      "home_spread_odds": -105,
-      "total": 158.5,
-      "over_odds": -110,
-      "under_odds": -110,
-      "lines_available": true,
-      "lines_complete": true,
-      "fetched_at": "12:02 AM PST \u2014 Mar 20, 2026",
-      "all_bookmakers": [],
-      "shifts": {
-        "away_ml": {
-          "open": 550,
-          "current": 525
-        },
-        "spread": {
-          "open": 13.5,
-          "current": 11.5
-        },
-        "total": {
-          "open": 161.5,
-          "current": 158.5
-        }
+      "home_abbrev": "ALA",
+      "home_espn_id": "333",
+      "away": "Hofstra Pride",
+      "away_abbrev": "HOF",
+      "away_espn_id": "2275",
+      "time": "2026-03-20T19:15",
+      "odds": {
+        "spread_home": "-11.5",
+        "spread_home_odds": "-110",
+        "spread_away": "+11.5",
+        "spread_away_odds": "-111",
+        "total": null,
+        "over_odds": "-111",
+        "under_odds": "-110",
+        "ml_home": "-800",
+        "ml_away": "+500",
+        "provider": "SGO"
       },
-      "fair_away_ml": 533,
-      "fair_home_ml": -533
+      "away_profile": {
+        "L5": "0-5",
+        "L10": "0-10",
+        "ppg_L5": 0,
+        "opp_ppg_L5": 0,
+        "margin_L5": 0,
+        "avg_margin_L10": 0,
+        "ppg_L10": 0,
+        "opp_ppg_L10": 0,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "L0",
+        "home_record": "0-0",
+        "away_record": "0-0",
+        "games_last_7d": 0
+      },
+      "home_profile": {
+        "L5": "0-5",
+        "L10": "0-10",
+        "ppg_L5": 0,
+        "opp_ppg_L5": 0,
+        "margin_L5": 0,
+        "avg_margin_L10": 0,
+        "ppg_L10": 0,
+        "opp_ppg_L10": 0,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "L0",
+        "home_record": "0-0",
+        "away_record": "0-0",
+        "games_last_7d": 0
+      },
+      "injuries": {
+        "away": [],
+        "home": []
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
     },
     {
-      "id": "pAiSZQeTOkabZHFXPeV9",
+      "game_id": "401856528",
       "sport": "NCAAB",
-      "sport_key": "basketball_ncaab",
-      "league": "",
-      "league_flag": "",
-      "away": "Utah State Aggies",
       "home": "Villanova Wildcats",
-      "time": "2026-03-20T20:10:00.000Z",
-      "bookmaker": "hardrockbet",
-      "markets": {},
-      "away_ml": -130,
-      "home_ml": 110,
-      "away_spread": -1.5,
-      "home_spread": 1.5,
-      "away_spread_odds": -115,
-      "home_spread_odds": -105,
-      "total": 147.5,
-      "over_odds": -105,
-      "under_odds": -115,
-      "lines_available": true,
-      "lines_complete": true,
-      "fetched_at": "12:02 AM PST \u2014 Mar 20, 2026",
-      "all_bookmakers": [],
-      "shifts": {
-        "away_ml": {
-          "open": -150,
-          "current": -130
-        },
-        "spread": {
-          "open": -2.5,
-          "current": -1.5
-        },
-        "total": {
-          "open": 147.5,
-          "current": 147.5
-        }
+      "home_abbrev": "VILL",
+      "home_espn_id": "222",
+      "away": "Utah State Aggies",
+      "away_abbrev": "USU",
+      "away_espn_id": "328",
+      "time": "2026-03-20T20:10",
+      "odds": {
+        "spread_home": "+1.5",
+        "spread_home_odds": "-110",
+        "spread_away": "-1.5",
+        "spread_away_odds": "-113",
+        "total": null,
+        "over_odds": "-107",
+        "under_odds": "-117",
+        "ml_home": "+110",
+        "ml_away": "-130",
+        "provider": "SGO"
       },
-      "fair_away_ml": -119,
-      "fair_home_ml": 119
+      "away_profile": {
+        "L5": "0-5",
+        "L10": "0-10",
+        "ppg_L5": 0,
+        "opp_ppg_L5": 0,
+        "margin_L5": 0,
+        "avg_margin_L10": 0,
+        "ppg_L10": 0,
+        "opp_ppg_L10": 0,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "L0",
+        "home_record": "0-0",
+        "away_record": "0-0",
+        "games_last_7d": 0
+      },
+      "home_profile": {
+        "L5": "0-5",
+        "L10": "0-10",
+        "ppg_L5": 0,
+        "opp_ppg_L5": 0,
+        "margin_L5": 0,
+        "avg_margin_L10": 0,
+        "ppg_L10": 0,
+        "opp_ppg_L10": 0,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "L0",
+        "home_record": "0-0",
+        "away_record": "0-0",
+        "games_last_7d": 0
+      },
+      "injuries": {
+        "away": [],
+        "home": []
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
     },
     {
-      "id": "sddlGqvyJ3PkZsmtQdCb",
+      "game_id": "401856527",
       "sport": "NCAAB",
-      "sport_key": "basketball_ncaab",
-      "league": "",
-      "league_flag": "",
-      "away": "Miami (OH) RedHawks",
       "home": "Tennessee Volunteers",
-      "time": "2026-03-20T20:25:00.000Z",
-      "bookmaker": "hardrockbet",
-      "markets": {},
-      "away_ml": 425,
-      "home_ml": -600,
-      "away_spread": 11.5,
-      "home_spread": -11.5,
-      "away_spread_odds": -120,
-      "home_spread_odds": 100,
-      "total": 149.5,
-      "over_odds": -105,
-      "under_odds": -115,
-      "lines_available": true,
-      "lines_complete": true,
-      "fetched_at": "12:02 AM PST \u2014 Mar 20, 2026",
-      "all_bookmakers": [],
-      "shifts": {
-        "away_ml": {
-          "open": 412,
-          "current": 425
-        },
-        "spread": {
-          "open": 10.5,
-          "current": 11.5
-        },
-        "total": {
-          "open": 149.5,
-          "current": 149.5
-        }
+      "home_abbrev": "TENN",
+      "home_espn_id": "2633",
+      "away": "Miami (OH) RedHawks",
+      "away_abbrev": "M-OH",
+      "away_espn_id": "193",
+      "time": "2026-03-20T20:25",
+      "odds": {
+        "spread_home": "-11.5",
+        "spread_home_odds": "-106",
+        "spread_away": "+11.5",
+        "spread_away_odds": "-115",
+        "total": null,
+        "over_odds": "-115",
+        "under_odds": "-108",
+        "ml_home": "-594",
+        "ml_away": "+410",
+        "provider": "SGO"
       },
-      "fair_away_ml": 436,
-      "fair_home_ml": -436
+      "away_profile": {
+        "L5": "1-0",
+        "L10": "1-0",
+        "ppg_L5": 89.0,
+        "opp_ppg_L5": 79.0,
+        "margin_L5": 10.0,
+        "avg_margin_L10": 10.0,
+        "ppg_L10": 89.0,
+        "opp_ppg_L10": 79.0,
+        "rest_days": 1,
+        "is_b2b": true,
+        "streak": "W1",
+        "home_record": "0-0",
+        "away_record": "1-0",
+        "games_last_7d": 1
+      },
+      "home_profile": {
+        "L5": "0-5",
+        "L10": "0-10",
+        "ppg_L5": 0,
+        "opp_ppg_L5": 0,
+        "margin_L5": 0,
+        "avg_margin_L10": 0,
+        "ppg_L10": 0,
+        "opp_ppg_L10": 0,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "L0",
+        "home_record": "0-0",
+        "away_record": "0-0",
+        "games_last_7d": 0
+      },
+      "injuries": {
+        "away": [],
+        "home": []
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
     },
     {
-      "id": "yA0BhTrAW2vclIItWz2l",
+      "game_id": "401856522",
       "sport": "NCAAB",
-      "sport_key": "basketball_ncaab",
-      "league": "",
-      "league_flag": "",
-      "away": "Iowa Hawkeyes",
       "home": "Clemson Tigers",
-      "time": "2026-03-20T22:50:00.000Z",
-      "bookmaker": "hardrockbet",
-      "markets": {},
-      "away_ml": -130,
-      "home_ml": 110,
-      "away_spread": -1.5,
-      "home_spread": 1.5,
-      "away_spread_odds": -120,
-      "home_spread_odds": 100,
-      "total": 128.5,
-      "over_odds": -120,
-      "under_odds": 100,
-      "lines_available": true,
-      "lines_complete": true,
-      "fetched_at": "12:02 AM PST \u2014 Mar 20, 2026",
-      "all_bookmakers": [],
-      "shifts": {
-        "away_ml": {
-          "open": -145,
-          "current": -130
-        },
-        "spread": {
-          "open": -2.5,
-          "current": -1.5
-        },
-        "total": {
-          "open": 130.5,
-          "current": 128.5
-        }
+      "home_abbrev": "CLEM",
+      "home_espn_id": "228",
+      "away": "Iowa Hawkeyes",
+      "away_abbrev": "IOWA",
+      "away_espn_id": "2294",
+      "time": "2026-03-20T22:50",
+      "odds": {
+        "spread_home": "+2",
+        "spread_home_odds": "-110",
+        "spread_away": "-2",
+        "spread_away_odds": "-110",
+        "total": null,
+        "over_odds": "-115",
+        "under_odds": "-106",
+        "ml_home": "+110",
+        "ml_away": "-133",
+        "provider": "SGO"
       },
-      "fair_away_ml": -120,
-      "fair_home_ml": 120
+      "away_profile": {
+        "L5": "0-5",
+        "L10": "0-10",
+        "ppg_L5": 0,
+        "opp_ppg_L5": 0,
+        "margin_L5": 0,
+        "avg_margin_L10": 0,
+        "ppg_L10": 0,
+        "opp_ppg_L10": 0,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "L0",
+        "home_record": "0-0",
+        "away_record": "0-0",
+        "games_last_7d": 0
+      },
+      "home_profile": {
+        "L5": "0-5",
+        "L10": "0-10",
+        "ppg_L5": 0,
+        "opp_ppg_L5": 0,
+        "margin_L5": 0,
+        "avg_margin_L10": 0,
+        "ppg_L10": 0,
+        "opp_ppg_L10": 0,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "L0",
+        "home_record": "0-0",
+        "away_record": "0-0",
+        "games_last_7d": 0
+      },
+      "injuries": {
+        "away": [],
+        "home": []
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
     },
     {
-      "id": "nVOlvoOGTcIMz1g9bsAA",
+      "game_id": "401856494",
       "sport": "NCAAB",
-      "sport_key": "basketball_ncaab",
-      "league": "",
-      "league_flag": "",
-      "away": "Northern Iowa Panthers",
       "home": "St. John's Red Storm",
-      "time": "2026-03-20T23:10:00.000Z",
-      "bookmaker": "hardrockbet",
-      "markets": {},
-      "away_ml": 425,
-      "home_ml": -600,
-      "away_spread": 9.5,
-      "home_spread": -9.5,
-      "away_spread_odds": -110,
-      "home_spread_odds": -110,
-      "total": 131.5,
-      "over_odds": -115,
-      "under_odds": -105,
-      "lines_available": true,
-      "lines_complete": true,
-      "fetched_at": "12:02 AM PST \u2014 Mar 20, 2026",
-      "all_bookmakers": [],
-      "shifts": {
-        "away_ml": {
-          "open": 450,
-          "current": 425
-        },
-        "spread": {
-          "open": 11.5,
-          "current": 9.5
-        },
-        "total": {
-          "open": 132.5,
-          "current": 131.5
-        }
+      "home_abbrev": "SJU",
+      "home_espn_id": "2599",
+      "away": "Northern Iowa Panthers",
+      "away_abbrev": "UNI",
+      "away_espn_id": "2460",
+      "time": "2026-03-20T23:10",
+      "odds": {
+        "spread_home": "-9.5",
+        "spread_home_odds": "-114",
+        "spread_away": "+9.5",
+        "spread_away_odds": "-110",
+        "total": null,
+        "over_odds": "-113",
+        "under_odds": "-110",
+        "ml_home": "-537",
+        "ml_away": "+390",
+        "provider": "SGO"
       },
-      "fair_away_ml": 413,
-      "fair_home_ml": -413
+      "away_profile": {
+        "L5": "0-5",
+        "L10": "0-10",
+        "ppg_L5": 0,
+        "opp_ppg_L5": 0,
+        "margin_L5": 0,
+        "avg_margin_L10": 0,
+        "ppg_L10": 0,
+        "opp_ppg_L10": 0,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "L0",
+        "home_record": "0-0",
+        "away_record": "0-0",
+        "games_last_7d": 0
+      },
+      "home_profile": {
+        "L5": "0-5",
+        "L10": "0-10",
+        "ppg_L5": 0,
+        "opp_ppg_L5": 0,
+        "margin_L5": 0,
+        "avg_margin_L10": 0,
+        "ppg_L10": 0,
+        "opp_ppg_L10": 0,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "L0",
+        "home_record": "0-0",
+        "away_record": "0-0",
+        "games_last_7d": 0
+      },
+      "injuries": {
+        "away": [],
+        "home": []
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
     },
     {
-      "id": "71TOa7urA1cd1FYC5Xf5",
+      "game_id": "401856496",
       "sport": "NCAAB",
-      "sport_key": "basketball_ncaab",
-      "league": "",
-      "league_flag": "",
-      "away": "UCF Knights",
       "home": "UCLA Bruins",
-      "time": "2026-03-20T23:25:00.000Z",
-      "bookmaker": "hardrockbet",
-      "markets": {},
-      "away_ml": 185,
-      "home_ml": -240,
-      "away_spread": 5.5,
-      "home_spread": -5.5,
-      "away_spread_odds": -110,
-      "home_spread_odds": -110,
-      "total": 151.5,
-      "over_odds": -115,
-      "under_odds": -105,
-      "lines_available": true,
-      "lines_complete": true,
-      "fetched_at": "12:02 AM PST \u2014 Mar 20, 2026",
-      "all_bookmakers": [],
-      "shifts": {
-        "away_ml": {
-          "open": 195,
-          "current": 185
-        },
-        "spread": {
-          "open": 5.5,
-          "current": 5.5
-        },
-        "total": {
-          "open": 153.5,
-          "current": 151.5
-        }
+      "home_abbrev": "UCLA",
+      "home_espn_id": "26",
+      "away": "UCF Knights",
+      "away_abbrev": "UCF",
+      "away_espn_id": "2116",
+      "time": "2026-03-20T23:25",
+      "odds": {
+        "spread_home": "-5.5",
+        "spread_home_odds": "-110",
+        "spread_away": "+5.5",
+        "spread_away_odds": "-110",
+        "total": null,
+        "over_odds": "-115",
+        "under_odds": "-107",
+        "ml_home": "-238",
+        "ml_away": "+190",
+        "provider": "SGO"
       },
-      "fair_away_ml": 204,
-      "fair_home_ml": -204
+      "away_profile": {
+        "L5": "0-5",
+        "L10": "0-10",
+        "ppg_L5": 0,
+        "opp_ppg_L5": 0,
+        "margin_L5": 0,
+        "avg_margin_L10": 0,
+        "ppg_L10": 0,
+        "opp_ppg_L10": 0,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "L0",
+        "home_record": "0-0",
+        "away_record": "0-0",
+        "games_last_7d": 0
+      },
+      "home_profile": {
+        "L5": "0-5",
+        "L10": "0-10",
+        "ppg_L5": 0,
+        "opp_ppg_L5": 0,
+        "margin_L5": 0,
+        "avg_margin_L10": 0,
+        "ppg_L10": 0,
+        "opp_ppg_L10": 0,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "L0",
+        "home_record": "0-0",
+        "away_record": "0-0",
+        "games_last_7d": 0
+      },
+      "injuries": {
+        "away": [],
+        "home": []
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
     },
     {
-      "id": "T1fMseoiLJaS4zUAq6yL",
+      "game_id": "401856519",
       "sport": "NCAAB",
-      "sport_key": "basketball_ncaab",
-      "league": "",
-      "league_flag": "",
-      "away": "Queens Royals",
       "home": "Purdue Boilermakers",
-      "time": "2026-03-20T23:35:00.000Z",
-      "bookmaker": "hardrockbet",
-      "markets": {},
-      "away_ml": 2250,
-      "home_ml": -10000,
-      "away_spread": 25.5,
-      "home_spread": -25.5,
-      "away_spread_odds": -115,
-      "home_spread_odds": -105,
-      "total": 162.5,
-      "over_odds": -110,
-      "under_odds": -110,
-      "lines_available": true,
-      "lines_complete": true,
-      "fetched_at": "12:02 AM PST \u2014 Mar 20, 2026",
-      "all_bookmakers": [],
-      "shifts": {
-        "away_ml": {
-          "open": 2400,
-          "current": 2250
-        },
-        "spread": {
-          "open": 24.5,
-          "current": 25.5
-        },
-        "total": {
-          "open": 163.5,
-          "current": 162.5
-        }
+      "home_abbrev": "PUR",
+      "home_espn_id": "2509",
+      "away": "Queens University Royals",
+      "away_abbrev": "QUC",
+      "away_espn_id": "2511",
+      "time": "2026-03-20T23:35",
+      "odds": {},
+      "away_profile": {
+        "L5": "0-5",
+        "L10": "0-10",
+        "ppg_L5": 0,
+        "opp_ppg_L5": 0,
+        "margin_L5": 0,
+        "avg_margin_L10": 0,
+        "ppg_L10": 0,
+        "opp_ppg_L10": 0,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "L0",
+        "home_record": "0-0",
+        "away_record": "0-0",
+        "games_last_7d": 0
       },
-      "fair_away_ml": 2277,
-      "fair_home_ml": -2277
+      "home_profile": {
+        "L5": "0-5",
+        "L10": "0-10",
+        "ppg_L5": 0,
+        "opp_ppg_L5": 0,
+        "margin_L5": 0,
+        "avg_margin_L10": 0,
+        "ppg_L10": 0,
+        "opp_ppg_L10": 0,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "L0",
+        "home_record": "0-0",
+        "away_record": "0-0",
+        "games_last_7d": 0
+      },
+      "injuries": {
+        "away": [],
+        "home": []
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
     },
     {
-      "id": "OiP6Iqz5vDjFfR8VGnKG",
+      "game_id": "401856523",
       "sport": "NCAAB",
-      "sport_key": "basketball_ncaab",
-      "league": "",
-      "league_flag": "",
-      "away": "Prairie View A&M Panthers",
       "home": "Florida Gators",
-      "time": "2026-03-21T01:25:00.000Z",
-      "bookmaker": "hardrockbet",
-      "markets": {},
-      "away_ml": 3000,
-      "home_ml": -100000,
-      "away_spread": 35.5,
-      "home_spread": -35.5,
-      "away_spread_odds": -110,
-      "home_spread_odds": -110,
-      "total": 154.5,
-      "over_odds": -120,
-      "under_odds": 100,
-      "lines_available": true,
-      "lines_complete": true,
-      "fetched_at": "12:02 AM PST \u2014 Mar 20, 2026",
-      "all_bookmakers": [],
-      "shifts": {
-        "away_ml": {
-          "open": 2218,
-          "current": 3000
-        },
-        "spread": {
-          "open": 35.5,
-          "current": 35.5
-        },
-        "total": {
-          "open": 155.5,
-          "current": 154.5
-        }
+      "home_abbrev": "FLA",
+      "home_espn_id": "57",
+      "away": "Prairie View A&M Panthers",
+      "away_abbrev": "PV",
+      "away_espn_id": "2504",
+      "time": "2026-03-21T01:25",
+      "odds": {
+        "spread_home": "-35.5",
+        "spread_home_odds": "-110",
+        "spread_away": "+35.5",
+        "spread_away_odds": "-111",
+        "total": null,
+        "over_odds": "-115",
+        "under_odds": "-108",
+        "ml_home": "-44446",
+        "ml_away": "+4000",
+        "provider": "SGO"
       },
-      "fair_away_ml": 4091,
-      "fair_home_ml": -4091
+      "away_profile": {
+        "L5": "1-0",
+        "L10": "1-0",
+        "ppg_L5": 67.0,
+        "opp_ppg_L5": 55.0,
+        "margin_L5": 12.0,
+        "avg_margin_L10": 12.0,
+        "ppg_L10": 67.0,
+        "opp_ppg_L10": 55.0,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "W1",
+        "home_record": "0-0",
+        "away_record": "1-0",
+        "games_last_7d": 1
+      },
+      "home_profile": {
+        "L5": "0-5",
+        "L10": "0-10",
+        "ppg_L5": 0,
+        "opp_ppg_L5": 0,
+        "margin_L5": 0,
+        "avg_margin_L10": 0,
+        "ppg_L10": 0,
+        "opp_ppg_L10": 0,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "L0",
+        "home_record": "0-0",
+        "away_record": "0-0",
+        "games_last_7d": 0
+      },
+      "injuries": {
+        "away": [],
+        "home": []
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
     },
     {
-      "id": "DVXi0sC4wismgeawehe4",
+      "game_id": "401856495",
       "sport": "NCAAB",
-      "sport_key": "basketball_ncaab",
-      "league": "",
-      "league_flag": "",
-      "away": "California Baptist Lancers",
       "home": "Kansas Jayhawks",
-      "time": "2026-03-21T01:45:00.000Z",
-      "bookmaker": "hardrockbet",
-      "markets": {},
-      "away_ml": 750,
-      "home_ml": -1200,
-      "away_spread": 14.5,
-      "home_spread": -14.5,
-      "away_spread_odds": -115,
-      "home_spread_odds": -105,
-      "total": 138.5,
-      "over_odds": -110,
-      "under_odds": -110,
-      "lines_available": true,
-      "lines_complete": true,
-      "fetched_at": "12:02 AM PST \u2014 Mar 20, 2026",
-      "all_bookmakers": [],
-      "shifts": {
-        "away_ml": {
-          "open": 600,
-          "current": 750
-        },
-        "spread": {
-          "open": 14.5,
-          "current": 14.5
-        },
-        "total": {
-          "open": 136.5,
-          "current": 138.5
-        }
+      "home_abbrev": "KU",
+      "home_espn_id": "2305",
+      "away": "California Baptist Lancers",
+      "away_abbrev": "CBU",
+      "away_espn_id": "2856",
+      "time": "2026-03-21T01:45",
+      "odds": {
+        "spread_home": "-14.5",
+        "spread_home_odds": "-107",
+        "spread_away": "+14.5",
+        "spread_away_odds": "-118",
+        "total": null,
+        "over_odds": "-109",
+        "under_odds": "-113",
+        "ml_home": "-1250",
+        "ml_away": "+700",
+        "provider": "SGO"
       },
-      "fair_away_ml": 741,
-      "fair_home_ml": -741
+      "away_profile": {
+        "L5": "0-5",
+        "L10": "0-10",
+        "ppg_L5": 0,
+        "opp_ppg_L5": 0,
+        "margin_L5": 0,
+        "avg_margin_L10": 0,
+        "ppg_L10": 0,
+        "opp_ppg_L10": 0,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "L0",
+        "home_record": "0-0",
+        "away_record": "0-0",
+        "games_last_7d": 0
+      },
+      "home_profile": {
+        "L5": "0-5",
+        "L10": "0-10",
+        "ppg_L5": 0,
+        "opp_ppg_L5": 0,
+        "margin_L5": 0,
+        "avg_margin_L10": 0,
+        "ppg_L10": 0,
+        "opp_ppg_L10": 0,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "L0",
+        "home_record": "0-0",
+        "away_record": "0-0",
+        "games_last_7d": 0
+      },
+      "injuries": {
+        "away": [],
+        "home": []
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
     },
     {
-      "id": "FilsypmyO7o9tz3lFvjG",
+      "game_id": "401856497",
       "sport": "NCAAB",
-      "sport_key": "basketball_ncaab",
-      "league": "",
-      "league_flag": "",
+      "home": "UConn Huskies",
+      "home_abbrev": "CONN",
+      "home_espn_id": "41",
       "away": "Furman Paladins",
-      "home": "Connecticut Huskies",
-      "time": "2026-03-21T02:00:00.000Z",
-      "bookmaker": "hardrockbet",
-      "markets": {},
-      "away_ml": 1400,
-      "home_ml": -5000,
-      "away_spread": 20.5,
-      "home_spread": -20.5,
-      "away_spread_odds": -110,
-      "home_spread_odds": -110,
-      "total": 136.5,
-      "over_odds": -110,
-      "under_odds": -110,
-      "lines_available": true,
-      "lines_complete": true,
-      "fetched_at": "12:02 AM PST \u2014 Mar 20, 2026",
-      "all_bookmakers": [],
-      "shifts": {
-        "away_ml": {
-          "open": 1900,
-          "current": 1400
-        },
-        "spread": {
-          "open": 20.5,
-          "current": 20.5
-        },
-        "total": {
-          "open": 137.5,
-          "current": 136.5
-        }
+      "away_abbrev": "FUR",
+      "away_espn_id": "231",
+      "time": "2026-03-21T02:00",
+      "odds": {},
+      "away_profile": {
+        "L5": "0-5",
+        "L10": "0-10",
+        "ppg_L5": 0,
+        "opp_ppg_L5": 0,
+        "margin_L5": 0,
+        "avg_margin_L10": 0,
+        "ppg_L10": 0,
+        "opp_ppg_L10": 0,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "L0",
+        "home_record": "0-0",
+        "away_record": "0-0",
+        "games_last_7d": 0
       },
-      "fair_away_ml": 1618,
-      "fair_home_ml": -1618
+      "home_profile": {
+        "L5": "0-5",
+        "L10": "0-10",
+        "ppg_L5": 0,
+        "opp_ppg_L5": 0,
+        "margin_L5": 0,
+        "avg_margin_L10": 0,
+        "ppg_L10": 0,
+        "opp_ppg_L10": 0,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "L0",
+        "home_record": "0-0",
+        "away_record": "0-0",
+        "games_last_7d": 0
+      },
+      "injuries": {
+        "away": [],
+        "home": []
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
     },
     {
-      "id": "3mkCpclDkQu2pxCcbiav",
+      "game_id": "401856518",
       "sport": "NCAAB",
-      "sport_key": "basketball_ncaab",
-      "league": "",
-      "league_flag": "",
-      "away": "Missouri Tigers",
       "home": "Miami Hurricanes",
-      "time": "2026-03-21T02:10:00.000Z",
-      "bookmaker": "hardrockbet",
-      "markets": {},
-      "away_ml": 110,
-      "home_ml": -130,
-      "away_spread": 1.5,
-      "home_spread": -1.5,
-      "away_spread_odds": -105,
-      "home_spread_odds": -115,
-      "total": 146.5,
-      "over_odds": -115,
-      "under_odds": -105,
-      "lines_available": true,
-      "lines_complete": true,
-      "fetched_at": "12:02 AM PST \u2014 Mar 20, 2026",
-      "all_bookmakers": [],
-      "shifts": {
-        "away_ml": {
-          "open": 110,
-          "current": 110
-        },
-        "spread": {
-          "open": 1.5,
-          "current": 1.5
-        },
-        "total": {
-          "open": 148.5,
-          "current": 146.5
-        }
+      "home_abbrev": "MIA",
+      "home_espn_id": "2390",
+      "away": "Missouri Tigers",
+      "away_abbrev": "MIZ",
+      "away_espn_id": "142",
+      "time": "2026-03-21T02:10",
+      "odds": {
+        "spread_home": "-1.5",
+        "spread_home_odds": "-117",
+        "spread_away": "+1.5",
+        "spread_away_odds": "-107",
+        "total": null,
+        "over_odds": "-114",
+        "under_odds": "-109",
+        "ml_home": "-133",
+        "ml_away": "+110",
+        "provider": "SGO"
       },
-      "fair_away_ml": 120,
-      "fair_home_ml": -120
+      "away_profile": {
+        "L5": "0-5",
+        "L10": "0-10",
+        "ppg_L5": 0,
+        "opp_ppg_L5": 0,
+        "margin_L5": 0,
+        "avg_margin_L10": 0,
+        "ppg_L10": 0,
+        "opp_ppg_L10": 0,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "L0",
+        "home_record": "0-0",
+        "away_record": "0-0",
+        "games_last_7d": 0
+      },
+      "home_profile": {
+        "L5": "0-5",
+        "L10": "0-10",
+        "ppg_L5": 0,
+        "opp_ppg_L5": 0,
+        "margin_L5": 0,
+        "avg_margin_L10": 0,
+        "ppg_L10": 0,
+        "opp_ppg_L10": 0,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "L0",
+        "home_record": "0-0",
+        "away_record": "0-0",
+        "games_last_7d": 0
+      },
+      "injuries": {
+        "away": [],
+        "home": []
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
     }
   ],
-  "date": "2026-03-20",
-  "fetched_at": "2026-03-20T00:03:53.974682"
+  "count": 16
 }
