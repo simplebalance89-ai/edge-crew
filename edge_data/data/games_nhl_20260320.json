@@ -1,7 +1,7 @@
 {
   "sport": "NHL",
   "date": "2026-03-20",
-  "fetched_at": "2026-03-19T23:58:38.195873",
+  "fetched_at": "2026-03-20T13:03:49.460305",
   "games": [
     {
       "game_id": "G3FVuGakj5kxyzyxaSmi",
@@ -273,5 +273,6 @@
       "fair_away_ml": 138,
       "fair_home_ml": -138
     }
-  ]
+  ],
+  "count": 6
 }

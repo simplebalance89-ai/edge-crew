@@ -1,0 +1,342 @@
+{
+  "sport": "NHL",
+  "date": "20260320",
+  "races": [
+    {
+      "matchup": "New Jersey Devils @ New York Rangers",
+      "home": "New York Rangers",
+      "away": "New Jersey Devils",
+      "lanes": [
+        {
+          "heat": "Team Profile",
+          "home": {
+            "grade": "C",
+            "score": 4.5
+          },
+          "away": {
+            "grade": "C",
+            "score": 4.5
+          },
+          "winner": "push",
+          "margin": 0.0
+        },
+        {
+          "heat": "Player Chains",
+          "home": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "away": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "winner": "push",
+          "margin": 0.0
+        },
+        {
+          "heat": "Matchup (Off vs Def)",
+          "home": {
+            "off_l5": 110,
+            "vs_opp_def": 112,
+            "edge": -2
+          },
+          "away": {
+            "off_l5": 110,
+            "vs_opp_def": 112,
+            "edge": -2
+          },
+          "winner": "push",
+          "margin": 0
+        }
+      ],
+      "home_score": 0,
+      "away_score": 0,
+      "margin": 0,
+      "race_winner": "push",
+      "pick_team": "PASS",
+      "pick_spread": null,
+      "bet_size": "PASS",
+      "confidence": "Low"
+    },
+    {
+      "matchup": "Pittsburgh Penguins @ Carolina Hurricanes",
+      "home": "Carolina Hurricanes",
+      "away": "Pittsburgh Penguins",
+      "lanes": [
+        {
+          "heat": "Team Profile",
+          "home": {
+            "grade": "C",
+            "score": 4.5
+          },
+          "away": {
+            "grade": "C",
+            "score": 4.5
+          },
+          "winner": "push",
+          "margin": 0.0
+        },
+        {
+          "heat": "Player Chains",
+          "home": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "away": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "winner": "push",
+          "margin": 0.0
+        },
+        {
+          "heat": "Matchup (Off vs Def)",
+          "home": {
+            "off_l5": 110,
+            "vs_opp_def": 112,
+            "edge": -2
+          },
+          "away": {
+            "off_l5": 110,
+            "vs_opp_def": 112,
+            "edge": -2
+          },
+          "winner": "push",
+          "margin": 0
+        }
+      ],
+      "home_score": 0,
+      "away_score": 0,
+      "margin": 0,
+      "race_winner": "push",
+      "pick_team": "PASS",
+      "pick_spread": null,
+      "bet_size": "PASS",
+      "confidence": "Low"
+    },
+    {
+      "matchup": "Ottawa Senators @ Washington Capitals",
+      "home": "Washington Capitals",
+      "away": "Ottawa Senators",
+      "lanes": [
+        {
+          "heat": "Team Profile",
+          "home": {
+            "grade": "C",
+            "score": 4.5
+          },
+          "away": {
+            "grade": "D",
+            "score": 3.5
+          },
+          "winner": "home",
+          "margin": 1.0
+        },
+        {
+          "heat": "Player Chains",
+          "home": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "away": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "winner": "push",
+          "margin": 0.0
+        },
+        {
+          "heat": "Matchup (Off vs Def)",
+          "home": {
+            "off_l5": 110,
+            "vs_opp_def": 112,
+            "edge": -2
+          },
+          "away": {
+            "off_l5": 110,
+            "vs_opp_def": 112,
+            "edge": -2
+          },
+          "winner": "push",
+          "margin": 0
+        }
+      ],
+      "home_score": 1,
+      "away_score": 0,
+      "margin": 1,
+      "race_winner": "home",
+      "pick_team": "Washington Capitals",
+      "pick_spread": "?",
+      "bet_size": "0.5u",
+      "confidence": "Moderate"
+    },
+    {
+      "matchup": "St. Louis Blues @ Calgary Flames",
+      "home": "Calgary Flames",
+      "away": "St. Louis Blues",
+      "lanes": [
+        {
+          "heat": "Team Profile",
+          "home": {
+            "grade": "C",
+            "score": 4.5
+          },
+          "away": {
+            "grade": "D",
+            "score": 3.5
+          },
+          "winner": "home",
+          "margin": 1.0
+        },
+        {
+          "heat": "Player Chains",
+          "home": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "away": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "winner": "push",
+          "margin": 0.0
+        },
+        {
+          "heat": "Matchup (Off vs Def)",
+          "home": {
+            "off_l5": 110,
+            "vs_opp_def": 112,
+            "edge": -2
+          },
+          "away": {
+            "off_l5": 110,
+            "vs_opp_def": 112,
+            "edge": -2
+          },
+          "winner": "push",
+          "margin": 0
+        }
+      ],
+      "home_score": 1,
+      "away_score": 0,
+      "margin": 1,
+      "race_winner": "home",
+      "pick_team": "Calgary Flames",
+      "pick_spread": "?",
+      "bet_size": "0.5u",
+      "confidence": "Moderate"
+    },
+    {
+      "matchup": "Dallas Stars @ Colorado Avalanche",
+      "home": "Colorado Avalanche",
+      "away": "Dallas Stars",
+      "lanes": [
+        {
+          "heat": "Team Profile",
+          "home": {
+            "grade": "D",
+            "score": 3.5
+          },
+          "away": {
+            "grade": "D",
+            "score": 3.5
+          },
+          "winner": "push",
+          "margin": 0.0
+        },
+        {
+          "heat": "Player Chains",
+          "home": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "away": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "winner": "push",
+          "margin": 0.0
+        },
+        {
+          "heat": "Matchup (Off vs Def)",
+          "home": {
+            "off_l5": 110,
+            "vs_opp_def": 112,
+            "edge": -2
+          },
+          "away": {
+            "off_l5": 110,
+            "vs_opp_def": 112,
+            "edge": -2
+          },
+          "winner": "push",
+          "margin": 0
+        }
+      ],
+      "home_score": 0,
+      "away_score": 0,
+      "margin": 0,
+      "race_winner": "push",
+      "pick_team": "PASS",
+      "pick_spread": null,
+      "bet_size": "PASS",
+      "confidence": "Low"
+    },
+    {
+      "matchup": "Philadelphia Flyers @ Anaheim Ducks",
+      "home": "Anaheim Ducks",
+      "away": "Philadelphia Flyers",
+      "lanes": [
+        {
+          "heat": "Team Profile",
+          "home": {
+            "grade": "D",
+            "score": 3.5
+          },
+          "away": {
+            "grade": "D",
+            "score": 3.5
+          },
+          "winner": "push",
+          "margin": 0.0
+        },
+        {
+          "heat": "Player Chains",
+          "home": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "away": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "winner": "push",
+          "margin": 0.0
+        },
+        {
+          "heat": "Matchup (Off vs Def)",
+          "home": {
+            "off_l5": 110,
+            "vs_opp_def": 112,
+            "edge": -2
+          },
+          "away": {
+            "off_l5": 110,
+            "vs_opp_def": 112,
+            "edge": -2
+          },
+          "winner": "push",
+          "margin": 0
+        }
+      ],
+      "home_score": 0,
+      "away_score": 0,
+      "margin": 0,
+      "race_winner": "push",
+      "pick_team": "PASS",
+      "pick_spread": null,
+      "bet_size": "PASS",
+      "confidence": "Low"
+    }
+  ]
+}
