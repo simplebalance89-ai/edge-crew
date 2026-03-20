@@ -3452,6 +3452,15 @@ function switchSport(sport, e) {
             fetchEdge(sport);
         }
     }
+    // Auto-fetch odds for main sport panels if panel is empty
+    if (sportList.indexOf(sport) !== -1) {
+        var sportPanel = document.getElementById('panel-' + sport);
+        var gameRows = sportPanel ? sportPanel.querySelectorAll('.game-row') : [];
+        if (gameRows.length === 0) {
+            window._forceRefreshOdds = true;
+            fetchLiveOdds(sport, function() { window._forceRefreshOdds = false; });
+        }
+    }
     // Auto-load cached analysis grades on sport switch (no AI calls)
     if (sportList.indexOf(sport) !== -1 && !_analysisCache[sport.toUpperCase()]) {
         fetch('/api/analysis/' + sport + '?cached_only=true')

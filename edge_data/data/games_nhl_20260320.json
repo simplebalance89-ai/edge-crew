@@ -1,20 +1,20 @@
 {
   "sport": "NHL",
   "date": "2026-03-20",
-  "fetched_at": "2026-03-20T00:03:53.975581",
+  "fetched_at": "2026-03-19T23:58:38.195873",
   "games": [
     {
-      "game_id": "Zua1jK0knqz9YgrZDXix",
+      "game_id": "G3FVuGakj5kxyzyxaSmi",
       "sport": "NHL",
-      "home": "Toronto Maple Leafs",
-      "home_abbrev": "TOR",
-      "away": "Carolina Hurricanes",
-      "away_abbrev": "CAR",
-      "time": "2026-03-20T23:00",
+      "home": "New York Rangers",
+      "home_abbrev": "NYR",
+      "away": "New Jersey Devils",
+      "away_abbrev": "NJD",
+      "time": "2026-03-18T23:00",
       "odds": {
         "spread_home": "1.5",
-        "ml_home": "+165",
-        "ml_away": "-200",
+        "ml_home": "+100",
+        "ml_away": "-120",
         "total": "6.5",
         "over_odds": "+105",
         "under_odds": "-130",
@@ -33,8 +33,8 @@
       "props": [],
       "shifts": {
         "away_ml": {
-          "open": -185,
-          "current": -200
+          "open": -125,
+          "current": -120
         },
         "spread": {
           "open": -1.5,
@@ -45,21 +45,66 @@
           "current": 6.5
         }
       },
-      "fair_away_ml": -192,
-      "fair_home_ml": 192
+      "fair_away_ml": -109,
+      "fair_home_ml": 109
     },
     {
-      "game_id": "aqawogawKjEdDknP9d4g",
+      "game_id": "J4gorJsuBk4SqzFNjAVR",
+      "sport": "NHL",
+      "home": "Carolina Hurricanes",
+      "home_abbrev": "CAR",
+      "away": "Pittsburgh Penguins",
+      "away_abbrev": "PIT",
+      "time": "2026-03-18T23:00",
+      "odds": {
+        "spread_home": "-1.5",
+        "ml_home": "-140",
+        "ml_away": "+120",
+        "total": "6.5",
+        "over_odds": "-105",
+        "under_odds": "-115",
+        "provider": "SGO"
+      },
+      "home_profile": {},
+      "away_profile": {},
+      "injuries": {
+        "home": [],
+        "away": []
+      },
+      "lineup": {
+        "home": [],
+        "away": []
+      },
+      "props": [],
+      "shifts": {
+        "away_ml": {
+          "open": 150,
+          "current": 120
+        },
+        "spread": {
+          "open": 1.5,
+          "current": 1.5
+        },
+        "total": {
+          "open": 6.5,
+          "current": 6.5
+        }
+      },
+      "fair_away_ml": 130,
+      "fair_home_ml": -130
+    },
+    {
+      "game_id": "ncDa1sqaWM9LjaQxy9MV",
       "sport": "NHL",
       "home": "Washington Capitals",
       "home_abbrev": "WSH",
-      "away": "New Jersey Devils",
-      "away_abbrev": "NJD",
-      "time": "2026-03-20T23:00",
+      "away": "Ottawa Senators",
+      "away_abbrev": "OTT",
+      "time": "2026-03-18T23:30",
       "odds": {
-        "spread_home": "-1.5",
-        "ml_home": "-125",
-        "ml_away": "+105",
+        "spread_home": "1.5",
+        "ml_home": "+110",
+        "ml_away": "-130",
         "total": "5.5",
         "over_odds": "-145",
         "under_odds": "+115",
@@ -78,53 +123,8 @@
       "props": [],
       "shifts": {
         "away_ml": {
-          "open": 105,
-          "current": 105
-        },
-        "spread": {
-          "open": -1.5,
-          "current": 1.5
-        },
-        "total": {
-          "open": 5.5,
-          "current": 5.5
-        }
-      },
-      "fair_away_ml": 119,
-      "fair_home_ml": -119
-    },
-    {
-      "game_id": "WBJzLpD2oCNe8M7ClBp3",
-      "sport": "NHL",
-      "home": "Chicago Blackhawks",
-      "home_abbrev": "CHI",
-      "away": "Colorado Avalanche",
-      "away_abbrev": "COL",
-      "time": "2026-03-21T00:30",
-      "odds": {
-        "spread_home": "1.5",
-        "ml_home": "+225",
-        "ml_away": "-300",
-        "total": "6.5",
-        "over_odds": "+100",
-        "under_odds": "-120",
-        "provider": "SGO"
-      },
-      "home_profile": {},
-      "away_profile": {},
-      "injuries": {
-        "home": [],
-        "away": []
-      },
-      "lineup": {
-        "home": [],
-        "away": []
-      },
-      "props": [],
-      "shifts": {
-        "away_ml": {
-          "open": -285,
-          "current": -300
+          "open": -125,
+          "current": -130
         },
         "spread": {
           "open": -1.5,
@@ -132,70 +132,25 @@
         },
         "total": {
           "open": 6.5,
-          "current": 6.5
-        }
-      },
-      "fair_away_ml": -245,
-      "fair_home_ml": 245
-    },
-    {
-      "game_id": "5ld9o9dJAHErSA2vSWyA",
-      "sport": "NHL",
-      "home": "Calgary Flames",
-      "home_abbrev": "CGY",
-      "away": "Florida Panthers",
-      "away_abbrev": "FLA",
-      "time": "2026-03-21T01:00",
-      "odds": {
-        "spread_home": "1.5",
-        "ml_home": "-110",
-        "ml_away": "-110",
-        "total": "5.5",
-        "over_odds": "-130",
-        "under_odds": "+105",
-        "provider": "SGO"
-      },
-      "home_profile": {},
-      "away_profile": {},
-      "injuries": {
-        "home": [],
-        "away": []
-      },
-      "lineup": {
-        "home": [],
-        "away": []
-      },
-      "props": [],
-      "shifts": {
-        "away_ml": {
-          "open": -125,
-          "current": -110
-        },
-        "spread": {
-          "open": 2.5,
-          "current": -1.5
-        },
-        "total": {
-          "open": 5.5,
           "current": 5.5
         }
       },
-      "fair_away_ml": -101,
-      "fair_home_ml": 101
+      "fair_away_ml": -120,
+      "fair_home_ml": 120
     },
     {
-      "game_id": "eobcEm5tjFP6KCCAtZwT",
+      "game_id": "OvS22ZRQkG6XV9o7lAoj",
       "sport": "NHL",
-      "home": "Utah Mammoth",
-      "home_abbrev": "UTA",
-      "away": "Anaheim Ducks",
-      "away_abbrev": "ANA",
-      "time": "2026-03-21T02:00",
+      "home": "Calgary Flames",
+      "home_abbrev": "CGY",
+      "away": "St. Louis Blues",
+      "away_abbrev": "STL",
+      "time": "2026-03-19T01:30",
       "odds": {
-        "spread_home": "-1.5",
-        "ml_home": "-120",
-        "ml_away": "+100",
-        "total": "6.5",
+        "spread_home": "1.5",
+        "ml_home": "+105",
+        "ml_away": "-125",
+        "total": "5.5",
         "over_odds": "-115",
         "under_odds": "-105",
         "provider": "SGO"
@@ -213,8 +168,53 @@
       "props": [],
       "shifts": {
         "away_ml": {
-          "open": 105,
-          "current": 100
+          "open": -105,
+          "current": -125
+        },
+        "spread": {
+          "open": -1.5,
+          "current": -1.5
+        },
+        "total": {
+          "open": 5.5,
+          "current": 5.5
+        }
+      },
+      "fair_away_ml": -114,
+      "fair_home_ml": 114
+    },
+    {
+      "game_id": "liwVxPiAmb29E5r5nowy",
+      "sport": "NHL",
+      "home": "Colorado Avalanche",
+      "home_abbrev": "COL",
+      "away": "Dallas Stars",
+      "away_abbrev": "DAL",
+      "time": "2026-03-19T01:30",
+      "odds": {
+        "spread_home": "-1.5",
+        "ml_home": "-145",
+        "ml_away": "+125",
+        "total": "6.5",
+        "over_odds": "+105",
+        "under_odds": "-130",
+        "provider": "SGO"
+      },
+      "home_profile": {},
+      "away_profile": {},
+      "injuries": {
+        "home": [],
+        "away": []
+      },
+      "lineup": {
+        "home": [],
+        "away": []
+      },
+      "props": [],
+      "shifts": {
+        "away_ml": {
+          "open": 120,
+          "current": 125
         },
         "spread": {
           "open": 1.5,
@@ -225,8 +225,53 @@
           "current": 6.5
         }
       },
-      "fair_away_ml": 113,
-      "fair_home_ml": -113
+      "fair_away_ml": 133,
+      "fair_home_ml": -133
+    },
+    {
+      "game_id": "fo8Rb2VyAhBlfOonOncD",
+      "sport": "NHL",
+      "home": "Anaheim Ducks",
+      "home_abbrev": "ANA",
+      "away": "Philadelphia Flyers",
+      "away_abbrev": "PHI",
+      "time": "2026-03-19T02:00",
+      "odds": {
+        "spread_home": "-1.5",
+        "ml_home": "-150",
+        "ml_away": "+130",
+        "total": "6.5",
+        "over_odds": "-105",
+        "under_odds": "-115",
+        "provider": "SGO"
+      },
+      "home_profile": {},
+      "away_profile": {},
+      "injuries": {
+        "home": [],
+        "away": []
+      },
+      "lineup": {
+        "home": [],
+        "away": []
+      },
+      "props": [],
+      "shifts": {
+        "away_ml": {
+          "open": 120,
+          "current": 130
+        },
+        "spread": {
+          "open": 1.5,
+          "current": 1.5
+        },
+        "total": {
+          "open": 6.5,
+          "current": 6.5
+        }
+      },
+      "fair_away_ml": 138,
+      "fair_home_ml": -138
     }
   ]
 }
