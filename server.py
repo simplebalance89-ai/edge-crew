@@ -369,6 +369,13 @@ async def _daily_slate_pull():
                         print(f"[ANALYSIS] {label} {s.upper()} failed: {e}")
                     await asyncio.sleep(30)
 
+                # ── AUTOPICKER: Run after analysis completes ──
+                try:
+                    autopick_result = await _run_autopicker()
+                    print(f"[AUTOPICKER] {label} run: {autopick_result.get('submitted', 0)} picks submitted")
+                except Exception as e:
+                    print(f"[AUTOPICKER] {label} run failed: {e}")
+
             # ── 7 AM PST NCAAB Morning Slate ──────────────────────────────────
             # March Madness & regular season: NCAAB games tip early, analyze at 7 AM
             # Retry at 7:30, 8:00 if odds aren't posted yet. Skip after 3 failures.
@@ -560,7 +567,7 @@ async def _fetch_kalshi_markets(sport: str):
             markets = []
             cursor = None
             for _ in range(3):  # Max 3 pages
-                params = {"series_ticker": series, "limit": 100, "status": "active"}
+                params = {"series_ticker": series, "limit": 100}
                 if cursor:
                     params["cursor"] = cursor
                 resp = await client.get(f"{KALSHI_BASE}/markets", params=params)
@@ -5378,13 +5385,23 @@ async def get_analysis(sport: str, cached_only: bool = False, force: bool = Fals
         for ig in incomplete_games:
             incomplete_note += f"- {ig['matchup']} — MISSING: {', '.join(ig['missing'])}\n"
 
-    # ===== FETCH REAL DATA: Lineups + Injuries from RotoWire =====
+    # ===== FETCH ESPN INJURIES (PRIMARY — reliable API with freshness tiers) =====
     injury_context = ""
     try:
-        injury_context = await _get_lineup_and_injury_context(sport_lower)
+        espn_injury_text = await _fetch_espn_injuries(sport_lower)
+        if espn_injury_text:
+            injury_context = espn_injury_text
+            print(f"[INJURIES] ESPN PRIMARY loaded for {sport_lower}")
     except Exception as e:
-        injury_context = f"INJURY DATA FETCH FAILED: {e}. Grade conservatively."
-        print(f"Injury context fetch error for {sport_lower}: {e}")
+        print(f"ESPN injury fetch error: {e}")
+
+    # ===== FETCH CBS/RotoWire (FALLBACK — supplement ESPN data) =====
+    try:
+        cbs_context = await _get_lineup_and_injury_context(sport_lower)
+        if cbs_context:
+            injury_context += "\n" + cbs_context
+    except Exception as e:
+        print(f"CBS/RotoWire injury context error for {sport_lower}: {e}")
 
     # ===== FETCH ROSTER CONTEXT (verify who's on which team) =====
     roster_context = ""
@@ -5414,15 +5431,6 @@ async def get_analysis(sport: str, cached_only: bool = False, force: bool = Fals
                 roster_context = "\n".join(roster_lines)
     except Exception as e:
         print(f"Roster context error: {e}")
-
-    # ===== FETCH ESPN INJURIES (supplement CBS/RotoWire) =====
-    espn_injury_text = ""
-    try:
-        espn_injury_text = await _fetch_espn_injuries(sport_lower)
-        if espn_injury_text:
-            injury_context += "\n" + espn_injury_text
-    except Exception as e:
-        print(f"ESPN injury fetch error: {e}")
 
     # ===== ENRICH WITH TANK01 INJURY DETAILS =====
     tank01_status = "skipped"
@@ -12899,6 +12907,176 @@ async def regrade_game(game_id: str, request: Request):
     except Exception as e:
         log_error("profedge-regrade", str(e))
         return JSONResponse({"error": str(e)}, status_code=500)
+
+
+# ── AUTOPICKER — Auto-submit picks from graded games ──────────────────────
+AUTOPICKER_THRESHOLD = 6.0  # consensus_avg minimum to auto-pick (B grade)
+AUTOPICKER_CREW = ["Renzo", "Sintonia"]  # Crew members who get auto-picks
+
+async def _run_autopicker():
+    """Read today's grades across all in-season sports, submit picks for qualifying games.
+
+    Qualifying = consensus_avg >= 7.0 AND has_kill != true.
+    Submits as Renzo + Sintonia. Dedup handled by _pick_key.
+    """
+    today = datetime.now(PST).strftime("%Y%m%d")
+    today_dash = datetime.now(PST).strftime("%Y-%m-%d")
+    sports = _in_season_sports()
+    total_submitted = 0
+    total_skipped = 0
+
+    for sport in sports:
+        try:
+            # Load game data (for matchup info + odds)
+            import glob as _glob
+            game_files = sorted(
+                _glob.glob(str(EDGE_DATA_DIR / f"games_{sport}_*.json")),
+                reverse=True
+            )
+            games_data = None
+            used_date = today
+            for gf_path in game_files:
+                try:
+                    with open(gf_path, "r", encoding="utf-8") as f:
+                        games_data = json.load(f)
+                    used_date = Path(gf_path).stem.split("_")[-1]
+                    break
+                except Exception:
+                    continue
+
+            if not games_data:
+                continue
+
+            # Load grades
+            grf = EDGE_GRADES_DIR / f"{sport}_{used_date}_grades.json"
+            if not grf.exists():
+                continue
+            with open(grf, "r", encoding="utf-8") as f:
+                grades_data = json.load(f)
+
+            # Build game lookup by game_id
+            raw_games = games_data.get("games", [])
+            if isinstance(raw_games, dict) and "games" in raw_games:
+                raw_games = raw_games["games"]
+            games_by_id = {}
+            for g in raw_games:
+                gid = g.get("game_id", g.get("id", ""))
+                if gid:
+                    games_by_id[str(gid)] = g
+
+            # Process graded games
+            for graded in grades_data.get("games", []):
+                consensus_avg = graded.get("consensus_avg", 0)
+                has_kill = graded.get("peter_rules", {}).get("has_kill", False)
+                pick_side = graded.get("pick_side", "")
+                game_id = str(graded.get("game_id", ""))
+                consensus_grade = graded.get("consensus_grade", "?")
+
+                # Filter: must meet threshold and no kill flag
+                if consensus_avg < AUTOPICKER_THRESHOLD:
+                    total_skipped += 1
+                    continue
+                if has_kill:
+                    print(f"[AUTOPICKER] SKIP {game_id} — kill flag active")
+                    total_skipped += 1
+                    continue
+
+                # Get game details
+                game = games_by_id.get(game_id, {})
+                home = game.get("home", "")
+                away = game.get("away", "")
+                if not home or not away:
+                    # Try to extract from matchup in grade
+                    matchup_str = graded.get("matchup", "")
+                    if " @ " in matchup_str:
+                        parts = matchup_str.split(" @ ")
+                        away, home = parts[0].strip(), parts[1].strip()
+                    if not home or not away:
+                        continue
+
+                matchup = f"{away} @ {home}"
+
+                # Determine selection and odds based on pick_side
+                odds_data = game.get("odds", {})
+                if pick_side == "home":
+                    selection = f"{home} ML"
+                    odds_val = odds_data.get("ml_home", "-110")
+                    spread = odds_data.get("spread_home", "")
+                elif pick_side == "away":
+                    selection = f"{away} ML"
+                    odds_val = odds_data.get("ml_away", "-110")
+                    spread = odds_data.get("spread_away", "")
+                else:
+                    # Default to home if pick_side is unclear
+                    selection = f"{home} ML"
+                    odds_val = odds_data.get("ml_home", "-110")
+                    spread = odds_data.get("spread_home", "")
+
+                # Determine units based on grade
+                if consensus_avg >= 8.5:
+                    units = "3"
+                    confidence = "Max"
+                elif consensus_avg >= 7.5:
+                    units = "2"
+                    confidence = "Strong"
+                else:
+                    units = "1"
+                    confidence = "Lean"
+
+                notes = f"Auto-pick: {consensus_grade} ({consensus_avg})"
+                if spread:
+                    notes += f" | spread {spread}"
+
+                # Submit for each crew member
+                for crew_name in AUTOPICKER_CREW:
+                    pick = {
+                        "id": str(uuid.uuid4())[:8],
+                        "name": crew_name,
+                        "sport": sport.upper(),
+                        "type": "Moneyline",
+                        "matchup": matchup,
+                        "selection": selection,
+                        "odds": str(odds_val) if odds_val else "-110",
+                        "units": units,
+                        "confidence": confidence,
+                        "notes": notes,
+                        "date": today_dash,
+                        "time": datetime.now(PST).strftime("%I:%M %p"),
+                        "placed": True,
+                        "placed_at": datetime.now(PST).strftime("%Y-%m-%d %H:%M:%S"),
+                        "result": None,
+                        "graded_at": None,
+                        "created_at": datetime.now(PST).strftime("%Y-%m-%d %H:%M:%S"),
+                    }
+
+                    # Dedup check
+                    try:
+                        data = _read_picks()
+                        new_key = _pick_key(pick)
+                        is_dup = any(_pick_key(ex) == new_key for ex in data.get("picks", []))
+                        if is_dup:
+                            continue
+
+                        data["picks"].insert(0, pick)
+                        data["updated_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        _write_picks(data)
+                        total_submitted += 1
+                        print(f"[AUTOPICKER] {crew_name}: {selection} ({matchup}) — {consensus_grade} ({consensus_avg})")
+                    except Exception as e:
+                        logger.warning(f"[AUTOPICKER] Failed to save pick for {crew_name}: {e}")
+
+        except Exception as e:
+            logger.warning(f"[AUTOPICKER] Error processing {sport}: {e}")
+
+    print(f"[AUTOPICKER] Done — {total_submitted} picks submitted, {total_skipped} skipped")
+    return {"submitted": total_submitted, "skipped": total_skipped}
+
+
+@app.post("/api/autopicker/run")
+async def run_autopicker():
+    """Manually trigger the autopicker."""
+    result = await _run_autopicker()
+    return JSONResponse(result)
 
 
 @app.get("/api/sgo-usage")
