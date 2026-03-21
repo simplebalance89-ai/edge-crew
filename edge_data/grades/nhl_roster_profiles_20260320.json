@@ -3,900 +3,22 @@
   "date": "20260320",
   "teams": [
     {
-      "team": "Calgary Flames",
-      "side": "home",
-      "date": "2026-03-20",
-      "opponent": "St. Louis Blues",
-      "game_time": "2026-03-19T01:30",
-      "l5_profile": {
-        "record": null,
-        "l5": null,
-        "l10": null,
-        "streak": null,
-        "ppg_l5": null,
-        "opp_ppg_l5": null,
-        "margin_l5": null,
-        "margin_l10": null,
-        "rest_days": null,
-        "is_b2b": null,
-        "games_last_7d": null,
-        "road_trip_len": null,
-        "home_stand_len": null
-      },
-      "injuries": {
-        "out": [],
-        "gtd": [],
-        "count_out": 0
-      },
-      "sintonia_matrix": {
-        "variables": {
-          "star_player_status": {
-            "score": 9,
-            "weight": 9,
-            "note": "0 OUT, 0 GTD",
-            "weighted": 81
-          },
-          "rest_advantage": {
-            "score": 7,
-            "weight": 9,
-            "note": "2 days rest | B2B: False",
-            "weighted": 63
-          },
-          "off_ranking": {
-            "score": 6,
-            "weight": 8,
-            "note": "115 PPG L5",
-            "weighted": 48
-          },
-          "def_ranking": {
-            "score": 6,
-            "weight": 8,
-            "note": "115 OPP PPG L5",
-            "weighted": 48
-          },
-          "three_pt_matchup": {
-            "score": 5,
-            "weight": 7,
-            "note": "Proxy: +0.0 margin L5 (no opp 3PT data)",
-            "weighted": 35
-          },
-          "pace_matchup": {
-            "score": 8,
-            "weight": 7,
-            "note": "Pace L5: 225 | L10: 225 | delta: 0.0",
-            "weighted": 56
-          },
-          "recent_form": {
-            "score": 0,
-            "weight": 7,
-            "note": "L5: 0-5 | streak: ?",
-            "weighted": 0
-          },
-          "road_trip_length": {
-            "score": 6,
-            "weight": 7,
-            "note": "Road trip: 0g | Home stand: 0g",
-            "weighted": 42
-          },
-          "h2h_season": {
-            "score": 5,
-            "weight": 6,
-            "note": "Season: 0-0 (50% win rate)",
-            "weighted": 30
-          },
-          "paint_scoring": {
-            "score": 6,
-            "weight": 6,
-            "note": "PPG L5: 115 vs season: 115 (delta: +0.0)",
-            "weighted": 36
-          },
-          "fast_break": {
-            "score": 5,
-            "weight": 6,
-            "note": "Margin L10: +0.0 (proxy)",
-            "weighted": 30
-          },
-          "ats_trend": {
-            "score": 1,
-            "weight": 6,
-            "note": "L10: 0-10 | Blowouts: 0 | Close: 0 (ATS data unavailable)",
-            "weighted": 6
-          },
-          "sharp_vs_public": {
-            "score": 6,
-            "weight": 5,
-            "note": "3 games in last 7 days (fatigue proxy \u2014 no line data)",
-            "weighted": 30
-          },
-          "home_away": {
-            "score": 5,
-            "weight": 5,
-            "note": "Home: 0-0 (50%) | Away: 0-0 (50%)",
-            "weighted": 25
-          },
-          "depth_injuries": {
-            "score": 10,
-            "weight": 4,
-            "note": "0 players OUT",
-            "weighted": 40
-          }
-        },
-        "composite": 5.7,
-        "total_weighted": 570,
-        "total_weight": 100,
-        "grade": "B-",
-        "sizing": "PASS"
-      },
-      "model_grades": {
-        "gpt41": {
-          "model": "gpt41",
-          "model_name": "gpt-4.1",
-          "status": "ok",
-          "grade": "C",
-          "score": 4.0,
-          "sizing": "PASS",
-          "form_assessment": "Fade \u2014 The Flames are 0-5 in their last five games with a flat +0.0 average margin, indicating no competitive edge and a severe lack of momentum. Their L10 record is also 0-10, suggesting a prolonged slump and no signs of turnaround.",
-          "injury_impact": "With no players OUT or GTD, injuries are not limiting their ceiling, but the roster is underperforming at full strength.",
-          "situational_flags": "No back-to-back or road trip fatigue, so schedule is neutral and not a factor.",
-          "grade_reasoning": "I downgrade the math grade due to the team's disastrous recent form (0-5 L5, 0-10 L10) and lack of ATS success, which outweighs the healthy roster and neutral schedule.",
-          "key_edge": "The Flames' current form is historically poor, making them a clear fade despite a healthy roster.",
-          "confidence": "high"
-        },
-        "grok": {
-          "model": "grok",
-          "model_name": "grok-3",
-          "status": "ok",
-          "grade": "C",
-          "score": 4.5,
-          "sizing": "PASS",
-          "form_assessment": "Fade \u2014 The Calgary Flames show concerning recent form with a 0-5 record in their last 5 games as per the SINTON.IA Matrix, indicating a lack of momentum. Without specific L5 PPG or OPP PPG data, the recent_form score of 0/10 and ATS trend of 1/10 further suggest consistent underperformance against expectations.",
-          "injury_impact": "The absence of injuries (0 OUT, 0 GTD) maximizes their roster potential and ceiling.",
-          "situational_flags": "No immediate fatigue concerns with no back-to-back games and no road trip or home stand data indicating strain.",
-          "grade_reasoning": "Disagree with math grade of B- due to severe recent form issues (0-5 L5) and poor ATS trends (0-10 L10), which outweigh the positive injury status and pace matchup strengths.",
-          "key_edge": "Recent form (0-5 L5) is the biggest deterrent to betting on this team right now.",
-          "confidence": "medium"
-        },
-        "deepseek": {
-          "model": "deepseek",
-          "model_name": "DeepSeek-V3.2",
-          "status": "ok",
-          "grade": "D",
-          "score": 4.0,
-          "sizing": "PASS",
-          "form_assessment": "Fade \u2014 The team is in a severe slump with an 0-5 record in their last 5 games and a reported 0-10 trend against the spread in their last 10, indicating consistent underperformance relative to expectations. The average margin data is neutral, but the winless streak is a major red flag for betting value.",
-          "injury_impact": "The injury report is clean with zero players OUT or GTD, providing full roster availability and maximum theoretical ceiling.",
-          "situational_flags": "No immediate fatigue concerns as they are not on a back-to-back and have no extended road trip or home stand context provided.",
-          "grade_reasoning": "I disagree with the math grade; a B- (5.7/10) is far too generous for a team on an 0-5 and 0-10 ATS slide. The model overweighted perfect health and pace, while severely underweighting the catastrophic recent form, which is the primary driver of betting value.",
-          "key_edge": "The team is in a profound performance tailspin with no wins in its last 5 games, making it an unreliable betting asset until it shows a sign of life.",
-          "confidence": "high"
-        }
-      },
-      "consensus": {
-        "grade": "C",
-        "avg_score": 4.17,
-        "sizing": "PASS",
-        "models_ok": 3,
-        "grades": [
-          "C",
-          "C",
-          "D"
-        ]
-      }
-    },
-    {
-      "team": "New York Rangers",
-      "side": "home",
-      "date": "2026-03-20",
-      "opponent": "New Jersey Devils",
-      "game_time": "2026-03-18T23:00",
-      "l5_profile": {
-        "record": null,
-        "l5": null,
-        "l10": null,
-        "streak": null,
-        "ppg_l5": null,
-        "opp_ppg_l5": null,
-        "margin_l5": null,
-        "margin_l10": null,
-        "rest_days": null,
-        "is_b2b": null,
-        "games_last_7d": null,
-        "road_trip_len": null,
-        "home_stand_len": null
-      },
-      "injuries": {
-        "out": [],
-        "gtd": [],
-        "count_out": 0
-      },
-      "sintonia_matrix": {
-        "variables": {
-          "star_player_status": {
-            "score": 9,
-            "weight": 9,
-            "note": "0 OUT, 0 GTD",
-            "weighted": 81
-          },
-          "rest_advantage": {
-            "score": 7,
-            "weight": 9,
-            "note": "2 days rest | B2B: False",
-            "weighted": 63
-          },
-          "off_ranking": {
-            "score": 6,
-            "weight": 8,
-            "note": "115 PPG L5",
-            "weighted": 48
-          },
-          "def_ranking": {
-            "score": 6,
-            "weight": 8,
-            "note": "115 OPP PPG L5",
-            "weighted": 48
-          },
-          "three_pt_matchup": {
-            "score": 5,
-            "weight": 7,
-            "note": "Proxy: +0.0 margin L5 (no opp 3PT data)",
-            "weighted": 35
-          },
-          "pace_matchup": {
-            "score": 8,
-            "weight": 7,
-            "note": "Pace L5: 225 | L10: 225 | delta: 0.0",
-            "weighted": 56
-          },
-          "recent_form": {
-            "score": 0,
-            "weight": 7,
-            "note": "L5: 0-5 | streak: ?",
-            "weighted": 0
-          },
-          "road_trip_length": {
-            "score": 6,
-            "weight": 7,
-            "note": "Road trip: 0g | Home stand: 0g",
-            "weighted": 42
-          },
-          "h2h_season": {
-            "score": 5,
-            "weight": 6,
-            "note": "Season: 0-0 (50% win rate)",
-            "weighted": 30
-          },
-          "paint_scoring": {
-            "score": 6,
-            "weight": 6,
-            "note": "PPG L5: 115 vs season: 115 (delta: +0.0)",
-            "weighted": 36
-          },
-          "fast_break": {
-            "score": 5,
-            "weight": 6,
-            "note": "Margin L10: +0.0 (proxy)",
-            "weighted": 30
-          },
-          "ats_trend": {
-            "score": 1,
-            "weight": 6,
-            "note": "L10: 0-10 | Blowouts: 0 | Close: 0 (ATS data unavailable)",
-            "weighted": 6
-          },
-          "sharp_vs_public": {
-            "score": 6,
-            "weight": 5,
-            "note": "3 games in last 7 days (fatigue proxy \u2014 no line data)",
-            "weighted": 30
-          },
-          "home_away": {
-            "score": 5,
-            "weight": 5,
-            "note": "Home: 0-0 (50%) | Away: 0-0 (50%)",
-            "weighted": 25
-          },
-          "depth_injuries": {
-            "score": 10,
-            "weight": 4,
-            "note": "0 players OUT",
-            "weighted": 40
-          }
-        },
-        "composite": 5.7,
-        "total_weighted": 570,
-        "total_weight": 100,
-        "grade": "B-",
-        "sizing": "PASS"
-      },
-      "model_grades": {
-        "grok": {
-          "model": "grok",
-          "model_name": "grok-3",
-          "status": "error",
-          "error": "Error code: 429 - {'error': {'code': 'RateLimitReached', 'message': 'Your requests to grok-3 for grok-3 in East US 2 have exceeded the call rate limit for your current AIServices S0 pricing tier. This request was for ChatCompletions_Create under OpenAI Language Model Instance API. To increase your default rate limit, visit: https://aka.ms/oai/quotaincrease.'}}"
-        },
-        "gpt41": {
-          "model": "gpt41",
-          "model_name": "gpt-4.1",
-          "status": "ok",
-          "grade": "C",
-          "score": 4.0,
-          "sizing": "PASS",
-          "form_assessment": "Fade \u2014 The team is in extremely poor form, with a 0-5 record over the last 5 games and an average margin of +0.0, indicating no recent wins or momentum. Their ATS trend is also abysmal, with a 0-10 record in the last 10, making them a clear fade in current markets.",
-          "injury_impact": "No players are listed as OUT or GTD, so the roster is at full strength and injuries are not a limiting factor.",
-          "situational_flags": "There are no schedule or fatigue concerns, as they are not on a back-to-back and have no ongoing road trip or home stand.",
-          "grade_reasoning": "I disagree with the math grade; despite a healthy roster, the team's disastrous recent form and ATS performance warrant a downgrade to C, reflecting low betting value.",
-          "key_edge": "The single biggest factor is their 0-5 L5 record and 0-10 ATS trend, signaling zero betting momentum.",
-          "confidence": "high"
-        },
-        "deepseek": {
-          "model": "deepseek",
-          "model_name": "DeepSeek-V3.2",
-          "status": "ok",
-          "grade": "D",
-          "score": 4.0,
-          "sizing": "PASS",
-          "form_assessment": "Fade \u2014 The team is in a severe slump with an 0-5 record in their last 5 games and a reported 0-10 ATS trend in their last 10, indicating they are consistently underperforming expectations. The average margin data is neutral, but the winless streak is a critical red flag for betting value.",
-          "injury_impact": "The injury situation is a major positive with no players listed OUT or GTD, providing full roster availability and maximum ceiling.",
-          "situational_flags": "No immediate fatigue concerns are indicated, as they are not on a back-to-back and have no extended road trip or home stand noted.",
-          "grade_reasoning": "I disagree with the math grade; a B- (5.7/10) is far too generous for a team on an 0-5 and 0-10 ATS slide. The excellent health cannot compensate for catastrophic recent form, which is the primary driver of betting value. The grade must reflect them as a strong fade.",
-          "key_edge": "The team is in a profound performance tailspin, making them untrustworthy against the spread regardless of opponent.",
-          "confidence": "high"
-        }
-      },
-      "consensus": {
-        "grade": "C",
-        "avg_score": 4.0,
-        "sizing": "PASS",
-        "models_ok": 2,
-        "grades": [
-          "C",
-          "D"
-        ]
-      }
-    },
-    {
-      "team": "Pittsburgh Penguins",
-      "side": "away",
-      "date": "2026-03-20",
-      "opponent": "Carolina Hurricanes",
-      "game_time": "2026-03-18T23:00",
-      "l5_profile": {
-        "record": null,
-        "l5": null,
-        "l10": null,
-        "streak": null,
-        "ppg_l5": null,
-        "opp_ppg_l5": null,
-        "margin_l5": null,
-        "margin_l10": null,
-        "rest_days": null,
-        "is_b2b": null,
-        "games_last_7d": null,
-        "road_trip_len": null,
-        "home_stand_len": null
-      },
-      "injuries": {
-        "out": [],
-        "gtd": [],
-        "count_out": 0
-      },
-      "sintonia_matrix": {
-        "variables": {
-          "star_player_status": {
-            "score": 9,
-            "weight": 9,
-            "note": "0 OUT, 0 GTD",
-            "weighted": 81
-          },
-          "rest_advantage": {
-            "score": 7,
-            "weight": 9,
-            "note": "2 days rest | B2B: False",
-            "weighted": 63
-          },
-          "off_ranking": {
-            "score": 6,
-            "weight": 8,
-            "note": "115 PPG L5",
-            "weighted": 48
-          },
-          "def_ranking": {
-            "score": 6,
-            "weight": 8,
-            "note": "115 OPP PPG L5",
-            "weighted": 48
-          },
-          "three_pt_matchup": {
-            "score": 5,
-            "weight": 7,
-            "note": "Proxy: +0.0 margin L5 (no opp 3PT data)",
-            "weighted": 35
-          },
-          "pace_matchup": {
-            "score": 8,
-            "weight": 7,
-            "note": "Pace L5: 225 | L10: 225 | delta: 0.0",
-            "weighted": 56
-          },
-          "recent_form": {
-            "score": 0,
-            "weight": 7,
-            "note": "L5: 0-5 | streak: ?",
-            "weighted": 0
-          },
-          "road_trip_length": {
-            "score": 6,
-            "weight": 7,
-            "note": "Road trip: 0g | Home stand: 0g",
-            "weighted": 42
-          },
-          "h2h_season": {
-            "score": 5,
-            "weight": 6,
-            "note": "Season: 0-0 (50% win rate)",
-            "weighted": 30
-          },
-          "paint_scoring": {
-            "score": 6,
-            "weight": 6,
-            "note": "PPG L5: 115 vs season: 115 (delta: +0.0)",
-            "weighted": 36
-          },
-          "fast_break": {
-            "score": 5,
-            "weight": 6,
-            "note": "Margin L10: +0.0 (proxy)",
-            "weighted": 30
-          },
-          "ats_trend": {
-            "score": 1,
-            "weight": 6,
-            "note": "L10: 0-10 | Blowouts: 0 | Close: 0 (ATS data unavailable)",
-            "weighted": 6
-          },
-          "sharp_vs_public": {
-            "score": 6,
-            "weight": 5,
-            "note": "3 games in last 7 days (fatigue proxy \u2014 no line data)",
-            "weighted": 30
-          },
-          "home_away": {
-            "score": 5,
-            "weight": 5,
-            "note": "Home: 0-0 (50%) | Away: 0-0 (50%)",
-            "weighted": 25
-          },
-          "depth_injuries": {
-            "score": 10,
-            "weight": 4,
-            "note": "0 players OUT",
-            "weighted": 40
-          }
-        },
-        "composite": 5.7,
-        "total_weighted": 570,
-        "total_weight": 100,
-        "grade": "B-",
-        "sizing": "PASS"
-      },
-      "model_grades": {
-        "grok": {
-          "model": "grok",
-          "model_name": "grok-3",
-          "status": "error",
-          "error": "Error code: 429 - {'error': {'code': 'RateLimitReached', 'message': 'Your requests to grok-3 for grok-3 in East US 2 have exceeded the call rate limit for your current AIServices S0 pricing tier. This request was for ChatCompletions_Create under OpenAI Language Model Instance API. To increase your default rate limit, visit: https://aka.ms/oai/quotaincrease.'}}"
-        },
-        "gpt41": {
-          "model": "gpt41",
-          "model_name": "gpt-4.1",
-          "status": "ok",
-          "grade": "C",
-          "score": 4.5,
-          "sizing": "PASS",
-          "form_assessment": "Fade \u2014 The Penguins are in extremely poor form, with a 0-5 record in their last 5 games and a 0-10 stretch in their last 10, showing no signs of competitiveness (average margin L5: +0.0). Their inability to cover spreads or win outright makes them a clear fade in the current market.",
-          "injury_impact": "With zero players listed as OUT or GTD, injuries are not a limiting factor and the roster is at full strength.",
-          "situational_flags": "No schedule or fatigue concerns (not on a back-to-back, no road/home stand, rest days not flagged).",
-          "grade_reasoning": "I disagree with the math grade; despite a healthy roster, the team's atrocious recent form and lack of ATS success warrant a downgrade to C for betting value.",
-          "key_edge": "The single biggest factor is their 0-10 record in the last 10 games, making them unbackable regardless of roster health.",
-          "confidence": "high"
-        },
-        "deepseek": {
-          "model": "deepseek",
-          "model_name": "DeepSeek-V3.2",
-          "status": "ok",
-          "grade": "D",
-          "score": 4.0,
-          "sizing": "PASS",
-          "form_assessment": "Fade \u2014 The team is in a severe slump with an 0-5 record in their last 5 games and a reported 0-10 ATS trend over their last 10, indicating they are consistently underperforming expectations. The average margin of +0.0 over L5/L10 suggests these losses are not flukes, but a pattern of being unable to secure wins.",
-          "injury_impact": "The injury situation is a major positive with no players listed OUT or GTD, providing full roster availability and maximum theoretical ceiling.",
-          "situational_flags": "No immediate fatigue concerns are indicated, as they are not on a back-to-back and have no road trip or homestand game number specified.",
-          "grade_reasoning": "I disagree with the B- grade; a team on a 5-game losing streak and a 10-game ATS losing streak, despite perfect health, demonstrates systemic performance issues that severely undermine its betting value, warranting a much lower grade.",
-          "key_edge": "A historically poor ATS trend and losing streak that overrides a perfectly healthy roster.",
-          "confidence": "high"
-        }
-      },
-      "consensus": {
-        "grade": "C",
-        "avg_score": 4.25,
-        "sizing": "PASS",
-        "models_ok": 2,
-        "grades": [
-          "C",
-          "D"
-        ]
-      }
-    },
-    {
-      "team": "Washington Capitals",
-      "side": "home",
-      "date": "2026-03-20",
-      "opponent": "Ottawa Senators",
-      "game_time": "2026-03-18T23:30",
-      "l5_profile": {
-        "record": null,
-        "l5": null,
-        "l10": null,
-        "streak": null,
-        "ppg_l5": null,
-        "opp_ppg_l5": null,
-        "margin_l5": null,
-        "margin_l10": null,
-        "rest_days": null,
-        "is_b2b": null,
-        "games_last_7d": null,
-        "road_trip_len": null,
-        "home_stand_len": null
-      },
-      "injuries": {
-        "out": [],
-        "gtd": [],
-        "count_out": 0
-      },
-      "sintonia_matrix": {
-        "variables": {
-          "star_player_status": {
-            "score": 9,
-            "weight": 9,
-            "note": "0 OUT, 0 GTD",
-            "weighted": 81
-          },
-          "rest_advantage": {
-            "score": 7,
-            "weight": 9,
-            "note": "2 days rest | B2B: False",
-            "weighted": 63
-          },
-          "off_ranking": {
-            "score": 6,
-            "weight": 8,
-            "note": "115 PPG L5",
-            "weighted": 48
-          },
-          "def_ranking": {
-            "score": 6,
-            "weight": 8,
-            "note": "115 OPP PPG L5",
-            "weighted": 48
-          },
-          "three_pt_matchup": {
-            "score": 5,
-            "weight": 7,
-            "note": "Proxy: +0.0 margin L5 (no opp 3PT data)",
-            "weighted": 35
-          },
-          "pace_matchup": {
-            "score": 8,
-            "weight": 7,
-            "note": "Pace L5: 225 | L10: 225 | delta: 0.0",
-            "weighted": 56
-          },
-          "recent_form": {
-            "score": 0,
-            "weight": 7,
-            "note": "L5: 0-5 | streak: ?",
-            "weighted": 0
-          },
-          "road_trip_length": {
-            "score": 6,
-            "weight": 7,
-            "note": "Road trip: 0g | Home stand: 0g",
-            "weighted": 42
-          },
-          "h2h_season": {
-            "score": 5,
-            "weight": 6,
-            "note": "Season: 0-0 (50% win rate)",
-            "weighted": 30
-          },
-          "paint_scoring": {
-            "score": 6,
-            "weight": 6,
-            "note": "PPG L5: 115 vs season: 115 (delta: +0.0)",
-            "weighted": 36
-          },
-          "fast_break": {
-            "score": 5,
-            "weight": 6,
-            "note": "Margin L10: +0.0 (proxy)",
-            "weighted": 30
-          },
-          "ats_trend": {
-            "score": 1,
-            "weight": 6,
-            "note": "L10: 0-10 | Blowouts: 0 | Close: 0 (ATS data unavailable)",
-            "weighted": 6
-          },
-          "sharp_vs_public": {
-            "score": 6,
-            "weight": 5,
-            "note": "3 games in last 7 days (fatigue proxy \u2014 no line data)",
-            "weighted": 30
-          },
-          "home_away": {
-            "score": 5,
-            "weight": 5,
-            "note": "Home: 0-0 (50%) | Away: 0-0 (50%)",
-            "weighted": 25
-          },
-          "depth_injuries": {
-            "score": 10,
-            "weight": 4,
-            "note": "0 players OUT",
-            "weighted": 40
-          }
-        },
-        "composite": 5.7,
-        "total_weighted": 570,
-        "total_weight": 100,
-        "grade": "B-",
-        "sizing": "PASS"
-      },
-      "model_grades": {
-        "gpt41": {
-          "model": "gpt41",
-          "model_name": "gpt-4.1",
-          "status": "ok",
-          "grade": "C",
-          "score": 4.5,
-          "sizing": "PASS",
-          "form_assessment": "Fade \u2014 The team is in extremely poor form, with a 0-5 record in their last 5 games and a 0.0 average margin, indicating they are not competitive even in close games. Their ATS trend is also abysmal (0-10 L10), making them a clear fade as a betting asset.",
-          "injury_impact": "With no players listed as OUT or GTD, injury impact is minimal and the roster is at full strength.",
-          "situational_flags": "No fatigue or schedule concerns, as there is no back-to-back and no ongoing road trip or homestand.",
-          "grade_reasoning": "I disagree with the math grade; despite a healthy roster, the team's recent form is so poor that their betting value is well below average.",
-          "key_edge": "The team's 0-5 L5 record and 0-10 ATS trend make them an automatic fade regardless of roster health.",
-          "confidence": "high"
-        },
-        "deepseek": {
-          "model": "deepseek",
-          "model_name": "DeepSeek-V3.2",
-          "status": "ok",
-          "grade": "D",
-          "score": 4.0,
-          "sizing": "PASS",
-          "form_assessment": "Fade \u2014 The team is on a significant losing streak (L5: 0-5, L10: 0-10) with a neutral average margin, indicating they are consistently losing close games and lack the ability to close. This is a clear sign of poor current form and low team morale.",
-          "injury_impact": "The injury situation is a major positive, with no players listed OUT or GTD, providing full roster availability and maximum ceiling.",
-          "situational_flags": "No immediate fatigue concerns are indicated, as they are not on a back-to-back and have no road trip or home stand context provided.",
-          "grade_reasoning": "I disagree with the math grade; a B- (5.7/10) is far too generous for a team on a 10-game losing streak. The model likely overweights perfect health, but winless form over a significant sample is the dominant factor for betting value, severely depressing it.",
-          "key_edge": "The overwhelming negative edge is their catastrophic recent form, being winless in their last 10 games.",
-          "confidence": "high"
-        },
-        "grok": {
-          "model": "grok",
-          "model_name": "grok-3",
-          "status": "ok",
-          "grade": "C",
-          "score": 5.0,
-          "sizing": "PASS",
-          "form_assessment": "Fade \u2014 The team\u2019s recent form is a major concern with a 0-5 record in the last 5 games as indicated by the SINTON.IA Matrix. Without specific L5 performance metrics like PPG or OPP PPG, the lack of wins and poor ATS trend (0-10 in L10) suggest they are not a reliable betting asset currently.",
-          "injury_impact": "The absence of injuries (0 OUT, 0 GTD) provides a full roster, maximizing their potential ceiling.",
-          "situational_flags": "No immediate fatigue concerns with no back-to-back games tonight and no road trip or home stand data indicating strain.",
-          "grade_reasoning": "I disagree with the math grade of B- due to the team\u2019s abysmal recent form (0-5 L5) and poor ATS trend (0-10 L10), which outweigh the positives of no injuries and decent pace matchup.",
-          "key_edge": "Recent form (0-5 L5) is the biggest factor against betting on this team right now.",
-          "confidence": "medium"
-        }
-      },
-      "consensus": {
-        "grade": "C",
-        "avg_score": 4.5,
-        "sizing": "PASS",
-        "models_ok": 3,
-        "grades": [
-          "C",
-          "D",
-          "C"
-        ]
-      }
-    },
-    {
       "team": "Carolina Hurricanes",
-      "side": "home",
-      "date": "2026-03-20",
-      "opponent": "Pittsburgh Penguins",
-      "game_time": "2026-03-18T23:00",
-      "l5_profile": {
-        "record": null,
-        "l5": null,
-        "l10": null,
-        "streak": null,
-        "ppg_l5": null,
-        "opp_ppg_l5": null,
-        "margin_l5": null,
-        "margin_l10": null,
-        "rest_days": null,
-        "is_b2b": null,
-        "games_last_7d": null,
-        "road_trip_len": null,
-        "home_stand_len": null
-      },
-      "injuries": {
-        "out": [],
-        "gtd": [],
-        "count_out": 0
-      },
-      "sintonia_matrix": {
-        "variables": {
-          "star_player_status": {
-            "score": 9,
-            "weight": 9,
-            "note": "0 OUT, 0 GTD",
-            "weighted": 81
-          },
-          "rest_advantage": {
-            "score": 7,
-            "weight": 9,
-            "note": "2 days rest | B2B: False",
-            "weighted": 63
-          },
-          "off_ranking": {
-            "score": 6,
-            "weight": 8,
-            "note": "115 PPG L5",
-            "weighted": 48
-          },
-          "def_ranking": {
-            "score": 6,
-            "weight": 8,
-            "note": "115 OPP PPG L5",
-            "weighted": 48
-          },
-          "three_pt_matchup": {
-            "score": 5,
-            "weight": 7,
-            "note": "Proxy: +0.0 margin L5 (no opp 3PT data)",
-            "weighted": 35
-          },
-          "pace_matchup": {
-            "score": 8,
-            "weight": 7,
-            "note": "Pace L5: 225 | L10: 225 | delta: 0.0",
-            "weighted": 56
-          },
-          "recent_form": {
-            "score": 0,
-            "weight": 7,
-            "note": "L5: 0-5 | streak: ?",
-            "weighted": 0
-          },
-          "road_trip_length": {
-            "score": 6,
-            "weight": 7,
-            "note": "Road trip: 0g | Home stand: 0g",
-            "weighted": 42
-          },
-          "h2h_season": {
-            "score": 5,
-            "weight": 6,
-            "note": "Season: 0-0 (50% win rate)",
-            "weighted": 30
-          },
-          "paint_scoring": {
-            "score": 6,
-            "weight": 6,
-            "note": "PPG L5: 115 vs season: 115 (delta: +0.0)",
-            "weighted": 36
-          },
-          "fast_break": {
-            "score": 5,
-            "weight": 6,
-            "note": "Margin L10: +0.0 (proxy)",
-            "weighted": 30
-          },
-          "ats_trend": {
-            "score": 1,
-            "weight": 6,
-            "note": "L10: 0-10 | Blowouts: 0 | Close: 0 (ATS data unavailable)",
-            "weighted": 6
-          },
-          "sharp_vs_public": {
-            "score": 6,
-            "weight": 5,
-            "note": "3 games in last 7 days (fatigue proxy \u2014 no line data)",
-            "weighted": 30
-          },
-          "home_away": {
-            "score": 5,
-            "weight": 5,
-            "note": "Home: 0-0 (50%) | Away: 0-0 (50%)",
-            "weighted": 25
-          },
-          "depth_injuries": {
-            "score": 10,
-            "weight": 4,
-            "note": "0 players OUT",
-            "weighted": 40
-          }
-        },
-        "composite": 5.7,
-        "total_weighted": 570,
-        "total_weight": 100,
-        "grade": "B-",
-        "sizing": "PASS"
-      },
-      "model_grades": {
-        "grok": {
-          "model": "grok",
-          "model_name": "grok-3",
-          "status": "error",
-          "error": "Error code: 429 - {'error': {'code': 'RateLimitReached', 'message': 'Your requests to grok-3 for grok-3 in East US 2 have exceeded the call rate limit for your current AIServices S0 pricing tier. This request was for ChatCompletions_Create under OpenAI Language Model Instance API. To increase your default rate limit, visit: https://aka.ms/oai/quotaincrease.'}}"
-        },
-        "gpt41": {
-          "model": "gpt41",
-          "model_name": "gpt-4.1",
-          "status": "ok",
-          "grade": "C",
-          "score": 4.5,
-          "sizing": "PASS",
-          "form_assessment": "Fade \u2014 The team is in extremely poor form, with a 0-5 record over the last 5 games and a 0-10 record over the last 10, indicating no recent wins and a lack of competitiveness. The average margin is flat at +0.0, suggesting they are not getting blown out but also not closing games.",
-          "injury_impact": "With no players listed as OUT or GTD, the roster is at full strength, so injuries are not a limiting factor.",
-          "situational_flags": "No schedule or fatigue concerns as there is no back-to-back and no ongoing road trip or homestand.",
-          "grade_reasoning": "I disagree with the math grade; despite a healthy roster, the team's recent form is abysmal, so their current betting value is well below average.",
-          "key_edge": "Recent form is the single biggest red flag, as they have not won or covered in their last 10 games.",
-          "confidence": "high"
-        },
-        "deepseek": {
-          "model": "deepseek",
-          "model_name": "DeepSeek-V3.2",
-          "status": "ok",
-          "grade": "D",
-          "score": 4.0,
-          "sizing": "PASS",
-          "form_assessment": "Fade \u2014 The team is in a severe slump with an 0-5 record in their last 5 games and a staggering 0-10 record against the spread (ATS) in their last 10, indicating they are consistently underperforming market expectations. The average margin data is neutral, but the complete lack of wins and ATS covers is a major red flag.",
-          "injury_impact": "The injury situation is a major positive, with zero players listed as OUT or GTD, providing full roster availability and maximum ceiling.",
-          "situational_flags": "No immediate fatigue concerns, as they are not on a back-to-back and have no road trip or home stand game number indicated.",
-          "grade_reasoning": "I disagree with the B- grade; the math composite of 5.7/10 is overly generous given the catastrophic recent form (0-5, 0-10 ATS). While health is perfect, a team that cannot win or cover cannot be rated as an average betting asset. The grade must heavily penalize current performance.",
-          "key_edge": "The team is historically cold, going 0-10 ATS, making them an automatic fade until they show a clear reversal.",
-          "confidence": "high"
-        }
-      },
-      "consensus": {
-        "grade": "C",
-        "avg_score": 4.25,
-        "sizing": "PASS",
-        "models_ok": 2,
-        "grades": [
-          "C",
-          "D"
-        ]
-      }
-    },
-    {
-      "team": "Dallas Stars",
       "side": "away",
       "date": "2026-03-20",
-      "opponent": "Colorado Avalanche",
-      "game_time": "2026-03-19T01:30",
+      "opponent": "Toronto Maple Leafs",
+      "game_time": "2026-03-20T19:00",
       "l5_profile": {
         "record": null,
-        "l5": null,
-        "l10": null,
-        "streak": null,
-        "ppg_l5": null,
-        "opp_ppg_l5": null,
-        "margin_l5": null,
+        "l5": "3-2-0",
+        "l10": "6-4-0",
+        "streak": "W1",
+        "ppg_l5": 3.54,
+        "opp_ppg_l5": 2.97,
+        "margin_l5": 0.57,
         "margin_l10": null,
-        "rest_days": null,
-        "is_b2b": null,
+        "rest_days": 2,
+        "is_b2b": false,
         "games_last_7d": null,
         "road_trip_len": null,
         "home_stand_len": null
@@ -921,21 +43,21 @@
             "weighted": 63
           },
           "off_ranking": {
-            "score": 6,
+            "score": 2,
             "weight": 8,
-            "note": "115 PPG L5",
-            "weighted": 48
+            "note": "3.54 PPG L5",
+            "weighted": 16
           },
           "def_ranking": {
-            "score": 6,
+            "score": 10,
             "weight": 8,
-            "note": "115 OPP PPG L5",
-            "weighted": 48
+            "note": "2.97 OPP PPG L5",
+            "weighted": 80
           },
           "three_pt_matchup": {
             "score": 5,
             "weight": 7,
-            "note": "Proxy: +0.0 margin L5 (no opp 3PT data)",
+            "note": "Proxy: +0.6 margin L5 (no opp 3PT data)",
             "weighted": 35
           },
           "pace_matchup": {
@@ -945,10 +67,10 @@
             "weighted": 56
           },
           "recent_form": {
-            "score": 0,
+            "score": 6,
             "weight": 7,
-            "note": "L5: 0-5 | streak: ?",
-            "weighted": 0
+            "note": "L5: 3-2-0 | streak: W1",
+            "weighted": 42
           },
           "road_trip_length": {
             "score": 6,
@@ -963,10 +85,10 @@
             "weighted": 30
           },
           "paint_scoring": {
-            "score": 6,
+            "score": 2,
             "weight": 6,
-            "note": "PPG L5: 115 vs season: 115 (delta: +0.0)",
-            "weighted": 36
+            "note": "PPG L5: 3.54 vs season: 115 (delta: -111.5)",
+            "weighted": 12
           },
           "fast_break": {
             "score": 5,
@@ -975,182 +97,10 @@
             "weighted": 30
           },
           "ats_trend": {
-            "score": 1,
-            "weight": 6,
-            "note": "L10: 0-10 | Blowouts: 0 | Close: 0 (ATS data unavailable)",
-            "weighted": 6
-          },
-          "sharp_vs_public": {
-            "score": 6,
-            "weight": 5,
-            "note": "3 games in last 7 days (fatigue proxy \u2014 no line data)",
-            "weighted": 30
-          },
-          "home_away": {
-            "score": 5,
-            "weight": 5,
-            "note": "Home: 0-0 (50%) | Away: 0-0 (50%)",
-            "weighted": 25
-          },
-          "depth_injuries": {
-            "score": 10,
-            "weight": 4,
-            "note": "0 players OUT",
-            "weighted": 40
-          }
-        },
-        "composite": 5.7,
-        "total_weighted": 570,
-        "total_weight": 100,
-        "grade": "B-",
-        "sizing": "PASS"
-      },
-      "model_grades": {
-        "grok": {
-          "model": "grok",
-          "model_name": "grok-3",
-          "status": "error",
-          "error": "Error code: 429 - {'error': {'code': 'RateLimitReached', 'message': 'Your requests to grok-3 for grok-3 in East US 2 have exceeded the call rate limit for your current AIServices S0 pricing tier. This request was for ChatCompletions_Create under OpenAI Language Model Instance API. To increase your default rate limit, visit: https://aka.ms/oai/quotaincrease.'}}"
-        },
-        "gpt41": {
-          "model": "gpt41",
-          "model_name": "gpt-4.1",
-          "status": "ok",
-          "grade": "C",
-          "score": 4.0,
-          "sizing": "PASS",
-          "form_assessment": "Fade \u2014 The Stars are in extremely poor form, with a 0-5 record in their last 5 games and a neutral average margin (+0.0), indicating they are not closing out games or capitalizing on opportunities. Their ATS trend is also abysmal (0-10 L10), making them a risky betting asset right now.",
-          "injury_impact": "No players are currently OUT or GTD, so the roster is at full strength, maximizing their theoretical ceiling.",
-          "situational_flags": "No back-to-back, rest or travel disadvantages; schedule is neutral with no fatigue concerns.",
-          "grade_reasoning": "Disagree with the math grade; despite a healthy roster, the team's recent form and ATS performance are so poor that their betting value is significantly diminished.",
-          "key_edge": "Recent form and ATS trends are overwhelmingly negative, outweighing the healthy roster.",
-          "confidence": "high"
-        },
-        "deepseek": {
-          "model": "deepseek",
-          "model_name": "DeepSeek-V3.2",
-          "status": "ok",
-          "grade": "D",
-          "score": 3.0,
-          "sizing": "PASS",
-          "form_assessment": "Fade \u2014 The team is in a severe slump with a reported 0-5 record over its last 5 games and a staggering 0-10 ATS trend over its last 10. The average margin data of +0.0 suggests these are not competitive losses, but likely blowouts, indicating a fundamental breakdown in performance.",
-          "injury_impact": "The injury report is clean with no players OUT or GTD, meaning the team's poor form cannot be attributed to missing key personnel.",
-          "situational_flags": "No immediate fatigue concerns are indicated (no B2B, not on a road trip or home stand), so the slump is likely due to on-court issues rather than schedule.",
-          "grade_reasoning": "I strongly disagree with the B- grade; a team on a 5-game losing streak and a 10-game ATS losing streak, despite full health, represents extremely poor betting value and should be graded near the bottom of the scale.",
-          "key_edge": "The team is a proven money-burner, failing to cover the spread in 10 consecutive games.",
-          "confidence": "high"
-        }
-      },
-      "consensus": {
-        "grade": "D",
-        "avg_score": 3.5,
-        "sizing": "PASS",
-        "models_ok": 2,
-        "grades": [
-          "C",
-          "D"
-        ]
-      }
-    },
-    {
-      "team": "Ottawa Senators",
-      "side": "away",
-      "date": "2026-03-20",
-      "opponent": "Washington Capitals",
-      "game_time": "2026-03-18T23:30",
-      "l5_profile": {
-        "record": null,
-        "l5": null,
-        "l10": null,
-        "streak": null,
-        "ppg_l5": null,
-        "opp_ppg_l5": null,
-        "margin_l5": null,
-        "margin_l10": null,
-        "rest_days": null,
-        "is_b2b": null,
-        "games_last_7d": null,
-        "road_trip_len": null,
-        "home_stand_len": null
-      },
-      "injuries": {
-        "out": [],
-        "gtd": [],
-        "count_out": 0
-      },
-      "sintonia_matrix": {
-        "variables": {
-          "star_player_status": {
-            "score": 9,
-            "weight": 9,
-            "note": "0 OUT, 0 GTD",
-            "weighted": 81
-          },
-          "rest_advantage": {
             "score": 7,
-            "weight": 9,
-            "note": "2 days rest | B2B: False",
-            "weighted": 63
-          },
-          "off_ranking": {
-            "score": 6,
-            "weight": 8,
-            "note": "115 PPG L5",
-            "weighted": 48
-          },
-          "def_ranking": {
-            "score": 6,
-            "weight": 8,
-            "note": "115 OPP PPG L5",
-            "weighted": 48
-          },
-          "three_pt_matchup": {
-            "score": 5,
-            "weight": 7,
-            "note": "Proxy: +0.0 margin L5 (no opp 3PT data)",
-            "weighted": 35
-          },
-          "pace_matchup": {
-            "score": 8,
-            "weight": 7,
-            "note": "Pace L5: 225 | L10: 225 | delta: 0.0",
-            "weighted": 56
-          },
-          "recent_form": {
-            "score": 0,
-            "weight": 7,
-            "note": "L5: 0-5 | streak: ?",
-            "weighted": 0
-          },
-          "road_trip_length": {
-            "score": 6,
-            "weight": 7,
-            "note": "Road trip: 0g | Home stand: 0g",
+            "weight": 6,
+            "note": "L10: 6-4-0 | Blowouts: 0 | Close: 0 (ATS data unavailable)",
             "weighted": 42
-          },
-          "h2h_season": {
-            "score": 5,
-            "weight": 6,
-            "note": "Season: 0-0 (50% win rate)",
-            "weighted": 30
-          },
-          "paint_scoring": {
-            "score": 6,
-            "weight": 6,
-            "note": "PPG L5: 115 vs season: 115 (delta: +0.0)",
-            "weighted": 36
-          },
-          "fast_break": {
-            "score": 5,
-            "weight": 6,
-            "note": "Margin L10: +0.0 (proxy)",
-            "weighted": 30
-          },
-          "ats_trend": {
-            "score": 1,
-            "weight": 6,
-            "note": "L10: 0-10 | Blowouts: 0 | Close: 0 (ATS data unavailable)",
-            "weighted": 6
           },
           "sharp_vs_public": {
             "score": 6,
@@ -1161,7 +111,7 @@
           "home_away": {
             "score": 5,
             "weight": 5,
-            "note": "Home: 0-0 (50%) | Away: 0-0 (50%)",
+            "note": "Home: 25-9-2 (50%) | Away: 18-10-4 (50%)",
             "weighted": 25
           },
           "depth_injuries": {
@@ -1171,10 +121,10 @@
             "weighted": 40
           }
         },
-        "composite": 5.7,
-        "total_weighted": 570,
+        "composite": 6.24,
+        "total_weighted": 624,
         "total_weight": 100,
-        "grade": "B-",
+        "grade": "B",
         "sizing": "PASS"
       },
       "model_grades": {
@@ -1182,28 +132,42 @@
           "model": "gpt41",
           "model_name": "gpt-4.1",
           "status": "ok",
-          "grade": "D",
-          "score": 3.0,
-          "sizing": "PASS",
-          "form_assessment": "Fade \u2014 The team is in extremely poor form with a 0-5 record in their last 5 games and a 0.0 average margin, indicating no wins or momentum. Their ATS trend is also abysmal, with a 0-10 record in the last 10, making them a clear fade in current markets.",
-          "injury_impact": "With zero players listed as OUT or GTD, the roster is fully healthy, so injuries are not limiting their ceiling.",
-          "situational_flags": "No fatigue or schedule concerns (no B2B, no road trip/home stand), so situational factors are neutral.",
-          "grade_reasoning": "I disagree with the math grade; despite a healthy roster, the team's recent form and ATS trends are so poor that their betting value is very low right now.",
-          "key_edge": "The single biggest factor is their 0-10 ATS trend, making them unbackable until form improves.",
+          "grade": "A-",
+          "score": 7.5,
+          "sizing": "2u",
+          "form_assessment": "Buy \u2014 The Hurricanes are 3-2-0 in their last 5 and 6-4-0 in their last 10, with a positive margin (+0.6 L5, +0.0 L10) and strong defensive numbers (2.97 OPP PPG L5). Their home record (25-9-2) is elite, and recent form suggests stability and upside.",
+          "injury_impact": "Zero players OUT or GTD means the roster is at full strength, maximizing their ceiling.",
+          "situational_flags": "No fatigue concerns with 2 rest days and no back-to-back; schedule is neutral/advantageous.",
+          "grade_reasoning": "I upgrade to A- due to elite defensive form, full health, and strong home record; offensive concerns are outweighed by roster stability and recent results.",
+          "key_edge": "Full-strength roster with elite defense gives them a clear betting edge.",
           "confidence": "high"
+        },
+        "grok_fast": {
+          "model": "grok_fast",
+          "model_name": "grok-4-1-fast-reasoning",
+          "status": "ok",
+          "grade": "B+",
+          "score": 7.2,
+          "sizing": "1u",
+          "form_assessment": "Buy \u2014 L5 3-2-0 record with elite defense (2.97 OPP PPG) and +0.6 avg margin, backed by strong season splits (Home 25-9-2, Away 18-10-4). Modest offense at 3.54 PPG L5 is a concern but recent W1 streak signals rebound potential.",
+          "injury_impact": "No OUT or GTD players means full health and maximum ceiling with top depth rating.",
+          "situational_flags": "2 rest days with no B2B, road trip, or home stand flags provides neutral to positive freshness advantage.",
+          "grade_reasoning": "Agree with math B but slight upgrade for perfect injury profile (10/10 depth, 9/10 stars) and dominant def_ranking outweighing off_ranking weakness.",
+          "key_edge": "Top-ranked defense (2.97 OPP PPG L5) with zero injuries makes them a reliable betting asset despite offensive dip.",
+          "confidence": "medium"
         },
         "grok": {
           "model": "grok",
           "model_name": "grok-3",
           "status": "ok",
-          "grade": "C",
-          "score": 5.0,
-          "sizing": "PASS",
-          "form_assessment": "Fade \u2014 The Ottawa Senators' recent form is highly concerning with a 0-5 record in their last 5 games, indicating a lack of momentum. Without specific L5 performance metrics like PPG or OPP PPG, the consistent losses suggest underlying issues in execution or matchups. This makes them a risky betting asset currently.",
-          "injury_impact": "The absence of injuries (0 OUT, 0 GTD) maximizes their roster potential and ceiling.",
-          "situational_flags": "No immediate fatigue concerns with no back-to-back games or extended road/home stands noted.",
-          "grade_reasoning": "I disagree with the math grade of B- due to the team's abysmal recent form (0-5 L5), which outweighs the positive injury status and pace matchup strengths.",
-          "key_edge": "Recent form (0-5 L5) is the biggest factor against betting on this team right now.",
+          "grade": "B+",
+          "score": 7.0,
+          "sizing": "1.5u",
+          "form_assessment": "Buy \u2014 The Hurricanes have shown solid form with a 3-2-0 record over L5 games and a +0.6 average margin, indicating they are competitive. Their defensive strength, allowing only 2.97 OPP PPG in L5, makes them a reliable bet against weaker offenses.",
+          "injury_impact": "With no players OUT or GTD, their roster is at full strength, maximizing their ceiling.",
+          "situational_flags": "With 2 rest days and no B2B or road trip concerns, they have a clear fatigue advantage.",
+          "grade_reasoning": "I slightly upgrade the math grade to B+ due to their full roster health and strong defensive metrics, though offensive concerns (3.54 PPG L5) prevent a higher mark.",
+          "key_edge": "Elite defense (2.97 OPP PPG L5) is the strongest reason to back them now.",
           "confidence": "medium"
         },
         "deepseek": {
@@ -1211,558 +175,25 @@
           "model_name": "DeepSeek-V3.2",
           "status": "ok",
           "grade": "D",
-          "score": 3.5,
-          "sizing": "PASS",
-          "form_assessment": "Fade \u2014 The team is in a severe slump with an 0-5 record in its last 5 games and a reported 0-10 ATS trend over its last 10, indicating consistent underperformance against market expectations.",
-          "injury_impact": "With no players listed OUT or GTD, the roster is at full strength, eliminating injury as an excuse for poor performance.",
-          "situational_flags": "No immediate schedule concerns, as they are not on a back-to-back and have no road trip or home stand fatigue indicated.",
-          "grade_reasoning": "The math grade of B- (5.7/10) is far too generous for a team on a significant losing streak with a terrible ATS record; a full roster cannot compensate for fundamental performance issues, drastically lowering its betting value.",
-          "key_edge": "The team is a proven and consistent underperformer against the spread, making them a strong fade candidate.",
-          "confidence": "high"
-        }
-      },
-      "consensus": {
-        "grade": "D",
-        "avg_score": 3.83,
-        "sizing": "PASS",
-        "models_ok": 3,
-        "grades": [
-          "D",
-          "C",
-          "D"
-        ]
-      }
-    },
-    {
-      "team": "Philadelphia Flyers",
-      "side": "away",
-      "date": "2026-03-20",
-      "opponent": "Anaheim Ducks",
-      "game_time": "2026-03-19T02:00",
-      "l5_profile": {
-        "record": null,
-        "l5": null,
-        "l10": null,
-        "streak": null,
-        "ppg_l5": null,
-        "opp_ppg_l5": null,
-        "margin_l5": null,
-        "margin_l10": null,
-        "rest_days": null,
-        "is_b2b": null,
-        "games_last_7d": null,
-        "road_trip_len": null,
-        "home_stand_len": null
-      },
-      "injuries": {
-        "out": [],
-        "gtd": [],
-        "count_out": 0
-      },
-      "sintonia_matrix": {
-        "variables": {
-          "star_player_status": {
-            "score": 9,
-            "weight": 9,
-            "note": "0 OUT, 0 GTD",
-            "weighted": 81
-          },
-          "rest_advantage": {
-            "score": 7,
-            "weight": 9,
-            "note": "2 days rest | B2B: False",
-            "weighted": 63
-          },
-          "off_ranking": {
-            "score": 6,
-            "weight": 8,
-            "note": "115 PPG L5",
-            "weighted": 48
-          },
-          "def_ranking": {
-            "score": 6,
-            "weight": 8,
-            "note": "115 OPP PPG L5",
-            "weighted": 48
-          },
-          "three_pt_matchup": {
-            "score": 5,
-            "weight": 7,
-            "note": "Proxy: +0.0 margin L5 (no opp 3PT data)",
-            "weighted": 35
-          },
-          "pace_matchup": {
-            "score": 8,
-            "weight": 7,
-            "note": "Pace L5: 225 | L10: 225 | delta: 0.0",
-            "weighted": 56
-          },
-          "recent_form": {
-            "score": 0,
-            "weight": 7,
-            "note": "L5: 0-5 | streak: ?",
-            "weighted": 0
-          },
-          "road_trip_length": {
-            "score": 6,
-            "weight": 7,
-            "note": "Road trip: 0g | Home stand: 0g",
-            "weighted": 42
-          },
-          "h2h_season": {
-            "score": 5,
-            "weight": 6,
-            "note": "Season: 0-0 (50% win rate)",
-            "weighted": 30
-          },
-          "paint_scoring": {
-            "score": 6,
-            "weight": 6,
-            "note": "PPG L5: 115 vs season: 115 (delta: +0.0)",
-            "weighted": 36
-          },
-          "fast_break": {
-            "score": 5,
-            "weight": 6,
-            "note": "Margin L10: +0.0 (proxy)",
-            "weighted": 30
-          },
-          "ats_trend": {
-            "score": 1,
-            "weight": 6,
-            "note": "L10: 0-10 | Blowouts: 0 | Close: 0 (ATS data unavailable)",
-            "weighted": 6
-          },
-          "sharp_vs_public": {
-            "score": 6,
-            "weight": 5,
-            "note": "3 games in last 7 days (fatigue proxy \u2014 no line data)",
-            "weighted": 30
-          },
-          "home_away": {
-            "score": 5,
-            "weight": 5,
-            "note": "Home: 0-0 (50%) | Away: 0-0 (50%)",
-            "weighted": 25
-          },
-          "depth_injuries": {
-            "score": 10,
-            "weight": 4,
-            "note": "0 players OUT",
-            "weighted": 40
-          }
-        },
-        "composite": 5.7,
-        "total_weighted": 570,
-        "total_weight": 100,
-        "grade": "B-",
-        "sizing": "PASS"
-      },
-      "model_grades": {
-        "grok": {
-          "model": "grok",
-          "model_name": "grok-3",
-          "status": "ok",
-          "grade": "C",
-          "score": 4.5,
-          "sizing": "PASS",
-          "form_assessment": "Fade \u2014 The lack of recent performance data (L5 and L10 records unavailable) and a reported 0-5 in L5 per SINTON.IA matrix suggests poor form. Without concrete numbers for PPG or OPP PPG, the risk of betting on this team outweighs potential value.",
-          "injury_impact": "No injuries reported (0 OUT, 0 GTD), so the roster is at full strength with maximum ceiling potential.",
-          "situational_flags": "No fatigue concerns with no B2B games, road trip, or home stand issues noted.",
-          "grade_reasoning": "Disagree with math grade of B- due to lack of concrete performance data and reported poor recent form (0-5 L5), which lowers betting value significantly.",
-          "key_edge": "Poor recent form (0-5 L5) is the biggest factor against betting on this team.",
-          "confidence": "medium"
-        },
-        "gpt41": {
-          "model": "gpt41",
-          "model_name": "gpt-4.1",
-          "status": "ok",
-          "grade": "D",
-          "score": 3.0,
-          "sizing": "PASS",
-          "form_assessment": "Fade \u2014 The Flyers are in disastrous form, with a recent L5 record of 0-5 and an average margin of +0.0, indicating they are not competitive even in close games. Their ATS trend is also extremely poor, with an L10 of 0-10, making them a clear fade in current betting markets.",
-          "injury_impact": "With zero players OUT or GTD, the roster is at full strength, so injuries are not a limiting factor.",
-          "situational_flags": "No fatigue or schedule concerns (no B2B, no road trip/home stand), so situational factors are neutral.",
-          "grade_reasoning": "I disagree with the math grade; the team's recent form and ATS trends are so poor that their betting value is far below average despite a healthy roster.",
-          "key_edge": "The Flyers' 0-5 record and 0-10 ATS trend make them an automatic fade regardless of roster health.",
-          "confidence": "high"
-        },
-        "deepseek": {
-          "model": "deepseek",
-          "model_name": "DeepSeek-V3.2",
-          "status": "ok",
-          "grade": "D",
           "score": 4.0,
           "sizing": "PASS",
-          "form_assessment": "Fade \u2014 The team is in a severe slump with an 0-5 record in their last 5 games and a reported 0-10 ATS trend over the last 10, indicating they are consistently underperforming expectations. The average margin data is neutral, but the winless streak is a major red flag for betting value.",
-          "injury_impact": "The injury situation is a major positive, with no players listed OUT or GTD, providing full roster availability and maximum ceiling.",
-          "situational_flags": "No immediate fatigue concerns as they are not on a back-to-back and have no road trip or home stand context provided, though games played in the last 7 days is unknown.",
-          "grade_reasoning": "I disagree with the math grade; a B- suggests moderate betting value, but a team on an 0-5 and 0-10 ATS streak, despite perfect health, is a clear underperforming asset. The 'recent_form' score of 0/10 should heavily outweigh the positive injury scores.",
-          "key_edge": "Severe negative momentum and ATS failure outweigh perfect health.",
+          "form_assessment": "Fade \u2014 The team is 3-2 in its last 5 with a modest +0.6 average margin, but the offense is a major red flag, scoring only 3.54 PPG L5, which is a catastrophic drop from a typical NBA season average, indicating severe scoring struggles that likely won't sustain winning.",
+          "injury_impact": "With no players listed OUT or GTD, the roster is at full health, maximizing their potential ceiling.",
+          "situational_flags": "Having 2 days of rest and not on a back-to-back is a positive situational advantage with no immediate fatigue concerns.",
+          "grade_reasoning": "I strongly disagree; the math grade overweights perfect health and defense while severely underweighting the team's anemic offense (3.54 PPG L5), which is an unsustainable and glaring flaw for any NBA betting asset, rendering them a poor value.",
+          "key_edge": "The offense is fundamentally broken, scoring at a rate less than 4% of a normal NBA output, making them unbackable regardless of other factors.",
           "confidence": "high"
         }
       },
       "consensus": {
-        "grade": "D",
-        "avg_score": 3.83,
+        "grade": "B",
+        "avg_score": 6.42,
         "sizing": "PASS",
-        "models_ok": 3,
+        "models_ok": 4,
         "grades": [
-          "C",
-          "D",
-          "D"
-        ]
-      }
-    },
-    {
-      "team": "Colorado Avalanche",
-      "side": "home",
-      "date": "2026-03-20",
-      "opponent": "Dallas Stars",
-      "game_time": "2026-03-19T01:30",
-      "l5_profile": {
-        "record": null,
-        "l5": null,
-        "l10": null,
-        "streak": null,
-        "ppg_l5": null,
-        "opp_ppg_l5": null,
-        "margin_l5": null,
-        "margin_l10": null,
-        "rest_days": null,
-        "is_b2b": null,
-        "games_last_7d": null,
-        "road_trip_len": null,
-        "home_stand_len": null
-      },
-      "injuries": {
-        "out": [],
-        "gtd": [],
-        "count_out": 0
-      },
-      "sintonia_matrix": {
-        "variables": {
-          "star_player_status": {
-            "score": 9,
-            "weight": 9,
-            "note": "0 OUT, 0 GTD",
-            "weighted": 81
-          },
-          "rest_advantage": {
-            "score": 7,
-            "weight": 9,
-            "note": "2 days rest | B2B: False",
-            "weighted": 63
-          },
-          "off_ranking": {
-            "score": 6,
-            "weight": 8,
-            "note": "115 PPG L5",
-            "weighted": 48
-          },
-          "def_ranking": {
-            "score": 6,
-            "weight": 8,
-            "note": "115 OPP PPG L5",
-            "weighted": 48
-          },
-          "three_pt_matchup": {
-            "score": 5,
-            "weight": 7,
-            "note": "Proxy: +0.0 margin L5 (no opp 3PT data)",
-            "weighted": 35
-          },
-          "pace_matchup": {
-            "score": 8,
-            "weight": 7,
-            "note": "Pace L5: 225 | L10: 225 | delta: 0.0",
-            "weighted": 56
-          },
-          "recent_form": {
-            "score": 0,
-            "weight": 7,
-            "note": "L5: 0-5 | streak: ?",
-            "weighted": 0
-          },
-          "road_trip_length": {
-            "score": 6,
-            "weight": 7,
-            "note": "Road trip: 0g | Home stand: 0g",
-            "weighted": 42
-          },
-          "h2h_season": {
-            "score": 5,
-            "weight": 6,
-            "note": "Season: 0-0 (50% win rate)",
-            "weighted": 30
-          },
-          "paint_scoring": {
-            "score": 6,
-            "weight": 6,
-            "note": "PPG L5: 115 vs season: 115 (delta: +0.0)",
-            "weighted": 36
-          },
-          "fast_break": {
-            "score": 5,
-            "weight": 6,
-            "note": "Margin L10: +0.0 (proxy)",
-            "weighted": 30
-          },
-          "ats_trend": {
-            "score": 1,
-            "weight": 6,
-            "note": "L10: 0-10 | Blowouts: 0 | Close: 0 (ATS data unavailable)",
-            "weighted": 6
-          },
-          "sharp_vs_public": {
-            "score": 6,
-            "weight": 5,
-            "note": "3 games in last 7 days (fatigue proxy \u2014 no line data)",
-            "weighted": 30
-          },
-          "home_away": {
-            "score": 5,
-            "weight": 5,
-            "note": "Home: 0-0 (50%) | Away: 0-0 (50%)",
-            "weighted": 25
-          },
-          "depth_injuries": {
-            "score": 10,
-            "weight": 4,
-            "note": "0 players OUT",
-            "weighted": 40
-          }
-        },
-        "composite": 5.7,
-        "total_weighted": 570,
-        "total_weight": 100,
-        "grade": "B-",
-        "sizing": "PASS"
-      },
-      "model_grades": {
-        "gpt41": {
-          "model": "gpt41",
-          "model_name": "gpt-4.1",
-          "status": "ok",
-          "grade": "C",
-          "score": 4.0,
-          "sizing": "PASS",
-          "form_assessment": "Fade \u2014 The Avalanche are in extremely poor form, with a 0-5 record in their last 5 games and no positive margin, indicating they are not competitive right now. Their ATS trend is also negative, with 0-10 in the last 10, suggesting they are consistently underperforming market expectations.",
-          "injury_impact": "Zero injuries or GTDs means the roster is at full strength, so their ceiling is not limited by health.",
-          "situational_flags": "No fatigue or schedule concerns (no B2B, no road trip/home stand), so situational factors are neutral.",
-          "grade_reasoning": "I downgrade the math grade due to the team's disastrous recent form and ATS trends; despite a healthy roster, their betting value is low until they show signs of improvement.",
-          "key_edge": "Recent form and ATS trends are overwhelmingly negative, making them a clear fade.",
-          "confidence": "high"
-        },
-        "deepseek": {
-          "model": "deepseek",
-          "model_name": "DeepSeek-V3.2",
-          "status": "ok",
-          "grade": "D",
-          "score": 3.0,
-          "sizing": "PASS",
-          "form_assessment": "Fade \u2014 The team is in a severe slump with an 0-5 record in their last 5 games and a reported 0-10 ATS trend over their last 10, indicating they are consistently underperforming expectations. The average margin data, while neutral, is irrelevant against such a clear losing trend.",
-          "injury_impact": "The injury situation is a major positive, with a perfect 10/10 depth score and no players listed as OUT or GTD, preserving their full roster ceiling.",
-          "situational_flags": "No immediate schedule concerns as they are not on a back-to-back and have no road trip or homestand fatigue indicated.",
-          "grade_reasoning": "I strongly disagree; the math grade of B- is far too optimistic for a team on a 5-game losing streak and a 10-game ATS losing streak. A perfect health score cannot offset such catastrophic recent form for betting purposes.",
-          "key_edge": "Severe underperformance trend (0-5 L5, 0-10 ATS L10) outweighs perfect health.",
-          "confidence": "high"
-        },
-        "grok": {
-          "model": "grok",
-          "model_name": "grok-3",
-          "status": "ok",
-          "grade": "C",
-          "score": 4.5,
-          "sizing": "PASS",
-          "form_assessment": "Fade \u2014 The Colorado Avalanche's recent form is highly concerning with an implied poor L5 record of 0-5 as per the SINTON.IA matrix, indicating a lack of momentum. Without specific L5 PPG or OPP PPG data, the recent_form score of 0/10 and ats_trend of 1/10 suggest consistent underperformance against expectations.",
-          "injury_impact": "The absence of injuries (0 OUT, 0 GTD) maximizes their roster ceiling, providing no excuses for poor performance.",
-          "situational_flags": "No immediate fatigue concerns with B2B Tonight as False and no data on recent game density or road/home stand pressures.",
-          "grade_reasoning": "I disagree with the math grade of B- due to the alarming recent_form score of 0/10 and ats_trend of 1/10, which heavily outweigh the positive injury and depth scores, reflecting poor betting value currently.",
-          "key_edge": "Recent form (0/10) is the biggest factor against betting on this team right now.",
-          "confidence": "medium"
-        }
-      },
-      "consensus": {
-        "grade": "D",
-        "avg_score": 3.83,
-        "sizing": "PASS",
-        "models_ok": 3,
-        "grades": [
-          "C",
-          "D",
-          "C"
-        ]
-      }
-    },
-    {
-      "team": "St. Louis Blues",
-      "side": "away",
-      "date": "2026-03-20",
-      "opponent": "Calgary Flames",
-      "game_time": "2026-03-19T01:30",
-      "l5_profile": {
-        "record": null,
-        "l5": null,
-        "l10": null,
-        "streak": null,
-        "ppg_l5": null,
-        "opp_ppg_l5": null,
-        "margin_l5": null,
-        "margin_l10": null,
-        "rest_days": null,
-        "is_b2b": null,
-        "games_last_7d": null,
-        "road_trip_len": null,
-        "home_stand_len": null
-      },
-      "injuries": {
-        "out": [],
-        "gtd": [],
-        "count_out": 0
-      },
-      "sintonia_matrix": {
-        "variables": {
-          "star_player_status": {
-            "score": 9,
-            "weight": 9,
-            "note": "0 OUT, 0 GTD",
-            "weighted": 81
-          },
-          "rest_advantage": {
-            "score": 7,
-            "weight": 9,
-            "note": "2 days rest | B2B: False",
-            "weighted": 63
-          },
-          "off_ranking": {
-            "score": 6,
-            "weight": 8,
-            "note": "115 PPG L5",
-            "weighted": 48
-          },
-          "def_ranking": {
-            "score": 6,
-            "weight": 8,
-            "note": "115 OPP PPG L5",
-            "weighted": 48
-          },
-          "three_pt_matchup": {
-            "score": 5,
-            "weight": 7,
-            "note": "Proxy: +0.0 margin L5 (no opp 3PT data)",
-            "weighted": 35
-          },
-          "pace_matchup": {
-            "score": 8,
-            "weight": 7,
-            "note": "Pace L5: 225 | L10: 225 | delta: 0.0",
-            "weighted": 56
-          },
-          "recent_form": {
-            "score": 0,
-            "weight": 7,
-            "note": "L5: 0-5 | streak: ?",
-            "weighted": 0
-          },
-          "road_trip_length": {
-            "score": 6,
-            "weight": 7,
-            "note": "Road trip: 0g | Home stand: 0g",
-            "weighted": 42
-          },
-          "h2h_season": {
-            "score": 5,
-            "weight": 6,
-            "note": "Season: 0-0 (50% win rate)",
-            "weighted": 30
-          },
-          "paint_scoring": {
-            "score": 6,
-            "weight": 6,
-            "note": "PPG L5: 115 vs season: 115 (delta: +0.0)",
-            "weighted": 36
-          },
-          "fast_break": {
-            "score": 5,
-            "weight": 6,
-            "note": "Margin L10: +0.0 (proxy)",
-            "weighted": 30
-          },
-          "ats_trend": {
-            "score": 1,
-            "weight": 6,
-            "note": "L10: 0-10 | Blowouts: 0 | Close: 0 (ATS data unavailable)",
-            "weighted": 6
-          },
-          "sharp_vs_public": {
-            "score": 6,
-            "weight": 5,
-            "note": "3 games in last 7 days (fatigue proxy \u2014 no line data)",
-            "weighted": 30
-          },
-          "home_away": {
-            "score": 5,
-            "weight": 5,
-            "note": "Home: 0-0 (50%) | Away: 0-0 (50%)",
-            "weighted": 25
-          },
-          "depth_injuries": {
-            "score": 10,
-            "weight": 4,
-            "note": "0 players OUT",
-            "weighted": 40
-          }
-        },
-        "composite": 5.7,
-        "total_weighted": 570,
-        "total_weight": 100,
-        "grade": "B-",
-        "sizing": "PASS"
-      },
-      "model_grades": {
-        "grok": {
-          "model": "grok",
-          "model_name": "grok-3",
-          "status": "error",
-          "error": "Error code: 429 - {'error': {'code': 'RateLimitReached', 'message': 'Your requests to grok-3 for grok-3 in East US 2 have exceeded the call rate limit for your current AIServices S0 pricing tier. This request was for ChatCompletions_Create under OpenAI Language Model Instance API. To increase your default rate limit, visit: https://aka.ms/oai/quotaincrease.'}}"
-        },
-        "gpt41": {
-          "model": "gpt41",
-          "model_name": "gpt-4.1",
-          "status": "ok",
-          "grade": "C",
-          "score": 4.0,
-          "sizing": "PASS",
-          "form_assessment": "Fade \u2014 The Blues are winless in their last 5 games (L5: 0-5) and have a neutral average margin (+0.0), indicating they are not competitive or closing out games. Their L10 record is also poor (0-10), suggesting a prolonged slump with no signs of turnaround.",
-          "injury_impact": "With no players OUT or GTD, the roster is fully healthy, so injuries are not limiting their ceiling.",
-          "situational_flags": "No back-to-back or road trip fatigue, but recent performance suggests no situational advantage.",
-          "grade_reasoning": "I disagree with the math grade; despite a healthy roster, the team's atrocious recent form (0-5 L5, 0-10 L10) and lack of ATS success make them a poor betting asset right now.",
-          "key_edge": "The team's winless streak and lack of ATS covers outweigh their healthy roster.",
-          "confidence": "high"
-        },
-        "deepseek": {
-          "model": "deepseek",
-          "model_name": "DeepSeek-V3.2",
-          "status": "ok",
-          "grade": "D",
-          "score": 3.0,
-          "sizing": "PASS",
-          "form_assessment": "Fade \u2014 The team is in a severe slump with an 0-5 record in its last 5 games and a reported 0-10 record against the spread (ATS) in its last 10, indicating consistent underperformance against market expectations. The average margin data is neutral, but the winless streak is a major red flag for betting value.",
-          "injury_impact": "The injury situation is a major positive with no players listed OUT or GTD, providing full roster availability and maximum theoretical ceiling.",
-          "situational_flags": "No immediate fatigue concerns are indicated, as the team is not on a back-to-back and road/home stand game numbers are at zero.",
-          "grade_reasoning": "I disagree with the math grade; a B- (5.7/10) is far too generous for a team on an 0-5 and 0-10 ATS skid. The perfect health grade inflates the composite, but recent form and ATS trends are the primary drivers of betting value and are catastrophically poor.",
-          "key_edge": "The overwhelming negative momentum and ATS failure make them an automatic fade until they show a clear reversal.",
-          "confidence": "high"
-        }
-      },
-      "consensus": {
-        "grade": "D",
-        "avg_score": 3.5,
-        "sizing": "PASS",
-        "models_ok": 2,
-        "grades": [
-          "C",
+          "A-",
+          "B+",
+          "B+",
           "D"
         ]
       }
@@ -1771,19 +202,19 @@
       "team": "New Jersey Devils",
       "side": "away",
       "date": "2026-03-20",
-      "opponent": "New York Rangers",
-      "game_time": "2026-03-18T23:00",
+      "opponent": "Washington Capitals",
+      "game_time": "2026-03-20T19:00",
       "l5_profile": {
         "record": null,
-        "l5": null,
-        "l10": null,
-        "streak": null,
-        "ppg_l5": null,
-        "opp_ppg_l5": null,
-        "margin_l5": null,
+        "l5": "4-1-0",
+        "l10": "7-3-0",
+        "streak": "W3",
+        "ppg_l5": 2.74,
+        "opp_ppg_l5": 3.04,
+        "margin_l5": -0.3,
         "margin_l10": null,
-        "rest_days": null,
-        "is_b2b": null,
+        "rest_days": 2,
+        "is_b2b": false,
         "games_last_7d": null,
         "road_trip_len": null,
         "home_stand_len": null
@@ -1808,22 +239,22 @@
             "weighted": 63
           },
           "off_ranking": {
-            "score": 6,
+            "score": 2,
             "weight": 8,
-            "note": "115 PPG L5",
-            "weighted": 48
+            "note": "2.74 PPG L5",
+            "weighted": 16
           },
           "def_ranking": {
-            "score": 6,
+            "score": 10,
             "weight": 8,
-            "note": "115 OPP PPG L5",
-            "weighted": 48
+            "note": "3.04 OPP PPG L5",
+            "weighted": 80
           },
           "three_pt_matchup": {
-            "score": 5,
+            "score": 4,
             "weight": 7,
-            "note": "Proxy: +0.0 margin L5 (no opp 3PT data)",
-            "weighted": 35
+            "note": "Proxy: -0.3 margin L5 (no opp 3PT data)",
+            "weighted": 28
           },
           "pace_matchup": {
             "score": 8,
@@ -1832,10 +263,10 @@
             "weighted": 56
           },
           "recent_form": {
-            "score": 0,
+            "score": 8,
             "weight": 7,
-            "note": "L5: 0-5 | streak: ?",
-            "weighted": 0
+            "note": "L5: 4-1-0 | streak: W3",
+            "weighted": 56
           },
           "road_trip_length": {
             "score": 6,
@@ -1850,10 +281,10 @@
             "weighted": 30
           },
           "paint_scoring": {
-            "score": 6,
+            "score": 2,
             "weight": 6,
-            "note": "PPG L5: 115 vs season: 115 (delta: +0.0)",
-            "weighted": 36
+            "note": "PPG L5: 2.74 vs season: 115 (delta: -112.3)",
+            "weighted": 12
           },
           "fast_break": {
             "score": 5,
@@ -1862,10 +293,10 @@
             "weighted": 30
           },
           "ats_trend": {
-            "score": 1,
+            "score": 8,
             "weight": 6,
-            "note": "L10: 0-10 | Blowouts: 0 | Close: 0 (ATS data unavailable)",
-            "weighted": 6
+            "note": "L10: 7-3-0 | Blowouts: 0 | Close: 0 (ATS data unavailable)",
+            "weighted": 48
           },
           "sharp_vs_public": {
             "score": 6,
@@ -1876,7 +307,7 @@
           "home_away": {
             "score": 5,
             "weight": 5,
-            "note": "Home: 0-0 (50%) | Away: 0-0 (50%)",
+            "note": "Home: 18-15-2 (50%) | Away: 17-16-0 (50%)",
             "weighted": 25
           },
           "depth_injuries": {
@@ -1886,19 +317,405 @@
             "weighted": 40
           }
         },
-        "composite": 5.7,
-        "total_weighted": 570,
+        "composite": 6.37,
+        "total_weighted": 637,
+        "total_weight": 100,
+        "grade": "B",
+        "sizing": "PASS"
+      },
+      "model_grades": {
+        "gpt41": {
+          "model": "gpt41",
+          "model_name": "gpt-4.1",
+          "status": "ok",
+          "grade": "B+",
+          "score": 7.5,
+          "sizing": "1.5u",
+          "form_assessment": "Buy \u2014 The Devils are 4-1 in their last 5 and 7-3 in their last 10, riding a 3-game win streak, despite a slightly negative average margin (-0.3) in the L5. Their defense is holding up (3.04 OPP PPG L5), but offensive output (2.74 PPG L5) is lagging.",
+          "injury_impact": "No players are OUT or GTD, giving the Devils a full-strength roster and maximizing their ceiling.",
+          "situational_flags": "With 2 days rest, no back-to-back, and no extended road/home stand, there are no fatigue or schedule red flags.",
+          "grade_reasoning": "I upgrade the math grade slightly due to the clean injury report and recent win streak, but limited offensive production keeps them just below elite betting status.",
+          "key_edge": "Full health and defensive consistency make them a solid but not elite buy.",
+          "confidence": "medium"
+        },
+        "grok": {
+          "model": "grok",
+          "model_name": "grok-3",
+          "status": "ok",
+          "grade": "B+",
+          "score": 7.0,
+          "sizing": "1.5u",
+          "form_assessment": "Buy \u2014 The Devils are on a strong run with a 4-1-0 record over their last 5 games and a 7-3-0 record over their last 10, showing consistent performance. Their current W3 streak further supports their momentum, despite a slightly negative average margin of -0.3 in the last 5 games.",
+          "injury_impact": "No injuries reported (0 OUT, 0 GTD), maximizing their roster ceiling and reliability for bettors.",
+          "situational_flags": "With 2 rest days and no back-to-back or road trip concerns, they have a clear fatigue advantage.",
+          "grade_reasoning": "I slightly upgrade the math grade to B+ due to their strong recent form (4-1-0 L5) and full roster health, though offensive struggles (2.74 PPG L5) temper a higher rating.",
+          "key_edge": "Full roster health (10/10 depth_injuries) provides a significant reliability edge.",
+          "confidence": "medium"
+        },
+        "grok_fast": {
+          "model": "grok_fast",
+          "model_name": "grok-4-1-fast-reasoning",
+          "status": "ok",
+          "grade": "B+",
+          "score": 7.2,
+          "sizing": "1u",
+          "form_assessment": "Buy \u2014 4-1-0 L5 record with W3 streak shows strong recent momentum despite -0.3 avg margin and low 2.74 PPG. L10 7-3-0 further confirms positive trend over broader sample. Wins outweigh offensive concerns for betting value.",
+          "injury_impact": "Zero OUT or GTD players means full roster health unlocks maximum ceiling with top depth_injuries (10/10) and star_player_status (9/10).",
+          "situational_flags": "2 rest days, no B2B, and neutral trip/stand status provide a clean schedule without fatigue risks.",
+          "grade_reasoning": "Slight upgrade from math B due to elite L5 form (4-1-0, W3), perfect health, and def_ranking strength offsetting weak offense.",
+          "key_edge": "Hot 4-1 L5/W3 streak at full health trumps offensive woes (2.74 PPG) for buy-side value.",
+          "confidence": "medium"
+        },
+        "deepseek": {
+          "model": "deepseek",
+          "model_name": "DeepSeek-V3.2",
+          "status": "ok",
+          "grade": "C+",
+          "score": 6.5,
+          "sizing": "PASS",
+          "form_assessment": "Fade \u2014 Despite a strong 4-1-0 L5 record, the underlying metrics are concerning. They are being outscored on average (-0.3 margin) and their offense is severely underperforming (2.74 PPG L5), suggesting wins may not be sustainable.",
+          "injury_impact": "With no players OUT or GTD, the roster is at full strength, maximizing their potential ceiling.",
+          "situational_flags": "Having 2 rest days and no back-to-back is a significant freshness advantage with no travel fatigue indicated.",
+          "grade_reasoning": "I disagree with the B grade; the excellent health and defense are offset by a critically anemic offense, making them a high-variance, low-confidence betting asset despite the winning record.",
+          "key_edge": "Bet against until their offensive production shows signs of regressing positively to their season mean.",
+          "confidence": "medium"
+        }
+      },
+      "consensus": {
+        "grade": "A-",
+        "avg_score": 7.05,
+        "sizing": "1u",
+        "models_ok": 4,
+        "grades": [
+          "B+",
+          "B+",
+          "B+",
+          "C+"
+        ]
+      }
+    },
+    {
+      "team": "Anaheim Ducks",
+      "side": "away",
+      "date": "2026-03-20",
+      "opponent": "Utah Mammoth",
+      "game_time": "2026-03-20T22:00",
+      "l5_profile": {
+        "record": null,
+        "l5": "3-2-0",
+        "l10": "5-4-1",
+        "streak": "L1",
+        "ppg_l5": 3.31,
+        "opp_ppg_l5": 3.47,
+        "margin_l5": -0.16,
+        "margin_l10": null,
+        "rest_days": 2,
+        "is_b2b": false,
+        "games_last_7d": null,
+        "road_trip_len": null,
+        "home_stand_len": null
+      },
+      "injuries": {
+        "out": [],
+        "gtd": [],
+        "count_out": 0
+      },
+      "sintonia_matrix": {
+        "variables": {
+          "star_player_status": {
+            "score": 9,
+            "weight": 9,
+            "note": "0 OUT, 0 GTD",
+            "weighted": 81
+          },
+          "rest_advantage": {
+            "score": 7,
+            "weight": 9,
+            "note": "2 days rest | B2B: False",
+            "weighted": 63
+          },
+          "off_ranking": {
+            "score": 2,
+            "weight": 8,
+            "note": "3.31 PPG L5",
+            "weighted": 16
+          },
+          "def_ranking": {
+            "score": 10,
+            "weight": 8,
+            "note": "3.47 OPP PPG L5",
+            "weighted": 80
+          },
+          "three_pt_matchup": {
+            "score": 4,
+            "weight": 7,
+            "note": "Proxy: -0.2 margin L5 (no opp 3PT data)",
+            "weighted": 28
+          },
+          "pace_matchup": {
+            "score": 8,
+            "weight": 7,
+            "note": "Pace L5: 225 | L10: 225 | delta: 0.0",
+            "weighted": 56
+          },
+          "recent_form": {
+            "score": 6,
+            "weight": 7,
+            "note": "L5: 3-2-0 | streak: L1",
+            "weighted": 42
+          },
+          "road_trip_length": {
+            "score": 6,
+            "weight": 7,
+            "note": "Road trip: 0g | Home stand: 0g",
+            "weighted": 42
+          },
+          "h2h_season": {
+            "score": 5,
+            "weight": 6,
+            "note": "Season: 0-0 (50% win rate)",
+            "weighted": 30
+          },
+          "paint_scoring": {
+            "score": 2,
+            "weight": 6,
+            "note": "PPG L5: 3.31 vs season: 115 (delta: -111.7)",
+            "weighted": 12
+          },
+          "fast_break": {
+            "score": 5,
+            "weight": 6,
+            "note": "Margin L10: +0.0 (proxy)",
+            "weighted": 30
+          },
+          "ats_trend": {
+            "score": 6,
+            "weight": 6,
+            "note": "L10: 5-4-1 | Blowouts: 0 | Close: 0 (ATS data unavailable)",
+            "weighted": 36
+          },
+          "sharp_vs_public": {
+            "score": 6,
+            "weight": 5,
+            "note": "3 games in last 7 days (fatigue proxy \u2014 no line data)",
+            "weighted": 30
+          },
+          "home_away": {
+            "score": 5,
+            "weight": 5,
+            "note": "Home: 22-10-2 (50%) | Away: 15-17-2 (50%)",
+            "weighted": 25
+          },
+          "depth_injuries": {
+            "score": 10,
+            "weight": 4,
+            "note": "0 players OUT",
+            "weighted": 40
+          }
+        },
+        "composite": 6.11,
+        "total_weighted": 611,
+        "total_weight": 100,
+        "grade": "B",
+        "sizing": "PASS"
+      },
+      "model_grades": {
+        "gpt41": {
+          "model": "gpt41",
+          "model_name": "gpt-4.1",
+          "status": "ok",
+          "grade": "B-",
+          "score": 5.8,
+          "sizing": "PASS",
+          "form_assessment": "Fade \u2014 Despite a 3-2 record in their last 5, the Ducks have a negative average margin (-0.2) and are allowing 3.47 PPG, indicating defensive vulnerability. Their offense is also underperforming (3.31 PPG L5), making them a risky betting asset.",
+          "injury_impact": "No players are OUT or GTD, so their ceiling is fully intact and depth is a non-issue.",
+          "situational_flags": "With 2 rest days and no back-to-back, there are no fatigue or schedule disadvantages.",
+          "grade_reasoning": "I downgrade slightly due to poor recent offensive output and a negative L5 margin, which outweighs the clean injury report.",
+          "key_edge": "Offensive struggles (3.31 PPG L5) are the biggest red flag for betting this team right now.",
+          "confidence": "medium"
+        },
+        "grok": {
+          "model": "grok",
+          "model_name": "grok-3",
+          "status": "ok",
+          "grade": "C+",
+          "score": 5.5,
+          "sizing": "PASS",
+          "form_assessment": "Fade \u2014 Despite a decent 3-2-0 record in L5, the Ducks are coming off a loss with a negative average margin of -0.2 in L5, and their offensive output of 3.31 PPG L5 is a significant concern. Their inability to score consistently makes them a risky bet against stronger opponents.",
+          "injury_impact": "No injuries reported, so the team is at full strength with a high ceiling if they can address offensive struggles.",
+          "situational_flags": "With 2 rest days and no back-to-back or road trip concerns, fatigue is not a factor.",
+          "grade_reasoning": "Disagree with math grade of B due to poor offensive performance (3.31 PPG L5) and negative margin (-0.2 L5), which outweighs the strong defensive ranking and lack of injuries.",
+          "key_edge": "Offensive struggles (3.31 PPG L5) are the biggest reason to avoid betting on this team right now.",
+          "confidence": "medium"
+        },
+        "grok_fast": {
+          "model": "grok_fast",
+          "model_name": "grok-4-1-fast-reasoning",
+          "status": "ok",
+          "grade": "B",
+          "score": 6.3,
+          "sizing": "PASS",
+          "form_assessment": "Fade \u2014 L5 record of 3-2 with -0.2 avg margin shows close games but vulnerability, scoring low at 3.31 PPG vs opponents' 3.47 PPG. L10 even at 5-4-1 and current L1 streak indicate no upward momentum. Offense ranks poorly at 2/10 in matrix.",
+          "injury_impact": "Fully healthy roster with no OUT or GTD players maximizes their defensive ceiling and overall potential.",
+          "situational_flags": "2 rest days, no B2B, and neutral trip/stand status provide a clean schedule without fatigue risks.",
+          "grade_reasoning": "Agree with math B grade as elite defense (10/10) and health offset weak offense, but L5 negative margin limits betting upside.",
+          "key_edge": "Strong defense holds games tight but anemic 3.31 PPG L5 offense prevents reliable wins.",
+          "confidence": "medium"
+        },
+        "deepseek": {
+          "model": "deepseek",
+          "model_name": "DeepSeek-V3.2",
+          "status": "ok",
+          "grade": "C",
+          "score": 5.0,
+          "sizing": "PASS",
+          "form_assessment": "Fade \u2014 The team is 3-2 in their last 5 but with a negative goal differential (-0.2 avg margin), indicating their wins are narrow and likely unsustainable. Their offense is a major concern, scoring only 3.31 PPG in the L5, which is a severe drop from a typical NBA team's output, suggesting significant scoring struggles.",
+          "injury_impact": "With no players listed OUT or GTD, the team is at full strength, maximizing their current ceiling.",
+          "situational_flags": "Having 2 days of rest with no back-to-back is a positive situational advantage.",
+          "grade_reasoning": "I disagree with the math grade; a 'B' (6.11/10) overvalues this profile. The team's catastrophic offensive metrics (2/10 rating) and negative recent goal margin are severe red flags that outweigh perfect health and good defensive numbers for betting purposes.",
+          "key_edge": "Severely underperforming offense makes them unreliable to cover spreads or win games outright.",
+          "confidence": "high"
+        }
+      },
+      "consensus": {
+        "grade": "B-",
+        "avg_score": 5.65,
+        "sizing": "PASS",
+        "models_ok": 4,
+        "grades": [
+          "B-",
+          "C+",
+          "B",
+          "C"
+        ]
+      }
+    },
+    {
+      "team": "Calgary Flames",
+      "side": "home",
+      "date": "2026-03-20",
+      "opponent": "Florida Panthers",
+      "game_time": "2026-03-20T21:00",
+      "l5_profile": {
+        "record": null,
+        "l5": "2-3-0",
+        "l10": "3-6-1",
+        "streak": "W1",
+        "ppg_l5": 2.49,
+        "opp_ppg_l5": 3.13,
+        "margin_l5": -0.64,
+        "margin_l10": null,
+        "rest_days": 2,
+        "is_b2b": false,
+        "games_last_7d": null,
+        "road_trip_len": null,
+        "home_stand_len": null
+      },
+      "injuries": {
+        "out": [],
+        "gtd": [],
+        "count_out": 0
+      },
+      "sintonia_matrix": {
+        "variables": {
+          "star_player_status": {
+            "score": 9,
+            "weight": 9,
+            "note": "0 OUT, 0 GTD",
+            "weighted": 81
+          },
+          "rest_advantage": {
+            "score": 7,
+            "weight": 9,
+            "note": "2 days rest | B2B: False",
+            "weighted": 63
+          },
+          "off_ranking": {
+            "score": 2,
+            "weight": 8,
+            "note": "2.49 PPG L5",
+            "weighted": 16
+          },
+          "def_ranking": {
+            "score": 10,
+            "weight": 8,
+            "note": "3.13 OPP PPG L5",
+            "weighted": 80
+          },
+          "three_pt_matchup": {
+            "score": 4,
+            "weight": 7,
+            "note": "Proxy: -0.6 margin L5 (no opp 3PT data)",
+            "weighted": 28
+          },
+          "pace_matchup": {
+            "score": 8,
+            "weight": 7,
+            "note": "Pace L5: 225 | L10: 225 | delta: 0.0",
+            "weighted": 56
+          },
+          "recent_form": {
+            "score": 4,
+            "weight": 7,
+            "note": "L5: 2-3-0 | streak: W1",
+            "weighted": 28
+          },
+          "road_trip_length": {
+            "score": 6,
+            "weight": 7,
+            "note": "Road trip: 0g | Home stand: 0g",
+            "weighted": 42
+          },
+          "h2h_season": {
+            "score": 5,
+            "weight": 6,
+            "note": "Season: 0-0 (50% win rate)",
+            "weighted": 30
+          },
+          "paint_scoring": {
+            "score": 2,
+            "weight": 6,
+            "note": "PPG L5: 2.49 vs season: 115 (delta: -112.5)",
+            "weighted": 12
+          },
+          "fast_break": {
+            "score": 5,
+            "weight": 6,
+            "note": "Margin L10: +0.0 (proxy)",
+            "weighted": 30
+          },
+          "ats_trend": {
+            "score": 3,
+            "weight": 6,
+            "note": "L10: 3-6-1 | Blowouts: 0 | Close: 0 (ATS data unavailable)",
+            "weighted": 18
+          },
+          "sharp_vs_public": {
+            "score": 6,
+            "weight": 5,
+            "note": "3 games in last 7 days (fatigue proxy \u2014 no line data)",
+            "weighted": 30
+          },
+          "home_away": {
+            "score": 5,
+            "weight": 5,
+            "note": "Home: 17-12-4 (50%) | Away: 10-22-3 (50%)",
+            "weighted": 25
+          },
+          "depth_injuries": {
+            "score": 10,
+            "weight": 4,
+            "note": "0 players OUT",
+            "weighted": 40
+          }
+        },
+        "composite": 5.79,
+        "total_weighted": 579,
         "total_weight": 100,
         "grade": "B-",
         "sizing": "PASS"
       },
       "model_grades": {
-        "grok": {
-          "model": "grok",
-          "model_name": "grok-3",
-          "status": "error",
-          "error": "Error code: 429 - {'error': {'code': 'RateLimitReached', 'message': 'Your requests to grok-3 for grok-3 in East US 2 have exceeded the call rate limit for your current AIServices S0 pricing tier. This request was for ChatCompletions_Create under OpenAI Language Model Instance API. To increase your default rate limit, visit: https://aka.ms/oai/quotaincrease.'}}"
-        },
         "gpt41": {
           "model": "gpt41",
           "model_name": "gpt-4.1",
@@ -1906,12 +723,12 @@
           "grade": "C",
           "score": 4.5,
           "sizing": "PASS",
-          "form_assessment": "Fade \u2014 The Devils are 0-5 in their last 5 games with an average margin of +0.0, indicating no positive momentum and likely struggles both offensively and defensively. Their ATS trend is extremely poor (0-10 L10), making them a risky betting asset.",
-          "injury_impact": "With no players listed as OUT or GTD, the roster is at full strength, but it hasn't translated to results.",
-          "situational_flags": "No schedule or fatigue concerns, as they are not on a back-to-back and have no road/home stand pressure.",
-          "grade_reasoning": "I downgrade the math grade due to the disastrous recent form and ATS trend; full health is a positive, but their inability to win or cover makes them a clear fade.",
-          "key_edge": "The team's current 0-5 run and 0-10 ATS trend outweigh a healthy roster, signaling no betting value.",
-          "confidence": "high"
+          "form_assessment": "Fade \u2014 The Flames are just 2-3-0 in their last 5 and 3-6-1 in their last 10, with a negative average margin (-0.6) and scoring only 2.49 PPG L5, indicating poor offensive form. Their defense is also suspect, allowing 3.13 OPP PPG L5.",
+          "injury_impact": "No players are out or questionable, so the roster is at full strength and injuries are not a limiting factor.",
+          "situational_flags": "With 2 days rest and no back-to-back, there are no immediate fatigue or schedule concerns.",
+          "grade_reasoning": "I downgrade the math grade because the offense is in a slump (2.49 PPG L5), recent results are poor, and there is no clear ATS edge, making them a weak betting asset despite full health.",
+          "key_edge": "The Flames' lack of scoring punch (2.49 PPG L5) is the biggest red flag for betting support.",
+          "confidence": "low"
         },
         "deepseek": {
           "model": "deepseek",
@@ -1920,42 +737,72 @@
           "grade": "D",
           "score": 4.0,
           "sizing": "PASS",
-          "form_assessment": "Fade \u2014 The team is on a significant losing streak (L5: 0-5) with a concerning ATS trend (L10: 0-10), indicating they are consistently underperforming expectations and failing to cover spreads.",
-          "injury_impact": "The roster is at full strength with zero players listed OUT or GTD, providing no injury-related excuse for their poor performance.",
-          "situational_flags": "No immediate fatigue concerns as they are not on a back-to-back and have no extended road trip or home stand noted.",
-          "grade_reasoning": "The math grade of B- (5.7/10) is too generous; a team with an 0-5 L5 record and an 0-10 ATS trend over L10, despite full health, represents poor betting value and should be graded much lower.",
-          "key_edge": "Severe underperformance against the spread despite optimal health makes them an unreliable betting asset.",
+          "form_assessment": "Fade \u2014 The team is 2-3-0 in its last 5 with a -0.6 average margin, and its offense is a major liability, scoring only 2.49 PPG in that span. The L10 record of 3-6-1 and poor 10-22-3 away record further indicate inconsistency and a lack of reliability.",
+          "injury_impact": "With no players listed OUT or GTD, the roster is at full health, maximizing its potential ceiling.",
+          "situational_flags": "Having 2 days of rest and not being on a back-to-back is a positive, but the lack of home/road trip context limits deeper situational analysis.",
+          "grade_reasoning": "I disagree with the B- grade; the math model overweights perfect health and defensive metrics while severely underweighting the catastrophic offensive output (2.49 PPG), which renders the team a non-competitive betting asset regardless of defense or rest.",
+          "key_edge": "Anemic offense scoring 2.49 PPG over the last 5 makes them impossible to trust to cover spreads or win games outright.",
           "confidence": "high"
+        },
+        "grok_fast": {
+          "model": "grok_fast",
+          "model_name": "grok-4-1-fast-reasoning",
+          "status": "ok",
+          "grade": "B-",
+          "score": 5.79,
+          "sizing": "PASS",
+          "form_assessment": "Fade \u2014 L5 record of 2-3-0 with an average margin of -0.6, scoring a weak 2.49 PPG while allowing 3.13 OPP PPG. L10 record of 3-6-1 shows mediocrity with zero average margin, highlighting inconsistent results recently.",
+          "injury_impact": "No players OUT or GTD allows the team to operate at full ceiling with maximum depth.",
+          "situational_flags": "2 rest days offer a freshness advantage with no B2B, road trip, or home stand fatigue concerns.",
+          "grade_reasoning": "Agree with math grade as elite depth, defense, and star health provide a solid floor, but poor offense and recent negative margins limit upside as a betting asset.",
+          "key_edge": "Anemic 2.49 PPG L5 offense severely hampers scoring potential against decent defensive opponents.",
+          "confidence": "medium"
+        },
+        "grok": {
+          "model": "grok",
+          "model_name": "grok-3",
+          "status": "ok",
+          "grade": "C",
+          "score": 5.0,
+          "sizing": "PASS",
+          "form_assessment": "Fade \u2014 The Calgary Flames have struggled recently with a 2-3-0 record over their last 5 games and a poor 3-6-1 over their last 10. Their offensive output is a major concern at just 2.49 PPG in the L5, well below expectations, while their average margin of -0.6 indicates they are losing by close margins.",
+          "injury_impact": "No injuries reported (0 OUT, 0 GTD), so their ceiling is unaffected by roster availability.",
+          "situational_flags": "With 2 rest days and no back-to-back or road trip concerns, fatigue is not a factor.",
+          "grade_reasoning": "I downgrade the math grade of B- to C due to the team's poor offensive performance (2.49 PPG L5) and negative trends in L10 record (3-6-1), which outweigh their defensive strength and lack of injuries.",
+          "key_edge": "Offensive struggles (2.49 PPG L5) are the biggest reason to avoid betting on this team.",
+          "confidence": "medium"
         }
       },
       "consensus": {
         "grade": "C",
-        "avg_score": 4.25,
+        "avg_score": 4.82,
         "sizing": "PASS",
-        "models_ok": 2,
+        "models_ok": 4,
         "grades": [
           "C",
-          "D"
+          "D",
+          "B-",
+          "C"
         ]
       }
     },
     {
-      "team": "Anaheim Ducks",
+      "team": "Washington Capitals",
       "side": "home",
       "date": "2026-03-20",
-      "opponent": "Philadelphia Flyers",
-      "game_time": "2026-03-19T02:00",
+      "opponent": "New Jersey Devils",
+      "game_time": "2026-03-20T19:00",
       "l5_profile": {
         "record": null,
-        "l5": null,
-        "l10": null,
-        "streak": null,
-        "ppg_l5": null,
-        "opp_ppg_l5": null,
-        "margin_l5": null,
+        "l5": "3-2-0",
+        "l10": "5-4-1",
+        "streak": "W1",
+        "ppg_l5": 3.13,
+        "opp_ppg_l5": 2.96,
+        "margin_l5": 0.17,
         "margin_l10": null,
-        "rest_days": null,
-        "is_b2b": null,
+        "rest_days": 2,
+        "is_b2b": false,
         "games_last_7d": null,
         "road_trip_len": null,
         "home_stand_len": null
@@ -1980,21 +827,21 @@
             "weighted": 63
           },
           "off_ranking": {
-            "score": 6,
+            "score": 2,
             "weight": 8,
-            "note": "115 PPG L5",
-            "weighted": 48
+            "note": "3.13 PPG L5",
+            "weighted": 16
           },
           "def_ranking": {
-            "score": 6,
+            "score": 10,
             "weight": 8,
-            "note": "115 OPP PPG L5",
-            "weighted": 48
+            "note": "2.96 OPP PPG L5",
+            "weighted": 80
           },
           "three_pt_matchup": {
             "score": 5,
             "weight": 7,
-            "note": "Proxy: +0.0 margin L5 (no opp 3PT data)",
+            "note": "Proxy: +0.2 margin L5 (no opp 3PT data)",
             "weighted": 35
           },
           "pace_matchup": {
@@ -2004,10 +851,10 @@
             "weighted": 56
           },
           "recent_form": {
-            "score": 0,
+            "score": 6,
             "weight": 7,
-            "note": "L5: 0-5 | streak: ?",
-            "weighted": 0
+            "note": "L5: 3-2-0 | streak: W1",
+            "weighted": 42
           },
           "road_trip_length": {
             "score": 6,
@@ -2022,10 +869,10 @@
             "weighted": 30
           },
           "paint_scoring": {
-            "score": 6,
+            "score": 2,
             "weight": 6,
-            "note": "PPG L5: 115 vs season: 115 (delta: +0.0)",
-            "weighted": 36
+            "note": "PPG L5: 3.13 vs season: 115 (delta: -111.9)",
+            "weighted": 12
           },
           "fast_break": {
             "score": 5,
@@ -2034,10 +881,10 @@
             "weighted": 30
           },
           "ats_trend": {
-            "score": 1,
+            "score": 6,
             "weight": 6,
-            "note": "L10: 0-10 | Blowouts: 0 | Close: 0 (ATS data unavailable)",
-            "weighted": 6
+            "note": "L10: 5-4-1 | Blowouts: 0 | Close: 0 (ATS data unavailable)",
+            "weighted": 36
           },
           "sharp_vs_public": {
             "score": 6,
@@ -2048,7 +895,7 @@
           "home_away": {
             "score": 5,
             "weight": 5,
-            "note": "Home: 0-0 (50%) | Away: 0-0 (50%)",
+            "note": "Home: 21-11-4 (50%) | Away: 13-16-4 (50%)",
             "weighted": 25
           },
           "depth_injuries": {
@@ -2058,54 +905,443 @@
             "weighted": 40
           }
         },
-        "composite": 5.7,
-        "total_weighted": 570,
+        "composite": 6.18,
+        "total_weighted": 618,
         "total_weight": 100,
-        "grade": "B-",
+        "grade": "B",
         "sizing": "PASS"
       },
       "model_grades": {
-        "gpt41": {
-          "model": "gpt41",
-          "model_name": "gpt-4.1",
-          "status": "ok",
-          "grade": "C",
-          "score": 4.0,
-          "sizing": "PASS",
-          "form_assessment": "Fade \u2014 The team is winless in their last 5 games (L5: 0-5) and has a neutral average margin (+0.0), indicating they are not competitive or showing improvement. Their ATS trend is extremely poor (L10: 0-10), suggesting they are consistently underperforming market expectations.",
-          "injury_impact": "With no players OUT or GTD, the roster is fully healthy, so injuries are not limiting their ceiling.",
-          "situational_flags": "No fatigue or scheduling concerns; not on a back-to-back and no road/home stand factors.",
-          "grade_reasoning": "I downgrade the math grade because recent form and ATS trends are disastrous, outweighing the healthy roster and neutral schedule; this team is not a betting asset right now.",
-          "key_edge": "The team's recent form and ATS performance are the biggest red flags for betting.",
-          "confidence": "high"
-        },
         "grok": {
           "model": "grok",
           "model_name": "grok-3",
           "status": "error",
           "error": "Error code: 429 - {'error': {'code': 'RateLimitReached', 'message': 'Your requests to grok-3 for grok-3 in East US 2 have exceeded the call rate limit for your current AIServices S0 pricing tier. This request was for ChatCompletions_Create under OpenAI Language Model Instance API. To increase your default rate limit, visit: https://aka.ms/oai/quotaincrease.'}}"
         },
+        "gpt41": {
+          "model": "gpt41",
+          "model_name": "gpt-4.1",
+          "status": "ok",
+          "grade": "B+",
+          "score": 7.5,
+          "sizing": "1.5u",
+          "form_assessment": "Buy \u2014 The Capitals are 3-2-0 in their last 5 games with a slim +0.2 average margin, showing they are competitive and slightly outperforming expectations. Their defense is strong (2.96 OPP PPG L5), and they have a current win streak (W1), suggesting positive momentum.",
+          "injury_impact": "With zero players listed OUT or GTD, the roster is at full strength, maximizing their ceiling.",
+          "situational_flags": "No back-to-back and 2 days rest provide a favorable schedule with no fatigue concerns.",
+          "grade_reasoning": "I upgrade the math grade to B+ because the injury-free roster and solid defense give them a higher betting value than the raw offensive numbers suggest.",
+          "key_edge": "Full health and elite recent defensive form make them a strong situational buy.",
+          "confidence": "medium"
+        },
+        "grok_fast": {
+          "model": "grok_fast",
+          "model_name": "grok-4-1-fast-reasoning",
+          "status": "ok",
+          "grade": "B",
+          "score": 6.2,
+          "sizing": "PASS",
+          "form_assessment": "Fade \u2014 L5 record of 3-2-0 with +0.2 avg margin hides offensive struggles at 3.13 PPG despite strong defense (2.96 OPP PPG). L10 at 5-4-1 with 0.0 margin indicates mediocrity, and W1 streak lacks conviction. Tiny edges suggest regression risk.",
+          "injury_impact": "Fully healthy with no OUT or GTD players, preserving full depth and star availability for peak ceiling.",
+          "situational_flags": "2 rest days, no B2B, and neutral trip/stand status offer a clean spot without fatigue concerns.",
+          "grade_reasoning": "Agree with math grade: elite defense/health (10/10) balanced by dire offense (2/10), yielding average betting value without clear edge.",
+          "key_edge": "Anemic 3.13 PPG L5 offense (2/10 rank) caps upside despite top-tier defense and health.",
+          "confidence": "medium"
+        },
+        "deepseek": {
+          "model": "deepseek",
+          "model_name": "DeepSeek-V3.2",
+          "status": "ok",
+          "grade": "C+",
+          "score": 6.5,
+          "sizing": "PASS",
+          "form_assessment": "Fade \u2014 The team is 3-2 in their last 5 but with a razor-thin +0.2 avg margin, indicating they are scraping by. Their offense is a major concern, scoring only 3.13 PPG L5, which is a massive drop from their implied season average and unsustainable for a contender.",
+          "injury_impact": "With a clean injury report, the team has its full roster available, maximizing its potential ceiling.",
+          "situational_flags": "Having 2 days of rest with no back-to-back is a positive, providing a fresh and prepared squad.",
+          "grade_reasoning": "I disagree with the math grade; a 'B' overvalues their perfect health and recent wins, while severely underweighting the catastrophic offensive regression (3.13 PPG) which makes them unreliable for covering spreads.",
+          "key_edge": "Severely underperforming offense makes them unreliable to cover spreads, despite good health.",
+          "confidence": "medium"
+        }
+      },
+      "consensus": {
+        "grade": "B+",
+        "avg_score": 6.73,
+        "sizing": "1u",
+        "models_ok": 3,
+        "grades": [
+          "B+",
+          "B",
+          "C+"
+        ]
+      }
+    },
+    {
+      "team": "Florida Panthers",
+      "side": "away",
+      "date": "2026-03-20",
+      "opponent": "Calgary Flames",
+      "game_time": "2026-03-20T21:00",
+      "l5_profile": {
+        "record": null,
+        "l5": "2-3-0",
+        "l10": "4-6-0",
+        "streak": "W1",
+        "ppg_l5": 3.01,
+        "opp_ppg_l5": 3.31,
+        "margin_l5": -0.3,
+        "margin_l10": null,
+        "rest_days": 2,
+        "is_b2b": false,
+        "games_last_7d": null,
+        "road_trip_len": null,
+        "home_stand_len": null
+      },
+      "injuries": {
+        "out": [],
+        "gtd": [],
+        "count_out": 0
+      },
+      "sintonia_matrix": {
+        "variables": {
+          "star_player_status": {
+            "score": 9,
+            "weight": 9,
+            "note": "0 OUT, 0 GTD",
+            "weighted": 81
+          },
+          "rest_advantage": {
+            "score": 7,
+            "weight": 9,
+            "note": "2 days rest | B2B: False",
+            "weighted": 63
+          },
+          "off_ranking": {
+            "score": 2,
+            "weight": 8,
+            "note": "3.01 PPG L5",
+            "weighted": 16
+          },
+          "def_ranking": {
+            "score": 10,
+            "weight": 8,
+            "note": "3.31 OPP PPG L5",
+            "weighted": 80
+          },
+          "three_pt_matchup": {
+            "score": 4,
+            "weight": 7,
+            "note": "Proxy: -0.3 margin L5 (no opp 3PT data)",
+            "weighted": 28
+          },
+          "pace_matchup": {
+            "score": 8,
+            "weight": 7,
+            "note": "Pace L5: 225 | L10: 225 | delta: 0.0",
+            "weighted": 56
+          },
+          "recent_form": {
+            "score": 4,
+            "weight": 7,
+            "note": "L5: 2-3-0 | streak: W1",
+            "weighted": 28
+          },
+          "road_trip_length": {
+            "score": 6,
+            "weight": 7,
+            "note": "Road trip: 0g | Home stand: 0g",
+            "weighted": 42
+          },
+          "h2h_season": {
+            "score": 5,
+            "weight": 6,
+            "note": "Season: 0-0 (50% win rate)",
+            "weighted": 30
+          },
+          "paint_scoring": {
+            "score": 2,
+            "weight": 6,
+            "note": "PPG L5: 3.01 vs season: 115 (delta: -112.0)",
+            "weighted": 12
+          },
+          "fast_break": {
+            "score": 5,
+            "weight": 6,
+            "note": "Margin L10: +0.0 (proxy)",
+            "weighted": 30
+          },
+          "ats_trend": {
+            "score": 4,
+            "weight": 6,
+            "note": "L10: 4-6-0 | Blowouts: 0 | Close: 0 (ATS data unavailable)",
+            "weighted": 24
+          },
+          "sharp_vs_public": {
+            "score": 6,
+            "weight": 5,
+            "note": "3 games in last 7 days (fatigue proxy \u2014 no line data)",
+            "weighted": 30
+          },
+          "home_away": {
+            "score": 5,
+            "weight": 5,
+            "note": "Home: 18-14-3 (50%) | Away: 16-17-0 (50%)",
+            "weighted": 25
+          },
+          "depth_injuries": {
+            "score": 10,
+            "weight": 4,
+            "note": "0 players OUT",
+            "weighted": 40
+          }
+        },
+        "composite": 5.85,
+        "total_weighted": 585,
+        "total_weight": 100,
+        "grade": "B-",
+        "sizing": "PASS"
+      },
+      "model_grades": {
+        "grok": {
+          "model": "grok",
+          "model_name": "grok-3",
+          "status": "error",
+          "error": "Error code: 429 - {'error': {'code': 'RateLimitReached', 'message': 'Your requests to grok-3 for grok-3 in East US 2 have exceeded the call rate limit for your current AIServices S0 pricing tier. This request was for ChatCompletions_Create under OpenAI Language Model Instance API. To increase your default rate limit, visit: https://aka.ms/oai/quotaincrease.'}}"
+        },
+        "gpt41": {
+          "model": "gpt41",
+          "model_name": "gpt-4.1",
+          "status": "ok",
+          "grade": "C+",
+          "score": 6.2,
+          "sizing": "PASS",
+          "form_assessment": "Fade \u2014 The Panthers are just 2-3 in their last 5 and 4-6 in their last 10, with a negative average margin (-0.3) over the last 5 games and flat over the last 10. Their offense is underperforming (3.01 PPG L5), while their defense is allowing 3.31 PPG L5, indicating struggles on both ends.",
+          "injury_impact": "No players are currently OUT or GTD, so the roster is at full strength with no injury limitations.",
+          "situational_flags": "With 2 days rest and no back-to-back, there are no immediate fatigue or schedule disadvantages.",
+          "grade_reasoning": "I slightly downgrade the math grade due to poor recent form and offensive struggles, despite a healthy roster; betting value is limited until form improves.",
+          "key_edge": "Offensive production is well below season norms, making them a risky betting asset right now.",
+          "confidence": "medium"
+        },
+        "grok_fast": {
+          "model": "grok_fast",
+          "model_name": "grok-4-1-fast-reasoning",
+          "status": "ok",
+          "grade": "B-",
+          "score": 6.0,
+          "sizing": "PASS",
+          "form_assessment": "Fade \u2014 L5 record of 2-3-0 with -0.3 avg margin and low 3.01 PPG vs 3.31 allowed highlights offensive struggles despite W1 streak. L10 4-6-0 even margin shows inconsistency. Poor scoring makes them risky as a betting pick.",
+          "injury_impact": "No OUT or GTD players means full roster health maximizes their ceiling with no injury drag.",
+          "situational_flags": "2 rest days, no B2B, and neutral trip/stand status offer a slight fatigue advantage.",
+          "grade_reasoning": "Agree with B- math grade; elite depth/health/defense (10/10 ratings) balance weak offense (2/10), yielding average betting value.",
+          "key_edge": "Anemic L5 offense at 3.01 PPG overshadows strong defense, eroding reliability as a straight betting asset.",
+          "confidence": "medium"
+        },
+        "deepseek": {
+          "model": "deepseek",
+          "model_name": "DeepSeek-V3.2",
+          "status": "ok",
+          "grade": "C+",
+          "score": 6.5,
+          "sizing": "PASS",
+          "form_assessment": "Fade \u2014 The team is 2-3 in its last 5 with a negative average margin (-0.3) and a concerning offense scoring only 3.01 PPG, which is a significant drop from a typical season average, indicating a major scoring slump.",
+          "injury_impact": "With no players listed OUT or GTD, the team is at full strength, maximizing its potential ceiling.",
+          "situational_flags": "Having 2 days of rest with no back-to-back is a positive, but the lack of a clear home/stand or road trip context limits situational momentum.",
+          "grade_reasoning": "I disagree with the B-; the math grade overvalues perfect health and a decent defensive ranking, while the severe offensive inefficiency (2/10 rating) and losing record make this a below-average betting asset.",
+          "key_edge": "Severely underperforming offense in a slump, making it hard to trust them to cover spreads.",
+          "confidence": "medium"
+        }
+      },
+      "consensus": {
+        "grade": "B",
+        "avg_score": 6.23,
+        "sizing": "PASS",
+        "models_ok": 3,
+        "grades": [
+          "C+",
+          "B-",
+          "C+"
+        ]
+      }
+    },
+    {
+      "team": "Chicago Blackhawks",
+      "side": "home",
+      "date": "2026-03-20",
+      "opponent": "Colorado Avalanche",
+      "game_time": "2026-03-20T20:30",
+      "l5_profile": {
+        "record": null,
+        "l5": "2-1-2",
+        "l10": "4-3-3",
+        "streak": "W1",
+        "ppg_l5": 2.65,
+        "opp_ppg_l5": 3.21,
+        "margin_l5": -0.56,
+        "margin_l10": null,
+        "rest_days": 2,
+        "is_b2b": false,
+        "games_last_7d": null,
+        "road_trip_len": null,
+        "home_stand_len": null
+      },
+      "injuries": {
+        "out": [],
+        "gtd": [],
+        "count_out": 0
+      },
+      "sintonia_matrix": {
+        "variables": {
+          "star_player_status": {
+            "score": 9,
+            "weight": 9,
+            "note": "0 OUT, 0 GTD",
+            "weighted": 81
+          },
+          "rest_advantage": {
+            "score": 7,
+            "weight": 9,
+            "note": "2 days rest | B2B: False",
+            "weighted": 63
+          },
+          "off_ranking": {
+            "score": 2,
+            "weight": 8,
+            "note": "2.65 PPG L5",
+            "weighted": 16
+          },
+          "def_ranking": {
+            "score": 10,
+            "weight": 8,
+            "note": "3.21 OPP PPG L5",
+            "weighted": 80
+          },
+          "three_pt_matchup": {
+            "score": 4,
+            "weight": 7,
+            "note": "Proxy: -0.6 margin L5 (no opp 3PT data)",
+            "weighted": 28
+          },
+          "pace_matchup": {
+            "score": 8,
+            "weight": 7,
+            "note": "Pace L5: 225 | L10: 225 | delta: 0.0",
+            "weighted": 56
+          },
+          "recent_form": {
+            "score": 4,
+            "weight": 7,
+            "note": "L5: 2-1-2 | streak: W1",
+            "weighted": 28
+          },
+          "road_trip_length": {
+            "score": 6,
+            "weight": 7,
+            "note": "Road trip: 0g | Home stand: 0g",
+            "weighted": 42
+          },
+          "h2h_season": {
+            "score": 5,
+            "weight": 6,
+            "note": "Season: 0-0 (50% win rate)",
+            "weighted": 30
+          },
+          "paint_scoring": {
+            "score": 2,
+            "weight": 6,
+            "note": "PPG L5: 2.65 vs season: 115 (delta: -112.3)",
+            "weighted": 12
+          },
+          "fast_break": {
+            "score": 5,
+            "weight": 6,
+            "note": "Margin L10: +0.0 (proxy)",
+            "weighted": 30
+          },
+          "ats_trend": {
+            "score": 4,
+            "weight": 6,
+            "note": "L10: 4-3-3 | Blowouts: 0 | Close: 0 (ATS data unavailable)",
+            "weighted": 24
+          },
+          "sharp_vs_public": {
+            "score": 6,
+            "weight": 5,
+            "note": "3 games in last 7 days (fatigue proxy \u2014 no line data)",
+            "weighted": 30
+          },
+          "home_away": {
+            "score": 5,
+            "weight": 5,
+            "note": "Home: 13-15-6 (50%) | Away: 13-15-6 (50%)",
+            "weighted": 25
+          },
+          "depth_injuries": {
+            "score": 10,
+            "weight": 4,
+            "note": "0 players OUT",
+            "weighted": 40
+          }
+        },
+        "composite": 5.85,
+        "total_weighted": 585,
+        "total_weight": 100,
+        "grade": "B-",
+        "sizing": "PASS"
+      },
+      "model_grades": {
+        "grok": {
+          "model": "grok",
+          "model_name": "grok-3",
+          "status": "error",
+          "error": "Error code: 429 - {'error': {'code': 'RateLimitReached', 'message': 'Your requests to grok-3 for grok-3 in East US 2 have exceeded the call rate limit for your current AIServices S0 pricing tier. This request was for ChatCompletions_Create under OpenAI Language Model Instance API. To increase your default rate limit, visit: https://aka.ms/oai/quotaincrease.'}}"
+        },
+        "gpt41": {
+          "model": "gpt41",
+          "model_name": "gpt-4.1",
+          "status": "ok",
+          "grade": "C+",
+          "score": 6.2,
+          "sizing": "PASS",
+          "form_assessment": "Fade \u2014 Despite a positive recent streak (W1) and a 2-1-2 L5 record, their scoring output is weak (2.65 PPG L5) and their average margin is negative (-0.6 L5), indicating struggles to outscore opponents. Defensive numbers (3.21 OPP PPG L5) are below average, and offensive concerns are significant.",
+          "injury_impact": "No injuries or GTD players, so their ceiling is fully intact and roster depth is a strength.",
+          "situational_flags": "With 2 rest days and no back-to-back, fatigue is not a concern and schedule is neutral.",
+          "grade_reasoning": "I downgrade the math grade due to poor offensive output and negative scoring margin, which outweighs the healthy roster; betting value is limited unless opponent is weak.",
+          "key_edge": "Lack of scoring punch makes them unreliable as a betting asset right now.",
+          "confidence": "medium"
+        },
+        "grok_fast": {
+          "model": "grok_fast",
+          "model_name": "grok-4-1-fast-reasoning",
+          "status": "ok",
+          "grade": "C",
+          "score": 4.8,
+          "sizing": "PASS",
+          "form_assessment": "Fade \u2014 L5 record of 2-1-2 with 2.65 PPG scored versus 3.21 OPP PPG allowed results in a -0.6 average margin, indicating consistent underperformance. L10 record of 4-3-3 shows even results with no positive momentum despite a W1 streak.",
+          "injury_impact": "No players OUT or GTD allows the full roster and star players to contribute at maximum potential.",
+          "situational_flags": "2 rest days with no B2B, road trip, or home stand concerns present neutral fatigue and schedule factors.",
+          "grade_reasoning": "Downgrade from math B- due to severe offensive concerns (2/10 ranking, 2.65 PPG L5) outweighing defensive strengths and health, reducing overall betting value as a pick.",
+          "key_edge": "Dismal L5 offense at 2.65 PPG hampers win probability against average opponents.",
+          "confidence": "high"
+        },
         "deepseek": {
           "model": "deepseek",
           "model_name": "DeepSeek-V3.2",
           "status": "ok",
           "grade": "D",
-          "score": 3.0,
+          "score": 4.0,
           "sizing": "PASS",
-          "form_assessment": "Fade \u2014 The team is in a severe slump with an 0-5 record in their last 5 games and a staggering 0-10 record against the spread (ATS) in their last 10, indicating they are consistently underperforming market expectations. The average margin of +0.0 over L5 and L10 suggests they are not just losing, but doing so without any competitive firepower.",
-          "injury_impact": "The roster is at full strength with no players listed OUT or GTD, providing no built-in injury excuse for their poor performance.",
-          "situational_flags": "No immediate fatigue concerns as they are not on a back-to-back and have no road trip or homestand game number indicated, suggesting a neutral schedule spot.",
-          "grade_reasoning": "I strongly disagree; a B- grade is far too generous for a team that is 0-5 and 0-10 ATS. The math model overweights perfect health and neutral pace, while severely underweighting the catastrophic recent form and ATS trend, which are the primary drivers of betting value.",
-          "key_edge": "The team is a proven and consistent money-burner, going 0-10 ATS in its last 10 games.",
+          "form_assessment": "Fade \u2014 The L5 record of 2-1-2 is mediocre, but the underlying metrics are poor, with a negative goal differential (-0.6 avg margin) driven by an anemic offense (2.65 PPG L5) that significantly underperforms their season average. The defense is also a concern, allowing 3.21 goals against, making them a high-risk, low-reward asset.",
+          "injury_impact": "With no players listed OUT or GTD, the team is at full strength, maximizing their potential ceiling.",
+          "situational_flags": "Having 2 days of rest with no back-to-back or extended road/home stand provides a neutral to slight freshness advantage.",
+          "grade_reasoning": "The math grade of B- is too generous for a betting asset; a team with such severe offensive struggles (2.65 PPG) and negative goal differential, despite full health, presents very little betting value and should be graded as a clear fade.",
+          "key_edge": "Severely underperforming offense (2.65 PPG L5) makes them unreliable to cover spreads or win games outright.",
           "confidence": "high"
         }
       },
       "consensus": {
-        "grade": "D",
-        "avg_score": 3.5,
+        "grade": "C+",
+        "avg_score": 5.0,
         "sizing": "PASS",
-        "models_ok": 2,
+        "models_ok": 3,
         "grades": [
+          "C+",
           "C",
           "D"
         ]

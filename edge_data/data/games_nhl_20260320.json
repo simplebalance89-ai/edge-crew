@@ -1,7 +1,7 @@
 {
   "sport": "NHL",
   "date": "2026-03-20",
-  "fetched_at": "2026-03-20T14:14:48.859212",
+  "fetched_at": "2026-03-20T14:55:53.504629",
   "games": [
     {
       "game_id": "nhl_20260320_1",
@@ -13,15 +13,15 @@
       "time": "2026-03-20T19:00",
       "odds": {
         "spread_home": "+1.5",
-        "spread_home_odds": "-135",
+        "spread_home_odds": "-132",
         "spread_away": "-1.5",
-        "spread_away_odds": "+114",
-        "total": "6.5",
-        "over_odds": "+102",
-        "under_odds": "-124",
+        "spread_away_odds": "+110",
+        "total": null,
+        "over_odds": "-105",
+        "under_odds": "-115",
         "ml_home": "+180",
-        "ml_away": "-218",
-        "provider": "consensus"
+        "ml_away": "-222",
+        "provider": "SGO"
       },
       "home_profile": {
         "L5": "1-2-2",
@@ -96,13 +96,13 @@
         "spread_home": "-1.5",
         "spread_home_odds": "+185",
         "spread_away": "+1.5",
-        "spread_away_odds": "-225",
-        "total": "5.5",
-        "over_odds": "-122",
-        "under_odds": "+102",
-        "ml_home": "-130",
+        "spread_away_odds": "-230",
+        "total": null,
+        "over_odds": "-110",
+        "under_odds": "-110",
+        "ml_home": "-133",
         "ml_away": "+110",
-        "provider": "consensus"
+        "provider": "SGO"
       },
       "home_profile": {
         "L5": "3-2-0",
@@ -158,15 +158,15 @@
       "time": "2026-03-20T20:30",
       "odds": {
         "spread_home": "+1.5",
-        "spread_home_odds": "-110",
+        "spread_home_odds": "+112",
         "spread_away": "-1.5",
-        "spread_away_odds": "-110",
-        "total": "6.5",
-        "over_odds": "-105",
-        "under_odds": "-125",
-        "ml_home": "+210",
-        "ml_away": "-258",
-        "provider": "consensus"
+        "spread_away_odds": "-133",
+        "total": null,
+        "over_odds": "+100",
+        "under_odds": "-120",
+        "ml_home": "+270",
+        "ml_away": "-340",
+        "provider": "SGO"
       },
       "home_profile": {
         "L5": "2-1-2",
@@ -240,13 +240,13 @@
         "spread_home": "+1.5",
         "spread_home_odds": "-285",
         "spread_away": "-1.5",
-        "spread_away_odds": "+230",
-        "total": "5.5",
-        "over_odds": "-120",
-        "under_odds": "+100",
-        "ml_home": "+105",
-        "ml_away": "-115",
-        "provider": "consensus"
+        "spread_away_odds": "+222",
+        "total": null,
+        "over_odds": "-130",
+        "under_odds": "+109",
+        "ml_home": "-110",
+        "ml_away": "-110",
+        "provider": "SGO"
       },
       "home_profile": {
         "L5": "2-3-0",
@@ -339,15 +339,15 @@
       "time": "2026-03-20T22:00",
       "odds": {
         "spread_home": "-1.5",
-        "spread_home_odds": "+165",
+        "spread_home_odds": "+180",
         "spread_away": "+1.5",
-        "spread_away_odds": "-200",
-        "total": "6.5",
-        "over_odds": "-115",
-        "under_odds": "-105",
-        "ml_home": "-122",
-        "ml_away": "+102",
-        "provider": "consensus"
+        "spread_away_odds": "-222",
+        "total": null,
+        "over_odds": "-123",
+        "under_odds": "+103",
+        "ml_home": "-137",
+        "ml_away": "+115",
+        "provider": "SGO"
       },
       "home_profile": {
         "L5": "2-2-1",
@@ -393,5 +393,6 @@
       },
       "props": []
     }
-  ]
+  ],
+  "count": 5
 }

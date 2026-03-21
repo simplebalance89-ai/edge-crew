@@ -12650,20 +12650,24 @@ async def get_profedge(sport: str):
     race_data = None
     used_date = today
 
-    # Scan for all game files for this sport, pick most recent
+    # Scan for all game files for this sport, pick highest date (upcoming games)
     import glob as _glob
-    game_files = sorted(
-        _glob.glob(str(EDGE_DATA_DIR / f"games_{sport_key}_*.json")),
-        reverse=True
-    )
+    game_files = _glob.glob(str(EDGE_DATA_DIR / f"games_{sport_key}_*.json"))
+    # Sort by extracted date from filename (not full path) to ensure correct ordering
+    def _extract_date(fp):
+        return Path(fp).stem.split("_")[-1]
+    game_files.sort(key=_extract_date, reverse=True)
+    logger.info(f"[profedge] {sport_key}: found {len(game_files)} files, "
+                f"candidates: {[_extract_date(f) for f in game_files[:3]]}")
     for gf_path in game_files:
         try:
             with open(gf_path, "r", encoding="utf-8") as f:
                 games_data = json.load(f)
-            # Extract date from filename: games_nba_20260319.json -> 20260319
-            used_date = Path(gf_path).stem.split("_")[-1]
+            used_date = _extract_date(gf_path)
+            logger.info(f"[profedge] {sport_key}: using date {used_date} from {Path(gf_path).name}")
             break
-        except Exception:
+        except Exception as exc:
+            logger.warning(f"[profedge] {sport_key}: failed to load {Path(gf_path).name}: {exc}")
             continue
 
     if not games_data:
@@ -12905,6 +12909,8 @@ async def get_profedge(sport: str):
         "total": len(merged),
         "graded": sum(1 for m in merged if m.get("grade")),
         "updated_at": games_data.get("fetched_at", ""),
+        "data_dir": str(EDGE_DATA_DIR),
+        "file_count": len(game_files),
         "matrix": [{"name": v[0], "weight": v[1], "desc": v[2]} for v in sport_matrix],
         "matrix_count": len(sport_matrix),
         "chains": [{"name": c["name"], "desc": c["desc"], "bonus": c["bonus"]} for c in sport_chains],
