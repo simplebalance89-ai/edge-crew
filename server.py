@@ -1966,37 +1966,38 @@ SOCCER_MATRIX = [
 ]
 
 NCAAB_MATRIX = [
-    # Tier 1 — Weight 9 (Core Edge Drivers)
+    # Tier 1 — Weight 10 (Core Edge Drivers)
     ("thesis_edge", 10, "Core thesis — why is the market WRONG? Strength of the specific edge identified"),
+    # Tier 2 — Weight 9 (Primary Signals)
     ("defensive_efficiency", 9, "KenPom/Torvik adjusted defensive efficiency — most stable predictor, defense travels"),
     ("offensive_efficiency", 9, "KenPom/Torvik adjusted offensive efficiency — foundational, pair with regression check"),
-    ("line_movement", 9, "Line movement since open — sharp money signal, most direct mispricing indicator"),
-    ("coaching_tournament_record", 9, "Coach's tournament track record — March coaching is a different skill, strongest consensus signal"),
-    ("public_money_bias", 9, "Blue blood public bias — March brand bias is the #1 market error. Duke/UK/UNC get hammered by public"),
-    # Tier 2 — Weight 8 (High-Priority Situational)
-    ("tempo_matchup", 8, "Pace/tempo matchup — pace shock creates spread edges on neutral floors"),
-    ("three_pt_reliance", 8, "3PT shooting reliance vs opponent 3PT defense — single-elimination amplifies variance massively"),
-    ("tournament_context", 8, "Tournament context — elimination pressure, round dynamics, seeding, bye advantage"),
-    ("neutral_site_performance", 8, "Team efficiency splits home vs neutral court — some teams crater off-campus, gap >5 pts = mispriced"),
-    ("public_brand_fade", 8, "Quantified contrarian signal when >70% public on blue bloods but metrics favor the dog"),
-    ("travel_rest_disparity", 8, "Rest days + cross-country travel gap — West Coast teams playing noon EST underperform, 2+ day rest edge ~2 pts"),
-    ("bench_depth", 8, "Rotation depth — foul trouble and back-to-back fatigue critical in tournament"),
-    # Tier 3 — Weight 7 (Fundamentals and Multipliers)
-    ("turnover_margin", 7, "Turnover margin — turnover resistance critical in March pressure"),
+    ("regression_markers", 9, "Cluster luck composite: unsustainable 3PT%, FT luck, TO luck, close-game luck, shot quality luck — market slow to adjust, biggest March pricing inefficiency"),
+    ("public_market_bias", 9, "Merged public money + brand fade — blue blood public bias is the #1 market error. Quantified contrarian signal when >70% public on name brands but metrics favor the dog"),
+    ("travel_rest_disparity", 9, "Rest days + cross-country travel + timezone drag — West Coast teams playing noon EST underperform, 2+ day rest edge ~2 pts, brutally underrated in opening rounds"),
+    ("bench_depth", 9, "Rotation depth — foul trouble, back-to-back fatigue, compressed tournament schedule makes depth massively undervalued by market"),
+    # Tier 3 — Weight 8 (High-Priority Situational)
+    ("tempo_matchup", 8, "Pace/tempo matchup + pace control ability — pace shock creates spread edges on neutral floors, slow team dictating pace is undervalued"),
+    ("three_pt_variance", 8, "3PT shooting reliance vs opponent 3PT defense — single-elimination amplifies variance, teams >45% of points from 3 are fade candidates as favorites"),
+    ("tournament_context", 8, "Tournament context — elimination pressure, round dynamics, seeding, bye advantage, motivation/bubble desperation"),
+    ("line_movement", 8, "Line movement since open — sharp money signal, steam timing, book resistance. Pair with public_market_bias for full picture"),
+    ("turnover_margin", 8, "Turnover margin — TO resistance critical in March pressure, underrated variance controller in one-and-done"),
+    ("clutch_execution", 8, "Merged FT shooting + late-game fundamentals — FT%, press break ability, TO rate under pressure last 5 min, timeout play efficiency"),
+    ("shot_quality", 7, "Shot quality differential — rim rate vs midrange reliance, points per shot. Teams with bad shot distribution collapse vs elite defenses in March"),
+    # Tier 4 — Weight 7 (Fundamentals and Multipliers)
+    ("experience_maturity", 7, "Returning tournament minutes + upperclassmen % — teams with multiple players having prior tourney experience outperform under pressure, freshman guards collapse in clutch"),
+    ("defensive_scheme_mismatch", 7, "Scheme-specific matchup — zone vs poor zone offense, press vs low assist/TO teams, pack-line vs iso-heavy. Scheme beats talent in single-elimination"),
+    ("neutral_site_adj", 7, "Merged neutral site performance + venue effects — efficiency splits home vs neutral, shooting backdrop, proximity. Capped due to small sample noise"),
     ("rebounding", 7, "Offensive + defensive rebounding differential — extra possessions in grinding tournament games"),
-    ("ft_shooting", 7, "Free throw shooting % and FTA rate — close tournament games decided at the line"),
-    ("regression_markers", 7, "Composite: unsustainable 3PT%, FT luck, TO luck, close-game luck — market slow to adjust"),
-    ("late_game_fundamentals", 7, "FT%, press break ability, TO rate under pressure last 5 min — March games decided here"),
     ("conference_tourney_fatigue", 7, "3+ conf tourney games on short rest — Sunday champs fading Thursday, auto-fade signal"),
     ("net_ranking_gap", 7, "NET/RPI ranking differential — seed vs efficiency mismatches"),
-    ("recent_form", 7, "Recent form / streak (last 5-10 games) — must pair with regression markers"),
-    # Tier 4 — Weight 6 (Niche and Regression Flags)
-    ("star_player_status", 6, "Key player out/limited — market already prices injuries, depth matters more in March"),
-    ("ats_trend", 6, "ATS trend — backward-looking, regular season ATS is noise in tournament, use as minor context"),
-    ("referee_whistle_profile", 6, "Ref crew foul rate tendencies — high-foul crews boost physical underdogs, hurt star-dependent teams"),
-    ("foul_trouble_risk", 6, "Star-dependent teams vulnerable to whistle variance — volatility favors dogs"),
-    ("conference_strength", 6, "Strength of schedule adjustment — fake defense detection for weak-conference teams"),
-    ("neutral_site", 6, "Venue-specific shooting backdrop effects — proximity to venue matters"),
+    ("coaching_tournament_record", 7, "Coach's tournament track record — useful for extreme cases but overrated vs roster construction, market already prices pedigree"),
+    ("foul_environment", 7, "Merged foul trouble risk + ref whistle profile — ref crew foul rate + star-dependent teams vulnerable to whistle variance, high-foul crews boost physical underdogs"),
+    # Tier 5 — Weight 6 (Context and Flags)
+    ("star_player_status", 6, "Key player out/limited — market usually prices injuries efficiently, depth matters more in March"),
+    ("recent_form", 6, "Recent form / streak (last 5-10 games) — must pair with regression markers, recency trap risk"),
+    ("conference_strength", 6, "Strength of schedule adjustment — fake defense detection for weak-conference teams, mid-major metric inflation"),
+    # Tier 6 — Weight 3 (Noise)
+    ("ats_trend", 3, "ATS trend — regular season ATS is pure noise in tournament, use as minor context only"),
 ]
 
 MLB_MATRIX = [
@@ -2322,51 +2323,63 @@ CHAINS = {
     "ncaab": [
         {
             "name": "TEMPO TRAP",
-            "desc": "Pace mismatch + public on the fast team + 3PT variance — book undervalues tempo",
+            "desc": "Pace mismatch + public on the fast team + 3PT variance — book undervalues tempo dictation",
             "bonus": 2.0,
-            "vars": {"tempo_matchup": (">=", 8), "three_pt_reliance": (">=", 7), "public_money_bias": (">=", 7)},
+            "vars": {"tempo_matchup": (">=", 8), "three_pt_variance": (">=", 7), "public_market_bias": (">=", 7)},
         },
         {
             "name": "BRAND TAX FADE",
-            "desc": "Public >70% on blue blood + line moves WITH public + metrics favor the dog — biggest March market error",
-            "bonus": 2.0,
-            "vars": {"public_money_bias": (">=", 8), "public_brand_fade": (">=", 7), "line_movement": ("<=", 4)},
+            "desc": "Public >70% on blue blood + line moves WITH public + regression flags align — biggest March market error",
+            "bonus": 2.5,
+            "vars": {"public_market_bias": (">=", 8), "line_movement": ("<=", 4), "regression_markers": (">=", 6)},
         },
         {
             "name": "CINDERELLA SIGNAL",
-            "desc": "Mid-major with top-50 D + low TO rate + sustainable shooting — classic tournament upset profile",
+            "desc": "Mid-major with top-50 D + low TO rate + experienced roster — classic tournament upset profile",
             "bonus": 2.0,
-            "vars": {"defensive_efficiency": (">=", 7), "turnover_margin": (">=", 7), "net_ranking_gap": (">=", 7), "recent_form": (">=", 7)},
+            "vars": {"defensive_efficiency": (">=", 7), "turnover_margin": (">=", 7), "net_ranking_gap": (">=", 7), "experience_maturity": (">=", 6)},
         },
         {
             "name": "REGRESSION WAVE",
-            "desc": "Hot streak + 2+ regression markers flagged (unsustainable 3PT/FT/TO luck) — fade the streak",
+            "desc": "Hot streak + cluster luck flags (unsustainable 3PT/FT/TO/shot quality luck) — fade the streak",
             "bonus": 2.0,
-            "vars": {"recent_form": (">=", 8), "regression_markers": (">=", 7)},
+            "vars": {"recent_form": (">=", 7), "regression_markers": (">=", 8)},
         },
         {
             "name": "TRAVEL BODY CLOCK",
             "desc": "West Coast team + early EST tip + travel >1000mi — market undervalues fatigue/time zone",
             "bonus": 2.0,
-            "vars": {"travel_rest_disparity": (">=", 7), "neutral_site_performance": (">=", 6)},
+            "vars": {"travel_rest_disparity": (">=", 7), "neutral_site_adj": (">=", 6)},
         },
         {
             "name": "COACHING COMFORT",
-            "desc": "Coach 4+ tourney wins vs coach <2 tourney wins — experience premium unpriced in early rounds",
+            "desc": "Coach 4+ tourney wins + experienced roster vs inexperienced opponent — clutch edge unpriced in early rounds",
             "bonus": 1.5,
-            "vars": {"coaching_tournament_record": (">=", 8), "tournament_context": (">=", 7)},
+            "vars": {"coaching_tournament_record": (">=", 7), "experience_maturity": (">=", 7), "tournament_context": (">=", 7)},
         },
         {
-            "name": "REF WHISTLE EDGE",
-            "desc": "High-foul ref crew + physical underdog + star-dependent favorite — whistle variance favors depth teams",
-            "bonus": 1.5,
-            "vars": {"referee_whistle_profile": (">=", 7), "foul_trouble_risk": (">=", 7), "bench_depth": (">=", 7)},
+            "name": "FOUL CASCADE",
+            "desc": "Star-reliant roster + shallow bench + high-foul ref crew — foul trouble creates 2-4 pt ATS swing rarely priced",
+            "bonus": 2.0,
+            "vars": {"foul_environment": (">=", 7), "bench_depth": ("<=", 4), "star_player_status": (">=", 5)},
         },
         {
             "name": "TIRED LEGS TAX",
             "desc": "3+ conf tourney games + <2 days rest before NCAA Round 1 — fade in 1H spreads, fatigue shows early",
             "bonus": 1.5,
             "vars": {"conference_tourney_fatigue": (">=", 7), "travel_rest_disparity": (">=", 6), "bench_depth": ("<=", 5)},
+        },
+        {
+            "name": "SCHEME BREAKER",
+            "desc": "Opponent plays zone/press + team can't solve it + public on favorite — zone slows pace, press creates TOs, market misses scheme edge",
+            "bonus": 2.0,
+            "vars": {"defensive_scheme_mismatch": (">=", 7), "turnover_margin": ("<=", 4), "public_market_bias": (">=", 6)},
+        },
+        {
+            "name": "SHOT QUALITY COLLAPSE",
+            "desc": "Opponent relies on bad shot distribution (midrange heavy) + elite D defending those zones + pace down — efficiency drought",
+            "bonus": 1.5,
+            "vars": {"shot_quality": (">=", 7), "defensive_efficiency": (">=", 8), "tempo_matchup": (">=", 6)},
         },
     ],
     "mlb": [
@@ -2829,9 +2842,10 @@ async def _fetch_api_sports(sport_lower):
     try:
         async with httpx.AsyncClient(timeout=15.0) as client:
             if sport_lower == "soccer":
-                # Football: get fixtures for today across our leagues
+                # Football: fixtures + predictions (xG, form, H2H, standings) + lineups
                 leagues = API_SPORTS_LEAGUES.get("soccer", [])
                 all_fixtures = []
+                team_ids_seen = {}  # team_name -> (team_id, league_id)
                 for league_id in leagues:
                     resp = await client.get(
                         f"https://{host}/fixtures",
@@ -2846,13 +2860,18 @@ async def _fetch_api_sports(sport_lower):
                     parts.append(f"API-SPORTS SOCCER FIXTURES ({len(all_fixtures)} games today):")
                     for fix in all_fixtures[:20]:
                         fid = fix["fixture"]["id"]
-                        home = fix["teams"]["home"]["name"]
-                        away = fix["teams"]["away"]["name"]
+                        home_team = fix["teams"]["home"]
+                        away_team = fix["teams"]["away"]
+                        home = home_team["name"]
+                        away = away_team["name"]
                         status = fix["fixture"]["status"]["long"]
                         league_name = fix.get("league", {}).get("name", "?")
+                        league_id = fix.get("league", {}).get("id", 0)
                         parts.append(f"  {away} @ {home} ({league_name}) | {status}")
+                        team_ids_seen[home] = (home_team.get("id"), league_id)
+                        team_ids_seen[away] = (away_team.get("id"), league_id)
 
-                        # Fetch lineups for each fixture (only if started/finished or close to start)
+                        # Fetch lineups
                         if status in ("Not Started", "First Half", "Second Half", "Halftime"):
                             try:
                                 lr = await client.get(
@@ -2870,6 +2889,80 @@ async def _fetch_api_sports(sport_lower):
                                             parts.append(f"    {tname} ({formation}): {', '.join(starters)}")
                             except Exception:
                                 pass
+
+                        # Fetch predictions — includes form, xG comparison, goals, clean sheets, BTTS, H2H
+                        try:
+                            pr = await client.get(
+                                f"https://{host}/predictions",
+                                params={"fixture": fid},
+                                headers=headers,
+                            )
+                            if pr.status_code == 200:
+                                pred_data = pr.json().get("response", [])
+                                if pred_data:
+                                    pred = pred_data[0] if isinstance(pred_data, list) else pred_data
+                                    advice = pred.get("predictions", {}).get("advice", "")
+                                    winner = pred.get("predictions", {}).get("winner", {}).get("name", "")
+                                    pct = pred.get("predictions", {}).get("percent", {})
+                                    comp = pred.get("comparison", {})
+                                    parts.append(f"    PREDICTION: {advice} | Winner: {winner} | H:{pct.get('home','')} D:{pct.get('draw','')} A:{pct.get('away','')}")
+                                    if comp:
+                                        for metric, vals in comp.items():
+                                            parts.append(f"      {metric}: Home={vals.get('home','')} Away={vals.get('away','')}")
+                                    # Team form + season stats from predictions endpoint
+                                    for side in ("home", "away"):
+                                        team_info = pred.get("teams", {}).get(side, {})
+                                        last5 = team_info.get("last_5", {})
+                                        league_info = team_info.get("league", {})
+                                        if last5:
+                                            form_str = last5.get("form", "")
+                                            gf = last5.get("goals", {}).get("for", {}).get("total", 0)
+                                            ga = last5.get("goals", {}).get("against", {}).get("total", 0)
+                                            atk = last5.get("att", "")
+                                            dfn = last5.get("def", "")
+                                            parts.append(f"      {side.upper()} L5: Form={form_str} GF={gf} GA={ga} ATK={atk} DEF={dfn}")
+                                        if league_info:
+                                            form_all = league_info.get("form", "")
+                                            fx = league_info.get("fixtures", {})
+                                            goals = league_info.get("goals", {})
+                                            cs = league_info.get("clean_sheet", {})
+                                            btts_data = league_info.get("both_teams_score", {})  # noqa: F841
+                                            parts.append(f"      {side.upper()} SEASON: Form={form_all} W={fx.get('wins',{}).get('total','')} D={fx.get('draws',{}).get('total','')} L={fx.get('loses',{}).get('total','')}")
+                                            gf_t = goals.get("for", {}).get("total", {}).get("total", "")
+                                            ga_t = goals.get("against", {}).get("total", {}).get("total", "")
+                                            gf_a = goals.get("for", {}).get("average", {}).get("total", "")
+                                            ga_a = goals.get("against", {}).get("average", {}).get("total", "")
+                                            parts.append(f"      {side.upper()} GOALS: GF={gf_t}({gf_a}/g) GA={ga_t}({ga_a}/g) CS={cs.get('total','')}")
+                        except Exception as e:
+                            print(f"API-Sports prediction fetch error (fixture {fid}): {e}")
+
+                # Standings for each league with games today
+                leagues_with_games = set(lid for _, lid in team_ids_seen.values() if lid)
+                for lid in leagues_with_games:
+                    try:
+                        sr = await client.get(
+                            f"https://{host}/standings",
+                            params={"league": lid, "season": 2025},
+                            headers=headers,
+                        )
+                        if sr.status_code == 200:
+                            standings_data = sr.json().get("response", [])
+                            if standings_data:
+                                league_standings = standings_data[0].get("league", {})
+                                league_sname = league_standings.get("name", "?")
+                                standings_list = league_standings.get("standings", [[]])[0]
+                                parts.append(f"\n  STANDINGS — {league_sname}:")
+                                for s in standings_list[:25]:
+                                    tname = s.get("team", {}).get("name", "?")
+                                    rank = s.get("rank", "?")
+                                    pts = s.get("points", 0)
+                                    gd = s.get("goalsDiff", 0)
+                                    form = s.get("form", "")
+                                    desc = s.get("description", "") or ""
+                                    marker = ">>>" if tname in team_ids_seen else ""
+                                    parts.append(f"    {marker}#{rank} {tname} | {pts}pts GD={gd:+d} Form={form} {desc}".rstrip())
+                    except Exception as e:
+                        print(f"API-Sports standings fetch error (league {lid}): {e}")
 
             elif sport_lower == "nba":
                 resp = await client.get(
