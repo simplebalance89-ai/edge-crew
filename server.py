@@ -9012,6 +9012,108 @@ async def reply_dj_feedback(note_id: str, request: Request):
     return JSONResponse({"error": "Note not found"}, status_code=404)
 
 
+# ── CREW MESSAGE BOARD (universal, per-profile) ──────────────────────
+CREW_BOARD_FILE = os.path.join(DATA_DIR, "crew_board.json")
+
+
+def _read_crew_board() -> dict:
+    try:
+        if os.path.exists(CREW_BOARD_FILE):
+            with open(CREW_BOARD_FILE, "r") as f:
+                return json.load(f)
+    except Exception as e:
+        logger.error(f"Error reading crew board: {e}")
+    return {}
+
+
+def _write_crew_board(data: dict):
+    try:
+        os.makedirs(os.path.dirname(CREW_BOARD_FILE), exist_ok=True)
+        with open(CREW_BOARD_FILE, "w") as f:
+            json.dump(data, f, indent=2)
+    except Exception as e:
+        logger.error(f"Error writing crew board: {e}")
+
+
+@app.get("/api/crew-board/{member}")
+async def get_crew_board(member: str):
+    """Get all sticky posts for a crew member's profile."""
+    data = _read_crew_board()
+    posts = data.get(member, [])
+    posts.sort(key=lambda p: p.get("pinned", False), reverse=True)
+    return JSONResponse({"member": member, "posts": posts, "count": len(posts)})
+
+
+@app.post("/api/crew-board/{member}")
+async def post_crew_board(member: str, request: Request):
+    """Post a sticky message to a crew member's board."""
+    body = await request.json()
+    message = body.get("message", "").strip()
+    if not message:
+        return JSONResponse({"error": "Message required"}, status_code=400)
+
+    post = {
+        "id": f"cb_{uuid.uuid4().hex[:10]}",
+        "from": body.get("from", "Peter"),
+        "message": message,
+        "pinned": body.get("pinned", False),
+        "timestamp": datetime.now(PST).strftime("%Y-%m-%d %H:%M"),
+        "replies": [],
+    }
+
+    data = _read_crew_board()
+    if member not in data:
+        data[member] = []
+    data[member].append(post)
+    _write_crew_board(data)
+    logger.info(f"[CREW BOARD] {member}: {message[:80]}")
+
+    return JSONResponse({"status": "ok", "post": post})
+
+
+@app.post("/api/crew-board/{member}/{post_id}/reply")
+async def reply_crew_board(member: str, post_id: str, request: Request):
+    """Reply to a crew board post."""
+    body = await request.json()
+    reply = body.get("reply", "").strip()
+    if not reply:
+        return JSONResponse({"error": "Reply required"}, status_code=400)
+
+    data = _read_crew_board()
+    for post in data.get(member, []):
+        if post.get("id") == post_id:
+            post["replies"].append({
+                "from": body.get("from", "Peter"),
+                "message": reply,
+                "timestamp": datetime.now(PST).strftime("%Y-%m-%d %H:%M"),
+            })
+            _write_crew_board(data)
+            return JSONResponse({"status": "ok", "post": post})
+    return JSONResponse({"error": "Post not found"}, status_code=404)
+
+
+@app.delete("/api/crew-board/{member}/{post_id}")
+async def delete_crew_board_post(member: str, post_id: str):
+    """Delete a crew board post."""
+    data = _read_crew_board()
+    posts = data.get(member, [])
+    data[member] = [p for p in posts if p.get("id") != post_id]
+    _write_crew_board(data)
+    return JSONResponse({"status": "ok"})
+
+
+@app.patch("/api/crew-board/{member}/{post_id}/pin")
+async def pin_crew_board_post(member: str, post_id: str):
+    """Toggle pin on a crew board post."""
+    data = _read_crew_board()
+    for post in data.get(member, []):
+        if post.get("id") == post_id:
+            post["pinned"] = not post.get("pinned", False)
+            _write_crew_board(data)
+            return JSONResponse({"status": "ok", "pinned": post["pinned"]})
+    return JSONResponse({"error": "Post not found"}, status_code=404)
+
+
 @app.post("/api/prop-board/backfill")
 async def backfill_prop_board():
     """One-time: re-scan historical prop wins and populate board for 25%+ crushers."""

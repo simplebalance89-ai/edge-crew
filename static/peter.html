@@ -83,6 +83,7 @@ body { background:#0a0a0f; color:#fff; font-family:-apple-system,BlinkMacSystemF
 <div class="tabs">
     <div class="tab active" onclick="switchTab('games')">NBA GAMES</div>
     <div class="tab" onclick="switchTab('matrix')">MY MATRIX</div>
+    <div class="tab" onclick="switchTab('board')">BOARD</div>
 </div>
 
 <div class="stats-bar" id="statsBar"></div>
@@ -128,6 +129,18 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+<div class="panel" id="panelBoard">
+    <div id="boardView" style="padding:16px;">
+      <div id="boardContainer"></div>
+      <div style="position:sticky;bottom:0;padding:12px 0;background:#0a0a0f;">
+        <div style="display:flex;gap:8px;">
+          <input id="boardInput" type="text" placeholder="Drop a message..." onkeydown="if(event.key==='Enter')postMessage()" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:10px 14px;color:#fff;font-size:13px;">
+          <button onclick="postMessage()" style="background:#F59E0B;color:#000;border:none;border-radius:6px;padding:10px 18px;font-weight:800;font-size:12px;cursor:pointer;">POST</button>
+        </div>
+      </div>
+    </div>
+</div>
+
 <div class="panel" id="panelMatrix">
     <div class="loading" id="matrixLoading">Loading matrix...</div>
     <div id="matrixContent" style="display:none;">
@@ -158,10 +171,14 @@ function switchTab(tab) {
     if (tab === 'games') {
         document.querySelectorAll('.tab')[0].classList.add('active');
         document.getElementById('panelGames').classList.add('active');
-    } else {
+    } else if (tab === 'matrix') {
         document.querySelectorAll('.tab')[1].classList.add('active');
         document.getElementById('panelMatrix').classList.add('active');
         if (_matrixData.length === 0) loadMatrix();
+    } else if (tab === 'board') {
+        document.querySelectorAll('.tab')[2].classList.add('active');
+        document.getElementById('panelBoard').classList.add('active');
+        loadBoard();
     }
 }
 
@@ -597,6 +614,85 @@ function saveMatrix() {
         btn.disabled = false;
         btn.textContent = 'SAVE MY WEIGHTS';
     });
+}
+
+// ── BOARD ──
+function loadBoard() {
+  var container = document.getElementById('boardContainer');
+  container.innerHTML = '<div style="text-align:center;padding:20px;color:rgba(255,255,255,0.3);">Loading...</div>';
+  fetch('/api/crew-board/peter')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      var posts = data.posts || [];
+      if (!posts.length) {
+        container.innerHTML = '<div style="text-align:center;padding:40px;color:rgba(255,255,255,0.3);">No messages yet.</div>';
+        return;
+      }
+      var html = '';
+      posts.forEach(function(p) {
+        var pinIcon = p.pinned ? '📌 ' : '';
+        var replies = (p.replies || []).map(function(r) {
+          return '<div style="margin:6px 0 0 16px;padding:8px 12px;background:rgba(255,255,255,0.03);border-radius:6px;border-left:2px solid #F59E0B;">' +
+            '<div style="font-size:10px;color:rgba(255,255,255,0.35);">' + r.from + ' \u00b7 ' + r.timestamp + '</div>' +
+            '<div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:2px;">' + r.message + '</div>' +
+          '</div>';
+        }).join('');
+        html += '<div style="padding:12px 16px;margin:6px 0;background:rgba(255,255,255,0.04);border-radius:8px;border:1px solid rgba(255,255,255,0.06);' + (p.pinned ? 'border-left:3px solid #F59E0B;' : '') + '">' +
+          '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+            '<div style="font-size:10px;color:rgba(255,255,255,0.35);">' + pinIcon + p.from + ' \u00b7 ' + p.timestamp + '</div>' +
+            '<div style="display:flex;gap:8px;">' +
+              '<span onclick="pinPost(\'' + p.id + '\')" style="cursor:pointer;font-size:10px;color:rgba(255,255,255,0.25);">' + (p.pinned ? 'unpin' : 'pin') + '</span>' +
+              '<span onclick="deletePost(\'' + p.id + '\')" style="cursor:pointer;font-size:10px;color:rgba(255,100,100,0.4);">\u2715</span>' +
+            '</div>' +
+          '</div>' +
+          '<div style="font-size:13px;color:rgba(255,255,255,0.8);margin-top:6px;line-height:1.5;">' + p.message + '</div>' +
+          replies +
+          '<div style="margin-top:8px;">' +
+            '<span onclick="toggleReply(\'' + p.id + '\')" style="cursor:pointer;font-size:10px;color:#F59E0B;">reply</span>' +
+            '<div id="reply-' + p.id + '" style="display:none;margin-top:6px;">' +
+              '<input id="replyInput-' + p.id + '" type="text" placeholder="Reply..." style="width:calc(100% - 60px);background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:4px;padding:6px 10px;color:#fff;font-size:12px;">' +
+              '<button onclick="sendReply(\'' + p.id + '\')" style="margin-left:4px;background:#F59E0B;color:#000;border:none;border-radius:4px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;">Send</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      });
+      container.innerHTML = html;
+    });
+}
+
+function postMessage() {
+  var input = document.getElementById('boardInput');
+  var msg = input.value.trim();
+  if (!msg) return;
+  fetch('/api/crew-board/peter', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ message: msg, from: 'Peter' })
+  }).then(function() { input.value = ''; loadBoard(); });
+}
+
+function pinPost(id) {
+  fetch('/api/crew-board/peter/' + id + '/pin', { method: 'PATCH' }).then(function() { loadBoard(); });
+}
+
+function deletePost(id) {
+  fetch('/api/crew-board/peter/' + id, { method: 'DELETE' }).then(function() { loadBoard(); });
+}
+
+function toggleReply(id) {
+  var el = document.getElementById('reply-' + id);
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function sendReply(id) {
+  var input = document.getElementById('replyInput-' + id);
+  var msg = input.value.trim();
+  if (!msg) return;
+  fetch('/api/crew-board/peter/' + id + '/reply', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ reply: msg, from: 'Peter' })
+  }).then(function() { input.value = ''; loadBoard(); });
 }
 
 // ── INIT ──
