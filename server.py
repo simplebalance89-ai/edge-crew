@@ -1420,15 +1420,15 @@ THINKER_ENDPOINT = os.environ.get("THINKER_ENDPOINT", "https://pwgcerp-9302-reso
 # Sport-specific thinker models — Grok for NBA (best edge analysis), gpt-4.1 for speed sports
 SPORT_MODELS = {
     "nba": {"thinker": "grok-4-1-fast-reasoning", "timeout": 300},
-    "nhl": {"thinker": "gpt-4.1", "timeout": 90},
+    "nhl": {"thinker": "grok-4-1-fast-reasoning", "timeout": 180},
     "ncaab": {"thinker": "grok-4-1-fast-reasoning", "timeout": 240},
-    "mlb": {"thinker": "gpt-4.1", "timeout": 90},
-    "mma": {"thinker": "gpt-4.1", "timeout": 90},
-    "boxing": {"thinker": "gpt-4.1", "timeout": 90},
-    "soccer": {"thinker": "gpt-4.1", "timeout": 180},
-    "wnba": {"thinker": "gpt-4.1", "timeout": 90},
-    "ncaaf": {"thinker": "gpt-4.1", "timeout": 90},
-    "tennis": {"thinker": "gpt-4.1", "timeout": 90},
+    "mlb": {"thinker": "grok-4-1-fast-reasoning", "timeout": 180},
+    "mma": {"thinker": "grok-4-1-fast-reasoning", "timeout": 180},
+    "boxing": {"thinker": "grok-4-1-fast-reasoning", "timeout": 180},
+    "soccer": {"thinker": "grok-4-1-fast-reasoning", "timeout": 180},
+    "wnba": {"thinker": "grok-4-1-fast-reasoning", "timeout": 180},
+    "ncaaf": {"thinker": "grok-4-1-fast-reasoning", "timeout": 180},
+    "tennis": {"thinker": "grok-4-1-fast-reasoning", "timeout": 180},
 }
 
 # Anthropic config
