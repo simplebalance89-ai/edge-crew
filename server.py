@@ -1412,23 +1412,23 @@ REALTIME_DEPLOYMENT = "gpt-4o-realtime"
 AZURE_BASE = AZURE_ENDPOINT.rstrip("/")
 
 # Two-model analysis engine: Grok reasons, DeepSeek formats
-ANALYSIS_THINKER = os.environ.get("ANALYSIS_THINKER", "grok-4-1-fast-reasoning")
+ANALYSIS_THINKER = os.environ.get("ANALYSIS_THINKER", "DeepSeek-R1")
 ANALYSIS_FORMATTER = os.environ.get("ANALYSIS_FORMATTER", "DeepSeek-V3.2")
 ANALYSIS_MODE = os.environ.get("ANALYSIS_MODE", "twomodel")  # "twomodel" or "single"
 THINKER_ENDPOINT = os.environ.get("THINKER_ENDPOINT", "https://pwgcerp-9302-resource.services.ai.azure.com/openai/v1/")
 
 # Sport-specific thinker models — Grok for NBA (best edge analysis), gpt-4.1 for speed sports
 SPORT_MODELS = {
-    "nba": {"thinker": "grok-4-1-fast-reasoning", "timeout": 300},
-    "nhl": {"thinker": "grok-4-1-fast-reasoning", "timeout": 180},
-    "ncaab": {"thinker": "grok-4-1-fast-reasoning", "timeout": 240},
-    "mlb": {"thinker": "grok-4-1-fast-reasoning", "timeout": 180},
-    "mma": {"thinker": "grok-4-1-fast-reasoning", "timeout": 180},
-    "boxing": {"thinker": "grok-4-1-fast-reasoning", "timeout": 180},
-    "soccer": {"thinker": "grok-4-1-fast-reasoning", "timeout": 180},
-    "wnba": {"thinker": "grok-4-1-fast-reasoning", "timeout": 180},
-    "ncaaf": {"thinker": "grok-4-1-fast-reasoning", "timeout": 180},
-    "tennis": {"thinker": "grok-4-1-fast-reasoning", "timeout": 180},
+    "nba": {"thinker": "DeepSeek-R1", "timeout": 300},
+    "nhl": {"thinker": "DeepSeek-R1", "timeout": 180},
+    "ncaab": {"thinker": "DeepSeek-R1", "timeout": 240},
+    "mlb": {"thinker": "DeepSeek-R1", "timeout": 180},
+    "mma": {"thinker": "DeepSeek-R1", "timeout": 180},
+    "boxing": {"thinker": "DeepSeek-R1", "timeout": 180},
+    "soccer": {"thinker": "DeepSeek-R1", "timeout": 180},
+    "wnba": {"thinker": "DeepSeek-R1", "timeout": 180},
+    "ncaaf": {"thinker": "DeepSeek-R1", "timeout": 180},
+    "tennis": {"thinker": "DeepSeek-R1", "timeout": 180},
 }
 
 # Anthropic config
@@ -7145,6 +7145,7 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
         # Crowdsource uses DIFFERENT models than the thinker (Grok) and formatter (DeepSeek)
         # B+ or higher consensus = best bet candidate. Split grades = dig deeper flag.
         CROWDSOURCE_MODELS = [
+            {"name": "grok-3", "endpoint": "ai_services", "display": "Grok 3"},
             {"name": "Kimi-K2.5", "endpoint": "ai_services", "display": "Kimi K2.5"},
             {"name": "Mistral-Large-3", "endpoint": "ai_services", "display": "Mistral Large 3"},
             {"name": "qwen-3-32b", "endpoint": "ai_services", "display": "Qwen 3 32B"},
