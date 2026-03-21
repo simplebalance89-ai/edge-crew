@@ -9523,6 +9523,7 @@ async def get_lineups(sport: str):
         "nba": "https://www.cbssports.com/nba/injuries/",
         "wnba": "https://www.cbssports.com/wnba/injuries/",
         "nhl": "https://www.cbssports.com/nhl/injuries/",
+        "mlb": "https://www.cbssports.com/mlb/injuries/",
     }
     cbs_url = CBS_URLS.get(sport_lower)
     if cbs_url:
@@ -9601,6 +9602,9 @@ _ESPN_TEAM_IDS = {
     "nhl": ["ana","ari","bos","buf","car","cgy","chi","col","cbj","dal","det","edm",
             "fla","la","min","mtl","nsh","njd","nyi","nyr","ott","phi","pit","sjs",
             "sea","stl","tb","tor","utah","van","vgk","wpg","wsh"],
+    "mlb": ["ari","atl","bal","bos","chc","chw","cin","cle","col","det","hou","kc",
+            "laa","lad","mia","mil","min","nym","nyy","oak","phi","pit","sd","sf",
+            "sea","stl","tb","tex","tor","wsh"],
 }
 
 @app.get("/api/rosters/{sport}")
@@ -9612,7 +9616,7 @@ async def get_rosters(sport: str):
     if cached:
         return JSONResponse(cached)
 
-    espn_sport = {"nba": "basketball/nba", "wnba": "basketball/wnba", "nhl": "hockey/nhl"}.get(sport_lower)
+    espn_sport = {"nba": "basketball/nba", "wnba": "basketball/wnba", "nhl": "hockey/nhl", "mlb": "baseball/mlb"}.get(sport_lower)
     team_ids = _ESPN_TEAM_IDS.get(sport_lower, [])
     if not espn_sport or not team_ids:
         return JSONResponse({"error": f"No roster source for {sport}"}, status_code=400)
@@ -10462,7 +10466,7 @@ async def debug_injuries(sport: str):
     """Debug endpoint: test CBS Sports injury fetch from this server."""
     import re
     sport_lower = sport.lower()
-    CBS_URLS = {"nba": "https://www.cbssports.com/nba/injuries/", "wnba": "https://www.cbssports.com/wnba/injuries/", "nhl": "https://www.cbssports.com/nhl/injuries/"}
+    CBS_URLS = {"nba": "https://www.cbssports.com/nba/injuries/", "wnba": "https://www.cbssports.com/wnba/injuries/", "nhl": "https://www.cbssports.com/nhl/injuries/", "mlb": "https://www.cbssports.com/mlb/injuries/"}
     url = CBS_URLS.get(sport_lower)
     if not url:
         return JSONResponse({"error": f"No CBS URL for {sport}"})
@@ -10758,6 +10762,7 @@ _ESPN_SPORT_PATHS_CARDS = {
     "nba": "basketball/nba",
     "wnba": "basketball/wnba",
     "nhl": "hockey/nhl",
+    "mlb": "baseball/mlb",
     "soccer": None,
 }
 
