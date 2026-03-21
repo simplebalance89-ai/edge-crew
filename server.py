@@ -1413,7 +1413,7 @@ AZURE_BASE = AZURE_ENDPOINT.rstrip("/")
 
 # Two-model analysis engine: Grok reasons, DeepSeek formats
 ANALYSIS_THINKER = os.environ.get("ANALYSIS_THINKER", "grok-4-1-fast-reasoning")
-ANALYSIS_FORMATTER = os.environ.get("ANALYSIS_FORMATTER", "gpt-4.1")
+ANALYSIS_FORMATTER = os.environ.get("ANALYSIS_FORMATTER", "DeepSeek-V3.2")
 ANALYSIS_MODE = os.environ.get("ANALYSIS_MODE", "twomodel")  # "twomodel" or "single"
 THINKER_ENDPOINT = os.environ.get("THINKER_ENDPOINT", "https://pwgcerp-9302-resource.services.ai.azure.com/openai/v1/")
 
@@ -7023,6 +7023,114 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
             logger.warning(f"[CHALLENGER] Failed: {e}")
         # ===== END CHALLENGER MODEL =====
 
+        # ===== CROWDSOURCE — Run multiple models for consensus (Step 4 of pipeline) =====
+        # Crowdsource uses DIFFERENT models than the thinker (Grok) and formatter (DeepSeek)
+        # B+ or higher consensus = best bet candidate. Split grades = dig deeper flag.
+        CROWDSOURCE_MODELS = [
+            {"name": "Kimi-K2.5", "endpoint": "ai_services", "display": "Kimi K2.5"},
+            {"name": "Mistral-Large-3", "endpoint": "ai_services", "display": "Mistral Large 3"},
+            {"name": "qwen-3-32b", "endpoint": "ai_services", "display": "Qwen 3 32B"},
+            {"name": "Llama-4-Maverick-17B-128E-Instruct-FP8", "endpoint": "ai_services", "display": "Llama 4 Maverick"},
+            {"name": "command-a", "endpoint": "ai_services", "display": "Cohere Command A"},
+        ]
+        CROWDSOURCE_ENABLED = os.environ.get("CROWDSOURCE_ENABLED", "true").lower() == "true"
+        CROWDSOURCE_TIMEOUT = int(os.environ.get("CROWDSOURCE_TIMEOUT", "90"))
+
+        crowdsource_grades = {}  # matchup -> [{"model": ..., "grade": ..., "score": ...}]
+
+        if CROWDSOURCE_ENABLED and batch_prompts:
+            async def _run_crowdsource_model(cs_model, prompt):
+                """Run a single crowdsource model and return parsed result."""
+                try:
+                    client = OpenAI(
+                        base_url=THINKER_ENDPOINT,
+                        api_key=AZURE_KEY,
+                        timeout=CROWDSOURCE_TIMEOUT,
+                    )
+                    response = await asyncio.to_thread(
+                        lambda: client.chat.completions.create(
+                            model=cs_model["name"],
+                            messages=[{"role": "user", "content": prompt}],
+                            temperature=0.4,
+                            max_tokens=8000,
+                        )
+                    )
+                    raw = response.choices[0].message.content.strip()
+                    result = _clean_json(raw)
+                    return cs_model["display"], result
+                except Exception as e:
+                    logger.warning(f"[CROWDSOURCE] {cs_model['display']} failed: {e}")
+                    return cs_model["display"], None
+
+            # Run all crowdsource models in parallel on first batch
+            logger.info(f"[CROWDSOURCE] Running {len(CROWDSOURCE_MODELS)} models in parallel")
+            cs_tasks = []
+            for cs_model in CROWDSOURCE_MODELS:
+                cs_tasks.append(
+                    asyncio.wait_for(
+                        _run_crowdsource_model(cs_model, batch_prompts[0]),
+                        timeout=CROWDSOURCE_TIMEOUT + 10
+                    )
+                )
+            cs_results = await asyncio.gather(*cs_tasks, return_exceptions=True)
+
+            for result in cs_results:
+                if isinstance(result, Exception):
+                    logger.warning(f"[CROWDSOURCE] Model timed out or errored: {result}")
+                    continue
+                model_name, parsed = result
+                if not parsed or not parsed.get("games"):
+                    continue
+                for cg in parsed.get("games", []):
+                    c_matchup = (cg.get("matchup", "")).replace(" ", "").upper()
+                    grade = cg.get("grade", "")
+                    score = cg.get("composite_score", 0)
+                    if c_matchup not in crowdsource_grades:
+                        crowdsource_grades[c_matchup] = []
+                    crowdsource_grades[c_matchup].append({
+                        "model": model_name,
+                        "grade": grade,
+                        "score": score,
+                    })
+
+            # Apply B+ consensus rule to each game
+            GRADE_VALUES = {"A+": 10, "A": 9, "A-": 8, "B+": 7, "B": 6, "B-": 5, "C+": 4, "C": 3, "D": 2, "F": 1}
+            for game in all_analyzed_games:
+                g_matchup = (game.get("matchup", "")).replace(" ", "").upper()
+                cs_data = crowdsource_grades.get(g_matchup, [])
+                if not cs_data:
+                    continue
+                game["crowdsource_grades"] = cs_data
+                game["crowdsource_count"] = len(cs_data)
+
+                # Count how many models gave B+ or higher
+                bp_or_higher = sum(1 for cg in cs_data if GRADE_VALUES.get(cg["grade"], 0) >= 7)
+                total_models = len(cs_data)
+                game["crowdsource_bp_count"] = bp_or_higher
+                game["crowdsource_total"] = total_models
+
+                # Consensus check
+                if total_models >= 3:
+                    if bp_or_higher == total_models:
+                        game["crowdsource_consensus"] = "UNANIMOUS_BP"
+                        if "CROWDSOURCE BEST BET" not in game.get("tags", []):
+                            game.setdefault("tags", []).append("CROWDSOURCE BEST BET")
+                    elif bp_or_higher >= total_models * 0.6:
+                        game["crowdsource_consensus"] = "MAJORITY_BP"
+                        if "CROWDSOURCE STRONG" not in game.get("tags", []):
+                            game.setdefault("tags", []).append("CROWDSOURCE STRONG")
+                    elif bp_or_higher > 0 and bp_or_higher < total_models * 0.4:
+                        game["crowdsource_consensus"] = "SPLIT"
+                        if "CROWDSOURCE SPLIT" not in game.get("tags", []):
+                            game.setdefault("tags", []).append("CROWDSOURCE SPLIT")
+                    else:
+                        game["crowdsource_consensus"] = "BELOW_BP"
+
+                logger.info(f"[CROWDSOURCE] {game.get('matchup')}: {bp_or_higher}/{total_models} B+ or higher — {game.get('crowdsource_consensus', 'N/A')}")
+
+            logger.info(f"[CROWDSOURCE] Complete — {len(crowdsource_grades)} games graded by {len(CROWDSOURCE_MODELS)} models")
+        # ===== END CROWDSOURCE =====
+
         analysis = {
             "gotcha": gotcha_html or "Analysis partially generated. Some batches may have failed.",
             "games": all_analyzed_games,
@@ -7044,6 +7152,9 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
             "matrix_retried": len(missing_ms_games) if missing_ms_games else 0,
             "grade_gate": {"score_overrides": gate_score_overrides, "grade_overrides": gate_grade_overrides},
             "challenger_model": challenger_model_display,
+            "crowdsource_enabled": CROWDSOURCE_ENABLED,
+            "crowdsource_models": [m["display"] for m in CROWDSOURCE_MODELS] if CROWDSOURCE_ENABLED else [],
+            "crowdsource_games": len(crowdsource_grades) if CROWDSOURCE_ENABLED else 0,
             "injury_sources": injury_sources,
         }
 
