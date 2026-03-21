@@ -449,7 +449,7 @@ async def _warm_analysis_cache():
     print(f"[ANALYSIS WARM] Boot check complete — {cached_count}/{len(active_sports)} sports have today's cache")
 
 
-PREFETCH_SPORTS = ["nba", "nhl", "ncaab", "mma"]
+PREFETCH_SPORTS = ["nba", "nhl", "ncaab", "mlb", "mma"]
 PREFETCH_INTERVAL = 600  # 10 minutes
 
 
@@ -551,6 +551,7 @@ KALSHI_SERIES = {
     "ncaab": "KXNCAAMBSPREAD",
     "nhl": "KXNHLSPREAD",
     "nfl": "KXNFLSPREAD",
+    "mlb": "KXMLBSPREAD",
 }
 
 async def _fetch_kalshi_markets(sport: str):
@@ -1312,6 +1313,7 @@ SHARPAPI_BASE = "https://api.sharpapi.io/api/v1"
 SHARPAPI_LEAGUES = {
     "nba": "nba",
     "nhl": "nhl",
+    "mlb": "mlb",
     "soccer": "soccer",
     "mma": "ufc",
     "boxing": "boxing",
@@ -1320,6 +1322,7 @@ SHARPAPI_LEAGUES = {
 SHARPAPI_MARKETS = {
     "nba": "moneyline,point_spread,total_points",
     "nhl": "moneyline,point_spread,total_goals",
+    "mlb": "moneyline,point_spread,total_runs",
     "soccer": "moneyline,point_spread,total_goals",
     "mma": "moneyline",
     "boxing": "moneyline,total_rounds",
@@ -1829,6 +1832,10 @@ ROTOWIRE_URLS = {
     "nhl": {
         "lineups": "https://www.rotowire.com/hockey/nhl-lineups.php",
         "injuries": "https://www.rotowire.com/hockey/injury-report.php",
+    },
+    "mlb": {
+        "lineups": "https://www.rotowire.com/baseball/daily-lineups.php",
+        "injuries": "https://www.rotowire.com/baseball/injury-report.php",
     },
     "soccer": {
         "lineups": "https://www.rotowire.com/soccer/lineups.php",
@@ -2926,6 +2933,7 @@ async def _get_lineup_and_injury_context(sport):
         "nba": "https://www.cbssports.com/nba/injuries/",
         "wnba": "https://www.cbssports.com/wnba/injuries/",
         "nhl": "https://www.cbssports.com/nhl/injuries/",
+        "mlb": "https://www.cbssports.com/mlb/injuries/",
         "soccer": None,
     }
 
@@ -12749,8 +12757,9 @@ async def get_profedge(sport: str):
     except Exception as e:
         logger.warning(f"[KALSHI] profedge fetch failed: {e}")
 
-    # Index Kalshi: event_ticker -> list of {strike, prob, title, team_word}
+    # Index Kalshi by event, extract team name from title for matching
     kalshi_by_event = {}
+    kalshi_teams_by_event = {}
     for km in kalshi_raw:
         if km.get("status") != "active":
             continue
@@ -12764,6 +12773,10 @@ async def get_profedge(sport: str):
             kalshi_by_event.setdefault(evt, []).append({
                 "strike": float(strike), "prob": mid, "title": title,
             })
+            # Extract team name from title: "Los Angeles C wins by over 4.5 Points?"
+            team_part = title.split(" wins by")[0].lower() if " wins by" in title else ""
+            if team_part and evt not in kalshi_teams_by_event:
+                kalshi_teams_by_event[evt] = team_part
 
     # Merge: attach grades and race to each game
     games = games_data.get("games", [])
@@ -12846,20 +12859,21 @@ async def get_profedge(sport: str):
             spread_val = abs(float(odds_obj.get("spread_home") or odds_obj.get("spread_away") or 0))
         except (ValueError, TypeError):
             pass
-        # Find matching Kalshi event by team name
+        # Find matching Kalshi event by team name from market title
         for evt, strikes in kalshi_by_event.items():
-            evt_lower = evt.lower()
+            kalshi_team = kalshi_teams_by_event.get(evt, "")
+            if not kalshi_team:
+                continue
             home_words = [w for w in home_name.split() if len(w) > 3]
             away_words = [w for w in away_name.split() if len(w) > 3]
-            if any(w in evt_lower for w in home_words) or any(w in evt_lower for w in away_words):
+            matched = any(w in kalshi_team for w in home_words) or any(w in kalshi_team for w in away_words)
+            if matched:
                 if spread_val and spread_val > 0:
-                    # Find the strike closest to our spread
                     best = min(strikes, key=lambda s: abs(s["strike"] - spread_val))
                     if abs(best["strike"] - spread_val) <= 2.0:
                         kalshi_prob = best["prob"]
                         kalshi_strike = best["strike"]
                 elif strikes:
-                    # No spread — use lowest strike as general win prob
                     best = min(strikes, key=lambda s: s["strike"])
                     kalshi_prob = best["prob"]
                     kalshi_strike = best["strike"]
