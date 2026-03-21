@@ -1369,6 +1369,41 @@ SOCCER_LEAGUES = {
 SPORT_KEYS_SOCCER = [k for k, v in SOCCER_LEAGUES.items() if v["tier"] <= 2]
 API_SPORTS_LEAGUES["soccer"] = [v["api_sports_id"] for v in SOCCER_LEAGUES.values() if v["tier"] <= 2]
 
+_SOCCER_LEAGUE_FALLBACKS = {
+    "soccer_epl": {"name": "Premier League", "flag": "\U0001F3F4"},
+    "soccer_spain_la_liga": {"name": "La Liga", "flag": "\U0001F1EA\U0001F1F8"},
+    "soccer_germany_bundesliga": {"name": "Bundesliga", "flag": "\U0001F1E9\U0001F1EA"},
+    "soccer_italy_serie_a": {"name": "Serie A", "flag": "\U0001F1EE\U0001F1F9"},
+    "soccer_france_ligue_one": {"name": "Ligue 1", "flag": "\U0001F1EB\U0001F1F7"},
+    "soccer_uefa_champs_league": {"name": "Champions League", "flag": "\U0001F3C6"},
+    "soccer_usa_mls": {"name": "MLS", "flag": "\U0001F1FA\U0001F1F8"},
+    "soccer_mexico_ligamx": {"name": "Liga MX", "flag": "\U0001F1F2\U0001F1FD"},
+    "soccer_brazil_serie_a": {"name": "Brasileirao", "flag": "\U0001F1E7\U0001F1F7"},
+    "soccer_uefa_europa_league": {"name": "Europa League", "flag": "\U0001F3C6"},
+    "soccer_netherlands_eredivisie": {"name": "Eredivisie", "flag": "\U0001F1F3\U0001F1F1"},
+    "soccer_portugal_primeira_liga": {"name": "Primeira Liga", "flag": "\U0001F1F5\U0001F1F9"},
+    "soccer_turkey_super_league": {"name": "Super Lig", "flag": "\U0001F1F9\U0001F1F7"},
+    "soccer_australia_aleague": {"name": "A-League", "flag": "\U0001F1E6\U0001F1FA"},
+    "soccer_japan_j_league": {"name": "J1 League", "flag": "\U0001F1EF\U0001F1F5"},
+    "soccer_korea_kleague": {"name": "K League", "flag": "\U0001F1F0\U0001F1F7"},
+    "soccer_conmebol_copa_libertadores": {"name": "Libertadores", "flag": "\U0001F3C6"},
+}
+
+
+def _soccer_league_meta_from_key(sport_key: str) -> dict:
+    meta = SOCCER_LEAGUES.get(sport_key, {}).copy()
+    fallback = _SOCCER_LEAGUE_FALLBACKS.get(sport_key, {})
+    if not meta.get("name"):
+        meta["name"] = fallback.get("name", sport_key.replace("soccer_", "").replace("_", " ").title())
+    if not meta.get("flag"):
+        meta["flag"] = fallback.get("flag", "\u26bd")
+    return meta
+
+
+def _is_soccer_sport_key(value: str) -> bool:
+    v = str(value or "").lower()
+    return v == "soccer" or v.startswith("soccer_")
+
 # Azure OpenAI config
 AZURE_ENDPOINT = os.environ.get("AZURE_OPENAI_ENDPOINT", "")
 AZURE_KEY = os.environ.get("AZURE_OPENAI_KEY", "")
@@ -2550,6 +2585,17 @@ def _recalculate_grade(game, sport):
         print(f"[MATRIX NORM] {game.get('matchup')} — unmatched keys: {unmatched}")
     matrix_scores = normalized_scores
 
+    if sport.lower() == "soccer":
+        star_data = matrix_scores.get("star_player_status")
+        if not isinstance(star_data, dict):
+            # Soccer injury coverage is best-effort; until every feed is wired, treat
+            # missing star status as neutral instead of a silent zero.
+            matrix_scores["star_player_status"] = {"score": 5.0, "note": "Neutral fallback — no soccer injury data available"}
+        elif star_data.get("score") in (None, "", 0):
+            star_data["score"] = 5.0
+            if not star_data.get("note"):
+                star_data["note"] = "Neutral fallback — no soccer injury data available"
+
     # P2: Post-hoc clamp star_player_status based on injury freshness
     star_data = matrix_scores.get("star_player_status")
     if isinstance(star_data, dict):
@@ -3008,8 +3054,27 @@ async def _get_lineup_and_injury_context(sport):
                 print(f"CBS injury fetch failed for {sport}: {e}")
                 parts.append(f"CBS Sports injury fetch failed: {e}")
 
+    injury_url = urls.get("injuries") if (urls := ROTOWIRE_URLS.get(sport_lower, {})) else None
+    if injury_url:
+        injury_html = await _fetch_rotowire_page(injury_url, f"rw_injuries:{sport_lower}")
+        if injury_html:
+            injury_text = re.sub(r"<[^>]+>", " ", injury_html)
+            injury_text = re.sub(r"\s+", " ", injury_text)
+            if sport_lower == "soccer":
+                chunks = re.findall(
+                    r"([A-Z][A-Za-z\.\'\-]+(?:\s+[A-Z][A-Za-z\.\'\-]+){0,2})\s+(Out|Questionable|Doubtful|Suspended|Injured|Day-To-Day|Expected to miss[^\.]{0,40})",
+                    injury_text,
+                    re.IGNORECASE,
+                )
+                if chunks:
+                    lines = [f"INJURY REPORT ({sport.upper()} via RotoWire - {len(chunks)} players):"]
+                    for name, status in chunks[:40]:
+                        lines.append(f"  - {name.strip()} | {status.strip()}")
+                    parts.append("\n".join(lines))
+                else:
+                    parts.append("RotoWire soccer injury page fetched, but no structured injury rows were parsed.")
+
     # --- ROTOWIRE LINEUPS (secondary - best effort for lineup confirmations) ---
-    urls = ROTOWIRE_URLS.get(sport_lower, {})
     lineup_url = urls.get("lineups")
     if lineup_url:
         html = await _fetch_rotowire_page(lineup_url, f"rw_lineups:{sport_lower}")
@@ -3738,16 +3803,21 @@ def _parse_event(event, sport_label):
         for b in btts:
             if b["name"] == "Yes":
                 game["btts_yes"] = b.get("price", 0)
+                game["btts_yes_odds"] = b.get("price", 0)
             elif b["name"] == "No":
                 game["btts_no"] = b.get("price", 0)
+                game["btts_no_odds"] = b.get("price", 0)
 
     # Draw No Bet — soccer
     dnb = game["markets"].get("draw_no_bet", [])
     if dnb:
+        home_parts = [p for p in _normalize_team(event["home_team"]).split() if len(p) > 2]
+        away_parts = [p for p in _normalize_team(event["away_team"]).split() if len(p) > 2]
         for d in dnb:
-            if d["name"] == event["away_team"]:
+            d_name = _normalize_team(d.get("name", ""))
+            if d["name"] == event["away_team"] or any(part in d_name for part in away_parts):
                 game["dnb_away"] = d.get("price", 0)
-            elif d["name"] == event["home_team"]:
+            elif d["name"] == event["home_team"] or any(part in d_name for part in home_parts):
                 game["dnb_home"] = d.get("price", 0)
 
     # Draw ML (3-way h2h) — soccer
@@ -4292,13 +4362,13 @@ async def _fetch_sgo_odds(sport_lower: str, sport_label: str) -> list:
                     keys = SPORT_KEYS.get(sport_lower, [sport_lower])
                     sport_key = keys[0] if keys else sport_lower
 
-                league_meta = SOCCER_LEAGUES.get(sport_key, {})
+                league_meta = _soccer_league_meta_from_key(sport_key) if sport_lower == "soccer" else {}
 
                 game = {
                     "id": ev.get("eventID", ""),
                     "sport": sport_label,
                     "sport_key": sport_key,
-                    "league": league_meta.get("name", sgo_league) if sport_lower == "soccer" else "",
+                    "league": league_meta.get("name") if sport_lower == "soccer" else "",
                     "league_flag": league_meta.get("flag", ""),
                     "away": away_name,
                     "home": home_name,
@@ -4520,8 +4590,21 @@ async def get_soccer_high_edge():
     HIGH_GRADES = {"A+", "A", "A-", "B+"}
     analysis = _load_analysis_cache("soccer")
     results = []
+    now = datetime.now(PST)
+    tomorrow = (now + timedelta(days=1)).date()
     if analysis and analysis.get("games"):
         for game in analysis["games"]:
+            t = game.get("commence_time") or game.get("time")
+            if not t:
+                continue
+            try:
+                gt = datetime.fromisoformat(t.replace("Z", "+00:00")).astimezone(PST)
+            except Exception:
+                continue
+            if gt < now:
+                continue
+            if gt.date() not in {now.date(), tomorrow}:
+                continue
             if game.get("grade") in HIGH_GRADES:
                 results.append(game)
         # Sort by composite_score descending
@@ -4530,11 +4613,22 @@ async def get_soccer_high_edge():
         # Fallback: show first 5 upcoming games from slate with "analysis pending" note
         slate = _load_daily_slate("soccer")
         if slate and slate.get("games"):
-            now = datetime.now(PST)
             upcoming = sorted(
-                [g for g in slate["games"] if g.get("time")],
+                [],
                 key=lambda g: g.get("time", "")
-            )[:5]
+            )
+            for g in slate["games"]:
+                t = g.get("time")
+                if not t:
+                    continue
+                try:
+                    gt = datetime.fromisoformat(t.replace("Z", "+00:00")).astimezone(PST)
+                except Exception:
+                    continue
+                if gt < now or gt.date() not in {now.date(), tomorrow}:
+                    continue
+                upcoming.append(g)
+            upcoming = sorted(upcoming, key=lambda g: g.get("time", ""))[:5]
             for g in upcoming:
                 g["grade"] = "PENDING"
                 g["analysis_note"] = "Analysis pending — check back after next slate refresh"
@@ -4547,6 +4641,13 @@ async def get_soccer_league_odds(league_key: str):
     """On-demand fetch for a specific soccer league (Tier 3 support)."""
     if league_key not in SOCCER_LEAGUES:
         return JSONResponse({"error": f"Unknown league: {league_key}"}, status_code=400)
+
+    throttle_key = f"tier3_fetch:{league_key}"
+    if SOCCER_LEAGUES[league_key].get("tier", 0) >= 3 and _get_cached(throttle_key, ttl=300):
+        cached = _get_cached(f"soccer_league:{league_key}")
+        if cached:
+            return JSONResponse(cached)
+        return JSONResponse({"error": "League recently fetched. Try again in a few minutes."}, status_code=429)
 
     cache_key = f"soccer_league:{league_key}"
     cached = _get_cached(cache_key)
@@ -4581,6 +4682,8 @@ async def get_soccer_league_odds(league_key: str):
         "fetched_at": _now_ts(),
     }
     _set_cache(cache_key, result)
+    if league_meta.get("tier", 0) >= 3:
+        _set_cache(throttle_key, True)
     return JSONResponse(result)
 
 
@@ -4701,8 +4804,11 @@ async def get_player_props(sport: str, game: str = None):
             line = prop.get("line", 0)
             if sport_lower == "nhl" and "goal" in stat_lower and line is not None and float(line) < 0.5:
                 continue
-            if sport_lower == "soccer" and "assist" in stat_lower and line is not None and float(line) < 0.5:
-                continue
+            if sport_lower == "soccer" and line is not None:
+                if "assist" in stat_lower and float(line) < 1.0:
+                    continue
+                if ("shots on target" in stat_lower or "shot on target" in stat_lower) and float(line) < 1.0:
+                    continue
             # Game filter
             if game and prop.get("event_id") and prop.get("event_id") != game:
                 continue
@@ -4881,9 +4987,12 @@ async def get_player_props(sport: str, game: str = None):
         # NHL: skip goal props for players with line < 0.5 (averaging < 0.3 goals/game)
         if sport_lower == "nhl" and "goal" in stat_lower and line is not None and float(line) < 0.5:
             continue
-        # Soccer: skip assist props for players with line < 0.5
-        if sport_lower == "soccer" and "assist" in stat_lower and line is not None and float(line) < 0.5:
-            continue
+        # Soccer: skip low-frequency assist / shots on target props
+        if sport_lower == "soccer" and line is not None:
+            if "assist" in stat_lower and float(line) < 1.0:
+                continue
+            if ("shots on target" in stat_lower or "shot on target" in stat_lower) and float(line) < 1.0:
+                continue
         quality_filtered.append(prop)
     all_props = quality_filtered
 
@@ -6943,6 +7052,9 @@ async def save_pick(request: Request):
         "graded_at": None,
         "created_at": datetime.now(PST).strftime("%Y-%m-%d %H:%M:%S"),
     }
+    if pick["sport"].lower() == "soccer" and pick["type"].lower() == "prop":
+        pick["auto_grade"] = False
+        pick["grade_note"] = "Soccer props require manual grading"
 
     try:
         data = _read_picks()
@@ -7213,10 +7325,13 @@ async def _fetch_sportsgameodds_scores(sport_lower: str, days_from: int = 3) -> 
                         "nfl": "americanfootball_nfl", "mlb": "baseball_mlb",
                         "mma": "mma_mixed_martial_arts", "soccer": "soccer",
                     }
+                    resolved_sport_key = sport_key_map.get(sport_lower, sport_lower)
+                    if sport_lower == "soccer":
+                        resolved_sport_key = "soccer"
 
                     game = {
                         "id": event.get("eventID", ""),
-                        "sport_key": sport_key_map.get(sport_lower, sport_lower),
+                        "sport_key": resolved_sport_key,
                         "home_team": home_name,
                         "away_team": away_name,
                         "completed": completed,
@@ -7259,8 +7374,14 @@ async def _fetch_scores(sport_key: str, days_from: int = 3, cache_ttl: int = Non
 
     # Step 1: Pull archived completed games for this sport
     archive = _read_scores_archive()
-    archived_games = [g for g in archive.values()
-                      if g.get("sport_key", "") == sport_key or sport_key in g.get("sport_key", "")]
+    archived_games = [
+        g for g in archive.values()
+        if (
+            g.get("sport_key", "") == sport_key
+            or sport_key in g.get("sport_key", "")
+            or (_is_soccer_sport_key(sport_key) and _is_soccer_sport_key(g.get("sport_key", "")))
+        )
+    ]
 
     # Step 2: Fetch fresh scores — SportsGameOdds primary, Odds API fallback
     api_games = []
@@ -8475,10 +8596,10 @@ async def autograde_picks(request: Request):
     client_picks = body.get("picks", []) if isinstance(body, dict) else []
 
     if client_picks:
-        ungraded = [p for p in client_picks if not p.get("result")]
+        ungraded = [p for p in client_picks if not p.get("result") and p.get("auto_grade", True) is not False]
     else:
         data = _read_picks()
-        ungraded = [p for p in data.get("picks", []) if not p.get("result")]
+        ungraded = [p for p in data.get("picks", []) if not p.get("result") and p.get("auto_grade", True) is not False]
 
     if not ungraded:
         return JSONResponse({"status": "ok", "graded": 0, "message": "No ungraded picks"})
