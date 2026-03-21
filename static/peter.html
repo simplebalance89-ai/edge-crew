@@ -90,7 +90,43 @@ body { background:#0a0a0f; color:#fff; font-family:-apple-system,BlinkMacSystemF
 <div class="panel active" id="panelGames">
     <div class="loading" id="gamesLoading">Loading NBA games...</div>
     <div id="gamesContainer"></div>
+    <div id="kalshiRevealSection" style="display:none;text-align:center;padding:20px;">
+        <button onclick="revealKalshi()" style="background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.4);color:#7C3AED;padding:12px 24px;border-radius:8px;font-size:14px;font-weight:800;cursor:pointer;letter-spacing:0.5px;">REVEAL MARKET CHECK</button>
+        <div id="kalshiResults" style="display:none;margin-top:16px;text-align:left;"></div>
+    </div>
 </div>
+<script>
+function revealKalshi() {
+    var els = document.querySelectorAll('.kalshi-data');
+    if (!els.length) return;
+    var html = '<div style="background:rgba(124,58,237,0.06);border:1px solid rgba(124,58,237,0.2);border-radius:10px;padding:16px;">';
+    html += '<div style="font-size:11px;color:#7C3AED;font-weight:800;letter-spacing:1px;margin-bottom:12px;">KALSHI MARKET-IMPLIED PROBABILITIES</div>';
+    els.forEach(function(el) {
+        var prob = parseFloat(el.dataset.prob);
+        var strike = el.dataset.strike;
+        var matchup = el.dataset.matchup;
+        var pctStr = (prob * 100).toFixed(0) + '%';
+        var barColor = prob > 0.55 ? '#10B981' : prob > 0.4 ? '#F59E0B' : '#EF4444';
+        html += '<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);">';
+        html += '<div style="flex:1;font-size:12px;color:rgba(255,255,255,0.7);">' + matchup + '</div>';
+        html += '<div style="width:60px;background:rgba(255,255,255,0.05);border-radius:4px;height:8px;"><div style="width:' + pctStr + ';background:' + barColor + ';height:100%;border-radius:4px;"></div></div>';
+        html += '<div style="font-size:13px;font-weight:800;color:' + barColor + ';width:45px;text-align:right;">' + pctStr + '</div>';
+        if (strike) html += '<div style="font-size:9px;color:rgba(255,255,255,0.3);">(' + strike + ')</div>';
+        html += '</div>';
+    });
+    html += '</div>';
+    document.getElementById('kalshiResults').innerHTML = html;
+    document.getElementById('kalshiResults').style.display = 'block';
+    event.target.style.display = 'none';
+}
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+        if (document.querySelectorAll('.kalshi-data').length > 0) {
+            document.getElementById('kalshiRevealSection').style.display = 'block';
+        }
+    }, 3000);
+});
+</script>
 
 <div class="panel" id="panelMatrix">
     <div class="loading" id="matrixLoading">Loading matrix...</div>
@@ -367,9 +403,7 @@ function renderGames(games) {
             html += '<div style="margin-top:4px;font-size:11px;font-weight:700;color:' + evColor + ';">EV: ' + (evPct > 0 ? '+' : '') + evPct.toFixed(1) + '%</div>';
         }
         if (g.kalshi_prob) {
-            var kp = g.kalshi_prob;
-            var ks = g.kalshi_strike ? ' (' + g.kalshi_strike + ')' : '';
-            html += '<div style="margin-top:4px;font-size:10px;color:#7C3AED;font-weight:700;">Kalshi: ' + (kp * 100).toFixed(0) + '%' + ks + '</div>';
+            html += '<input type="hidden" class="kalshi-data" data-game="' + (g.game_id || idx) + '" data-prob="' + g.kalshi_prob + '" data-strike="' + (g.kalshi_strike || '') + '" data-matchup="' + g.matchup + '">';
         }
         if (g.race) {
             html += '<div style="margin-top:4px;font-size:10px;color:rgba(255,255,255,0.5);">Race: ' + g.race.home_score + '-' + g.race.away_score + '</div>';
