@@ -1,0 +1,127 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Pietra//Famiglia Gianelli//EN
+X-WR-CALNAME:Famiglia Gianelli
+X-WR-TIMEZONE:America/Los_Angeles
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:sm01@famiglia.gianelli.cal
+DTSTART;TZID=America/Los_Angeles:20260322T100000
+DTEND;TZID=America/Los_Angeles:20260322T110000
+SUMMARY:Check In - Huntley Hotel
+LOCATION:The Huntley Hotel, 1111 2nd St, Santa Monica 90403
+DESCRIPTION:Drop bags, stroller up. Penthouse is 18th floor. Glass elevator. https://www.thehuntleyhotel.com/
+END:VEVENT
+BEGIN:VEVENT
+UID:sm02@famiglia.gianelli.cal
+DTSTART;TZID=America/Los_Angeles:20260322T110000
+DTEND;TZID=America/Los_Angeles:20260322T115500
+SUMMARY:Heal the Bay Aquarium
+LOCATION:Santa Monica Pier (under the pier)
+DESCRIPTION:Touch tanks, baby sharks. GL FREE under 3. Adults ~$5. Stroller ramp. https://healthebay.org/aquarium/
+END:VEVENT
+BEGIN:VEVENT
+UID:sm03@famiglia.gianelli.cal
+DTSTART;TZID=America/Los_Angeles:20260322T120000
+DTEND;TZID=America/Los_Angeles:20260322T130000
+SUMMARY:Santa Monica Pier + Pacific Park
+LOCATION:Santa Monica Pier
+DESCRIPTION:Carousel, Ferris wheel, street performers, photo ops. https://pacpark.com/
+END:VEVENT
+BEGIN:VEVENT
+UID:sm04@famiglia.gianelli.cal
+DTSTART;TZID=America/Los_Angeles:20260322T130000
+DTEND;TZID=America/Los_Angeles:20260322T143000
+SUMMARY:Lunch - The Lobster
+LOCATION:The Lobster, 1602 Ocean Ave, Santa Monica
+DESCRIPTION:Gourmet seafood, ocean views, pier entrance. Backup: Back on the Beach Cafe. https://www.thelobster.com/
+END:VEVENT
+BEGIN:VEVENT
+UID:sm05@famiglia.gianelli.cal
+DTSTART;TZID=America/Los_Angeles:20260322T143000
+DTEND;TZID=America/Los_Angeles:20260322T160000
+SUMMARY:Beach Time
+LOCATION:Santa Monica State Beach
+DESCRIPTION:Sand and water for GL. Boardwalk stroll. 5 min walk from hotel.
+END:VEVENT
+BEGIN:VEVENT
+UID:sm06@famiglia.gianelli.cal
+DTSTART;TZID=America/Los_Angeles:20260322T160000
+DTEND;TZID=America/Los_Angeles:20260322T173000
+SUMMARY:Hotel Pool + GL Nap
+LOCATION:The Huntley Hotel
+DESCRIPTION:Pool, rest, GL nap. Decompress before evening.
+END:VEVENT
+BEGIN:VEVENT
+UID:sm07@famiglia.gianelli.cal
+DTSTART;TZID=America/Los_Angeles:20260322T173000
+DTEND;TZID=America/Los_Angeles:20260322T193000
+SUMMARY:Third Street Promenade Shopping
+LOCATION:Third Street Promenade, Santa Monica
+DESCRIPTION:Apple, Sephora, Zara, Nike. Santa Monica Place mall. Street performers. 3 min walk. https://downtownsm.com/third-street-promenade
+END:VEVENT
+BEGIN:VEVENT
+UID:sm08@famiglia.gianelli.cal
+DTSTART;TZID=America/Los_Angeles:20260322T193000
+DTEND;TZID=America/Los_Angeles:20260322T203000
+SUMMARY:Sunset Cocktails - The Penthouse 18th Floor
+LOCATION:The Penthouse, 18th Floor, Huntley Hotel
+DESCRIPTION:Sunset over Pacific. Craft cocktails. Glass elevator for GL. Live DJ Saturday. https://www.penthouserestaurant.com/
+END:VEVENT
+BEGIN:VEVENT
+UID:sm09@famiglia.gianelli.cal
+DTSTART;TZID=America/Los_Angeles:20260322T203000
+DTEND;TZID=America/Los_Angeles:20260322T220000
+SUMMARY:Dinner - Elephante Beach House
+LOCATION:Elephante, 1332 2nd St, Santa Monica
+DESCRIPTION:Rooftop Italian-Mediterranean. Ocean views. BOOK ON OPENTABLE. Next door to Huntley. https://www.opentable.com/r/elephante-santa-monica
+END:VEVENT
+BEGIN:VEVENT
+UID:sm10@famiglia.gianelli.cal
+DTSTART;TZID=America/Los_Angeles:20260322T220000
+DTEND;TZID=America/Los_Angeles:20260322T230000
+SUMMARY:Night Walk - Ocean Ave + Pier Lights
+LOCATION:Ocean Ave, Santa Monica
+DESCRIPTION:Pier lights on at 7pm. Or Penthouse lounge open till 1:30am.
+END:VEVENT
+BEGIN:VEVENT
+UID:sm11@famiglia.gianelli.cal
+DTSTART;TZID=America/Los_Angeles:20260323T083000
+DTEND;TZID=America/Los_Angeles:20260323T100000
+SUMMARY:Breakfast - The Penthouse
+LOCATION:The Penthouse, 18th Floor, Huntley Hotel
+DESCRIPTION:Breakfast at your rooftop. Ocean views. Relaxed morning. https://www.penthouserestaurant.com/menus/
+END:VEVENT
+BEGIN:VEVENT
+UID:sm12@famiglia.gianelli.cal
+DTSTART;TZID=America/Los_Angeles:20260323T100000
+DTEND;TZID=America/Los_Angeles:20260323T110000
+SUMMARY:Tongva Park - Playground + Splash Pad
+LOCATION:Tongva Park, 1615 Ocean Ave, Santa Monica
+DESCRIPTION:Modern playground, splash pad, gardens, ocean views. FREE. 3 min walk. Perfect for GL.
+END:VEVENT
+BEGIN:VEVENT
+UID:sm13@famiglia.gianelli.cal
+DTSTART;TZID=America/Los_Angeles:20260323T110000
+DTEND;TZID=America/Los_Angeles:20260323T113000
+SUMMARY:Checkout - Huntley Hotel
+LOCATION:The Huntley Hotel
+DESCRIPTION:Pack up, checkout.
+END:VEVENT
+BEGIN:VEVENT
+UID:sm14@famiglia.gianelli.cal
+DTSTART;TZID=America/Los_Angeles:20260323T113000
+DTEND;TZID=America/Los_Angeles:20260323T130000
+SUMMARY:Brunch - Huckleberry OR Cayton Museum
+LOCATION:Huckleberry: 1014 Wilshire / Cayton: 395 Santa Monica Place
+DESCRIPTION:Huckleberry = famous bakery brunch. Cayton = best infant play area ($16-18). https://www.caytonmuseum.org/
+END:VEVENT
+BEGIN:VEVENT
+UID:sm15@famiglia.gianelli.cal
+DTSTART;TZID=America/Los_Angeles:20260323T130000
+DTEND;TZID=America/Los_Angeles:20260323T143000
+SUMMARY:Head Home or Venice Canals
+LOCATION:Santa Monica / Venice
+DESCRIPTION:Optional Venice Canals walk or Abbot Kinney Blvd shopping. Uber home ~$40-70.
+END:VEVENT
+END:VCALENDAR
