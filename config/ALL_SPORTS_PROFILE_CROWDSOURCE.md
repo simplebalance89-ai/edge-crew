@@ -90,29 +90,55 @@
 
 ### TEAM PROFILE
 
-Adj. Defensive Efficiency Grade | 10 | BartTorvik | Blend of season-long adjusted defensive efficiency with last 5 games trend weighted 70/30 to isolate recent form from schedule noise.
+Adj. Defensive Efficiency Grade | 9 | BartTorvik | Blend of season-long adjusted defensive efficiency with last 5 games trend weighted 70/30 to isolate recent form from schedule noise. Defense travels — most stable predictor.
 
-Adj. Offensive Efficiency Grade | 10 | BartTorvik | Composite score blending season adjusted offensive efficiency with last 5 games effective field goal percentage and turnover rates to capture current offensive health.
+Adj. Offensive Efficiency Grade | 9 | BartTorvik | Composite score blending season adjusted offensive efficiency with last 5 games effective field goal percentage and turnover rates to capture current offensive health.
 
-Half-Court Grind Efficiency | 8 | Synergy | Points per possession scored in non-transition sets over last 5 games versus season average, filtering out fast-break noise that casual bettors overweight.
+Regression / Cluster Luck Composite | 9 | KenPom/BartTorvik/NCAA Stats | Unsustainable 3PT%, FT luck, TO luck, close-game luck, shot quality luck — market slow to adjust. Biggest March pricing inefficiency per crowdsource consensus.
 
-True Road Resilience | 8 | TeamRankings | Differential between away-game adjusted efficiency margins and home performance over last 5 road contests versus season baseline to quantify genuine travel immunity.
+Public Market Bias Score | 9 | Action Network/Pregame | Merged public money + brand fade. Blue blood public bias is the #1 market error. Quantified contrarian signal when >70% public on name brands but metrics favor dog.
 
-Clutch Execution Rating | 8 | SportsReference | Offensive efficiency in last 5 minutes of single-possession games over last 5 contests compared to season crunch-time performance for late-game cover probability.
+Travel & Rest Disparity | 9 | NCAA Schedule Data | Rest days + cross-country travel + timezone drag. West Coast teams playing noon EST underperform, 2+ day rest edge ~2 pts. Brutally underrated in opening rounds.
 
-Pace Control Index | 8 | BartTorvik | Measures team's ability to impose its preferred tempo over last 5 games compared to season average, critical for totals betting market inefficiencies.
+Bench Depth Score | 9 | KenPom/BartTorvik | Rotation depth — foul trouble, back-to-back fatigue, compressed tournament schedule makes depth massively undervalued by market.
 
-Live Ball Turnover Vulnerability | 7 | Synergy | Percentage of opponent turnovers forced that are steals (live ball) in last 5 games, weighted by season transition defense efficiency to predict easy transition points allowed.
+Pace Control & Tempo Matchup | 8 | BartTorvik | Pace/tempo matchup + pace control ability — pace shock creates spread edges on neutral floors. Slow team dictating pace is undervalued.
 
-Offensive Rebounding Dominance | 7 | BartTorvik | Offensive rebounding percentage in last 5 games adjusted for opponent defensive rebounding strength versus season-long conference-adjusted rate for hidden possession value.
+3-Point Variance Exposure | 8 | NCAA Stats | 3PT shooting reliance vs opponent 3PT defense — single-elimination amplifies variance. Teams >45% of points from 3 are fade candidates as favorites.
 
-Transition Defense Vulnerability | 7 | Synergy | Points per possession allowed in transition over last 5 games compared to season average, accounting for opponent transition frequency faced to expose athletic mismatches.
+Tournament Context & Motivation | 8 | Manual/NCAA Bracket | Elimination pressure, round dynamics, seeding, bye advantage, motivation/bubble desperation.
 
-Rest & Travel Fatigue Index | 7 | NCAA Schedule Data | Calculated fatigue score combining miles traveled, time zones crossed, and days of rest preceding the game relative to season average recovery windows.
+Line Movement Signal | 8 | Pregame/DonBest | Sharp money signal, steam timing, book resistance. Pair with public_market_bias for full picture.
 
-3-Point Variance Risk | 7 | NCAA Stats | Quantifies reliance on 3PT shooting volume in last 5 games versus season-long accuracy to flag high-volatility offenses prone to regression against the spread.
+Turnover Margin | 8 | BartTorvik | TO resistance critical in March pressure. Underrated variance controller in one-and-done format.
 
-Def
+Clutch Execution Rating | 8 | SportsReference/Play-by-Play | Merged FT shooting + late-game fundamentals — FT%, press break ability, TO rate under pressure last 5 min, timeout play efficiency.
+
+Shot Quality Differential | 7 | Synergy/ShotQuality | Rim rate vs midrange reliance, points per shot. Teams with bad shot distribution collapse vs elite defenses in March.
+
+Experience & Maturity Index | 7 | KenPom/Sports-Reference | Returning tournament minutes + upperclassmen %. Teams with multiple players having prior tourney experience outperform under pressure.
+
+Defensive Scheme Mismatch | 7 | Synergy | Scheme-specific matchup — zone vs poor zone offense, press vs low assist/TO teams, pack-line vs iso-heavy. Scheme beats talent in single-elimination.
+
+Neutral Site Adjustment | 7 | TeamRankings/BartTorvik | Merged neutral site performance + venue effects — efficiency splits home vs neutral, shooting backdrop, proximity. Capped due to small sample noise.
+
+Offensive Rebounding Dominance | 7 | BartTorvik | Offensive + defensive rebounding differential in last 5 games adjusted for opponent strength — extra possessions in grinding tournament games.
+
+Conference Tourney Fatigue | 7 | NCAA Schedule Data | 3+ conf tourney games on short rest — Sunday champs fading Thursday, auto-fade signal.
+
+NET Ranking Gap | 7 | NCAA NET/RPI | Seed vs efficiency mismatches — detects over/under-seeded teams.
+
+Coaching Tournament Record | 7 | Sports-Reference | Coach's tournament track record — useful for extreme cases but overrated vs roster construction. Market already prices pedigree.
+
+Foul Environment | 7 | NCAA Stats/Ref Data | Merged foul trouble risk + ref whistle profile — ref crew foul rate + star-dependent teams vulnerable to whistle variance.
+
+Star Player Status | 6 | Injury Reports | Key player out/limited — market usually prices injuries efficiently, depth matters more in March.
+
+Recent Form | 6 | BartTorvik | Recent form / streak (last 5-10 games) — must pair with regression markers, recency trap risk.
+
+Conference Strength Adjustment | 6 | BartTorvik/KenPom | Strength of schedule adjustment — fake defense detection for weak-conference teams, mid-major metric inflation.
+
+ATS Trend | 3 | Action Network | Regular season ATS is pure noise in tournament — minor context only.
 
 ### PLAYER PROFILE
 
