@@ -72,6 +72,27 @@ body { background:#0a0a0f; color:#fff; font-family:-apple-system,BlinkMacSystemF
 
 /* Regrade btn */
 .regrade-btn { margin-top:8px; background:rgba(212,160,23,0.12); border:1px solid rgba(212,160,23,0.3); color:#D4A017; font-size:10px; font-weight:700; padding:5px 12px; border-radius:6px; cursor:pointer; }
+
+/* Pick UI */
+.pick-panel { display:none; margin-top:10px; border-top:1px solid rgba(245,158,11,0.15); padding-top:12px; }
+.pick-panel.open { display:block; }
+.pick-panel.locked { pointer-events:none; }
+.pick-type-row { display:flex; gap:8px; margin-bottom:10px; }
+.pick-type-btn { flex:1; padding:10px 0; text-align:center; font-size:12px; font-weight:800; letter-spacing:1px; border-radius:8px; cursor:pointer; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.5); transition:all 0.2s; }
+.pick-type-btn:hover { border-color:rgba(245,158,11,0.4); color:rgba(255,255,255,0.8); }
+.pick-type-btn.active { background:rgba(245,158,11,0.15); border-color:#F59E0B; color:#F59E0B; }
+.pick-sides-row { display:flex; gap:8px; margin-bottom:10px; }
+.pick-side-btn { flex:1; padding:12px 8px; text-align:center; font-size:13px; font-weight:700; border-radius:8px; cursor:pointer; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.6); transition:all 0.2s; line-height:1.3; }
+.pick-side-btn:hover { border-color:rgba(245,158,11,0.3); }
+.pick-side-btn.selected { background:rgba(245,158,11,0.12); border-color:#F59E0B; color:#fff; box-shadow:0 0 12px rgba(245,158,11,0.2); }
+.pick-side-btn .pick-odds { font-size:10px; color:rgba(255,255,255,0.35); margin-top:2px; }
+.pick-side-btn.selected .pick-odds { color:rgba(245,158,11,0.7); }
+.pick-reason-input { width:100%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:#fff; font-size:12px; padding:10px 14px; margin-bottom:10px; resize:none; font-family:inherit; }
+.pick-reason-input:focus { outline:none; border-color:rgba(245,158,11,0.4); }
+.pick-lock-btn { width:100%; padding:14px; font-size:14px; font-weight:900; letter-spacing:1.5px; border:none; border-radius:8px; cursor:pointer; transition:all 0.2s; background:linear-gradient(135deg,#F59E0B,#D97706); color:#000; }
+.pick-lock-btn:disabled { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.2); cursor:not-allowed; }
+.pick-lock-btn:not(:disabled):hover { box-shadow:0 0 20px rgba(245,158,11,0.3); transform:translateY(-1px); }
+.pick-locked-badge { display:inline-flex; align-items:center; gap:6px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.4); color:#10B981; font-size:11px; font-weight:800; padding:6px 14px; border-radius:8px; letter-spacing:0.5px; margin-top:8px; }
 </style>
 </head>
 <body>
@@ -474,6 +495,30 @@ function renderGames(games) {
         html += '</div>'; // end detail
 
         html += '<div class="detail-toggle" onclick="toggleDetail(' + idx + ')"><span>tap for full breakdown</span></div>';
+
+        // ── PICK UI ──
+        var _pickGameId = g.game_id || ('game-' + idx);
+        var _isLocked = isPickLocked(_pickGameId);
+        html += '<div style="text-align:center;margin-top:8px;">';
+        if (_isLocked) {
+            var _lockedPick = getLockedPick(_pickGameId);
+            html += '<div class="pick-locked-badge">&#10003; LOCKED — ' + (_lockedPick ? _lockedPick.selection : '') + '</div>';
+        } else {
+            html += '<div style="cursor:pointer;font-size:11px;color:#F59E0B;font-weight:700;letter-spacing:0.5px;padding:6px;" onclick="togglePickPanel(' + idx + ')">';
+            html += '&#9919; LOCK A PICK</div>';
+        }
+        html += '</div>';
+        html += '<div class="pick-panel" id="pick-panel-' + idx + '" data-game-idx="' + idx + '" data-game-id="' + _pickGameId + '">';
+        html += '<div class="pick-type-row">';
+        html += '<div class="pick-type-btn" onclick="selectPickType(' + idx + ',\'ml\')">ML</div>';
+        html += '<div class="pick-type-btn" onclick="selectPickType(' + idx + ',\'spread\')">SPREAD</div>';
+        html += '<div class="pick-type-btn" onclick="selectPickType(' + idx + ',\'total\')">TOTAL</div>';
+        html += '</div>';
+        html += '<div class="pick-sides-row" id="pick-sides-' + idx + '"></div>';
+        html += '<input class="pick-reason-input" id="pick-reason-' + idx + '" placeholder="Why this pick? (optional)" maxlength="280">';
+        html += '<button class="pick-lock-btn" id="pick-lock-' + idx + '" disabled onclick="lockPick(' + idx + ')">LOCK IT IN</button>';
+        html += '</div>';
+
         html += '</div>'; // end card
     });
     container.innerHTML = html;
@@ -693,6 +738,170 @@ function sendReply(id) {
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({ reply: msg, from: 'Peter' })
   }).then(function() { input.value = ''; loadBoard(); });
+}
+
+// ── PICK UI ──
+var _pickState = {}; // idx -> { type, selection, odds }
+
+function isPickLocked(gameId) {
+    try {
+        var locked = JSON.parse(localStorage.getItem('peter_locked_picks') || '{}');
+        return !!locked[gameId];
+    } catch(e) { return false; }
+}
+
+function getLockedPick(gameId) {
+    try {
+        var locked = JSON.parse(localStorage.getItem('peter_locked_picks') || '{}');
+        return locked[gameId] || null;
+    } catch(e) { return null; }
+}
+
+function saveLockedPick(gameId, pickData) {
+    try {
+        var locked = JSON.parse(localStorage.getItem('peter_locked_picks') || '{}');
+        locked[gameId] = pickData;
+        localStorage.setItem('peter_locked_picks', JSON.stringify(locked));
+    } catch(e) {}
+}
+
+function togglePickPanel(idx) {
+    var panel = document.getElementById('pick-panel-' + idx);
+    if (panel) {
+        panel.classList.toggle('open');
+    }
+}
+
+function selectPickType(idx, type) {
+    var panel = document.getElementById('pick-panel-' + idx);
+    if (!panel) return;
+    var g = _gamesData[idx];
+    if (!g) return;
+
+    // Update state
+    if (!_pickState[idx]) _pickState[idx] = {};
+    _pickState[idx].type = type;
+    _pickState[idx].selection = null;
+    _pickState[idx].odds = null;
+
+    // Highlight active type button
+    var btns = panel.querySelectorAll('.pick-type-btn');
+    btns.forEach(function(b) { b.classList.remove('active'); });
+    btns.forEach(function(b) {
+        if ((type === 'ml' && b.textContent === 'ML') ||
+            (type === 'spread' && b.textContent === 'SPREAD') ||
+            (type === 'total' && b.textContent === 'TOTAL')) {
+            b.classList.add('active');
+        }
+    });
+
+    // Build side buttons
+    var sidesContainer = document.getElementById('pick-sides-' + idx);
+    var odds = g.odds || {};
+    var html = '';
+
+    if (type === 'ml') {
+        var awayML = odds.ml_away || odds.away_ml || '--';
+        var homeML = odds.ml_home || odds.home_ml || '--';
+        html += '<div class="pick-side-btn" onclick="selectPickSide(' + idx + ',this,\'' + _esc(g.away) + ' ML\',\'' + awayML + '\')">' + (g.away_abbrev || g.away) + ' ML<div class="pick-odds">' + awayML + '</div></div>';
+        html += '<div class="pick-side-btn" onclick="selectPickSide(' + idx + ',this,\'' + _esc(g.home) + ' ML\',\'' + homeML + '\')">' + (g.home_abbrev || g.home) + ' ML<div class="pick-odds">' + homeML + '</div></div>';
+    } else if (type === 'spread') {
+        var spreadHome = odds.spread_home || odds.spread || '--';
+        var spreadAway = spreadHome !== '--' ? (parseFloat(spreadHome) > 0 ? '-' + Math.abs(parseFloat(spreadHome)) : '+' + Math.abs(parseFloat(spreadHome))) : '--';
+        var spreadHomeDisplay = spreadHome !== '--' ? (parseFloat(spreadHome) > 0 ? '+' + spreadHome : spreadHome) : '--';
+        html += '<div class="pick-side-btn" onclick="selectPickSide(' + idx + ',this,\'' + _esc(g.away) + ' ' + spreadAway + '\',\'\')">' + (g.away_abbrev || g.away) + ' ' + spreadAway + '</div>';
+        html += '<div class="pick-side-btn" onclick="selectPickSide(' + idx + ',this,\'' + _esc(g.home) + ' ' + spreadHomeDisplay + '\',\'\')">' + (g.home_abbrev || g.home) + ' ' + spreadHomeDisplay + '</div>';
+    } else if (type === 'total') {
+        var total = odds.total || odds.over_under || '--';
+        html += '<div class="pick-side-btn" onclick="selectPickSide(' + idx + ',this,\'OVER ' + total + '\',\'\')">OVER ' + total + '</div>';
+        html += '<div class="pick-side-btn" onclick="selectPickSide(' + idx + ',this,\'UNDER ' + total + '\',\'\')">UNDER ' + total + '</div>';
+    }
+
+    sidesContainer.innerHTML = html;
+
+    // Disable lock button until side is selected
+    document.getElementById('pick-lock-' + idx).disabled = true;
+}
+
+function _esc(s) { return (s || '').replace(/'/g, "\\'"); }
+
+function selectPickSide(idx, el, selection, odds) {
+    // Highlight selected side
+    var row = el.parentElement;
+    row.querySelectorAll('.pick-side-btn').forEach(function(b) { b.classList.remove('selected'); });
+    el.classList.add('selected');
+
+    // Update state
+    if (!_pickState[idx]) _pickState[idx] = {};
+    _pickState[idx].selection = selection;
+    _pickState[idx].odds = odds;
+
+    // Enable lock button
+    document.getElementById('pick-lock-' + idx).disabled = false;
+}
+
+function lockPick(idx) {
+    var state = _pickState[idx];
+    if (!state || !state.selection || !state.type) return;
+
+    var g = _gamesData[idx];
+    if (!g) return;
+
+    var panel = document.getElementById('pick-panel-' + idx);
+    var gameId = panel.getAttribute('data-game-id');
+
+    // Prevent double lock
+    if (isPickLocked(gameId)) return;
+
+    var reasoning = (document.getElementById('pick-reason-' + idx).value || '').trim();
+    var lockBtn = document.getElementById('pick-lock-' + idx);
+    lockBtn.disabled = true;
+    lockBtn.textContent = 'LOCKING...';
+
+    var payload = {
+        name: 'Peter',
+        sport: g.sport || 'nba',
+        matchup: (g.away || '') + ' @ ' + (g.home || ''),
+        selection: state.selection,
+        odds: state.odds || '',
+        type: state.type,
+        reasoning: reasoning,
+        timestamp: new Date().toISOString(),
+        source: 'profile_card'
+    };
+
+    fetch('/api/picks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    }).then(function(r) {
+        if (!r.ok) throw new Error('Server returned ' + r.status);
+        return r.json();
+    }).then(function() {
+        // Save to localStorage
+        saveLockedPick(gameId, { selection: state.selection, type: state.type, odds: state.odds });
+
+        // Replace pick panel with locked badge
+        panel.innerHTML = '<div class="pick-locked-badge" style="margin:0 auto;">&#10003; LOCKED — ' + state.selection + '</div>';
+        panel.classList.add('open');
+        panel.classList.add('locked');
+
+        // Also hide the "LOCK A PICK" trigger
+        var trigger = panel.previousElementSibling;
+        if (trigger) {
+            trigger.innerHTML = '<div class="pick-locked-badge">&#10003; LOCKED — ' + state.selection + '</div>';
+        }
+    }).catch(function(err) {
+        lockBtn.disabled = false;
+        lockBtn.textContent = 'LOCK IT IN';
+        lockBtn.style.background = 'rgba(239,68,68,0.2)';
+        lockBtn.style.color = '#ef4444';
+        setTimeout(function() {
+            lockBtn.style.background = '';
+            lockBtn.style.color = '';
+        }, 2000);
+        console.error('Lock pick failed:', err);
+    });
 }
 
 // ── INIT ──

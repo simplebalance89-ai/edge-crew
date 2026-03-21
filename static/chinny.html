@@ -260,6 +260,140 @@ a { color:inherit; text-decoration:none; }
     color:rgba(255,255,255,0.25);
 }
 
+/* ── PICK UI ── */
+.ch-pick-panel {
+    display:none;
+    margin-top:10px;
+    border-top:1px solid rgba(16,185,129,0.2);
+    padding-top:14px;
+    animation:pickSlide 0.2s ease-out;
+}
+@keyframes pickSlide {
+    from { opacity:0; transform:translateY(-8px); }
+    to { opacity:1; transform:translateY(0); }
+}
+.ch-pick-panel.open { display:block; }
+.ch-pick-type-bar {
+    display:flex;
+    gap:6px;
+    margin-bottom:10px;
+}
+.ch-pick-type-btn {
+    flex:1;
+    padding:10px 0;
+    text-align:center;
+    font-size:12px;
+    font-weight:800;
+    letter-spacing:0.5px;
+    color:rgba(255,255,255,0.4);
+    background:rgba(255,255,255,0.04);
+    border:1px solid rgba(255,255,255,0.1);
+    border-radius:8px;
+    cursor:pointer;
+    transition:all 0.2s;
+}
+.ch-pick-type-btn:hover { color:rgba(255,255,255,0.7); background:rgba(255,255,255,0.06); }
+.ch-pick-type-btn.active {
+    color:#10B981;
+    background:rgba(16,185,129,0.1);
+    border-color:rgba(16,185,129,0.4);
+}
+.ch-pick-sides {
+    display:flex;
+    gap:8px;
+    margin-bottom:10px;
+}
+.ch-pick-side-btn {
+    flex:1;
+    padding:12px 8px;
+    text-align:center;
+    font-size:13px;
+    font-weight:700;
+    color:rgba(255,255,255,0.5);
+    background:rgba(255,255,255,0.03);
+    border:2px solid rgba(255,255,255,0.08);
+    border-radius:10px;
+    cursor:pointer;
+    transition:all 0.2s;
+    line-height:1.3;
+}
+.ch-pick-side-btn:hover { border-color:rgba(255,255,255,0.2); color:#fff; }
+.ch-pick-side-btn.selected {
+    color:#10B981;
+    border-color:#10B981;
+    background:rgba(16,185,129,0.08);
+    box-shadow:0 0 12px rgba(16,185,129,0.15);
+}
+.ch-pick-side-btn .pick-odds {
+    display:block;
+    font-size:10px;
+    color:rgba(255,255,255,0.35);
+    margin-top:2px;
+}
+.ch-pick-side-btn.selected .pick-odds { color:rgba(16,185,129,0.7); }
+.ch-pick-reason {
+    width:100%;
+    background:rgba(255,255,255,0.04);
+    border:1px solid rgba(255,255,255,0.1);
+    border-radius:8px;
+    padding:10px 14px;
+    color:#fff;
+    font-size:13px;
+    font-family:inherit;
+    resize:none;
+    outline:none;
+    margin-bottom:10px;
+    transition:border-color 0.2s;
+}
+.ch-pick-reason:focus { border-color:rgba(16,185,129,0.4); }
+.ch-pick-reason::placeholder { color:rgba(255,255,255,0.2); }
+.ch-lock-btn {
+    width:100%;
+    padding:12px;
+    font-size:14px;
+    font-weight:900;
+    letter-spacing:1px;
+    color:#000;
+    background:linear-gradient(135deg, #10B981, #059669);
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    transition:all 0.2s;
+}
+.ch-lock-btn:hover { filter:brightness(1.1); transform:translateY(-1px); }
+.ch-lock-btn:disabled {
+    background:rgba(255,255,255,0.08);
+    color:rgba(255,255,255,0.2);
+    cursor:not-allowed;
+    transform:none;
+    filter:none;
+}
+.ch-locked-badge {
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    background:rgba(16,185,129,0.12);
+    border:1px solid rgba(16,185,129,0.3);
+    color:#10B981;
+    font-size:11px;
+    font-weight:800;
+    padding:6px 12px;
+    border-radius:8px;
+    margin-top:8px;
+}
+.ch-locked-badge .lock-icon { font-size:13px; }
+.ch-pick-trigger {
+    text-align:center;
+    margin-top:4px;
+    cursor:pointer;
+}
+.ch-pick-trigger span {
+    font-size:10px;
+    color:rgba(16,185,129,0.4);
+    transition:color 0.2s;
+}
+.ch-pick-trigger:hover span { color:#10B981; }
+
 /* ── LOADING ── */
 .ch-loading {
     color:rgba(255,255,255,0.3);
@@ -663,6 +797,29 @@ function renderGamesTo(games, container, sport) {
         html += '</div>'; // end detail
 
         html += '<div class="ch-expand-hint" onclick="toggleDetail(' + idx + ')"><span>tap for full breakdown</span></div>';
+
+        // ── LOCK PICK UI ──
+        var pickId = _sport + '-' + idx;
+        var gameKey = _sport + '|' + g.matchup;
+        var isLocked = _lockedPicks[gameKey];
+
+        if (isLocked) {
+            html += '<div class="ch-locked-badge"><span class="lock-icon">&#128274;</span> LOCKED — ' + isLocked.selection + '</div>';
+        } else {
+            html += '<div class="ch-pick-trigger" onclick="event.stopPropagation();togglePickPanel(\'' + pickId + '\')"><span>&#128274; lock a pick</span></div>';
+        }
+
+        html += '<div id="pick-panel-' + pickId + '" class="ch-pick-panel" data-game-key="' + gameKey.replace(/'/g, '&#39;') + '" data-sport="' + _sport + '" data-matchup="' + (g.matchup || '').replace(/'/g, '&#39;') + '" data-away="' + (g.away || '').replace(/'/g, '&#39;') + '" data-home="' + (g.home || '').replace(/'/g, '&#39;') + '" data-spread-home="' + (odds.spread_home || odds.spread || '') + '" data-total="' + (odds.total || odds.over_under || '') + '" data-ml-home="' + (odds.ml_home || odds.home_ml || '') + '" data-ml-away="' + (odds.ml_away || odds.away_ml || '') + '">';
+        html += '<div class="ch-pick-type-bar">';
+        html += '<div class="ch-pick-type-btn" onclick="selectPickType(\'' + pickId + '\',\'ml\')">ML</div>';
+        html += '<div class="ch-pick-type-btn" onclick="selectPickType(\'' + pickId + '\',\'spread\')">SPREAD</div>';
+        html += '<div class="ch-pick-type-btn" onclick="selectPickType(\'' + pickId + '\',\'total\')">TOTAL</div>';
+        html += '</div>';
+        html += '<div id="pick-sides-' + pickId + '" class="ch-pick-sides" style="display:none;"></div>';
+        html += '<textarea class="ch-pick-reason" id="pick-reason-' + pickId + '" rows="2" placeholder="Why this pick? (optional)"></textarea>';
+        html += '<button class="ch-lock-btn" id="pick-lock-' + pickId + '" disabled onclick="lockPick(\'' + pickId + '\')">LOCK PICK</button>';
+        html += '</div>';
+
         html += '</div>'; // end card
     });
 
@@ -897,6 +1054,162 @@ function sendReply(id) {
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({ reply: msg, from: 'Peter' })
   }).then(function() { input.value = ''; loadBoard(); });
+}
+
+// ── PICK UI ──
+var _lockedPicks = {};
+var _pickSelections = {}; // pickId -> { type, selection, odds, side }
+
+// Load locked picks from localStorage
+(function() {
+    try {
+        var stored = localStorage.getItem('chinny_locked_picks');
+        if (stored) _lockedPicks = JSON.parse(stored);
+    } catch(e) {}
+})();
+
+function _saveLockedPicks() {
+    try { localStorage.setItem('chinny_locked_picks', JSON.stringify(_lockedPicks)); } catch(e) {}
+}
+
+function togglePickPanel(pickId) {
+    var panel = document.getElementById('pick-panel-' + pickId);
+    if (!panel) return;
+    if (panel.classList.contains('open')) {
+        panel.classList.remove('open');
+    } else {
+        // Close any other open panels first
+        document.querySelectorAll('.ch-pick-panel.open').forEach(function(p) { p.classList.remove('open'); });
+        panel.classList.add('open');
+    }
+}
+
+function selectPickType(pickId, type) {
+    var panel = document.getElementById('pick-panel-' + pickId);
+    if (!panel) return;
+
+    // Highlight active type button
+    var btns = panel.querySelectorAll('.ch-pick-type-btn');
+    btns.forEach(function(b) { b.classList.remove('active'); });
+    btns.forEach(function(b) { if (b.textContent.trim().toLowerCase() === type) b.classList.add('active'); });
+
+    // Read game data from panel attributes
+    var away = panel.getAttribute('data-away');
+    var home = panel.getAttribute('data-home');
+    var spreadHome = panel.getAttribute('data-spread-home');
+    var total = panel.getAttribute('data-total');
+    var mlHome = panel.getAttribute('data-ml-home');
+    var mlAway = panel.getAttribute('data-ml-away');
+
+    // Compute spread away (opposite of home spread)
+    var spreadAway = '';
+    if (spreadHome && spreadHome !== '--' && spreadHome !== '') {
+        var sh = parseFloat(spreadHome);
+        if (!isNaN(sh)) spreadAway = (sh > 0 ? '-' : '+') + Math.abs(sh);
+        if (sh === 0) spreadAway = '0';
+        // Format home spread with sign
+        spreadHome = (sh > 0 ? '+' : '') + sh;
+    }
+
+    var sidesDiv = document.getElementById('pick-sides-' + pickId);
+    var html = '';
+
+    // Clear previous selection for this pick
+    _pickSelections[pickId] = { type: type, selection: null, odds: null, side: null };
+    var lockBtn = document.getElementById('pick-lock-' + pickId);
+    if (lockBtn) lockBtn.disabled = true;
+
+    if (type === 'ml') {
+        html += '<div class="ch-pick-side-btn" onclick="selectSide(\'' + pickId + '\',this,\'' + away.replace(/'/g, "\\'") + ' ML\',\'' + (mlAway || '') + '\')">';
+        html += away + ' ML<span class="pick-odds">' + (mlAway || '--') + '</span></div>';
+        html += '<div class="ch-pick-side-btn" onclick="selectSide(\'' + pickId + '\',this,\'' + home.replace(/'/g, "\\'") + ' ML\',\'' + (mlHome || '') + '\')">';
+        html += home + ' ML<span class="pick-odds">' + (mlHome || '--') + '</span></div>';
+    } else if (type === 'spread') {
+        html += '<div class="ch-pick-side-btn" onclick="selectSide(\'' + pickId + '\',this,\'' + away.replace(/'/g, "\\'") + ' ' + spreadAway + '\',\'\')">';
+        html += away + ' ' + spreadAway + '</div>';
+        html += '<div class="ch-pick-side-btn" onclick="selectSide(\'' + pickId + '\',this,\'' + home.replace(/'/g, "\\'") + ' ' + spreadHome + '\',\'\')">';
+        html += home + ' ' + spreadHome + '</div>';
+    } else if (type === 'total') {
+        html += '<div class="ch-pick-side-btn" onclick="selectSide(\'' + pickId + '\',this,\'OVER ' + (total || '--') + '\',\'\')">';
+        html += 'OVER ' + (total || '--') + '</div>';
+        html += '<div class="ch-pick-side-btn" onclick="selectSide(\'' + pickId + '\',this,\'UNDER ' + (total || '--') + '\',\'\')">';
+        html += 'UNDER ' + (total || '--') + '</div>';
+    }
+
+    sidesDiv.innerHTML = html;
+    sidesDiv.style.display = 'flex';
+}
+
+function selectSide(pickId, btn, selection, odds) {
+    // Deselect siblings
+    var parent = btn.parentNode;
+    parent.querySelectorAll('.ch-pick-side-btn').forEach(function(b) { b.classList.remove('selected'); });
+    btn.classList.add('selected');
+
+    // Store selection
+    _pickSelections[pickId] = _pickSelections[pickId] || {};
+    _pickSelections[pickId].selection = selection;
+    _pickSelections[pickId].odds = odds;
+
+    // Enable lock button
+    var lockBtn = document.getElementById('pick-lock-' + pickId);
+    if (lockBtn) lockBtn.disabled = false;
+}
+
+function lockPick(pickId) {
+    var panel = document.getElementById('pick-panel-' + pickId);
+    if (!panel) return;
+
+    var sel = _pickSelections[pickId];
+    if (!sel || !sel.selection) return;
+
+    var gameKey = panel.getAttribute('data-game-key');
+    if (_lockedPicks[gameKey]) return; // already locked
+
+    var lockBtn = document.getElementById('pick-lock-' + pickId);
+    lockBtn.disabled = true;
+    lockBtn.textContent = 'LOCKING...';
+
+    var reasoning = (document.getElementById('pick-reason-' + pickId) || {}).value || '';
+
+    var payload = {
+        name: 'Chinny',
+        sport: panel.getAttribute('data-sport'),
+        matchup: panel.getAttribute('data-matchup'),
+        selection: sel.selection,
+        odds: sel.odds || '',
+        type: sel.type,
+        reasoning: reasoning,
+        timestamp: new Date().toISOString(),
+        source: 'profile_card'
+    };
+
+    fetch('/api/picks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        // Mark as locked
+        _lockedPicks[gameKey] = { selection: sel.selection, timestamp: payload.timestamp };
+        _saveLockedPicks();
+
+        // Replace the pick panel + trigger with a locked badge
+        panel.classList.remove('open');
+        panel.style.display = 'none';
+
+        // Find the trigger (previous sibling)
+        var trigger = panel.previousElementSibling;
+        if (trigger && trigger.classList.contains('ch-pick-trigger')) {
+            trigger.outerHTML = '<div class="ch-locked-badge"><span class="lock-icon">&#128274;</span> LOCKED — ' + sel.selection + '</div>';
+        }
+    })
+    .catch(function(err) {
+        lockBtn.disabled = false;
+        lockBtn.textContent = 'LOCK PICK';
+        alert('Error locking pick: ' + err.message);
+    });
 }
 
 // ── INIT ──

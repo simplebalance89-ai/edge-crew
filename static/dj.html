@@ -239,6 +239,134 @@ a { color: #38BDF8; text-decoration: none; }
 ::-webkit-scrollbar { height: 4px; width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+
+/* ─── Lock Pick UI ─── */
+.pick-panel {
+    display: none;
+    margin-top: 10px;
+    padding: 14px;
+    border-top: 1px solid rgba(231,76,60,0.2);
+    background: rgba(231,76,60,0.04);
+    border-radius: 0 0 12px 12px;
+    animation: pickSlide 0.2s ease-out;
+}
+.pick-panel.open { display: block; }
+@keyframes pickSlide {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.pick-type-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.pick-type-btn {
+    flex: 1;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.5);
+    font-size: 13px;
+    font-weight: 800;
+    padding: 10px 0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 1px;
+    text-align: center;
+}
+.pick-type-btn:hover { border-color: rgba(231,76,60,0.4); color: rgba(255,255,255,0.7); }
+.pick-type-btn.active {
+    background: rgba(231,76,60,0.15);
+    border-color: #E74C3C;
+    color: #E74C3C;
+}
+.pick-sides-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.pick-side-btn {
+    flex: 1;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.6);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 12px 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+    line-height: 1.4;
+}
+.pick-side-btn:hover { border-color: rgba(231,76,60,0.3); }
+.pick-side-btn.active {
+    border-color: #E74C3C;
+    box-shadow: 0 0 12px rgba(231,76,60,0.25);
+    color: #fff;
+    background: rgba(231,76,60,0.1);
+}
+.pick-side-btn .odds-line {
+    font-size: 10px;
+    color: rgba(255,255,255,0.35);
+    margin-top: 2px;
+}
+.pick-reason-input {
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 13px;
+    padding: 10px 14px;
+    outline: none;
+    margin-bottom: 12px;
+    transition: border-color 0.2s;
+}
+.pick-reason-input:focus { border-color: rgba(231,76,60,0.5); }
+.pick-reason-input::placeholder { color: rgba(255,255,255,0.25); }
+.pick-lock-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #E74C3C 0%, #C0392B 100%);
+    border: none;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 900;
+    padding: 12px 0;
+    border-radius: 8px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: all 0.15s;
+    opacity: 0.4;
+    pointer-events: none;
+}
+.pick-lock-btn.ready {
+    opacity: 1;
+    pointer-events: auto;
+}
+.pick-lock-btn.ready:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(231,76,60,0.3);
+}
+.pick-lock-btn:disabled {
+    opacity: 0.3;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+.pick-locked-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(16,185,129,0.12);
+    border: 1px solid rgba(16,185,129,0.3);
+    color: #10B981;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 6px 14px;
+    border-radius: 8px;
+    letter-spacing: 0.5px;
+    margin-top: 8px;
+}
 </style>
 </head>
 <body>
@@ -284,6 +412,8 @@ var gamesData = null;
 var officialMatrix = [];
 var djMatrix = {};
 var matrixLoaded = false;
+var lockedPicks = JSON.parse(localStorage.getItem('dj_locked_picks') || '{}');
+var openPickPanel = null; // game_id of currently open panel
 
 // ─── Tab Switching ───
 function switchTab(tab) {
@@ -616,9 +746,66 @@ function renderGames(games) {
         html += '<span>tap for full breakdown</span>';
         html += '</div>';
 
+        // ─── Lock Pick Panel ───
+        var gameId = g.game_id || (g.away + '_' + g.home).replace(/\s+/g, '_');
+        var isLocked = !!lockedPicks[gameId];
+        var awayTeam = g.away_abbrev || g.away || 'AWAY';
+        var homeTeam = g.home_abbrev || g.home || 'HOME';
+        var pickOdds = g.odds || {};
+        var spreadHome = pickOdds.spread_home || pickOdds.spread || '';
+        var spreadAway = spreadHome ? (parseFloat(spreadHome) > 0 ? '-' + Math.abs(parseFloat(spreadHome)) : '+' + Math.abs(parseFloat(spreadHome))) : '';
+        var totalVal = pickOdds.total || pickOdds.over_under || '';
+        var mlHome = pickOdds.ml_home || pickOdds.home_ml || '';
+        var mlAway = pickOdds.ml_away || pickOdds.away_ml || '';
+
+        if (isLocked) {
+            html += '<div class="pick-locked-badge" style="margin:10px 0 0 0;">';
+            html += '<span style="font-size:14px;">&#x1F512;</span> LOCKED — ' + lockedPicks[gameId].selection;
+            html += '</div>';
+        }
+
+        html += '<div id="pick-panel-' + idx + '" class="pick-panel" data-gameid="' + gameId + '" data-idx="' + idx + '"';
+        html += ' data-away="' + g.away + '" data-home="' + g.home + '" data-sport="' + (g.sport || 'ncaab') + '"';
+        html += ' data-matchup="' + g.matchup + '"';
+        html += ' data-spread-home="' + spreadHome + '" data-spread-away="' + spreadAway + '"';
+        html += ' data-total="' + totalVal + '" data-ml-home="' + mlHome + '" data-ml-away="' + mlAway + '"';
+        html += ' data-away-abbrev="' + awayTeam + '" data-home-abbrev="' + homeTeam + '"';
+        html += '>';
+
+        if (isLocked) {
+            html += '<div style="text-align:center;color:#10B981;font-weight:700;font-size:13px;">Pick locked for this game.</div>';
+        } else {
+            // Pick type row
+            html += '<div class="pick-type-row">';
+            html += '<button class="pick-type-btn" onclick="event.stopPropagation();selectPickType(' + idx + ',\'ml\',this)">ML</button>';
+            html += '<button class="pick-type-btn" onclick="event.stopPropagation();selectPickType(' + idx + ',\'spread\',this)">SPREAD</button>';
+            html += '<button class="pick-type-btn" onclick="event.stopPropagation();selectPickType(' + idx + ',\'total\',this)">TOTAL</button>';
+            html += '</div>';
+
+            // Side selection (populated dynamically)
+            html += '<div id="pick-sides-' + idx + '" class="pick-sides-row" style="display:none;"></div>';
+
+            // Reasoning
+            html += '<input type="text" id="pick-reason-' + idx + '" class="pick-reason-input" placeholder="Why this pick? (optional)" onclick="event.stopPropagation();" onkeydown="event.stopPropagation();">';
+
+            // Lock button
+            html += '<button id="pick-lock-' + idx + '" class="pick-lock-btn" onclick="event.stopPropagation();lockPick(' + idx + ')">LOCK PICK</button>';
+        }
+        html += '</div>'; // end pick-panel
+
         html += '</div>'; // end card
     });
     container.innerHTML = html;
+
+    // Attach click-to-toggle-pick-panel on each card
+    document.querySelectorAll('.profedge-card').forEach(function(card, idx) {
+        card.style.cursor = 'pointer';
+        card.addEventListener('click', function(e) {
+            // Don't toggle if clicking inside the pick panel itself, detail toggle, or regrade btn
+            if (e.target.closest('.pick-panel') || e.target.closest('.detail-toggle') || e.target.tagName === 'BUTTON') return;
+            togglePickPanel(idx);
+        });
+    });
 }
 
 // ─── Load Matrix ───
@@ -838,6 +1025,156 @@ function sendReply(id) {
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({ reply: msg, from: 'Peter' })
   }).then(function() { input.value = ''; loadBoard(); });
+}
+
+// ─── Pick Panel Functions ───
+function togglePickPanel(idx) {
+    var panel = document.getElementById('pick-panel-' + idx);
+    if (!panel) return;
+    if (panel.classList.contains('open')) {
+        panel.classList.remove('open');
+        openPickPanel = null;
+    } else {
+        // Close any other open panel
+        document.querySelectorAll('.pick-panel.open').forEach(function(p) { p.classList.remove('open'); });
+        panel.classList.add('open');
+        openPickPanel = idx;
+    }
+}
+
+function selectPickType(idx, type, btn) {
+    var panel = document.getElementById('pick-panel-' + idx);
+    if (!panel) return;
+
+    // Highlight active type button
+    panel.querySelectorAll('.pick-type-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+
+    var sidesRow = document.getElementById('pick-sides-' + idx);
+    sidesRow.style.display = 'flex';
+    sidesRow.innerHTML = '';
+
+    var awayAbbrev = panel.getAttribute('data-away-abbrev');
+    var homeAbbrev = panel.getAttribute('data-home-abbrev');
+    var spreadHome = panel.getAttribute('data-spread-home');
+    var spreadAway = panel.getAttribute('data-spread-away');
+    var total = panel.getAttribute('data-total');
+    var mlHome = panel.getAttribute('data-ml-home');
+    var mlAway = panel.getAttribute('data-ml-away');
+
+    panel.setAttribute('data-pick-type', type);
+    panel.removeAttribute('data-pick-selection');
+    panel.removeAttribute('data-pick-odds');
+
+    // Reset lock button
+    var lockBtn = document.getElementById('pick-lock-' + idx);
+    if (lockBtn) { lockBtn.classList.remove('ready'); }
+
+    if (type === 'ml') {
+        sidesRow.innerHTML =
+            '<button class="pick-side-btn" onclick="event.stopPropagation();selectPickSide(' + idx + ',\'' + awayAbbrev + ' ML\',\'' + mlAway + '\',this)">' +
+                awayAbbrev + ' ML' +
+                '<div class="odds-line">' + (mlAway || '--') + '</div>' +
+            '</button>' +
+            '<button class="pick-side-btn" onclick="event.stopPropagation();selectPickSide(' + idx + ',\'' + homeAbbrev + ' ML\',\'' + mlHome + '\',this)">' +
+                homeAbbrev + ' ML' +
+                '<div class="odds-line">' + (mlHome || '--') + '</div>' +
+            '</button>';
+    } else if (type === 'spread') {
+        var spHomeDisplay = spreadHome ? (parseFloat(spreadHome) > 0 ? '+' + spreadHome : spreadHome) : '--';
+        var spAwayDisplay = spreadAway || '--';
+        sidesRow.innerHTML =
+            '<button class="pick-side-btn" onclick="event.stopPropagation();selectPickSide(' + idx + ',\'' + awayAbbrev + ' ' + spAwayDisplay + '\',\'\',this)">' +
+                awayAbbrev + ' ' + spAwayDisplay +
+            '</button>' +
+            '<button class="pick-side-btn" onclick="event.stopPropagation();selectPickSide(' + idx + ',\'' + homeAbbrev + ' ' + spHomeDisplay + '\',\'\',this)">' +
+                homeAbbrev + ' ' + spHomeDisplay +
+            '</button>';
+    } else if (type === 'total') {
+        sidesRow.innerHTML =
+            '<button class="pick-side-btn" onclick="event.stopPropagation();selectPickSide(' + idx + ',\'OVER ' + (total || '--') + '\',\'\',this)">' +
+                'OVER ' + (total || '--') +
+            '</button>' +
+            '<button class="pick-side-btn" onclick="event.stopPropagation();selectPickSide(' + idx + ',\'UNDER ' + (total || '--') + '\',\'\',this)">' +
+                'UNDER ' + (total || '--') +
+            '</button>';
+    }
+}
+
+function selectPickSide(idx, selection, odds, btn) {
+    var panel = document.getElementById('pick-panel-' + idx);
+    if (!panel) return;
+
+    // Highlight active side button
+    panel.querySelectorAll('.pick-side-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+
+    panel.setAttribute('data-pick-selection', selection);
+    panel.setAttribute('data-pick-odds', odds);
+
+    // Enable lock button
+    var lockBtn = document.getElementById('pick-lock-' + idx);
+    if (lockBtn) { lockBtn.classList.add('ready'); }
+}
+
+function lockPick(idx) {
+    var panel = document.getElementById('pick-panel-' + idx);
+    if (!panel) return;
+
+    var gameId = panel.getAttribute('data-gameid');
+    var selection = panel.getAttribute('data-pick-selection');
+    var pickOdds = panel.getAttribute('data-pick-odds') || '';
+    var pickType = panel.getAttribute('data-pick-type') || '';
+    var reasoning = document.getElementById('pick-reason-' + idx).value.trim();
+    var matchup = panel.getAttribute('data-matchup') || (panel.getAttribute('data-away') + ' @ ' + panel.getAttribute('data-home'));
+    var sport = panel.getAttribute('data-sport') || 'ncaab';
+
+    if (!selection) return;
+    if (lockedPicks[gameId]) return; // already locked
+
+    var lockBtn = document.getElementById('pick-lock-' + idx);
+    lockBtn.textContent = 'LOCKING...';
+    lockBtn.classList.remove('ready');
+
+    var payload = {
+        name: 'DJ',
+        sport: sport,
+        matchup: matchup,
+        selection: selection,
+        odds: pickOdds,
+        type: pickType,
+        reasoning: reasoning,
+        timestamp: new Date().toISOString(),
+        source: 'profile_card'
+    };
+
+    fetch('/api/picks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        // Save to localStorage
+        lockedPicks[gameId] = { selection: selection, odds: pickOdds, type: pickType };
+        localStorage.setItem('dj_locked_picks', JSON.stringify(lockedPicks));
+
+        // Replace panel content with locked state
+        panel.innerHTML = '<div style="text-align:center;color:#10B981;font-weight:700;font-size:13px;">Pick locked for this game.</div>';
+
+        // Insert locked badge before the panel
+        var badge = document.createElement('div');
+        badge.className = 'pick-locked-badge';
+        badge.style.margin = '10px 0 0 0';
+        badge.innerHTML = '<span style="font-size:14px;">&#x1F512;</span> LOCKED — ' + selection;
+        panel.parentNode.insertBefore(badge, panel);
+    })
+    .catch(function(e) {
+        lockBtn.textContent = 'LOCK PICK';
+        lockBtn.classList.add('ready');
+        console.error('Lock pick error:', e);
+        alert('Failed to lock pick: ' + e.message);
+    });
 }
 
 // ─── Init ───

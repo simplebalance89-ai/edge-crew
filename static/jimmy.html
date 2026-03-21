@@ -244,6 +244,110 @@
   }
 
   .game-card:hover { border-color: var(--accent); }
+  .game-card.pick-locked { border-color: #10B981; }
+
+  /* Lock Pick UI */
+  .pick-panel {
+    display: none;
+    padding: 14px 0 6px;
+    border-top: 1px solid rgba(96,165,250,0.15);
+    margin-top: 12px;
+    animation: pickSlide 0.25s ease;
+  }
+  .pick-panel.open { display: block; }
+  @keyframes pickSlide { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .pick-type-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .pick-type-btn {
+    flex: 1;
+    padding: 10px 0;
+    border-radius: 8px;
+    border: 1px solid #2a2a40;
+    background: rgba(96,165,250,0.06);
+    color: var(--text-dim);
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+    text-align: center;
+  }
+  .pick-type-btn:hover { border-color: #60A5FA; color: var(--text); }
+  .pick-type-btn.active { background: rgba(96,165,250,0.18); border-color: #60A5FA; color: #60A5FA; }
+
+  .pick-side-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .pick-side-btn {
+    flex: 1;
+    padding: 12px 8px;
+    border-radius: 8px;
+    border: 1px solid #2a2a40;
+    background: rgba(255,255,255,0.03);
+    color: var(--text);
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    line-height: 1.3;
+  }
+  .pick-side-btn:hover { border-color: #60A5FA; }
+  .pick-side-btn.active { border-color: #60A5FA; box-shadow: 0 0 12px rgba(96,165,250,0.25); background: rgba(96,165,250,0.12); color: #60A5FA; }
+
+  .pick-reasoning {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #2a2a40;
+    background: rgba(255,255,255,0.03);
+    color: var(--text);
+    font-size: 0.8rem;
+    font-family: inherit;
+    resize: none;
+    margin-bottom: 10px;
+    transition: border-color 0.2s;
+  }
+  .pick-reasoning:focus { outline: none; border-color: #60A5FA; }
+  .pick-reasoning::placeholder { color: var(--text-dim); }
+
+  .pick-lock-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    background: linear-gradient(135deg, #60A5FA, #3B82F6);
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+  .pick-lock-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(96,165,250,0.3); }
+  .pick-lock-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+
+  .pick-locked-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    border-radius: 6px;
+    background: rgba(16,185,129,0.12);
+    border: 1px solid rgba(16,185,129,0.3);
+    color: #10B981;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-top: 10px;
+  }
 
   .game-top {
     display: flex;
@@ -1692,12 +1796,13 @@ function renderGameCard(game, screenerHits, oddsGame, cardIdx) {
     (awayMl && homeMl) ? `ML: ${awayMl > 0 ? '+' : ''}${awayMl}/${homeMl > 0 ? '+' : ''}${homeMl}` : ''
   ].filter(Boolean).join(' | ');
 
-  let html = `<div class="game-card">`;
+  const isLocked = !!_lockedPicks[evKey];
+  let html = `<div class="game-card${isLocked ? ' pick-locked' : ''}">`;
 
-  // Top row: matchup + grade + re-analyze
-  html += `<div class="game-top">
+  // Top row: matchup + grade + re-analyze (clickable for pick panel)
+  html += `<div class="game-top" onclick="togglePickPanel('${evKey}')" style="cursor:pointer;">
     <div class="matchup-info">
-      <div class="matchup-teams">${esc(matchup)}</div>
+      <div class="matchup-teams">${esc(matchup)}${isLocked ? ' <span class="pick-locked-badge" style="margin-left:8px;margin-top:0;font-size:0.65rem;padding:3px 8px;">LOCKED: ' + esc(_lockedPicks[evKey]) + '</span>' : ''}</div>
       <div class="matchup-meta">${timeStr ? esc(timeStr) : ''}${lineStr ? ' &mdash; ' + esc(lineStr) : ''}</div>
     </div>
     <div class="card-actions">
@@ -1811,6 +1916,22 @@ function renderGameCard(game, screenerHits, oddsGame, cardIdx) {
 
   // EV Button
   html += `<div style="padding:0 8px 8px;"><button class="ev-btn" data-evkey="${evKey}" onclick="event.stopPropagation();createExpectedValue(this,'${evKey}')" style="width:100%;padding:10px;background:rgba(212,160,23,0.12);border:1px solid rgba(212,160,23,0.3);border-radius:8px;color:#D4A017;font-size:12px;font-weight:800;cursor:pointer;transition:all 0.2s;letter-spacing:0.5px;">&#9889; Create Expected Value</button><div class="ev-panel" style="display:none;"></div></div>`;
+
+  // Lock Pick Panel
+  if (isLocked) {
+    html += `<div class="pick-panel open" id="pick-panel-${evKey}"><div class="pick-locked-badge">LOCKED: ${esc(_lockedPicks[evKey])}</div></div>`;
+  } else {
+    html += `<div class="pick-panel" id="pick-panel-${evKey}">
+      <div class="pick-type-row">
+        <button class="pick-type-btn" data-type="ml" onclick="event.stopPropagation();selectPickType('${evKey}','ml')">ML</button>
+        <button class="pick-type-btn" data-type="spread" onclick="event.stopPropagation();selectPickType('${evKey}','spread')">SPREAD</button>
+        <button class="pick-type-btn" data-type="total" onclick="event.stopPropagation();selectPickType('${evKey}','total')">TOTAL</button>
+      </div>
+      <div class="pick-side-row" id="pick-sides-${evKey}"></div>
+      <textarea class="pick-reasoning" id="pick-reason-${evKey}" rows="2" placeholder="Why this pick? (optional)" onclick="event.stopPropagation()"></textarea>
+      <button class="pick-lock-btn" id="pick-lock-${evKey}" disabled onclick="event.stopPropagation();lockPick('${evKey}')">LOCK PICK</button>
+    </div>`;
+  }
 
   html += `</div>`;
   return html;
@@ -2865,6 +2986,125 @@ function confirmBet(input, pickId) {
   input.value = 'CONFIRMED: ' + ticket;
   // Could POST to /api/bets to log the confirmation
   showAgentToast('Bet confirmed: ' + ticket);
+}
+
+// === LOCK PICK UI ===
+const _lockedPicks = JSON.parse(sessionStorage.getItem('jimmy_locked_picks') || '{}');
+
+function togglePickPanel(evKey) {
+  const panel = document.getElementById('pick-panel-' + evKey);
+  if (!panel || _lockedPicks[evKey]) return;
+  // Close all other panels first
+  document.querySelectorAll('.pick-panel.open').forEach(p => {
+    if (p.id !== 'pick-panel-' + evKey) p.classList.remove('open');
+  });
+  panel.classList.toggle('open');
+}
+
+function selectPickType(evKey, type) {
+  const game = _djGameDataMap[evKey];
+  if (!game) return;
+  // Update type buttons
+  document.querySelectorAll('#pick-panel-' + evKey + ' .pick-type-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.type === type);
+  });
+  // Build side buttons
+  const sideRow = document.getElementById('pick-sides-' + evKey);
+  const awayName = game.away || (game.matchup || '').split(' @ ')[0] || 'AWAY';
+  const homeName = game.home || (game.matchup || '').split(' @ ')[1] || 'HOME';
+  const spread = parseFloat(game.spread || game.home_spread || 0);
+  const total = parseFloat(game.total || 0);
+  const awayMl = game.away_ml || '';
+  const homeMl = game.home_ml || '';
+
+  let html = '';
+  if (type === 'ml') {
+    const aOdds = awayMl ? (awayMl > 0 ? '+' + awayMl : awayMl) : '';
+    const hOdds = homeMl ? (homeMl > 0 ? '+' + homeMl : homeMl) : '';
+    html = `<button class="pick-side-btn" data-sel="${esc(awayName)} ML" data-odds="${aOdds}" onclick="selectPickSide('${evKey}',this)">${esc(awayName)} ML<br><span style="font-size:0.7rem;color:var(--text-dim)">${aOdds}</span></button>`;
+    html += `<button class="pick-side-btn" data-sel="${esc(homeName)} ML" data-odds="${hOdds}" onclick="selectPickSide('${evKey}',this)">${esc(homeName)} ML<br><span style="font-size:0.7rem;color:var(--text-dim)">${hOdds}</span></button>`;
+  } else if (type === 'spread') {
+    const awaySpread = spread ? ((-spread) > 0 ? '+' + (-spread) : (-spread)) : '';
+    const homeSpread = spread ? (spread > 0 ? '+' + spread : spread) : '';
+    html = `<button class="pick-side-btn" data-sel="${esc(awayName)} ${awaySpread}" data-odds="-110" onclick="selectPickSide('${evKey}',this)">${esc(awayName)} ${awaySpread}<br><span style="font-size:0.7rem;color:var(--text-dim)">-110</span></button>`;
+    html += `<button class="pick-side-btn" data-sel="${esc(homeName)} ${homeSpread}" data-odds="-110" onclick="selectPickSide('${evKey}',this)">${esc(homeName)} ${homeSpread}<br><span style="font-size:0.7rem;color:var(--text-dim)">-110</span></button>`;
+  } else if (type === 'total') {
+    html = `<button class="pick-side-btn" data-sel="OVER ${total}" data-odds="-110" onclick="selectPickSide('${evKey}',this)">OVER ${total}<br><span style="font-size:0.7rem;color:var(--text-dim)">-110</span></button>`;
+    html += `<button class="pick-side-btn" data-sel="UNDER ${total}" data-odds="-110" onclick="selectPickSide('${evKey}',this)">UNDER ${total}<br><span style="font-size:0.7rem;color:var(--text-dim)">-110</span></button>`;
+  }
+  sideRow.innerHTML = html;
+  // Reset lock button
+  const lockBtn = document.getElementById('pick-lock-' + evKey);
+  lockBtn.disabled = true;
+  lockBtn.dataset.sel = '';
+  lockBtn.dataset.odds = '';
+  lockBtn.dataset.type = type;
+}
+
+function selectPickSide(evKey, btn) {
+  // Highlight selected
+  btn.closest('.pick-side-row').querySelectorAll('.pick-side-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  // Enable lock button
+  const lockBtn = document.getElementById('pick-lock-' + evKey);
+  lockBtn.disabled = false;
+  lockBtn.dataset.sel = btn.dataset.sel;
+  lockBtn.dataset.odds = btn.dataset.odds;
+}
+
+async function lockPick(evKey) {
+  if (_lockedPicks[evKey]) return;
+  const lockBtn = document.getElementById('pick-lock-' + evKey);
+  const game = _djGameDataMap[evKey];
+  if (!game || !lockBtn.dataset.sel) return;
+
+  lockBtn.disabled = true;
+  lockBtn.textContent = 'LOCKING...';
+
+  const awayName = game.away || (game.matchup || '').split(' @ ')[0] || '';
+  const homeName = game.home || (game.matchup || '').split(' @ ')[1] || '';
+  const reasoning = (document.getElementById('pick-reason-' + evKey) || {}).value || '';
+  const name = agentProfile ? agentProfile.display_name : 'Jimmy';
+
+  const payload = {
+    name: name,
+    sport: currentSport || '',
+    matchup: awayName + ' @ ' + homeName,
+    selection: lockBtn.dataset.sel,
+    odds: lockBtn.dataset.odds,
+    type: lockBtn.dataset.type || '',
+    reasoning: reasoning,
+    timestamp: new Date().toISOString(),
+    source: 'profile_card'
+  };
+
+  try {
+    const resp = await fetch('/api/picks', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!resp.ok) throw new Error('POST failed: ' + resp.status);
+
+    // Mark as locked
+    _lockedPicks[evKey] = payload.selection;
+    sessionStorage.setItem('jimmy_locked_picks', JSON.stringify(_lockedPicks));
+
+    // Replace the panel with a locked badge
+    const panel = document.getElementById('pick-panel-' + evKey);
+    panel.innerHTML = `<div class="pick-locked-badge">LOCKED: ${esc(payload.selection)}</div>`;
+    panel.classList.add('open');
+
+    // Add green border to card
+    panel.closest('.game-card').classList.add('pick-locked');
+
+    showAgentToast('Pick locked: ' + payload.selection);
+  } catch (err) {
+    console.error('Lock pick error:', err);
+    lockBtn.textContent = 'LOCK PICK';
+    lockBtn.disabled = false;
+    showAgentToast('Failed to lock pick. Try again.');
+  }
 }
 
 init();
