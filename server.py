@@ -1425,7 +1425,7 @@ SPORT_MODELS = {
     "mlb": {"thinker": "gpt-4.1", "timeout": 90},
     "mma": {"thinker": "gpt-4.1", "timeout": 90},
     "boxing": {"thinker": "gpt-4.1", "timeout": 90},
-    "soccer": {"thinker": "gpt-4.1", "timeout": 90},
+    "soccer": {"thinker": "gpt-4.1", "timeout": 180},
     "wnba": {"thinker": "gpt-4.1", "timeout": 90},
     "ncaaf": {"thinker": "gpt-4.1", "timeout": 90},
     "tennis": {"thinker": "gpt-4.1", "timeout": 90},
@@ -2936,13 +2936,19 @@ async def _fetch_api_sports(sport_lower):
                                             fx = league_info.get("fixtures", {})
                                             goals = league_info.get("goals", {})
                                             cs = league_info.get("clean_sheet", {})
-                                            btts_data = league_info.get("both_teams_score", {})  # noqa: F841
+                                            btts_data = league_info.get("both_teams_score", {})
                                             parts.append(f"      {side.upper()} SEASON: Form={form_all} W={fx.get('wins',{}).get('total','')} D={fx.get('draws',{}).get('total','')} L={fx.get('loses',{}).get('total','')}")
                                             gf_t = goals.get("for", {}).get("total", {}).get("total", "")
                                             ga_t = goals.get("against", {}).get("total", {}).get("total", "")
                                             gf_a = goals.get("for", {}).get("average", {}).get("total", "")
                                             ga_a = goals.get("against", {}).get("average", {}).get("total", "")
                                             parts.append(f"      {side.upper()} GOALS: GF={gf_t}({gf_a}/g) GA={ga_t}({ga_a}/g) CS={cs.get('total','')}")
+                                            # BTTS + failed-to-score data for soccer scoring_environment variable
+                                            if btts_data:
+                                                btts_pct = btts_data.get("percentage", {}).get("total", "")
+                                                fts_data = league_info.get("failed_to_score", {})
+                                                fts_pct = fts_data.get("percentage", {}).get("total", "") if fts_data else ""
+                                                parts.append(f"      {side.upper()} BTTS: {btts_pct}% of games | Failed to score: {fts_pct}% of games")
                         except Exception as e:
                             print(f"API-Sports prediction fetch error (fixture {fid}): {e}")
 
@@ -5782,6 +5788,32 @@ async def get_analysis(sport: str, cached_only: bool = False, force: bool = Fals
         )
         logger.warning(f"INJURY FEED FAILURE: No real injury data found for analysis. All sources may have failed.")
 
+    # ===== FETCH SOCCER LINEUPS (confirmed starting XI + formations) =====
+    lineup_context = ""
+    if sport_lower == "soccer":
+        try:
+            soccer_lineups = await _fetch_api_sports_lineups(sport_lower)
+            if soccer_lineups:
+                lineup_lines = ["\n=== CONFIRMED LINEUPS & FORMATIONS (API-Sports) ==="]
+                lineup_lines.append("LINEUP RULE: If lineups are confirmed, use them for tactical_matchup and star_player_status scoring. If a key player is NOT in the starting XI, treat as OUT for grading purposes.")
+                for matchup_key, teams_data in soccer_lineups.items():
+                    lineup_lines.append(f"\n{matchup_key}:")
+                    for team_name, lu_info in teams_data.items():
+                        formation = lu_info.get("formation", "?")
+                        starters = lu_info.get("starters", [])
+                        subs = lu_info.get("subs", [])
+                        lineup_lines.append(f"  {team_name} ({formation}): {', '.join(starters)}")
+                        if subs:
+                            lineup_lines.append(f"    Bench: {', '.join(subs)}")
+                lineup_context = "\n".join(lineup_lines)
+                logger.info(f"[LINEUPS] Soccer lineups injected for {len(soccer_lineups)} matches")
+            else:
+                lineup_context = "\n=== LINEUPS: NOT YET CONFIRMED ===\nNo confirmed starting XI available. Lineups typically release 1 hour before kickoff. Grade tactical_matchup and star_player_status conservatively."
+                logger.info("[LINEUPS] Soccer lineups not yet available")
+        except Exception as e:
+            lineup_context = "\n=== LINEUPS: FETCH FAILED ===\nCould not retrieve lineup data. Grade tactical_matchup and star_player_status conservatively."
+            logger.warning(f"Soccer lineup fetch error: {e}")
+
     # ===== P3: TEAM RECENT FORM (L5 records for prompt) =====
     form_context = ""
     try:
@@ -5955,6 +5987,8 @@ Today's {sport.upper()} slate - {today} (pulled at {now_time}):
 
 === INJURY & LINEUP INTELLIGENCE (CBS Sports + RotoWire + ESPN + API-Sports) ===
 {injury_context}
+
+{lineup_context}
 
 {roster_context}
 
@@ -6147,6 +6181,8 @@ Today's {sport.upper()} slate - {today} (pulled at {now_time}):
 === INJURY & LINEUP INTELLIGENCE (CBS Sports + RotoWire + ESPN + API-Sports) ===
 {injury_context}
 
+{lineup_context}
+
 {roster_context}
 
 {form_context}
@@ -6334,12 +6370,16 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
         fmt_prompt = _build_formatter_prompt(raw_analysis, is_first_batch)
         logger.info(f"[FORMATTER] Batch {batch_idx} → {ANALYSIS_FORMATTER} (attempt {attempt})")
         fmt_start = time.time()
-        fmt_response = client.chat.completions.create(
-            model=ANALYSIS_FORMATTER,
-            messages=[{"role": "user", "content": fmt_prompt}],
-            temperature=0.1,
-            max_tokens=10000,
-        )
+        # DeepSeek needs response_format for clean JSON (no markdown wrapping)
+        fmt_kwargs = {
+            "model": ANALYSIS_FORMATTER,
+            "messages": [{"role": "user", "content": fmt_prompt}],
+            "temperature": 0.1,
+            "max_tokens": 10000,
+        }
+        if not ANALYSIS_FORMATTER.startswith(("gpt", "o1", "o4")):
+            fmt_kwargs["response_format"] = {"type": "json_object"}
+        fmt_response = client.chat.completions.create(**fmt_kwargs)
         raw = fmt_response.choices[0].message.content.strip()
         fmt_secs = round(time.time() - fmt_start, 1)
         fmt_tokens = getattr(fmt_response.usage, 'total_tokens', '?')
@@ -6807,6 +6847,23 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
             formatter_tag = game.get("_formatter", "unknown")
             logger.info(f"[POST-GRADE] {game.get('matchup')} — {pre_grade} -> {post_grade} (source={source}, score={game.get('composite_score', '?')}, thinker={thinker_tag}, formatter={formatter_tag})")
         logger.info(f"[GRADE SUMMARY] {sport}: {grade_log}")
+
+        # ===== SOCCER LINEUP CONFIRMATION TAG =====
+        if sport_lower == "soccer":
+            soccer_lineups_data = await _fetch_api_sports_lineups(sport_lower)
+            for game in all_analyzed_games:
+                matchup = game.get("matchup", "")
+                has_lineup = False
+                if soccer_lineups_data:
+                    for lu_key in soccer_lineups_data:
+                        if matchup and (matchup in lu_key or lu_key in matchup):
+                            has_lineup = True
+                            break
+                game["_lineup_confirmed"] = has_lineup
+                if not has_lineup and game.get("grade", "") not in ("INCOMPLETE", "TBD"):
+                    game["flags"] = game.get("flags", [])
+                    if "LINEUPS NOT CONFIRMED" not in game["flags"]:
+                        game["flags"].append("LINEUPS NOT CONFIRMED")
 
         # ===== ALT GRADE — team profile + H2H based secondary grade =====
         for game in all_analyzed_games:
