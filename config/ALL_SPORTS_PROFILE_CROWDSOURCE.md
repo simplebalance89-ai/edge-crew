@@ -316,41 +316,64 @@ _Not retrieved — model lacks sufficient data for this sport/type_
 ============================================================
 ## SOCCER
 ============================================================
+# Crowdsourced: 2026-03-20 — GPT-4.1, GPT-5.1, o4-mini, Grok, DeepSeek, Kimi K2.5
+# Aligned to revised SOCCER_MATRIX in server.py (21 factors)
 
 ### TEAM PROFILE
 
-Non-Penalty xG Trend | 10 | FBref/Understat | Rolling 5-game non-penalty expected goals per 90 versus season average isolating sustainable attacking quality independent of penalty variance.
+1. **xG Integrity (Non-Penalty)** | 10 | FBref/Understat | Rolling 5-game non-penalty xG per 90 plus shot quality distribution (% inside box, big chances, transition vs settled xG). Isolates sustainable attacking process from penalty variance and lucky finishes.
 
-High-Line Exposure Index | 8 | StatsBomb | Average defensive distance from goal in meters during last 5 fixtures calibrated against opponent attacking pace to measure transition vulnerability.
+2. **Line Movement / CLV Signal** | 10 | Pinnacle/SGO | Sharp money direction, reverse line moves, and closing line value validation over last 5 games. Did the market prove the sharp side right? Most predictive single signal.
 
-Set Piece xG Differential | 8 | FBref | Net expected goals generated from corners and free-kicks minus conceded over last 5 matches capturing dead-ball dominance in low-scoring fixtures.
+3. **Fixture Congestion & Rest Differential** | 9 | Transfermarkt/Fixture Lists | Combined: days between matches (rest gap), midweek CL/EL doubles, and rotation risk. Fatigue is non-linear — UCL weeks 4-6 and April/May title runs are massively mispriced.
 
-Pressing Sustainability Decay | 9 | StatsBomb PPDA | Ratio of passes allowed per defensive action in minutes 0-30 versus 75-90 across last 5 games indicating fitness-based tactical drop-off.
+4. **Press Intensity / PPDA Profile** | 9 | StatsBomb PPDA | Passes allowed per defensive action in minutes 0-30 vs 75-90. High press vs poor buildup = turnover goals the market lags on. Includes pressing sustainability decay across 90 minutes.
 
-Goalkeeper Shot-Stopping Form | 9 | FBref PSxG | Post-shot expected goals minus goals allowed per 90 over last 5 fixtures isolating keeper performance from defensive shot suppression.
+5. **Squad Availability Index** | 8 | Transfermarkt/Team Reports | Composite: star player (ST/GK/DM) out = -3pts, rotation depth risk = -2pts, fullback/winger depth = -1pt. Weighted by opponent tactical fit (star DM out vs press team = disaster). Market prices star news but misses 5 rotation players.
 
-Rotation Fatigue Variance | 7 | Transfermarkt | Coefficient of variation in minutes played by season-regular starters across
+6. **Tactical Matchup & Formation Clash** | 8 | WhoScored/StatsBomb | Formation mismatch, high line vs pace, low block vs possession without verticality, pressing style vs buildup quality. Where 90% of real edges live — books price names, not tactical fit.
+
+7. **Set Piece xG Differential** | 8 | FBref/Opta | Net xG from corners, free kicks, and dead balls minus conceded. 30% of EPL goals come from set pieces. Market lags on specialist teams (Brentford-type edges).
+
+8. **Goalkeeper PSxG Form** | 8 | FBref PSxG | Post-shot xG minus goals allowed per 90 over last 5. Detects GKs riding luck (positive = overperforming, regression coming). Critical for over/under identification.
+
+9. **Sharp vs Public Sentiment** | 8 | SGO/Pinnacle | Money % vs ticket % divergence. When 70%+ public on one side but sharp money disagrees = 7-10% ROI edge historically.
+
+10. **Form Composite (Location-Adjusted)** | 8 | FBref/Opta | Weighted blend: last 5 home, last 5 away, last 5 overall, with opponent strength adjustment. Beating bottom-3 at home ≠ positive signal. Includes form trend slope.
+
+11. **Travel Fatigue & Altitude** | 7 | Fixture Lists/Geography | Distance flown (>2000km = fatigue hit), timezone changes, altitude (>1500m: Mexico City, La Paz, Bogota). Huge for MLS cross-country, Libertadores, UCL away legs.
+
+12. **Scoring Environment** | 7 | FBref/Understat | Merged: goals avg, BTTS trend, clean sheet %. One composite goal-environment metric backed by xG. Raw BTTS/goals avg alone are noisy and regression-prone.
+
+13. **Seasonal Incentive** | 7 | League Tables/Fixture Context | Merged: league position + motivation level. Relegation battle, title race, derby stakes, dead rubber detection. Context > raw table position.
+
+14. **Referee Impact Profile** | 7 | WhoScored/Referee Databases | Card tendencies, penalty award rates, VAR intervention frequency by league. Rates vary 20% by ref — massive for cards, penalties, and match flow.
+
+15. **Manager Change / Tactical Shift** | 6 | News/Transfermarkt | New manager bounce creates 3-5 game windows of market inefficiency. Tactical overhaul, locker room dynamics. Form tables become useless during transition.
+
+16. **Weather & Pitch Conditions** | 6 | OpenWeather/Historical | Heavy rain (slows tempo, benefits physical teams), wind >15mph (kills crossing/overs), heat (benefits possession sides), poor pitch quality. Unders hit 60%+ in high wind.
+
+17. **H2H Season (Tactical Continuity Only)** | 4 | FBref | Head-to-head this season — only meaningful when same coaches and tactical setups. Small sample, public overbets this massively. Correlation ~0.15 with win probability.
 
 ### PLAYER PROFILE
 
-Goal Threat Coefficient | 10 | FBref/Understat | Composite of non-penalty xG, shots per 90, and big chances created to predict goal-scoring probability against specific defensive schemes.
-Set Piece Dominance | 9 | Opta/WhoScored | Volume of penalties, direct free kicks, and corner delivery priority for direct goal contribution props.
-Minutes Security Index | 10 | Lineup projections/Fitness reports | Probability of starting and projected 90s based on rotation risk, injury status, and tactical irreplaceability.
-Defensive Vulnerability Matchup | 9 | Team-specific xG models | Opponent's defensive xG allowed to player's specific position, footedness, and movement patterns over last 5 matches.
-Creative Impact Rating | 8 | Understat/StatsBomb | Expected assists, key passes, and progressive passes per 90 indicating assist probability and chance creation volume.
-Card Risk Index | 7 | WhoScored/Discipline databases | Fouls committed per 90, tactical fouling tendency, and referee strictness rating for yellow/red card props.
-Recent Form Trajectory | 8 | Rolling 5-match averages | Delta between season-long output and last 5 matches to detect upward/downward statistical trends.
-Tactical Role Clarity | 8 | Heatmaps/Lineup data | Positional stability, set piece hierarchy, and penalty kick priority within the current formation.
-Substitution Risk Profile | 8 | Manager patterns/Game state models | Likelihood of early withdrawal based on score state, rest protocols, and historical hook timing.
-Direct Duel Dominance | 7 | Matchup history/FBref | Historical success rate in 1v1 situations and space creation against specific opponent defensive assignments.
-Fixture Fatigue Factor | 7 | Fixture density/Travel logs | Days since last match, travel distance, and minutes accumulated in prior 14 days affecting explosive output capacity.
-Clinical Finishing Variance | 8 | Understat/Post-shot xG | Delta between actual goals and expected goals indicating sustainable overperformance or regression risk.
-Aerial Threat Coefficient | 7 | StatsBomb/FBref | Aerial duels won, headed shot volume, and target share for goal threat from crosses and set piece deliveries.
-Pressing Resistance | 6 | StatsBomb/Opta | Ball retention under pressure and progressive carries per 90 to predict shot volume against high defensive lines.
-Defensive Output Volume | 6 | FBref/Opta | Tackles, interceptions, and clearances per 90 for defensive action props and clean sheet correlation.
-Home/Away Efficiency Delta | 6 | Season splits | Performance differential between home and away environments for goal/assist output props.
-Motivation Context Multiplier | 5 | League tables/Fixture context | Statistical elevation or degradation in high-stakes scenarios versus dead rubber fixtures.
-Weather/Condition Adaptability | 4 | Weather APIs/Historical splits | Output variance in extreme heat, cold, or poor pitch conditions versus optimal playing environments.
+1. **Goal Threat Coefficient** | 10 | FBref/Understat | Composite: non-penalty xG, shots per 90, big chances created, shot quality (% inside box). Predicts goal-scoring probability against specific defensive schemes.
+2. **Minutes Security Index** | 10 | Lineup Projections/Fitness Reports | Probability of starting and projected 90s based on rotation risk, injury status, manager patterns, and tactical irreplaceability. The #1 prop killer.
+3. **Set Piece Dominance** | 9 | Opta/WhoScored | Penalty taker priority, direct free kick volume, corner delivery hierarchy. Direct goal contribution from dead balls.
+4. **Defensive Vulnerability Matchup** | 9 | Team-specific xG Models | Opponent's defensive xG allowed to player's position, footedness, and movement patterns. Press resistance + high line exposure of opponent.
+5. **Clinical Finishing Variance** | 8 | Understat/PSxG | Delta between actual goals and expected goals. Positive = overperforming (regression risk). Negative = underperforming (bounce-back candidate).
+6. **Creative Impact Rating** | 8 | StatsBomb/Understat | Expected assists, key passes, progressive passes per 90. Assist probability and chance creation volume against specific defensive structures.
+7. **Tactical Role Clarity** | 8 | Heatmaps/Lineup Data | Positional stability, set piece hierarchy, penalty priority within formation. Role changes = prop volatility.
+8. **Substitution Risk Profile** | 8 | Manager Patterns/Game State | Likelihood of early withdrawal based on score state, rest protocols, historical hook timing. Critical for over/under on individual stats.
+9. **Press Resistance & Carry Volume** | 7 | StatsBomb/Opta | Ball retention under pressure, progressive carries per 90. Predicts shot volume against high pressing opponents.
+10. **Card Risk Index** | 7 | WhoScored/Discipline Data | Fouls per 90, tactical fouling tendency, referee strictness rating. Yellow/red card prop pricing.
+11. **Aerial Threat Coefficient** | 7 | StatsBomb/FBref | Aerial duels won, headed shot volume, target share from crosses and set pieces. Critical for corner-heavy matchups.
+12. **Fixture Fatigue & Rest Impact** | 7 | Fixture Density/Travel | Days since last match, travel distance, minutes in prior 14 days. Explosive output capacity degrades non-linearly with congestion.
+13. **Direct Duel Dominance** | 7 | FBref/Matchup History | 1v1 success rate and space creation against specific defensive assignments.
+14. **Recent Form Trajectory** | 7 | Rolling 5-Match Averages | Delta between season-long output and last 5 matches. Upward/downward trend detection — must pair with xG to filter luck.
+15. **Defensive Output Volume** | 6 | FBref/Opta | Tackles, interceptions, clearances per 90 for defensive action props and clean sheet correlation.
+16. **Home/Away Efficiency Delta** | 6 | Season Splits | Performance differential between home and away. Some players crater away from home — 2+ goal contribution delta = mispriced.
+17. **Weather/Condition Adaptability** | 5 | Weather APIs/Historical | Output variance in extreme heat, cold, rain, or poor pitch. Niche but real for total props in specific conditions.
 
 ============================================================
 ## MMA

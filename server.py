@@ -1933,27 +1933,32 @@ NHL_MATRIX = [
 ]
 
 SOCCER_MATRIX = [
+    # Tier 1 — Weight 10 (Core Edge Drivers)
     ("thesis_edge", 10, "Core thesis — why is the market WRONG? Strength of the specific edge identified"),
-    ("star_player_status", 9, "Key striker or GK out or limited"),
-    ("btts_trend", 9, "Both Teams to Score trend"),
-    ("xg_trend", 9, "xG (expected goals) trend"),
-    ("line_movement", 9, "Line movement since open — sharp action, reverse moves"),
-    ("home_away_form", 8, "Home/away form (last 5)"),
-    ("goals_avg", 8, "Goals scored/conceded avg"),
-    ("sharp_vs_public", 7, "Where the money is (sharp vs public)"),
-    ("h2h_season", 7, "Head-to-head this season (record, margins)"),
-    ("league_position", 7, "League table position / motivation"),
-    ("recent_form", 7, "Recent form / streak (last 5-10 games)"),
-    ("fixture_congestion", 7, "Midweek CL + league doubles, rotation risk"),
-    ("motivation_level", 7, "Relegation battle, title race, derby — context pressure"),
-    ("goalkeeper_form", 7, "Starting GK save %, error frequency, recent form"),
-    ("tactical_matchup", 6, "Formation clash, style matchup advantage"),
-    ("possession_matchup", 6, "Possession % matchup"),
-    ("set_pieces", 6, "Corners, free kicks, set piece danger"),
-    ("clean_sheet", 6, "Clean sheet pct"),
-    ("ats_trend", 6, "ATS trend (last 7/14 days)"),
-    ("referee_bias", 5, "Referee card tendencies, penalty award rates"),
-    ("depth_injuries", 4, "Bench / rotation injuries"),
+    ("line_movement", 10, "Line movement since open — sharp action, reverse moves, steam"),
+    # Tier 2 — Weight 9 (Primary Signals)
+    ("star_player_status", 9, "Key striker or GK out or limited — availability impact on expected output"),
+    ("xg_trend", 9, "xG (expected goals) trend — rolling xG differential, shot quality"),
+    ("fixture_congestion", 9, "Midweek CL + league doubles, rotation risk — minutes load, squad stress"),
+    # Tier 3 — Weight 8 (High-Priority Factors)
+    ("form_composite", 8, "Weighted blend of home/away/overall form last 5 — replaces separate home_away + recent_form"),
+    ("sharp_vs_public", 8, "Where the money is — sharp vs public split, Pinnacle vs rec book delta"),
+    ("tactical_matchup", 8, "Formation clash, style matchup, possession profile — includes possession context"),
+    ("set_pieces", 8, "Corners, free kicks, set piece danger — xG from dead balls"),
+    ("rest_differential", 8, "Days between matches, recovery gap — rest advantage quantified"),
+    # Tier 4 — Weight 7 (Situational Multipliers)
+    ("scoring_environment", 7, "xG-backed goal profile, BTTS trend, clean sheet % — combined scoring context"),
+    ("seasonal_incentive", 7, "Table position + relegation/title/derby stakes — motivation composite"),
+    ("goalkeeper_form", 7, "Starting GK PSxG differential, save %, error frequency, recent form"),
+    ("depth_injuries", 7, "Bench / rotation injuries — squad depth under congestion"),
+    ("press_intensity", 7, "PPDA, high press vs poor buildup — pressing mismatch signal"),
+    ("travel_fatigue", 7, "Distance traveled, timezone shifts, altitude — travel burden"),
+    ("referee_bias", 7, "Referee card tendencies, penalty award rates, foul threshold"),
+    # Tier 5 — Weight 6 (Context and Conditions)
+    ("weather_pitch", 6, "Rain/wind/heat/pitch conditions — environmental impact on style"),
+    ("manager_change", 6, "New manager bounce, tactical shift, honeymoon effect"),
+    # Tier 6 — Weight 4 (Minor Context)
+    ("h2h_season", 4, "Head-to-head this season (record, margins) — low predictive value, context only"),
 ]
 
 NCAAB_MATRIX = [
@@ -2257,21 +2262,51 @@ CHAINS = {
         },
         {
             "name": "BTTS LOCK",
-            "desc": "Both teams scoring + high goals avg + strong xG + no clean sheets",
+            "desc": "High scoring environment + strong xG + goals flowing both ways",
             "bonus": 1.5,
-            "vars": {"btts_trend": (">=", 8), "goals_avg": (">=", 8), "xg_trend": (">=", 7), "clean_sheet": ("<=", 4)},
+            "vars": {"scoring_environment": (">=", 8), "xg_trend": (">=", 7)},
         },
         {
             "name": "CONGESTION FADE",
-            "desc": "Fixture pile-up + low motivation + depth depleted — fade the tired side",
+            "desc": "Fixture pile-up + low incentive + depth depleted — fade the tired side",
             "bonus": 1.0,
-            "vars": {"fixture_congestion": (">=", 8), "motivation_level": ("<=", 4), "depth_injuries": (">=", 7)},
+            "vars": {"fixture_congestion": (">=", 8), "seasonal_incentive": ("<=", 4), "depth_injuries": (">=", 7)},
         },
         {
             "name": "FORM WAVE",
-            "desc": "Hot team with xG backing it up — form, ATS, H2H all aligned",
+            "desc": "Hot team with xG backing it up — composite form + xG aligned",
             "bonus": 1.5,
-            "vars": {"recent_form": (">=", 8), "xg_trend": (">=", 7), "ats_trend": (">=", 7), "h2h_season": (">=", 6)},
+            "vars": {"form_composite": (">=", 8), "xg_trend": (">=", 7), "sharp_vs_public": (">=", 7)},
+        },
+        {
+            "name": "REST TRAVEL EDGE",
+            "desc": "Rest advantage + travel burden on opponent + congestion — fresher legs win",
+            "bonus": 1.5,
+            "vars": {"rest_differential": (">=", 8), "travel_fatigue": (">=", 7), "fixture_congestion": (">=", 7)},
+        },
+        {
+            "name": "HIGH PRESS COLLAPSE",
+            "desc": "High press team vs tired, depleted squad — intensity breaks depth-weak sides",
+            "bonus": 1.5,
+            "vars": {"press_intensity": (">=", 8), "fixture_congestion": (">=", 8), "depth_injuries": (">=", 7)},
+        },
+        {
+            "name": "FORM REGRESSION FADE",
+            "desc": "Hot form but xG says it's unsustainable + sharps agree — fade the streak",
+            "bonus": 1.5,
+            "vars": {"form_composite": (">=", 8), "xg_trend": ("<=", 4), "sharp_vs_public": (">=", 7)},
+        },
+        {
+            "name": "TACTICAL ARBITRAGE",
+            "desc": "Formation/style mismatch + pressing edge + conditions favor — tactical setup play",
+            "bonus": 1.0,
+            "vars": {"tactical_matchup": (">=", 8), "press_intensity": (">=", 7), "weather_pitch": (">=", 6)},
+        },
+        {
+            "name": "DERBY NOISE",
+            "desc": "High-stakes derby + public hammering one side + sharp line move other way — noise vs signal",
+            "bonus": 1.0,
+            "vars": {"seasonal_incentive": (">=", 8), "sharp_vs_public": ("<=", 3), "line_movement": (">=", 7)},
         },
     ],
     "ncaab": [
