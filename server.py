@@ -6788,56 +6788,263 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
             batch_game_lists.append(batch)
             batch_prop_texts.append(batch_props)
 
-        # Run all batches in parallel via asyncio threads
-        tasks = [
-            asyncio.to_thread(
-                _call_azure_batch, batch_prompts[i],
-                batch_idx=i, is_first_batch=(i == 0), batch_games=batch_game_lists[i],
-                batch_prop_lines=batch_prop_texts[i],
-                batch_incomplete_note=(incomplete_note if i == 0 else ""),
-                model_override=model,
-            )
-            for i in range(len(batch_prompts))
-        ]
-        batch_results = await asyncio.gather(*tasks, return_exceptions=True)
+        # ===== FLIPPED PIPELINE: Crowdsource FIRST → Filter B+ → Deep Thinker on winners only =====
+        # Peter's architecture: cheap models grade everything, expensive thinker only hits edges
+        CROWDSOURCE_FIRST = os.environ.get("CROWDSOURCE_FIRST", "true").lower() == "true"
 
-        # Merge results: first batch provides gotcha, all provide games
         all_analyzed_games = []
         gotcha_html = ""
-        failed_batches = []
-        for idx, result in enumerate(batch_results):
-            if isinstance(result, Exception):
-                logger.error(f"Analysis batch {idx} failed: {result}")
-                log_error("Analysis", f"Batch {idx} failed", str(result))
-                failed_batches.append(idx)
-                continue
-            if idx == 0 and result.get("gotcha"):
-                gotcha_html = result["gotcha"]
-            if result.get("games"):
-                all_analyzed_games.extend(result["games"])
 
-        # Retry failed batches once
-        if failed_batches:
-            logger.info(f"Analysis {sport}: retrying {len(failed_batches)} failed batches")
-            retry_tasks = [
+        if CROWDSOURCE_FIRST and not model:
+            # ── STEP 1: CROWDSOURCE — lightweight models grade ALL games sequentially ──
+            logger.info(f"[PIPELINE] CROWDSOURCE-FIRST mode — grading all {len(games_to_analyze)} games with lightweight models")
+
+            CROWDSOURCE_MODELS_LIGHT = [
+                {"name": "Mistral-Large-3", "endpoint": "ai_services", "display": "Mistral Large 3"},
+                {"name": "Llama-4-Maverick-17B-128E-Instruct-FP8", "endpoint": "ai_services", "display": "Llama 4 Maverick"},
+                {"name": "grok-3", "endpoint": "ai_services", "display": "Grok 3"},
+                {"name": "DeepSeek-V3.2", "endpoint": "ai_services", "display": "DeepSeek V3.2"},
+            ]
+            CROWDSOURCE_DELAY = float(os.environ.get("CROWDSOURCE_DELAY", "3"))  # seconds between calls
+            GRADE_VALUES = {"A+": 10, "A": 9, "A-": 8, "B+": 7, "B": 6, "B-": 5, "C+": 4, "C": 3, "D": 2, "F": 1}
+
+            # Build a lightweight prompt for crowdsource (shorter than full thinker prompt)
+            all_games_text = "\n".join(games_to_analyze)
+            cs_prompt = f"""You are a sharp {sport.upper()} betting analyst. Grade each game quickly.
+
+{all_games_text}
+
+{injury_context}
+
+{form_context}
+
+{matrix_section}
+
+For EACH game return JSON: {{"games": [{{"matchup": "AWAY @ HOME", "grade": "A+/A/B+/B/C/D/F", "composite_score": 7.2, "edge_pick": {{"team": "TEAM", "bet_type": "SPREAD/ML/TOTAL", "line": "-3.5", "confidence": "B+", "reasoning": "one sentence"}}}}]}}
+
+Return ONLY valid JSON. Grade most games C or PASS. Only B+ when edge is clear."""
+
+            crowdsource_grades = {}  # matchup -> [{"model": ..., "grade": ..., "score": ...}]
+
+            # Run models SEQUENTIALLY with delay (avoids rate limits)
+            for cs_model in CROWDSOURCE_MODELS_LIGHT:
+                try:
+                    client = OpenAI(
+                        base_url=THINKER_ENDPOINT,
+                        api_key=AZURE_KEY,
+                        timeout=90,
+                    )
+                    logger.info(f"[CROWDSOURCE-FIRST] Calling {cs_model['display']}...")
+                    response = await asyncio.to_thread(
+                        lambda m=cs_model: client.chat.completions.create(
+                            model=m["name"],
+                            messages=[{"role": "user", "content": cs_prompt}],
+                            temperature=0.4,
+                            max_tokens=4000,
+                            response_format={"type": "json_object"} if not m["name"].startswith(("gpt", "o1", "o4")) else None,
+                        )
+                    )
+                    raw = response.choices[0].message.content.strip()
+                    parsed = _clean_json(raw)
+                    for cg in parsed.get("games", []):
+                        c_matchup = (cg.get("matchup", "")).replace(" ", "").upper()
+                        grade = cg.get("grade", "")
+                        score = cg.get("composite_score", 0)
+                        if c_matchup not in crowdsource_grades:
+                            crowdsource_grades[c_matchup] = []
+                        crowdsource_grades[c_matchup].append({
+                            "model": cs_model["display"],
+                            "grade": grade,
+                            "score": score,
+                            "pick": cg.get("edge_pick", {}),
+                        })
+                    logger.info(f"[CROWDSOURCE-FIRST] {cs_model['display']}: graded {len(parsed.get('games', []))} games")
+                except Exception as e:
+                    logger.warning(f"[CROWDSOURCE-FIRST] {cs_model['display']} failed: {e}")
+
+                # Delay between calls to avoid rate limits
+                await asyncio.sleep(CROWDSOURCE_DELAY)
+
+            # ── STEP 2: FILTER — identify B+ consensus games ──
+            bp_games = []  # matchups that got B+ or higher from majority of models
+            all_cs_games = []  # all games with their crowdsource data
+
+            for game_line in games_to_analyze:
+                # Extract matchup from game line
+                matchup_raw = game_line.split("|")[0].strip()
+                matchup_key = matchup_raw.replace(" ", "").upper()
+                cs_data = crowdsource_grades.get(matchup_key, [])
+
+                game_entry = {
+                    "matchup": matchup_raw,
+                    "crowdsource_grades": cs_data,
+                    "crowdsource_count": len(cs_data),
+                    "game_line": game_line,
+                }
+
+                if cs_data:
+                    bp_count = sum(1 for cg in cs_data if GRADE_VALUES.get(cg["grade"], 0) >= 7)
+                    total = len(cs_data)
+                    game_entry["crowdsource_bp_count"] = bp_count
+                    game_entry["crowdsource_total"] = total
+
+                    if total >= 2 and bp_count >= total * 0.5:
+                        game_entry["crowdsource_consensus"] = "MAJORITY_BP" if bp_count < total else "UNANIMOUS_BP"
+                        bp_games.append(game_line)
+                        game_entry["_deep_analysis"] = True
+                        logger.info(f"[FILTER] {matchup_raw}: {bp_count}/{total} B+ — SENDING TO DEEP THINKER")
+                    elif bp_count > 0 and bp_count < total * 0.5:
+                        game_entry["crowdsource_consensus"] = "SPLIT"
+                        game_entry["_deep_analysis"] = False
+                    else:
+                        game_entry["crowdsource_consensus"] = "BELOW_BP"
+                        game_entry["_deep_analysis"] = False
+                        logger.info(f"[FILTER] {matchup_raw}: {bp_count}/{total} B+ — PASS (below threshold)")
+                else:
+                    game_entry["crowdsource_consensus"] = "NO_DATA"
+                    game_entry["_deep_analysis"] = False
+
+                # Build a basic game result from crowdsource consensus
+                avg_score = sum(cg.get("score", 0) for cg in cs_data) / len(cs_data) if cs_data else 0
+                # Use the most common grade
+                grade_counts = {}
+                for cg in cs_data:
+                    g = cg.get("grade", "C")
+                    grade_counts[g] = grade_counts.get(g, 0) + 1
+                consensus_grade = max(grade_counts, key=grade_counts.get) if grade_counts else "C"
+
+                # Use the best pick from the highest-grading model
+                best_pick = {}
+                if cs_data:
+                    best = max(cs_data, key=lambda x: GRADE_VALUES.get(x.get("grade", ""), 0))
+                    best_pick = best.get("pick", {})
+
+                game_entry["grade"] = consensus_grade
+                game_entry["composite_score"] = round(avg_score, 1)
+                game_entry["edge_pick"] = best_pick
+                game_entry["engine_status"] = "crowdsource-first"
+                game_entry["_thinker"] = "crowdsource"
+                game_entry["_formatter"] = "consensus"
+                game_entry["_think_time"] = 0
+                game_entry["tags"] = []
+                if game_entry.get("crowdsource_consensus") == "UNANIMOUS_BP":
+                    game_entry["tags"].append("CROWDSOURCE BEST BET")
+                elif game_entry.get("crowdsource_consensus") == "MAJORITY_BP":
+                    game_entry["tags"].append("CROWDSOURCE STRONG")
+                elif game_entry.get("crowdsource_consensus") == "SPLIT":
+                    game_entry["tags"].append("CROWDSOURCE SPLIT")
+
+                all_cs_games.append(game_entry)
+
+            logger.info(f"[FILTER] {len(bp_games)} games passed B+ filter out of {len(games_to_analyze)}")
+
+            # ── STEP 3: DEEP THINKER — only on B+ consensus games ──
+            if bp_games:
+                logger.info(f"[DEEP THINKER] Running DeepSeek-R1 on {len(bp_games)} B+ games")
+                # Build a focused batch with only the B+ games
+                bp_batch_text = "\n".join(bp_games)
+                bp_prompt = _build_thinker_prompt(
+                    bp_batch_text,
+                    batch_incomplete_note="",
+                    is_first_batch=True,
+                    batch_prop_lines=prop_lines_text,
+                )
+                try:
+                    raw_analysis, think_meta = _call_thinker(bp_prompt, 0)
+                    if len(raw_analysis) >= 200:
+                        # Format with DeepSeek
+                        result, fmt_meta = _call_formatter(raw_analysis, True, 0, 1)
+                        if result and result.get("games"):
+                            # Merge deep analysis into crowdsource results
+                            for deep_game in result.get("games", []):
+                                deep_matchup = (deep_game.get("matchup", "")).replace(" ", "").upper()
+                                for cs_game in all_cs_games:
+                                    cs_matchup = (cs_game.get("matchup", "")).replace(" ", "").upper()
+                                    if deep_matchup == cs_matchup:
+                                        # Deep analysis overrides crowdsource grade
+                                        cs_game["grade"] = deep_game.get("grade", cs_game["grade"])
+                                        cs_game["composite_score"] = deep_game.get("composite_score", cs_game["composite_score"])
+                                        cs_game["edge_pick"] = deep_game.get("edge_pick", cs_game["edge_pick"])
+                                        cs_game["matrix_scores"] = deep_game.get("matrix_scores", {})
+                                        cs_game["edge_question"] = deep_game.get("edge_question", "")
+                                        cs_game["edge_summary"] = deep_game.get("edge_summary", "")
+                                        cs_game["injury_impact"] = deep_game.get("injury_impact", "")
+                                        cs_game["rest_schedule"] = deep_game.get("rest_schedule", "")
+                                        cs_game["peter_zone"] = deep_game.get("peter_zone", "")
+                                        cs_game["player_props"] = deep_game.get("player_props", [])
+                                        cs_game["_thinker"] = think_meta.get("model", ANALYSIS_THINKER)
+                                        cs_game["_formatter"] = ANALYSIS_FORMATTER
+                                        cs_game["_think_time"] = think_meta["secs"]
+                                        cs_game["engine_status"] = f"crowdsource-first → {cs_game['_thinker']} deep dive"
+                                        logger.info(f"[DEEP THINKER] {cs_game['matchup']}: upgraded with deep analysis — {cs_game['grade']} ({cs_game['composite_score']})")
+                                        break
+                except Exception as e:
+                    logger.warning(f"[DEEP THINKER] Failed: {e} — crowdsource grades stand alone")
+
+            all_analyzed_games = all_cs_games
+
+            # Build gotcha from crowdsource data
+            gotcha_items = []
+            for g in all_analyzed_games:
+                if g.get("crowdsource_consensus") in ("UNANIMOUS_BP", "MAJORITY_BP"):
+                    pick = g.get("edge_pick", {})
+                    gotcha_items.append(f"<li><strong>{g['matchup']}</strong>: {pick.get('team', '?')} {pick.get('bet_type', '')} {pick.get('line', '')} — {g['crowdsource_consensus']} ({g.get('crowdsource_bp_count', '?')}/{g.get('crowdsource_total', '?')} models B+)</li>")
+            if gotcha_items:
+                gotcha_html = f"<ul>{''.join(gotcha_items)}<li><em>Analysis generated {now_time} | Crowdsource-first pipeline</em></li></ul>"
+            else:
+                gotcha_html = f"<ul><li>No B+ consensus edges found on today's slate.</li><li><em>Analysis generated {now_time} | Crowdsource-first pipeline</em></li></ul>"
+
+        else:
+            # ── LEGACY MODE: thinker-first (used when CROWDSOURCE_FIRST=false or model override) ──
+            # Run all batches in parallel via asyncio threads
+            tasks = [
                 asyncio.to_thread(
                     _call_azure_batch, batch_prompts[i],
                     batch_idx=i, is_first_batch=(i == 0), batch_games=batch_game_lists[i],
                     batch_prop_lines=batch_prop_texts[i],
-                    batch_incomplete_note=(incomplete_note if i == 0 else "")
+                    batch_incomplete_note=(incomplete_note if i == 0 else ""),
+                    model_override=model,
                 )
-                for i in failed_batches
+                for i in range(len(batch_prompts))
             ]
-            retry_results = await asyncio.gather(*retry_tasks, return_exceptions=True)
-            for ri, idx in enumerate(failed_batches):
-                result = retry_results[ri]
+            batch_results = await asyncio.gather(*tasks, return_exceptions=True)
+
+            # Merge results: first batch provides gotcha, all provide games
+            gotcha_html = ""
+            failed_batches = []
+            for idx, result in enumerate(batch_results):
                 if isinstance(result, Exception):
-                    logger.error(f"Analysis batch {idx} retry also failed: {result}")
+                    logger.error(f"Analysis batch {idx} failed: {result}")
+                    log_error("Analysis", f"Batch {idx} failed", str(result))
+                    failed_batches.append(idx)
                     continue
-                if idx == 0 and not gotcha_html and result.get("gotcha"):
+                if idx == 0 and result.get("gotcha"):
                     gotcha_html = result["gotcha"]
                 if result.get("games"):
                     all_analyzed_games.extend(result["games"])
+
+            # Retry failed batches once
+            if failed_batches:
+                logger.info(f"Analysis {sport}: retrying {len(failed_batches)} failed batches")
+                retry_tasks = [
+                    asyncio.to_thread(
+                        _call_azure_batch, batch_prompts[i],
+                        batch_idx=i, is_first_batch=(i == 0), batch_games=batch_game_lists[i],
+                        batch_prop_lines=batch_prop_texts[i],
+                        batch_incomplete_note=(incomplete_note if i == 0 else "")
+                    )
+                    for i in failed_batches
+                ]
+                retry_results = await asyncio.gather(*retry_tasks, return_exceptions=True)
+                for ri, idx in enumerate(failed_batches):
+                    result = retry_results[ri]
+                    if isinstance(result, Exception):
+                        logger.error(f"Analysis batch {idx} retry also failed: {result}")
+                        continue
+                    if idx == 0 and not gotcha_html and result.get("gotcha"):
+                        gotcha_html = result["gotcha"]
+                    if result.get("games"):
+                        all_analyzed_games.extend(result["games"])
                     logger.info(f"Analysis batch {idx} retry succeeded: {len(result['games'])} games recovered")
 
         # ===== MATCHUP NORMALIZATION — ensure model output matches odds format =====
@@ -7141,8 +7348,16 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
             logger.warning(f"[CHALLENGER] Failed: {e}")
         # ===== END CHALLENGER MODEL =====
 
-        # ===== CROWDSOURCE — Run multiple models for consensus (Step 4 of pipeline) =====
-        # Crowdsource uses DIFFERENT models than the thinker (Grok) and formatter (DeepSeek)
+        # ===== CROWDSOURCE (LEGACY — only runs when CROWDSOURCE_FIRST is disabled) =====
+        # In crowdsource-first mode, this already ran above. Skip.
+        CROWDSOURCE_FIRST_CHECK = os.environ.get("CROWDSOURCE_FIRST", "true").lower() == "true"
+        # Skip legacy crowdsource if crowdsource-first already ran
+        CROWDSOURCE_FIRST_CHECK = os.environ.get("CROWDSOURCE_FIRST", "true").lower() == "true"
+        if CROWDSOURCE_FIRST_CHECK:
+            CROWDSOURCE_ENABLED = False  # Already ran above
+            crowdsource_grades = {}
+            logger.info("[CROWDSOURCE] Skipping legacy block — crowdsource-first already ran")
+        # Crowdsource uses DIFFERENT models than the thinker and formatter
         # B+ or higher consensus = best bet candidate. Split grades = dig deeper flag.
         CROWDSOURCE_MODELS = [
             {"name": "grok-3", "endpoint": "ai_services", "display": "Grok 3"},
