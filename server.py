@@ -1407,7 +1407,7 @@ def _is_soccer_sport_key(value: str) -> bool:
 # Azure OpenAI config
 AZURE_ENDPOINT = os.environ.get("AZURE_OPENAI_ENDPOINT", "")
 AZURE_KEY = os.environ.get("AZURE_OPENAI_KEY", "")
-AZURE_MODEL = os.environ.get("AZURE_OPENAI_MODEL", "gpt-4.1")
+AZURE_MODEL = os.environ.get("AZURE_OPENAI_MODEL", "grok-3")
 REALTIME_DEPLOYMENT = "gpt-4o-realtime"
 AZURE_BASE = AZURE_ENDPOINT.rstrip("/")
 
@@ -6488,42 +6488,61 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
         logger.info(f"[FORMATTER] Done in {fmt_secs}s, {fmt_tokens} tokens, {games_with_ms}/{total_games} games with matrix_scores")
         return result, {"secs": fmt_secs, "tokens": fmt_tokens}
 
+    # Fallback chain: grok-3 → Kimi-K2.5 → DeepSeek-V3.2 (never OpenAI)
+    FALLBACK_CHAIN = [
+        AZURE_MODEL,  # grok-3 (default)
+        "Kimi-K2.5",
+        "DeepSeek-V3.2",
+    ]
+
     def _call_single_model(prompt_text, model_name=None, engine_status=None):
-        """Fallback: single-model call with full JSON prompt. Routes to AI Services or Azure OpenAI."""
-        use_model = model_name or AZURE_MODEL
-        # Route: GPT/o-series → Azure OpenAI, everything else → AI Services
-        if use_model.startswith(("gpt", "o1", "o4")):
-            client = AzureOpenAI(
-                azure_endpoint=AZURE_ENDPOINT,
-                api_key=AZURE_KEY,
-                api_version="2024-10-21",
-                timeout=120,
-            )
-        else:
-            client = OpenAI(
-                base_url=THINKER_ENDPOINT,
-                api_key=AZURE_KEY,
-                timeout=120,
-            )
-        logger.info(f"[FALLBACK] Single-model call to {use_model}")
-        fb_start = time.time()
-        response = client.chat.completions.create(
-            model=use_model,
-            messages=[{"role": "user", "content": prompt_text}],
-            temperature=0.4,
-            max_tokens=8000,
-        )
-        raw = response.choices[0].message.content.strip()
-        fb_secs = round(time.time() - fb_start, 1)
-        fb_tokens = getattr(response.usage, 'total_tokens', '?')
-        logger.info(f"[FALLBACK] {use_model} done in {fb_secs}s, {fb_tokens} tokens")
-        result = _clean_json(raw)
-        for game in result.get("games", []):
-            game["_thinker"] = use_model
-            game["_formatter"] = use_model
-            game["_think_time"] = fb_secs
-            game["engine_status"] = engine_status or f"{use_model} (single-model)"
-        return result
+        """Fallback: single-model call with full JSON prompt. Tries fallback chain if primary fails."""
+        models_to_try = [model_name] if model_name else list(FALLBACK_CHAIN)
+        last_error = None
+
+        for use_model in models_to_try:
+            try:
+                # Route: GPT/o-series → Azure OpenAI, everything else → AI Services
+                if use_model.startswith(("gpt", "o1", "o4")):
+                    client = AzureOpenAI(
+                        azure_endpoint=AZURE_ENDPOINT,
+                        api_key=AZURE_KEY,
+                        api_version="2024-10-21",
+                        timeout=120,
+                    )
+                else:
+                    client = OpenAI(
+                        base_url=THINKER_ENDPOINT,
+                        api_key=AZURE_KEY,
+                        timeout=120,
+                    )
+                logger.info(f"[FALLBACK] Single-model call to {use_model}")
+                fb_start = time.time()
+                response = client.chat.completions.create(
+                    model=use_model,
+                    messages=[{"role": "user", "content": prompt_text}],
+                    temperature=0.4,
+                    max_tokens=8000,
+                )
+                raw = response.choices[0].message.content.strip()
+                fb_secs = round(time.time() - fb_start, 1)
+                fb_tokens = getattr(response.usage, 'total_tokens', '?')
+                logger.info(f"[FALLBACK] {use_model} done in {fb_secs}s, {fb_tokens} tokens")
+                result = _clean_json(raw)
+                for game in result.get("games", []):
+                    game["_thinker"] = use_model
+                    game["_formatter"] = use_model
+                    game["_think_time"] = fb_secs
+                    game["engine_status"] = engine_status or f"{use_model} (fallback)"
+                return result
+            except Exception as e:
+                last_error = e
+                logger.warning(f"[FALLBACK] {use_model} failed: {e} — trying next in chain")
+                continue
+
+        # All fallbacks exhausted
+        logger.error(f"[FALLBACK] All fallback models failed. Last error: {last_error}")
+        return {"games": [], "gotcha": "All analysis models failed. No games graded."}
 
     def _call_challenger(prompt_text, batch_idx=0):
         """Call this week's challenger model for independent grading. Returns parsed JSON or None."""
