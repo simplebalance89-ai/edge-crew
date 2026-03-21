@@ -3096,6 +3096,70 @@ async def _fetch_api_sports_lineups(sport_lower):
                                         lineups[key] = match_lineups
                             except Exception:
                                 pass
+
+            elif sport_lower == "nhl":
+                # NHL: Fetch games + goalie/lineup data from API-Sports hockey
+                league_id = API_SPORTS_LEAGUES.get("nhl", 57)
+                resp = await client.get(
+                    f"https://{host}/games",
+                    params={"date": today, "league": league_id, "season": 2025},
+                    headers=headers,
+                )
+                if resp.status_code == 200:
+                    for game in resp.json().get("response", []):
+                        gid = game.get("id")
+                        home = game.get("teams", {}).get("home", {}).get("name", "?")
+                        away = game.get("teams", {}).get("away", {}).get("name", "?")
+                        key = f"{away} @ {home}"
+                        match_lineups = {"home_team": home, "away_team": away}
+                        # Fetch head-to-head / game details for goalie info
+                        try:
+                            # Try /games/lineups for starting goalies
+                            lr = await client.get(
+                                f"https://{host}/games/lineups",
+                                params={"game": gid},
+                                headers=headers,
+                            )
+                            if lr.status_code == 200:
+                                lu_data = lr.json().get("response", [])
+                                for team_lu in lu_data:
+                                    tname = team_lu.get("team", {}).get("name", "?")
+                                    goalies = []
+                                    skaters = []
+                                    for p in team_lu.get("players", team_lu.get("startXI", [])):
+                                        player = p.get("player", p) if isinstance(p, dict) else p
+                                        pname = player.get("name", "?") if isinstance(player, dict) else str(player)
+                                        pos = player.get("pos", player.get("position", "")) if isinstance(player, dict) else ""
+                                        if pos in ("G", "Goalie", "Goalkeeper"):
+                                            goalies.append(pname)
+                                        else:
+                                            skaters.append(pname)
+                                    match_lineups[tname] = {
+                                        "goalies": goalies,
+                                        "skaters": skaters[:12],
+                                    }
+                        except Exception:
+                            pass
+                        # Also try /games/statistics for goalie stats
+                        try:
+                            sr = await client.get(
+                                f"https://{host}/games/statistics",
+                                params={"game": gid},
+                                headers=headers,
+                            )
+                            if sr.status_code == 200:
+                                stats_data = sr.json().get("response", [])
+                                for team_stats in stats_data:
+                                    tname = team_stats.get("team", {}).get("name", "?")
+                                    if tname in match_lineups and isinstance(match_lineups[tname], dict):
+                                        match_lineups[tname]["stats"] = {
+                                            "goals": team_stats.get("goals", {}),
+                                            "shots": team_stats.get("shots", {}),
+                                            "saves": team_stats.get("saves", {}),
+                                        }
+                        except Exception:
+                            pass
+                        lineups[key] = match_lineups
     except Exception as e:
         print(f"API-Sports lineups fetch error ({sport_lower}): {e}")
 
@@ -5788,7 +5852,7 @@ async def get_analysis(sport: str, cached_only: bool = False, force: bool = Fals
         )
         logger.warning(f"INJURY FEED FAILURE: No real injury data found for analysis. All sources may have failed.")
 
-    # ===== FETCH SOCCER LINEUPS (confirmed starting XI + formations) =====
+    # ===== FETCH LINEUPS (soccer + NHL goalie confirmations) =====
     lineup_context = ""
     if sport_lower == "soccer":
         try:
@@ -5813,6 +5877,41 @@ async def get_analysis(sport: str, cached_only: bool = False, force: bool = Fals
         except Exception as e:
             lineup_context = "\n=== LINEUPS: FETCH FAILED ===\nCould not retrieve lineup data. Grade tactical_matchup and star_player_status conservatively."
             logger.warning(f"Soccer lineup fetch error: {e}")
+
+    elif sport_lower == "nhl":
+        try:
+            nhl_lineups = await _fetch_api_sports_lineups(sport_lower)
+            if nhl_lineups:
+                lineup_lines = ["\n=== CONFIRMED GOALIES & LINEUPS (API-Sports Hockey) ==="]
+                lineup_lines.append("GOALIE RULE: goalie_confirmed is THE #1 variable in hockey (weight 10). If starting goalie is confirmed, score 8-10. If backup, score based on backup quality. If unknown, grade conservatively.")
+                for matchup_key, match_data in nhl_lineups.items():
+                    lineup_lines.append(f"\n{matchup_key}:")
+                    for team_key, team_info in match_data.items():
+                        if team_key in ("home_team", "away_team"):
+                            continue
+                        if isinstance(team_info, dict):
+                            goalies = team_info.get("goalies", [])
+                            skaters = team_info.get("skaters", [])
+                            stats = team_info.get("stats", {})
+                            if goalies:
+                                lineup_lines.append(f"  {team_key} STARTING GOALIE: {goalies[0]}")
+                                if len(goalies) > 1:
+                                    lineup_lines.append(f"    Backup: {', '.join(goalies[1:])}")
+                            if skaters:
+                                lineup_lines.append(f"    Skaters: {', '.join(skaters[:12])}")
+                            if stats:
+                                saves = stats.get("saves", {})
+                                shots = stats.get("shots", {})
+                                if saves or shots:
+                                    lineup_lines.append(f"    Game stats: Saves={saves} Shots={shots}")
+                lineup_context = "\n".join(lineup_lines)
+                logger.info(f"[LINEUPS] NHL goalie/lineup data injected for {len(nhl_lineups)} games")
+            else:
+                lineup_context = "\n=== GOALIE CONFIRMATION: NOT YET AVAILABLE ===\nNo confirmed starting goalies. NHL goalies typically confirmed 1-2 hours before puck drop. Score goalie_confirmed conservatively (5-6) until confirmed."
+                logger.info("[LINEUPS] NHL goalie data not yet available")
+        except Exception as e:
+            lineup_context = "\n=== GOALIE DATA: FETCH FAILED ===\nCould not retrieve goalie confirmation. Score goalie_confirmed conservatively."
+            logger.warning(f"NHL lineup/goalie fetch error: {e}")
 
     # ===== P3: TEAM RECENT FORM (L5 records for prompt) =====
     form_context = ""
