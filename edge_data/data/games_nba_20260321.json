@@ -1,0 +1,4066 @@
+{
+  "sport": "NBA",
+  "date": "2026-03-21",
+  "fetched_at": "2026-03-20T20:27:57.800064",
+  "games": [
+    {
+      "game_id": "401810877",
+      "sport": "NBA",
+      "home": "Washington Wizards",
+      "home_abbrev": "WSH",
+      "home_espn_id": "27",
+      "away": "Oklahoma City Thunder",
+      "away_abbrev": "OKC",
+      "away_espn_id": "25",
+      "time": "2026-03-21T21:00",
+      "odds": {
+        "spread_home": "+21",
+        "spread_home_odds": "-110",
+        "spread_away": "-21",
+        "spread_away_odds": "-110",
+        "total": null,
+        "over_odds": "-110",
+        "under_odds": "-110",
+        "ml_home": "+1300",
+        "ml_away": "-3335",
+        "provider": "SGO"
+      },
+      "away_profile": {
+        "L5": "5-0",
+        "L10": "10-0",
+        "ppg_L5": 116.6,
+        "opp_ppg_L5": 106.2,
+        "margin_L5": 10.4,
+        "avg_margin_L10": 8.9,
+        "ppg_L10": 113.3,
+        "opp_ppg_L10": 104.4,
+        "rest_days": 3,
+        "is_b2b": false,
+        "streak": "W10",
+        "home_record": "29-7",
+        "away_record": "26-8",
+        "games_last_7d": 3
+      },
+      "home_profile": {
+        "L5": "0-5",
+        "L10": "0-10",
+        "ppg_L5": 112.0,
+        "opp_ppg_L5": 123.8,
+        "margin_L5": -11.8,
+        "avg_margin_L10": -13.2,
+        "ppg_L10": 114.6,
+        "opp_ppg_L10": 127.8,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "L14",
+        "home_record": "11-25",
+        "away_record": "5-28",
+        "games_last_7d": 4
+      },
+      "injuries": {
+        "away": [
+          {
+            "player": "Branden Carlson",
+            "pos": "C",
+            "status": "OUT",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Carlson (back) has been ruled out for Saturday's game against Washington."
+          },
+          {
+            "player": "Jalen Williams",
+            "pos": "SF",
+            "status": "OUT",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Williams (hamstring) has been ruled out for Saturday's game against the Wizards."
+          },
+          {
+            "player": "Isaiah Hartenstein",
+            "pos": "C",
+            "status": "",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Ajay Mitchell",
+            "pos": "PG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Brooks Barnhizer",
+            "pos": "SG",
+            "status": "",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Nikola Topic",
+            "pos": "PG",
+            "status": "",
+            "injDate": "20240701",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Luguentz Dort",
+            "pos": "SF",
+            "status": "",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Thomas Sorber",
+            "pos": "PF",
+            "status": "OUT",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Sep 5: The Thunder announced Friday that Sorber has sustained a torn ACL in his right knee during an offseason workout, NBA reporter Marc Stein reports."
+          },
+          {
+            "player": "Kenrich Williams",
+            "pos": "SG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Cason Wallace",
+            "pos": "PG",
+            "status": "",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Chet Holmgren",
+            "pos": "PF",
+            "status": "",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Payton Sandfort",
+            "pos": "SF",
+            "status": "",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Jared McCain",
+            "pos": "SG",
+            "status": "",
+            "injDate": "20241001",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Alex Caruso",
+            "pos": "PG",
+            "status": "",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Aaron Wiggins",
+            "pos": "SG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Shai Gilgeous-Alexander",
+            "pos": "SG",
+            "status": "",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Jaylin Williams",
+            "pos": "PF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Isaiah Joe",
+            "pos": "SG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          }
+        ],
+        "home": [
+          {
+            "player": "Kyshawn George",
+            "pos": "SF",
+            "status": "OUT",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 4: The Wizards announced Wednesday that George has been diagnosed with a partial tear of the UCL in his left elbow and will be re-evaluated in three weeks."
+          },
+          {
+            "player": "Anthony Gill",
+            "pos": "PF",
+            "status": "",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Trae Young",
+            "pos": "PG",
+            "status": "OUT",
+            "injDate": "20250411",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Young (quadriceps) is out for Saturday's game against the Thunder."
+          },
+          {
+            "player": "Will Riley",
+            "pos": "SF",
+            "status": "DAY-TO-DAY",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Riley is questionable for Saturday's game against Oklahoma City due to right adductor soreness."
+          },
+          {
+            "player": "Alex Sarr",
+            "pos": "C",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Leaky Black",
+            "pos": "SF",
+            "status": "OUT",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Black (ankle) will not play Saturday against the Thunder."
+          },
+          {
+            "player": "Tre Johnson",
+            "pos": "SG",
+            "status": "DAY-TO-DAY",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Johnson is questionable for Saturday's game against the Thunder due to right foot soreness."
+          },
+          {
+            "player": "Sharife Cooper",
+            "pos": "PG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Tristan Vukcevic",
+            "pos": "PF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Jamir Watkins",
+            "pos": "SF",
+            "status": "",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Carlton Carrington",
+            "pos": "PG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Julian Reese",
+            "pos": "PF",
+            "status": "",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Cam Whitmore",
+            "pos": "SG",
+            "status": "OUT",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Jan 15: Whitmore has begun the recovery process for a diagnosed venous condition and he will miss the remainder of the 2025-26 season."
+          },
+          {
+            "player": "Justin Champagnie",
+            "pos": "SF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Bilal Coulibaly",
+            "pos": "SF",
+            "status": "",
+            "injDate": "20241001",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Anthony Davis",
+            "pos": "C",
+            "status": "OUT",
+            "injDate": "20250411",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Davis (finger) will continue to remain sidelined through the end of March, the Wizards announced Friday."
+          },
+          {
+            "player": "D'Angelo Russell",
+            "pos": "PG",
+            "status": "OUT",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 3: Russell (not injury related) has been ruled out for Tuesday's game against the Magic."
+          },
+          {
+            "player": "Jaden Hardy",
+            "pos": "SG",
+            "status": "",
+            "injDate": "20250411",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          }
+        ]
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
+    },
+    {
+      "game_id": "401810878",
+      "sport": "NBA",
+      "home": "Charlotte Hornets",
+      "home_abbrev": "CHA",
+      "home_espn_id": "30",
+      "away": "Memphis Grizzlies",
+      "away_abbrev": "MEM",
+      "away_espn_id": "29",
+      "time": "2026-03-21T23:00",
+      "odds": {
+        "spread_home": "-15.5",
+        "spread_home_odds": "-111",
+        "spread_away": "+15.5",
+        "spread_away_odds": "-110",
+        "total": null,
+        "over_odds": "-112",
+        "under_odds": "-110",
+        "ml_home": "-1250",
+        "ml_away": "+650",
+        "provider": "SGO"
+      },
+      "away_profile": {
+        "L5": "1-4",
+        "L10": "2-8",
+        "ppg_L5": 116.6,
+        "opp_ppg_L5": 127.0,
+        "margin_L5": -10.4,
+        "avg_margin_L10": -6.2,
+        "ppg_L10": 116.7,
+        "opp_ppg_L10": 122.9,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "W1",
+        "home_record": "13-20",
+        "away_record": "11-24",
+        "games_last_7d": 2
+      },
+      "home_profile": {
+        "L5": "4-1",
+        "L10": "7-3",
+        "ppg_L5": 117.6,
+        "opp_ppg_L5": 108.4,
+        "margin_L5": 9.2,
+        "avg_margin_L10": 9.8,
+        "ppg_L10": 115.1,
+        "opp_ppg_L10": 105.3,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "W2",
+        "home_record": "16-17",
+        "away_record": "20-17",
+        "games_last_7d": 3
+      },
+      "injuries": {
+        "away": [
+          {
+            "player": "Scotty Pippen Jr.",
+            "pos": "PG",
+            "status": "OUT",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 13: Pippen will miss the remainder of the season after undergoing a sesamoidectomy to address ongoing discomfort in his right big toe, Michael Scotto of USA Today reports Friday."
+          },
+          {
+            "player": "Jaylen Wells",
+            "pos": "SG",
+            "status": "",
+            "injDate": "20240510",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Cedric Coward",
+            "pos": "SG",
+            "status": "OUT",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Coward is out for Friday's game versus Boston due to personal reasons, Gary Washburn of The Boston Globe reports."
+          },
+          {
+            "player": "Cam Spencer",
+            "pos": "PG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Olivier-Maxence Prosper",
+            "pos": "SF",
+            "status": "",
+            "injDate": "20241001",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Jahmai Mashack",
+            "pos": "SG",
+            "status": "OUT",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 19: Mashack is out for Friday's game against the Celtics due to a sprained left ankle."
+          },
+          {
+            "player": "Walter Clayton Jr.",
+            "pos": "PG",
+            "status": "",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Taylor Hendricks",
+            "pos": "PF",
+            "status": "",
+            "injDate": "20241001",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Kentavious Caldwell-Pope",
+            "pos": "SF",
+            "status": "OUT",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Feb 19: The Grizzlies announced Thursday that Caldwell-Pope underwent surgery to address the misalignment of his right pinky finger and will miss the remainder of the 2025-26 campaign."
+          },
+          {
+            "player": "Ty Jerome",
+            "pos": "SG",
+            "status": "",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Rayan Rupert",
+            "pos": "SG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Santi Aldama",
+            "pos": "C",
+            "status": "OUT",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 15: Aldama will undergo a season-ending arthroscopic procedure and receive an orthobiologic injection to address discomfort in his right knee, Brett Siegel of ClutchPoints.com reports."
+          },
+          {
+            "player": "Javon Small",
+            "pos": "PG",
+            "status": "",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Gregory Jackson",
+            "pos": "PF",
+            "status": "OUT",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Jackson (knee) won't play Friday against the Celtics."
+          },
+          {
+            "player": "Zach Edey",
+            "pos": "C",
+            "status": "OUT",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 3: Edey underwent surgery Tuesday to resolve discomfort and bone stress in his left ankle, and he'll miss the rest of the 2025-26 season."
+          },
+          {
+            "player": "Tyler Burton",
+            "pos": "SF",
+            "status": "",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Brandon Clarke",
+            "pos": "C",
+            "status": "OUT",
+            "injDate": "20241001",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 19: Clarke (calf) will remain on the inactive list for Friday's game against the Celtics."
+          },
+          {
+            "player": "DeJon Jarreau",
+            "pos": "PG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Taj Gibson",
+            "pos": "PF",
+            "status": "OUT",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Gibson (foot) is out for Friday's game against the Celtics."
+          },
+          {
+            "player": "Ja Morant",
+            "pos": "PG",
+            "status": "OUT",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 19: Morant (elbow) is out for Friday's game against the Celtics."
+          }
+        ],
+        "home": [
+          {
+            "player": "Coby White",
+            "pos": "PG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "LaMelo Ball",
+            "pos": "PG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Pat Connaughton",
+            "pos": "SG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Ryan Kalkbrenner",
+            "pos": "C",
+            "status": "",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Liam McNeeley",
+            "pos": "SF",
+            "status": "",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Miles Bridges",
+            "pos": "PF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Josh Green",
+            "pos": "SF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Tre Mann",
+            "pos": "PG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Tidjane Salaun",
+            "pos": "PF",
+            "status": "OUT",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Salaun is out for Saturday's game against Memphis due to a left calf strain."
+          },
+          {
+            "player": "Xavier Tillman",
+            "pos": "C",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Sion James",
+            "pos": "SG",
+            "status": "",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Brandon Miller",
+            "pos": "SG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Kon Knueppel",
+            "pos": "SF",
+            "status": "",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Moussa Diabate",
+            "pos": "PF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Grant Williams",
+            "pos": "PF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "PJ Hall",
+            "pos": "C",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Tosan Evbuomwan",
+            "pos": "SF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Antonio Reeves",
+            "pos": "SG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          }
+        ]
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
+    },
+    {
+      "game_id": "401810879",
+      "sport": "NBA",
+      "home": "Orlando Magic",
+      "home_abbrev": "ORL",
+      "home_espn_id": "19",
+      "away": "Los Angeles Lakers",
+      "away_abbrev": "LAL",
+      "away_espn_id": "13",
+      "time": "2026-03-21T23:00",
+      "odds": {
+        "spread_home": "+3",
+        "spread_home_odds": "-109",
+        "spread_away": "-3",
+        "spread_away_odds": "-111",
+        "total": null,
+        "over_odds": "-111",
+        "under_odds": "-110",
+        "ml_home": "+128",
+        "ml_away": "-155",
+        "provider": "SGO"
+      },
+      "away_profile": {
+        "L5": "5-0",
+        "L10": "9-1",
+        "ppg_L5": 125.4,
+        "opp_ppg_L5": 117.8,
+        "margin_L5": 7.6,
+        "avg_margin_L10": 7.8,
+        "ppg_L10": 120.8,
+        "opp_ppg_L10": 113.0,
+        "rest_days": 1,
+        "is_b2b": true,
+        "streak": "W8",
+        "home_record": "23-12",
+        "away_record": "22-13",
+        "games_last_7d": 4
+      },
+      "home_profile": {
+        "L5": "2-3",
+        "L10": "7-3",
+        "ppg_L5": 117.6,
+        "opp_ppg_L5": 123.0,
+        "margin_L5": -5.4,
+        "avg_margin_L10": 6.3,
+        "ppg_L10": 120.6,
+        "opp_ppg_L10": 114.3,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "L3",
+        "home_record": "22-13",
+        "away_record": "16-18",
+        "games_last_7d": 4
+      },
+      "injuries": {
+        "away": [
+          {
+            "player": "Rui Hachimura",
+            "pos": "PF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Drew Timme",
+            "pos": "PF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Adou Thiero",
+            "pos": "SF",
+            "status": "",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Chris Manon",
+            "pos": "SG",
+            "status": "",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Austin Reaves",
+            "pos": "SG",
+            "status": "DAY-TO-DAY",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Reaves is listed as questionable for Saturday's game against the Magic due to left hip soreness."
+          },
+          {
+            "player": "Luka Doncic",
+            "pos": "PG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Nick Smith Jr.",
+            "pos": "PG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Jarred Vanderbilt",
+            "pos": "PF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Luke Kennard",
+            "pos": "SG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Maxi Kleber",
+            "pos": "C",
+            "status": "OUT",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Kleber (back) took part in practice Thursday with the G League's South Bay Lakers, Khobi Price of The California Post reports."
+          },
+          {
+            "player": "Jaxson Hayes",
+            "pos": "C",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Bronny James",
+            "pos": "PG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Kobe Bufkin",
+            "pos": "SG",
+            "status": "",
+            "injDate": "20241001",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "LeBron James",
+            "pos": "SF",
+            "status": "",
+            "injDate": "20250411",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Jake LaRavia",
+            "pos": "SF",
+            "status": "",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Deandre Ayton",
+            "pos": "C",
+            "status": "",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Marcus Smart",
+            "pos": "PG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Dalton Knecht",
+            "pos": "SF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          }
+        ],
+        "home": [
+          {
+            "player": "Goga Bitadze",
+            "pos": "C",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Moe Wagner",
+            "pos": "C",
+            "status": "",
+            "injDate": "20241001",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Jamal Cain",
+            "pos": "SF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Paolo Banchero",
+            "pos": "PF",
+            "status": "",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Jase Richardson",
+            "pos": "PG",
+            "status": "",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Franz Wagner",
+            "pos": "PF",
+            "status": "OUT",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Wagner (ankle) is out for Saturday's game against the Lakers."
+          },
+          {
+            "player": "Jonathan Isaac",
+            "pos": "PF",
+            "status": "OUT",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Isaac (knee) is out for Saturday's game against the Lakers."
+          },
+          {
+            "player": "Desmond Bane",
+            "pos": "SG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Colin Castleton",
+            "pos": "C",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Tristan da Silva",
+            "pos": "SF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Jevon Carter",
+            "pos": "PG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Jalen Suggs",
+            "pos": "SG",
+            "status": "",
+            "injDate": "20241001",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Alex Morales",
+            "pos": "SF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Jett Howard",
+            "pos": "SG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Anthony Black",
+            "pos": "PG",
+            "status": "OUT",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Black (abdomen) is out for Saturday's game against the Lakers."
+          },
+          {
+            "player": "Wendell Carter Jr.",
+            "pos": "C",
+            "status": "DAY-TO-DAY",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Carter (ribs) is questionable for Saturday's game against the Lakers."
+          },
+          {
+            "player": "Noah Penda",
+            "pos": "SF",
+            "status": "",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          }
+        ]
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
+    },
+    {
+      "game_id": "401810880",
+      "sport": "NBA",
+      "home": "New Orleans Pelicans",
+      "home_abbrev": "NO",
+      "home_espn_id": "3",
+      "away": "Cleveland Cavaliers",
+      "away_abbrev": "CLE",
+      "away_espn_id": "5",
+      "time": "2026-03-21T23:00",
+      "odds": {
+        "spread_home": "+5",
+        "spread_home_odds": "-110",
+        "spread_away": "-5",
+        "spread_away_odds": "-110",
+        "total": null,
+        "over_odds": "-110",
+        "under_odds": "-110",
+        "ml_home": "+165",
+        "ml_away": "-200",
+        "provider": "SGO"
+      },
+      "away_profile": {
+        "L5": "3-2",
+        "L10": "6-4",
+        "ppg_L5": 123.6,
+        "opp_ppg_L5": 117.8,
+        "margin_L5": 5.8,
+        "avg_margin_L10": 3.7,
+        "ppg_L10": 116.9,
+        "opp_ppg_L10": 113.2,
+        "rest_days": 1,
+        "is_b2b": true,
+        "streak": "W2",
+        "home_record": "22-13",
+        "away_record": "21-14",
+        "games_last_7d": 3
+      },
+      "home_profile": {
+        "L5": "4-1",
+        "L10": "6-4",
+        "ppg_L5": 117.0,
+        "opp_ppg_L5": 107.4,
+        "margin_L5": 9.6,
+        "avg_margin_L10": 4.7,
+        "ppg_L10": 119.0,
+        "opp_ppg_L10": 114.3,
+        "rest_days": 1,
+        "is_b2b": true,
+        "streak": "W3",
+        "home_record": "16-21",
+        "away_record": "9-25",
+        "games_last_7d": 4
+      },
+      "injuries": {
+        "away": [
+          {
+            "player": "Keon Ellis",
+            "pos": "SG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Sam Merrill",
+            "pos": "SG",
+            "status": "",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Jaylon Tyson",
+            "pos": "SF",
+            "status": "DAY-TO-DAY",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Tyson (toe) is listed as questionable for Saturday's game against the Pelicans."
+          },
+          {
+            "player": "Nae'Qwan Tomlin",
+            "pos": "PF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Olivier Sarr",
+            "pos": "C",
+            "status": "DAY-TO-DAY",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 19: Sarr agreed to a two-way contract with the Cavaliers on Tuesday, Michael Scotto of USA Today reports."
+          },
+          {
+            "player": "Craig Porter Jr.",
+            "pos": "PG",
+            "status": "OUT",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 16: Porter (groin) will remain out for the next 1-to-3 weeks."
+          },
+          {
+            "player": "Thomas Bryant",
+            "pos": "C",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Donovan Mitchell",
+            "pos": "SG",
+            "status": "DAY-TO-DAY",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Mitchell (eye) is questionable for Saturday's game in New Orleans."
+          },
+          {
+            "player": "Dennis Schroder",
+            "pos": "PG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Larry Nance Jr.",
+            "pos": "PF",
+            "status": "",
+            "injDate": "20240501",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Tristan Enaruna",
+            "pos": "SF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Tyrese Proctor",
+            "pos": "PG",
+            "status": "OUT",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 16: Proctor (quadriceps) will miss Cleveland's upcoming three-game road trip."
+          },
+          {
+            "player": "Max Strus",
+            "pos": "SG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Dean Wade",
+            "pos": "PF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Evan Mobley",
+            "pos": "PF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Riley Minix",
+            "pos": "SF",
+            "status": "",
+            "injDate": "20241001",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "James Harden",
+            "pos": "PG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Jarrett Allen",
+            "pos": "C",
+            "status": "OUT",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 16: Allen (knee) will miss Cleveland's upcoming three-game road trip."
+          }
+        ],
+        "home": [
+          {
+            "player": "Yves Missi",
+            "pos": "C",
+            "status": "",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Derik Queen",
+            "pos": "C",
+            "status": "",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Herbert Jones",
+            "pos": "SG",
+            "status": "",
+            "injDate": "20241001",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Hunter Dickinson",
+            "pos": "C",
+            "status": "",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Trey Murphy III",
+            "pos": "SF",
+            "status": "",
+            "injDate": "20241001",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Trey Alexander",
+            "pos": "SG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Micah Peavy",
+            "pos": "SF",
+            "status": "",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Jordan Poole",
+            "pos": "SG",
+            "status": "",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Dejounte Murray",
+            "pos": "PG",
+            "status": "",
+            "injDate": "20241001",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Josh Oduro",
+            "pos": "PF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "DeAndre Jordan",
+            "pos": "C",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Jordan Hawkins",
+            "pos": "SG",
+            "status": "",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Kevon Looney",
+            "pos": "C",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Bryce McGowens",
+            "pos": "SG",
+            "status": "OUT",
+            "injDate": "20241001",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: McGowens is out for Saturday's game against Cleveland due to a right toe fracture."
+          },
+          {
+            "player": "Zion Williamson",
+            "pos": "PF",
+            "status": "",
+            "injDate": "20241001",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Saddiq Bey",
+            "pos": "SF",
+            "status": "",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Jeremiah Fears",
+            "pos": "PG",
+            "status": "",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Karlo Matkovic",
+            "pos": "PF",
+            "status": "",
+            "injDate": "20250411",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          }
+        ]
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
+    },
+    {
+      "game_id": "401810881",
+      "sport": "NBA",
+      "home": "Atlanta Hawks",
+      "home_abbrev": "ATL",
+      "home_espn_id": "1",
+      "away": "Golden State Warriors",
+      "away_abbrev": "GS",
+      "away_espn_id": "9",
+      "time": "2026-03-22T00:00",
+      "odds": {
+        "spread_home": "-9.5",
+        "spread_home_odds": "-110",
+        "spread_away": "+9.5",
+        "spread_away_odds": "-110",
+        "total": null,
+        "over_odds": "-109",
+        "under_odds": "-112",
+        "ml_home": "-400",
+        "ml_away": "+300",
+        "provider": "SGO"
+      },
+      "away_profile": {
+        "L5": "1-4",
+        "L10": "2-8",
+        "ppg_L5": 109.8,
+        "opp_ppg_L5": 117.8,
+        "margin_L5": -8.0,
+        "avg_margin_L10": -6.7,
+        "ppg_L10": 110.2,
+        "opp_ppg_L10": 116.9,
+        "rest_days": 1,
+        "is_b2b": true,
+        "streak": "L3",
+        "home_record": "19-15",
+        "away_record": "14-22",
+        "games_last_7d": 5
+      },
+      "home_profile": {
+        "L5": "5-0",
+        "L10": "10-0",
+        "ppg_L5": 122.6,
+        "opp_ppg_L5": 108.0,
+        "margin_L5": 14.6,
+        "avg_margin_L10": 18.5,
+        "ppg_L10": 124.9,
+        "opp_ppg_L10": 106.4,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "W11",
+        "home_record": "19-16",
+        "away_record": "19-15",
+        "games_last_7d": 3
+      },
+      "injuries": {
+        "away": [
+          {
+            "player": "Brandin Podziemski",
+            "pos": "SG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Jimmy Butler",
+            "pos": "SF",
+            "status": "OUT",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Feb 9: Butler underwent successful surgery Monday to repair a torn right anterior cruciate ligament."
+          },
+          {
+            "player": "Gui Santos",
+            "pos": "SF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Pat Spencer",
+            "pos": "PG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Seth Curry",
+            "pos": "SG",
+            "status": "OUT",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 15: Curry will be re-evaluated in a week due to a mild left adductor strain, Danny Emerman of SFStandard.com reports."
+          },
+          {
+            "player": "Kristaps Porzingis",
+            "pos": "C",
+            "status": "DAY-TO-DAY",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Porzingis (back) did not return to Friday's 115-101 loss to the Pistons."
+          },
+          {
+            "player": "Stephen Curry",
+            "pos": "PG",
+            "status": "OUT",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 18: The Warriors are optimistic that Curry (knee) will be able to return before the end of March, per Shams Charania of ESPN."
+          },
+          {
+            "player": "Moses Moody",
+            "pos": "SG",
+            "status": "OUT",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 18: Moody (wrist) hasn't progressed as well as the Warriors had hoped, and he remains without a timetable for return, Nick Friedell of The Athletic reports."
+          },
+          {
+            "player": "De'Anthony Melton",
+            "pos": "SG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Omer Yurtseven",
+            "pos": "C",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Quinten Post",
+            "pos": "C",
+            "status": "DAY-TO-DAY",
+            "injDate": "20250411",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Post (foot) is out for Friday's game versus Detroit."
+          },
+          {
+            "player": "L.J. Cryer",
+            "pos": "PG",
+            "status": "",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Gary Payton II",
+            "pos": "PG",
+            "status": "",
+            "injDate": "20250411",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Draymond Green",
+            "pos": "PF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Nate Williams",
+            "pos": "SG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Malevy Leons",
+            "pos": "PF",
+            "status": "DAY-TO-DAY",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Leons hurt his wrist toward the end of Friday's 115-101 loss to the Pistons, Nick Friedell of The Athletic reports. He finished with five points (2-3 FG, 1-1 3Pt), one rebound and one assist in 11 minutes."
+          },
+          {
+            "player": "Al Horford",
+            "pos": "C",
+            "status": "OUT",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 15: An MRI confirmed a minor right calf strain for Horford and he will be re-evaluated in one week, Danny Emerman of SFStandard.com reports."
+          },
+          {
+            "player": "Will Richard",
+            "pos": "PG",
+            "status": "",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          }
+        ],
+        "home": [
+          {
+            "player": "Caleb Houstan",
+            "pos": "SF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Gabe Vincent",
+            "pos": "PG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Christian Koloko",
+            "pos": "C",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Buddy Hield",
+            "pos": "SF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Jalen Johnson",
+            "pos": "SF",
+            "status": "",
+            "injDate": "20241001",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Keaton Wallace",
+            "pos": "PG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Jonathan Kuminga",
+            "pos": "PF",
+            "status": "OUT",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 19: Kuminga (knee) has been ruled out for Friday's game in Houston."
+          },
+          {
+            "player": "Jock Landale",
+            "pos": "C",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Nickeil Alexander-Walker",
+            "pos": "SG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Dyson Daniels",
+            "pos": "SG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Asa Newell",
+            "pos": "PF",
+            "status": "",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Corey Kispert",
+            "pos": "SG",
+            "status": "",
+            "injDate": "20241001",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Mouhamed Gueye",
+            "pos": "PF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "RayJ Dennis",
+            "pos": "PG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Onyeka Okongwu",
+            "pos": "C",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "CJ McCollum",
+            "pos": "PG",
+            "status": "",
+            "injDate": "20241001",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Keshon Gilbert",
+            "pos": "PG",
+            "status": "",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Zaccharie Risacher",
+            "pos": "SF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          }
+        ]
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
+    },
+    {
+      "game_id": "401810882",
+      "sport": "NBA",
+      "home": "Houston Rockets",
+      "home_abbrev": "HOU",
+      "home_espn_id": "10",
+      "away": "Miami Heat",
+      "away_abbrev": "MIA",
+      "away_espn_id": "14",
+      "time": "2026-03-22T00:00",
+      "odds": {
+        "spread_home": "-2",
+        "spread_home_odds": "-111",
+        "spread_away": "+2",
+        "spread_away_odds": "-109",
+        "total": null,
+        "over_odds": "-110",
+        "under_odds": "-112",
+        "ml_home": "-134",
+        "ml_away": "+110",
+        "provider": "SGO"
+      },
+      "away_profile": {
+        "L5": "2-3",
+        "L10": "7-3",
+        "ppg_L5": 122.2,
+        "opp_ppg_L5": 125.0,
+        "margin_L5": -2.8,
+        "avg_margin_L10": 5.7,
+        "ppg_L10": 122.5,
+        "opp_ppg_L10": 116.8,
+        "rest_days": 1,
+        "is_b2b": true,
+        "streak": "L3",
+        "home_record": "23-13",
+        "away_record": "15-19",
+        "games_last_7d": 3
+      },
+      "home_profile": {
+        "L5": "2-3",
+        "L10": "4-6",
+        "ppg_L5": 104.2,
+        "opp_ppg_L5": 111.4,
+        "margin_L5": -7.2,
+        "avg_margin_L10": -6.1,
+        "ppg_L10": 108.8,
+        "opp_ppg_L10": 114.9,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "L2",
+        "home_record": "23-10",
+        "away_record": "18-17",
+        "games_last_7d": 3
+      },
+      "injuries": {
+        "away": [
+          {
+            "player": "Terry Rozier",
+            "pos": "SG",
+            "status": "OUT",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 19: The Heat are planning to release Rozier in the near future, Anthony Chiang of the Miami Herald reports."
+          },
+          {
+            "player": "Kasparas Jakucionis",
+            "pos": "SG",
+            "status": "",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Vladislav Goldin",
+            "pos": "C",
+            "status": "",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Andrew Wiggins",
+            "pos": "SF",
+            "status": "OUT",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Wiggins (toe) is out for Saturday's game against the Rockets."
+          },
+          {
+            "player": "Keshad Johnson",
+            "pos": "SF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Norman Powell",
+            "pos": "SG",
+            "status": "",
+            "injDate": "20250411",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Tyler Herro",
+            "pos": "PG",
+            "status": "",
+            "injDate": "20250411",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Dru Smith",
+            "pos": "SG",
+            "status": "",
+            "injDate": "20241001",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Kel'el Ware",
+            "pos": "C",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Jaime Jaquez Jr.",
+            "pos": "SF",
+            "status": "OUT",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Jaquez (hip) is out for Saturday's game against Houston."
+          },
+          {
+            "player": "Simone Fontecchio",
+            "pos": "SF",
+            "status": "DAY-TO-DAY",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Fontecchio (back) is questionable for Saturday's game versus Houston."
+          },
+          {
+            "player": "Davion Mitchell",
+            "pos": "PG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Nikola Jovic",
+            "pos": "PF",
+            "status": "",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Jahmir Young",
+            "pos": "PG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Pelle Larsson",
+            "pos": "SF",
+            "status": "DAY-TO-DAY",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Larsson is questionable for Saturday's game against Houston due to a bruised right foot."
+          },
+          {
+            "player": "Trevor Keels",
+            "pos": "SG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Myron Gardner",
+            "pos": "SF",
+            "status": "",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Bam Adebayo",
+            "pos": "PF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          }
+        ],
+        "home": [
+          {
+            "player": "Tari Eason",
+            "pos": "PF",
+            "status": "",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Aaron Holiday",
+            "pos": "PG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Clint Capela",
+            "pos": "C",
+            "status": "",
+            "injDate": "20240415",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Reed Sheppard",
+            "pos": "SG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Jeff Green",
+            "pos": "PF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Jae'Sean Tate",
+            "pos": "SF",
+            "status": "OUT",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 15: Tate (knee) will remain on the inactive list for Monday's game versus the Lakers."
+          },
+          {
+            "player": "Fred VanVleet",
+            "pos": "PG",
+            "status": "OUT",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Sep 22: VanVleet suffered a torn ACL and may be out for the entire 2025-26 campaign, Shams Charania of ESPN reports."
+          },
+          {
+            "player": "JD Davison",
+            "pos": "PG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Kevin Durant",
+            "pos": "PF",
+            "status": "",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Josh Okogie",
+            "pos": "SG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Dorian Finney-Smith",
+            "pos": "PF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Alperen Sengun",
+            "pos": "C",
+            "status": "",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Amen Thompson",
+            "pos": "SG",
+            "status": "",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Isaiah Crawford",
+            "pos": "SF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Tristen Newton",
+            "pos": "PG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Steven Adams",
+            "pos": "C",
+            "status": "OUT",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Jan 28: The Rockets announced Wednesday that Adams has undergone season-ending left ankle surgery, per Shams Charania of ESPN."
+          },
+          {
+            "player": "Jabari Smith",
+            "pos": "PF",
+            "status": "",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          }
+        ]
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
+    },
+    {
+      "game_id": "401810883",
+      "sport": "NBA",
+      "home": "San Antonio Spurs",
+      "home_abbrev": "SA",
+      "home_espn_id": "24",
+      "away": "Indiana Pacers",
+      "away_abbrev": "IND",
+      "away_espn_id": "11",
+      "time": "2026-03-22T00:00",
+      "odds": {
+        "spread_home": "-19",
+        "spread_home_odds": "-109",
+        "spread_away": "+19",
+        "spread_away_odds": "-112",
+        "total": null,
+        "over_odds": "-110",
+        "under_odds": "-110",
+        "ml_home": "-2500",
+        "ml_away": "+1153",
+        "provider": "SGO"
+      },
+      "away_profile": {
+        "L5": "0-5",
+        "L10": "0-10",
+        "ppg_L5": 110.4,
+        "opp_ppg_L5": 124.2,
+        "margin_L5": -13.8,
+        "avg_margin_L10": -14.7,
+        "ppg_L10": 110.2,
+        "opp_ppg_L10": 124.9,
+        "rest_days": 3,
+        "is_b2b": false,
+        "streak": "L15",
+        "home_record": "10-25",
+        "away_record": "5-30",
+        "games_last_7d": 3
+      },
+      "home_profile": {
+        "L5": "4-1",
+        "L10": "9-1",
+        "ppg_L5": 119.6,
+        "opp_ppg_L5": 111.4,
+        "margin_L5": 8.2,
+        "avg_margin_L10": 13.4,
+        "ppg_L10": 123.6,
+        "opp_ppg_L10": 110.2,
+        "rest_days": 1,
+        "is_b2b": true,
+        "streak": "W4",
+        "home_record": "27-7",
+        "away_record": "25-12",
+        "games_last_7d": 4
+      },
+      "injuries": {
+        "away": [
+          {
+            "player": "Taelon Peter",
+            "pos": "SG",
+            "status": "",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Ivica Zubac",
+            "pos": "C",
+            "status": "OUT",
+            "injDate": "20250411",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Zubac will miss the rest of the season with a fractured rib, Dustin Dopirak of The Indianapolis Star reports."
+          },
+          {
+            "player": "Ben Sheppard",
+            "pos": "SG",
+            "status": "DAY-TO-DAY",
+            "injDate": "20250411",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Sheppard is questionable for Saturday's game against San Antonio due to a left ankle sprain."
+          },
+          {
+            "player": "T.J. McConnell",
+            "pos": "PG",
+            "status": "DAY-TO-DAY",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: McConnell (hamstring) is listed as questionable for Saturday's game against the Spurs."
+          },
+          {
+            "player": "Micah Potter",
+            "pos": "PF",
+            "status": "OUT",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Potter (triceps) is listed as questionable for Saturday's game against the Spurs."
+          },
+          {
+            "player": "Andrew Nembhard",
+            "pos": "PG",
+            "status": "OUT",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Nembhard (calf) is listed as questionable for Saturday's game in San Antonio."
+          },
+          {
+            "player": "Obi Toppin",
+            "pos": "PF",
+            "status": "DAY-TO-DAY",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Toppin (foot) is questionable for Saturday's game versus the Spurs."
+          },
+          {
+            "player": "Johnny Furphy",
+            "pos": "SG",
+            "status": "OUT",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Feb 9: Furphy was diagnosed with a torn right ACL on Monday and will miss the remainder of the season, Michael Scotto of USA Today reports."
+          },
+          {
+            "player": "Tyrese Haliburton",
+            "pos": "PG",
+            "status": "OUT",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Jan 27: Haliburton said Tuesday in his appearance on the \"Mind the Game\" podcast that he has resumed taking part in 3-on-3 and 4-on-4 work on the court while he continues to recover from right Achilles surgery."
+          },
+          {
+            "player": "Jarace Walker",
+            "pos": "PF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Quenton Jackson",
+            "pos": "SG",
+            "status": "DAY-TO-DAY",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Jackson (calf) is questionable for Saturday's game in San Antonio."
+          },
+          {
+            "player": "Aaron Nesmith",
+            "pos": "SF",
+            "status": "DAY-TO-DAY",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Nesmith is questionable for Saturday's game against San Antonio due to right ankle injury management."
+          },
+          {
+            "player": "Jay Huff",
+            "pos": "C",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Kam Jones",
+            "pos": "PG",
+            "status": "",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Kobe Brown",
+            "pos": "SF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Jalen Slawson",
+            "pos": "SF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Pascal Siakam",
+            "pos": "PF",
+            "status": "OUT",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Siakam is questionable for Saturday's game against the Spurs with a right knee sprain."
+          },
+          {
+            "player": "Ethan Thompson",
+            "pos": "SG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          }
+        ],
+        "home": [
+          {
+            "player": "Kelly Olynyk",
+            "pos": "PF",
+            "status": "",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Carter Bryant",
+            "pos": "SF",
+            "status": "",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Jordan McLaughlin",
+            "pos": "PG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "De'Aaron Fox",
+            "pos": "PG",
+            "status": "",
+            "injDate": "20241001",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Dylan Harper",
+            "pos": "PG",
+            "status": "",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Harrison Ingram",
+            "pos": "SF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Devin Vassell",
+            "pos": "SG",
+            "status": "",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Keldon Johnson",
+            "pos": "SF",
+            "status": "",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "David Jones",
+            "pos": "SF",
+            "status": "OUT",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Feb 4: Jones Garcia underwent ankle surgery Wednesday and will miss the remainder of the 2025-26 season, Tom Orsborn of the San Antonio Express-News reports."
+          },
+          {
+            "player": "Lindy Waters III",
+            "pos": "SF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Stephon Castle",
+            "pos": "PG",
+            "status": "DAY-TO-DAY",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Castle (hip) is questionable for Saturday's game versus the Pacers."
+          },
+          {
+            "player": "Emanuel Miller",
+            "pos": "SF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Harrison Barnes",
+            "pos": "PF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Bismack Biyombo",
+            "pos": "C",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Julian Champagnie",
+            "pos": "SF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Mason Plumlee",
+            "pos": "C",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Luke Kornet",
+            "pos": "C",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Victor Wembanyama",
+            "pos": "C",
+            "status": "",
+            "injDate": "20241001",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          }
+        ]
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
+    },
+    {
+      "game_id": "401810884",
+      "sport": "NBA",
+      "home": "Dallas Mavericks",
+      "home_abbrev": "DAL",
+      "home_espn_id": "6",
+      "away": "LA Clippers",
+      "away_abbrev": "LAC",
+      "away_espn_id": "12",
+      "time": "2026-03-22T00:30",
+      "odds": {},
+      "away_profile": {
+        "L5": "1-4",
+        "L10": "5-5",
+        "ppg_L5": 110.2,
+        "opp_ppg_L5": 114.8,
+        "margin_L5": -4.6,
+        "avg_margin_L10": 3.2,
+        "ppg_L10": 119.5,
+        "opp_ppg_L10": 116.3,
+        "rest_days": 1,
+        "is_b2b": true,
+        "streak": "L4",
+        "home_record": "19-15",
+        "away_record": "15-21",
+        "games_last_7d": 5
+      },
+      "home_profile": {
+        "L5": "2-3",
+        "L10": "2-8",
+        "ppg_L5": 117.2,
+        "opp_ppg_L5": 126.8,
+        "margin_L5": -9.6,
+        "avg_margin_L10": -13.8,
+        "ppg_L10": 109.4,
+        "opp_ppg_L10": 123.2,
+        "rest_days": 2,
+        "is_b2b": false,
+        "streak": "L2",
+        "home_record": "14-21",
+        "away_record": "9-26",
+        "games_last_7d": 3
+      },
+      "injuries": {
+        "away": [
+          {
+            "player": "Kris Dunn",
+            "pos": "PG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Yanic Konan Niederhauser",
+            "pos": "C",
+            "status": "OUT",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 5: Niederhauser has been diagnosed with a Lisfranc injury in his right foot and will require surgery. He's been ruled out for the remainder of the 2025-26 season, Joey Linn of SI.com reports."
+          },
+          {
+            "player": "Darius Garland",
+            "pos": "PG",
+            "status": "",
+            "injDate": "20250411",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Bennedict Mathurin",
+            "pos": "SF",
+            "status": "OUT",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 17: Mathurin (toe) will miss the Clippers' upcoming three-game road trip, which wraps up Saturday in Dallas, Tomer Azarly of ClutchPoints.com reports."
+          },
+          {
+            "player": "Brook Lopez",
+            "pos": "C",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Bradley Beal",
+            "pos": "SG",
+            "status": "OUT",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Nov 12: Beal will undergo season-ending surgery on his left hip, ESPN's Shams Charania reports."
+          },
+          {
+            "player": "Jordan Miller",
+            "pos": "SG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Cam Christie",
+            "pos": "SG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Bogdan Bogdanovic",
+            "pos": "SG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Nicolas Batum",
+            "pos": "PF",
+            "status": "",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "John Collins",
+            "pos": "PF",
+            "status": "",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Isaiah Jackson",
+            "pos": "C",
+            "status": "",
+            "injDate": "20241001",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Sean Pedulla",
+            "pos": "PG",
+            "status": "",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Norchad Omier",
+            "pos": "PF",
+            "status": "",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "TyTy Washington Jr.",
+            "pos": "PG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Kobe Sanders",
+            "pos": "SG",
+            "status": "",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Derrick Jones Jr.",
+            "pos": "SF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Kawhi Leonard",
+            "pos": "SF",
+            "status": "DAY-TO-DAY",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Leonard (ankle) is listed as questionable for Saturday's game against the Mavericks."
+          }
+        ],
+        "home": [
+          {
+            "player": "Daniel Gafford",
+            "pos": "C",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "John Poulakidas",
+            "pos": "SG",
+            "status": "",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Moussa Cisse",
+            "pos": "C",
+            "status": "",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Klay Thompson",
+            "pos": "SG",
+            "status": "",
+            "injDate": "20250411",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Marvin Bagley III",
+            "pos": "C",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "AJ Johnson",
+            "pos": "PG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Dwight Powell",
+            "pos": "C",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Ryan Nembhard",
+            "pos": "PG",
+            "status": "",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Max Christie",
+            "pos": "SG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "PJ Washington",
+            "pos": "PF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Kyrie Irving",
+            "pos": "PG",
+            "status": "OUT",
+            "injDate": "20250201",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Feb 18: Irving (knee) will miss the remainder of the 2025-26 season, ESPN's Shams Charania reports."
+          },
+          {
+            "player": "Tyler Smith",
+            "pos": "PF",
+            "status": "",
+            "injDate": "20250411",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Brandon Williams",
+            "pos": "PG",
+            "status": "OUT",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Williams is out for Saturday's game against the Clippers due to a concussion."
+          },
+          {
+            "player": "Naji Marshall",
+            "pos": "SG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Caleb Martin",
+            "pos": "SF",
+            "status": "DAY-TO-DAY",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Martin is questionable for Saturday's game against the Clippers due to a bruised right heel."
+          },
+          {
+            "player": "Khris Middleton",
+            "pos": "SF",
+            "status": "",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Cooper Flagg",
+            "pos": "SF",
+            "status": "",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Dereck Lively II",
+            "pos": "C",
+            "status": "OUT",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Dec 21: Lively successfully underwent surgery on his right foot Sunday."
+          }
+        ]
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
+    },
+    {
+      "game_id": "401810885",
+      "sport": "NBA",
+      "home": "Utah Jazz",
+      "home_abbrev": "UTAH",
+      "home_espn_id": "26",
+      "away": "Philadelphia 76ers",
+      "away_abbrev": "PHI",
+      "away_espn_id": "20",
+      "time": "2026-03-22T01:30",
+      "odds": {
+        "spread_home": "+6.5",
+        "spread_home_odds": "-115",
+        "spread_away": "-6.5",
+        "spread_away_odds": "-107",
+        "total": null,
+        "over_odds": "-110",
+        "under_odds": "-110",
+        "ml_home": "+208",
+        "ml_away": "-256",
+        "provider": "SGO"
+      },
+      "away_profile": {
+        "L5": "3-2",
+        "L10": "5-5",
+        "ppg_L5": 111.4,
+        "opp_ppg_L5": 114.6,
+        "margin_L5": -3.2,
+        "avg_margin_L10": -6.5,
+        "ppg_L10": 111.0,
+        "opp_ppg_L10": 117.5,
+        "rest_days": 1,
+        "is_b2b": true,
+        "streak": "W1",
+        "home_record": "20-16",
+        "away_record": "18-16",
+        "games_last_7d": 4
+      },
+      "home_profile": {
+        "L5": "1-4",
+        "L10": "3-7",
+        "ppg_L5": 116.2,
+        "opp_ppg_L5": 123.4,
+        "margin_L5": -7.2,
+        "avg_margin_L10": -4.4,
+        "ppg_L10": 114.8,
+        "opp_ppg_L10": 119.2,
+        "rest_days": 1,
+        "is_b2b": true,
+        "streak": "W1",
+        "home_record": "13-22",
+        "away_record": "8-27",
+        "games_last_7d": 4
+      },
+      "injuries": {
+        "away": [
+          {
+            "player": "Joel Embiid",
+            "pos": "C",
+            "status": "OUT",
+            "injDate": "20241001",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Embiid (oblique) is out for Saturday's game in Utah."
+          },
+          {
+            "player": "Trendon Watford",
+            "pos": "PF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Quentin Grimes",
+            "pos": "SG",
+            "status": "",
+            "injDate": "20250411",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Jabari Walker",
+            "pos": "PF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Tyrese Martin",
+            "pos": "SF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Andre Drummond",
+            "pos": "C",
+            "status": "",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Dom Barlow",
+            "pos": "PF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Justin Edwards",
+            "pos": "SF",
+            "status": "",
+            "injDate": "20250411",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Johni Broome",
+            "pos": "PF",
+            "status": "OUT",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Feb 28: Broome underwent a successful partial meniscectomy Saturday to address a lateral meniscus tear in his right knee, per Adam Zagoria of ZagsBlog.com."
+          },
+          {
+            "player": "Kelly Oubre Jr.",
+            "pos": "SF",
+            "status": "OUT",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 11: Oubre is expected to miss at least two weeks due to a left elbow sprain, Michael Scotto of USA Today reports."
+          },
+          {
+            "player": "Tyrese Maxey",
+            "pos": "PG",
+            "status": "OUT",
+            "injDate": "20241001",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 10: Maxey has been diagnosed with a tendon injury in his right pinkie finger and will be re-evaluated in three weeks, Shams Charania of ESPN reports."
+          },
+          {
+            "player": "Kyle Lowry",
+            "pos": "PG",
+            "status": "",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "MarJon Beauchamp",
+            "pos": "SF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Dalen Terry",
+            "pos": "SF",
+            "status": "",
+            "injDate": "20250411",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Adem Bona",
+            "pos": "PF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Cameron Payne",
+            "pos": "PG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "VJ Edgecombe",
+            "pos": "SG",
+            "status": "",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          }
+        ],
+        "home": [
+          {
+            "player": "Brice Sensabaugh",
+            "pos": "SG",
+            "status": "OUT",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Sensabaugh (illness) has been ruled out for Saturday's game against the 76ers."
+          },
+          {
+            "player": "Cody Williams",
+            "pos": "SF",
+            "status": "",
+            "injDate": "20240701",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Ace Bailey",
+            "pos": "SG",
+            "status": "",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Jaren Jackson Jr.",
+            "pos": "PF",
+            "status": "OUT",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Feb 12: Jackson was diagnosed with a localized PVNS growth in his left knee and will miss the remainder of the season, Chris Haynes of NBA TV reports."
+          },
+          {
+            "player": "John Konchar",
+            "pos": "SG",
+            "status": "DAY-TO-DAY",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Konchar (quadriceps) is listed as questionable for Saturday's game against Philadelphia."
+          },
+          {
+            "player": "Svi Mykhailiuk",
+            "pos": "SF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "EJ Harkless",
+            "pos": "SG",
+            "status": "",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Blake Hinson",
+            "pos": "SF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Oscar Tshiebwe",
+            "pos": "PF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Bez Mbeng",
+            "pos": "SG",
+            "status": "",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Lauri Markkanen",
+            "pos": "PF",
+            "status": "OUT",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 19: Markkanen (hip) will be re-evaluated in two weeks, Ben Anderson of KSL News Salt Lake City reports."
+          },
+          {
+            "player": "Andersson Garcia",
+            "pos": "SF",
+            "status": "",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Kyle Filipowski",
+            "pos": "PF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Keyonte George",
+            "pos": "SG",
+            "status": "OUT",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 12: George has been diagnosed with a Grade 2 hamstring strain and will be reassessed in two weeks, Tim Bontemps of ESPN.com reports."
+          },
+          {
+            "player": "Kevin Love",
+            "pos": "PF",
+            "status": "",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Walker Kessler",
+            "pos": "C",
+            "status": "OUT",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Nov 5: Kessler will undergo left shoulder surgery and will miss the remainder of the 2025-26 season, Tony Jones of The Athletic reports."
+          },
+          {
+            "player": "Isaiah Collier",
+            "pos": "PG",
+            "status": "OUT",
+            "injDate": "20250411",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Collier (hamstring) has been ruled out for Saturday's game against the 76ers."
+          },
+          {
+            "player": "Jusuf Nurkic",
+            "pos": "C",
+            "status": "OUT",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Feb 23: Nurkic is scheduled to undergo season-ending nose surgery Wednesday, Chris Haynes of NBA TV reports."
+          }
+        ]
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
+    },
+    {
+      "game_id": "401810886",
+      "sport": "NBA",
+      "home": "Phoenix Suns",
+      "home_abbrev": "PHX",
+      "home_espn_id": "21",
+      "away": "Milwaukee Bucks",
+      "away_abbrev": "MIL",
+      "away_espn_id": "15",
+      "time": "2026-03-22T02:00",
+      "odds": {
+        "spread_home": "-11.5",
+        "spread_home_odds": "-110",
+        "spread_away": "+11.5",
+        "spread_away_odds": "-110",
+        "total": null,
+        "over_odds": "-110",
+        "under_odds": "-110",
+        "ml_home": "-600",
+        "ml_away": "+430",
+        "provider": "SGO"
+      },
+      "away_profile": {
+        "L5": "1-4",
+        "L10": "2-8",
+        "ppg_L5": 110.0,
+        "opp_ppg_L5": 121.6,
+        "margin_L5": -11.6,
+        "avg_margin_L10": -14.3,
+        "ppg_L10": 106.2,
+        "opp_ppg_L10": 120.5,
+        "rest_days": 1,
+        "is_b2b": true,
+        "streak": "L2",
+        "home_record": "16-19",
+        "away_record": "12-22",
+        "games_last_7d": 4
+      },
+      "home_profile": {
+        "L5": "1-4",
+        "L10": "5-5",
+        "ppg_L5": 110.8,
+        "opp_ppg_L5": 113.4,
+        "margin_L5": -2.6,
+        "avg_margin_L10": 2.5,
+        "ppg_L10": 112.9,
+        "opp_ppg_L10": 110.4,
+        "rest_days": 1,
+        "is_b2b": true,
+        "streak": "L4",
+        "home_record": "22-13",
+        "away_record": "17-18",
+        "games_last_7d": 3
+      },
+      "injuries": {
+        "away": [
+          {
+            "player": "Alex Antetokounmpo",
+            "pos": "SF",
+            "status": "",
+            "injDate": null,
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Giannis Antetokounmpo",
+            "pos": "PF",
+            "status": "OUT",
+            "injDate": "20250411",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Bucks co-owners Wes Edens and Jimmy Haslam told ESPN in a joint 90-minute interview that they will decide the path to take with Antetokounmpo (knee) together."
+          },
+          {
+            "player": "Gary Trent Jr.",
+            "pos": "SF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Cam Thomas",
+            "pos": "SG",
+            "status": "",
+            "injDate": "20241001",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Kyle Kuzma",
+            "pos": "PF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Jericho Sims",
+            "pos": "C",
+            "status": "",
+            "injDate": "20240419",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "AJ Green",
+            "pos": "SG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Bobby Portis",
+            "pos": "PF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Ousmane Dieng",
+            "pos": "SF",
+            "status": "",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Gary Harris",
+            "pos": "SG",
+            "status": "DAY-TO-DAY",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Harris is questionable to play Saturday against the Suns due to a left groin contusion."
+          },
+          {
+            "player": "Andre Jackson Jr.",
+            "pos": "SF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Taurean Prince",
+            "pos": "SG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Pete Nance",
+            "pos": "PF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Cormac Ryan",
+            "pos": "SG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Myles Turner",
+            "pos": "C",
+            "status": "",
+            "injDate": "20240413",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Thanasis Antetokounmpo",
+            "pos": "PF",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          },
+          {
+            "player": "Kevin Porter",
+            "pos": "PG",
+            "status": "DAY-TO-DAY",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": "Mar 20: Porter (knee) is questionable for Saturday's game in Phoenix."
+          },
+          {
+            "player": "Ryan Rollins",
+            "pos": "SG",
+            "status": "",
+            "injDate": "",
+            "freshness": "UNKNOWN",
+            "days_out": -1,
+            "ppg": null,
+            "description": ""
+          }
+        ],
+        "home": []
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
+    }
+  ],
+  "count": 10
+}
