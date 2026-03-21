@@ -11128,9 +11128,10 @@ def _validate_analysis_players(analysis_games, roster_cache, injury_text=""):
 
 @app.post("/api/cache/clear")
 async def clear_server_cache():
-    """Clear all server-side cached odds and analysis data."""
+    """Clear all server-side cached odds, analysis data, and re-entrancy locks."""
     _cache.clear()
-    return JSONResponse({"status": "cleared", "message": "Server cache flushed"})
+    _analysis_running.clear()
+    return JSONResponse({"status": "cleared", "message": "Server cache + analysis locks flushed"})
 
 
 @app.get("/api/debug/injuries/{sport}")
