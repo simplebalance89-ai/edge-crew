@@ -2654,6 +2654,16 @@ def _recalculate_grade(game, sport):
             if not star_data.get("note"):
                 star_data["note"] = "Neutral fallback — no soccer injury data available"
 
+    if sport.lower() == "ncaab":
+        star_data = matrix_scores.get("star_player_status")
+        if not isinstance(star_data, dict):
+            # NCAAB: No reliable injury feeds for college basketball — neutral fallback
+            matrix_scores["star_player_status"] = {"score": 5.0, "note": "Neutral — NCAAB injury data not tracked, grade on metrics/matchups"}
+        elif star_data.get("score") in (None, "", 0):
+            star_data["score"] = 5.0
+            if not star_data.get("note"):
+                star_data["note"] = "Neutral — NCAAB injury data not tracked, grade on metrics/matchups"
+
     # P2: Post-hoc clamp star_player_status based on injury freshness
     star_data = matrix_scores.get("star_player_status")
     if isinstance(star_data, dict):
@@ -3112,6 +3122,12 @@ async def _get_lineup_and_injury_context(sport):
     import re
     sport_lower = sport.lower()
     parts = []
+
+    # NCAAB: Injuries are NOT needed for college basketball.
+    # Tournament teams don't have reliable injury data from any feed (CBS, ESPN, RotoWire, API-Sports).
+    # Skip injury fetching entirely and return a clean signal so analysis doesn't penalize for missing data.
+    if sport_lower == "ncaab":
+        return "NCAAB INJURY STATUS: College basketball injury data is not tracked. Rosters are healthy-assumed. Grade based on metrics, matchups, and market data — do NOT penalize for missing injury feeds."
 
     CBS_INJURY_URLS = {
         "nba": "https://www.cbssports.com/nba/injuries/",
@@ -5725,16 +5741,22 @@ async def get_analysis(sport: str, cached_only: bool = False, force: bool = Fals
 
     logger.info(f"Injury source health: {injury_sources}")
 
+    # NCAAB: Injuries are not tracked for college basketball — skip all injury validation/penalties
+    ncaab_skip_injury_check = (sport_lower == "ncaab")
+
     # P1: Force conservative warning if injury context is effectively empty or has no real player data
     has_real_injury_data = False
-    injury_keywords = ["OUT", "GTD", "QUESTIONABLE", "DOUBTFUL", "DAY-TO-DAY", "PROBABLE"]
-    for keyword in injury_keywords:
-        if keyword in injury_context.upper():
-            has_real_injury_data = True
-            break
+    if ncaab_skip_injury_check:
+        has_real_injury_data = True  # NCAAB doesn't need injury data — treat as satisfied
+    else:
+        injury_keywords = ["OUT", "GTD", "QUESTIONABLE", "DOUBTFUL", "DAY-TO-DAY", "PROBABLE"]
+        for keyword in injury_keywords:
+            if keyword in injury_context.upper():
+                has_real_injury_data = True
+                break
 
-    # Cross-reference: flag when odds moved but no injury data
-    if not has_real_injury_data:
+    # Cross-reference: flag when odds moved but no injury data (skip for NCAAB)
+    if not has_real_injury_data and not ncaab_skip_injury_check:
         for g in odds_data.get("games", []):
             spread = g.get("spread")
             open_spread = g.get("open_spread") or g.get("spread_open")
@@ -5748,7 +5770,7 @@ async def get_analysis(sport: str, cached_only: bool = False, force: bool = Fals
                 except (ValueError, TypeError):
                     pass
 
-    if not injury_context or len(injury_context.strip()) < 20 or not has_real_injury_data:
+    if not ncaab_skip_injury_check and (not injury_context or len(injury_context.strip()) < 20 or not has_real_injury_data):
         injury_context = (
             "⚠️ CRITICAL: ALL INJURY DATA SOURCES RETURNED EMPTY OR FAILED.\n"
             "CBS Sports, ESPN, RotoWire, and API-Sports all failed to return player injury data.\n"
@@ -10470,6 +10492,9 @@ async def get_game_logs(sport: str):
 # ── ESPN Injuries API (WS2) ──────────────────────────────────────────────────
 async def _fetch_espn_injuries(sport):
     """Fetch injuries from ESPN's official API. Returns structured text for prompt injection."""
+    # NCAAB: No reliable injury feeds — skip entirely (injuries not needed for college basketball)
+    if sport.lower() == "ncaab":
+        return ""
     espn_sport = _ESPN_SPORT_PATHS.get(sport.lower())
     if not espn_sport:
         return f"ESPN INJURY API: Sport '{sport}' not supported — no injury data available."
