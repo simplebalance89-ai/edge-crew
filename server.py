@@ -12721,6 +12721,50 @@ async def get_profedge(sport: str):
         if "away_abbrev" not in game and game.get("away"):
             game["away_abbrev"] = game["away"].split()[-1][:3].upper()
 
+    # Fetch Kalshi market-implied probabilities (raw markets, not processed)
+    kalshi_raw = []
+    try:
+        cache_key = f"kalshi_raw:{sport_key}"
+        cached = _get_cached(cache_key, ttl=900)
+        if cached:
+            kalshi_raw = cached
+        else:
+            async with httpx.AsyncClient(timeout=30) as client:
+                series = KALSHI_SERIES.get(sport_key)
+                if series:
+                    cursor = None
+                    for _ in range(3):
+                        params = {"series_ticker": series, "limit": 100}
+                        if cursor:
+                            params["cursor"] = cursor
+                        resp = await client.get(f"{KALSHI_BASE}/markets", params=params)
+                        if resp.status_code != 200:
+                            break
+                        data = resp.json()
+                        kalshi_raw.extend(data.get("markets", []))
+                        cursor = data.get("cursor")
+                        if not cursor:
+                            break
+                    _set_cache(cache_key, kalshi_raw)
+    except Exception as e:
+        logger.warning(f"[KALSHI] profedge fetch failed: {e}")
+
+    # Index Kalshi: event_ticker -> list of {strike, prob, title, team_word}
+    kalshi_by_event = {}
+    for km in kalshi_raw:
+        if km.get("status") != "active":
+            continue
+        evt = km.get("event_ticker", "")
+        strike = km.get("floor_strike")
+        yes_bid = float(km.get("yes_bid_dollars") or 0)
+        yes_ask = float(km.get("yes_ask_dollars") or 0)
+        mid = (yes_ask + yes_bid) / 2 if (yes_ask + yes_bid) > 0 else None
+        title = km.get("title", "")
+        if evt and strike is not None and mid:
+            kalshi_by_event.setdefault(evt, []).append({
+                "strike": float(strike), "prob": mid, "title": title,
+            })
+
     # Merge: attach grades and race to each game
     games = games_data.get("games", [])
     grades_list = grades_data.get("games", []) if grades_data else []
@@ -12790,6 +12834,38 @@ async def get_profedge(sport: str):
         # Attach roster profiles
         entry["roster_home"] = roster_by_team.get(game.get("home", ""))
         entry["roster_away"] = roster_by_team.get(game.get("away", ""))
+
+        # Attach Kalshi market-implied probability matched to our spread
+        kalshi_prob = None
+        kalshi_strike = None
+        home_name = game.get("home", "").lower()
+        away_name = game.get("away", "").lower()
+        spread_val = None
+        odds_obj = game.get("odds", {})
+        try:
+            spread_val = abs(float(odds_obj.get("spread_home") or odds_obj.get("spread_away") or 0))
+        except (ValueError, TypeError):
+            pass
+        # Find matching Kalshi event by team name
+        for evt, strikes in kalshi_by_event.items():
+            evt_lower = evt.lower()
+            home_words = [w for w in home_name.split() if len(w) > 3]
+            away_words = [w for w in away_name.split() if len(w) > 3]
+            if any(w in evt_lower for w in home_words) or any(w in evt_lower for w in away_words):
+                if spread_val and spread_val > 0:
+                    # Find the strike closest to our spread
+                    best = min(strikes, key=lambda s: abs(s["strike"] - spread_val))
+                    if abs(best["strike"] - spread_val) <= 2.0:
+                        kalshi_prob = best["prob"]
+                        kalshi_strike = best["strike"]
+                elif strikes:
+                    # No spread — use lowest strike as general win prob
+                    best = min(strikes, key=lambda s: s["strike"])
+                    kalshi_prob = best["prob"]
+                    kalshi_strike = best["strike"]
+                break
+        entry["kalshi_prob"] = kalshi_prob
+        entry["kalshi_strike"] = kalshi_strike
 
         merged.append(entry)
 

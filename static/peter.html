@@ -258,7 +258,10 @@ function renderGames(games) {
         html += '<div class="pipeline-step" style="background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.2);">';
         html += '<div class="step-label" style="color:#6366f1;">STEP 1 — DATA</div>';
         var odds = g.odds || {};
-        html += '<div class="step-data">Spread: <b>' + (odds.spread_home || odds.spread || '--') + '</b><br>O/U: <b>' + (odds.total || odds.over_under || '--') + '</b><br>ML: <b>' + (odds.ml_home || odds.home_ml || '--') + ' / ' + (odds.ml_away || odds.away_ml || '--') + '</b></div>';
+        var atsHome = (g.home_profile && g.home_profile.ats_record) ? g.home_profile.ats_record : '';
+        var atsAway = (g.away_profile && g.away_profile.ats_record) ? g.away_profile.ats_record : '';
+        var atsStr = (atsHome || atsAway) ? '<br>ATS: <b>' + (atsAway || '--') + ' / ' + (atsHome || '--') + '</b>' : '';
+        html += '<div class="step-data">Spread: <b>' + (odds.spread_home || odds.spread || '--') + '</b><br>O/U: <b>' + (odds.total || odds.over_under || '--') + '</b><br>ML: <b>' + (odds.ml_home || odds.home_ml || '--') + ' / ' + (odds.ml_away || odds.away_ml || '--') + '</b>' + atsStr + '</div>';
         html += '</div>';
 
         // Step 2: Enrichment
@@ -315,6 +318,14 @@ function renderGames(games) {
         html += '<div class="step-label" style="color:#D4A017;">STEP 4 — GRADERS</div>';
         if (gr && gr.profiles) {
             var profileNames = Object.keys(gr.profiles);
+            var priority = ['sintonia', 'peter'];
+            profileNames.sort(function(a, b) {
+                var ai = priority.indexOf(a), bi = priority.indexOf(b);
+                if (ai !== -1 && bi !== -1) return ai - bi;
+                if (ai !== -1) return -1;
+                if (bi !== -1) return 1;
+                return 0;
+            });
             html += '<div style="display:grid;grid-template-columns:' + (profileNames.length > 1 ? '1fr 1fr' : '1fr') + ';gap:6px;">';
             profileNames.forEach(function(pname) {
                 var p = gr.profiles[pname];
@@ -354,6 +365,11 @@ function renderGames(games) {
             var evPct = gr.ev.ev_pct;
             var evColor = evPct > 0 ? '#10B981' : '#ef4444';
             html += '<div style="margin-top:4px;font-size:11px;font-weight:700;color:' + evColor + ';">EV: ' + (evPct > 0 ? '+' : '') + evPct.toFixed(1) + '%</div>';
+        }
+        if (g.kalshi_prob) {
+            var kp = g.kalshi_prob;
+            var ks = g.kalshi_strike ? ' (' + g.kalshi_strike + ')' : '';
+            html += '<div style="margin-top:4px;font-size:10px;color:#7C3AED;font-weight:700;">Kalshi: ' + (kp * 100).toFixed(0) + '%' + ks + '</div>';
         }
         if (g.race) {
             html += '<div style="margin-top:4px;font-size:10px;color:rgba(255,255,255,0.5);">Race: ' + g.race.home_score + '-' + g.race.away_score + '</div>';
