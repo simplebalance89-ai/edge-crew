@@ -1402,24 +1402,157 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 
 <!-- ===== LANDING PAGE ===== -->
 <div class="sport-panel active" id="panel-landing">
-<div style="text-align:center;padding:30px 20px 16px;">
-    <h1 style="font-family:var(--ec-font-heading);font-size:24px;font-weight:900;color:#fff;margin:0 0 4px;letter-spacing:-0.5px;">Edge Crew Dashboard</h1>
-    <p style="color:rgba(255,255,255,0.4);font-size:12px;margin:0;">Pick a sport. Find the edge.</p>
+
+<!-- GO TO MY PROFILE -->
+<div style="padding:20px 20px 0;text-align:center;">
+    <button onclick="goToMyProfile()" style="width:100%;max-width:400px;padding:14px 24px;background:linear-gradient(135deg,#F72585,#6366f1);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:800;letter-spacing:0.5px;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 20px rgba(247,37,133,0.3);">GO TO MY PROFILE</button>
 </div>
 
-<!-- Pick a Sport -->
-<div class="dash-section" style="padding-bottom:30px;">
-    <h2>Pick a Sport</h2>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;">
-        <div onclick="switchSport('nba',event)" style="cursor:pointer;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:14px 6px;text-align:center;transition:all 0.2s;"><div style="font-size:20px;">🏀</div><div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);margin-top:3px;">NBA</div></div>
-        <div onclick="switchSport('nhl',event)" style="cursor:pointer;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:14px 6px;text-align:center;transition:all 0.2s;"><div style="font-size:20px;">🏒</div><div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);margin-top:3px;">NHL</div></div>
-        <div onclick="switchSport('mlb',event)" style="cursor:pointer;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:14px 6px;text-align:center;transition:all 0.2s;"><div style="font-size:20px;">⚾</div><div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);margin-top:3px;">MLB</div></div>
-        <div onclick="switchSport('soccer',event)" style="cursor:pointer;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:14px 6px;text-align:center;transition:all 0.2s;"><div style="font-size:20px;">⚽</div><div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);margin-top:3px;">Soccer</div></div>
-        <div onclick="switchSport('tennis',event)" style="cursor:pointer;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:14px 6px;text-align:center;transition:all 0.2s;"><div style="font-size:20px;">🎾</div><div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);margin-top:3px;">Tennis</div></div>
-        <div onclick="switchSport('mma',event)" style="cursor:pointer;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:14px 6px;text-align:center;transition:all 0.2s;"><div style="font-size:20px;">🥊</div><div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);margin-top:3px;">MMA</div></div>
-        <div onclick="switchSport('props',event)" style="cursor:pointer;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:14px 6px;text-align:center;transition:all 0.2s;"><div style="font-size:20px;">📊</div><div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);margin-top:3px;">Props</div></div>
-        <div onclick="switchSport('bankroll',event)" style="cursor:pointer;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:14px 6px;text-align:center;transition:all 0.2s;"><div style="font-size:20px;">💰</div><div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);margin-top:3px;">Bank</div></div>
+<!-- HOW IT WORKS -->
+<div style="padding:20px;">
+
+<div style="text-align:center;margin-bottom:20px;">
+    <h1 style="font-family:var(--ec-font-heading);font-size:22px;font-weight:900;color:#fff;margin:0 0 4px;">Edge Crew</h1>
+    <p style="color:rgba(255,255,255,0.35);font-size:11px;">AI-Powered Sports Betting Operation</p>
+</div>
+
+<!-- THE CREW -->
+<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px;margin-bottom:12px;">
+    <div style="font-size:11px;font-weight:800;color:#F59E0B;letter-spacing:1px;margin-bottom:10px;">THE CREW</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(255,255,255,0.04);border-radius:8px;border-left:3px solid #fff;">
+            <div><span style="font-size:13px;font-weight:700;color:#fff;">Peter</span> <span style="font-size:10px;color:rgba(255,255,255,0.35);">Director</span></div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.5);">NBA + NCAAB</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(255,255,255,0.04);border-radius:8px;border-left:3px solid #10B981;">
+            <div><span style="font-size:13px;font-weight:700;color:#10B981;">Chinny</span> <span style="font-size:10px;color:rgba(255,255,255,0.35);">Specialist</span></div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.5);">Soccer + NHL + NCAAB</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(255,255,255,0.04);border-radius:8px;border-left:3px solid #60A5FA;">
+            <div><span style="font-size:13px;font-weight:700;color:#60A5FA;">Jimmy</span> <span style="font-size:10px;color:rgba(255,255,255,0.35);">Operations</span></div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.5);">Places bets + logs tickets</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(255,255,255,0.04);border-radius:8px;border-left:3px solid #E74C3C;">
+            <div><span style="font-size:13px;font-weight:700;color:#E74C3C;">DJ</span> <span style="font-size:10px;color:rgba(255,255,255,0.35);">Contributor</span></div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.5);">NCAAB</div>
+        </div>
     </div>
+</div>
+
+<!-- THE GATE -->
+<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px;margin-bottom:12px;">
+    <div style="font-size:11px;font-weight:800;color:#F72585;letter-spacing:1px;margin-bottom:10px;">THE GATE &mdash; How Picks Get On The Card</div>
+    <div style="display:flex;flex-direction:column;gap:6px;">
+        <div style="padding:8px 12px;background:rgba(247,37,133,0.06);border-radius:8px;border-left:2px solid #F72585;">
+            <span style="font-size:11px;font-weight:700;color:#F72585;">Round 1:</span>
+            <span style="font-size:11px;color:rgba(255,255,255,0.6);">Math Graders (Sintonia, Renzo, Claude, Edge) &mdash; D or below = dead</span>
+        </div>
+        <div style="padding:8px 12px;background:rgba(99,102,241,0.06);border-radius:8px;border-left:2px solid #6366f1;">
+            <span style="font-size:11px;font-weight:700;color:#818cf8;">Round 2:</span>
+            <span style="font-size:11px;color:rgba(255,255,255,0.6);">AI Profiles (Grok, DeepSeek, GPT-4.1) &mdash; fade flag = dead</span>
+        </div>
+        <div style="padding:8px 12px;background:rgba(16,185,129,0.06);border-radius:8px;border-left:2px solid #10B981;">
+            <span style="font-size:11px;font-weight:700;color:#10B981;">Round 3:</span>
+            <span style="font-size:11px;color:rgba(255,255,255,0.6);">Crowdsource (6-model panel) &mdash; C or below = dead</span>
+        </div>
+    </div>
+    <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:8px;text-align:center;">Survive all 3 rounds + grade B+ or higher = makes The 9</div>
+</div>
+
+<!-- SIZING -->
+<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px;margin-bottom:12px;">
+    <div style="font-size:11px;font-weight:800;color:#22C55E;letter-spacing:1px;margin-bottom:10px;">SIZING</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:100px;padding:10px;background:rgba(34,197,94,0.08);border-radius:8px;text-align:center;">
+            <div style="font-size:18px;font-weight:900;color:#22C55E;">$50</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.4);">A Grade</div>
+        </div>
+        <div style="flex:1;min-width:100px;padding:10px;background:rgba(245,158,11,0.08);border-radius:8px;text-align:center;">
+            <div style="font-size:18px;font-weight:900;color:#F59E0B;">$25</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.4);">B+ Grade</div>
+        </div>
+        <div style="flex:1;min-width:100px;padding:10px;background:rgba(255,255,255,0.04);border-radius:8px;text-align:center;">
+            <div style="font-size:18px;font-weight:900;color:rgba(255,255,255,0.5);">$10</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.4);">B or Pass</div>
+        </div>
+    </div>
+    <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:8px;text-align:center;">Max nightly exposure: $250 &bull; Parlays: $10 max from The 9 only</div>
+</div>
+
+<!-- PICK BONUS -->
+<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px;margin-bottom:12px;">
+    <div style="font-size:11px;font-weight:800;color:#818cf8;letter-spacing:1px;margin-bottom:10px;">PICK BONUS &mdash; Reward For Quality</div>
+    <div style="display:flex;flex-direction:column;gap:4px;">
+        <div style="display:flex;justify-content:space-between;padding:6px 12px;background:rgba(99,102,241,0.06);border-radius:6px;">
+            <span style="font-size:11px;color:rgba(255,255,255,0.6);">A+ pick wins</span>
+            <span style="font-size:11px;font-weight:700;color:#818cf8;">10% bonus on ticket profit</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:6px 12px;background:rgba(99,102,241,0.04);border-radius:6px;">
+            <span style="font-size:11px;color:rgba(255,255,255,0.6);">A pick wins</span>
+            <span style="font-size:11px;font-weight:700;color:#818cf8;">5% bonus on ticket profit</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:6px 12px;">
+            <span style="font-size:11px;color:rgba(255,255,255,0.4);">B+ pick wins</span>
+            <span style="font-size:11px;color:rgba(255,255,255,0.3);">Standard split only</span>
+        </div>
+    </div>
+</div>
+
+<!-- CONSISTENCY BONUS -->
+<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px;margin-bottom:12px;">
+    <div style="font-size:11px;font-weight:800;color:#F59E0B;letter-spacing:1px;margin-bottom:10px;">CONSISTENCY BONUS &mdash; Weekly Reward</div>
+    <div style="display:flex;flex-direction:column;gap:4px;">
+        <div style="display:flex;justify-content:space-between;padding:6px 12px;background:rgba(245,158,11,0.06);border-radius:6px;">
+            <span style="font-size:11px;color:rgba(255,255,255,0.6);">5+ picks survive to card</span>
+            <span style="font-size:11px;font-weight:700;color:#F59E0B;">6% of week's profit</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:6px 12px;background:rgba(245,158,11,0.04);border-radius:6px;">
+            <span style="font-size:11px;color:rgba(255,255,255,0.6);">3-4 picks survive</span>
+            <span style="font-size:11px;font-weight:700;color:#F59E0B;">4% of week's profit</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:6px 12px;">
+            <span style="font-size:11px;color:rgba(255,255,255,0.4);">2 picks survive</span>
+            <span style="font-size:11px;font-weight:700;color:rgba(245,158,11,0.6);">2% of week's profit</span>
+        </div>
+    </div>
+    <div style="font-size:10px;color:rgba(255,255,255,0.25);margin-top:8px;">Pays even if your picks lost, as long as the crew had a profitable week.</div>
+</div>
+
+<!-- THE RULES -->
+<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px;margin-bottom:12px;">
+    <div style="font-size:11px;font-weight:800;color:#EF4444;letter-spacing:1px;margin-bottom:10px;">THE RULES</div>
+    <div style="display:flex;flex-direction:column;gap:4px;font-size:11px;color:rgba(255,255,255,0.55);line-height:1.6;">
+        <div>1. Every pick goes through the full process. No exceptions.</div>
+        <div>2. Maximum 9 picks per night (The 9 &mdash; top 3 per sport).</div>
+        <div>3. No chasing losses. 30% bankroll drop = half sizing next week.</div>
+        <div>4. Peter has veto on any pick. Director's call.</div>
+        <div>5. Track everything. Every ticket logged.</div>
+        <div>6. Minimum 3 picks/day on active game days.</div>
+        <div>7. Chinny submits by 3 PM EST. Jimmy places daily.</div>
+        <div>8. Weekly review Sunday. Monthly review 1st of month.</div>
+    </div>
+</div>
+
+<!-- MONTHLY SPLIT -->
+<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px;margin-bottom:20px;">
+    <div style="font-size:11px;font-weight:800;color:#38BDF8;letter-spacing:1px;margin-bottom:10px;">MONTHLY SETTLEMENT</div>
+    <div style="display:flex;gap:8px;margin-bottom:8px;">
+        <div style="flex:1;padding:10px;background:rgba(56,189,248,0.06);border-radius:8px;text-align:center;">
+            <div style="font-size:16px;font-weight:900;color:#fff;">50%</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.4);">Peter</div>
+        </div>
+        <div style="flex:1;padding:10px;background:rgba(16,185,129,0.06);border-radius:8px;text-align:center;">
+            <div style="font-size:16px;font-weight:900;color:#10B981;">30%</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.4);">Chinny</div>
+        </div>
+        <div style="flex:1;padding:10px;background:rgba(96,165,250,0.06);border-radius:8px;text-align:center;">
+            <div style="font-size:16px;font-weight:900;color:#60A5FA;">20%</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.4);">Jimmy</div>
+        </div>
+    </div>
+    <div style="font-size:10px;color:rgba(255,255,255,0.3);text-align:center;">Overhead: $400 ops fee + $250 infra = $650/mo off the top &bull; Peter absorbs all losses</div>
+</div>
+
 </div>
 </div>
 
@@ -2601,6 +2734,23 @@ function doLogout() {
     crewProfile = null;
     safeRemove('edgeCrewToken');
     showLoginOverlay();
+}
+
+function goToMyProfile() {
+    var profileMap = {
+        'peter': '/static/peter.html',
+        'jimmy': '/static/jimmy.html',
+        'chinny': '/static/chinny.html',
+        'dj': '/static/dj.html',
+        'pietra': '/static/pietra.html'
+    };
+    var name = crewProfile ? crewProfile.id : (safeLoad('edgeCrewName') || '').toLowerCase();
+    var url = profileMap[name];
+    if (url) {
+        window.location.href = url;
+    } else {
+        showToast('Log in first to access your profile', 'error');
+    }
 }
 
 // Agent picked at login — highlight selected button
@@ -5288,8 +5438,7 @@ function populateTicker() {
     }
 
     if (items.length === 0) {
-        track.innerHTML = '<span class="ticker-item"><span class="tp">No picks yet today</span> — check back after analysis</span>';
-        ticker.style.display = 'flex';
+        // ticker disabled — sandbox mode
         return;
     }
 
@@ -5307,9 +5456,10 @@ function populateTicker() {
     // Duplicate items for seamless loop
     var html = todayItems.join('') + todayItems.join('');
     track.innerHTML = html;
-    ticker.style.display = 'flex';
+    // ticker disabled — sandbox mode, moved to profiles
+    // ticker.style.display = 'flex';
 }
-populateTicker();
+// populateTicker();
 
 // ===== LIVE INTEL FEED =====
 var _intelCache = {};
@@ -9357,8 +9507,8 @@ async function clearAllCache() {
         <button class="mqb-btn" ontouchend="event.preventDefault();switchSport('bankroll',event)" onclick="switchSport('bankroll',event)">
             <span class="mqb-icon">💰</span>Bank
         </button>
-        <button class="mqb-btn" ontouchend="event.preventDefault();switchSport('profedge',event)" onclick="switchSport('profedge',event)" style="color:#F72585;">
-            <span class="mqb-icon">⚡</span>Pro Edge
+        <button class="mqb-btn" ontouchend="event.preventDefault();goToMyProfile()" onclick="goToMyProfile()" style="color:#F72585;">
+            <span class="mqb-icon">⚡</span>My Profile
         </button>
     </div>
 </div>
