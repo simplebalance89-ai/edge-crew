@@ -95,6 +95,18 @@ async def run_stage3(
 
 async def _evaluate_with_ai(game: HurdleGame, ai_caller) -> StageResult:
     """Use AI with controlled (blinded) prompt for tactical analysis."""
+    # Check if we have ANY tactical data worth sending to AI
+    meta = game.metadata
+    has_tactical = any(
+        meta.get(k) not in (None, "N/A", "Unknown", "Standard", 0)
+        for k in ["home_pace", "away_pace", "home_off_rank", "away_off_rank",
+                   "home_formation", "away_formation", "home_ppda", "away_ppda"]
+    )
+
+    if not has_tactical:
+        # No tactical data — skip AI call, use math fallback
+        return _evaluate_math_only(game)
+
     prompt = _build_controlled_prompt(game)
 
     try:
@@ -104,7 +116,8 @@ async def _evaluate_with_ai(game: HurdleGame, ai_caller) -> StageResult:
         logger.warning(f"[STAGE 3] AI call failed for {game.game_id}: {e} — falling back to math")
         return _evaluate_math_only(game)
 
-    verdict = Verdict.PASS if score >= PASS_THRESHOLD else Verdict.KILL
+    # Stages 0-5: scoring only, no kills before AI market validation
+    verdict = Verdict.PASS
 
     return StageResult(
         stage=3,
@@ -114,7 +127,7 @@ async def _evaluate_with_ai(game: HurdleGame, ai_caller) -> StageResult:
         threshold=PASS_THRESHOLD,
         verdict=verdict,
         confidence=0.65,
-        next_stage=4 if verdict == Verdict.PASS else None,
+        next_stage=4,
         factors={"ai_score": score, "ai_notes": notes, "method": "ai_blinded"},
         notes=notes or f"Tactical score: {score:.1f}",
     )
@@ -156,7 +169,8 @@ def _evaluate_math_only(game: HurdleGame) -> StageResult:
         notes_parts.append("No tactical data — passing with neutral score")
         factors["method"] = "no_data_passthrough"
 
-    verdict = Verdict.PASS if score >= PASS_THRESHOLD else Verdict.KILL
+    # Stages 0-5: scoring only, no kills. First hurdle at Stage 6 (AI).
+    verdict = Verdict.PASS
 
     return StageResult(
         stage=3,
@@ -165,8 +179,8 @@ def _evaluate_math_only(game: HurdleGame) -> StageResult:
         score=round(score, 1),
         threshold=PASS_THRESHOLD,
         verdict=verdict,
-        confidence=0.5 if not factors.get("method") == "no_data_passthrough" else 0.3,
-        next_stage=4 if verdict == Verdict.PASS else None,
+        confidence=0.5 if factors.get("method") != "no_data_passthrough" else 0.3,
+        next_stage=4,
         factors=factors,
         notes="; ".join(notes_parts),
     )

@@ -118,7 +118,28 @@ def _evaluate_game(game: HurdleGame) -> StageResult:
             "fresh_team": fresh_team,
         }
 
-    # --- 4. Hot/Cold Streaks (bonus, not primary) ---
+    # --- 4. Spread Magnitude (large spreads = market inefficiency potential) ---
+    if game.home_spread is not None:
+        abs_spread = abs(game.home_spread)
+        if abs_spread >= 10:
+            pts = 1.5
+            score += pts
+            factors["large_spread"] = {
+                "score": pts,
+                "spread": game.home_spread,
+                "note": "Large spread = more variance, potential value",
+            }
+        elif abs_spread <= 3.0:
+            # Tight spread = close game = potential ML value
+            pts = 1.0
+            score += pts
+            factors["tight_spread"] = {
+                "score": pts,
+                "spread": game.home_spread,
+                "note": "Tight spread = close game, ML angle",
+            }
+
+    # --- 5. Hot/Cold Streaks (bonus, not primary) ---
     for side, streak, team in [
         ("home", game.home_streak, game.home_team),
         ("away", game.away_streak, game.away_team),
@@ -145,16 +166,15 @@ def _evaluate_game(game: HurdleGame) -> StageResult:
         }
 
     # --- Verdict ---
-    # Soft fail if any star is questionable (retry closer to game time)
-    if star_q_total > 0 and score >= PASS_THRESHOLD:
+    # Stages 0-3 are SCORING stages — accumulate data, never kill.
+    # First hurdle is at Stage 4 where cumulative score decides.
+    # Stage 0 only soft-fails on questionable stars (need more info).
+    if star_q_total > 0:
         verdict = Verdict.SOFT_FAIL
-        notes = f"Score {score:.1f} but {star_q_total} star(s) questionable — retry T-60min"
-    elif score >= PASS_THRESHOLD:
-        verdict = Verdict.PASS
-        notes = f"Score {score:.1f} >= {PASS_THRESHOLD} threshold"
+        notes = f"Score {score:.1f} — {star_q_total} star(s) questionable, retry T-60min"
     else:
-        verdict = Verdict.KILL
-        notes = f"Score {score:.1f} < {PASS_THRESHOLD} — no structural edge"
+        verdict = Verdict.PASS
+        notes = f"Score {score:.1f} — accumulated (no kill at Stage 0)"
 
     return StageResult(
         stage=0,

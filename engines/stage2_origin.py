@@ -201,30 +201,21 @@ def _evaluate_origin(game: HurdleGame) -> StageResult:
         game.home_star_questionable > 0 or game.away_star_questionable > 0
     )
 
-    if max_impact > KILL_THRESHOLD and impact_diff < 5:
-        # Both sides devastated or one side so hurt it's unpredictable
-        verdict = Verdict.KILL
-        notes = (
-            f"Excessive injury impact ({max_impact:.0f}%) with low differential "
-            f"({impact_diff:.0f}%) — too uncertain"
-        )
-    elif has_questionable and score >= PASS_SCORE_THRESHOLD:
+    # Stages 0-3 are SCORING stages — accumulate, don't kill.
+    # Injury data feeds into cumulative score evaluated at Stage 4.
+    if has_questionable and score >= PASS_SCORE_THRESHOLD:
         verdict = Verdict.SOFT_FAIL
         notes = (
             f"Score {score:.1f} but star(s) questionable — retry when status confirmed"
         )
-    elif max_impact > DEGRADE_THRESHOLD and score >= PASS_SCORE_THRESHOLD:
+    elif max_impact > DEGRADE_THRESHOLD:
         verdict = Verdict.DEGRADE
         notes = (
-            f"Score {score:.1f}, impact {max_impact:.0f}% — edge exists but "
-            f"degraded confidence"
+            f"Score {score:.1f}, impact {max_impact:.0f}% — degraded confidence"
         )
-    elif score >= PASS_SCORE_THRESHOLD:
-        verdict = Verdict.PASS
-        notes = f"Score {score:.1f} — injury edge clear"
     else:
-        verdict = Verdict.KILL
-        notes = f"Score {score:.1f} < {PASS_SCORE_THRESHOLD} — no injury edge"
+        verdict = Verdict.PASS
+        notes = f"Score {score:.1f} — injury data accumulated"
 
     return StageResult(
         stage=2,

@@ -156,15 +156,16 @@ def _evaluate_structural(game: HurdleGame) -> StageResult:
     factors["aligned_factor_count"] = aligned_count
 
     # --- VERDICT ---
+    # Stages 0-5: scoring only, no kills. First hurdle at Stage 6 (AI).
     if score >= PASS_THRESHOLD and aligned_count >= 2:
         verdict = Verdict.PASS
         notes = f"Structural score {score} with {aligned_count} aligned factors"
     elif score >= DEGRADE_THRESHOLD:
         verdict = Verdict.DEGRADE
-        notes = f"Structural score {score} — weak edge, degraded confidence"
+        notes = f"Structural score {score} — weak structural edge"
     else:
-        verdict = Verdict.KILL
-        notes = f"Structural score {score} < {DEGRADE_THRESHOLD} — no structural edge"
+        verdict = Verdict.PASS
+        notes = f"Structural score {score} — no structural edge found, accumulated"
 
     return StageResult(
         stage=5,

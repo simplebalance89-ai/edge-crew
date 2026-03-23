@@ -162,18 +162,16 @@ def _evaluate_h2h(
     factors["red_flags"] = red_flags
 
     # Verdict
-    if red_flags and final_score < PASS_THRESHOLD:
-        verdict = Verdict.KILL
-        notes = f"Score {final_score:.1f} + red flags: {'; '.join(red_flags)}"
-    elif red_flags:
+    # Stages 0-5: scoring only, no kills. First hurdle at Stage 6 (AI).
+    if red_flags:
         verdict = Verdict.DEGRADE
         notes = f"Score {final_score:.1f} but flagged: {'; '.join(red_flags)}"
     elif final_score >= PASS_THRESHOLD:
         verdict = Verdict.PASS
         notes = f"H2H score {final_score:.1f} — {total_h2h} games analyzed"
     else:
-        verdict = Verdict.KILL
-        notes = f"H2H score {final_score:.1f} < {PASS_THRESHOLD} — unfavorable history"
+        verdict = Verdict.PASS
+        notes = f"H2H score {final_score:.1f} — accumulated (no kill pre-AI)"
 
     return StageResult(
         stage=4,
