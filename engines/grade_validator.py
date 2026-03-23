@@ -438,83 +438,292 @@ def _check_l5_form(
 # CHECK 3: STALE INJURY
 # ================================================================
 
-def _classify_injury_freshness(raw_status: str) -> str:
+def classify_injury_freshness(raw_status: str) -> str:
     """
-    Classify injury duration. Returns FRESH/RECENT/ESTABLISHED/SEASON.
-    FRESH (0-3d), RECENT (4-14d), ESTABLISHED (15-30d), SEASON (30+d).
+    Classify injury freshness tier from ESPN raw_status text.
+
+    Returns one of: "FRESH", "RECENT", "ESTABLISHED", "SEASON"
+
+    Parsing logic:
+      - "Out for the season" / "out for year" -> SEASON
+      - "Expected to be out until at least <date>" -> calculate days from today
+      - Explicit week/month mentions -> estimate days
+      - No timeline info -> FRESH (assume new/game-time)
+
+    Freshness tiers:
+      FRESH (0-3 days):      Full impact, no adjustment
+      RECENT (4-14 days):    Moderate, slight downgrade
+      ESTABLISHED (15-30d):  Cap impact at 5-6, check team L5
+      SEASON (30+ days):     Cap at 4-5 — if team winning without them, PRICED IN
     """
     if not raw_status:
         return "FRESH"
-    raw = raw_status.lower()
-    if "out for the season" in raw or "season-ending" in raw:
+
+    text = raw_status.strip().lower()
+
+    # --- SEASON: out for season / out for year / out indefinitely ---
+    season_patterns = [
+        "out for the season", "out for season", "out for the year",
+        "out indefinitely", "season-ending", "done for the year",
+        "torn acl", "torn achilles",
+    ]
+    if any(p in text for p in season_patterns):
         return "SEASON"
-    date_match = re.search(r'until at least (\w+ \d+)', raw)
+
+    # --- Parse "Expected to be out until at least <date>" ---
+    date_match = re.search(
+        r'(?:out until|return|back)\s+(?:at least\s+)?(\w+ \d{1,2})',
+        text,
+    )
     if date_match:
         try:
-            target = datetime.strptime(f"{date_match.group(1)} 2026", "%b %d %Y")
-            days_out = (target - datetime.utcnow()).days
-            if days_out <= 3:
-                return "FRESH"
-            elif days_out <= 14:
-                return "RECENT"
-            elif days_out <= 30:
-                return "ESTABLISHED"
-            else:
-                return "SEASON"
-        except (ValueError, TypeError):
+            date_str = date_match.group(1)
+            today = datetime.now()
+            days_out = -1
+            # Try parsing with current year, then next year if date is in the past
+            for year in [today.year, today.year + 1]:
+                for fmt in ("%b %d %Y", "%B %d %Y"):
+                    try:
+                        target = datetime.strptime(f"{date_str} {year}", fmt)
+                        days_out = (target - today).days
+                        if days_out >= 0:
+                            break
+                    except ValueError:
+                        continue
+                if days_out >= 0:
+                    break
+
+            if days_out >= 0:
+                return _days_to_tier(days_out)
+        except Exception:
             pass
-    if "day-to-day" in raw or "game time" in raw or "gtd" in raw:
+
+    # --- Parse explicit durations: "X weeks", "X months", "X-Y weeks" ---
+    month_match = re.search(r'(\d+)\s*(?:-\s*\d+\s*)?months?', text)
+    if month_match:
+        months = int(month_match.group(1))
+        return _days_to_tier(months * 30)
+
+    week_match = re.search(r'(\d+)\s*(?:-\s*\d+\s*)?weeks?', text)
+    if week_match:
+        weeks = int(week_match.group(1))
+        return _days_to_tier(weeks * 7)
+
+    day_match = re.search(r'(\d+)\s*(?:-\s*\d+\s*)?days?', text)
+    if day_match:
+        days = int(day_match.group(1))
+        return _days_to_tier(days)
+
+    # --- Keywords that imply longer absence ---
+    if any(w in text for w in ["surgery", "fractured", "broken", "reconstructive"]):
+        return "SEASON"
+
+    # --- Short-term indicators ---
+    if any(w in text for w in ["day-to-day", "game time", "gtd", "probable"]):
         return "FRESH"
+
+    # No timeline info — assume fresh / game-time decision
     return "FRESH"
+
+
+def _days_to_tier(days: int) -> str:
+    """Map number of days to freshness tier."""
+    if days <= 3:
+        return "FRESH"
+    elif days <= 14:
+        return "RECENT"
+    elif days <= 30:
+        return "ESTABLISHED"
+    else:
+        return "SEASON"
+
+
+def _parse_l5_wins(l5_record: str) -> Optional[int]:
+    """Extract wins from L5 record string like '3-2' or '4-1'."""
+    if not l5_record:
+        return None
+    match = re.match(r'(\d+)\s*-\s*(\d+)', str(l5_record))
+    if match:
+        return int(match.group(1))
+    return None
 
 
 def _check_stale_injuries(game: Dict, pick: Dict, grade: str) -> Optional[Dict]:
     """
-    If the grade is boosted by injuries that have been priced in,
-    flag and downgrade. Uses freshness tiers:
-    FRESH (0-3d): Full impact
-    RECENT (4-14d): Moderate
-    ESTABLISHED (15-30d): Capped
-    SEASON (30+d): If team winning without star, injury is priced in
+    Check if grade is inflated by injuries already priced into the market.
+
+    Parses structured injury data from the game analysis (ESPN-sourced)
+    and classifies each by freshness tier. If the grade appears driven
+    by ESTABLISHED/SEASON injuries and the team is still winning (L5),
+    the grade gets downgraded — not just flagged.
+
+    Freshness tiers:
+      FRESH (0-3 days):      Full impact, no adjustment
+      RECENT (4-14 days):    Moderate, slight downgrade possible
+      ESTABLISHED (15-30d):  Cap impact — check team L5 without star
+      SEASON (30+ days):     Priced in if team is winning without them
     """
     injury_text = game.get("injury_impact", "") or ""
     tags = game.get("tags", [])
+    injuries = game.get("injuries", [])
 
-    if "INJURY-IMPACT" not in tags and "injury" not in injury_text.lower():
+    # Check if injuries are relevant to this grade
+    has_injury_tag = "INJURY-IMPACT" in tags
+    has_injury_text = "injury" in injury_text.lower()
+
+    if not has_injury_tag and not has_injury_text and not injuries:
         return None
 
-    # Check for stale injury indicators
-    stale_keywords = [
-        "out for the season", "expected to be out until",
-        "has not played since", "month", "weeks",
-    ]
-    is_stale = any(kw in injury_text.lower() for kw in stale_keywords)
+    # --- Parse structured injury data ---
+    classified = []
+    worst_tier = "FRESH"  # Track the most stale injury
+    tier_rank = {"FRESH": 0, "RECENT": 1, "ESTABLISHED": 2, "SEASON": 3}
 
-    if not is_stale:
+    if injuries:
+        for inj in injuries:
+            status = (inj.get("status", "") or "").upper()
+            raw_status = inj.get("raw_status", "") or ""
+            player = inj.get("player", "unknown")
+            is_star = inj.get("is_star", False) or inj.get("impact", 0) > 0.7
+
+            # Only care about OUT/DOUBTFUL players for stale check
+            if status not in ("OUT", "O", "DOUBTFUL"):
+                continue
+
+            tier = classify_injury_freshness(raw_status)
+            classified.append({
+                "player": player,
+                "status": status,
+                "tier": tier,
+                "raw_status": raw_status,
+                "is_star": is_star,
+            })
+
+            if tier_rank.get(tier, 0) > tier_rank.get(worst_tier, 0):
+                worst_tier = tier
+
+    # --- Fallback: parse injury_text if no structured data ---
+    if not classified and injury_text:
+        tier = classify_injury_freshness(injury_text)
+        if tier_rank.get(tier, 0) > tier_rank.get("FRESH", 0):
+            classified.append({
+                "player": "unknown (from text)",
+                "status": "OUT",
+                "tier": tier,
+                "raw_status": injury_text[:100],
+                "is_star": True,  # assume star if it drove the grade
+            })
+            worst_tier = tier
+
+    # --- Nothing stale found ---
+    if worst_tier == "FRESH":
         return None
 
-    # Determine freshness of the key injuries
-    freshness = "ESTABLISHED"  # Default if we detect staleness
-    for kw in ["out for the season", "season-ending"]:
-        if kw in injury_text.lower():
-            freshness = "SEASON"
-            break
+    # --- Check team L5 to see if they're winning without the star ---
+    pick_team = (pick.get("team", "") or "") if pick else ""
+    team_winning_without = False
+    injured_team_l5 = None
 
-    result = {
-        "check": "STALE_INJURY",
-        "detail": f"Injury freshness: {freshness} — grade may be inflated by long-term injuries already priced in",
-        "flag": f"STALE_INJURY ({freshness}) — team has been playing without this player. Check L5 record — if winning, injury is priced in.",
-    }
+    # Try to find L5 record from game data
+    home_l5 = game.get("home_l5_record", "") or game.get("home_l5", "")
+    away_l5 = game.get("away_l5_record", "") or game.get("away_l5", "")
 
-    # If SEASON-tier injury is driving an A-range grade, downgrade
-    if freshness == "SEASON" and _grade_higher(grade, "B"):
-        result["adjustment"] = f"Downgraded from {grade} to B — SEASON injury is fully priced in"
-        result["new_grade"] = "B"
-    elif freshness == "ESTABLISHED" and _grade_higher(grade, "B+"):
-        result["adjustment"] = f"Downgraded from {grade} to B+ — ESTABLISHED injury likely priced in"
-        result["new_grade"] = "B+"
+    # Determine which team the stale injuries belong to
+    # If pick exists, injured team is likely the opponent (grade boosted by opponent injuries)
+    if pick_team:
+        home_team = game.get("home_team", "") or game.get("home", "")
+        away_team = game.get("away_team", "") or game.get("away", "")
 
-    return result
+        if pick_team.lower() in home_team.lower() or home_team.lower() in pick_team.lower():
+            # Pick is on home team — opponent (away) has the injuries
+            injured_team_l5 = away_l5
+        elif pick_team.lower() in away_team.lower() or away_team.lower() in pick_team.lower():
+            # Pick is on away team — opponent (home) has the injuries
+            injured_team_l5 = home_l5
+        else:
+            injured_team_l5 = home_l5 or away_l5
+    else:
+        injured_team_l5 = home_l5 or away_l5
+
+    l5_wins = _parse_l5_wins(injured_team_l5) if injured_team_l5 else None
+    if l5_wins is not None and l5_wins >= 3:
+        team_winning_without = True
+
+    # --- Build classified injury summary ---
+    star_stale = [c for c in classified if c["is_star"] and c["tier"] in ("ESTABLISHED", "SEASON")]
+    stale_names = ", ".join(c["player"] for c in star_stale) if star_stale else "key player(s)"
+    tier_summary = ", ".join(f"{c['player']}={c['tier']}" for c in classified)
+
+    # --- RECENT tier: flag only, no grade change ---
+    if worst_tier == "RECENT":
+        return {
+            "check": "STALE_INJURY",
+            "detail": f"Injuries 4-14 days old ({tier_summary}) — moderate market adjustment likely",
+            "flag": f"RECENT_INJURY — {stale_names} out 4-14 days. Market partially adjusted. Verify edge is real.",
+        }
+
+    # --- ESTABLISHED tier (15-30 days): downgrade A-range to B+ max ---
+    if worst_tier == "ESTABLISHED":
+        result = {
+            "check": "STALE_INJURY",
+            "detail": f"Injuries 15-30 days old ({tier_summary}) — market has adjusted significantly",
+        }
+        l5_note = f" (injured team L5: {injured_team_l5})" if injured_team_l5 else ""
+
+        if team_winning_without:
+            result["flag"] = (
+                f"ESTABLISHED_INJURY — {stale_names} out 15-30 days{l5_note}. "
+                f"Team winning without them. Injury edge is largely priced in."
+            )
+            if _grade_higher(grade, "B+"):
+                result["adjustment"] = f"Capped from {grade} to B+ — {stale_names} out 15-30d, team winning without"
+                result["new_grade"] = "B+"
+        else:
+            result["flag"] = (
+                f"ESTABLISHED_INJURY — {stale_names} out 15-30 days{l5_note}. "
+                f"Check if team has adjusted."
+            )
+            if _grade_higher(grade, "A-"):
+                result["adjustment"] = f"Capped from {grade} to A- — {stale_names} out 15-30d, verify adjustment"
+                result["new_grade"] = "A-"
+
+        return result
+
+    # --- SEASON tier (30+ days): hard cap, priced in if winning ---
+    if worst_tier == "SEASON":
+        result = {
+            "check": "STALE_INJURY",
+            "detail": f"Long-term/season injuries ({tier_summary}) — fully priced into market",
+        }
+        l5_note = f" (injured team L5: {injured_team_l5})" if injured_team_l5 else ""
+
+        if team_winning_without:
+            # Team is winning without the star — injury is PRICED IN
+            result["flag"] = (
+                f"PRICED_IN — {stale_names} out 30+ days{l5_note}. "
+                f"Team is {injured_team_l5} L5 without them. This is NOT an edge."
+            )
+            if _grade_higher(grade, "B-"):
+                result["adjustment"] = (
+                    f"Downgraded from {grade} to B- — {stale_names} out 30+ days, "
+                    f"team winning without them. Injury is priced in."
+                )
+                result["new_grade"] = "B-"
+        else:
+            result["flag"] = (
+                f"SEASON_INJURY — {stale_names} out 30+ days{l5_note}. "
+                f"Market has fully adjusted. Verify edge beyond injury narrative."
+            )
+            if _grade_higher(grade, "B"):
+                result["adjustment"] = (
+                    f"Capped from {grade} to B — {stale_names} out 30+ days. "
+                    f"Season-tier injuries are market knowledge."
+                )
+                result["new_grade"] = "B"
+
+        return result
+
+    return None
 
 
 # ================================================================
