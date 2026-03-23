@@ -23,6 +23,8 @@ from engines.stage3_team_dna import run_stage3
 from engines.stage4_h2h import run_stage4
 from engines.stage5_structural import run_stage5
 from engines.stage6_market import run_stage6
+from engines.stage7_lineup import run_stage7
+from engines.stage8_final import run_stage8
 
 logger = logging.getLogger("edge-crew")
 
@@ -165,8 +167,20 @@ async def run_hurdle_pipeline(
     stage6_killed = stage6_in - len(final_survivors)
 
     # ================================================================
-    # STAGES 7-8: STUB — Phase 4-5 will add lineup lock + final grade.
+    # STAGE 7: Lineup Lock
     # ================================================================
+    stage7_in = len(final_survivors)
+    stage7_passed, stage7_incomplete = await run_stage7(final_survivors)
+    stage7_killed = stage7_in - len(stage7_passed) - len(stage7_incomplete)
+    final_survivors = stage7_passed
+
+    # ================================================================
+    # STAGE 8: Final Grade + Crowdsource Trigger
+    # ================================================================
+    final_picks = run_stage8(
+        final_survivors,
+        dynamic_weights=stage0_result.get("dynamic_weights", {}),
+    )
 
     # Build response
     elapsed = int((time.time() - start) * 1000)
@@ -196,6 +210,12 @@ async def run_hurdle_pipeline(
         "stage4": {"killed": stage4_killed},
         "stage5": {"killed": stage5_killed},
         "stage6": {"killed": stage6_killed},
+        "stage7": {
+            "passed": len(stage7_passed),
+            "incomplete": len(stage7_incomplete),
+            "killed": stage7_killed,
+        },
+        "stage8": {"graded": len(final_picks)},
         "survivors": [g.to_dict() for g in final_survivors],
         "killed": [
             {
@@ -218,6 +238,15 @@ async def run_hurdle_pipeline(
         ],
         "survivor_matchups": [
             f"{g.away_team} @ {g.home_team}" for g in final_survivors
+        ],
+        "final_picks": final_picks,
+        "lineup_incomplete": [
+            {
+                "matchup": f"{g.away_team} @ {g.home_team}",
+                "game_id": g.game_id,
+                "reason": g.stage_results[-1].notes if g.stage_results else "unknown",
+            }
+            for g in stage7_incomplete
         ],
         "report": format_stage0_report(stage0_result),
         "timing_ms": elapsed,
