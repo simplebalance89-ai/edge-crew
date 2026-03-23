@@ -5526,6 +5526,44 @@ async def get_edge(sport: str):
     })
 
 
+# ── 8-STAGE HURDLE SYSTEM ──────────────────────────────────────────────────────
+from engines.hurdle_pipeline import run_hurdle_pipeline
+
+@app.get("/api/hurdle/{sport}")
+async def get_hurdle(sport: str, force: bool = False):
+    """Run the 8-stage hurdle pipeline for a sport.
+    Phase 1: Stage 0 morning filter only. Stages 1-8 coming in future phases.
+    Runs alongside /api/analysis — does NOT replace it."""
+    sport_lower = sport.lower()
+
+    # Internal odds fetcher — reuse cached odds or fetch fresh
+    async def _internal_fetch_odds(s):
+        cache_key = f"{s}:h2h,spreads,totals"
+        cached = _get_cached(cache_key)
+        if cached and not force:
+            return cached
+        # Trigger a fresh odds fetch via the existing endpoint logic
+        resp = await get_odds(s)
+        # get_odds returns JSONResponse, extract the body
+        if hasattr(resp, "body"):
+            import json as _json
+            return _json.loads(resp.body)
+        return {"games": []}
+
+    result = await run_hurdle_pipeline(
+        sport=sport_lower,
+        fetch_odds_fn=_internal_fetch_odds,
+        build_team_profile_fn=_build_team_profile,
+        fetch_injuries_fn=_fetch_espn_injuries,
+        opening_lines=_opening_lines,
+        scores_archive=_read_scores_archive(),
+        team_match_fn=_team_in_game,
+        ai_caller=None,  # Phase 3+: wire AI caller here
+        force=force,
+    )
+    return JSONResponse(result)
+
+
 @app.get("/api/analysis/{sport}")
 async def get_analysis(sport: str, cached_only: bool = False, force: bool = False, user_id: str = None, model: str = None):
     """Generate AI analysis for a sport based on current live odds.
