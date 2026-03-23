@@ -7532,6 +7532,16 @@ Return ONLY valid JSON. Grade most games C or PASS. Only B+ when edge is clear."
 
         _set_cache(cache_key, analysis)
         # Save to disk — user-specific analyses get separate files, don't overwrite defaults
+        # ── Grade Validator — post-analysis checks and balances ──────────
+        try:
+            from engines.grade_validator import validate_grades, build_l5_from_analysis
+            l5 = build_l5_from_analysis(analysis.get("games", []))
+            analysis["games"] = validate_grades(analysis.get("games", []), l5_profiles=l5)
+            analysis["grade_validation"] = True
+        except Exception as val_err:
+            logger.warning(f"[VALIDATOR] Failed: {val_err}")
+            analysis["grade_validation"] = False
+
         if user_id:
             user_cache_path = _user_analysis_cache_path(sport_lower, user_id)
             with open(user_cache_path, "w") as f:
