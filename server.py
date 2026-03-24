@@ -7030,16 +7030,16 @@ Return ONLY valid JSON, no markdown fences:
   }}
 ]}}"""
                 # Use Moonshot direct API (bypasses Azure rate limits)
-                moonshot_key = os.environ.get("MOONSHOT_API_KEY", "ak-f9319e3ou5ji11ff4smi")
+                moonshot_key = os.environ.get("MOONSHOT_API_KEY", "sk-48GFmsuLeU8OmdD7IckQvO4Q6jFqr0oCyR5BzruGduYCMywZ")
                 kimi_client = OpenAI(
-                    base_url="https://api.moonshot.cn/v1",
+                    base_url="https://api.moonshot.ai/v1",
                     api_key=moonshot_key,
                     timeout=90,
                 )
                 kimi_start = time.time()
                 kimi_resp = await asyncio.to_thread(
                     lambda: kimi_client.chat.completions.create(
-                        model="moonshot-v1-32k",
+                        model="kimi-k2.5",
                         messages=[{"role": "user", "content": kimi_profile_prompt}],
                         temperature=0.3,
                         max_tokens=4000,
