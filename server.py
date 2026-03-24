@@ -7034,7 +7034,7 @@ Return ONLY valid JSON, no markdown fences:
                 kimi_client = OpenAI(
                     base_url="https://api.moonshot.ai/v1",
                     api_key=moonshot_key,
-                    timeout=90,
+                    timeout=180,
                 )
                 kimi_start = time.time()
                 kimi_resp = await asyncio.to_thread(
