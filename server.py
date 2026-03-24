@@ -7041,7 +7041,7 @@ Return ONLY valid JSON, no markdown fences:
                     lambda: kimi_client.chat.completions.create(
                         model="kimi-k2.5",
                         messages=[{"role": "user", "content": kimi_profile_prompt}],
-                        temperature=0.3,
+                        temperature=1,
                         max_tokens=4000,
                     )
                 )
