@@ -1407,7 +1407,7 @@ def _is_soccer_sport_key(value: str) -> bool:
 # Azure OpenAI config
 AZURE_ENDPOINT = os.environ.get("AZURE_OPENAI_ENDPOINT", "")
 AZURE_KEY = os.environ.get("AZURE_OPENAI_KEY", "")
-AZURE_MODEL = os.environ.get("AZURE_OPENAI_MODEL", "grok-3")
+AZURE_MODEL = os.environ.get("AZURE_OPENAI_MODEL", "grok-4-fast-reasoning")
 REALTIME_DEPLOYMENT = "gpt-4o-realtime"
 AZURE_BASE = AZURE_ENDPOINT.rstrip("/")
 
@@ -6548,9 +6548,9 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
         logger.info(f"[FORMATTER] Done in {fmt_secs}s, {fmt_tokens} tokens, {games_with_ms}/{total_games} games with matrix_scores")
         return result, {"secs": fmt_secs, "tokens": fmt_tokens}
 
-    # Fallback chain: grok-3 → Kimi-K2.5 → DeepSeek-V3.2 (never OpenAI)
+    # Fallback chain: grok-4-fast-reasoning → Kimi-K2.5 → DeepSeek-V3.2 (never OpenAI)
     FALLBACK_CHAIN = [
-        AZURE_MODEL,  # grok-3 (default)
+        AZURE_MODEL,  # grok-4-fast-reasoning (50K TPM)
         "Kimi-K2.5",
         "DeepSeek-V3.2",
     ]
@@ -6862,7 +6862,7 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
             CROWDSOURCE_MODELS_LIGHT = [
                 {"name": "Mistral-Large-3", "endpoint": "ai_services", "display": "Mistral Large 3"},
                 {"name": "Llama-4-Maverick-17B-128E-Instruct-FP8", "endpoint": "ai_services", "display": "Llama 4 Maverick"},
-                {"name": "grok-3", "endpoint": "ai_services", "display": "Grok 3"},
+                {"name": "grok-4-fast-reasoning", "endpoint": "ai_services", "display": "Grok 4 Fast"},
                 {"name": "DeepSeek-V3.2", "endpoint": "ai_services", "display": "DeepSeek V3.2"},
             ]
             CROWDSOURCE_DELAY = float(os.environ.get("CROWDSOURCE_DELAY", "3"))  # seconds between calls
@@ -6998,13 +6998,103 @@ Return ONLY valid JSON. Grade most games C or PASS. Only B+ when edge is clear."
 
             logger.info(f"[FILTER] {len(bp_games)} games passed B+ filter out of {len(games_to_analyze)}")
 
+            # ── STEP 2.5: KIMI PROFILER — scores ALL games as bonus context (no kills) ──
+            try:
+                logger.info(f"[KIMI PROFILER] Profiling {len(all_cs_games)} games with Kimi K2.5")
+                kimi_profile_prompt = f"""You are a sharp {sport.upper()} game profiler. For each game, score these 4 dimensions from 0-10 and provide a one-line note for each.
+
+DIMENSIONS:
+1. Tactical DNA (style clash, pace mismatch, formation advantage)
+2. H2H Context (historical patterns, venue history, psychological edge)
+3. Structural Edge (rest, travel, B2B, schedule congestion)
+4. Market Signal (line movement direction, public vs sharp money indicators)
+
+GAMES:
+{chr(10).join(games_to_analyze)}
+
+INJURY CONTEXT:
+{injury_context[:3000] if injury_context else 'None available'}
+
+TEAM FORM:
+{form_context[:3000] if form_context else 'None available'}
+
+Return ONLY valid JSON, no markdown fences:
+{{"profiles": [
+  {{"matchup": "AWAY @ HOME",
+    "tactical_dna": {{"score": 7.2, "note": "Pace mismatch — NYK half-court grinds vs WAS transition"}},
+    "h2h_context": {{"score": 5.0, "note": "NYK 3-1 this season, WAS covered 3 of 4"}},
+    "structural_edge": {{"score": 8.5, "note": "WAS on B2B, NYK 2 days rest, home"}},
+    "market_signal": {{"score": 6.8, "note": "Line moved 1.5 toward NYK, public on NYK 72%"}},
+    "profile_score": 6.9,
+    "profile_tag": "STRUCTURAL EDGE + PACE MISMATCH",
+    "profile_summary": "Strong structural edge with pace mismatch. NYK grinds half-court while WAS needs transition."
+  }}
+]}}"""
+                kimi_client = OpenAI(
+                    base_url=THINKER_ENDPOINT,
+                    api_key=AZURE_KEY,
+                    timeout=90,
+                )
+                kimi_start = time.time()
+                kimi_resp = await asyncio.to_thread(
+                    lambda: kimi_client.chat.completions.create(
+                        model="Kimi-K2.5",
+                        messages=[{"role": "user", "content": kimi_profile_prompt}],
+                        temperature=0.3,
+                        max_tokens=4000,
+                        response_format={"type": "json_object"},
+                    )
+                )
+                kimi_raw = kimi_resp.choices[0].message.content.strip()
+                kimi_secs = round(time.time() - kimi_start, 1)
+                kimi_data = json.loads(kimi_raw)
+                kimi_profiles = kimi_data.get("profiles", [])
+                logger.info(f"[KIMI PROFILER] Got {len(kimi_profiles)} profiles in {kimi_secs}s")
+
+                # Attach profiles to game cards
+                for profile in kimi_profiles:
+                    p_matchup = (profile.get("matchup", "")).replace(" ", "").upper()
+                    for cs_game in all_cs_games:
+                        cs_matchup = (cs_game.get("matchup", "")).replace(" ", "").upper()
+                        if p_matchup == cs_matchup:
+                            cs_game["kimi_profile"] = {
+                                "tactical_dna": profile.get("tactical_dna", {}),
+                                "h2h_context": profile.get("h2h_context", {}),
+                                "structural_edge": profile.get("structural_edge", {}),
+                                "market_signal": profile.get("market_signal", {}),
+                                "profile_score": profile.get("profile_score", 0),
+                                "profile_tag": profile.get("profile_tag", ""),
+                                "profile_summary": profile.get("profile_summary", ""),
+                            }
+                            logger.info(f"[KIMI PROFILER] {cs_game['matchup']}: {profile.get('profile_score', '?')}/10 — {profile.get('profile_tag', '')}")
+                            break
+            except Exception as e:
+                logger.warning(f"[KIMI PROFILER] Failed: {e} — continuing without profiles")
+
             # ── STEP 3: DEEP THINKER — only on B+ consensus games ──
             if bp_games:
                 logger.info(f"[DEEP THINKER] Running DeepSeek-R1 on {len(bp_games)} B+ games")
+                # Build Kimi profile context for thinker prompt
+                kimi_context_lines = []
+                for cs_game in all_cs_games:
+                    kp = cs_game.get("kimi_profile")
+                    if kp and cs_game.get("_deep_analysis"):
+                        kimi_context_lines.append(
+                            f"  {cs_game['matchup']}: Profile {kp.get('profile_score', '?')}/10 — "
+                            f"Tactical {kp.get('tactical_dna', {}).get('score', '?')}, "
+                            f"H2H {kp.get('h2h_context', {}).get('score', '?')}, "
+                            f"Structural {kp.get('structural_edge', {}).get('score', '?')}, "
+                            f"Market {kp.get('market_signal', {}).get('score', '?')} "
+                            f"| {kp.get('profile_tag', '')} | {kp.get('profile_summary', '')}"
+                        )
+                kimi_context_block = ""
+                if kimi_context_lines:
+                    kimi_context_block = "\n\nKIMI PROFILER SCOUTING REPORT (use as bonus context, do NOT override your own analysis):\n" + "\n".join(kimi_context_lines) + "\n"
+
                 # Build a focused batch with only the B+ games
                 bp_batch_text = "\n".join(bp_games)
                 bp_prompt = _build_thinker_prompt(
-                    bp_batch_text,
+                    bp_batch_text + kimi_context_block,
                     batch_incomplete_note="",
                     is_first_batch=True,
                     batch_prop_lines=prop_lines_text,
@@ -7420,7 +7510,7 @@ Return ONLY valid JSON. Grade most games C or PASS. Only B+ when edge is clear."
         # Crowdsource uses DIFFERENT models than the thinker and formatter
         # B+ or higher consensus = best bet candidate. Split grades = dig deeper flag.
         CROWDSOURCE_MODELS = [
-            {"name": "grok-3", "endpoint": "ai_services", "display": "Grok 3"},
+            {"name": "grok-4-fast-reasoning", "endpoint": "ai_services", "display": "Grok 4 Fast"},
             {"name": "Kimi-K2.5", "endpoint": "ai_services", "display": "Kimi K2.5"},
             {"name": "Mistral-Large-3", "endpoint": "ai_services", "display": "Mistral Large 3"},
             {"name": "qwen-3-32b", "endpoint": "ai_services", "display": "Qwen 3 32B"},
