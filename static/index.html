@@ -7912,6 +7912,48 @@ function fetchAnalysis(sport) {
                                         detail.insertBefore(sb, detail.firstChild);
                                     }
                                 }
+                                // ── KIMI PROFILER SECTION ──
+                                if (game.kimi_profile && game.kimi_profile.profile_score) {
+                                    var kp = game.kimi_profile;
+                                    var kpScore = kp.profile_score || 0;
+                                    var kpColor = kpScore >= 7 ? '#22c55e' : kpScore >= 5.5 ? '#F59E0B' : '#ef4444';
+                                    var dims = [
+                                        {key:'tactical_dna', label:'Tactical DNA', icon:'\u2694'},
+                                        {key:'h2h_context', label:'H2H Context', icon:'\u{1F4CA}'},
+                                        {key:'structural_edge', label:'Structural', icon:'\u{1F3D7}'},
+                                        {key:'market_signal', label:'Market Signal', icon:'\u{1F4B0}'}
+                                    ];
+                                    var kph = '<h4 style="color:#38bdf8;">KIMI PROFILER</h4>';
+                                    kph += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">';
+                                    kph += '<span style="font-size:24px;font-weight:800;color:' + kpColor + ';">' + kpScore.toFixed(1) + '</span>';
+                                    kph += '<span style="font-size:10px;color:rgba(255,255,255,0.4);">/10</span>';
+                                    kph += '<span style="font-size:11px;font-weight:700;color:' + kpColor + ';background:rgba(255,255,255,0.05);padding:3px 8px;border-radius:4px;border:1px solid ' + kpColor + '30;">' + (kp.profile_tag || '') + '</span>';
+                                    kph += '</div>';
+                                    dims.forEach(function(d) {
+                                        var dd = kp[d.key] || {};
+                                        var sc = dd.score || 0;
+                                        var barColor = sc >= 7 ? '#22c55e' : sc >= 5 ? '#F59E0B' : '#ef4444';
+                                        kph += '<div style="margin-bottom:6px;">';
+                                        kph += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;">';
+                                        kph += '<span style="font-size:10px;color:rgba(255,255,255,0.5);font-weight:600;">' + d.icon + ' ' + d.label + '</span>';
+                                        kph += '<span style="font-size:11px;font-weight:700;color:' + barColor + ';">' + sc + '/10</span>';
+                                        kph += '</div>';
+                                        kph += '<div style="height:4px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden;">';
+                                        kph += '<div style="height:100%;width:' + (sc * 10) + '%;background:' + barColor + ';border-radius:2px;"></div>';
+                                        kph += '</div>';
+                                        if (dd.note) kph += '<div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:2px;line-height:1.4;">' + dd.note + '</div>';
+                                        kph += '</div>';
+                                    });
+                                    if (kp.profile_summary) {
+                                        kph += '<div style="margin-top:8px;padding:8px;background:rgba(56,189,248,0.05);border-radius:6px;border-left:3px solid #38bdf8;">';
+                                        kph += '<p style="font-size:11px;color:rgba(255,255,255,0.6);line-height:1.5;">' + kp.profile_summary + '</p></div>';
+                                    }
+                                    var kpBox = document.createElement('div');
+                                    kpBox.className = 'detail-box kimi-profile';
+                                    kpBox.style.cssText = 'border-color:rgba(56,189,248,0.3);';
+                                    kpBox.innerHTML = kph;
+                                    detail.appendChild(kpBox);
+                                }
                                 var propsBox = detail.querySelector('.detail-box.props');
                                 if (propsBox && game.player_props && game.player_props.length) {
                                     var ch = '<h4>Player Props</h4><ul>'; game.player_props.forEach(function(p){
