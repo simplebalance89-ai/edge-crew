@@ -6860,7 +6860,6 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
             logger.info(f"[PIPELINE] CROWDSOURCE-FIRST mode — grading all {len(games_to_analyze)} games with lightweight models")
 
             CROWDSOURCE_MODELS_LIGHT = [
-                {"name": "Mistral-Large-3", "endpoint": "ai_services", "display": "Mistral Large 3"},
                 {"name": "Llama-4-Maverick-17B-128E-Instruct-FP8", "endpoint": "ai_services", "display": "Llama 4 Maverick"},
                 {"name": "grok-4-fast-reasoning", "endpoint": "ai_services", "display": "Grok 4 Fast"},
                 {"name": "DeepSeek-V3.2", "endpoint": "ai_services", "display": "DeepSeek V3.2"},
@@ -7030,19 +7029,20 @@ Return ONLY valid JSON, no markdown fences:
     "profile_summary": "Strong structural edge with pace mismatch. NYK grinds half-court while WAS needs transition."
   }}
 ]}}"""
+                # Use Moonshot direct API (bypasses Azure rate limits)
+                moonshot_key = os.environ.get("MOONSHOT_API_KEY", "ak-f9319e3ou5ji11ff4smi")
                 kimi_client = OpenAI(
-                    base_url=THINKER_ENDPOINT,
-                    api_key=AZURE_KEY,
+                    base_url="https://api.moonshot.cn/v1",
+                    api_key=moonshot_key,
                     timeout=90,
                 )
                 kimi_start = time.time()
                 kimi_resp = await asyncio.to_thread(
                     lambda: kimi_client.chat.completions.create(
-                        model="Kimi-K2.5",
+                        model="moonshot-v1-32k",
                         messages=[{"role": "user", "content": kimi_profile_prompt}],
                         temperature=0.3,
                         max_tokens=4000,
-                        response_format={"type": "json_object"},
                     )
                 )
                 kimi_raw = kimi_resp.choices[0].message.content.strip()
@@ -7512,10 +7512,8 @@ Return ONLY valid JSON, no markdown fences:
         CROWDSOURCE_MODELS = [
             {"name": "grok-4-fast-reasoning", "endpoint": "ai_services", "display": "Grok 4 Fast"},
             {"name": "Kimi-K2.5", "endpoint": "ai_services", "display": "Kimi K2.5"},
-            {"name": "Mistral-Large-3", "endpoint": "ai_services", "display": "Mistral Large 3"},
-            {"name": "qwen-3-32b", "endpoint": "ai_services", "display": "Qwen 3 32B"},
             {"name": "Llama-4-Maverick-17B-128E-Instruct-FP8", "endpoint": "ai_services", "display": "Llama 4 Maverick"},
-            {"name": "command-a", "endpoint": "ai_services", "display": "Cohere Command A"},
+            {"name": "DeepSeek-V3.2", "endpoint": "ai_services", "display": "DeepSeek V3.2"},
         ]
         CROWDSOURCE_ENABLED = os.environ.get("CROWDSOURCE_ENABLED", "true").lower() == "true"
         CROWDSOURCE_TIMEOUT = int(os.environ.get("CROWDSOURCE_TIMEOUT", "90"))
