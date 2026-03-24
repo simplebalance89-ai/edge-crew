@@ -5978,7 +5978,23 @@ async def get_analysis(sport: str, cached_only: bool = False, force: bool = Fals
                     l10l = profile.get("l10_losses", "?")
                     stk = profile.get("streak", 0)
                     streak_str = f"W{stk}" if stk > 0 else f"L{abs(stk)}" if stk < 0 else "EVEN"
-                    form_lines.append(f"{team_name}: L5 {w}-{l} | L10 {l10w}-{l10l} | ATS {ats_w}-{ats_l} | Streak: {streak_str} | Avg margin {margin_str} | Trend: {trend}")
+                    # Team identity: season record + home/away splits
+                    szn_w = profile.get("season_wins", "?")
+                    szn_l = profile.get("season_losses", "?")
+                    home_rec = profile.get("home_record", "?")
+                    away_rec = profile.get("away_record", "?")
+                    # L5 SOS
+                    qw = profile.get("l5_quality_wins", 0)
+                    sw = profile.get("l5_soft_wins", 0)
+                    ql = profile.get("l5_quality_losses", 0)
+                    sl = profile.get("l5_soft_losses", 0)
+                    sos_parts = []
+                    if qw: sos_parts.append(f"{qw} quality W")
+                    if sw: sos_parts.append(f"{sw} soft W")
+                    if ql: sos_parts.append(f"{ql} quality L")
+                    if sl: sos_parts.append(f"{sl} soft L")
+                    sos_str = ", ".join(sos_parts) if sos_parts else "N/A"
+                    form_lines.append(f"{team_name}: Season {szn_w}-{szn_l} | Home {home_rec} | Away {away_rec} | L5 {w}-{l} | L10 {l10w}-{l10l} | ATS {ats_w}-{ats_l} | Streak: {streak_str} | Avg margin {margin_str} | L5 SOS: {sos_str} | Trend: {trend}")
             except Exception:
                 pass
         if len(form_lines) > 2:
@@ -6196,6 +6212,9 @@ HARD RULES — NEVER BREAK THESE:
 5. If you don't have current injury/lineup data, SAY SO. "Injury report not confirmed" is better than a confident wrong analysis. Do not fabricate injury status.
 6. Be SPECIFIC in injury_impact. Name the player, their status (OUT/GTD/QUESTIONABLE), and exactly how it changes the line. "Key players may be out" is garbage. "Jimmy Butler OUT — Heat lose 20 PPG, 6 APG, primary creator" is analysis.
 7. edge_question must have a REAL answer or the grade is D/F. "Team X is better" is not an edge. "Line hasn't moved despite Butler being ruled out 2 hours ago" IS an edge.
+9. BOTH-SIDES PROP SCREENER: When evaluating player props for a game, you MUST check props from BOTH teams — not just the team you're picking. If you only screened one side's stars and ignored the other team's players, your prop analysis is incomplete. Example: LAL @ DET — check Lakers AND Pistons player props. One-sided prop analysis = lazy, and the grade reflects it.
+10. L5 STRENGTH OF SCHEDULE: Check the "L5 SOS" field in TEAM RECENT FORM. Wins against sub-.400 teams ("soft W") are worth less than wins against .500+ teams ("quality W"). A team that's 4-1 L5 with 4 soft wins is NOT in form — they beat garbage. A team that's 3-2 with 3 quality wins is MORE impressive. Weight L5 SOS when scoring momentum_streak and opponent_quality.
+11. TEAM IDENTITY: Check Season record, Home record, and Away record in TEAM RECENT FORM. A 51-19 team at home (26-8) is a different animal than a 25-45 team. If you're laying points against a top-5 home team, you need an overwhelming edge. If an underdog has a winning season record, they're not a typical dog — respect the identity.
 
 GRADING RULES:
 - Use the SCORING MATRIX above. Fill in matrix_scores for each game with ALL variables scored 1-10.
@@ -6366,6 +6385,9 @@ HARD RULES:
 - If a player has < 20 games this season, flag it.
 - Be brutally honest. "Slight edge" with no specifics = D grade.
 - PASS games get D or F with explicit reason.
+- BOTH-SIDES PROPS: Screen player props from BOTH teams in every game. If you only checked one team's stars, the analysis is incomplete. LAL @ DET = check Lakers AND Pistons props.
+- L5 STRENGTH OF SCHEDULE: Check "L5 SOS" in TEAM RECENT FORM. Soft wins (vs sub-.400 teams) don't prove form. 4-1 with 4 soft wins ≠ real momentum. Weight opponent quality when evaluating L5 records.
+- TEAM IDENTITY: Check Season/Home/Away records. A 51-19 team at home (26-8) deserves respect — don't lay points against elite home teams without overwhelming evidence. Winning-record underdogs aren't typical dogs.
 
 Think step by step. Be thorough. The next model will format your output into structured JSON."""
 
@@ -7541,6 +7563,28 @@ Return ONLY valid JSON. Grade most games C or PASS. Only B+ when edge is clear."
         except Exception as val_err:
             logger.warning(f"[VALIDATOR] Failed: {val_err}")
             analysis["grade_validation"] = False
+
+        # ── Prop Edge Injection — attach book discrepancies + gap props to each card ──
+        try:
+            disc_data = None
+            gap_data_result = None
+            if sport_lower in PROP_MARKETS:
+                disc_resp = await find_discrepancies(sport)
+                if hasattr(disc_resp, 'body'):
+                    disc_data = json.loads(disc_resp.body)
+                gap_resp = await get_gap_props(sport)
+                if hasattr(gap_resp, 'body'):
+                    gap_data_result = json.loads(gap_resp.body)
+                if disc_data or gap_data_result:
+                    analysis["games"] = _inject_prop_edges_onto_cards(
+                        analysis.get("games", []), sport_lower, disc_data, gap_data_result
+                    )
+                    total_edges = sum(g.get("prop_edge_count", 0) for g in analysis.get("games", []))
+                    analysis["prop_edges_injected"] = total_edges
+                    logger.info(f"[PROP EDGES] Injected {total_edges} prop edges across {len(analysis.get('games', []))} cards")
+        except Exception as pe_err:
+            logger.warning(f"[PROP EDGES] Injection failed: {pe_err}")
+            analysis["prop_edges_injected"] = 0
 
         if user_id:
             user_cache_path = _user_analysis_cache_path(sport_lower, user_id)
@@ -9642,6 +9686,186 @@ async def manual_prop_board(request: Request):
     logger.info(f"[PROP BOARD] Manual add: {player} {entry['stat']} {line} → {actual} (+{pct_over}%)")
 
     return JSONResponse({"status": "ok", "entry": entry})
+
+
+# ============================================================
+# PRE-GAME PROP EDGE BOARD — Book discrepancies + gap props
+# ============================================================
+
+
+@app.get("/api/props/edge-board/{sport}")
+async def get_prop_edge_board(sport: str, min_gap: float = 3.0, force: bool = False):
+    """Pre-game prop edge board — combines book discrepancies + injury gap props.
+
+    This is the MONEY endpoint. Shows all props where:
+    1. Books disagree significantly (discrepancy >= min_gap %)
+    2. Injury gaps create mispriced role player props
+
+    Sorted by edge size descending. Lock before lines move.
+    """
+    sport_lower = sport.lower()
+
+    cache_key = f"edge_board:{sport_lower}"
+    if not force:
+        cached = _get_cached(cache_key, ttl=300)
+        if cached:
+            cached["cached"] = True
+            return JSONResponse(cached)
+
+    edge_props = []
+
+    # ── SOURCE 1: Book Discrepancies ──
+    try:
+        disc_result = await find_discrepancies(sport)
+        if hasattr(disc_result, 'body'):
+            disc_data = json.loads(disc_result.body)
+        else:
+            disc_data = disc_result if isinstance(disc_result, dict) else {"discrepancies": []}
+
+        for d in disc_data.get("discrepancies", []):
+            if d.get("prob_gap", 0) < min_gap:
+                continue
+            edge_props.append({
+                "source": "BOOK_DISCREPANCY",
+                "player": d.get("player", ""),
+                "stat": d.get("stat", ""),
+                "side": d.get("side", ""),
+                "line": d.get("line", 0),
+                "matchup": d.get("matchup", ""),
+                "commence": d.get("commence", ""),
+                "best_book": d.get("best_book", ""),
+                "best_odds": d.get("best_odds", 0),
+                "best_prob": d.get("best_prob", 0),
+                "worst_book": d.get("worst_book", ""),
+                "worst_odds": d.get("worst_odds", 0),
+                "worst_prob": d.get("worst_prob", 0),
+                "edge_pct": d.get("prob_gap", 0),
+                "book_count": d.get("book_count", 0),
+                "all_books": d.get("all_books", []),
+                "verdict": "SHARP VALUE" if d.get("prob_gap", 0) >= 10 else "EDGE" if d.get("prob_gap", 0) >= 5 else "SLIGHT",
+            })
+    except Exception as e:
+        logger.warning(f"[EDGE BOARD] Discrepancy fetch failed: {e}")
+
+    # ── SOURCE 2: Injury Gap Props ──
+    try:
+        gap_result = await get_gap_props(sport)
+        if hasattr(gap_result, 'body'):
+            gap_data = json.loads(gap_result.body)
+        else:
+            gap_data = gap_result if isinstance(gap_result, dict) else {"gap_props": []}
+
+        for g in gap_data.get("gap_props", []):
+            edge_pct = g.get("edge_pct", 0) or g.get("gap_score", 0)
+            if edge_pct < min_gap:
+                continue
+            edge_props.append({
+                "source": "INJURY_GAP",
+                "player": g.get("player", g.get("absorber", "")),
+                "stat": g.get("prop_type", g.get("stat", "")),
+                "side": "OVER",
+                "line": g.get("prop_line", g.get("line", 0)),
+                "matchup": g.get("matchup", ""),
+                "commence": g.get("commence", ""),
+                "best_book": g.get("best_book", ""),
+                "best_odds": g.get("best_odds", 0),
+                "edge_pct": edge_pct,
+                "gap_reason": g.get("gap_reason", {}),
+                "absorption": g.get("absorption", {}),
+                "grade": g.get("grade", ""),
+                "verdict": "SHARP VALUE" if edge_pct >= 10 else "EDGE" if edge_pct >= 5 else "SLIGHT",
+                "out_player": g.get("out_player", g.get("gap_reason", {}).get("player_out", "")),
+            })
+    except Exception as e:
+        logger.warning(f"[EDGE BOARD] Gap props fetch failed: {e}")
+
+    # Sort by edge size descending
+    edge_props.sort(key=lambda x: -x.get("edge_pct", 0))
+
+    result = {
+        "sport": sport.upper(),
+        "edge_props": edge_props,
+        "count": len(edge_props),
+        "sharp_value_count": sum(1 for p in edge_props if p.get("verdict") == "SHARP VALUE"),
+        "edge_count": sum(1 for p in edge_props if p.get("verdict") == "EDGE"),
+        "discrepancy_count": sum(1 for p in edge_props if p.get("source") == "BOOK_DISCREPANCY"),
+        "gap_count": sum(1 for p in edge_props if p.get("source") == "INJURY_GAP"),
+        "min_gap_filter": min_gap,
+        "generated_at": _now_ts(),
+        "cached": False,
+    }
+    _set_cache(cache_key, result)
+    return JSONResponse(result)
+
+
+def _inject_prop_edges_onto_cards(games: list, sport: str, discrepancy_data: dict = None, gap_data: dict = None):
+    """Inject book discrepancy + gap prop edges onto each game card.
+
+    Called post-analysis to enrich each game with `prop_edges` — the top
+    discrepancy/gap props for that specific matchup.
+    """
+    if not discrepancy_data and not gap_data:
+        return games
+
+    for game in games:
+        matchup = game.get("matchup", "").lower()
+        if not matchup:
+            continue
+
+        game_edges = []
+
+        # Match discrepancies to this game
+        if discrepancy_data:
+            for d in discrepancy_data.get("discrepancies", []):
+                d_matchup = d.get("matchup", "").lower()
+                # Match by team names in the matchup string
+                if _matchup_overlaps(matchup, d_matchup):
+                    game_edges.append({
+                        "source": "BOOK_DISCREPANCY",
+                        "player": d.get("player", ""),
+                        "stat": d.get("stat", ""),
+                        "side": d.get("side", ""),
+                        "line": d.get("line", 0),
+                        "best_book": d.get("best_book", ""),
+                        "best_odds": d.get("best_odds", 0),
+                        "edge_pct": d.get("prob_gap", 0),
+                        "book_count": d.get("book_count", 0),
+                    })
+
+        # Match gap props to this game
+        if gap_data:
+            for g in gap_data.get("gap_props", []):
+                g_matchup = g.get("matchup", "").lower()
+                if _matchup_overlaps(matchup, g_matchup):
+                    game_edges.append({
+                        "source": "INJURY_GAP",
+                        "player": g.get("player", g.get("absorber", "")),
+                        "stat": g.get("prop_type", g.get("stat", "")),
+                        "side": "OVER",
+                        "line": g.get("prop_line", g.get("line", 0)),
+                        "edge_pct": g.get("edge_pct", 0),
+                        "out_player": g.get("out_player", g.get("gap_reason", {}).get("player_out", "")),
+                        "grade": g.get("grade", ""),
+                    })
+
+        # Sort by edge descending, take top 5
+        game_edges.sort(key=lambda x: -x.get("edge_pct", 0))
+        game["prop_edges"] = game_edges[:5]
+        game["prop_edge_count"] = len(game_edges)
+
+    return games
+
+
+def _matchup_overlaps(matchup_a: str, matchup_b: str) -> bool:
+    """Check if two matchup strings refer to the same game (fuzzy team name match)."""
+    if not matchup_a or not matchup_b:
+        return False
+    # Extract significant words (>3 chars) from each matchup
+    words_a = {w for w in matchup_a.split() if len(w) > 3 and w not in ("the", "city", "state", "university")}
+    words_b = {w for w in matchup_b.split() if len(w) > 3 and w not in ("the", "city", "state", "university")}
+    # Need at least 2 team-name words overlapping
+    overlap = words_a & words_b
+    return len(overlap) >= 2
 
 
 # ============================================================
@@ -11944,6 +12168,31 @@ def _build_team_profile(team: str, sport: str) -> dict:
     last_5_raw = deduped[:5]
     last_10_raw = deduped[:10]
 
+    # ===== SEASON RECORD + HOME/AWAY SPLITS (all deduped games) =====
+    season_wins = 0
+    season_losses = 0
+    home_wins = 0
+    home_losses = 0
+    away_wins = 0
+    away_losses = 0
+    for entry in deduped:
+        side = entry["side"]
+        hs = entry["home_score"]
+        aws = entry["away_score"]
+        m = (hs - aws) if side == "home" else (aws - hs)
+        if m > 0:
+            season_wins += 1
+            if side == "home":
+                home_wins += 1
+            else:
+                away_wins += 1
+        else:
+            season_losses += 1
+            if side == "home":
+                home_losses += 1
+            else:
+                away_losses += 1
+
     last_5 = []
     wins = 0
     losses = 0
@@ -12034,6 +12283,56 @@ def _build_team_profile(team: str, sport: str) -> dict:
             "date": game_date,
         })
 
+    # ===== L5 STRENGTH OF SCHEDULE =====
+    # Look up each L5 opponent's season record to gauge quality of wins/losses
+    l5_quality_wins = 0
+    l5_soft_wins = 0
+    l5_quality_losses = 0
+    l5_soft_losses = 0
+    for g5 in last_5:
+        opp_name = g5.get("opponent", "")
+        result = g5.get("result", "")
+        if not opp_name:
+            continue
+        # Quick lookup: count opponent's completed games in archive
+        opp_w = 0
+        opp_l = 0
+        for gid2, game2 in archive.items():
+            if not game2.get("completed"):
+                continue
+            if sport.lower() not in game2.get("sport_key", ""):
+                continue
+            opp_side = _team_in_game(opp_name, game2, sport)
+            if not opp_side:
+                continue
+            hs2, as2 = _get_game_scores(game2)
+            if hs2 is None:
+                continue
+            opp_margin = (hs2 - as2) if opp_side == "home" else (as2 - hs2)
+            if opp_margin > 0:
+                opp_w += 1
+            else:
+                opp_l += 1
+        # Classify: above .500 = quality, below .400 = soft, else average (counted as quality)
+        opp_total = opp_w + opp_l
+        if opp_total > 0:
+            opp_pct = opp_w / opp_total
+            is_quality = opp_pct >= 0.500
+            is_soft = opp_pct < 0.400
+        else:
+            is_quality = False
+            is_soft = False
+        if result == "W":
+            if is_soft:
+                l5_soft_wins += 1
+            else:
+                l5_quality_wins += 1
+        elif result == "L":
+            if is_quality:
+                l5_quality_losses += 1
+            else:
+                l5_soft_losses += 1
+
     # Summary
     count = len(last_5)
     avg_margin = round(total_margin / count, 1) if count > 0 else 0
@@ -12099,6 +12398,16 @@ def _build_team_profile(team: str, sport: str) -> dict:
         "l10_avg_margin": l10_avg_margin,
         "streak": streak,
         "second_half_avg": second_half_avg,
+        # Team Identity
+        "season_wins": season_wins,
+        "season_losses": season_losses,
+        "home_record": f"{home_wins}-{home_losses}",
+        "away_record": f"{away_wins}-{away_losses}",
+        # L5 SOS
+        "l5_quality_wins": l5_quality_wins,
+        "l5_soft_wins": l5_soft_wins,
+        "l5_quality_losses": l5_quality_losses,
+        "l5_soft_losses": l5_soft_losses,
     }
     _set_cache(cache_key, profile)
     return profile
