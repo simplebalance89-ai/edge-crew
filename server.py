@@ -6572,11 +6572,11 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
         logger.info(f"[FORMATTER] Done in {fmt_secs}s, {fmt_tokens} tokens, {games_with_ms}/{total_games} games with matrix_scores")
         return result, {"secs": fmt_secs, "tokens": fmt_tokens}
 
-    # Fallback chain: grok-4-fast-reasoning → Kimi-K2.5 → DeepSeek-V3.2 (never OpenAI)
+    # Fallback chain: primary → Kimi-K2.5 → DeepSeek-V3-0324 (never OpenAI)
     FALLBACK_CHAIN = [
-        AZURE_MODEL,  # grok-4-fast-reasoning (50K TPM)
+        AZURE_MODEL,  # grok-3 (or whatever AZURE_OPENAI_MODEL is set to)
         "Kimi-K2.5",
-        "DeepSeek-V3.2",
+        ANALYSIS_FORMATTER,  # DeepSeek-V3-0324 (from env var)
     ]
 
     def _call_single_model(prompt_text, model_name=None, engine_status=None):
