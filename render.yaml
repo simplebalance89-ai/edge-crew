@@ -8,7 +8,7 @@ services:
     plan: standard
     region: oregon
     buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn server:app --host 0.0.0.0 --port $PORT --workers 2
+    startCommand: uvicorn server:app --host 0.0.0.0 --port $PORT --workers 1
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
@@ -44,5 +44,7 @@ services:
         value: ./data
       - key: GRADES_DIR
         value: ./grades
+      - key: EDGE_AUTO_ANALYZE
+        value: "0"
     healthCheckPath: /api/sports
     autoDeploy: true

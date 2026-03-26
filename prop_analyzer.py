@@ -4,11 +4,8 @@ Asks for top 3-5 player prop edges based on injuries, matchups, recent form.
 """
 import json, sys
 from datetime import datetime
-from pathlib import Path
 from azure_config import build_client, get_model_spec
-
-BASE_DIR = Path(__file__).parent
-DATA_DIR = BASE_DIR / "data"
+from paths import DATA_DIR
 
 def build_prop_prompt(game):
     odds = game.get("odds", {})

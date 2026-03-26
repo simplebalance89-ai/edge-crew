@@ -10,9 +10,8 @@ import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from paths import DATA_DIR
 
-BASE_DIR = Path(__file__).parent
-DATA_DIR = BASE_DIR / "data"
 CACHE_DIR = Path(os.environ.get("EC_CACHE_DIR", r"C:\Users\GCTII"))
 
 SPORT_MAP = {

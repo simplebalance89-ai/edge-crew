@@ -15,18 +15,14 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from paths import BASE_DIR, DATA_DIR, GRADES_DIR
 
-BASE_DIR = Path(__file__).parent
-DATA_DIR = BASE_DIR / "data"
-GRADES_DIR = BASE_DIR / "grades"
 STATIC_DIR = BASE_DIR / "static"
 DASHBOARD_DIR = BASE_DIR / "slate_dashboard"
 
 app = FastAPI(title="Edge Consensus Engine", version="0.1.0")
 SUPPORTED_SPORTS = ["nba", "nhl", "ncaab"]
-AUTO_ANALYZE_ENABLED = os.environ.get("EDGE_AUTO_ANALYZE", "1").lower() not in {"0", "false", "no"}
-AUTO_ANALYZE_LOCK = threading.Lock()
-AUTO_ANALYZE_IN_PROGRESS = False
+AUTO_ANALYZE_ENABLED = os.environ.get("EDGE_AUTO_ANALYZE", "0").lower() not in {"0", "false", "no"}
 AUTO_ANALYZE_STAMP = DATA_DIR / ".auto_analyze_stamp"
 
 # Serve static files
@@ -86,10 +82,37 @@ def _sports_with_data(date: str) -> list[str]:
     ]
 
 
+def _missing_sports(date: str) -> list[str]:
+    available = set(_sports_with_data(date))
+    return [sport_key for sport_key in SUPPORTED_SPORTS if sport_key not in available]
+
+
+def _auto_analyze_lockfile(date: str) -> Path:
+    return DATA_DIR / f".auto_analyze_{date}.lock"
+
+
+def _claim_auto_analyze(date: str) -> bool:
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    try:
+        fd = os.open(_auto_analyze_lockfile(date), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+    except FileExistsError:
+        return False
+    with os.fdopen(fd, "w", encoding="utf-8") as fh:
+        fh.write(str(os.getpid()))
+    return True
+
+
+def _release_auto_analyze(date: str):
+    try:
+        _auto_analyze_lockfile(date).unlink()
+    except FileNotFoundError:
+        pass
+
+
 def _should_auto_analyze(date: str) -> bool:
     if not AUTO_ANALYZE_ENABLED:
         return False
-    if _sports_with_data(date):
+    if not _missing_sports(date):
         return False
     if AUTO_ANALYZE_STAMP.exists():
         stamped_for = AUTO_ANALYZE_STAMP.read_text(encoding="utf-8").strip()
@@ -104,22 +127,21 @@ def _mark_auto_analyze(date: str):
 
 
 def _run_auto_analyze_for_today():
-    global AUTO_ANALYZE_IN_PROGRESS
     today = datetime.now().strftime("%Y%m%d")
-    with AUTO_ANALYZE_LOCK:
-        if AUTO_ANALYZE_IN_PROGRESS or not _should_auto_analyze(today):
-            return
-        AUTO_ANALYZE_IN_PROGRESS = True
+    if not _claim_auto_analyze(today):
+        return
     try:
-        _mark_auto_analyze(today)
-        for sport_key in SUPPORTED_SPORTS:
+        if not _should_auto_analyze(today):
+            return
+        for sport_key in _missing_sports(today):
             _run_process(
-                ["python", str(BASE_DIR / "run_pipeline.py"), "--sport", sport_key.upper(), "--date", today],
+                [sys.executable, str(BASE_DIR / "run_pipeline.py"), "--sport", sport_key.upper(), "--date", today],
                 timeout=600,
             )
+        if not _missing_sports(today):
+            _mark_auto_analyze(today)
     finally:
-        with AUTO_ANALYZE_LOCK:
-            AUTO_ANALYZE_IN_PROGRESS = False
+        _release_auto_analyze(today)
 
 
 @app.on_event("startup")
@@ -289,8 +311,8 @@ async def get_workbench(sport: str, date: str | None = None):
             "home": home,
             "away": away,
             "time": game.get("time", ""),
-            "spread": game.get("spread", "?"),
-            "total": game.get("total", "?"),
+            "spread": game.get("odds", {}).get("spread_home_val", game.get("odds", {}).get("spread_home", game.get("spread", "?"))),
+            "total": game.get("odds", {}).get("total_current", game.get("odds", {}).get("total", game.get("total", "?"))),
             "home_profile": home_profile,
             "away_profile": away_profile,
             "race": race,
@@ -486,12 +508,12 @@ async def trigger_collect(sport: str):
 
     # Run collectors sequentially
     collectors = [
-        ("odds", ["python", str(BASE_DIR / "collect_odds.py"), sport_upper]),
-        ("injuries", ["python", str(BASE_DIR / "collect_injuries.py"), sport_upper]),
-        ("stats", ["python", str(BASE_DIR / "collect_stats.py"), sport_upper]),
+        ("odds", [sys.executable, str(BASE_DIR / "collect_odds.py"), sport_upper]),
+        ("injuries", [sys.executable, str(BASE_DIR / "collect_injuries.py"), sport_upper]),
+        ("stats", [sys.executable, str(BASE_DIR / "collect_stats.py"), sport_upper]),
     ]
     if sport_upper == "NBA":
-        collectors.append(("props", ["python", str(BASE_DIR / "collect_props.py"), date]))
+        collectors.append(("props", [sys.executable, str(BASE_DIR / "collect_props.py"), date]))
 
     for name, cmd in collectors:
         results[name] = _run_process(cmd, timeout=120)
@@ -502,7 +524,7 @@ async def trigger_collect(sport: str):
 @app.post("/api/grade/{sport}")
 async def trigger_grade(sport: str):
     """Trigger grading for a sport."""
-    return _run_process(["python", str(BASE_DIR / "grade_engine.py"), sport.upper()], timeout=60)
+    return _run_process([sys.executable, str(BASE_DIR / "grade_engine.py"), sport.upper()], timeout=60)
 
 
 @app.post("/api/analyze/{sport}")
@@ -513,7 +535,7 @@ async def analyze_sport(sport: str, date: str | None = None):
         raise HTTPException(400, f"Unsupported sport: {sport}")
     target_date = date or datetime.now().strftime("%Y%m%d")
     result = _run_process(
-        ["python", str(BASE_DIR / "run_pipeline.py"), "--sport", sport_key.upper(), "--date", target_date],
+        [sys.executable, str(BASE_DIR / "run_pipeline.py"), "--sport", sport_key.upper(), "--date", target_date],
         timeout=600,
     )
     return {"sport": sport_key.upper(), "date": target_date, **result}
@@ -527,7 +549,7 @@ async def analyze_all(date: str | None = None):
     overall = "ok"
     for sport_key in SUPPORTED_SPORTS:
         result = _run_process(
-            ["python", str(BASE_DIR / "run_pipeline.py"), "--sport", sport_key.upper(), "--date", target_date],
+            [sys.executable, str(BASE_DIR / "run_pipeline.py"), "--sport", sport_key.upper(), "--date", target_date],
             timeout=600,
         )
         results[sport_key] = result

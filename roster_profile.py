@@ -10,12 +10,8 @@ import json
 import sys
 import concurrent.futures
 from datetime import datetime
-from pathlib import Path
 from azure_config import build_client, get_model_spec
-
-BASE_DIR = Path(__file__).parent
-DATA_DIR = BASE_DIR / "data"
-PROFILES_DIR = BASE_DIR / "profiles"
+from paths import BASE_DIR, DATA_DIR, PROFILES_DIR
 
 MODELS = {
     "grok":      (get_model_spec("grok")["deployment"], "ai_services"),

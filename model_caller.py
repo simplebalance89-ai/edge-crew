@@ -8,13 +8,9 @@ Returns model grade displayed next to math grades.
 import json
 import sys
 from datetime import datetime
-from pathlib import Path
 
 from azure_config import build_client, get_model_spec
-
-BASE_DIR = Path(__file__).parent
-DATA_DIR = BASE_DIR / "data"
-GRADES_DIR = BASE_DIR / "grades"
+from paths import DATA_DIR, GRADES_DIR
 
 # Available models
 MODELS = {

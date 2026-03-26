@@ -27,14 +27,12 @@ import os
 import sys
 import time
 from datetime import datetime
-from pathlib import Path
 
 import requests
+from app_config import require_env
+from paths import DATA_DIR
 
-BASE_DIR = Path(__file__).parent
-DATA_DIR = BASE_DIR / "data"
-
-BDL_KEY = os.environ.get("BALLDONTLIE_API_KEY", "373a65ea-c799-4c41-b54a-64909073123c")
+BDL_KEY = os.environ.get("BALLDONTLIE_API_KEY")
 BDL_BASE = "https://api.balldontlie.io/v1"
 
 
@@ -61,7 +59,7 @@ def save_prop_history(history: dict):
 
 def search_player(name: str) -> dict | None:
     """Search BDL for a player by name. Tries last name first, then first name."""
-    headers = {"Authorization": BDL_KEY}
+    headers = {"Authorization": require_env("BALLDONTLIE_API_KEY", "BallDontLie prop tracker")}
     # BDL search works best with last name
     parts = name.strip().split()
     search_terms = [name]  # Try full name first
@@ -180,7 +178,7 @@ def fetch_player_stats_espn(player_name: str, n_games: int = 15) -> list[dict]:
 def fetch_player_stats(player_id: int, n_games: int = 15) -> list[dict]:
     """Fetch recent game logs — tries ESPN first, BDL fallback."""
     # This is now a passthrough — smart_track uses fetch_player_stats_espn directly
-    headers = {"Authorization": BDL_KEY}
+    headers = {"Authorization": require_env("BALLDONTLIE_API_KEY", "BallDontLie prop tracker")}
     try:
         resp = requests.get(
             f"{BDL_BASE}/stats",

@@ -10,14 +10,12 @@ import os
 import sys
 import time
 from datetime import datetime
-from pathlib import Path
 
 import requests
+from app_config import require_env
+from paths import DATA_DIR
 
-BASE_DIR = Path(__file__).parent
-DATA_DIR = BASE_DIR / "data"
-
-RAPIDAPI_KEY = os.environ.get("RAPIDAPI_KEY", "409e417a5amshc8f88f3da5eb1c8p1b356bjsn648bb9e45f03")
+RAPIDAPI_KEY = os.environ.get("RAPIDAPI_KEY")
 
 TANK01_HOSTS = {
     "NBA": "tank01-fantasy-stats.p.rapidapi.com",
@@ -77,6 +75,7 @@ def get_freshness_tier(injury_date_str: str | None) -> tuple[str, int]:
 
 def fetch_injuries_tank01(sport: str, team_abbrev: str) -> list[dict]:
     """Fetch injuries from Tank01 for a specific team."""
+    api_key = require_env("RAPIDAPI_KEY", "Tank01 injury collection")
     host = TANK01_HOSTS.get(sport)
     if not host:
         return []
@@ -91,7 +90,7 @@ def fetch_injuries_tank01(sport: str, team_abbrev: str) -> list[dict]:
         return []
 
     headers = {
-        "x-rapidapi-key": RAPIDAPI_KEY,
+        "x-rapidapi-key": api_key,
         "x-rapidapi-host": host,
     }
 

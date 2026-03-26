@@ -30,15 +30,12 @@ import argparse
 import subprocess
 import concurrent.futures
 from datetime import datetime, timedelta
-from pathlib import Path
 
 import requests
+from app_config import require_env
+from paths import BASE_DIR, DATA_DIR, GRADES_DIR
 
 sys.stdout.reconfigure(encoding='utf-8', errors='replace')
-
-BASE_DIR = Path(__file__).parent
-DATA_DIR = BASE_DIR / "data"
-GRADES_DIR = BASE_DIR / "grades"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 GRADES_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -106,6 +103,7 @@ def fetch_schedule(sport: str, date: str) -> list[dict]:
 
 def fetch_odds_sgo(sport: str, date: str) -> dict[str, dict]:
     """Fetch odds from SportsGameOdds API. Returns game_id -> odds dict."""
+    require_env("SPORTSGAMEODDS_KEY", "SportsGameOdds odds collection")
     sgo_sport = SPORT_SGO.get(sport, sport)
     # Date format for SGO: YYYY-MM-DD
     date_fmt = f"{date[:4]}-{date[4:6]}-{date[6:]}"
@@ -327,7 +325,10 @@ def fetch_injuries_tank01_nba(team_name: str, date: str) -> list[dict]:
         return []
 
     host = "tank01-fantasy-stats.p.rapidapi.com"
-    headers = {"x-rapidapi-key": RAPIDAPI_KEY, "x-rapidapi-host": host}
+    headers = {
+        "x-rapidapi-key": require_env("RAPIDAPI_KEY", "Tank01 injury collection"),
+        "x-rapidapi-host": host,
+    }
     url = f"https://{host}/getNBATeamRoster"
 
     try:

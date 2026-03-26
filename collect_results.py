@@ -10,12 +10,9 @@ import os
 import sys
 import time
 from datetime import datetime, timedelta
-from pathlib import Path
 
 import requests
-
-BASE_DIR = Path(__file__).parent
-DATA_DIR = BASE_DIR / "data"
+from paths import DATA_DIR
 
 
 def fetch_espn_scoreboard(sport: str, date: str) -> list[dict]:

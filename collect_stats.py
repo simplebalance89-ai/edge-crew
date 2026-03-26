@@ -10,12 +10,9 @@ import os
 import sys
 import time
 from datetime import datetime
-from pathlib import Path
 
 import requests
-
-BASE_DIR = Path(__file__).parent
-DATA_DIR = BASE_DIR / "data"
+from paths import DATA_DIR
 
 # ESPN team ID mappings
 NBA_ESPN_IDS = {

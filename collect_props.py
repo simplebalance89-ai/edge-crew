@@ -9,12 +9,10 @@ import os
 import sys
 import time
 from datetime import datetime
-from pathlib import Path
 
 import requests
-
-BASE_DIR = Path(__file__).parent
-DATA_DIR = BASE_DIR / "data"
+from app_config import require_env
+from paths import DATA_DIR
 
 BDL_KEY = os.environ.get("BALLDONTLIE_API_KEY")
 BDL_BASE = "https://api.balldontlie.io/v1"
@@ -152,7 +150,7 @@ def _build_prop_entry(prop: dict, game: dict) -> dict | None:
 
 def fetch_props(game_date: str) -> list[dict]:
     """Fetch player props from BDL for a given date."""
-    headers = {"Authorization": BDL_KEY}
+    headers = {"Authorization": require_env("BALLDONTLIE_API_KEY", "BallDontLie prop collection")}
     url = f"{BDL_BASE}/props"
     params = {"date": game_date}
 
@@ -171,7 +169,7 @@ def fetch_props(game_date: str) -> list[dict]:
 
 def fetch_player_game_logs(player_id: int, n_games: int = 10) -> list[dict]:
     """Fetch recent game logs for a player from BDL."""
-    headers = {"Authorization": BDL_KEY}
+    headers = {"Authorization": require_env("BALLDONTLIE_API_KEY", "BallDontLie player stats")}
     url = f"{BDL_BASE}/stats"
     params = {
         "player_ids[]": player_id,

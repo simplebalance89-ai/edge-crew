@@ -8,12 +8,8 @@ import json
 import math
 import sys
 from datetime import datetime
-from pathlib import Path
 
-BASE_DIR = Path(__file__).parent
-DATA_DIR = BASE_DIR / "data"
-GRADES_DIR = BASE_DIR / "grades"
-PROFILES_DIR = BASE_DIR / "profiles"
+from paths import DATA_DIR, GRADES_DIR, PROFILES_DIR
 
 
 # ─── Grade Thresholds ───────────────────────────────────────────────────────────

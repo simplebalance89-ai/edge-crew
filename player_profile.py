@@ -16,14 +16,11 @@ import sys
 import time
 import concurrent.futures
 from datetime import datetime
-from pathlib import Path
 
 import requests
+from app_config import require_env
 from azure_config import build_client, get_model_spec
-
-BASE_DIR = Path(__file__).parent
-DATA_DIR = BASE_DIR / "data"
-GRADES_DIR = BASE_DIR / "grades"
+from paths import DATA_DIR, GRADES_DIR
 GRADES_DIR.mkdir(parents=True, exist_ok=True)
 
 RAPIDAPI_KEY = os.environ.get("RAPIDAPI_KEY")
@@ -153,7 +150,7 @@ def fetch_player_l5_nba(player_name: str) -> dict:
 
 def fetch_player_props_bdl(player_name: str, game_date: str) -> dict:
     """Fetch player props from BallDontLie for tonight."""
-    headers = {"Authorization": BDL_KEY}
+    headers = {"Authorization": require_env("BALLDONTLIE_API_KEY", "BallDontLie player props")}
     url = "https://api.balldontlie.io/v1/props"
     try:
         r = requests.get(url, headers=headers,
