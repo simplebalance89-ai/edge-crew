@@ -3200,6 +3200,50 @@ async def _fetch_api_sports_lineups(sport_lower):
                         except Exception:
                             pass
                         lineups[key] = match_lineups
+
+            elif sport_lower == "mlb":
+                # MLB: Fetch games + starting pitchers and lineups from API-Sports baseball
+                league_id = API_SPORTS_LEAGUES.get("mlb", 1)
+                resp = await client.get(
+                    f"https://{host}/games",
+                    params={"date": today, "league": league_id, "season": 2026},
+                    headers=headers,
+                )
+                if resp.status_code == 200:
+                    for game in resp.json().get("response", []):
+                        gid = game.get("id")
+                        home = game.get("teams", {}).get("home", {}).get("name", "?")
+                        away = game.get("teams", {}).get("away", {}).get("name", "?")
+                        key = f"{away} @ {home}"
+                        match_lineups = {"home_team": home, "away_team": away}
+                        # Fetch lineups for starting pitchers and batting order
+                        try:
+                            lr = await client.get(
+                                f"https://{host}/games/lineups",
+                                params={"game": gid},
+                                headers=headers,
+                            )
+                            if lr.status_code == 200:
+                                lu_data = lr.json().get("response", [])
+                                for team_lu in lu_data:
+                                    tname = team_lu.get("team", {}).get("name", "?")
+                                    starters = []
+                                    pitcher = None
+                                    for p in team_lu.get("players", team_lu.get("startXI", [])):
+                                        player = p.get("player", p) if isinstance(p, dict) else p
+                                        pname = player.get("name", "?") if isinstance(player, dict) else str(player)
+                                        pos = player.get("pos", player.get("position", "")) if isinstance(player, dict) else ""
+                                        # Identify starting pitcher
+                                        if pos in ("P", "SP", "Pitcher", "Starting Pitcher") or p.get("order", 0) == 1:
+                                            pitcher = pname
+                                        starters.append(pname)
+                                    match_lineups[tname] = {
+                                        "pitcher": pitcher,
+                                        "batting_order": starters[:9],
+                                    }
+                        except Exception:
+                            pass
+                        lineups[key] = match_lineups
     except Exception as e:
         print(f"API-Sports lineups fetch error ({sport_lower}): {e}")
 
@@ -5990,6 +6034,33 @@ async def get_analysis(sport: str, cached_only: bool = False, force: bool = Fals
         except Exception as e:
             lineup_context = "\n=== GOALIE DATA: FETCH FAILED ===\nCould not retrieve goalie confirmation. Score goalie_confirmed conservatively."
             logger.warning(f"NHL lineup/goalie fetch error: {e}")
+
+    elif sport_lower == "mlb":
+        try:
+            mlb_lineups = await _fetch_api_sports_lineups(sport_lower)
+            if mlb_lineups:
+                lineup_lines = ["\n=== CONFIRMED STARTING PITCHERS & LINEUPS (API-Sports Baseball) ==="]
+                lineup_lines.append("PITCHER RULE: Starting pitcher is THE #1 variable in baseball (weight 10). If SP confirmed, score 8-10. If unclear/TBD, score conservatively. Batting order confirms lineup stability.")
+                for matchup_key, match_data in mlb_lineups.items():
+                    lineup_lines.append(f"\n{matchup_key}:")
+                    for team_key, team_info in match_data.items():
+                        if team_key in ("home_team", "away_team"):
+                            continue
+                        if isinstance(team_info, dict):
+                            pitcher = team_info.get("pitcher")
+                            batting_order = team_info.get("batting_order", [])
+                            if pitcher:
+                                lineup_lines.append(f"  {team_key} STARTING PITCHER: {pitcher}")
+                            if batting_order:
+                                lineup_lines.append(f"    Batting Order: {', '.join(batting_order)}")
+                lineup_context = "\n".join(lineup_lines)
+                logger.info(f"[LINEUPS] MLB pitcher/lineup data injected for {len(mlb_lineups)} games")
+            else:
+                lineup_context = "\n=== PITCHER CONFIRMATION: NOT YET AVAILABLE ===\nNo confirmed starting pitchers. MLB pitchers typically confirmed 2-3 hours before first pitch. Score starting_pitcher and lineup_vs_hand conservatively."
+                logger.info("[LINEUPS] MLB pitcher data not yet available")
+        except Exception as e:
+            lineup_context = "\n=== PITCHER DATA: FETCH FAILED ===\nCould not retrieve pitcher confirmation. Score starting_pitcher conservatively."
+            logger.warning(f"MLB lineup/pitcher fetch error: {e}")
 
     # ===== P3: TEAM RECENT FORM (L5 records for prompt) =====
     form_context = ""
@@ -11165,6 +11236,19 @@ async def _fetch_player_game_logs(sport, team_abbrevs):
                         dynamic_indices["reb"] = i
                     elif label == "AST":
                         dynamic_indices["ast"] = i
+                    # MLB stats: K, TB, H, HR, BB, IP
+                    elif label in ("K", "SO", "STRIKEOUTS"):
+                        dynamic_indices["k"] = i
+                    elif label in ("TB", "TOTAL BASES"):
+                        dynamic_indices["tb"] = i
+                    elif label in ("H", "HITS"):
+                        dynamic_indices["h"] = i
+                    elif label in ("HR", "HOME RUNS"):
+                        dynamic_indices["hr"] = i
+                    elif label in ("BB", "WALKS", "BASE ON BALLS"):
+                        dynamic_indices["bb"] = i
+                    elif label in ("IP", "INNINGS", "INNINGS PITCHED"):
+                        dynamic_indices["ip"] = i
 
                 # Parse game log entries — categories are months (most recent first)
                 season_stats = data.get("seasonTypes", [])
@@ -11212,16 +11296,37 @@ async def _fetch_player_game_logs(sport, team_abbrevs):
                 l10_reb = sum(_safe_float(g, stat_indices.get("reb", 10)) for g in l10) / len(l10) if l10 else 0
                 l10_ast = sum(_safe_float(g, stat_indices.get("ast", 11)) for g in l10) / len(l10) if l10 else 0
                 l10_min = sum(_safe_float(g, stat_indices.get("min", 0)) for g in l10) / len(l10) if l10 else 0
+                # MLB stats L10
+                l10_k = sum(_safe_float(g, dynamic_indices.get("k", -1)) for g in l10) / len(l10) if l10 and "k" in dynamic_indices else 0
+                l10_tb = sum(_safe_float(g, dynamic_indices.get("tb", -1)) for g in l10) / len(l10) if l10 and "tb" in dynamic_indices else 0
+                l10_h = sum(_safe_float(g, dynamic_indices.get("h", -1)) for g in l10) / len(l10) if l10 and "h" in dynamic_indices else 0
+                l10_hr = sum(_safe_float(g, dynamic_indices.get("hr", -1)) for g in l10) / len(l10) if l10 and "hr" in dynamic_indices else 0
+                l10_bb = sum(_safe_float(g, dynamic_indices.get("bb", -1)) for g in l10) / len(l10) if l10 and "bb" in dynamic_indices else 0
+                l10_ip = sum(_safe_float(g, dynamic_indices.get("ip", -1)) for g in l10) / len(l10) if l10 and "ip" in dynamic_indices else 0
 
                 # L5 averages — used by Prop Gap Analyzer for absorption detection
                 l5 = games[:5]
                 l5_pts = sum(_safe_float(g, stat_indices.get("pts", -1)) for g in l5) / len(l5) if l5 else 0
                 l5_reb = sum(_safe_float(g, stat_indices.get("reb", 10)) for g in l5) / len(l5) if l5 else 0
                 l5_ast = sum(_safe_float(g, stat_indices.get("ast", 11)) for g in l5) / len(l5) if l5 else 0
+                # MLB stats L5
+                l5_k = sum(_safe_float(g, dynamic_indices.get("k", -1)) for g in l5) / len(l5) if l5 and "k" in dynamic_indices else 0
+                l5_tb = sum(_safe_float(g, dynamic_indices.get("tb", -1)) for g in l5) / len(l5) if l5 and "tb" in dynamic_indices else 0
+                l5_h = sum(_safe_float(g, dynamic_indices.get("h", -1)) for g in l5) / len(l5) if l5 and "h" in dynamic_indices else 0
+                l5_hr = sum(_safe_float(g, dynamic_indices.get("hr", -1)) for g in l5) / len(l5) if l5 and "hr" in dynamic_indices else 0
+                l5_bb = sum(_safe_float(g, dynamic_indices.get("bb", -1)) for g in l5) / len(l5) if l5 and "bb" in dynamic_indices else 0
+                l5_ip = sum(_safe_float(g, dynamic_indices.get("ip", -1)) for g in l5) / len(l5) if l5 and "ip" in dynamic_indices else 0
 
                 season_pts = sum(_safe_float(g, stat_indices.get("pts", -1)) for g in games) / gp if gp else 0
                 season_reb = sum(_safe_float(g, stat_indices.get("reb", 10)) for g in games) / gp if gp else 0
                 season_ast = sum(_safe_float(g, stat_indices.get("ast", 11)) for g in games) / gp if gp else 0
+                # MLB season stats
+                season_k = sum(_safe_float(g, dynamic_indices.get("k", -1)) for g in games) / gp if gp and "k" in dynamic_indices else 0
+                season_tb = sum(_safe_float(g, dynamic_indices.get("tb", -1)) for g in games) / gp if gp and "tb" in dynamic_indices else 0
+                season_h = sum(_safe_float(g, dynamic_indices.get("h", -1)) for g in games) / gp if gp and "h" in dynamic_indices else 0
+                season_hr = sum(_safe_float(g, dynamic_indices.get("hr", -1)) for g in games) / gp if gp and "hr" in dynamic_indices else 0
+                season_bb = sum(_safe_float(g, dynamic_indices.get("bb", -1)) for g in games) / gp if gp and "bb" in dynamic_indices else 0
+                season_ip = sum(_safe_float(g, dynamic_indices.get("ip", -1)) for g in games) / gp if gp and "ip" in dynamic_indices else 0
 
                 # Minutes trend: compare L5 avg to L10 avg
                 l5_min = sum(_safe_float(g, stat_indices.get("min", 0)) for g in games[:5]) / min(5, len(games)) if games else 0
@@ -11250,7 +11355,7 @@ async def _fetch_player_game_logs(sport, team_abbrevs):
                         "l5_ceiling": max(l5_vals) if l5_vals else 0,
                     }
 
-                return {pname: {
+                result = {
                     "team": abbr,
                     "gp": gp,
                     "l10_pts": round(l10_pts, 1),
@@ -11266,7 +11371,33 @@ async def _fetch_player_game_logs(sport, team_abbrevs):
                     "season_ast": round(season_ast, 1),
                     "minutes_trend": min_trend,
                     "raw_stats": raw_stats,
-                }}
+                }
+                # Add MLB stats if present
+                if "k" in dynamic_indices:
+                    result["l10_k"] = round(l10_k, 1)
+                    result["l5_k"] = round(l5_k, 1)
+                    result["season_k"] = round(season_k, 1)
+                if "tb" in dynamic_indices:
+                    result["l10_tb"] = round(l10_tb, 1)
+                    result["l5_tb"] = round(l5_tb, 1)
+                    result["season_tb"] = round(season_tb, 1)
+                if "h" in dynamic_indices:
+                    result["l10_h"] = round(l10_h, 1)
+                    result["l5_h"] = round(l5_h, 1)
+                    result["season_h"] = round(season_h, 1)
+                if "hr" in dynamic_indices:
+                    result["l10_hr"] = round(l10_hr, 1)
+                    result["l5_hr"] = round(l5_hr, 1)
+                    result["season_hr"] = round(season_hr, 1)
+                if "bb" in dynamic_indices:
+                    result["l10_bb"] = round(l10_bb, 1)
+                    result["l5_bb"] = round(l5_bb, 1)
+                    result["season_bb"] = round(season_bb, 1)
+                if "ip" in dynamic_indices:
+                    result["l10_ip"] = round(l10_ip, 1)
+                    result["l5_ip"] = round(l5_ip, 1)
+                    result["season_ip"] = round(season_ip, 1)
+                return {pname: result}
             except Exception as e:
                 logger.debug(f"Game log fetch failed for {pname} ({pid}): {e}")
                 return None
@@ -12873,12 +13004,13 @@ async def card_lineup(sport: str, matchup: str):
 # ─────────────────────────────────────────────────────────────────────────────
 
 GAP_PROPS_CACHE_TTL = 900  # 15 minutes
-GAP_PROPS_SUPPORTED = {"nba", "nhl"}
+GAP_PROPS_SUPPORTED = {"nba", "nhl", "mlb"}
 
 # Stat mapping per sport for gap analysis
 _GAP_STAT_KEYS = {
     "nba": {"pts": "Points", "reb": "Rebounds", "ast": "Assists"},
     "nhl": {"pts": "Points", "ast": "Assists", "goals": "Goals"},
+    "mlb": {"k": "Strikeouts", "tb": "Total Bases", "h": "Hits", "hr": "Home Runs", "bb": "Walks", "ip": "Innings Pitched"},
 }
 
 _GRADE_THRESHOLDS = [

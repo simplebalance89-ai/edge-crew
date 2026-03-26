@@ -32,6 +32,24 @@ _POSITION_GROUPS = {
     "RW": ["RW", "LW", "C"],
     "D": ["D"],
     "G": ["G"],
+    # MLB - Baseball position groups for injury absorption
+    # Hitters: similar positions can absorb playing time
+    "C": ["C"],  # Catcher is specialized
+    "1B": ["1B", "DH"],
+    "2B": ["2B", "SS", "UTIL"],
+    "3B": ["3B", "1B", "UTIL"],
+    "SS": ["SS", "2B", "UTIL"],
+    "LF": ["LF", "CF", "RF", "OF", "UTIL"],
+    "CF": ["CF", "LF", "RF", "OF", "UTIL"],
+    "RF": ["RF", "LF", "CF", "OF", "UTIL"],
+    "OF": ["OF", "LF", "CF", "RF", "UTIL"],
+    "DH": ["DH", "1B"],
+    "UTIL": ["UTIL", "1B", "2B", "3B", "SS", "OF"],
+    # Pitchers: starters and relievers are mostly separate
+    "SP": ["SP"],  # Starting pitcher - only other SPs can really absorb
+    "RP": ["RP", "CL"],  # Relief pitchers can move into closer role
+    "CL": ["CL", "RP"],  # Closer is usually a RP with save opportunities
+    "P": ["P", "SP", "RP", "CL"],  # Generic pitcher
 }
 
 
@@ -182,6 +200,9 @@ async def find_gap_props(sport: str):
                 stat_map = {
                     "Points": "PTS", "Rebounds": "REB", "Assists": "AST",
                     "Threes": "3PM", "Goals": "G",
+                    # MLB stats
+                    "Strikeouts": "K", "Total Bases": "TB", "Hits": "H",
+                    "Home Runs": "HR", "Walks": "BB", "Innings Pitched": "IP",
                 }
                 espn_stat = stat_map.get(stat)
                 if not espn_stat:
