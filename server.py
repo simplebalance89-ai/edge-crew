@@ -1068,6 +1068,16 @@ async def _build_pre_analysis(sport: str):
                                 pre["rest_flags"].append(f"{team_name}: {abs(streak)}-game losing streak")
                             elif streak >= 3:
                                 pre["rest_flags"].append(f"{team_name}: {streak}-game winning streak")
+                            # MLB: Day-game-after-night detection
+                            if sport.lower() == "mlb":
+                                commence = game.get("commence_time", "")
+                                if commence:
+                                    try:
+                                        gt = datetime.fromisoformat(commence.replace("Z", "+00:00")).astimezone(PST)
+                                        if gt.hour < 16 and last_date and last_date >= (datetime.now(PST) - timedelta(days=1)).strftime("%Y-%m-%d"):
+                                            pre["rest_flags"].append(f"{team_name}: DGAN (day game after night) — fatigue risk")
+                                    except Exception:
+                                        pass
                     except Exception:
                         pass
 
@@ -6015,6 +6025,16 @@ async def get_analysis(sport: str, cached_only: bool = False, force: bool = Fals
     except Exception as e:
         print(f"Game log fetch error: {e}")
 
+    # ===== FETCH PROBABLE PITCHERS (MLB Stats API — free, no key) =====
+    pitcher_context = ""
+    if sport_lower == "mlb":
+        try:
+            from engines.mlb_pitcher_engine import build_pitcher_context
+            pitcher_context = await build_pitcher_context()
+        except Exception as e:
+            pitcher_context = f"=== PROBABLE PITCHERS ===\nPITCHER DATA FETCH FAILED: {e}. Grade starting_pitcher conservatively (5-6)."
+            print(f"MLB pitcher context error: {e}")
+
     # ===== FETCH CASCADE/GAP PROPS (usage cascade from injuries) =====
     cascade_context = ""
     try:
@@ -6129,6 +6149,8 @@ MULTI-INJURY RULE: When one team has 3+ rotation players OUT with FRESH injuries
 
 PICKING-INTO-INJURY RULE: If you are recommending a team that has FRESH injuries, you MUST explain WHY you still like them despite being weakened. Include a "despite X being out, we still like this because Y" line in edge_summary. Without this explanation, the grade is capped at C+.
 
+{"MLB-SPECIFIC RULES: (1) STARTING PITCHER is the #1 edge variable — elite SP (ERA < 3.00, K/9 > 9) vs weak lineup = strongest MLB edge, score starting_pitcher 8-10. (2) BULLPEN FATIGUE: 15+ innings in last 3 days = score bullpen_strength 2-4. (3) PLATOON: Heavy RHB lineup vs LHP (or vice versa) with strong splits = score lineup_vs_hand 7-9. (4) PARK FACTOR: Coors adds +1.5 runs, Petco/Oracle suppress. Factor into totals. (5) DGAN: Day game after night = fatigue, score travel_rest 3-4. (6) RUN LINE: Only recommend -1.5 for A-grade with clear SP edge. (7) WEATHER: Wind out at Wrigley/Coors = over, cold (<55F)/wind in = under." if sport_lower == "mlb" else ""}
+
 CREW: Peter (heavy/value/sharp, sizes up on conviction), Jimmy (new, learning), Alyssa (pure math/EV edge), Renzo (card builder/grader), Tunk (wild/aggressive, tracks everything, high volume).
 RULES: "Why is the market wrong?" = required for every grade. No answer = NO BET (grade D/F). Valid edges: news not priced in, public overreaction, rest/schedule, matchup-specific, sharp vs public, situational. Invalid: "better team", "should win", "volume play".
 
@@ -6148,6 +6170,8 @@ Today's {sport.upper()} slate - {today} (pulled at {now_time}):
 {form_context}
 
 {game_log_context}
+
+{pitcher_context}
 
 {matrix_section}
 

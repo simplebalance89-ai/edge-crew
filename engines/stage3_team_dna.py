@@ -53,6 +53,13 @@ TACTICAL_EDGES = {
         "turnover_forcing": "Press team vs turnover-prone",
         "free_throw_rate": "Foul-drawing team vs foul-prone D",
     },
+    "mlb": {
+        "sp_mismatch": "Elite SP vs weak lineup — starter dominance creates edge",
+        "bullpen_fatigue": "Overworked bullpen vs fresh relievers — late-game edge",
+        "platoon_advantage": "Lineup handedness splits vs opposing SP hand",
+        "park_factor_edge": "Hitter's park inflates scoring vs pitcher's park suppresses",
+        "dgan_fatigue": "Day game after night game — tired team vs rested opponent",
+    },
 }
 
 
