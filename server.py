@@ -11852,6 +11852,41 @@ async def get_agent_matrix(user_id: str, sport: str):
     })
 
 
+@app.post("/api/agent/{user_id}/matrix/{sport}")
+async def save_agent_matrix(user_id: str, sport: str, request: Request):
+    """Save a user's matrix weight overrides for a sport."""
+    profile = _load_user_profile(user_id)
+    if not profile:
+        return JSONResponse({"error": "Profile not found"}, status_code=404)
+    body = await request.json()
+    variables = body.get("variables", body.get("full_game", []))
+    nrfi = body.get("nrfi", [])
+    sport_key = sport.lower()
+    if "matrices" not in profile:
+        profile["matrices"] = {}
+    if sport_key not in profile["matrices"]:
+        profile["matrices"][sport_key] = {"overrides": {}, "excluded": [], "custom_vars": []}
+    for v in variables:
+        key = v.get("key", "")
+        weight = v.get("weight")
+        if key and weight is not None:
+            profile["matrices"][sport_key]["overrides"][key] = {"weight": int(weight), "note": v.get("note", "")}
+    if nrfi:
+        if "nrfi" not in profile["matrices"]:
+            profile["matrices"]["nrfi"] = {"overrides": {}, "excluded": [], "custom_vars": []}
+        for v in nrfi:
+            key = v.get("key", "")
+            weight = v.get("weight")
+            if key and weight is not None:
+                profile["matrices"]["nrfi"]["overrides"][key] = {"weight": int(weight), "note": v.get("note", "")}
+    now = datetime.now(PST).strftime("%-I:%M %p PST — %b %d, %Y")
+    profile["matrices"][sport_key]["saved_at"] = now
+    profile["matrices"][sport_key]["saved_by"] = body.get("saved_by", user_id)
+    profile["updated_at"] = datetime.now(PST).isoformat()
+    _save_user_profile(profile)
+    return JSONResponse({"status": "saved", "sport": sport_key, "user_id": user_id, "saved_at": now})
+
+
 @app.get("/dj")
 async def dj_page():
     return FileResponse("static/dj.html", headers=NO_CACHE_HEADERS)
