@@ -286,6 +286,33 @@ body {
     gap: 10px;
 }
 
+.picks-filter-tabs {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.picks-filter-tab {
+    background: transparent;
+    border: 1px solid var(--card-border);
+    color: var(--text-dim);
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.picks-filter-tab.active {
+    border-color: var(--member-color);
+    color: var(--text);
+    background: rgba(108, 92, 231, 0.12);
+}
+
 .pick-card {
     background: var(--card-bg);
     border: 1px solid var(--card-border);
@@ -564,6 +591,7 @@ body {
             TODAY'S PICKS
             <span class="date-tag" id="picksDate"></span>
         </div>
+        <div class="picks-filter-tabs" id="picksFilterTabs"></div>
         <div class="picks-list" id="picksList">
             <div class="loading-spinner"><div class="spinner"></div></div>
         </div>
@@ -599,6 +627,8 @@ body {
     }
 
     const userId = getUserId();
+    let currentPicksFilter = 'all';
+    let allMemberPicks = [];
 
     // ===== UTILITY =====
     function todayStr() {
@@ -806,6 +836,35 @@ body {
         }).join('');
     }
 
+    function renderPicksFilters(picks) {
+        const tabs = document.getElementById('picksFilterTabs');
+        if (!tabs) return;
+        const sports = Array.from(new Set((picks || [])
+            .map(p => (p.sport || '').toUpperCase())
+            .filter(Boolean)))
+            .sort();
+        const filters = ['ALL'].concat(sports);
+        tabs.innerHTML = filters.map(label => {
+            const key = label.toLowerCase();
+            const active = key === currentPicksFilter ? 'active' : '';
+            return `<button class="picks-filter-tab ${active}" data-filter="${key}">${escHtml(label)}</button>`;
+        }).join('');
+        tabs.querySelectorAll('.picks-filter-tab').forEach(btn => {
+            btn.addEventListener('click', function() {
+                currentPicksFilter = btn.getAttribute('data-filter') || 'all';
+                renderFilteredPicks();
+            });
+        });
+    }
+
+    function renderFilteredPicks() {
+        const filtered = currentPicksFilter === 'all'
+            ? allMemberPicks
+            : allMemberPicks.filter(p => (p.sport || '').toLowerCase() === currentPicksFilter);
+        renderPicksFilters(allMemberPicks);
+        renderPicks(filtered);
+    }
+
     function escHtml(str) {
         const div = document.createElement('div');
         div.textContent = str;
@@ -859,8 +918,8 @@ body {
             renderRecord(record, data.streak, data.best_sport, data.record_7d, data.record_30d, data.record_season);
 
             // Picks — filter to this member if needed
-            const memberPicks = filterMemberPicks(picks, member);
-            renderPicks(memberPicks);
+            allMemberPicks = filterMemberPicks(picks, member);
+            renderFilteredPicks();
 
             // Footer
             const now = new Date();

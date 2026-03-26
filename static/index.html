@@ -3531,6 +3531,7 @@ function switchSport(sport, e) {
                 if (data.games && data.games.length > 0) {
                     _analysisCache[sport.toUpperCase()] = data;
                     injectPicksIntoCards(sport, data);
+                    loadNrfiBadges(sport);
                     updatePeterGut(sport, data);
                     var panel = document.getElementById('panel-' + sport);
                     if (panel && data.gotcha) {
@@ -5684,6 +5685,10 @@ function buildGameRowHTML(g) {
         dataTag = '<span class="tag" style="background:rgba(239,68,68,0.2);color:#EF4444;">NO LINES</span> ';
         gradeDisplay = 'N/A';
         gradeClass = 'gc';
+    } else if (!isComplete && sport === 'mlb' && !g.away_spread && isAvailable && g.away_ml) {
+        dataTag = '<span class="tag" style="background:#4a6fa5;color:white;font-size:10px;padding:1px 5px;border-radius:3px;">ML ONLY</span> ';
+        gradeDisplay = 'ML';
+        gradeClass = 'gb';
     } else if (!isComplete && g.sport === 'SOCCER' && (g.away_ml || g.home_ml)) {
         dataTag = '<span class="tag" style="background:rgba(16,185,129,0.2);color:#10B981;">ML ONLY</span> ';
         gradeDisplay = 'ML';
@@ -5728,7 +5733,7 @@ function buildGameRowHTML(g) {
     // Default: show matchup spread reference — NOT a pick recommendation (analysis sets the real pick)
     var pickDisplay = hasSpread ? (awayAbbr + ' ' + awaySpreadStr + ' / ' + homeAbbr + ' ' + spreadStr) : awayAbbr + ' vs ' + homeAbbr + ' (ML)';
 
-    return '<div class="game-row" data-game="' + matchup + '" data-away="' + g.away + '" data-home="' + g.home + '" data-sport="' + (g.sport||'') + '" data-book="' + bookSource + '" data-fetched="' + fetchedAt + '" data-complete="' + (isComplete ? 'true' : 'false') + '" data-time="' + (g.time || '') + '" style="' + todayStyle + '" onclick="toggleGameExpand(this,\'' + matchup.replace(/\s/g, '_').replace(/@/g, 'at') + '\',\'' + (g.sport||'').toLowerCase() + '\')">' +
+    return '<div class="game-row" data-game="' + matchup + '" data-game-id="' + (g.game_id || '') + '" data-away="' + g.away + '" data-home="' + g.home + '" data-sport="' + (g.sport||'') + '" data-book="' + bookSource + '" data-fetched="' + fetchedAt + '" data-complete="' + (isComplete ? 'true' : 'false') + '" data-time="' + (g.time || '') + '" style="' + todayStyle + '" onclick="toggleGameExpand(this,\'' + matchup.replace(/\s/g, '_').replace(/@/g, 'at') + '\',\'' + (g.sport||'').toLowerCase() + '\')">' +
         '<div class="game-header">' +
             /* Row 1: checkbox + time + matchup + grade */
             '<div class="card-r1">' +
@@ -7048,6 +7053,7 @@ function injectPicksIntoCards(sport, analysisData) {
 // ===== ANALYSIS CACHE =====
 var _analysisCache = {};
 var _gameDataMap = {};
+var _nrfiCache = null;
 
 // Look up analysis grade for a matchup from cache
 function getAnalysisGrade(sport, matchup) {
@@ -7061,6 +7067,64 @@ function getAnalysisGrade(sport, matchup) {
         }
     }
     return '';
+}
+
+function applyNrfiToCards(nrfiData) {
+    if (!nrfiData || !nrfiData.picks) return;
+    nrfiData.picks.forEach(function(pick) {
+        var row = null;
+        if (pick.game_id) {
+            row = document.querySelector('.game-row[data-game-id="' + pick.game_id + '"]');
+        }
+        if (!row && pick.matchup) {
+            document.querySelectorAll('.game-row[data-game]').forEach(function(candidate) {
+                if (!row && candidate.getAttribute('data-game') === pick.matchup) row = candidate;
+            });
+        }
+        if (!row) return;
+        var matchupId = (row.getAttribute('data-game') || '').replace(/[^a-zA-Z0-9]/g, '');
+        if (!matchupId) return;
+        var tagRow = document.getElementById('ftags-' + matchupId);
+        if (!tagRow) return;
+
+        var existing = tagRow.querySelector('.nrfi-badge');
+        if (existing) existing.remove();
+
+        var badge = document.createElement('span');
+        badge.className = 'ftag nrfi-badge';
+        var verdict = pick.verdict || 'SKIP';
+        var bg = verdict === 'NRFI' ? 'rgba(16,185,129,0.18)' : verdict === 'YRFI' ? 'rgba(239,68,68,0.18)' : 'rgba(148,163,184,0.18)';
+        var fg = verdict === 'NRFI' ? '#10B981' : verdict === 'YRFI' ? '#EF4444' : '#94A3B8';
+        badge.style.background = bg;
+        badge.style.color = fg;
+        badge.textContent = verdict + ' ' + (pick.score || '--');
+        var weather = pick.weather || {};
+        var defense = pick.defense || {};
+        var park = pick.park_factor || {};
+        badge.title = [
+            'Park: ' + (park.park_name || 'Unknown') + ' (' + (park.runs_factor || '--') + ')',
+            'Weather: ' + ((weather.temp_f != null ? weather.temp_f + 'F' : 'n/a') + ', ' + (weather.wind_speed_mph != null ? weather.wind_speed_mph + 'mph ' + (weather.wind_direction || '') : 'n/a')),
+            'Defense: ' + (defense.away_fielding_pct || '-') + ' / ' + (defense.home_fielding_pct || '-')
+        ].join('\n');
+        tagRow.appendChild(badge);
+    });
+}
+
+function loadNrfiBadges(sport) {
+    if ((sport || '').toLowerCase() !== 'mlb') return;
+    if (_nrfiCache) {
+        applyNrfiToCards(_nrfiCache);
+        return;
+    }
+    fetch('/api/nrfi')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            _nrfiCache = data;
+            applyNrfiToCards(data);
+        })
+        .catch(function(err) {
+            console.log('[NRFI] badge load failed:', err);
+        });
 }
 
 // ===== AGENT SELECTION SYSTEM =====
@@ -7536,6 +7600,7 @@ function _autoLoadCachedGrades(sports) {
                     _analysisCache[sport.toUpperCase()] = data;
                     // Inject grades into game cards
                     injectPicksIntoCards(sport, data);
+                    loadNrfiBadges(sport);
                     // Update Peter's Gut section
                     updatePeterGut(sport, data);
                     // Update gotcha banner
@@ -7618,6 +7683,7 @@ function fetchAnalysis(sport) {
 
             // Inject picks into game cards (Fix 1: pick badge matches recommendation)
             injectPicksIntoCards(sport, data);
+            loadNrfiBadges(sport);
 
             // Update gotcha banner
             var gotcha = panel.querySelector('.gotcha-banner');

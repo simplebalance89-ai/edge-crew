@@ -10,7 +10,7 @@ Cache: 30 min for probable pitchers, 2 hr for season stats
 
 import httpx
 import logging
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 logger = logging.getLogger("edge-crew")
 
@@ -50,6 +50,26 @@ def _get_cached(key, ttl=1800):
 
 def _set_cache(key, data):
     _pitcher_cache[key] = (data, datetime.now(timezone.utc))
+
+
+def _innings_to_float(ip_value) -> float:
+    """Convert MLB innings notation (e.g. 5.1, 6.2) to decimal innings."""
+    text = str(ip_value or "0").strip()
+    if not text:
+        return 0.0
+    if "." not in text:
+        try:
+            return float(text)
+        except (TypeError, ValueError):
+            return 0.0
+
+    whole, frac = text.split(".", 1)
+    try:
+        whole_val = float(whole)
+        frac_val = int(frac[:1]) if frac else 0
+    except (TypeError, ValueError):
+        return 0.0
+    return whole_val + (frac_val / 3.0)
 
 
 async def fetch_probable_pitchers(date_str: str = None) -> list:
@@ -109,6 +129,8 @@ async def fetch_probable_pitchers(date_str: str = None) -> list:
                 "game_id": game_id,
                 "away": away_abbr,
                 "home": home_abbr,
+                "day_night": (game.get("dayNight") or "").lower(),
+                "game_datetime": game.get("gameDate"),
                 "away_pitcher": away_pitcher,
                 "home_pitcher": home_pitcher,
             })
@@ -116,6 +138,52 @@ async def fetch_probable_pitchers(date_str: str = None) -> list:
     _set_cache(cache_key, games)
     logger.info(f"[MLB PITCHER] Fetched {len(games)} games with probable pitchers for {date_str}")
     return games
+
+
+async def _fetch_prior_night_teams(date_str: str) -> set[str]:
+    """Return teams that played a night game on the prior calendar day."""
+    try:
+        target_date = datetime.strptime(date_str, "%Y-%m-%d")
+    except ValueError:
+        target_date = datetime.now(timezone.utc)
+    prev_date = (target_date - timedelta(days=1)).strftime("%Y-%m-%d")
+    cache_key = f"mlb_prior_night:{prev_date}"
+    cached = _get_cached(cache_key, ttl=1800)
+    if cached is not None:
+        return cached
+
+    url = f"{MLB_STATS_BASE}/schedule"
+    params = {
+        "sportId": 1,
+        "date": prev_date,
+    }
+    prior_night = set()
+
+    try:
+        async with httpx.AsyncClient(timeout=12) as client:
+            resp = await client.get(url, params=params)
+            resp.raise_for_status()
+            data = resp.json()
+    except Exception as e:
+        logger.warning(f"[MLB PITCHER] Prior-night schedule fetch failed for {prev_date}: {e}")
+        return prior_night
+
+    for date_entry in data.get("dates", []):
+        for game in date_entry.get("games", []):
+            if (game.get("dayNight") or "").lower() != "night":
+                continue
+            teams = game.get("teams", {})
+            away_id = teams.get("away", {}).get("team", {}).get("id")
+            home_id = teams.get("home", {}).get("team", {}).get("id")
+            away_abbr = MLB_TEAM_ABBR.get(away_id)
+            home_abbr = MLB_TEAM_ABBR.get(home_id)
+            if away_abbr:
+                prior_night.add(away_abbr)
+            if home_abbr:
+                prior_night.add(home_abbr)
+
+    _set_cache(cache_key, prior_night)
+    return prior_night
 
 
 def _extract_pitcher(pitcher_data: dict) -> dict:
@@ -219,10 +287,7 @@ async def fetch_pitcher_season_stats(pitcher_id: int, season: int = None) -> dic
                 for g in recent:
                     gs = g.get("stat", {})
                     ip_str = gs.get("inningsPitched", "0")
-                    try:
-                        ip_val = float(ip_str)
-                    except (ValueError, TypeError):
-                        ip_val = 0.0
+                    ip_val = _innings_to_float(ip_str)
                     total_ip += ip_val
                     total_er += int(gs.get("earnedRuns", 0))
                     total_k += int(gs.get("strikeOuts", 0))
@@ -230,13 +295,21 @@ async def fetch_pitcher_season_stats(pitcher_id: int, season: int = None) -> dic
                 if total_ip > 0:
                     stats["l5_era"] = f"{(total_er / total_ip * 9):.2f}"
                     stats["l5_k_per_9"] = f"{(total_k / total_ip * 9):.1f}"
-                    stats["l5_ip_avg"] = f"{(total_ip / len(recent)):.1f}"
+                    stats["l5_ip_avg"] = round(total_ip / len(recent), 1)
                 else:
                     stats["l5_era"] = "-"
                     stats["l5_k_per_9"] = "-"
-                    stats["l5_ip_avg"] = "-"
+                    stats["l5_ip_avg"] = 0.0
 
                 stats["l5_starts"] = len(recent)
+                last_three = recent[:3]
+                if last_three:
+                    l3_total_ip = sum(_innings_to_float(g.get("stat", {}).get("inningsPitched", "0")) for g in last_three)
+                    stats["l3_ip_avg"] = round(l3_total_ip / len(last_three), 1)
+                    stats["short_outing_risk"] = stats["l3_ip_avg"] < 5.0
+                else:
+                    stats["l3_ip_avg"] = 0.0
+                    stats["short_outing_risk"] = False
 
     _set_cache(cache_key, stats)
     return stats
@@ -251,9 +324,14 @@ async def build_pitcher_context(date_str: str = None) -> str:
       Away SP: Gerrit Cole (R) | ERA 3.41 | WHIP 1.12 | K/9 10.2 | L5: 2.89 ERA
       Home SP: Chris Sale (L) | ERA 2.89 | WHIP 0.98 | K/9 11.4 | L5: 2.45 ERA
     """
+    if not date_str:
+        date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
     games = await fetch_probable_pitchers(date_str)
     if not games:
         return "=== PROBABLE PITCHERS ===\nNo MLB games scheduled or pitcher data unavailable."
+
+    prior_night_teams = await _fetch_prior_night_teams(date_str)
 
     lines = ["=== PROBABLE PITCHERS (MLB Stats API — verified) ==="]
     lines.append("RULE: Starting pitcher is the #1 edge variable in MLB. Score starting_pitcher 8-10 for elite SPs (ERA < 3.00, K/9 > 9). Score 2-4 for weak SPs (ERA > 5.00).")
@@ -261,7 +339,13 @@ async def build_pitcher_context(date_str: str = None) -> str:
 
     for game in games:
         matchup = f"{game['away']} @ {game['home']}"
-        lines.append(f"{matchup}:")
+        matchup_label = f"{matchup} (DAY GAME)" if game.get("day_night") == "day" else matchup
+        lines.append(f"{matchup_label}:")
+        if game.get("day_night") == "day":
+            lines.append("  Game Context: Day game. DGAN risk possible — check early-routine splits, recovery, and day-game command.")
+            dgan_teams = [team for team in (game.get("away"), game.get("home")) if team in prior_night_teams]
+            if dgan_teams:
+                lines.append(f"  DGAN: {', '.join(dgan_teams)} played a night game yesterday — fatigue flag.")
 
         for side, key in [("Away", "away_pitcher"), ("Home", "home_pitcher")]:
             pitcher = game[key]
@@ -274,13 +358,19 @@ async def build_pitcher_context(date_str: str = None) -> str:
                 record = f"{stats.get('w', 0)}-{stats.get('l', 0)}"
                 l5_era = stats.get("l5_era", "-")
                 l5_k9 = stats.get("l5_k_per_9", "-")
+                l5_ip_avg = stats.get("l5_ip_avg", 0.0)
+                l3_ip_avg = stats.get("l3_ip_avg", 0.0)
+                short_outing_risk = stats.get("short_outing_risk", False)
                 ip = stats.get("ip", "-")
 
                 lines.append(
                     f"  {side} SP: {pitcher['name']} ({hand}) | "
                     f"ERA {era} | WHIP {whip} | K/9 {k9} | W-L {record} | IP {ip} | "
-                    f"L5: {l5_era} ERA, {l5_k9} K/9"
+                    f"L5: {l5_era} ERA, {l5_k9} K/9, {l5_ip_avg} IP/start | "
+                    f"Short outing risk: {'YES' if short_outing_risk else 'NO'}"
                 )
+                if short_outing_risk:
+                    lines.append(f"    Alert: last 3 starts averaged {l3_ip_avg} IP — bullpen likely involved early.")
             else:
                 lines.append(f"  {side} SP: TBD — not yet announced")
 

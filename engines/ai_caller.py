@@ -15,12 +15,12 @@ logger = logging.getLogger("edge-crew")
 # Azure AI Services config
 AZURE_AI_ENDPOINT = os.environ.get(
     "THINKER_ENDPOINT",
-    "https://pwgcerp-9302-resource.services.ai.azure.com/openai/v1/"
+    "https://gce-personal-resource.services.ai.azure.com/openai/v1/"
 )
 AZURE_AI_KEY = os.environ.get("AZURE_OPENAI_KEY", "")
 
 # DeepSeek-V3.2 for fast structured responses (non-thinking)
-HURDLE_MODEL = os.environ.get("HURDLE_AI_MODEL", "DeepSeek-V3.2")
+HURDLE_MODEL = os.environ.get("HURDLE_AI_MODEL", "DeepSeek-V3-0324")
 HURDLE_TIMEOUT = 30  # Fast — these are short prompts
 
 

@@ -1415,30 +1415,31 @@ def _is_soccer_sport_key(value: str) -> bool:
     return v == "soccer" or v.startswith("soccer_")
 
 # Azure OpenAI config
-AZURE_ENDPOINT = os.environ.get("AZURE_OPENAI_ENDPOINT", "")
+AZURE_ENDPOINT = os.environ.get("AZURE_OPENAI_ENDPOINT", "https://gce-personal-resource.openai.azure.com/")
 AZURE_KEY = os.environ.get("AZURE_OPENAI_KEY", "")
-AZURE_MODEL = os.environ.get("AZURE_OPENAI_MODEL", "grok-4-fast-reasoning")
+AZURE_MODEL = os.environ.get("AZURE_OPENAI_MODEL", "grok-4-1-fast-reasoning")
 REALTIME_DEPLOYMENT = "gpt-4o-realtime"
 AZURE_BASE = AZURE_ENDPOINT.rstrip("/")
+AZURE_API_VERSION = "2024-12-01-preview"
 
 # Two-model analysis engine: Grok reasons, DeepSeek formats
-ANALYSIS_THINKER = os.environ.get("ANALYSIS_THINKER", "DeepSeek-R1")
-ANALYSIS_FORMATTER = os.environ.get("ANALYSIS_FORMATTER", "DeepSeek-V3.2")
+ANALYSIS_THINKER = os.environ.get("ANALYSIS_THINKER", "DeepSeek-R1-0528")
+ANALYSIS_FORMATTER = os.environ.get("ANALYSIS_FORMATTER", "DeepSeek-V3-0324")
 ANALYSIS_MODE = os.environ.get("ANALYSIS_MODE", "twomodel")  # "twomodel" or "single"
-THINKER_ENDPOINT = os.environ.get("THINKER_ENDPOINT", "https://pwgcerp-9302-resource.services.ai.azure.com/openai/v1/")
+THINKER_ENDPOINT = os.environ.get("THINKER_ENDPOINT", "https://gce-personal-resource.services.ai.azure.com/openai/v1/")
 
 # Sport-specific thinker models — Grok for NBA (best edge analysis), gpt-4.1 for speed sports
 SPORT_MODELS = {
-    "nba": {"thinker": "DeepSeek-R1", "timeout": 300},
-    "nhl": {"thinker": "DeepSeek-R1", "timeout": 180},
-    "ncaab": {"thinker": "DeepSeek-R1", "timeout": 240},
-    "mlb": {"thinker": "DeepSeek-R1", "timeout": 180},
-    "mma": {"thinker": "DeepSeek-R1", "timeout": 180},
-    "boxing": {"thinker": "DeepSeek-R1", "timeout": 180},
-    "soccer": {"thinker": "DeepSeek-R1", "timeout": 180},
-    "wnba": {"thinker": "DeepSeek-R1", "timeout": 180},
-    "ncaaf": {"thinker": "DeepSeek-R1", "timeout": 180},
-    "tennis": {"thinker": "DeepSeek-R1", "timeout": 180},
+    "nba": {"thinker": "DeepSeek-R1-0528", "timeout": 300},
+    "nhl": {"thinker": "DeepSeek-R1-0528", "timeout": 180},
+    "ncaab": {"thinker": "DeepSeek-R1-0528", "timeout": 240},
+    "mlb": {"thinker": "DeepSeek-R1-0528", "timeout": 180},
+    "mma": {"thinker": "DeepSeek-R1-0528", "timeout": 180},
+    "boxing": {"thinker": "DeepSeek-R1-0528", "timeout": 180},
+    "soccer": {"thinker": "DeepSeek-R1-0528", "timeout": 180},
+    "wnba": {"thinker": "DeepSeek-R1-0528", "timeout": 180},
+    "ncaaf": {"thinker": "DeepSeek-R1-0528", "timeout": 180},
+    "tennis": {"thinker": "DeepSeek-R1-0528", "timeout": 180},
 }
 
 # Anthropic config
@@ -6672,7 +6673,7 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
             client = AzureOpenAI(
                 azure_endpoint=AZURE_ENDPOINT,
                 api_key=AZURE_KEY,
-                api_version="2024-10-21",
+                api_version=AZURE_API_VERSION,
                 timeout=120,
             )
         else:
@@ -6703,11 +6704,43 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
         logger.info(f"[FORMATTER] Done in {fmt_secs}s, {fmt_tokens} tokens, {games_with_ms}/{total_games} games with matrix_scores")
         return result, {"secs": fmt_secs, "tokens": fmt_tokens}
 
-    # Fallback chain: primary → Kimi-K2.5 → DeepSeek-V3-0324 (never OpenAI)
+    # Fallback chain: Grok → GPT-4.1 → DeepSeek formatter
+    def _build_model_client(model_name, timeout=120):
+        """Route GPT/o-series deployments through Azure OpenAI, all others through AI Services."""
+        if model_name.startswith(("gpt", "o1", "o4")):
+            return AzureOpenAI(
+                azure_endpoint=AZURE_ENDPOINT,
+                api_key=AZURE_KEY,
+                api_version=AZURE_API_VERSION,
+                timeout=timeout,
+            )
+        return OpenAI(
+            base_url=THINKER_ENDPOINT,
+            api_key=AZURE_KEY,
+            timeout=timeout,
+        )
+
+    def _build_crowdsource_models():
+        return [
+            {"name": "DeepSeek-R1-0528", "endpoint": "ai_services", "display": "DeepSeek R1 0528"},
+            {"name": "DeepSeek-V3-0324", "endpoint": "ai_services", "display": "DeepSeek V3 0324"},
+            {"name": "grok-4-1-fast-reasoning", "endpoint": "ai_services", "display": "Grok 4.1 Fast"},
+            {"name": "Kimi-K2.5", "endpoint": "ai_services", "display": "Kimi K2.5"},
+            {"name": "gpt-41", "endpoint": "azure", "display": "GPT 4.1"},
+        ]
+
+    def _grade_distance(grade_a, grade_b):
+        grade_values = {"A+": 10, "A": 9, "A-": 8, "B+": 7, "B": 6, "B-": 5, "C+": 4, "C": 3, "D": 2, "F": 1}
+        a = grade_values.get((grade_a or "").upper(), 0)
+        b = grade_values.get((grade_b or "").upper(), 0)
+        if not a or not b:
+            return 0
+        return abs(a - b)
+
     FALLBACK_CHAIN = [
-        AZURE_MODEL,  # grok-3 (or whatever AZURE_OPENAI_MODEL is set to)
-        "Kimi-K2.5",
-        ANALYSIS_FORMATTER,  # DeepSeek-V3-0324 (from env var)
+        "grok-4-1-fast-reasoning",
+        "gpt-41",
+        "DeepSeek-V3-0324",
     ]
 
     def _call_single_model(prompt_text, model_name=None, engine_status=None):
@@ -6717,20 +6750,7 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
 
         for use_model in models_to_try:
             try:
-                # Route: GPT/o-series → Azure OpenAI, everything else → AI Services
-                if use_model.startswith(("gpt", "o1", "o4")):
-                    client = AzureOpenAI(
-                        azure_endpoint=AZURE_ENDPOINT,
-                        api_key=AZURE_KEY,
-                        api_version="2024-10-21",
-                        timeout=120,
-                    )
-                else:
-                    client = OpenAI(
-                        base_url=THINKER_ENDPOINT,
-                        api_key=AZURE_KEY,
-                        timeout=120,
-                    )
+                client = _build_model_client(use_model, timeout=120)
                 logger.info(f"[FALLBACK] Single-model call to {use_model}")
                 fb_start = time.time()
                 response = client.chat.completions.create(
@@ -6793,7 +6813,7 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
                     client = AzureOpenAI(
                         azure_endpoint=AZURE_ENDPOINT,
                         api_key=AZURE_KEY,
-                        api_version="2024-10-21",
+                        api_version=AZURE_API_VERSION,
                         timeout=120,
                     )
                 else:
@@ -7153,17 +7173,44 @@ Return ONLY valid JSON, no markdown fences:
             logger.info(f"[KIMI PROFILER] Attached {sum(1 for g in all_analyzed_games if g.get('kimi_profile'))} profiles to game cards")
 
         # ── LAYER 4: CROWDSOURCE — different models validate LAST ──
-        CROWDSOURCE_MODELS = [
-            {"name": "Llama-4-Maverick-17B-128E-Instruct-FP8", "endpoint": "ai_services", "display": "Llama 4 Maverick"},
-            {"name": "Phi-4-reasoning", "endpoint": "ai_services", "display": "Phi-4 Reasoning"},
-        ]
+        CROWDSOURCE_MODELS = _build_crowdsource_models()
         CROWDSOURCE_DELAY = float(os.environ.get("CROWDSOURCE_DELAY", "3"))
         GRADE_VALUES = {"A+": 10, "A": 9, "A-": 8, "B+": 7, "B": 6, "B-": 5, "C+": 4, "C": 3, "D": 2, "F": 1}
+        crowdsource_grades = {}
+
+        def _score_to_grade(score):
+            if score >= 9.0:
+                return "A+"
+            if score >= 8.2:
+                return "A"
+            if score >= 7.5:
+                return "A-"
+            if score >= 7.0:
+                return "B+"
+            if score >= 6.5:
+                return "B"
+            if score >= 6.0:
+                return "B-"
+            if score >= 5.5:
+                return "C+"
+            if score >= 4.5:
+                return "C"
+            if score >= 3.0:
+                return "D"
+            return "F"
 
         if all_analyzed_games and not model:
             logger.info(f"[CROWDSOURCE] Layer 4 — validating {len(all_analyzed_games)} games with fresh models")
             all_games_text = "\n".join(games_to_analyze)
-            cs_prompt = f"""You are a sharp {sport.upper()} betting analyst. Grade each game independently — fresh eyes only.
+            thinker_context = "\n".join(
+                f"{g.get('matchup', '?')}: thinker grade {g.get('grade', '?')} | score {g.get('composite_score', '?')} | "
+                f"pick {(g.get('edge_pick') or {}).get('team', 'PASS')} {(g.get('edge_pick') or {}).get('line', '')} | "
+                f"reason {(g.get('edge_pick') or {}).get('reasoning') or g.get('edge_summary') or g.get('peter_zone') or 'No summary'}"
+                for g in all_analyzed_games
+            )
+            cs_prompt = f"""You are the final validation layer for a {sport.upper()} betting pipeline.
+Review the existing thinker/formatter grades and either confirm them or challenge them with a materially different read.
+Validate last. Do not generate from scratch unless the existing grade is clearly wrong.
 
 {all_games_text}
 
@@ -7173,46 +7220,46 @@ Return ONLY valid JSON, no markdown fences:
 
 {matrix_section}
 
+EXISTING THINKER + FORMATTER OUTPUT:
+{thinker_context}
+
 For EACH game return JSON: {{"games": [{{"matchup": "AWAY @ HOME", "grade": "A+/A/B+/B/C/D/F", "composite_score": 7.2, "edge_pick": {{"team": "TEAM", "bet_type": "SPREAD/ML/TOTAL", "line": "-3.5", "confidence": "B+", "reasoning": "one sentence"}}}}]}}
 
 Return ONLY valid JSON. Grade most games C or PASS. Only B+ when edge is clear."""
 
-            crowdsource_grades = {}  # matchup -> [{"model": ..., "grade": ..., "score": ...}]
-
-            for cs_model in CROWDSOURCE_MODELS:
+            async def _run_crowdsource_model(cs_model):
                 try:
-                    client = OpenAI(
-                        base_url=THINKER_ENDPOINT,
-                        api_key=AZURE_KEY,
-                        timeout=90,
-                    )
+                    client = _build_model_client(cs_model["name"], timeout=90)
                     logger.info(f"[CROWDSOURCE] Calling {cs_model['display']}...")
                     response = await asyncio.to_thread(
-                        lambda m=cs_model: client.chat.completions.create(
-                            model=m["name"],
+                        lambda: client.chat.completions.create(
+                            model=cs_model["name"],
                             messages=[{"role": "user", "content": cs_prompt}],
                             temperature=0.4,
                             max_tokens=4000,
-                            response_format={"type": "json_object"} if not m["name"].startswith(("gpt", "o1", "o4")) else None,
+                            response_format={"type": "json_object"} if cs_model["endpoint"] != "azure" else None,
                         )
                     )
                     raw = response.choices[0].message.content.strip()
                     parsed = _clean_json(raw)
-                    for cg in parsed.get("games", []):
-                        c_matchup = (cg.get("matchup", "")).replace(" ", "").upper()
-                        if c_matchup not in crowdsource_grades:
-                            crowdsource_grades[c_matchup] = []
-                        crowdsource_grades[c_matchup].append({
-                            "model": cs_model["display"],
-                            "grade": cg.get("grade", ""),
-                            "score": cg.get("composite_score", 0),
-                            "pick": cg.get("edge_pick", {}),
-                        })
-                    logger.info(f"[CROWDSOURCE] {cs_model['display']}: graded {len(parsed.get('games', []))} games")
+                    return cs_model, parsed
                 except Exception as e:
                     logger.warning(f"[CROWDSOURCE] {cs_model['display']} failed: {e}")
+                    return cs_model, None
 
-                await asyncio.sleep(CROWDSOURCE_DELAY)
+            cs_results = await asyncio.gather(*[_run_crowdsource_model(cs_model) for cs_model in CROWDSOURCE_MODELS])
+            for cs_model, parsed in cs_results:
+                if not parsed:
+                    continue
+                for cg in parsed.get("games", []):
+                    c_matchup = (cg.get("matchup", "")).replace(" ", "").upper()
+                    crowdsource_grades.setdefault(c_matchup, []).append({
+                        "model": cs_model["display"],
+                        "grade": cg.get("grade", ""),
+                        "score": cg.get("composite_score", 0),
+                        "pick": cg.get("edge_pick", {}),
+                    })
+                logger.info(f"[CROWDSOURCE] {cs_model['display']}: graded {len(parsed.get('games', []))} games")
 
             # Attach crowdsource validation to each game
             for game in all_analyzed_games:
@@ -7231,6 +7278,19 @@ Return ONLY valid JSON. Grade most games C or PASS. Only B+ when edge is clear."
                         game["crowdsource_consensus"] = "SPLIT"
                     else:
                         game["crowdsource_consensus"] = "BELOW_BP"
+                    avg_cs_score = round(sum(float(cg.get("score", 0) or 0) for cg in cs_data) / total, 1) if total else 0
+                    avg_cs_grade = _score_to_grade(avg_cs_score)
+                    thinker_grade = game.get("grade", "")
+                    grade_delta = _grade_distance(thinker_grade, avg_cs_grade)
+                    game["crowdsource_avg_score"] = avg_cs_score
+                    game["crowdsource_avg_grade"] = avg_cs_grade
+                    if grade_delta >= 2:
+                        game["crowdsource_divergence"] = {
+                            "flag_review": True,
+                            "thinker_grade": thinker_grade,
+                            "crowdsource_grade": avg_cs_grade,
+                            "grade_delta": grade_delta,
+                        }
 
                     # Add crowdsource tags
                     if not game.get("tags"):
@@ -7241,6 +7301,8 @@ Return ONLY valid JSON. Grade most games C or PASS. Only B+ when edge is clear."
                         game["tags"].append("CROWDSOURCE STRONG")
                     elif game.get("crowdsource_consensus") == "SPLIT":
                         game["tags"].append("CROWDSOURCE SPLIT")
+                    if game.get("crowdsource_divergence", {}).get("flag_review"):
+                        game["tags"].append("CROWDSOURCE REVIEW")
 
                     logger.info(f"[CROWDSOURCE] {game['matchup']}: {bp_count}/{total} B+ — {game.get('crowdsource_consensus', 'N/A')}")
 
@@ -7562,35 +7624,34 @@ Return ONLY valid JSON. Grade most games C or PASS. Only B+ when edge is clear."
 
         # ===== CROWDSOURCE (LEGACY — only runs when CROWDSOURCE_FIRST is disabled) =====
         # In crowdsource-first mode, this already ran above. Skip.
-        CROWDSOURCE_FIRST_CHECK = os.environ.get("CROWDSOURCE_FIRST", "true").lower() == "true"
-        # Skip legacy crowdsource if crowdsource-first already ran
-        CROWDSOURCE_FIRST_CHECK = os.environ.get("CROWDSOURCE_FIRST", "true").lower() == "true"
-        if CROWDSOURCE_FIRST_CHECK:
-            CROWDSOURCE_ENABLED = False  # Already ran above
-            crowdsource_grades = {}
-            logger.info("[CROWDSOURCE] Skipping legacy block — crowdsource-first already ran")
+        CROWDSOURCE_FIRST_CHECK = os.environ.get("CROWDSOURCE_FIRST", "false").lower() == "true"
+        CROWDSOURCE_ENABLED = False
+        logger.info("[CROWDSOURCE] Skipping legacy block — post-analysis validation is the active path")
         # Crowdsource uses DIFFERENT models than the thinker and formatter
         # B+ or higher consensus = best bet candidate. Split grades = dig deeper flag.
-        CROWDSOURCE_MODELS = [
-            {"name": "grok-4-fast-reasoning", "endpoint": "ai_services", "display": "Grok 4 Fast"},
-            {"name": "Kimi-K2.5", "endpoint": "ai_services", "display": "Kimi K2.5"},
-            {"name": "Llama-4-Maverick-17B-128E-Instruct-FP8", "endpoint": "ai_services", "display": "Llama 4 Maverick"},
-            {"name": "DeepSeek-V3.2", "endpoint": "ai_services", "display": "DeepSeek V3.2"},
-        ]
-        CROWDSOURCE_ENABLED = os.environ.get("CROWDSOURCE_ENABLED", "true").lower() == "true"
+        CROWDSOURCE_MODELS = _build_crowdsource_models()
+        CROWDSOURCE_ENABLED = False
         CROWDSOURCE_TIMEOUT = int(os.environ.get("CROWDSOURCE_TIMEOUT", "90"))
 
-        crowdsource_grades = {}  # matchup -> [{"model": ..., "grade": ..., "score": ...}]
+        crowdsource_grades = crowdsource_grades  # keep Layer 4 results from the active path
 
         if CROWDSOURCE_ENABLED and batch_prompts:
             async def _run_crowdsource_model(cs_model, prompt):
                 """Run a single crowdsource model and return parsed result."""
                 try:
-                    client = OpenAI(
-                        base_url=THINKER_ENDPOINT,
-                        api_key=AZURE_KEY,
-                        timeout=CROWDSOURCE_TIMEOUT,
-                    )
+                    if cs_model["endpoint"] == "azure_openai":
+                        client = AzureOpenAI(
+                            azure_endpoint=AZURE_ENDPOINT,
+                            api_key=AZURE_KEY,
+                            api_version=AZURE_API_VERSION,
+                            timeout=CROWDSOURCE_TIMEOUT,
+                        )
+                    else:
+                        client = OpenAI(
+                            base_url=THINKER_ENDPOINT,
+                            api_key=AZURE_KEY,
+                            timeout=CROWDSOURCE_TIMEOUT,
+                        )
                     response = await asyncio.to_thread(
                         lambda: client.chat.completions.create(
                             model=cs_model["name"],
@@ -13618,20 +13679,50 @@ async def get_nrfi():
     """NRFI (No Run First Inning) screener for MLB."""
     try:
         from engines.mlb_pitcher_engine import fetch_probable_pitchers, fetch_pitcher_season_stats
+        from engines.mlb_park_weather import get_park_factor, fetch_game_weather
+        from engines.mlb_defense import fetch_team_fielding
 
         games = await fetch_probable_pitchers()
         nrfi_picks = []
 
+        wind_from_deg = {
+            "N": 0, "NNE": 22.5, "NE": 45, "ENE": 67.5, "E": 90, "ESE": 112.5,
+            "SE": 135, "SSE": 157.5, "S": 180, "SSW": 202.5, "SW": 225,
+            "WSW": 247.5, "W": 270, "WNW": 292.5, "NW": 315, "NNW": 337.5,
+        }
+
+        def _wind_bucket(direction):
+            deg = wind_from_deg.get((direction or "").upper())
+            if deg is None:
+                return ""
+            # Inference: most MLB parks play roughly toward the northeast.
+            if abs(((deg - 225) + 180) % 360 - 180) <= 45:
+                return "out"
+            if abs(((deg - 45) + 180) % 360 - 180) <= 45:
+                return "in"
+            return ""
+
         for game in games:
             away_sp = game.get("away_pitcher", {})
             home_sp = game.get("home_pitcher", {})
+            park = get_park_factor(game.get("home"))
 
-            # Get pitcher stats
-            away_stats = await fetch_pitcher_season_stats(away_sp.get("id")) if away_sp.get("id") else {}
-            home_stats = await fetch_pitcher_season_stats(home_sp.get("id")) if home_sp.get("id") else {}
+            away_stats_task = fetch_pitcher_season_stats(away_sp.get("id")) if away_sp.get("id") else asyncio.sleep(0, result={})
+            home_stats_task = fetch_pitcher_season_stats(home_sp.get("id")) if home_sp.get("id") else asyncio.sleep(0, result={})
+            weather_task = asyncio.sleep(0, result={}) if park.get("roof") is True else fetch_game_weather(park.get("lat", 0.0), park.get("lon", 0.0))
+            away_defense_task = fetch_team_fielding(game.get("away"))
+            home_defense_task = fetch_team_fielding(game.get("home"))
+            away_stats, home_stats, weather, away_defense, home_defense = await asyncio.gather(
+                away_stats_task,
+                home_stats_task,
+                weather_task,
+                away_defense_task,
+                home_defense_task,
+            )
 
             # Calculate NRFI score (0-10)
             score = 5.0  # neutral baseline
+            adjustments = []
 
             # Elite SPs boost NRFI
             for stats in [away_stats, home_stats]:
@@ -13640,17 +13731,78 @@ async def get_nrfi():
                     era_val = float(era)
                     if era_val < 3.0:
                         score += 1.5
+                        adjustments.append({"factor": "pitcher_era", "impact": 1.5, "note": f"Elite ERA ({era_val:.2f})"})
                     elif era_val < 3.5:
                         score += 0.75
+                        adjustments.append({"factor": "pitcher_era", "impact": 0.75, "note": f"Strong ERA ({era_val:.2f})"})
                     elif era_val > 5.0:
                         score -= 1.5
+                        adjustments.append({"factor": "pitcher_era", "impact": -1.5, "note": f"Weak ERA ({era_val:.2f})"})
                 except (ValueError, TypeError):
                     pass
+
+            if not away_sp.get("id") or not home_sp.get("id"):
+                score -= 2.0
+                adjustments.append({"factor": "bullpen_game", "impact": -2.0, "note": "Probable starter missing — bullpen game risk"})
+
+            runs_factor = float(park.get("runs_factor", 1.0) or 1.0)
+            if runs_factor > 1.20:
+                score -= 2.0
+                adjustments.append({"factor": "park_factor", "impact": -2.0, "note": f"Extreme hitter park ({park.get('park_name')})"})
+            elif runs_factor > 1.10:
+                score -= 1.0
+                adjustments.append({"factor": "park_factor", "impact": -1.0, "note": f"Hitter-friendly park ({park.get('park_name')})"})
+            elif runs_factor < 0.95:
+                score += 1.0
+                adjustments.append({"factor": "park_factor", "impact": 1.0, "note": f"Pitcher-friendly park ({park.get('park_name')})"})
+
+            roof_type = park.get("roof")
+            if roof_type is not True and weather:
+                wind_speed = float(weather.get("wind_speed_mph", 0) or 0)
+                wind_dir = weather.get("wind_direction", "")
+                wind_bucket = _wind_bucket(wind_dir)
+                temp_f = float(weather.get("temp_f", 0) or 0)
+                if wind_speed > 15 and wind_bucket == "out":
+                    score -= 1.0
+                    adjustments.append({"factor": "weather", "impact": -1.0, "note": f"Wind {wind_speed:.0f}mph blowing out"})
+                elif wind_speed > 15 and wind_bucket == "in":
+                    score += 0.5
+                    adjustments.append({"factor": "weather", "impact": 0.5, "note": f"Wind {wind_speed:.0f}mph blowing in"})
+                if temp_f < 45:
+                    score += 0.5
+                    adjustments.append({"factor": "weather", "impact": 0.5, "note": f"Cold weather ({temp_f:.0f}F)"})
+                elif temp_f > 85:
+                    score -= 0.5
+                    adjustments.append({"factor": "weather", "impact": -0.5, "note": f"Hot weather ({temp_f:.0f}F)"})
+
+            try:
+                away_fld = float(away_defense.get("fielding_pct", 0) or 0)
+                home_fld = float(home_defense.get("fielding_pct", 0) or 0)
+            except (TypeError, ValueError):
+                away_fld = 0.0
+                home_fld = 0.0
+            try:
+                away_epg = float(away_defense.get("errors_per_game", 0) or 0)
+                home_epg = float(home_defense.get("errors_per_game", 0) or 0)
+            except (TypeError, ValueError):
+                away_epg = 0.0
+                home_epg = 0.0
+
+            if away_fld > 0 and home_fld > 0 and away_fld > 0.985 and home_fld > 0.985:
+                score += 0.5
+                adjustments.append({"factor": "defense", "impact": 0.5, "note": "Both teams are elite defensively"})
+            if (away_fld and away_fld < 0.975) or (home_fld and home_fld < 0.975):
+                score -= 0.5
+                adjustments.append({"factor": "defense", "impact": -0.5, "note": "At least one defense is sloppy"})
+            if away_epg > 1.0 or home_epg > 1.0:
+                score -= 1.0
+                adjustments.append({"factor": "defense", "impact": -1.0, "note": "Errors per game above 1.0"})
 
             score = max(0, min(10, score))
             verdict = "NRFI" if score >= 7 else "YRFI" if score <= 3 else "SKIP"
 
             nrfi_picks.append({
+                "game_id": game.get("game_id"),
                 "matchup": f"{game['away']} @ {game['home']}",
                 "away_sp": away_sp.get("name", "TBD"),
                 "home_sp": home_sp.get("name", "TBD"),
@@ -13658,6 +13810,28 @@ async def get_nrfi():
                 "verdict": verdict,
                 "away_era": away_stats.get("era", "-"),
                 "home_era": home_stats.get("era", "-"),
+                "park_factor": {
+                    "park_name": park.get("park_name"),
+                    "runs_factor": runs_factor,
+                    "roof": roof_type,
+                },
+                "weather": {
+                    "temp_f": weather.get("temp_f") if weather else None,
+                    "wind_speed_mph": weather.get("wind_speed_mph") if weather else None,
+                    "wind_direction": weather.get("wind_direction") if weather else None,
+                    "conditions": weather.get("conditions") if weather else None,
+                    "skipped_for_roof": roof_type is True,
+                },
+                "defense": {
+                    "away_fielding_pct": away_defense.get("fielding_pct", "-"),
+                    "home_fielding_pct": home_defense.get("fielding_pct", "-"),
+                    "away_errors_per_game": away_defense.get("errors_per_game", "-"),
+                    "home_errors_per_game": home_defense.get("errors_per_game", "-"),
+                },
+                "bullpen_context": {
+                    "bullpen_game_risk": not away_sp.get("id") or not home_sp.get("id"),
+                },
+                "adjustments": adjustments,
             })
 
         # Sort by NRFI score descending
