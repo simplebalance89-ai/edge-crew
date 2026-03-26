@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edge Consensus Engine</title>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a25;
+    --border: #2a2a3a;
+    --text: #e0e0e0;
+    --text2: #888;
+    --accent: #4fc3f7;
+    --green: #4caf50;
+    --red: #ef5350;
+    --orange: #ff9800;
+    --gold: #ffd700;
+    --purple: #bb86fc;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* Header */
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .header h1 { font-size: 18px; font-weight: 600; color: var(--accent); }
+  .header .meta { font-size: 12px; color: var(--text2); }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 0;
+    background: var(--surface);
+    border-bottom: 2px solid var(--border);
+    padding: 0 24px;
+  }
+  .tab {
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text2);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab .count {
+    font-size: 11px;
+    background: var(--surface2);
+    padding: 1px 6px;
+    border-radius: 8px;
+    margin-left: 6px;
+  }
+
+  /* Controls */
+  .controls {
+    padding: 12px 24px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .btn {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn:hover { background: var(--border); }
+  .btn.primary { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 600; }
+  .btn.primary:hover { opacity: 0.85; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .status-msg { font-size: 12px; color: var(--text2); margin-left: 10px; }
+
+  /* Game Cards */
+  .games { padding: 16px 24px; display: flex; flex-direction: column; gap: 12px; }
+  .game-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .game-card:hover { border-color: var(--accent); }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    cursor: pointer;
+  }
+  .matchup {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+  }
+  .matchup .time { font-size: 12px; color: var(--text2); min-width: 60px; }
+  .matchup .teams { font-size: 15px; font-weight: 500; }
+  .matchup .spread {
+    font-size: 13px;
+    color: var(--accent);
+    background: rgba(79, 195, 247, 0.1);
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  .grades-badge {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .grade-pill {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 6px;
+    min-width: 42px;
+    text-align: center;
+  }
+  .grade-pill .label { font-size: 10px; font-weight: 400; display: block; opacity: 0.7; }
+  .grade-A-plus { background: var(--gold); color: #000; }
+  .grade-A { background: var(--green); color: #fff; }
+  .grade-A-minus { background: #66bb6a; color: #fff; }
+  .grade-B-plus { background: var(--accent); color: #000; }
+  .grade-B { background: #5c6bc0; color: #fff; }
+  .grade-B-minus { background: #7986cb; color: #fff; }
+  .grade-C-plus, .grade-C { background: var(--orange); color: #000; }
+  .grade-D { background: var(--red); color: #fff; }
+  .grade-F { background: #b71c1c; color: #fff; }
+  .grade-none { background: var(--surface2); color: var(--text2); }
+
+  .sizing-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  .sizing-2u { background: var(--gold); color: #000; }
+  .sizing-1-5u { background: var(--green); color: #fff; }
+  .sizing-1u { background: var(--accent); color: #000; }
+  .sizing-PASS { background: var(--surface2); color: var(--text2); }
+
+  /* Card Detail (expanded) */
+  .card-detail { display: none; border-top: 1px solid var(--border); padding: 16px 18px; }
+  .card-detail.open { display: block; }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 900px) { .detail-grid { grid-template-columns: 1fr; } }
+
+  .detail-section {
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 12px;
+  }
+  .detail-section h3 {
+    font-size: 12px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+
+  /* Tables */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .data-table th {
+    text-align: left;
+    color: var(--text2);
+    font-weight: 500;
+    padding: 4px 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .data-table td {
+    padding: 4px 8px;
+    border-bottom: 1px solid rgba(42, 42, 58, 0.5);
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table .score-cell { font-weight: 600; }
+  .data-table .high { color: var(--green); }
+  .data-table .mid { color: var(--orange); }
+  .data-table .low { color: var(--red); }
+
+  /* Injuries */
+  .injury-tag {
+    display: inline-block;
+    font-size: 11px;
+    padding: 1px 6px;
+    border-radius: 3px;
+    margin: 1px;
+  }
+  .injury-OUT { background: rgba(239, 83, 80, 0.2); color: var(--red); }
+  .injury-GTD { background: rgba(255, 152, 0, 0.2); color: var(--orange); }
+
+  /* Chains */
+  .chain-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: rgba(187, 134, 252, 0.15);
+    color: var(--purple);
+    margin: 2px;
+  }
+
+  /* Pick display */
+  .pick-display {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+  }
+  .pick-team {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  /* Loading */
+  .loading {
+    text-align: center;
+    padding: 40px;
+    color: var(--text2);
+    font-size: 14px;
+  }
+  .spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Consensus bar */
+  .consensus-section {
+    margin-top: 12px;
+    padding: 10px;
+    background: var(--surface2);
+    border-radius: 8px;
+  }
+  .consensus-section h3 {
+    font-size: 12px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  /* Peter's Rules flags */
+  .flag-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin: 2px;
+  }
+  .flag-KILL { background: rgba(239, 83, 80, 0.25); color: var(--red); }
+  .flag-BOOST { background: rgba(76, 175, 80, 0.25); color: var(--green); }
+  .flag-DOWNGRADE { background: rgba(255, 152, 0, 0.25); color: var(--orange); }
+
+  /* EV section */
+  .ev-bar {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    font-size: 13px;
+    padding: 8px 0;
+  }
+  .ev-positive { color: var(--green); font-weight: 700; }
+  .ev-negative { color: var(--red); font-weight: 700; }
+
+  /* Model grade */
+  .model-section {
+    margin-top: 12px;
+    padding: 12px;
+    background: rgba(187, 134, 252, 0.08);
+    border: 1px solid rgba(187, 134, 252, 0.2);
+    border-radius: 8px;
+  }
+  .model-section h3 { color: var(--purple); }
+  .model-reasoning { font-size: 13px; color: var(--text); line-height: 1.5; margin-top: 6px; }
+  .model-key-factor { font-size: 12px; color: var(--accent); margin-top: 4px; }
+
+  /* Grok button */
+  .btn-grok {
+    background: rgba(187, 134, 252, 0.15);
+    color: var(--purple);
+    border: 1px solid rgba(187, 134, 252, 0.3);
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s;
+  }
+  .btn-grok:hover { background: rgba(187, 134, 252, 0.25); }
+  .btn-grok:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-grok.loading { animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Edge Consensus Engine</h1>
+  <div class="meta" id="header-meta">Local | Loading...</div>
+</div>
+
+<div class="tabs" id="sport-tabs"></div>
+
+<div class="controls">
+  <button class="btn primary" id="btn-collect" onclick="collectData()">Collect Data</button>
+  <button class="btn primary" id="btn-grade" onclick="gradeGames()">Grade Games</button>
+  <button class="btn" onclick="refreshAll()">Refresh</button>
+  <span class="status-msg" id="status-msg"></span>
+</div>
+
+<div class="games" id="games-container">
+  <div class="loading">Select a sport tab to view games</div>
+</div>
+
+<script>
+const API = '';
+let currentSport = null;
+let gamesData = {};
+let gradesData = {};
+
+// ─── Init ───────────────────────────────────────────────────────────────────────
+async function init() {
+  const sports = await fetch(`${API}/api/sports`).then(r => r.json());
+  const tabs = document.getElementById('sport-tabs');
+  tabs.innerHTML = '';
+
+  sports.forEach((s, i) => {
+    const tab = document.createElement('div');
+    tab.className = 'tab' + (i === 0 ? ' active' : '');
+    tab.innerHTML = `${s.name} <span class="count">${s.games}</span>`;
+    tab.onclick = () => switchSport(s.key, tab);
+    tabs.appendChild(tab);
+  });
+
+  if (sports.length > 0) {
+    currentSport = sports[0].key;
+    loadSport(currentSport);
+  }
+
+  document.getElementById('header-meta').textContent =
+    `Local | ${new Date().toLocaleDateString()} | ${sports.length} sports loaded`;
+}
+
+function switchSport(key, tabEl) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  tabEl.classList.add('active');
+  currentSport = key;
+  loadSport(key);
+}
+
+// ─── Load Sport Data ────────────────────────────────────────────────────────────
+async function loadSport(sport) {
+  const container = document.getElementById('games-container');
+  container.innerHTML = '<div class="loading"><span class="spinner"></span>Loading...</div>';
+
+  try {
+    const [games, grades] = await Promise.all([
+      fetch(`${API}/api/games/${sport}`).then(r => r.ok ? r.json() : null),
+      fetch(`${API}/api/grades/${sport}`).then(r => r.ok ? r.json() : null),
+    ]);
+
+    gamesData[sport] = games;
+    gradesData[sport] = grades;
+    renderGames(sport);
+  } catch (e) {
+    container.innerHTML = `<div class="loading">Error loading ${sport}: ${e.message}</div>`;
+  }
+}
+
+// ─── Render Games ───────────────────────────────────────────────────────────────
+function renderGames(sport) {
+  const container = document.getElementById('games-container');
+  const games = gamesData[sport];
+  const grades = gradesData[sport];
+
+  if (!games || !games.games || games.games.length === 0) {
+    container.innerHTML = '<div class="loading">No games found</div>';
+    return;
+  }
+
+  // Build grades lookup
+  const gradesMap = {};
+  if (grades && grades.games) {
+    grades.games.forEach(g => { gradesMap[g.game_id] = g; });
+  }
+
+  container.innerHTML = '';
+  games.games.forEach(game => {
+    const gradeInfo = gradesMap[game.game_id];
+    container.appendChild(createGameCard(game, gradeInfo));
+  });
+}
+
+function createGameCard(game, gradeInfo) {
+  const card = document.createElement('div');
+  card.className = 'game-card';
+
+  const time = new Date(game.time).toLocaleTimeString('en-US', {hour: 'numeric', minute: '2-digit'});
+  const odds = game.odds || {};
+  const spread = odds.spread_home != null ? odds.spread_home : '?';
+  const spreadDisplay = spread > 0 ? `+${spread}` : spread;
+  const total = odds.total_current || '?';
+
+  // Grade pills
+  let gradeHTML = '<span class="grade-pill grade-none">--</span>';
+  let sizingHTML = '';
+  let chainsHTML = '';
+  let flagsHTML = '';
+
+  if (gradeInfo && gradeInfo.profiles) {
+    gradeHTML = '';
+    for (const [pName, pData] of Object.entries(gradeInfo.profiles)) {
+      const gClass = getGradeClass(pData.grade);
+      gradeHTML += `<div class="grade-pill ${gClass}"><span class="label">${pData.profile}</span>${pData.grade}</div>`;
+    }
+
+    // Model grades in header
+    if (gradeInfo.model_grades) {
+      for (const [mKey, mData] of Object.entries(gradeInfo.model_grades)) {
+        if (mData.status === 'ok') {
+          const gClass = getGradeClass(mData.grade);
+          gradeHTML += `<div class="grade-pill ${gClass}"><span class="label">${mKey}</span>${mData.grade}</div>`;
+        }
+      }
+    }
+
+    // Consensus
+    if (gradeInfo.consensus_grade) {
+      const cClass = getGradeClass(gradeInfo.consensus_grade);
+      gradeHTML += `<div class="grade-pill ${cClass}"><span class="label">consensus</span>${gradeInfo.consensus_grade}</div>`;
+    }
+
+    // EV badge
+    const ev = gradeInfo.ev;
+    if (ev && ev.ev_pct != null) {
+      const evClass = ev.ev_pct >= 0 ? 'ev-positive' : 'ev-negative';
+      gradeHTML += `<div class="grade-pill ${ev.ev_pct >= 3 ? 'grade-A-minus' : ev.ev_pct >= 0 ? 'grade-B' : 'grade-D'}"><span class="label">EV</span>${ev.ev_pct > 0 ? '+' : ''}${ev.ev_pct}%</div>`;
+    }
+
+    // Sizing from first profile
+    const firstProfile = Object.values(gradeInfo.profiles)[0];
+    if (firstProfile) {
+      const sClass = getSizingClass(firstProfile.sizing);
+      sizingHTML = `<span class="sizing-badge ${sClass}">${firstProfile.sizing}</span>`;
+    }
+
+    // Chains
+    for (const pData of Object.values(gradeInfo.profiles)) {
+      if (pData.chains_fired && pData.chains_fired.length > 0) {
+        chainsHTML = pData.chains_fired.map(c => `<span class="chain-tag">${c}</span>`).join('');
+        break;
+      }
+    }
+
+    // Peter's Rules flags in header
+    const peter = gradeInfo.peter_rules;
+    if (peter && peter.flags && peter.flags.length > 0) {
+      flagsHTML = peter.flags.map(f =>
+        `<span class="flag-tag flag-${f.action}">${f.action}</span>`
+      ).join('');
+    }
+  }
+
+  card.innerHTML = `
+    <div class="card-header" onclick="toggleDetail('${game.game_id}')">
+      <div class="matchup">
+        <span class="time">${time}</span>
+        <span class="teams">${game.away} @ ${game.home}</span>
+        <span class="spread">${game.home} ${spreadDisplay} | O/U ${total}</span>
+        ${flagsHTML}
+        ${chainsHTML}
+      </div>
+      <div class="grades-badge">
+        ${sizingHTML}
+        ${gradeHTML}
+      </div>
+    </div>
+    <div class="card-detail" id="detail-${game.game_id}">
+      ${renderDetail(game, gradeInfo)}
+    </div>
+  `;
+
+  return card;
+}
+
+function renderDetail(game, gradeInfo) {
+  const odds = game.odds || {};
+  const shifts = game.shifts || {};
+  const awayProf = game.away_profile || {};
+  const homeProf = game.home_profile || {};
+  const awayInj = (game.injuries || {}).away || [];
+  const homeInj = (game.injuries || {}).home || [];
+
+  let html = '<div class="detail-grid">';
+
+  // Odds table
+  html += `
+    <div class="detail-section">
+      <h3>Lines</h3>
+      <table class="data-table">
+        <tr><th></th><th>Open</th><th>Current</th><th>Move</th></tr>
+        <tr>
+          <td>Spread</td>
+          <td>${odds.spread_open || '?'}</td>
+          <td>${odds.spread_home || '?'}</td>
+          <td class="${Math.abs(shifts.spread_delta || 0) >= 2 ? 'high' : ''}">${shifts.spread_delta ? (shifts.spread_delta > 0 ? '+' : '') + shifts.spread_delta : '0'}</td>
+        </tr>
+        <tr>
+          <td>Total</td>
+          <td>${odds.total_open || '?'}</td>
+          <td>${odds.total_current || '?'}</td>
+          <td>${shifts.total_delta ? (shifts.total_delta > 0 ? '+' : '') + shifts.total_delta : '0'}</td>
+        </tr>
+        <tr>
+          <td>ML Away</td>
+          <td>${odds.away_ml_open || '?'}</td>
+          <td>${odds.away_ml_current || '?'}</td>
+          <td>${shifts.ml_moved ? 'MOVED' : 'flat'}</td>
+        </tr>
+        <tr>
+          <td>ML Home</td>
+          <td>${odds.home_ml_open || '?'}</td>
+          <td>${odds.home_ml_current || '?'}</td>
+          <td></td>
+        </tr>
+      </table>
+    </div>
+  `;
+
+  // Team profiles
+  html += `
+    <div class="detail-section">
+      <h3>Team Profiles</h3>
+      <table class="data-table">
+        <tr><th></th><th>${game.away}</th><th>${game.home}</th></tr>
+        <tr><td>Record</td><td>${awayProf.record || '?'}</td><td>${homeProf.record || '?'}</td></tr>
+        <tr><td>Home</td><td>${awayProf.home_record || '?'}</td><td>${homeProf.home_record || '?'}</td></tr>
+        <tr><td>Away</td><td>${awayProf.away_record || '?'}</td><td>${homeProf.away_record || '?'}</td></tr>
+        <tr><td>L5</td><td>${awayProf.L5 || '?'}</td><td>${homeProf.L5 || '?'}</td></tr>
+        <tr><td>L10</td><td>${awayProf.L10 || '?'}</td><td>${homeProf.L10 || '?'}</td></tr>
+        <tr><td>PPG L5</td><td>${awayProf.ppg_L5 || '?'}</td><td>${homeProf.ppg_L5 || '?'}</td></tr>
+        <tr><td>OPP PPG L5</td><td>${awayProf.opp_ppg_L5 || '?'}</td><td>${homeProf.opp_ppg_L5 || '?'}</td></tr>
+        <tr><td>Streak</td><td>${awayProf.streak || '?'}</td><td>${homeProf.streak || '?'}</td></tr>
+      </table>
+    </div>
+  `;
+
+  // Injuries
+  html += `
+    <div class="detail-section">
+      <h3>Injuries — ${game.away}</h3>
+      ${awayInj.length > 0 ? renderInjuryTable(awayInj) : '<p style="color:var(--text2);font-size:12px;">No injuries reported</p>'}
+    </div>
+    <div class="detail-section">
+      <h3>Injuries — ${game.home}</h3>
+      ${homeInj.length > 0 ? renderInjuryTable(homeInj) : '<p style="color:var(--text2);font-size:12px;">No injuries reported</p>'}
+    </div>
+  `;
+
+  html += '</div>';
+
+  // Grade breakdown (if available)
+  if (gradeInfo && gradeInfo.profiles) {
+    for (const [pName, pData] of Object.entries(gradeInfo.profiles)) {
+      html += `
+        <div class="consensus-section">
+          <h3>${pData.profile} Grade: ${pData.grade} (${pData.final}) ${pData.sizing ? '| ' + pData.sizing : ''}</h3>
+          <table class="data-table">
+            <tr><th>Variable</th><th>Score</th><th>Weight</th><th>Weighted</th><th>Note</th></tr>
+            ${Object.entries(pData.variables || {}).map(([k, v]) => `
+              <tr>
+                <td>${k}</td>
+                <td class="score-cell ${v.score >= 7 ? 'high' : v.score >= 4 ? 'mid' : 'low'}">${v.score}</td>
+                <td>${v.weight}</td>
+                <td>${v.weighted || (v.score * v.weight).toFixed(1)}</td>
+                <td style="color:var(--text2);font-size:11px;">${v.note || ''}</td>
+              </tr>
+            `).join('')}
+          </table>
+          ${pData.chains_fired && pData.chains_fired.length > 0 ? `
+            <div style="margin-top:8px;">
+              <strong style="font-size:12px;">Chains: </strong>
+              ${pData.chains_fired.map(c => `<span class="chain-tag">${c} +${getChainBonus(c)}</span>`).join('')}
+              <span style="font-size:12px;color:var(--text2);margin-left:8px;">Chain bonus: +${pData.chain_bonus}</span>
+            </div>
+          ` : ''}
+          ${pData.mathurin_test ? `
+            <div style="margin-top:8px;font-size:12px;">
+              <strong style="color:${pData.mathurin_test === 'PASS' ? 'var(--green)' : 'var(--red)'};">
+                Mathurin Test: ${pData.mathurin_test}
+              </strong>
+              <span style="color:var(--text2);margin-left:8px;">${pData.mathurin_note || ''}</span>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+  }
+
+  // Peter's Rules
+  if (gradeInfo && gradeInfo.peter_rules && gradeInfo.peter_rules.flags && gradeInfo.peter_rules.flags.length > 0) {
+    const peter = gradeInfo.peter_rules;
+    html += `
+      <div class="consensus-section" style="margin-top:12px;">
+        <h3 style="color:var(--red);">Peter's Rules (Adjustment: ${peter.adjustment >= 0 ? '+' : ''}${peter.adjustment})</h3>
+        ${peter.flags.map(f => `
+          <div style="margin:4px 0;">
+            <span class="flag-tag flag-${f.action}">${f.action}</span>
+            <strong style="font-size:12px;">${f.rule}</strong>
+            <span style="font-size:12px;color:var(--text2);margin-left:8px;">${f.note}</span>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  // EV Section
+  if (gradeInfo && gradeInfo.ev && gradeInfo.ev.status === 'ok') {
+    const ev = gradeInfo.ev;
+    html += `
+      <div class="consensus-section" style="margin-top:12px;">
+        <h3>Expected Value</h3>
+        <div class="ev-bar">
+          <span>ML: ${ev.moneyline}</span>
+          <span>Implied: ${(ev.implied_prob * 100).toFixed(1)}%</span>
+          <span>True Prob: ${(ev.true_prob * 100).toFixed(1)}%</span>
+          <span>Edge: ${(ev.edge * 100).toFixed(1)}%</span>
+          <span class="${ev.ev_pct >= 0 ? 'ev-positive' : 'ev-negative'}">EV: ${ev.ev_pct > 0 ? '+' : ''}${ev.ev_pct}%</span>
+          <span>Kelly: ${ev.kelly_units} (${(ev.kelly_quarter * 100).toFixed(1)}%)</span>
+          <span>Grade: ${ev.ev_grade}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  // Model Grades
+  if (gradeInfo && gradeInfo.model_grades) {
+    for (const [mKey, mData] of Object.entries(gradeInfo.model_grades)) {
+      if (mData.status === 'ok') {
+        const gClass = getGradeClass(mData.grade);
+        html += `
+          <div class="model-section">
+            <h3>${mData.model} Grade: ${mData.grade} (${mData.score}) — ${mData.sizing}</h3>
+            <div><strong>Pick:</strong> ${mData.pick}</div>
+            <div class="model-reasoning">${mData.reasoning}</div>
+            <div class="model-key-factor"><strong>Key Factor:</strong> ${mData.key_factor}</div>
+            <div style="font-size:11px;color:var(--text2);margin-top:4px;">Confidence: ${mData.confidence} | Called: ${new Date(mData.called_at).toLocaleTimeString()}</div>
+          </div>
+        `;
+      } else if (mData.status === 'error') {
+        html += `<div class="model-section"><h3 style="color:var(--red);">${mKey} Error</h3><p style="font-size:12px;">${mData.error}</p></div>`;
+      }
+    }
+  }
+
+  // Push to Grok button
+  html += `
+    <div style="margin-top:12px;display:flex;gap:8px;">
+      <button class="btn-grok" id="grok-btn-${game.game_id}" onclick="pushToModel('${game.game_id}', 'grok')">Push to Grok</button>
+      <button class="btn-grok" id="grok-fast-btn-${game.game_id}" onclick="pushToModel('${game.game_id}', 'grok-fast')">Grok Fast</button>
+      <button class="btn-grok" id="deepseek-btn-${game.game_id}" onclick="pushToModel('${game.game_id}', 'deepseek')">DeepSeek</button>
+      <span class="status-msg" id="model-status-${game.game_id}"></span>
+    </div>
+  `;
+
+  // Props
+  const props = game.props || [];
+  if (props.length > 0) {
+    html += `
+      <div class="consensus-section" style="margin-top:12px;">
+        <h3>Player Props</h3>
+        <table class="data-table">
+          <tr><th>Player</th><th>Stat</th><th>Line</th><th>L5 Avg</th><th>L10 Avg</th><th>Gap%</th><th>Edge</th></tr>
+          ${props.map(p => `
+            <tr>
+              <td>${p.player}</td>
+              <td>${p.stat}</td>
+              <td>${p.line}</td>
+              <td>${p.L5_avg || '?'}</td>
+              <td>${p.L10_avg || '?'}</td>
+              <td class="${(p.gap_pct || 0) > 20 ? 'high' : ''}">${p.gap_pct || '?'}%</td>
+              <td class="score-cell ${(p.edge_score || 0) >= 5 ? 'high' : (p.edge_score || 0) >= 3 ? 'mid' : 'low'}">${p.edge_score || '?'}</td>
+            </tr>
+          `).join('')}
+        </table>
+      </div>
+    `;
+  }
+
+  return html;
+}
+
+function renderInjuryTable(injuries) {
+  return `
+    <table class="data-table">
+      <tr><th>Player</th><th>Pos</th><th>Status</th><th>PPG</th><th>Freshness</th><th>Days</th></tr>
+      ${injuries.map(i => `
+        <tr>
+          <td>${i.player}</td>
+          <td>${i.pos || '?'}</td>
+          <td><span class="injury-tag injury-${i.status}">${i.status}</span></td>
+          <td>${i.ppg || '?'}</td>
+          <td>${i.freshness || '?'}</td>
+          <td>${i.days_out || '?'}</td>
+        </tr>
+      `).join('')}
+    </table>
+  `;
+}
+
+// ─── Helpers ────────────────────────────────────────────────────────────────────
+function getGradeClass(grade) {
+  if (!grade) return 'grade-none';
+  return 'grade-' + grade.replace('+', '-plus').replace('-', '-minus');
+}
+function getSizingClass(sizing) {
+  if (!sizing) return 'sizing-PASS';
+  return 'sizing-' + sizing.replace('.', '-').replace(' ', '');
+}
+function getChainBonus(chain) {
+  const bonuses = {
+    'THE_MISPRICING': '1.0', 'FATIGUE_FADE': '1.0', 'FORM_WAVE': '1.5',
+    'GOALIE_EDGE': '1.5', 'TRAP_GAME': '1.0', 'VALUE_DOG': '1.0', 'BLUE_BLOOD_TRAP': '1.0'
+  };
+  return bonuses[chain] || '?';
+}
+
+function toggleDetail(gameId) {
+  const el = document.getElementById(`detail-${gameId}`);
+  if (el) el.classList.toggle('open');
+}
+
+// ─── Actions ────────────────────────────────────────────────────────────────────
+async function collectData() {
+  if (!currentSport) return;
+  setStatus('Collecting data...');
+  document.getElementById('btn-collect').disabled = true;
+  try {
+    const res = await fetch(`${API}/api/collect/${currentSport}`, {method: 'POST'}).then(r => r.json());
+    const statuses = Object.entries(res).map(([k, v]) => `${k}: ${v.status}`).join(' | ');
+    setStatus(`Collected: ${statuses}`);
+    await loadSport(currentSport);
+  } catch (e) {
+    setStatus(`Error: ${e.message}`);
+  }
+  document.getElementById('btn-collect').disabled = false;
+}
+
+async function gradeGames() {
+  if (!currentSport) return;
+  setStatus('Grading games...');
+  document.getElementById('btn-grade').disabled = true;
+  try {
+    const res = await fetch(`${API}/api/grade/${currentSport}`, {method: 'POST'}).then(r => r.json());
+    setStatus(`Graded: ${res.status}`);
+    await loadSport(currentSport);
+  } catch (e) {
+    setStatus(`Error: ${e.message}`);
+  }
+  document.getElementById('btn-grade').disabled = false;
+}
+
+async function pushToModel(gameId, modelKey) {
+  const btnId = `${modelKey}-btn-${gameId}`;
+  const btn = document.getElementById(btnId);
+  const statusEl = document.getElementById(`model-status-${gameId}`);
+  if (btn) { btn.disabled = true; btn.classList.add('loading'); btn.textContent = 'Calling...'; }
+  if (statusEl) statusEl.textContent = `Calling ${modelKey}...`;
+
+  try {
+    const res = await fetch(`${API}/api/model/${gameId}?model=${modelKey}`, {method: 'POST'}).then(r => r.json());
+    if (res.status === 'ok') {
+      if (statusEl) statusEl.textContent = `${modelKey}: ${res.grade} (${res.score}) — ${res.pick}`;
+      // Reload to show model grade in the card
+      await loadSport(currentSport);
+      // Re-open the detail
+      const detail = document.getElementById(`detail-${gameId}`);
+      if (detail) detail.classList.add('open');
+    } else {
+      if (statusEl) statusEl.textContent = `Error: ${res.error || 'Unknown'}`;
+    }
+  } catch (e) {
+    if (statusEl) statusEl.textContent = `Error: ${e.message}`;
+  }
+
+  if (btn) { btn.disabled = false; btn.classList.remove('loading'); btn.textContent = modelKey === 'grok' ? 'Push to Grok' : modelKey === 'grok-fast' ? 'Grok Fast' : 'DeepSeek'; }
+}
+
+async function refreshAll() {
+  if (currentSport) await loadSport(currentSport);
+}
+
+function setStatus(msg) {
+  document.getElementById('status-msg').textContent = msg;
+  setTimeout(() => { document.getElementById('status-msg').textContent = ''; }, 10000);
+}
+
+// Boot
+init();
+</script>
+</body>
+</html>

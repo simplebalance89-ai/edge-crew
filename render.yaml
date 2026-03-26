@@ -1,0 +1,48 @@
+# Render Blueprint for Edge Crew V2
+# Deploy this service to Render.com
+
+services:
+  - type: web
+    name: edge-crew-v2
+    runtime: python
+    plan: standard
+    region: oregon
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn server:app --host 0.0.0.0 --port $PORT --workers 2
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      # API Keys - Set these in Render Dashboard (Environment Secrets)
+      - key: AZURE_AI_KEY
+        sync: false
+      - key: AZURE_AI_ENDPOINT
+        sync: false
+      - key: AZURE_OPENAI_API_KEY
+        sync: false
+      - key: AZURE_OPENAI_ENDPOINT
+        sync: false
+      - key: AZURE_OPENAI_API_VERSION
+        value: 2024-12-01-preview
+      - key: AZURE_GROK_DEPLOYMENT
+        sync: false
+      - key: AZURE_GROK_FAST_DEPLOYMENT
+        sync: false
+      - key: AZURE_DEEPSEEK_DEPLOYMENT
+        sync: false
+      - key: AZURE_GPT41_DEPLOYMENT
+        sync: false
+      - key: AZURE_GPT41MINI_DEPLOYMENT
+        sync: false
+      - key: RAPIDAPI_KEY
+        sync: false
+      - key: SPORTSGAMEODDS_KEY
+        sync: false
+      - key: BALLDONTLIE_API_KEY
+        sync: false
+      # Optional: Override defaults
+      - key: DATA_DIR
+        value: ./data
+      - key: GRADES_DIR
+        value: ./grades
+    healthCheckPath: /api/sports
+    autoDeploy: true

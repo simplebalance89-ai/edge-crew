@@ -1,0 +1,22 @@
+{
+  "name": "ev",
+  "display_name": "Expected Value",
+  "description": "True probability vs line = expected value. Kelly sizing.",
+  "formula": {
+    "true_prob": "Derived from composite grade + profile consensus",
+    "implied_prob": "From moneyline odds",
+    "ev": "(true_prob * payout) - ((1 - true_prob) * stake)",
+    "ev_pct": "ev / stake * 100"
+  },
+  "kelly": {
+    "fraction": 0.25,
+    "description": "Quarter-Kelly standard sizing",
+    "formula": "(bp - q) / b where b=decimal_odds-1, p=true_prob, q=1-p",
+    "max_bet": "3u",
+    "min_ev_threshold": 3.0
+  },
+  "ml_to_implied": {
+    "positive": "100 / (ml + 100)",
+    "negative": "abs(ml) / (abs(ml) + 100)"
+  }
+}

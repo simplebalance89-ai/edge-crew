@@ -1,0 +1,2279 @@
+{
+  "sport": "NBA",
+  "date": "2026-03-18",
+  "graded_at": "2026-03-18T17:19:31.302095",
+  "profiles_used": [
+    "sintonia",
+    "renzo"
+  ],
+  "games": [
+    {
+      "game_id": "paRUFlgPDL3lDAzoauIt",
+      "matchup": "Golden State Warriors @ Boston Celtics",
+      "pick_side": "home",
+      "profiles": {
+        "sintonia": {
+          "game_id": "paRUFlgPDL3lDAzoauIt",
+          "profile": "sintonia",
+          "pick_side": "home",
+          "grade": "A-",
+          "composite": 6.45,
+          "chain_bonus": 1.0,
+          "final": 7.45,
+          "pick": "Boston Celtics -11.5",
+          "sizing": "1u",
+          "variables": {
+            "star_player_status": {
+              "score": 8,
+              "weight": 9,
+              "weighted": 72,
+              "note": "No significant injuries"
+            },
+            "rest_advantage": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "Us: 2d rest | Them: 2d rest"
+            },
+            "off_ranking": {
+              "score": 8,
+              "weight": 8,
+              "weighted": 64,
+              "note": "PPG L5: 111.6 | OPP allows: 120.6 | Margin L5: +3.8"
+            },
+            "def_ranking": {
+              "score": 8,
+              "weight": 8,
+              "weighted": 64,
+              "note": "Allow L5: 107.8 | They score L5: 117.8"
+            },
+            "three_pt_matchup": {
+              "score": 8,
+              "weight": 7,
+              "weighted": 56,
+              "note": "3PT proxy \u2014 PPG L5: 111.6 | OPP allows: 120.6 | Margin L5: +3.8"
+            },
+            "pace_matchup": {
+              "score": 6,
+              "weight": 7,
+              "weighted": 42,
+              "note": "Pace aligned (19 diff)"
+            },
+            "recent_form": {
+              "score": 6,
+              "weight": 7,
+              "weighted": 42,
+              "note": "L5: 3-2 (margin +3.8) | Streak: W2 | OPP L5: 1-4 (margin -2.8)"
+            },
+            "road_trip_length": {
+              "score": 6,
+              "weight": 7,
+              "weighted": 42,
+              "note": "Home stand: 2 games"
+            },
+            "h2h_season": {
+              "score": 7,
+              "weight": 6,
+              "weighted": 42,
+              "note": "H2H: 1-0 this season (1 games)"
+            },
+            "paint_scoring": {
+              "score": 4,
+              "weight": 6,
+              "weighted": 24,
+              "note": "paint_scoring proxy: PPG diff -6.2"
+            },
+            "fast_break": {
+              "score": 4,
+              "weight": 6,
+              "weighted": 24,
+              "note": "fast_break proxy: PPG diff -6.2"
+            },
+            "ats_trend": {
+              "score": 7,
+              "weight": 6,
+              "weighted": 42,
+              "note": "Avg margin L10: +9.0 \u2014 comfortable wins | Close: 1/10 | Blowouts: 5/10"
+            },
+            "sharp_vs_public": {
+              "score": 3,
+              "weight": 5,
+              "weighted": 15,
+              "note": "Line flat \u2014 no sharp signal | ML shifted"
+            },
+            "home_away": {
+              "score": 7,
+              "weight": 5,
+              "weighted": 35,
+              "note": "Home: 23-10 (23/33)"
+            },
+            "depth_injuries": {
+              "score": 9,
+              "weight": 4,
+              "weighted": 36,
+              "note": "OPP missing 6 players vs our 1"
+            }
+          },
+          "chains_fired": [
+            "THE_MISPRICING"
+          ]
+        },
+        "renzo": {
+          "game_id": "paRUFlgPDL3lDAzoauIt",
+          "profile": "renzo",
+          "pick_side": "home",
+          "grade": "B",
+          "composite": 6.0,
+          "chain_bonus": 0,
+          "final": 6.0,
+          "pick": "Boston Celtics -11.5",
+          "sizing": "PASS",
+          "variables": {
+            "Q1_whos_missing": {
+              "score": 5,
+              "weight": 9,
+              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
+            },
+            "Q2_line_reflects": {
+              "score": 5,
+              "weight": 9,
+              "note": "Line moved 0.0 pts | Injuries roughly priced"
+            },
+            "Q3_recent_form": {
+              "score": 9,
+              "weight": 8,
+              "note": "Us L5: 3-2 | Them L5: 1-4 | Edge: +4"
+            },
+            "Q4_best_on_court": {
+              "score": 6,
+              "weight": 8,
+              "note": "Both sides mostly healthy"
+            },
+            "Q5_schedule_rest": {
+              "score": 8,
+              "weight": 7,
+              "note": "Streak: W2 | Home"
+            },
+            "thesis_edge": {
+              "score": 4,
+              "weight": 10,
+              "note": "No clear thesis edge found"
+            }
+          },
+          "chains_fired": [],
+          "mathurin_test": "FAIL",
+          "mathurin_note": "No clear thesis edge found"
+        }
+      },
+      "peter_rules": {
+        "game_id": "paRUFlgPDL3lDAzoauIt",
+        "profile": "peter_rules",
+        "pick_side": "home",
+        "flags": [],
+        "adjustment": 0,
+        "has_kill": false,
+        "flag_count": 0
+      },
+      "consensus_avg": 6.72,
+      "consensus_grade": "B+",
+      "consensus_raw": 6.72,
+      "ev": {
+        "profile": "ev",
+        "game_id": "paRUFlgPDL3lDAzoauIt",
+        "pick_side": "home",
+        "moneyline": -650,
+        "implied_prob": 0.8667,
+        "true_prob": 0.9,
+        "edge": 0.0333,
+        "decimal_odds": 1.154,
+        "ev_pct": 3.85,
+        "ev_grade": "B",
+        "kelly_full": 0.25,
+        "kelly_quarter": 0.0625,
+        "kelly_units": "2u",
+        "status": "ok"
+      },
+      "model_grades": {
+        "gpt41": {
+          "model": "gpt-4.1",
+          "model_key": "gpt41",
+          "pick": "Boston Celtics -11.5",
+          "score": 7.5,
+          "grade": "A-",
+          "sizing": "1u",
+          "reasoning": "Golden State is severely depleted with Stephen Curry, Seth Curry, and Jimmy Butler all out, and their recent form is poor (1-4 L5, 3-7 L10). Boston has a strong home record (23-10) and is healthier, while the Warriors have allowed 120.6 PPG over their last five games, making the Celtics -11.5 a justified favorite. The math models also lean Celtics, with sintonia grading this pick A-.",
+          "key_factor": "Warriors' key injuries and poor recent defensive performance.",
+          "confidence": "medium",
+          "raw_response": "{\n  \"pick\": \"Boston Celtics -11.5\",\n  \"score\": 7.5,\n  \"grade\": \"A-\",\n  \"sizing\": \"1u\",\n  \"reasoning\": \"Golden State is severely depleted with Stephen Curry, Seth Curry, and Jimmy Butler all out, and their recent form is poor (1-4 L5, 3-7 L10). Boston has a strong home record (23-10) and is healthier, while the Warriors have allowed 120.6 PPG over their last five games, making the Celtics -11.5 a justified favorite. The math models also lean Celtics, with sintonia grading this pick A-.\",\n  \"key_factor\": \"Warriors' key injuries and poor recent defensive performance.\",\n  \"confidence\": \"medium\"\n}",
+          "called_at": "2026-03-18T17:43:48.725515",
+          "status": "ok",
+          "game_id": "paRUFlgPDL3lDAzoauIt",
+          "matchup": "Golden State Warriors @ Boston Celtics"
+        },
+        "deepseek": {
+          "model": "DeepSeek-V3.2",
+          "model_key": "deepseek",
+          "pick": "Boston Celtics -11.5",
+          "score": 7.2,
+          "grade": "A-",
+          "sizing": "1u",
+          "reasoning": "Golden State is severely depleted, missing Stephen Curry, Jimmy Butler, and key role players, while Boston is relatively healthy and at home. The Warriors' defense has allowed 120.6 PPG over their last 5, and Boston's recent form (7-3 L10) and superior record (45-23) suggest they can exploit this mismatch. The line has held steady at -11.5 despite the injury news, indicating solid value.",
+          "key_factor": "Golden State's extensive injury list, particularly the absence of Stephen Curry, crippling their offense and defense.",
+          "confidence": "high",
+          "raw_response": "{\n  \"pick\": \"Boston Celtics -11.5\",\n  \"score\": 7.2,\n  \"grade\": \"A-\",\n  \"sizing\": \"1u\",\n  \"reasoning\": \"Golden State is severely depleted, missing Stephen Curry, Jimmy Butler, and key role players, while Boston is relatively healthy and at home. The Warriors' defense has allowed 120.6 PPG over their last 5, and Boston's recent form (7-3 L10) and superior record (45-23) suggest they can exploit this mismatch. The line has held steady at -11.5 despite the injury news, indicating solid value.\",\n  \"key_factor\": \"Golden State's extensive injury list, particularly the absence of Stephen Curry, crippling their offense and defense.\",\n  \"confidence\": \"high\"\n}",
+          "called_at": "2026-03-18T17:43:50.555622",
+          "status": "ok",
+          "game_id": "paRUFlgPDL3lDAzoauIt",
+          "matchup": "Golden State Warriors @ Boston Celtics"
+        },
+        "grok": {
+          "model": "grok-3",
+          "model_key": "grok",
+          "pick": "Boston Celtics -11.5",
+          "score": 7.8,
+          "grade": "A",
+          "sizing": "1.5u",
+          "reasoning": "The Boston Celtics are a strong bet at -11.5 due to their superior record (45-23) and recent form (7-3 in L10) compared to the struggling Golden State Warriors (33-35, 3-7 in L10). The Warriors are severely hampered by multiple key injuries, including Stephen Curry and Jimmy Butler, which significantly weakens their offense and defense against a Celtics team averaging 111.6 PPG in their last 5 games. The line movement of +0.0 on the spread suggests the market has not fully adjusted to Golden State's injury woes.",
+          "key_factor": "Warriors' extensive injury list, including Stephen Curry, severely impacts their competitiveness.",
+          "confidence": "high",
+          "raw_response": "{\n  \"pick\": \"Boston Celtics -11.5\",\n  \"score\": 7.8,\n  \"grade\": \"A\",\n  \"sizing\": \"1.5u\",\n  \"reasoning\": \"The Boston Celtics are a strong bet at -11.5 due to their superior record (45-23) and recent form (7-3 in L10) compared to the struggling Golden State Warriors (33-35, 3-7 in L10). The Warriors are severely hampered by multiple key injuries, including Stephen Curry and Jimmy Butler, which significantly weakens their offense and defense against a Celtics team averaging 111.6 PPG in their last 5 games. The line movement of +0.0 on the spread suggests the market has not fully adjusted to Golden State's injury woes.\",\n  \"key_factor\": \"Warriors' extensive injury list, including Stephen Curry, severely impacts their competitiveness.\",\n  \"confidence\": \"high\"\n}",
+          "called_at": "2026-03-18T17:43:58.869972",
+          "status": "ok",
+          "game_id": "paRUFlgPDL3lDAzoauIt",
+          "matchup": "Golden State Warriors @ Boston Celtics"
+        },
+        "grok-fast": {
+          "model": "grok-4-1-fast-reasoning",
+          "model_key": "grok-fast",
+          "pick": "Boston Celtics -11.5",
+          "score": 8.2,
+          "grade": "A",
+          "sizing": "1.5u",
+          "reasoning": "Warriors are decimated by injuries, with Stephen Curry (PG), Jimmy Butler (SF), Seth Curry (SG), Moses Moody (SG), L.J. Cryer (PG), and Al Horford (C) all OUT, gutting their lineup and contributing to their 1-4 L5 record and 120.6 OPP PPG L5. Celtics boast a 45-23 record, 23-10 home, 7-3 L10, and hold opponents to 107.8 PPG L5, making the static -11.5 spread a clear mispricing. Both models (sintonia A-, renzo B) back Boston cover.",
+          "key_factor": "Warriors missing 6 key players including Curry and Butler, severely hampering scoring against elite Celtics defense.",
+          "confidence": "high",
+          "raw_response": "{\n  \"pick\": \"Boston Celtics -11.5\",\n  \"score\": 8.2,\n  \"grade\": \"A\",\n  \"sizing\": \"1.5u\",\n  \"reasoning\": \"Warriors are decimated by injuries, with Stephen Curry (PG), Jimmy Butler (SF), Seth Curry (SG), Moses Moody (SG), L.J. Cryer (PG), and Al Horford (C) all OUT, gutting their lineup and contributing to their 1-4 L5 record and 120.6 OPP PPG L5. Celtics boast a 45-23 record, 23-10 home, 7-3 L10, and hold opponents to 107.8 PPG L5, making the static -11.5 spread a clear mispricing. Both models (sintonia A-, renzo B) back Boston cover.\",\n  \"key_factor\": \"Warriors missing 6 key players including Curry and Butler, severely hampering scoring against elite Celtics defense.\",\n  \"confidence\": \"high\"\n}",
+          "called_at": "2026-03-18T17:53:53.508177",
+          "status": "ok",
+          "game_id": "paRUFlgPDL3lDAzoauIt",
+          "matchup": "Golden State Warriors @ Boston Celtics"
+        }
+      }
+    },
+    {
+      "game_id": "7PBgDKZenqTaljBt9H1M",
+      "matchup": "Oklahoma City Thunder @ Brooklyn Nets",
+      "pick_side": "away",
+      "profiles": {
+        "sintonia": {
+          "game_id": "7PBgDKZenqTaljBt9H1M",
+          "profile": "sintonia",
+          "pick_side": "away",
+          "grade": "A-",
+          "composite": 5.99,
+          "chain_bonus": 1.5,
+          "final": 7.49,
+          "pick": "Oklahoma City Thunder -18.5",
+          "sizing": "1u",
+          "variables": {
+            "star_player_status": {
+              "score": 4,
+              "weight": 9,
+              "weighted": 36,
+              "note": "No significant injuries"
+            },
+            "rest_advantage": {
+              "score": 1,
+              "weight": 9,
+              "weighted": 9,
+              "note": "Us: 1d rest | Them: 2d rest | WE on B2B; Rest deficit -1d"
+            },
+            "off_ranking": {
+              "score": 8,
+              "weight": 8,
+              "weighted": 64,
+              "note": "PPG L5: 113.2 | OPP allows: 115.8 | Margin L5: +6.0"
+            },
+            "def_ranking": {
+              "score": 6,
+              "weight": 8,
+              "weighted": 48,
+              "note": "Allow L5: 107.2 | They score L5: 103.0"
+            },
+            "three_pt_matchup": {
+              "score": 8,
+              "weight": 7,
+              "weighted": 56,
+              "note": "3PT proxy \u2014 PPG L5: 113.2 | OPP allows: 115.8 | Margin L5: +6.0"
+            },
+            "pace_matchup": {
+              "score": 6,
+              "weight": 7,
+              "weighted": 42,
+              "note": "Pace aligned (2 diff)"
+            },
+            "recent_form": {
+              "score": 10,
+              "weight": 7,
+              "weighted": 70,
+              "note": "L5: 5-0 (margin +6.0) | Streak: W9 | OPP L5: 1-4 (margin -12.8)"
+            },
+            "road_trip_length": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "Road game 1"
+            },
+            "h2h_season": {
+              "score": 7,
+              "weight": 6,
+              "weighted": 42,
+              "note": "H2H: 1-0 this season (1 games)"
+            },
+            "paint_scoring": {
+              "score": 7,
+              "weight": 6,
+              "weighted": 42,
+              "note": "paint_scoring proxy: PPG diff +10.2"
+            },
+            "fast_break": {
+              "score": 7,
+              "weight": 6,
+              "weighted": 42,
+              "note": "fast_break proxy: PPG diff +10.2"
+            },
+            "ats_trend": {
+              "score": 7,
+              "weight": 6,
+              "weighted": 42,
+              "note": "Avg margin L10: +5.2 \u2014 comfortable wins | Close: 4/10 | Blowouts: 0/10"
+            },
+            "sharp_vs_public": {
+              "score": 5,
+              "weight": 5,
+              "weighted": 25,
+              "note": "Spread moved -1.0 pts | ML shifted"
+            },
+            "home_away": {
+              "score": 6,
+              "weight": 5,
+              "weighted": 30,
+              "note": "Away: 25-8 (25/33)"
+            },
+            "depth_injuries": {
+              "score": 4,
+              "weight": 4,
+              "weighted": 16,
+              "note": "WE missing more: 5 vs their 4"
+            }
+          },
+          "chains_fired": [
+            "FORM_WAVE"
+          ]
+        },
+        "renzo": {
+          "game_id": "7PBgDKZenqTaljBt9H1M",
+          "profile": "renzo",
+          "pick_side": "away",
+          "grade": "B",
+          "composite": 6.14,
+          "chain_bonus": 0,
+          "final": 6.14,
+          "pick": "Oklahoma City Thunder -18.5",
+          "sizing": "PASS",
+          "variables": {
+            "Q1_whos_missing": {
+              "score": 5,
+              "weight": 9,
+              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
+            },
+            "Q2_line_reflects": {
+              "score": 5,
+              "weight": 9,
+              "note": "Line moved 1.0 pts | Injuries roughly priced"
+            },
+            "Q3_recent_form": {
+              "score": 9,
+              "weight": 8,
+              "note": "Us L5: 5-0 | Them L5: 1-4 | Edge: +8"
+            },
+            "Q4_best_on_court": {
+              "score": 6,
+              "weight": 8,
+              "note": "Both sides mostly healthy"
+            },
+            "Q5_schedule_rest": {
+              "score": 9,
+              "weight": 7,
+              "note": "Streak: W9 | Away"
+            },
+            "thesis_edge": {
+              "score": 4,
+              "weight": 10,
+              "note": "No clear thesis edge found"
+            }
+          },
+          "chains_fired": [],
+          "mathurin_test": "FAIL",
+          "mathurin_note": "No clear thesis edge found"
+        }
+      },
+      "peter_rules": {
+        "game_id": "7PBgDKZenqTaljBt9H1M",
+        "profile": "peter_rules",
+        "pick_side": "away",
+        "flags": [],
+        "adjustment": 0,
+        "has_kill": false,
+        "flag_count": 0
+      },
+      "consensus_avg": 6.81,
+      "consensus_grade": "B+",
+      "consensus_raw": 6.81,
+      "ev": {
+        "profile": "ev",
+        "game_id": "7PBgDKZenqTaljBt9H1M",
+        "pick_side": "away",
+        "moneyline": -2500,
+        "implied_prob": 0.9615,
+        "true_prob": 0.9,
+        "edge": -0.0615,
+        "decimal_odds": 1.04,
+        "ev_pct": -6.4,
+        "ev_grade": "F",
+        "kelly_full": -1.6,
+        "kelly_quarter": 0,
+        "kelly_units": "PASS",
+        "status": "ok"
+      },
+      "model_grades": {
+        "gpt41": {
+          "model": "gpt-4.1",
+          "model_key": "gpt41",
+          "pick": "Oklahoma City Thunder -18.5",
+          "score": 7.5,
+          "grade": "A-",
+          "sizing": "1u",
+          "reasoning": "Despite several Thunder rotation players resting, Oklahoma City is 9-1 in their last 10 and winning by an average of +6 PPG over their last 5. Brooklyn is 2-8 in their last 10, has lost 4 straight, and is missing multiple key contributors. The Thunder's depth and recent form should be enough to cover the large spread against a depleted Nets squad.",
+          "key_factor": "Thunder's elite form vs. Nets' poor recent performance and injuries.",
+          "confidence": "medium",
+          "raw_response": "{\n  \"pick\": \"Oklahoma City Thunder -18.5\",\n  \"score\": 7.5,\n  \"grade\": \"A-\",\n  \"sizing\": \"1u\",\n  \"reasoning\": \"Despite several Thunder rotation players resting, Oklahoma City is 9-1 in their last 10 and winning by an average of +6 PPG over their last 5. Brooklyn is 2-8 in their last 10, has lost 4 straight, and is missing multiple key contributors. The Thunder's depth and recent form should be enough to cover the large spread against a depleted Nets squad.\",\n  \"key_factor\": \"Thunder's elite form vs. Nets' poor recent performance and injuries.\",\n  \"confidence\": \"medium\"\n}",
+          "called_at": "2026-03-18T17:43:50.897102",
+          "status": "ok",
+          "game_id": "7PBgDKZenqTaljBt9H1M",
+          "matchup": "Oklahoma City Thunder @ Brooklyn Nets"
+        },
+        "deepseek": {
+          "model": "DeepSeek-V3.2",
+          "model_key": "deepseek",
+          "pick": "Oklahoma City Thunder -18.5",
+          "score": 7.2,
+          "grade": "A-",
+          "sizing": "1u",
+          "reasoning": "The Thunder, on a 9-game win streak and 5-0 in their last 5, are a dominant 54-15 facing a 17-51 Nets team on a 4-game losing streak. Brooklyn's last 5 games show a -12.8 point differential (103.0 PPG vs. 115.8 OPPG), while OKC's key rest-related absences are mitigated by their depth and the massive talent disparity. The line move from -17.5 to -18.5 is sharp but still undervalues the gap between a title contender and the league's bottom tier.",
+          "key_factor": "Historic mismatch between a 54-15 contender and a 17-51 tanking team, even with OKC resting starters.",
+          "confidence": "high",
+          "raw_response": "{\n  \"pick\": \"Oklahoma City Thunder -18.5\",\n  \"score\": 7.2,\n  \"grade\": \"A-\",\n  \"sizing\": \"1u\",\n  \"reasoning\": \"The Thunder, on a 9-game win streak and 5-0 in their last 5, are a dominant 54-15 facing a 17-51 Nets team on a 4-game losing streak. Brooklyn's last 5 games show a -12.8 point differential (103.0 PPG vs. 115.8 OPPG), while OKC's key rest-related absences are mitigated by their depth and the massive talent disparity. The line move from -17.5 to -18.5 is sharp but still undervalues the gap between a title contender and the league's bottom tier.\",\n  \"key_factor\": \"Historic mismatch between a 54-15 contender and a 17-51 tanking team, even with OKC resting starters.\",\n  \"confidence\": \"high\"\n}",
+          "called_at": "2026-03-18T17:43:51.829077",
+          "status": "ok",
+          "game_id": "7PBgDKZenqTaljBt9H1M",
+          "matchup": "Oklahoma City Thunder @ Brooklyn Nets"
+        },
+        "grok-fast": {
+          "model": "grok-4-1-fast-reasoning",
+          "model_key": "grok-fast",
+          "pick": "Oklahoma City Thunder -18.5",
+          "score": 7.5,
+          "grade": "A-",
+          "sizing": "1u",
+          "reasoning": "Thunder's 54-15 record and 9-win streak dwarf Nets' 17-51 mark and L4 skid, with OKC averaging 113.2 PPG and holding foes to 107.2 in L5 vs. Brooklyn's 103.0 PPG and 115.8 allowed. Even resting Dort/Hartenstein and Williams out, Thunder's depth crushes Nets' depleted roster (Porter, Sharpe, Demin, Saraf out) at home where Nets are 9-24. Line at -18.5 offers value after moving from -17.5 amid public fade.",
+          "key_factor": "Overwhelming talent/form gap persists despite OKC rests.",
+          "confidence": "high",
+          "raw_response": "{\n  \"pick\": \"Oklahoma City Thunder -18.5\",\n  \"score\": 7.5,\n  \"grade\": \"A-\",\n  \"sizing\": \"1u\",\n  \"reasoning\": \"Thunder's 54-15 record and 9-win streak dwarf Nets' 17-51 mark and L4 skid, with OKC averaging 113.2 PPG and holding foes to 107.2 in L5 vs. Brooklyn's 103.0 PPG and 115.8 allowed. Even resting Dort/Hartenstein and Williams out, Thunder's depth crushes Nets' depleted roster (Porter, Sharpe, Demin, Saraf out) at home where Nets are 9-24. Line at -18.5 offers value after moving from -17.5 amid public fade.\",\n  \"key_factor\": \"Overwhelming talent/form gap persists despite OKC rests.\",\n  \"confidence\": \"high\"\n}",
+          "called_at": "2026-03-18T17:43:53.990769",
+          "status": "ok",
+          "game_id": "7PBgDKZenqTaljBt9H1M",
+          "matchup": "Oklahoma City Thunder @ Brooklyn Nets"
+        },
+        "grok": {
+          "model": "grok-3",
+          "model_key": "grok",
+          "pick": "Oklahoma City Thunder -18.5",
+          "score": 7.2,
+          "grade": "A-",
+          "sizing": "1u",
+          "reasoning": "The Oklahoma City Thunder are on a dominant 9-game winning streak, averaging 113.2 PPG in their last 5 games while holding opponents to 107.2 PPG, showcasing their offensive and defensive prowess. Despite multiple injuries, their depth and current form (9-1 in last 10) should overpower a struggling Brooklyn Nets team with a 17-51 record, 1-4 in their last 5, and averaging only 103.0 PPG while allowing 115.8 PPG. The spread movement from -17.5 to -18.5 indicates market confidence in the Thunder covering, even with key absences.",
+          "key_factor": "Thunder's superior form and Nets' defensive struggles.",
+          "confidence": "medium",
+          "raw_response": "{\n  \"pick\": \"Oklahoma City Thunder -18.5\",\n  \"score\": 7.2,\n  \"grade\": \"A-\",\n  \"sizing\": \"1u\",\n  \"reasoning\": \"The Oklahoma City Thunder are on a dominant 9-game winning streak, averaging 113.2 PPG in their last 5 games while holding opponents to 107.2 PPG, showcasing their offensive and defensive prowess. Despite multiple injuries, their depth and current form (9-1 in last 10) should overpower a struggling Brooklyn Nets team with a 17-51 record, 1-4 in their last 5, and averaging only 103.0 PPG while allowing 115.8 PPG. The spread movement from -17.5 to -18.5 indicates market confidence in the Thunder covering, even with key absences.\",\n  \"key_factor\": \"Thunder's superior form and Nets' defensive struggles.\",\n  \"confidence\": \"medium\"\n}",
+          "called_at": "2026-03-18T17:43:56.297160",
+          "status": "ok",
+          "game_id": "7PBgDKZenqTaljBt9H1M",
+          "matchup": "Oklahoma City Thunder @ Brooklyn Nets"
+        }
+      }
+    },
+    {
+      "game_id": "PqbwsPY0HguxpeO8pcPn",
+      "matchup": "Portland Trail Blazers @ Indiana Pacers",
+      "pick_side": "away",
+      "profiles": {
+        "sintonia": {
+          "game_id": "PqbwsPY0HguxpeO8pcPn",
+          "profile": "sintonia",
+          "pick_side": "away",
+          "grade": "B+",
+          "composite": 6.55,
+          "chain_bonus": 0.0,
+          "final": 6.55,
+          "pick": "Portland Trail Blazers -12.5",
+          "sizing": "1u",
+          "variables": {
+            "star_player_status": {
+              "score": 6,
+              "weight": 9,
+              "weighted": 54,
+              "note": "No significant injuries"
+            },
+            "rest_advantage": {
+              "score": 9,
+              "weight": 9,
+              "weighted": 81,
+              "note": "Us: 2d rest | Them: 1d rest | OPP on B2B; Rest edge +1d"
+            },
+            "off_ranking": {
+              "score": 8,
+              "weight": 8,
+              "weighted": 64,
+              "note": "PPG L5: 114.6 | OPP allows: 121.6 | Margin L5: +8.2"
+            },
+            "def_ranking": {
+              "score": 6,
+              "weight": 8,
+              "weighted": 48,
+              "note": "Allow L5: 106.4 | They score L5: 108.4"
+            },
+            "three_pt_matchup": {
+              "score": 8,
+              "weight": 7,
+              "weighted": 56,
+              "note": "3PT proxy \u2014 PPG L5: 114.6 | OPP allows: 121.6 | Margin L5: +8.2"
+            },
+            "pace_matchup": {
+              "score": 6,
+              "weight": 7,
+              "weighted": 42,
+              "note": "Pace aligned (9 diff)"
+            },
+            "recent_form": {
+              "score": 6,
+              "weight": 7,
+              "weighted": 42,
+              "note": "L5: 3-2 (margin +8.2) | Streak: W1 | OPP L5: 0-5 (margin -13.2)"
+            },
+            "road_trip_length": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "Road game 2"
+            },
+            "h2h_season": {
+              "score": 7,
+              "weight": 6,
+              "weighted": 42,
+              "note": "H2H: 1-0 this season (1 games)"
+            },
+            "paint_scoring": {
+              "score": 6,
+              "weight": 6,
+              "weighted": 36,
+              "note": "paint_scoring proxy: PPG diff +6.2"
+            },
+            "fast_break": {
+              "score": 6,
+              "weight": 6,
+              "weighted": 36,
+              "note": "fast_break proxy: PPG diff +6.2"
+            },
+            "ats_trend": {
+              "score": 6,
+              "weight": 6,
+              "weighted": 36,
+              "note": "Avg margin L10: +0.1 \u2014 close games | Close: 1/10 | Blowouts: 4/10"
+            },
+            "sharp_vs_public": {
+              "score": 7,
+              "weight": 5,
+              "weighted": 35,
+              "note": "Significant move: -2.5 pts | ML shifted"
+            },
+            "home_away": {
+              "score": 4,
+              "weight": 5,
+              "weighted": 20,
+              "note": "Away: 15-20 (15/35)"
+            },
+            "depth_injuries": {
+              "score": 7,
+              "weight": 4,
+              "weighted": 28,
+              "note": "OPP missing 6 vs our 3"
+            }
+          },
+          "chains_fired": []
+        },
+        "renzo": {
+          "game_id": "PqbwsPY0HguxpeO8pcPn",
+          "profile": "renzo",
+          "pick_side": "away",
+          "grade": "B-",
+          "composite": 5.73,
+          "chain_bonus": 0,
+          "final": 5.73,
+          "pick": "Portland Trail Blazers -12.5",
+          "sizing": "PASS",
+          "variables": {
+            "Q1_whos_missing": {
+              "score": 5,
+              "weight": 9,
+              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
+            },
+            "Q2_line_reflects": {
+              "score": 5,
+              "weight": 9,
+              "note": "Line moved 2.5 pts | Injuries roughly priced"
+            },
+            "Q3_recent_form": {
+              "score": 9,
+              "weight": 8,
+              "note": "Us L5: 3-2 | Them L5: 0-5 | Edge: +6"
+            },
+            "Q4_best_on_court": {
+              "score": 6,
+              "weight": 8,
+              "note": "Both sides mostly healthy"
+            },
+            "Q5_schedule_rest": {
+              "score": 6,
+              "weight": 7,
+              "note": "Streak: W1 | Away"
+            },
+            "thesis_edge": {
+              "score": 4,
+              "weight": 10,
+              "note": "No clear thesis edge found"
+            }
+          },
+          "chains_fired": [],
+          "mathurin_test": "FAIL",
+          "mathurin_note": "No clear thesis edge found"
+        }
+      },
+      "peter_rules": {
+        "game_id": "PqbwsPY0HguxpeO8pcPn",
+        "profile": "peter_rules",
+        "pick_side": "away",
+        "flags": [],
+        "adjustment": 0,
+        "has_kill": false,
+        "flag_count": 0
+      },
+      "consensus_avg": 6.14,
+      "consensus_grade": "B",
+      "consensus_raw": 6.14,
+      "ev": {
+        "profile": "ev",
+        "game_id": "PqbwsPY0HguxpeO8pcPn",
+        "pick_side": "away",
+        "moneyline": -650,
+        "implied_prob": 0.8667,
+        "true_prob": 0.9,
+        "edge": 0.0333,
+        "decimal_odds": 1.154,
+        "ev_pct": 3.85,
+        "ev_grade": "B",
+        "kelly_full": 0.25,
+        "kelly_quarter": 0.0625,
+        "kelly_units": "2u",
+        "status": "ok"
+      },
+      "model_grades": {
+        "gpt41": {
+          "model": "gpt-4.1",
+          "model_key": "gpt41",
+          "pick": "Portland Trail Blazers -12.5",
+          "score": 6.55,
+          "grade": "B+",
+          "sizing": "1u",
+          "reasoning": "Indiana is on a 14-game losing streak (0-10 L10), missing key starters (Haliburton, Siakam, Nembhard, Toppin), and has a dreadful 5-30 home record. Portland is healthier, has won 3 of their last 5, and is outscoring opponents by 8.2 PPG over that span. The -12.5 spread is steep but justified given the Pacers' injuries and poor form.",
+          "key_factor": "Indiana's extreme injury depletion and 14-game losing streak.",
+          "confidence": "medium",
+          "raw_response": "{\n  \"pick\": \"Portland Trail Blazers -12.5\",\n  \"score\": 6.55,\n  \"grade\": \"B+\",\n  \"sizing\": \"1u\",\n  \"reasoning\": \"Indiana is on a 14-game losing streak (0-10 L10), missing key starters (Haliburton, Siakam, Nembhard, Toppin), and has a dreadful 5-30 home record. Portland is healthier, has won 3 of their last 5, and is outscoring opponents by 8.2 PPG over that span. The -12.5 spread is steep but justified given the Pacers' injuries and poor form.\",\n  \"key_factor\": \"Indiana's extreme injury depletion and 14-game losing streak.\",\n  \"confidence\": \"medium\"\n}",
+          "called_at": "2026-03-18T17:43:40.577132",
+          "status": "ok",
+          "game_id": "PqbwsPY0HguxpeO8pcPn",
+          "matchup": "Portland Trail Blazers @ Indiana Pacers"
+        },
+        "deepseek": {
+          "model": "DeepSeek-V3.2",
+          "model_key": "deepseek",
+          "pick": "Portland Trail Blazers -12.5",
+          "score": 8.2,
+          "grade": "A",
+          "sizing": "1.5u",
+          "reasoning": "Indiana is severely depleted, missing Haliburton, Siakam, Nembhard, and Toppin, and has lost 14 straight games, allowing 121.6 PPG over their last 5. Portland is 3-2 in their last 5, has a +8.2 point differential in that span, and the line has moved 2.5 points in their favor from the open, indicating sharp action.",
+          "key_factor": "Indiana's catastrophic injury situation and 14-game losing streak versus Portland's competent recent form.",
+          "confidence": "high",
+          "raw_response": "{\n  \"pick\": \"Portland Trail Blazers -12.5\",\n  \"score\": 8.2,\n  \"grade\": \"A\",\n  \"sizing\": \"1.5u\",\n  \"reasoning\": \"Indiana is severely depleted, missing Haliburton, Siakam, Nembhard, and Toppin, and has lost 14 straight games, allowing 121.6 PPG over their last 5. Portland is 3-2 in their last 5, has a +8.2 point differential in that span, and the line has moved 2.5 points in their favor from the open, indicating sharp action.\",\n  \"key_factor\": \"Indiana's catastrophic injury situation and 14-game losing streak versus Portland's competent recent form.\",\n  \"confidence\": \"high\"\n}",
+          "called_at": "2026-03-18T17:43:41.534135",
+          "status": "ok",
+          "game_id": "PqbwsPY0HguxpeO8pcPn",
+          "matchup": "Portland Trail Blazers @ Indiana Pacers"
+        },
+        "grok": {
+          "model": "grok-3",
+          "model_key": "grok",
+          "pick": "Portland Trail Blazers -12.5",
+          "score": 7.8,
+          "grade": "A",
+          "sizing": "1.5u",
+          "reasoning": "Portland Trail Blazers are the clear pick at -12.5 given their superior recent form with a 3-2 record in the last 5 games and averaging 114.6 PPG, compared to the Pacers' 0-5 record and 108.4 PPG while allowing 121.6 OPP PPG. The Pacers are also severely hampered by multiple key injuries, including Tyrese Haliburton and Pascal Siakam, which significantly weakens their ability to compete. The line movement from -10 to -12.5 still offers value based on the disparity in team performance and roster health.",
+          "key_factor": "Pacers' extensive injury list crippling their lineup.",
+          "confidence": "high",
+          "raw_response": "{\n  \"pick\": \"Portland Trail Blazers -12.5\",\n  \"score\": 7.8,\n  \"grade\": \"A\",\n  \"sizing\": \"1.5u\",\n  \"reasoning\": \"Portland Trail Blazers are the clear pick at -12.5 given their superior recent form with a 3-2 record in the last 5 games and averaging 114.6 PPG, compared to the Pacers' 0-5 record and 108.4 PPG while allowing 121.6 OPP PPG. The Pacers are also severely hampered by multiple key injuries, including Tyrese Haliburton and Pascal Siakam, which significantly weakens their ability to compete. The line movement from -10 to -12.5 still offers value based on the disparity in team performance and roster health.\",\n  \"key_factor\": \"Pacers' extensive injury list crippling their lineup.\",\n  \"confidence\": \"high\"\n}",
+          "called_at": "2026-03-18T17:43:49.125124",
+          "status": "ok",
+          "game_id": "PqbwsPY0HguxpeO8pcPn",
+          "matchup": "Portland Trail Blazers @ Indiana Pacers"
+        },
+        "grok-fast": {
+          "model": "grok-4-1-fast-reasoning",
+          "model_key": "grok-fast",
+          "pick": "Portland Trail Blazers -12.5",
+          "score": 7.2,
+          "grade": "A-",
+          "sizing": "1u",
+          "reasoning": "Indiana is on a 14-game losing streak with a dismal 15-54 record and missing stars like Haliburton (Achilles), Siakam (knee), Nembhard, and Toppin, leaving them severely depleted. Portland (33-36) is 3-2 in L5 with a +8.2 net rating (114.6 PPG scored vs. 106.4 allowed), far outperforming Indiana's -13.2 L5 net (108.4 scored vs. 121.6 allowed). Spread moved from -10 to -12.5, but models grade it B+/B- with clear edge over tanking Pacers.",
+          "key_factor": "Indiana's catastrophic injuries and 14-game skid vs. Portland's solid recent form.",
+          "confidence": "high",
+          "raw_response": "{\n  \"pick\": \"Portland Trail Blazers -12.5\",\n  \"score\": 7.2,\n  \"grade\": \"A-\",\n  \"sizing\": \"1u\",\n  \"reasoning\": \"Indiana is on a 14-game losing streak with a dismal 15-54 record and missing stars like Haliburton (Achilles), Siakam (knee), Nembhard, and Toppin, leaving them severely depleted. Portland (33-36) is 3-2 in L5 with a +8.2 net rating (114.6 PPG scored vs. 106.4 allowed), far outperforming Indiana's -13.2 L5 net (108.4 scored vs. 121.6 allowed). Spread moved from -10 to -12.5, but models grade it B+/B- with clear edge over tanking Pacers.\",\n  \"key_factor\": \"Indiana's catastrophic injuries and 14-game skid vs. Portland's solid recent form.\",\n  \"confidence\": \"high\"\n}",
+          "called_at": "2026-03-18T17:53:48.159001",
+          "status": "ok",
+          "game_id": "PqbwsPY0HguxpeO8pcPn",
+          "matchup": "Portland Trail Blazers @ Indiana Pacers"
+        }
+      }
+    },
+    {
+      "game_id": "Z33L8FkDM4HBSz4nK5hq",
+      "matchup": "Toronto Raptors @ Chicago Bulls",
+      "pick_side": "away",
+      "profiles": {
+        "sintonia": {
+          "game_id": "Z33L8FkDM4HBSz4nK5hq",
+          "profile": "sintonia",
+          "pick_side": "away",
+          "grade": "B-",
+          "composite": 5.92,
+          "chain_bonus": 0.0,
+          "final": 5.92,
+          "pick": "Toronto Raptors -7.5",
+          "sizing": "PASS",
+          "variables": {
+            "star_player_status": {
+              "score": 6,
+              "weight": 9,
+              "weighted": 54,
+              "note": "No significant injuries"
+            },
+            "rest_advantage": {
+              "score": 6,
+              "weight": 9,
+              "weighted": 54,
+              "note": "Us: 3d rest | Them: 2d rest | Rest edge +1d"
+            },
+            "off_ranking": {
+              "score": 8,
+              "weight": 8,
+              "weighted": 64,
+              "note": "PPG L5: 114.6 | OPP allows: 123.6 | Margin L5: +4.6"
+            },
+            "def_ranking": {
+              "score": 6,
+              "weight": 8,
+              "weighted": 48,
+              "note": "Allow L5: 110.0 | They score L5: 122.0"
+            },
+            "three_pt_matchup": {
+              "score": 8,
+              "weight": 7,
+              "weighted": 56,
+              "note": "3PT proxy \u2014 PPG L5: 114.6 | OPP allows: 123.6 | Margin L5: +4.6"
+            },
+            "pace_matchup": {
+              "score": 4,
+              "weight": 7,
+              "weighted": 28,
+              "note": "PACE MISMATCH: 21 pt difference"
+            },
+            "recent_form": {
+              "score": 6,
+              "weight": 7,
+              "weighted": 42,
+              "note": "L5: 3-2 (margin +4.6) | Streak: W2 | OPP L5: 2-3 (margin -1.6)"
+            },
+            "road_trip_length": {
+              "score": 6,
+              "weight": 7,
+              "weighted": 42,
+              "note": "Home stand: 2 games"
+            },
+            "h2h_season": {
+              "score": 9,
+              "weight": 6,
+              "weighted": 54,
+              "note": "H2H: 2-0 this season (2 games)"
+            },
+            "paint_scoring": {
+              "score": 4,
+              "weight": 6,
+              "weighted": 24,
+              "note": "paint_scoring proxy: PPG diff -7.4"
+            },
+            "fast_break": {
+              "score": 4,
+              "weight": 6,
+              "weighted": 24,
+              "note": "fast_break proxy: PPG diff -7.4"
+            },
+            "ats_trend": {
+              "score": 4,
+              "weight": 6,
+              "weighted": 24,
+              "note": "Avg margin L10: -0.4 \u2014 losing close | Close: 1/10 | Blowouts: 2/10"
+            },
+            "sharp_vs_public": {
+              "score": 5,
+              "weight": 5,
+              "weighted": 25,
+              "note": "Spread moved -1.0 pts | ML shifted"
+            },
+            "home_away": {
+              "score": 5,
+              "weight": 5,
+              "weighted": 25,
+              "note": "Away: 19-13 (19/32)"
+            },
+            "depth_injuries": {
+              "score": 7,
+              "weight": 4,
+              "weighted": 28,
+              "note": "OPP missing 5 vs our 2"
+            }
+          },
+          "chains_fired": []
+        },
+        "renzo": {
+          "game_id": "Z33L8FkDM4HBSz4nK5hq",
+          "profile": "renzo",
+          "pick_side": "away",
+          "grade": "B-",
+          "composite": 5.55,
+          "chain_bonus": 0,
+          "final": 5.55,
+          "pick": "Toronto Raptors -7.5",
+          "sizing": "PASS",
+          "variables": {
+            "Q1_whos_missing": {
+              "score": 5,
+              "weight": 9,
+              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
+            },
+            "Q2_line_reflects": {
+              "score": 5,
+              "weight": 9,
+              "note": "Line moved 1.0 pts | Injuries roughly priced"
+            },
+            "Q3_recent_form": {
+              "score": 7,
+              "weight": 8,
+              "note": "Us L5: 3-2 | Them L5: 2-3 | Edge: +2"
+            },
+            "Q4_best_on_court": {
+              "score": 6,
+              "weight": 8,
+              "note": "Both sides mostly healthy"
+            },
+            "Q5_schedule_rest": {
+              "score": 7,
+              "weight": 7,
+              "note": "Streak: W2 | Away"
+            },
+            "thesis_edge": {
+              "score": 4,
+              "weight": 10,
+              "note": "No clear thesis edge found"
+            }
+          },
+          "chains_fired": [],
+          "mathurin_test": "FAIL",
+          "mathurin_note": "No clear thesis edge found"
+        }
+      },
+      "peter_rules": {
+        "game_id": "Z33L8FkDM4HBSz4nK5hq",
+        "profile": "peter_rules",
+        "pick_side": "away",
+        "flags": [],
+        "adjustment": 0,
+        "has_kill": false,
+        "flag_count": 0
+      },
+      "consensus_avg": 5.73,
+      "consensus_grade": "B-",
+      "consensus_raw": 5.73,
+      "ev": {
+        "profile": "ev",
+        "game_id": "Z33L8FkDM4HBSz4nK5hq",
+        "pick_side": "away",
+        "moneyline": -300,
+        "implied_prob": 0.75,
+        "true_prob": 0.7719,
+        "edge": 0.0219,
+        "decimal_odds": 1.333,
+        "ev_pct": 2.92,
+        "ev_grade": "C",
+        "kelly_full": 0.0876,
+        "kelly_quarter": 0.0219,
+        "kelly_units": "1u",
+        "status": "ok"
+      },
+      "model_grades": {
+        "gpt41": {
+          "model": "gpt-4.1",
+          "model_key": "gpt41",
+          "pick": "Toronto Raptors -7.5",
+          "score": 5.92,
+          "grade": "B-",
+          "sizing": "PASS",
+          "reasoning": "Despite the Bulls' recent uptick in scoring (122 PPG L5), they are missing key starters (Ivey, Simons, Okoro, Collins) and have a poor home record (17-18). The Raptors are healthier, have a stronger away record (19-13), and should exploit Chicago's depleted roster, but the models show only marginal value on the spread.",
+          "key_factor": "Chicago's injury-riddled roster and weak home performance.",
+          "confidence": "low",
+          "raw_response": "{\n  \"pick\": \"Toronto Raptors -7.5\",\n  \"score\": 5.92,\n  \"grade\": \"B-\",\n  \"sizing\": \"PASS\",\n  \"reasoning\": \"Despite the Bulls' recent uptick in scoring (122 PPG L5), they are missing key starters (Ivey, Simons, Okoro, Collins) and have a poor home record (17-18). The Raptors are healthier, have a stronger away record (19-13), and should exploit Chicago's depleted roster, but the models show only marginal value on the spread.\",\n  \"key_factor\": \"Chicago's injury-riddled roster and weak home performance.\",\n  \"confidence\": \"low\"\n}",
+          "called_at": "2026-03-18T17:43:48.845077",
+          "status": "ok",
+          "game_id": "Z33L8FkDM4HBSz4nK5hq",
+          "matchup": "Toronto Raptors @ Chicago Bulls"
+        },
+        "deepseek": {
+          "model": "DeepSeek-V3.2",
+          "model_key": "deepseek",
+          "pick": "Toronto Raptors -7.5",
+          "score": 7.2,
+          "grade": "A-",
+          "sizing": "1u",
+          "reasoning": "The Raptors are the far superior team (38-29 vs. 28-40) and are 19-13 on the road, while the Bulls are 11-22 at home. Chicago is missing key scorers in Ivey and Simons, and their defense has allowed 123.6 PPG over their last 5, which should allow Toronto to cover the inflated line. The line moved from -6.5 to -7.5, indicating sharp action on the Raptors, aligning with the model grades.",
+          "key_factor": "Chicago's depleted backcourt and poor recent defense against a strong road team.",
+          "confidence": "medium",
+          "raw_response": "{\n  \"pick\": \"Toronto Raptors -7.5\",\n  \"score\": 7.2,\n  \"grade\": \"A-\",\n  \"sizing\": \"1u\",\n  \"reasoning\": \"The Raptors are the far superior team (38-29 vs. 28-40) and are 19-13 on the road, while the Bulls are 11-22 at home. Chicago is missing key scorers in Ivey and Simons, and their defense has allowed 123.6 PPG over their last 5, which should allow Toronto to cover the inflated line. The line moved from -6.5 to -7.5, indicating sharp action on the Raptors, aligning with the model grades.\",\n  \"key_factor\": \"Chicago's depleted backcourt and poor recent defense against a strong road team.\",\n  \"confidence\": \"medium\"\n}",
+          "called_at": "2026-03-18T17:43:49.652646",
+          "status": "ok",
+          "game_id": "Z33L8FkDM4HBSz4nK5hq",
+          "matchup": "Toronto Raptors @ Chicago Bulls"
+        },
+        "grok": {
+          "model": "grok-3",
+          "model_key": "grok",
+          "pick": "Toronto Raptors -7.5",
+          "score": 7.2,
+          "grade": "A-",
+          "sizing": "1u",
+          "reasoning": "Toronto Raptors have a stronger record at 38-29 compared to Chicago Bulls at 28-40, and they perform well on the road with a 19-13 record. The Bulls are severely hampered by multiple key injuries, including Jaden Ivey, Anfernee Simons, and Isaac Okoro, which weakens their defense and scoring, while Toronto's recent form (3-2 in L5) and lower OPP PPG (110.0) suggest they can cover the -7.5 spread. The line movement from -6.5 to -7.5 indicates market confidence in Toronto despite the Bulls' home advantage.",
+          "key_factor": "Chicago Bulls' extensive injury list significantly impacts their competitiveness.",
+          "confidence": "medium",
+          "raw_response": "{\n  \"pick\": \"Toronto Raptors -7.5\",\n  \"score\": 7.2,\n  \"grade\": \"A-\",\n  \"sizing\": \"1u\",\n  \"reasoning\": \"Toronto Raptors have a stronger record at 38-29 compared to Chicago Bulls at 28-40, and they perform well on the road with a 19-13 record. The Bulls are severely hampered by multiple key injuries, including Jaden Ivey, Anfernee Simons, and Isaac Okoro, which weakens their defense and scoring, while Toronto's recent form (3-2 in L5) and lower OPP PPG (110.0) suggest they can cover the -7.5 spread. The line movement from -6.5 to -7.5 indicates market confidence in Toronto despite the Bulls' home advantage.\",\n  \"key_factor\": \"Chicago Bulls' extensive injury list significantly impacts their competitiveness.\",\n  \"confidence\": \"medium\"\n}",
+          "called_at": "2026-03-18T17:43:55.105316",
+          "status": "ok",
+          "game_id": "Z33L8FkDM4HBSz4nK5hq",
+          "matchup": "Toronto Raptors @ Chicago Bulls"
+        },
+        "grok-fast": {
+          "model": "grok-4-1-fast-reasoning",
+          "model_key": "grok-fast",
+          "pick": "Toronto Raptors -7.5",
+          "score": 7.5,
+          "grade": "A-",
+          "sizing": "1u",
+          "reasoning": "Raptors hold a superior 38-29 record vs. Bulls' 28-40, with a strong 19-13 away mark compared to Chicago's mediocre 17-18 home record. Bulls are severely depleted with five key players out (Ivey, Simons, Okoro, Essengue, Collins), thinning their backcourt and frontcourt, while Raptors miss only two (Hepburn, Murray-Boyles). L5 defensive efficiency favors Toronto (110 OPP PPG) over Chicago's leaky 123.6 OPP PPG, supporting a cover despite the road -7.5.",
+          "key_factor": "Chicago's extensive injuries to guards and frontcourt players cripple their lineup against a healthier, better-record Raptors team.",
+          "confidence": "high",
+          "raw_response": "{\n  \"pick\": \"Toronto Raptors -7.5\",\n  \"score\": 7.5,\n  \"grade\": \"A-\",\n  \"sizing\": \"1u\",\n  \"reasoning\": \"Raptors hold a superior 38-29 record vs. Bulls' 28-40, with a strong 19-13 away mark compared to Chicago's mediocre 17-18 home record. Bulls are severely depleted with five key players out (Ivey, Simons, Okoro, Essengue, Collins), thinning their backcourt and frontcourt, while Raptors miss only two (Hepburn, Murray-Boyles). L5 defensive efficiency favors Toronto (110 OPP PPG) over Chicago's leaky 123.6 OPP PPG, supporting a cover despite the road -7.5.\",\n  \"key_factor\": \"Chicago's extensive injuries to guards and frontcourt players cripple their lineup against a healthier, better-record Raptors team.\",\n  \"confidence\": \"high\"\n}",
+          "called_at": "2026-03-18T17:43:59.498023",
+          "status": "ok",
+          "game_id": "Z33L8FkDM4HBSz4nK5hq",
+          "matchup": "Toronto Raptors @ Chicago Bulls"
+        }
+      }
+    },
+    {
+      "game_id": "uZhlst9RQFHLyMh8VUIW",
+      "matchup": "Utah Jazz @ Minnesota Timberwolves",
+      "pick_side": "home",
+      "profiles": {
+        "sintonia": {
+          "game_id": "uZhlst9RQFHLyMh8VUIW",
+          "profile": "sintonia",
+          "pick_side": "home",
+          "grade": "C+",
+          "composite": 5.45,
+          "chain_bonus": 0.0,
+          "final": 5.45,
+          "pick": "Minnesota Timberwolves -13",
+          "sizing": "PASS",
+          "variables": {
+            "star_player_status": {
+              "score": 6,
+              "weight": 9,
+              "weighted": 54,
+              "note": "No significant injuries"
+            },
+            "rest_advantage": {
+              "score": 1,
+              "weight": 9,
+              "weighted": 9,
+              "note": "Us: 1d rest | Them: 2d rest | WE on B2B; Rest deficit -1d; WE played 5 in 7d vs their 3"
+            },
+            "off_ranking": {
+              "score": 9,
+              "weight": 8,
+              "weighted": 72,
+              "note": "PPG L5: 116.0 | OPP allows: 120.6 | Margin L5: -6.0"
+            },
+            "def_ranking": {
+              "score": 2,
+              "weight": 8,
+              "weighted": 16,
+              "note": "Allow L5: 122.0 | They score L5: 112.0"
+            },
+            "three_pt_matchup": {
+              "score": 9,
+              "weight": 7,
+              "weighted": 63,
+              "note": "3PT proxy \u2014 PPG L5: 116.0 | OPP allows: 120.6 | Margin L5: -6.0"
+            },
+            "pace_matchup": {
+              "score": 6,
+              "weight": 7,
+              "weighted": 42,
+              "note": "Pace aligned (5 diff)"
+            },
+            "recent_form": {
+              "score": 4,
+              "weight": 7,
+              "weighted": 28,
+              "note": "L5: 2-3 (margin -6.0) | Streak: W1 | OPP L5: 1-4 (margin -8.6)"
+            },
+            "road_trip_length": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "No road trip data"
+            },
+            "h2h_season": {
+              "score": 7,
+              "weight": 6,
+              "weighted": 42,
+              "note": "H2H: 2-1 this season (3 games)"
+            },
+            "paint_scoring": {
+              "score": 6,
+              "weight": 6,
+              "weighted": 36,
+              "note": "paint_scoring proxy: PPG diff +4.0"
+            },
+            "fast_break": {
+              "score": 6,
+              "weight": 6,
+              "weighted": 36,
+              "note": "fast_break proxy: PPG diff +4.0"
+            },
+            "ats_trend": {
+              "score": 4,
+              "weight": 6,
+              "weighted": 24,
+              "note": "Avg margin L10: -2.7 \u2014 losing close | Close: 0/10 | Blowouts: 2/10"
+            },
+            "sharp_vs_public": {
+              "score": 5,
+              "weight": 5,
+              "weighted": 25,
+              "note": "Spread moved +1.0 pts | ML shifted"
+            },
+            "home_away": {
+              "score": 7,
+              "weight": 5,
+              "weighted": 35,
+              "note": "Home: 23-12 (23/35)"
+            },
+            "depth_injuries": {
+              "score": 7,
+              "weight": 4,
+              "weighted": 28,
+              "note": "OPP missing 5 vs our 2"
+            }
+          },
+          "chains_fired": []
+        },
+        "renzo": {
+          "game_id": "uZhlst9RQFHLyMh8VUIW",
+          "profile": "renzo",
+          "pick_side": "home",
+          "grade": "B-",
+          "composite": 5.55,
+          "chain_bonus": 0,
+          "final": 5.55,
+          "pick": "Minnesota Timberwolves -13",
+          "sizing": "PASS",
+          "variables": {
+            "Q1_whos_missing": {
+              "score": 5,
+              "weight": 9,
+              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
+            },
+            "Q2_line_reflects": {
+              "score": 5,
+              "weight": 9,
+              "note": "Line moved 1 pts | Injuries roughly priced"
+            },
+            "Q3_recent_form": {
+              "score": 7,
+              "weight": 8,
+              "note": "Us L5: 2-3 | Them L5: 1-4 | Edge: +2"
+            },
+            "Q4_best_on_court": {
+              "score": 6,
+              "weight": 8,
+              "note": "Both sides mostly healthy"
+            },
+            "Q5_schedule_rest": {
+              "score": 7,
+              "weight": 7,
+              "note": "Streak: W1 | Home"
+            },
+            "thesis_edge": {
+              "score": 4,
+              "weight": 10,
+              "note": "No clear thesis edge found"
+            }
+          },
+          "chains_fired": [],
+          "mathurin_test": "FAIL",
+          "mathurin_note": "No clear thesis edge found"
+        }
+      },
+      "peter_rules": {
+        "game_id": "uZhlst9RQFHLyMh8VUIW",
+        "profile": "peter_rules",
+        "pick_side": "home",
+        "flags": [],
+        "adjustment": 0,
+        "has_kill": false,
+        "flag_count": 0
+      },
+      "consensus_avg": 5.5,
+      "consensus_grade": "B-",
+      "consensus_raw": 5.5,
+      "ev": {
+        "profile": "ev",
+        "game_id": "uZhlst9RQFHLyMh8VUIW",
+        "pick_side": "home",
+        "moneyline": -800,
+        "implied_prob": 0.8889,
+        "true_prob": 0.9,
+        "edge": 0.0111,
+        "decimal_odds": 1.125,
+        "ev_pct": 1.25,
+        "ev_grade": "C",
+        "kelly_full": 0.1,
+        "kelly_quarter": 0.025,
+        "kelly_units": "1u",
+        "status": "ok"
+      },
+      "model_grades": {
+        "deepseek": {
+          "model": "DeepSeek-V3.2",
+          "model_key": "deepseek",
+          "pick": "Utah Jazz +13",
+          "score": 7.2,
+          "grade": "A-",
+          "sizing": "1u",
+          "reasoning": "The line has moved from -12 to -13, overvaluing a Timberwolves team missing Anthony Edwards and Naz Reid, who account for a significant portion of their scoring and rebounding. The Jazz, while depleted, have kept their last five games relatively competitive, with an average scoring margin of -8.6 PPG, and Minnesota's defense has been poor lately, allowing 122.0 PPG over their L5. This inflated line offers value on the underdog cover.",
+          "key_factor": "Minnesota's key offensive players (Edwards, Reid) are out, reducing their ability to blow out even a weak opponent.",
+          "confidence": "medium",
+          "raw_response": "{\n  \"pick\": \"Utah Jazz +13\",\n  \"score\": 7.2,\n  \"grade\": \"A-\",\n  \"sizing\": \"1u\",\n  \"reasoning\": \"The line has moved from -12 to -13, overvaluing a Timberwolves team missing Anthony Edwards and Naz Reid, who account for a significant portion of their scoring and rebounding. The Jazz, while depleted, have kept their last five games relatively competitive, with an average scoring margin of -8.6 PPG, and Minnesota's defense has been poor lately, allowing 122.0 PPG over their L5. This inflated line offers value on the underdog cover.\",\n  \"key_factor\": \"Minnesota's key offensive players (Edwards, Reid) are out, reducing their ability to blow out even a weak opponent.\",\n  \"confidence\": \"medium\"\n}",
+          "called_at": "2026-03-18T17:43:35.276995",
+          "status": "ok",
+          "game_id": "uZhlst9RQFHLyMh8VUIW",
+          "matchup": "Utah Jazz @ Minnesota Timberwolves"
+        },
+        "gpt41": {
+          "model": "gpt-4.1",
+          "model_key": "gpt41",
+          "pick": "Utah Jazz +13",
+          "score": 5.2,
+          "grade": "C+",
+          "sizing": "PASS",
+          "reasoning": "Minnesota is missing Anthony Edwards and Naz Reid, significantly reducing their offensive ceiling, while Utah is heavily depleted but still getting a large +13 cushion. Both teams are allowing over 120 PPG in their last 5, and Minnesota has only covered this margin once in their last 10 games. The value on the spread is thin due to Utah's extreme injury issues, so no strong edge emerges.",
+          "key_factor": "Both teams' injury lists and recent defensive struggles.",
+          "confidence": "low",
+          "raw_response": "{\n  \"pick\": \"Utah Jazz +13\",\n  \"score\": 5.2,\n  \"grade\": \"C+\",\n  \"sizing\": \"PASS\",\n  \"reasoning\": \"Minnesota is missing Anthony Edwards and Naz Reid, significantly reducing their offensive ceiling, while Utah is heavily depleted but still getting a large +13 cushion. Both teams are allowing over 120 PPG in their last 5, and Minnesota has only covered this margin once in their last 10 games. The value on the spread is thin due to Utah's extreme injury issues, so no strong edge emerges.\",\n  \"key_factor\": \"Both teams' injury lists and recent defensive struggles.\",\n  \"confidence\": \"low\"\n}",
+          "called_at": "2026-03-18T17:43:35.649141",
+          "status": "ok",
+          "game_id": "uZhlst9RQFHLyMh8VUIW",
+          "matchup": "Utah Jazz @ Minnesota Timberwolves"
+        },
+        "grok": {
+          "model": "grok-3",
+          "model_key": "grok",
+          "pick": "Minnesota Timberwolves -13",
+          "score": 6.8,
+          "grade": "B+",
+          "sizing": "1u",
+          "reasoning": "Despite significant injuries on both sides, the Timberwolves still hold a substantial talent edge over the Jazz, who are missing key players like Lauri Markkanen and Walker Kessler, severely impacting their frontcourt. Minnesota's recent form (6-4 in L10) and home record (23-12) suggest they can cover the -13 spread against a Utah team struggling with a 2-8 record in their last 10 games and an 8-26 away record. The line movement from -12 to -13 indicates market confidence in Minnesota, even with Edwards and Reid out.",
+          "key_factor": "Utah's depleted roster and poor away performance.",
+          "confidence": "medium",
+          "raw_response": "{\n  \"pick\": \"Minnesota Timberwolves -13\",\n  \"score\": 6.8,\n  \"grade\": \"B+\",\n  \"sizing\": \"1u\",\n  \"reasoning\": \"Despite significant injuries on both sides, the Timberwolves still hold a substantial talent edge over the Jazz, who are missing key players like Lauri Markkanen and Walker Kessler, severely impacting their frontcourt. Minnesota's recent form (6-4 in L10) and home record (23-12) suggest they can cover the -13 spread against a Utah team struggling with a 2-8 record in their last 10 games and an 8-26 away record. The line movement from -12 to -13 indicates market confidence in Minnesota, even with Edwards and Reid out.\",\n  \"key_factor\": \"Utah's depleted roster and poor away performance.\",\n  \"confidence\": \"medium\"\n}",
+          "called_at": "2026-03-18T17:43:43.733464",
+          "status": "ok",
+          "game_id": "uZhlst9RQFHLyMh8VUIW",
+          "matchup": "Utah Jazz @ Minnesota Timberwolves"
+        },
+        "grok-fast": {
+          "model": "grok-4-1-fast-reasoning",
+          "model_key": "grok-fast",
+          "pick": "Utah Jazz +13",
+          "score": 6.8,
+          "grade": "B+",
+          "sizing": "1u",
+          "reasoning": "The spread moved from -12 to MIN -13 despite Anthony Edwards (MIN's leading scorer, out with knee inflammation) and Naz Reid missing, creating value on Utah +13. MIN is just 2-3 in L5 (allowing 122 PPG) without their star guard, while Utah's depleted roster still gets 13 points against a non-dominant home team. Math models grade MIN -13 as only B-/C+ passes, confirming the edge on the dog.",
+          "key_factor": "Anthony Edwards out severely hampers MIN's blowout potential.",
+          "confidence": "medium",
+          "raw_response": "{\n  \"pick\": \"Utah Jazz +13\",\n  \"score\": 6.8,\n  \"grade\": \"B+\",\n  \"sizing\": \"1u\",\n  \"reasoning\": \"The spread moved from -12 to MIN -13 despite Anthony Edwards (MIN's leading scorer, out with knee inflammation) and Naz Reid missing, creating value on Utah +13. MIN is just 2-3 in L5 (allowing 122 PPG) without their star guard, while Utah's depleted roster still gets 13 points against a non-dominant home team. Math models grade MIN -13 as only B-/C+ passes, confirming the edge on the dog.\",\n  \"key_factor\": \"Anthony Edwards out severely hampers MIN's blowout potential.\",\n  \"confidence\": \"medium\"\n}",
+          "called_at": "2026-03-18T17:43:47.044371",
+          "status": "ok",
+          "game_id": "uZhlst9RQFHLyMh8VUIW",
+          "matchup": "Utah Jazz @ Minnesota Timberwolves"
+        }
+      }
+    },
+    {
+      "game_id": "y39QLE4cCIET2xx9NvZZ",
+      "matchup": "Los Angeles Clippers @ New Orleans Pelicans",
+      "pick_side": "home",
+      "profiles": {
+        "sintonia": {
+          "game_id": "y39QLE4cCIET2xx9NvZZ",
+          "profile": "sintonia",
+          "pick_side": "home",
+          "grade": "B",
+          "composite": 6.27,
+          "chain_bonus": 0.0,
+          "final": 6.27,
+          "pick": "New Orleans Pelicans -1.5",
+          "sizing": "PASS",
+          "variables": {
+            "star_player_status": {
+              "score": 6,
+              "weight": 9,
+              "weighted": 54,
+              "note": "No significant injuries"
+            },
+            "rest_advantage": {
+              "score": 9,
+              "weight": 9,
+              "weighted": 81,
+              "note": "Us: 2d rest | Them: 1d rest | OPP on B2B; Rest edge +1d"
+            },
+            "off_ranking": {
+              "score": 10,
+              "weight": 8,
+              "weighted": 80,
+              "note": "PPG L5: 122.0 | OPP allows: 118.2 | Margin L5: +9.0"
+            },
+            "def_ranking": {
+              "score": 5,
+              "weight": 8,
+              "weighted": 40,
+              "note": "Allow L5: 113.0 | They score L5: 124.4"
+            },
+            "three_pt_matchup": {
+              "score": 10,
+              "weight": 7,
+              "weighted": 70,
+              "note": "3PT proxy \u2014 PPG L5: 122.0 | OPP allows: 118.2 | Margin L5: +9.0"
+            },
+            "pace_matchup": {
+              "score": 7,
+              "weight": 7,
+              "weighted": 49,
+              "note": "FAST matchup \u2014 high scoring expected"
+            },
+            "recent_form": {
+              "score": 6,
+              "weight": 7,
+              "weighted": 42,
+              "note": "L5: 3-2 (margin +9.0) | Streak: W1 | OPP L5: 3-2 (margin +6.2)"
+            },
+            "road_trip_length": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "No road trip data"
+            },
+            "h2h_season": {
+              "score": 2,
+              "weight": 6,
+              "weighted": 12,
+              "note": "H2H: 0-2 this season (2 games)"
+            },
+            "paint_scoring": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "paint_scoring proxy: PPG diff -2.4"
+            },
+            "fast_break": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "fast_break proxy: PPG diff -2.4"
+            },
+            "ats_trend": {
+              "score": 6,
+              "weight": 6,
+              "weighted": 36,
+              "note": "Avg margin L10: +4.7 \u2014 close games | Close: 2/10 | Blowouts: 3/10"
+            },
+            "sharp_vs_public": {
+              "score": 3,
+              "weight": 5,
+              "weighted": 15,
+              "note": "Line flat \u2014 no sharp signal | ML shifted"
+            },
+            "home_away": {
+              "score": 5,
+              "weight": 5,
+              "weighted": 25,
+              "note": "Home: 14-21 (14/35)"
+            },
+            "depth_injuries": {
+              "score": 7,
+              "weight": 4,
+              "weighted": 28,
+              "note": "OPP missing 4 vs our 1"
+            }
+          },
+          "chains_fired": []
+        },
+        "renzo": {
+          "game_id": "y39QLE4cCIET2xx9NvZZ",
+          "profile": "renzo",
+          "pick_side": "home",
+          "grade": "C+",
+          "composite": 5.24,
+          "chain_bonus": 0,
+          "final": 5.24,
+          "pick": "New Orleans Pelicans -1.5",
+          "sizing": "PASS",
+          "variables": {
+            "Q1_whos_missing": {
+              "score": 5,
+              "weight": 9,
+              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
+            },
+            "Q2_line_reflects": {
+              "score": 5,
+              "weight": 9,
+              "note": "Line moved 0.0 pts | Injuries roughly priced"
+            },
+            "Q3_recent_form": {
+              "score": 5,
+              "weight": 8,
+              "note": "Us L5: 3-2 | Them L5: 3-2 | Edge: +0"
+            },
+            "Q4_best_on_court": {
+              "score": 6,
+              "weight": 8,
+              "note": "Both sides mostly healthy"
+            },
+            "Q5_schedule_rest": {
+              "score": 7,
+              "weight": 7,
+              "note": "Streak: W1 | Home"
+            },
+            "thesis_edge": {
+              "score": 4,
+              "weight": 10,
+              "note": "No clear thesis edge found"
+            }
+          },
+          "chains_fired": [],
+          "mathurin_test": "FAIL",
+          "mathurin_note": "No clear thesis edge found"
+        }
+      },
+      "peter_rules": {
+        "game_id": "y39QLE4cCIET2xx9NvZZ",
+        "profile": "peter_rules",
+        "pick_side": "home",
+        "flags": [],
+        "adjustment": 0,
+        "has_kill": false,
+        "flag_count": 0
+      },
+      "consensus_avg": 5.75,
+      "consensus_grade": "B-",
+      "consensus_raw": 5.75,
+      "ev": {
+        "profile": "ev",
+        "game_id": "y39QLE4cCIET2xx9NvZZ",
+        "pick_side": "home",
+        "moneyline": -120,
+        "implied_prob": 0.5455,
+        "true_prob": 0.568,
+        "edge": 0.0225,
+        "decimal_odds": 1.833,
+        "ev_pct": 4.12,
+        "ev_grade": "B",
+        "kelly_full": 0.0495,
+        "kelly_quarter": 0.0124,
+        "kelly_units": "0.5u",
+        "status": "ok"
+      },
+      "model_grades": {
+        "deepseek": {
+          "model": "DeepSeek-V3.2",
+          "model_key": "deepseek",
+          "pick": "OVER 236.5",
+          "score": 7.2,
+          "grade": "A-",
+          "sizing": "1u",
+          "reasoning": "The total has moved up 7 points from open to 236.5, indicating sharp market movement. Both teams are in strong offensive form, averaging 124.4 and 122.0 PPG over their last 5 games, and the Clippers' key defensive absence (Batum) should further elevate scoring.",
+          "key_factor": "Massive 7-point line move and both teams' recent high-scoring form.",
+          "confidence": "medium",
+          "raw_response": "{\n  \"pick\": \"OVER 236.5\",\n  \"score\": 7.2,\n  \"grade\": \"A-\",\n  \"sizing\": \"1u\",\n  \"reasoning\": \"The total has moved up 7 points from open to 236.5, indicating sharp market movement. Both teams are in strong offensive form, averaging 124.4 and 122.0 PPG over their last 5 games, and the Clippers' key defensive absence (Batum) should further elevate scoring.\",\n  \"key_factor\": \"Massive 7-point line move and both teams' recent high-scoring form.\",\n  \"confidence\": \"medium\"\n}",
+          "called_at": "2026-03-18T17:31:50.918815",
+          "status": "ok",
+          "game_id": "y39QLE4cCIET2xx9NvZZ",
+          "matchup": "Los Angeles Clippers @ New Orleans Pelicans"
+        },
+        "gpt41": {
+          "model": "gpt-4.1",
+          "model_key": "gpt41",
+          "pick": "Under 236.5 Total",
+          "score": 7.2,
+          "grade": "A-",
+          "sizing": "1u",
+          "reasoning": "The total has jumped 7 points from open, but both teams' recent scoring (Clippers 124.4, Pelicans 122.0 PPG L5) and defensive stats (Clippers OPP PPG L5: 118.2, Pelicans: 113.0) suggest inflated expectations. Injuries to key Clippers scorers (Mathurin, Beal, Batum) further dampen offensive upside. With the Pelicans averaging only 113 allowed in their last five, this number is stretched and offers value on the under.",
+          "key_factor": "Inflated total due to line move and Clippers' depleted offense.",
+          "confidence": "medium",
+          "raw_response": "{\n  \"pick\": \"Under 236.5 Total\",\n  \"score\": 7.2,\n  \"grade\": \"A-\",\n  \"sizing\": \"1u\",\n  \"reasoning\": \"The total has jumped 7 points from open, but both teams' recent scoring (Clippers 124.4, Pelicans 122.0 PPG L5) and defensive stats (Clippers OPP PPG L5: 118.2, Pelicans: 113.0) suggest inflated expectations. Injuries to key Clippers scorers (Mathurin, Beal, Batum) further dampen offensive upside. With the Pelicans averaging only 113 allowed in their last five, this number is stretched and offers value on the under.\",\n  \"key_factor\": \"Inflated total due to line move and Clippers' depleted offense.\",\n  \"confidence\": \"medium\"\n}",
+          "called_at": "2026-03-18T17:31:50.931407",
+          "status": "ok",
+          "game_id": "y39QLE4cCIET2xx9NvZZ",
+          "matchup": "Los Angeles Clippers @ New Orleans Pelicans"
+        },
+        "grok": {
+          "model": "grok-3",
+          "model_key": "grok",
+          "pick": "New Orleans Pelicans -1.5",
+          "score": 7.2,
+          "grade": "A-",
+          "sizing": "1u",
+          "reasoning": "The New Orleans Pelicans at -1.5 offer value due to the Clippers' significant injury concerns, with key players like Bradley Beal and Bennedict Mathurin out, severely impacting their offensive and defensive capabilities. The Pelicans have shown better defensive form recently, allowing only 113.0 OPP PPG over their last 5 games compared to the Clippers' 118.2, and they have momentum with a 6-4 record in their last 10 games. The spread remaining stable at -1.5 despite the Clippers' injuries further supports this as a favorable bet.",
+          "key_factor": "Clippers' multiple key injuries weakening their lineup.",
+          "confidence": "medium",
+          "raw_response": "{\n  \"pick\": \"New Orleans Pelicans -1.5\",\n  \"score\": 7.2,\n  \"grade\": \"A-\",\n  \"sizing\": \"1u\",\n  \"reasoning\": \"The New Orleans Pelicans at -1.5 offer value due to the Clippers' significant injury concerns, with key players like Bradley Beal and Bennedict Mathurin out, severely impacting their offensive and defensive capabilities. The Pelicans have shown better defensive form recently, allowing only 113.0 OPP PPG over their last 5 games compared to the Clippers' 118.2, and they have momentum with a 6-4 record in their last 10 games. The spread remaining stable at -1.5 despite the Clippers' injuries further supports this as a favorable bet.\",\n  \"key_factor\": \"Clippers' multiple key injuries weakening their lineup.\",\n  \"confidence\": \"medium\"\n}",
+          "called_at": "2026-03-18T17:31:54.519007",
+          "status": "ok",
+          "game_id": "y39QLE4cCIET2xx9NvZZ",
+          "matchup": "Los Angeles Clippers @ New Orleans Pelicans"
+        },
+        "grok-fast": {
+          "model": "grok-4-1-fast-reasoning",
+          "model_key": "grok-fast",
+          "pick": "New Orleans Pelicans -1.5",
+          "score": 6.8,
+          "grade": "B+",
+          "sizing": "1u",
+          "reasoning": "Clippers are missing four players including Beal (season-ending hip surgery, key SG scorer), Mathurin (toe, SF), Batum (rest, PF), and Niederhauser (season-ending Lisfranc, C), severely weakening their lineup and contributing to their L2 skid. Pelicans are 6-4 L10 with strong defense at 113 OPP PPG L5, outscoring opponents by 9 PPG recently, while Clippers allow 118.2 L5. Spread flipped from Clippers -1.5 open to Pelicans -1.5 current, aligning with injury impact and form.",
+          "key_factor": "Clippers' four significant injuries depleting scoring and frontcourt depth.",
+          "confidence": "medium",
+          "raw_response": "{\n  \"pick\": \"New Orleans Pelicans -1.5\",\n  \"score\": 6.8,\n  \"grade\": \"B+\",\n  \"sizing\": \"1u\",\n  \"reasoning\": \"Clippers are missing four players including Beal (season-ending hip surgery, key SG scorer), Mathurin (toe, SF), Batum (rest, PF), and Niederhauser (season-ending Lisfranc, C), severely weakening their lineup and contributing to their L2 skid. Pelicans are 6-4 L10 with strong defense at 113 OPP PPG L5, outscoring opponents by 9 PPG recently, while Clippers allow 118.2 L5. Spread flipped from Clippers -1.5 open to Pelicans -1.5 current, aligning with injury impact and form.\",\n  \"key_factor\": \"Clippers' four significant injuries depleting scoring and frontcourt depth.\",\n  \"confidence\": \"medium\"\n}",
+          "called_at": "2026-03-18T17:42:02.360475",
+          "status": "ok",
+          "game_id": "y39QLE4cCIET2xx9NvZZ",
+          "matchup": "Los Angeles Clippers @ New Orleans Pelicans"
+        }
+      }
+    },
+    {
+      "game_id": "0BCy6H9EngwjSiHAzlNv",
+      "matchup": "Atlanta Hawks @ Dallas Mavericks",
+      "pick_side": "away",
+      "profiles": {
+        "sintonia": {
+          "game_id": "0BCy6H9EngwjSiHAzlNv",
+          "profile": "sintonia",
+          "pick_side": "away",
+          "grade": "A+",
+          "composite": 7.32,
+          "chain_bonus": 1.5,
+          "final": 8.82,
+          "pick": "Atlanta Hawks -8.5",
+          "sizing": "2u",
+          "variables": {
+            "star_player_status": {
+              "score": 7,
+              "weight": 9,
+              "weighted": 63,
+              "note": "No significant injuries"
+            },
+            "rest_advantage": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "Us: 2d rest | Them: 2d rest"
+            },
+            "off_ranking": {
+              "score": 10,
+              "weight": 8,
+              "weighted": 80,
+              "note": "PPG L5: 120.6 | OPP allows: 124.6 | Margin L5: +13.4"
+            },
+            "def_ranking": {
+              "score": 8,
+              "weight": 8,
+              "weighted": 64,
+              "note": "Allow L5: 107.2 | They score L5: 115.6"
+            },
+            "three_pt_matchup": {
+              "score": 10,
+              "weight": 7,
+              "weighted": 70,
+              "note": "3PT proxy \u2014 PPG L5: 120.6 | OPP allows: 124.6 | Margin L5: +13.4"
+            },
+            "pace_matchup": {
+              "score": 6,
+              "weight": 7,
+              "weighted": 42,
+              "note": "Pace aligned (12 diff)"
+            },
+            "recent_form": {
+              "score": 10,
+              "weight": 7,
+              "weighted": 70,
+              "note": "L5: 5-0 (margin +13.4) | Streak: W10 | OPP L5: 2-3 (margin -9.0)"
+            },
+            "road_trip_length": {
+              "score": 7,
+              "weight": 7,
+              "weighted": 49,
+              "note": "Home stand: 5 games \u2014 well rested at home"
+            },
+            "h2h_season": {
+              "score": 7,
+              "weight": 6,
+              "weighted": 42,
+              "note": "H2H: 1-0 this season (1 games)"
+            },
+            "paint_scoring": {
+              "score": 6,
+              "weight": 6,
+              "weighted": 36,
+              "note": "paint_scoring proxy: PPG diff +5.0"
+            },
+            "fast_break": {
+              "score": 6,
+              "weight": 6,
+              "weighted": 36,
+              "note": "fast_break proxy: PPG diff +5.0"
+            },
+            "ats_trend": {
+              "score": 9,
+              "weight": 6,
+              "weighted": 54,
+              "note": "Avg margin L10: +18.1 \u2014 dominating | Close: 0/10 | Blowouts: 5/10"
+            },
+            "sharp_vs_public": {
+              "score": 5,
+              "weight": 5,
+              "weighted": 25,
+              "note": "Spread moved +0.5 pts | ML shifted"
+            },
+            "home_away": {
+              "score": 4,
+              "weight": 5,
+              "weighted": 20,
+              "note": "Away: 18-15 (18/33)"
+            },
+            "depth_injuries": {
+              "score": 9,
+              "weight": 4,
+              "weighted": 36,
+              "note": "OPP missing 4 players vs our 0"
+            }
+          },
+          "chains_fired": [
+            "FORM_WAVE"
+          ]
+        },
+        "renzo": {
+          "game_id": "0BCy6H9EngwjSiHAzlNv",
+          "profile": "renzo",
+          "pick_side": "away",
+          "grade": "B",
+          "composite": 6.14,
+          "chain_bonus": 0,
+          "final": 6.14,
+          "pick": "Atlanta Hawks -8.5",
+          "sizing": "PASS",
+          "variables": {
+            "Q1_whos_missing": {
+              "score": 5,
+              "weight": 9,
+              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
+            },
+            "Q2_line_reflects": {
+              "score": 5,
+              "weight": 9,
+              "note": "Line moved 0.5 pts | Injuries roughly priced"
+            },
+            "Q3_recent_form": {
+              "score": 9,
+              "weight": 8,
+              "note": "Us L5: 5-0 | Them L5: 2-3 | Edge: +6"
+            },
+            "Q4_best_on_court": {
+              "score": 6,
+              "weight": 8,
+              "note": "Both sides mostly healthy"
+            },
+            "Q5_schedule_rest": {
+              "score": 9,
+              "weight": 7,
+              "note": "Streak: W10 | Away"
+            },
+            "thesis_edge": {
+              "score": 4,
+              "weight": 10,
+              "note": "No clear thesis edge found"
+            }
+          },
+          "chains_fired": [],
+          "mathurin_test": "FAIL",
+          "mathurin_note": "No clear thesis edge found"
+        }
+      },
+      "peter_rules": {
+        "game_id": "0BCy6H9EngwjSiHAzlNv",
+        "profile": "peter_rules",
+        "pick_side": "away",
+        "flags": [],
+        "adjustment": 0,
+        "has_kill": false,
+        "flag_count": 0
+      },
+      "consensus_avg": 7.48,
+      "consensus_grade": "A-",
+      "consensus_raw": 7.48,
+      "ev": {
+        "profile": "ev",
+        "game_id": "0BCy6H9EngwjSiHAzlNv",
+        "pick_side": "away",
+        "moneyline": -350,
+        "implied_prob": 0.7778,
+        "true_prob": 0.8522,
+        "edge": 0.0744,
+        "decimal_odds": 1.286,
+        "ev_pct": 9.57,
+        "ev_grade": "A",
+        "kelly_full": 0.3348,
+        "kelly_quarter": 0.0837,
+        "kelly_units": "2u",
+        "status": "ok"
+      },
+      "model_grades": {
+        "grok": {
+          "model": "grok-3",
+          "model_key": "grok",
+          "pick": "Atlanta Hawks -8.5",
+          "score": 8.8,
+          "grade": "A+",
+          "sizing": "2u",
+          "reasoning": "The Atlanta Hawks are on a remarkable 10-game winning streak, averaging 120.6 PPG over their last 5 games while holding opponents to 107.2 PPG. In contrast, the Dallas Mavericks are severely depleted with key players like Kyrie Irving and Dereck Lively II out, contributing to their poor 2-8 record over the last 10 games and a defensive struggle allowing 124.6 PPG in their last 5. The Hawks should cover the -8.5 spread comfortably given the talent disparity and current form.",
+          "key_factor": "Hawks' dominant form and Mavericks' significant injuries.",
+          "confidence": "high",
+          "raw_response": "{\n  \"pick\": \"Atlanta Hawks -8.5\",\n  \"score\": 8.8,\n  \"grade\": \"A+\",\n  \"sizing\": \"2u\",\n  \"reasoning\": \"The Atlanta Hawks are on a remarkable 10-game winning streak, averaging 120.6 PPG over their last 5 games while holding opponents to 107.2 PPG. In contrast, the Dallas Mavericks are severely depleted with key players like Kyrie Irving and Dereck Lively II out, contributing to their poor 2-8 record over the last 10 games and a defensive struggle allowing 124.6 PPG in their last 5. The Hawks should cover the -8.5 spread comfortably given the talent disparity and current form.\",\n  \"key_factor\": \"Hawks' dominant form and Mavericks' significant injuries.\",\n  \"confidence\": \"high\"\n}",
+          "called_at": "2026-03-18T17:21:50.229816",
+          "status": "ok",
+          "game_id": "0BCy6H9EngwjSiHAzlNv",
+          "matchup": "Atlanta Hawks @ Dallas Mavericks"
+        },
+        "deepseek": {
+          "model": "DeepSeek-V3.2",
+          "model_key": "deepseek",
+          "pick": "Atlanta Hawks -8.5",
+          "score": 8.2,
+          "grade": "A",
+          "sizing": "1.5u",
+          "reasoning": "The Hawks are on a 10-game win streak, averaging 120.6 PPG and allowing only 107.2 PPG over their last 5, while the Mavericks are 2-8 in their last 10, allowing 124.6 PPG in their last 5 and missing multiple key players including Kyrie Irving. The line has moved from DAL -9 to -8.5, offering slight value on the hotter, healthier team.",
+          "key_factor": "Atlanta's dominant form (10-0 L10, +13.4 PPG diff L5) vs. Dallas's injury-depleted, struggling defense.",
+          "confidence": "high",
+          "raw_response": "{\n  \"pick\": \"Atlanta Hawks -8.5\",\n  \"score\": 8.2,\n  \"grade\": \"A\",\n  \"sizing\": \"1.5u\",\n  \"reasoning\": \"The Hawks are on a 10-game win streak, averaging 120.6 PPG and allowing only 107.2 PPG over their last 5, while the Mavericks are 2-8 in their last 10, allowing 124.6 PPG in their last 5 and missing multiple key players including Kyrie Irving. The line has moved from DAL -9 to -8.5, offering slight value on the hotter, healthier team.\",\n  \"key_factor\": \"Atlanta's dominant form (10-0 L10, +13.4 PPG diff L5) vs. Dallas's injury-depleted, struggling defense.\",\n  \"confidence\": \"high\"\n}",
+          "called_at": "2026-03-18T17:27:01.489717",
+          "status": "ok",
+          "game_id": "0BCy6H9EngwjSiHAzlNv",
+          "matchup": "Atlanta Hawks @ Dallas Mavericks"
+        },
+        "grok-fast": {
+          "model": "grok-4-1-fast-reasoning",
+          "model_key": "grok-fast",
+          "pick": "Atlanta Hawks -8.5",
+          "score": 8.2,
+          "grade": "A",
+          "sizing": "1.5u",
+          "reasoning": "Hawks are scorching hot on a 10-win streak (L10: 10-0), averaging 120.6 PPG while holding opponents to 107.2 PPG over L5. Mavericks are depleted with Kyrie Irving out for the season, plus Williams, Martin, and Lively sidelined, allowing 124.6 OPP PPG L5 amid a 2-8 L10 skid. Spread has moved favorably from -9 to -8.5, offering strong value on Atlanta covering.",
+          "key_factor": "Mavericks' key injuries and defensive collapse (124.6 OPP PPG L5).",
+          "confidence": "high",
+          "raw_response": "{\n  \"pick\": \"Atlanta Hawks -8.5\",\n  \"score\": 8.2,\n  \"grade\": \"A\",\n  \"sizing\": \"1.5u\",\n  \"reasoning\": \"Hawks are scorching hot on a 10-win streak (L10: 10-0), averaging 120.6 PPG while holding opponents to 107.2 PPG over L5. Mavericks are depleted with Kyrie Irving out for the season, plus Williams, Martin, and Lively sidelined, allowing 124.6 OPP PPG L5 amid a 2-8 L10 skid. Spread has moved favorably from -9 to -8.5, offering strong value on Atlanta covering.\",\n  \"key_factor\": \"Mavericks' key injuries and defensive collapse (124.6 OPP PPG L5).\",\n  \"confidence\": \"high\"\n}",
+          "called_at": "2026-03-18T17:27:07.393845",
+          "status": "ok",
+          "game_id": "0BCy6H9EngwjSiHAzlNv",
+          "matchup": "Atlanta Hawks @ Dallas Mavericks"
+        },
+        "gpt41": {
+          "model": "gpt-4.1",
+          "model_key": "gpt41",
+          "pick": "Atlanta Hawks -8.5",
+          "score": 8.0,
+          "grade": "A",
+          "sizing": "1.5u",
+          "reasoning": "The Hawks are on a 10-game winning streak (L10: 10-0) and have outscored opponents by an average of 13.4 PPG over their last 5 games, while Dallas is just 2-8 in their last 10 and missing key players including Kyrie Irving. The Mavericks' defense has collapsed recently (124.6 OPP PPG L5), and their depleted roster is unlikely to keep pace with Atlanta's form.",
+          "key_factor": "Dallas is missing multiple starters including Kyrie Irving.",
+          "confidence": "high",
+          "raw_response": "{\n  \"pick\": \"Atlanta Hawks -8.5\",\n  \"score\": 8.0,\n  \"grade\": \"A\",\n  \"sizing\": \"1.5u\",\n  \"reasoning\": \"The Hawks are on a 10-game winning streak (L10: 10-0) and have outscored opponents by an average of 13.4 PPG over their last 5 games, while Dallas is just 2-8 in their last 10 and missing key players including Kyrie Irving. The Mavericks' defense has collapsed recently (124.6 OPP PPG L5), and their depleted roster is unlikely to keep pace with Atlanta's form.\",\n  \"key_factor\": \"Dallas is missing multiple starters including Kyrie Irving.\",\n  \"confidence\": \"high\"\n}",
+          "called_at": "2026-03-18T17:27:51.703112",
+          "status": "ok",
+          "game_id": "0BCy6H9EngwjSiHAzlNv",
+          "matchup": "Atlanta Hawks @ Dallas Mavericks"
+        }
+      }
+    },
+    {
+      "game_id": "SoNbfzLnQsxn8tUaqh4q",
+      "matchup": "Denver Nuggets @ Memphis Grizzlies",
+      "pick_side": "away",
+      "profiles": {
+        "sintonia": {
+          "game_id": "SoNbfzLnQsxn8tUaqh4q",
+          "profile": "sintonia",
+          "pick_side": "away",
+          "grade": "B+",
+          "composite": 6.59,
+          "chain_bonus": 0.0,
+          "final": 6.59,
+          "pick": "Denver Nuggets -13",
+          "sizing": "1u",
+          "variables": {
+            "star_player_status": {
+              "score": 7,
+              "weight": 9,
+              "weighted": 63,
+              "note": "No significant injuries"
+            },
+            "rest_advantage": {
+              "score": 1,
+              "weight": 9,
+              "weighted": 9,
+              "note": "Us: 0d rest | Them: 2d rest | WE on B2B; Rest deficit -2d"
+            },
+            "off_ranking": {
+              "score": 10,
+              "weight": 8,
+              "weighted": 80,
+              "note": "PPG L5: 128.0 | OPP allows: 128.6 | Margin L5: +12.8"
+            },
+            "def_ranking": {
+              "score": 4,
+              "weight": 8,
+              "weighted": 32,
+              "note": "Allow L5: 115.2 | They score L5: 114.6"
+            },
+            "three_pt_matchup": {
+              "score": 10,
+              "weight": 7,
+              "weighted": 70,
+              "note": "3PT proxy \u2014 PPG L5: 128.0 | OPP allows: 128.6 | Margin L5: +12.8"
+            },
+            "pace_matchup": {
+              "score": 7,
+              "weight": 7,
+              "weighted": 49,
+              "note": "FAST matchup \u2014 high scoring expected"
+            },
+            "recent_form": {
+              "score": 7,
+              "weight": 7,
+              "weighted": 49,
+              "note": "L5: 3-2 (margin +12.8) | Streak: W1 | OPP L5: 0-5 (margin -14.0)"
+            },
+            "road_trip_length": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "No road trip data"
+            },
+            "h2h_season": {
+              "score": 9,
+              "weight": 6,
+              "weighted": 54,
+              "note": "H2H: 2-0 this season (2 games)"
+            },
+            "paint_scoring": {
+              "score": 8,
+              "weight": 6,
+              "weighted": 48,
+              "note": "paint_scoring proxy: PPG diff +13.4"
+            },
+            "fast_break": {
+              "score": 8,
+              "weight": 6,
+              "weighted": 48,
+              "note": "fast_break proxy: PPG diff +13.4"
+            },
+            "ats_trend": {
+              "score": 6,
+              "weight": 6,
+              "weighted": 36,
+              "note": "Avg margin L10: +2.0 \u2014 close games | Close: 4/10 | Blowouts: 3/10"
+            },
+            "sharp_vs_public": {
+              "score": 5,
+              "weight": 5,
+              "weighted": 25,
+              "note": "Spread moved -0.5 pts | ML shifted"
+            },
+            "home_away": {
+              "score": 5,
+              "weight": 5,
+              "weighted": 25,
+              "note": "Away: 23-14 (23/37)"
+            },
+            "depth_injuries": {
+              "score": 9,
+              "weight": 4,
+              "weighted": 36,
+              "note": "OPP missing 6 players vs our 2"
+            }
+          },
+          "chains_fired": []
+        },
+        "renzo": {
+          "game_id": "SoNbfzLnQsxn8tUaqh4q",
+          "profile": "renzo",
+          "pick_side": "away",
+          "grade": "B-",
+          "composite": 5.73,
+          "chain_bonus": 0,
+          "final": 5.73,
+          "pick": "Denver Nuggets -13",
+          "sizing": "PASS",
+          "variables": {
+            "Q1_whos_missing": {
+              "score": 5,
+              "weight": 9,
+              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
+            },
+            "Q2_line_reflects": {
+              "score": 5,
+              "weight": 9,
+              "note": "Line moved 0.5 pts | Injuries roughly priced"
+            },
+            "Q3_recent_form": {
+              "score": 9,
+              "weight": 8,
+              "note": "Us L5: 3-2 | Them L5: 0-5 | Edge: +6"
+            },
+            "Q4_best_on_court": {
+              "score": 6,
+              "weight": 8,
+              "note": "Both sides mostly healthy"
+            },
+            "Q5_schedule_rest": {
+              "score": 6,
+              "weight": 7,
+              "note": "Streak: W1 | Away"
+            },
+            "thesis_edge": {
+              "score": 4,
+              "weight": 10,
+              "note": "No clear thesis edge found"
+            }
+          },
+          "chains_fired": [],
+          "mathurin_test": "FAIL",
+          "mathurin_note": "No clear thesis edge found"
+        }
+      },
+      "peter_rules": {
+        "game_id": "SoNbfzLnQsxn8tUaqh4q",
+        "profile": "peter_rules",
+        "pick_side": "away",
+        "flags": [],
+        "adjustment": 0,
+        "has_kill": false,
+        "flag_count": 0
+      },
+      "consensus_avg": 6.16,
+      "consensus_grade": "B",
+      "consensus_raw": 6.16,
+      "ev": {
+        "profile": "ev",
+        "game_id": "SoNbfzLnQsxn8tUaqh4q",
+        "pick_side": "away",
+        "moneyline": -900,
+        "implied_prob": 0.9,
+        "true_prob": 0.9,
+        "edge": 0.0,
+        "decimal_odds": 1.111,
+        "ev_pct": 0.0,
+        "ev_grade": "C",
+        "kelly_full": 0.0,
+        "kelly_quarter": 0.0,
+        "kelly_units": "0.5u",
+        "status": "ok"
+      },
+      "model_grades": {
+        "deepseek": {
+          "model": "DeepSeek-V3.2",
+          "model_key": "deepseek",
+          "pick": "Denver Nuggets -13",
+          "score": 7.2,
+          "grade": "A-",
+          "sizing": "1u",
+          "reasoning": "Denver is a vastly superior team (42-27 vs. 23-44) facing a depleted Memphis squad on an 8-game losing streak. The Grizzlies are allowing 128.6 PPG over their last 5, while Denver's offense is averaging 128.0 PPG in that span, suggesting they can cover the large number. The line moved from -12.5 to -13, indicating sharp action on Denver, aligning with the model grades.",
+          "key_factor": "Memphis's decimated roster and league-worst defensive form (128.6 OPP PPG L5) against a top-tier Denver offense.",
+          "confidence": "high",
+          "raw_response": "{\n  \"pick\": \"Denver Nuggets -13\",\n  \"score\": 7.2,\n  \"grade\": \"A-\",\n  \"sizing\": \"1u\",\n  \"reasoning\": \"Denver is a vastly superior team (42-27 vs. 23-44) facing a depleted Memphis squad on an 8-game losing streak. The Grizzlies are allowing 128.6 PPG over their last 5, while Denver's offense is averaging 128.0 PPG in that span, suggesting they can cover the large number. The line moved from -12.5 to -13, indicating sharp action on Denver, aligning with the model grades.\",\n  \"key_factor\": \"Memphis's decimated roster and league-worst defensive form (128.6 OPP PPG L5) against a top-tier Denver offense.\",\n  \"confidence\": \"high\"\n}",
+          "called_at": "2026-03-18T17:43:38.153318",
+          "status": "ok",
+          "game_id": "SoNbfzLnQsxn8tUaqh4q",
+          "matchup": "Denver Nuggets @ Memphis Grizzlies"
+        },
+        "gpt41": {
+          "model": "gpt-4.1",
+          "model_key": "gpt41",
+          "pick": "Denver Nuggets -13",
+          "score": 7.0,
+          "grade": "A-",
+          "sizing": "1u",
+          "reasoning": "Denver is in solid form (3-2 L5, +12.8 PPG differential L5) and faces a Memphis team decimated by injuries (Morant, Edey, Aldama, Clarke all out) and on an 8-game losing streak, allowing 128.6 PPG in their last 5. The Grizzlies' lack of depth and scoring makes it unlikely they can keep pace with a motivated Nuggets squad, even with Denver resting Gordon and Watson.",
+          "key_factor": "Memphis' injuries and defensive collapse (128.6 OPP PPG L5).",
+          "confidence": "medium",
+          "raw_response": "{\n  \"pick\": \"Denver Nuggets -13\",\n  \"score\": 7.0,\n  \"grade\": \"A-\",\n  \"sizing\": \"1u\",\n  \"reasoning\": \"Denver is in solid form (3-2 L5, +12.8 PPG differential L5) and faces a Memphis team decimated by injuries (Morant, Edey, Aldama, Clarke all out) and on an 8-game losing streak, allowing 128.6 PPG in their last 5. The Grizzlies' lack of depth and scoring makes it unlikely they can keep pace with a motivated Nuggets squad, even with Denver resting Gordon and Watson.\",\n  \"key_factor\": \"Memphis' injuries and defensive collapse (128.6 OPP PPG L5).\",\n  \"confidence\": \"medium\"\n}",
+          "called_at": "2026-03-18T17:43:38.975057",
+          "status": "ok",
+          "game_id": "SoNbfzLnQsxn8tUaqh4q",
+          "matchup": "Denver Nuggets @ Memphis Grizzlies"
+        },
+        "grok": {
+          "model": "grok-3",
+          "model_key": "grok",
+          "pick": "Denver Nuggets -13",
+          "score": 7.8,
+          "grade": "A",
+          "sizing": "1.5u",
+          "reasoning": "The Denver Nuggets are heavily favored against a depleted Memphis Grizzlies team, with a spread of -13 looking achievable given Denver's recent scoring average of 128.0 PPG over their last 5 games compared to Memphis allowing 128.6 PPG in the same span. Memphis is on an 8-game losing streak and missing key players like Ja Morant, Zach Edey, and Santi Aldama, severely impacting their ability to compete. Despite Denver missing Aaron Gordon and Peyton Watson, their depth and current form (3-2 in last 5) suggest they can cover the spread on the road.",
+          "key_factor": "Memphis Grizzlies' extensive injury list and poor recent form.",
+          "confidence": "high",
+          "raw_response": "{\n  \"pick\": \"Denver Nuggets -13\",\n  \"score\": 7.8,\n  \"grade\": \"A\",\n  \"sizing\": \"1.5u\",\n  \"reasoning\": \"The Denver Nuggets are heavily favored against a depleted Memphis Grizzlies team, with a spread of -13 looking achievable given Denver's recent scoring average of 128.0 PPG over their last 5 games compared to Memphis allowing 128.6 PPG in the same span. Memphis is on an 8-game losing streak and missing key players like Ja Morant, Zach Edey, and Santi Aldama, severely impacting their ability to compete. Despite Denver missing Aaron Gordon and Peyton Watson, their depth and current form (3-2 in last 5) suggest they can cover the spread on the road.\",\n  \"key_factor\": \"Memphis Grizzlies' extensive injury list and poor recent form.\",\n  \"confidence\": \"high\"\n}",
+          "called_at": "2026-03-18T17:43:44.760993",
+          "status": "ok",
+          "game_id": "SoNbfzLnQsxn8tUaqh4q",
+          "matchup": "Denver Nuggets @ Memphis Grizzlies"
+        },
+        "grok-fast": {
+          "model": "grok-4-1-fast-reasoning",
+          "model_key": "grok-fast",
+          "pick": "Denver Nuggets -13",
+          "score": 7.2,
+          "grade": "A-",
+          "sizing": "1u",
+          "reasoning": "Denver boasts a strong 23-14 away record and is averaging 128.0 PPG over their L5, while Memphis is on an L8 skid, allowing 128.6 OPP PPG in their L5 and crippled by absences of Morant, Edey, Aldama, Clarke, and KCP. Despite Denver resting Gordon and missing Watson, the talent and form gap suggests a blowout covering the -13 line, as the spread has only tightened 0.5 points from open. Models align with B+/B- grades on this exact pick.",
+          "key_factor": "Memphis' extensive injuries decimating their core rotation and defense.",
+          "confidence": "high",
+          "raw_response": "{\n  \"pick\": \"Denver Nuggets -13\",\n  \"score\": 7.2,\n  \"grade\": \"A-\",\n  \"sizing\": \"1u\",\n  \"reasoning\": \"Denver boasts a strong 23-14 away record and is averaging 128.0 PPG over their L5, while Memphis is on an L8 skid, allowing 128.6 OPP PPG in their L5 and crippled by absences of Morant, Edey, Aldama, Clarke, and KCP. Despite Denver resting Gordon and missing Watson, the talent and form gap suggests a blowout covering the -13 line, as the spread has only tightened 0.5 points from open. Models align with B+/B- grades on this exact pick.\",\n  \"key_factor\": \"Memphis' extensive injuries decimating their core rotation and defense.\",\n  \"confidence\": \"high\"\n}",
+          "called_at": "2026-03-18T17:59:03.465039",
+          "status": "ok",
+          "game_id": "SoNbfzLnQsxn8tUaqh4q",
+          "matchup": "Denver Nuggets @ Memphis Grizzlies"
+        }
+      }
+    },
+    {
+      "game_id": "njesOUGLqj6rjNAATKJ0",
+      "matchup": "Los Angeles Lakers @ Houston Rockets",
+      "pick_side": "away",
+      "profiles": {
+        "sintonia": {
+          "game_id": "njesOUGLqj6rjNAATKJ0",
+          "profile": "sintonia",
+          "pick_side": "away",
+          "grade": "A-",
+          "composite": 6.77,
+          "chain_bonus": 1.0,
+          "final": 7.77,
+          "pick": "Los Angeles Lakers 1.5",
+          "sizing": "1u",
+          "variables": {
+            "star_player_status": {
+              "score": 6,
+              "weight": 9,
+              "weighted": 54,
+              "note": "No significant injuries"
+            },
+            "rest_advantage": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "Us: 1d rest | Them: 1d rest | Both B2B"
+            },
+            "off_ranking": {
+              "score": 9,
+              "weight": 8,
+              "weighted": 72,
+              "note": "PPG L5: 119.8 | OPP allows: 115.6 | Margin L5: +9.8"
+            },
+            "def_ranking": {
+              "score": 6,
+              "weight": 8,
+              "weighted": 48,
+              "note": "Allow L5: 110.0 | They score L5: 105.0"
+            },
+            "three_pt_matchup": {
+              "score": 9,
+              "weight": 7,
+              "weighted": 63,
+              "note": "3PT proxy \u2014 PPG L5: 119.8 | OPP allows: 115.6 | Margin L5: +9.8"
+            },
+            "pace_matchup": {
+              "score": 6,
+              "weight": 7,
+              "weighted": 42,
+              "note": "Pace aligned (9 diff)"
+            },
+            "recent_form": {
+              "score": 10,
+              "weight": 7,
+              "weighted": 70,
+              "note": "L5: 5-0 (margin +9.8) | Streak: W6 | OPP L5: 2-3 (margin -10.6)"
+            },
+            "road_trip_length": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "Road game 1"
+            },
+            "h2h_season": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "H2H: 1-1 this season (2 games)"
+            },
+            "paint_scoring": {
+              "score": 8,
+              "weight": 6,
+              "weighted": 48,
+              "note": "paint_scoring proxy: PPG diff +14.8"
+            },
+            "fast_break": {
+              "score": 8,
+              "weight": 6,
+              "weighted": 48,
+              "note": "fast_break proxy: PPG diff +14.8"
+            },
+            "ats_trend": {
+              "score": 9,
+              "weight": 6,
+              "weighted": 54,
+              "note": "Avg margin L10: +11.4 \u2014 dominating | Close: 1/10 | Blowouts: 2/10"
+            },
+            "sharp_vs_public": {
+              "score": 3,
+              "weight": 5,
+              "weighted": 15,
+              "note": "Line flat \u2014 no sharp signal | ML shifted"
+            },
+            "home_away": {
+              "score": 5,
+              "weight": 5,
+              "weighted": 25,
+              "note": "Away: 20-13 (20/33)"
+            },
+            "depth_injuries": {
+              "score": 7,
+              "weight": 4,
+              "weighted": 28,
+              "note": "OPP missing 3 vs our 1"
+            }
+          },
+          "chains_fired": [
+            "TRAP_GAME"
+          ]
+        },
+        "renzo": {
+          "game_id": "njesOUGLqj6rjNAATKJ0",
+          "profile": "renzo",
+          "pick_side": "away",
+          "grade": "B",
+          "composite": 6.14,
+          "chain_bonus": 0,
+          "final": 6.14,
+          "pick": "Los Angeles Lakers 1.5",
+          "sizing": "PASS",
+          "variables": {
+            "Q1_whos_missing": {
+              "score": 5,
+              "weight": 9,
+              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
+            },
+            "Q2_line_reflects": {
+              "score": 5,
+              "weight": 9,
+              "note": "Line moved 0.0 pts | Injuries roughly priced"
+            },
+            "Q3_recent_form": {
+              "score": 9,
+              "weight": 8,
+              "note": "Us L5: 5-0 | Them L5: 2-3 | Edge: +6"
+            },
+            "Q4_best_on_court": {
+              "score": 6,
+              "weight": 8,
+              "note": "Both sides mostly healthy"
+            },
+            "Q5_schedule_rest": {
+              "score": 9,
+              "weight": 7,
+              "note": "Streak: W6 | Away"
+            },
+            "thesis_edge": {
+              "score": 4,
+              "weight": 10,
+              "note": "No clear thesis edge found"
+            }
+          },
+          "chains_fired": [],
+          "mathurin_test": "FAIL",
+          "mathurin_note": "No clear thesis edge found"
+        }
+      },
+      "peter_rules": {
+        "game_id": "njesOUGLqj6rjNAATKJ0",
+        "profile": "peter_rules",
+        "pick_side": "away",
+        "flags": [],
+        "adjustment": 0,
+        "has_kill": false,
+        "flag_count": 0
+      },
+      "consensus_avg": 6.96,
+      "consensus_grade": "B+",
+      "consensus_raw": 6.96,
+      "ev": {
+        "profile": "ev",
+        "game_id": "njesOUGLqj6rjNAATKJ0",
+        "pick_side": "away",
+        "moneyline": 100,
+        "implied_prob": 0.5,
+        "true_prob": 0.5588,
+        "edge": 0.0588,
+        "decimal_odds": 2.0,
+        "ev_pct": 11.76,
+        "ev_grade": "A+",
+        "kelly_full": 0.1176,
+        "kelly_quarter": 0.0294,
+        "kelly_units": "1u",
+        "status": "ok"
+      },
+      "model_grades": {
+        "grok": {
+          "model": "grok-3",
+          "model_key": "grok",
+          "pick": "Los Angeles Lakers +1.5",
+          "score": 7.8,
+          "grade": "A",
+          "sizing": "1.5u",
+          "reasoning": "The Lakers are on a hot streak with a 6-game winning run and a 9-1 record over their last 10 games, averaging 119.8 PPG in their last 5 compared to Houston's 105.0 PPG. Houston is severely hampered by key injuries, notably Fred VanVleet's season-ending ACL tear and Steven Adams' absence, weakening their defense which has allowed 115.6 OPP PPG in their last 5. The spread of +1.5 offers value given the Lakers' momentum and Houston's depleted roster.",
+          "key_factor": "Lakers' superior form and Houston's critical injuries.",
+          "confidence": "high",
+          "raw_response": "{\n  \"pick\": \"Los Angeles Lakers +1.5\",\n  \"score\": 7.8,\n  \"grade\": \"A\",\n  \"sizing\": \"1.5u\",\n  \"reasoning\": \"The Lakers are on a hot streak with a 6-game winning run and a 9-1 record over their last 10 games, averaging 119.8 PPG in their last 5 compared to Houston's 105.0 PPG. Houston is severely hampered by key injuries, notably Fred VanVleet's season-ending ACL tear and Steven Adams' absence, weakening their defense which has allowed 115.6 OPP PPG in their last 5. The spread of +1.5 offers value given the Lakers' momentum and Houston's depleted roster.\",\n  \"key_factor\": \"Lakers' superior form and Houston's critical injuries.\",\n  \"confidence\": \"high\"\n}",
+          "called_at": "2026-03-18T17:21:50.708742",
+          "status": "ok",
+          "game_id": "njesOUGLqj6rjNAATKJ0",
+          "matchup": "Los Angeles Lakers @ Houston Rockets"
+        },
+        "deepseek": {
+          "model": "DeepSeek-V3.2",
+          "model_key": "deepseek",
+          "pick": "Los Angeles Lakers +1.5",
+          "score": 7.2,
+          "grade": "A-",
+          "sizing": "1u",
+          "reasoning": "The Lakers are on a 6-game win streak and 5-0 in their last 5, averaging 119.8 PPG while holding opponents to 110.0 PPG. The Rockets are 2-3 in their L5, scoring only 105.0 PPG and missing key players like VanVleet and Adams. The line move to Rockets -1.5 despite these trends offers value on the hotter, healthier team.",
+          "key_factor": "Lakers' superior recent form and offensive efficiency versus Rockets' injuries and slump.",
+          "confidence": "medium",
+          "raw_response": "{\n  \"pick\": \"Los Angeles Lakers +1.5\",\n  \"score\": 7.2,\n  \"grade\": \"A-\",\n  \"sizing\": \"1u\",\n  \"reasoning\": \"The Lakers are on a 6-game win streak and 5-0 in their last 5, averaging 119.8 PPG while holding opponents to 110.0 PPG. The Rockets are 2-3 in their L5, scoring only 105.0 PPG and missing key players like VanVleet and Adams. The line move to Rockets -1.5 despite these trends offers value on the hotter, healthier team.\",\n  \"key_factor\": \"Lakers' superior recent form and offensive efficiency versus Rockets' injuries and slump.\",\n  \"confidence\": \"medium\"\n}",
+          "called_at": "2026-03-18T17:27:02.233220",
+          "status": "ok",
+          "game_id": "njesOUGLqj6rjNAATKJ0",
+          "matchup": "Los Angeles Lakers @ Houston Rockets"
+        },
+        "grok-fast": {
+          "model": "grok-4-1-fast-reasoning",
+          "model_key": "grok-fast",
+          "pick": "Los Angeles Lakers ML",
+          "score": 7.8,
+          "grade": "A",
+          "sizing": "1.5u",
+          "reasoning": "Lakers are scorching hot on a 6-game win streak and 9-1 in L10, averaging 119.8 PPG over L5 while holding opponents to 110 PPG. Rockets are 2-3 in L5 with dismal 105 PPG offense and 115.6 allowed, severely hampered by missing starting PG Fred VanVleet (torn ACL, out entire season) and C Steven Adams (season-ending surgery). At +100 ML, Lakers provide excellent value as road dogs against a depleted Houston team despite their home record.",
+          "key_factor": "Rockets missing star PG VanVleet for entire season, crippling their offense (105 PPG L5).",
+          "confidence": "high",
+          "raw_response": "{\n  \"pick\": \"Los Angeles Lakers ML\",\n  \"score\": 7.8,\n  \"grade\": \"A\",\n  \"sizing\": \"1.5u\",\n  \"reasoning\": \"Lakers are scorching hot on a 6-game win streak and 9-1 in L10, averaging 119.8 PPG over L5 while holding opponents to 110 PPG. Rockets are 2-3 in L5 with dismal 105 PPG offense and 115.6 allowed, severely hampered by missing starting PG Fred VanVleet (torn ACL, out entire season) and C Steven Adams (season-ending surgery). At +100 ML, Lakers provide excellent value as road dogs against a depleted Houston team despite their home record.\",\n  \"key_factor\": \"Rockets missing star PG VanVleet for entire season, crippling their offense (105 PPG L5).\",\n  \"confidence\": \"high\"\n}",
+          "called_at": "2026-03-18T17:27:09.407951",
+          "status": "ok",
+          "game_id": "njesOUGLqj6rjNAATKJ0",
+          "matchup": "Los Angeles Lakers @ Houston Rockets"
+        },
+        "gpt41": {
+          "model": "gpt-4.1",
+          "model_key": "gpt41",
+          "pick": "Los Angeles Lakers +1.5",
+          "score": 7.5,
+          "grade": "A-",
+          "sizing": "1u",
+          "reasoning": "The Lakers are on a 6-game win streak and have gone 9-1 in their last 10, averaging 119.8 PPG over their last 5 while allowing just 110.0. Houston is missing key players (VanVleet, Adams, Tate), is just 5-5 in their last 10, and has averaged only 105.0 PPG in their last 5. The Lakers' recent form and offensive edge outweigh Houston's home record.",
+          "key_factor": "Lakers' recent form and scoring surge vs. shorthanded Rockets.",
+          "confidence": "medium",
+          "raw_response": "{\n  \"pick\": \"Los Angeles Lakers +1.5\",\n  \"score\": 7.5,\n  \"grade\": \"A-\",\n  \"sizing\": \"1u\",\n  \"reasoning\": \"The Lakers are on a 6-game win streak and have gone 9-1 in their last 10, averaging 119.8 PPG over their last 5 while allowing just 110.0. Houston is missing key players (VanVleet, Adams, Tate), is just 5-5 in their last 10, and has averaged only 105.0 PPG in their last 5. The Lakers' recent form and offensive edge outweigh Houston's home record.\",\n  \"key_factor\": \"Lakers' recent form and scoring surge vs. shorthanded Rockets.\",\n  \"confidence\": \"medium\"\n}",
+          "called_at": "2026-03-18T17:27:53.194866",
+          "status": "ok",
+          "game_id": "njesOUGLqj6rjNAATKJ0",
+          "matchup": "Los Angeles Lakers @ Houston Rockets"
+        }
+      }
+    }
+  ],
+  "count": 9
+}

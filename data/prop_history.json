@@ -1,0 +1,169 @@
+{
+  "players": {
+    "Julius Randle_PTS_20260318": {
+      "player": "Julius Randle",
+      "player_id": 387,
+      "team": "Minnesota Timberwolves",
+      "stat": "PTS",
+      "line": 22.5,
+      "opponent": "UTA",
+      "edge": 1,
+      "gap_pct": 9.3,
+      "breakdown": [
+        "L5 avg 24.6 vs line 22.5 (+9%) \u2014 no gap",
+        "Crushed line last game: 32 vs 22.5 (+1)",
+        "Hit rate L5: 4/5 (80%)"
+      ],
+      "decision": "MONITOR",
+      "L5_avg": 24.6,
+      "L10_avg": 24.2,
+      "last_game": 32,
+      "hit_rate_L5": "4/5",
+      "tracked_at": "2026-03-18T18:24:27.899622"
+    },
+    "Julius Randle_REB_20260318": {
+      "player": "Julius Randle",
+      "player_id": 387,
+      "team": "Minnesota Timberwolves",
+      "stat": "REB",
+      "line": 9.5,
+      "opponent": "UTA",
+      "edge": 0,
+      "gap_pct": -13.7,
+      "breakdown": [
+        "L5 avg 8.2 vs line 9.5 (-14%) \u2014 no gap",
+        "Hit rate L5: 2/5 (40%)"
+      ],
+      "decision": "PASS",
+      "L5_avg": 8.2,
+      "L10_avg": 8.0,
+      "last_game": 10,
+      "hit_rate_L5": "2/5",
+      "tracked_at": "2026-03-18T18:18:41.122005"
+    },
+    "Christian Braun_PTS_20260318": {
+      "player": "Christian Braun",
+      "player_id": 38017709,
+      "team": "Denver Nuggets",
+      "stat": "PTS",
+      "line": 15.5,
+      "opponent": "MEM",
+      "edge": 0,
+      "gap_pct": -92.3,
+      "breakdown": [
+        "L5 avg 1.2 is 92% UNDER line 15.5 \u2014 fade",
+        "Hit rate L5: 0/5 (0%)"
+      ],
+      "decision": "PASS",
+      "L5_avg": 1.2,
+      "L10_avg": 7.0,
+      "last_game": 0,
+      "hit_rate_L5": "0/5",
+      "tracked_at": "2026-03-18T18:18:46.289250"
+    },
+    "Christian Braun_REB_20260318": {
+      "player": "Christian Braun",
+      "player_id": 38017709,
+      "team": "Denver Nuggets",
+      "stat": "REB",
+      "line": 5.5,
+      "opponent": "MEM",
+      "edge": 0,
+      "gap_pct": -85.5,
+      "breakdown": [
+        "L5 avg 0.8 is 85% UNDER line 5.5 \u2014 fade",
+        "Hit rate L5: 0/5 (0%)"
+      ],
+      "decision": "PASS",
+      "L5_avg": 0.8,
+      "L10_avg": 2.9,
+      "last_game": 0,
+      "hit_rate_L5": "0/5",
+      "tracked_at": "2026-03-18T18:18:47.648303"
+    },
+    "Collin Sexton_PTS_20260318": {
+      "player": "Collin Sexton",
+      "player_id": 413,
+      "team": "Chicago Bulls",
+      "stat": "PTS",
+      "line": 16.5,
+      "opponent": "MIN",
+      "edge": 0,
+      "gap_pct": -13.9,
+      "breakdown": [
+        "L5 avg 14.2 vs line 16.5 (-14%) \u2014 no gap",
+        "Hit rate L5: 1/5 (20%)"
+      ],
+      "decision": "PASS",
+      "L5_avg": 14.2,
+      "L10_avg": 12.0,
+      "last_game": 11,
+      "hit_rate_L5": "1/5",
+      "tracked_at": "2026-03-18T18:18:51.950253"
+    },
+    "Paul George_PTS_20260318": {
+      "player": "Paul George",
+      "player_id": 172,
+      "team": "Philadelphia 76ers",
+      "stat": "PTS",
+      "line": 14.5,
+      "opponent": "MIN",
+      "edge": 1,
+      "gap_pct": -58.6,
+      "breakdown": [
+        "L5 avg 6.0 is 59% UNDER line 14.5 \u2014 fade",
+        "Crushed line last game: 21 vs 14.5 (+1)",
+        "Hit rate L5: 1/5 (20%)"
+      ],
+      "decision": "MONITOR",
+      "L5_avg": 6.0,
+      "L10_avg": 3.0,
+      "last_game": 21,
+      "hit_rate_L5": "1/5",
+      "tracked_at": "2026-03-18T18:18:53.179177"
+    },
+    "Deandre Ayton_PTS_20260318": {
+      "player": "Deandre Ayton",
+      "player_id": 22,
+      "team": "Los Angeles Lakers",
+      "stat": "PTS",
+      "line": 18.5,
+      "opponent": "IND",
+      "edge": 1,
+      "gap_pct": -13.5,
+      "breakdown": [
+        "L5 avg 16.0 vs line 18.5 (-14%) \u2014 no gap",
+        "Over line last 2 games: [20, 20] (+1)",
+        "Hit rate L5: 3/5 (60%)"
+      ],
+      "decision": "MONITOR",
+      "L5_avg": 16.0,
+      "L10_avg": 15.1,
+      "last_game": 20,
+      "hit_rate_L5": "3/5",
+      "tracked_at": "2026-03-18T18:18:57.643044"
+    },
+    "Deandre Ayton_REB_20260318": {
+      "player": "Deandre Ayton",
+      "player_id": 22,
+      "team": "Los Angeles Lakers",
+      "stat": "REB",
+      "line": 10.5,
+      "opponent": "IND",
+      "edge": 1,
+      "gap_pct": -2.9,
+      "breakdown": [
+        "L5 avg 10.2 vs line 10.5 (-3%) \u2014 no gap",
+        "Crushed line last game: 14 vs 10.5 (+1)",
+        "Hit rate L5: 2/5 (40%)"
+      ],
+      "decision": "MONITOR",
+      "L5_avg": 10.2,
+      "L10_avg": 7.6,
+      "last_game": 14,
+      "hit_rate_L5": "2/5",
+      "tracked_at": "2026-03-18T18:18:59.031878"
+    }
+  },
+  "last_updated": "2026-03-18T18:24:27.906291"
+}

@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edge Crew — Slate</title>
+<style>
+  :root {
+    --bg:       #060b14;
+    --surface:  #0d1b2a;
+    --card:     #111d2e;
+    --border:   #1a2e46;
+    --teal:     #00e5ff;
+    --pink:     #ff2d78;
+    --purple:   #9b5de5;
+    --gold:     #ffd166;
+    --green:    #06d6a0;
+    --red:      #ef233c;
+    --text:     #e0f4ff;
+    --muted:    #5a7a96;
+    --pass:     #2a3a4a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+    font-size: 13px;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 28px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(90deg, #060b14 0%, #0d1b2a 100%);
+  }
+
+  .logo {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    background: linear-gradient(90deg, var(--teal), var(--pink));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .header-meta {
+    color: var(--muted);
+    font-size: 11px;
+    text-align: right;
+  }
+
+  .header-meta .date {
+    color: var(--teal);
+    font-weight: 700;
+    font-size: 13px;
+  }
+
+  /* ── Tabs ── */
+  .tabs {
+    display: flex;
+    gap: 0;
+    padding: 0 28px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .tab {
+    padding: 12px 24px;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--teal); border-bottom-color: var(--teal); }
+  .tab.pro { color: var(--pink); }
+  .tab.pro.active { border-bottom-color: var(--pink); }
+  .tab.arch { color: var(--purple); }
+  .tab.arch.active { border-bottom-color: var(--purple); }
+  .tab.v3 { color: var(--gold); }
+  .tab.v3.active { border-bottom-color: var(--gold); }
+
+  /* ── V3 PIPELINE TAB ── */
+  .pipe-game { margin-bottom: 24px; }
+  .pipe-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 18px; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px 10px 0 0;
+  }
+  .pipe-matchup { font-size: 15px; font-weight: 700; }
+  .pipe-matchup .home { color: var(--teal); }
+  .pipe-matchup .away { color: var(--pink); }
+  .pipe-matchup .sep { color: var(--muted); margin: 0 8px; }
+  .pipe-info { font-size: 10px; color: var(--muted); display: flex; gap: 14px; align-items: center; }
+
+  .pipe-flow {
+    display: flex; align-items: stretch; gap: 0;
+    background: var(--card); border: 1px solid var(--border); border-top: none;
+    border-radius: 0 0 10px 10px; overflow-x: auto;
+  }
+
+  .pipe-stage {
+    flex: 1; min-width: 160px; padding: 14px 12px;
+    border-right: 1px solid var(--border); position: relative;
+  }
+  .pipe-stage:last-child { border-right: none; }
+  .pipe-stage.gate { background: #ffd16608; border-left: 2px solid var(--gold); }
+  .pipe-stage.final { background: #00e5ff06; }
+
+  .pipe-stage-label {
+    font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px;
+    margin-bottom: 8px; color: var(--muted);
+  }
+  .pipe-stage.gate .pipe-stage-label { color: var(--gold); }
+  .pipe-stage.final .pipe-stage-label { color: var(--teal); }
+
+  .pipe-row { display: flex; justify-content: space-between; font-size: 11px; padding: 2px 0; }
+  .pipe-row .lbl { color: var(--muted); }
+  .pipe-row .val { font-weight: 600; }
+  .pipe-row .val.good { color: var(--green); }
+  .pipe-row .val.bad { color: var(--red); }
+  .pipe-row .val.neutral { color: var(--text); }
+
+  .pipe-arrow {
+    display: flex; align-items: center; justify-content: center;
+    width: 24px; flex-shrink: 0; color: var(--muted); font-size: 14px; opacity: 0.3;
+  }
+
+  .pipe-verdict {
+    text-align: center; padding: 6px 0;
+  }
+  .pipe-verdict .team { font-size: 16px; font-weight: 700; }
+  .pipe-verdict .team.ph { color: var(--teal); }
+  .pipe-verdict .team.pa { color: var(--pink); }
+  .pipe-verdict .team.pp { color: var(--muted); }
+  .pipe-verdict .sizing { font-size: 11px; color: var(--gold); font-weight: 700; }
+  .pipe-verdict .conf { font-size: 9px; padding: 2px 8px; border-radius: 8px; display: inline-block; margin-top: 4px; }
+  .pipe-verdict .conf.vh { color: var(--teal); background: #00e5ff18; }
+  .pipe-verdict .conf.hi { color: var(--gold); background: #ffd16618; }
+  .pipe-verdict .conf.mo { color: var(--purple); background: #9b5de518; }
+  .pipe-verdict .conf.lo { color: var(--muted); background: #ffffff08; }
+
+  .pipe-inj { font-size: 10px; color: var(--red); padding: 1px 0; }
+  .pipe-inj.watch { color: var(--gold); }
+
+  .pipe-chain-badge {
+    display: inline-block; font-size: 9px; padding: 1px 6px; border-radius: 3px;
+    background: #00e5ff12; color: var(--teal); border: 1px solid #00e5ff33; margin: 1px 2px;
+  }
+
+  .pipe-gate-btn {
+    cursor: pointer; font-size: 10px; padding: 4px 12px; border-radius: 4px;
+    border: 1px solid var(--gold); color: var(--gold); background: none;
+    letter-spacing: 0.5px; margin-top: 6px;
+  }
+  .pipe-gate-btn:hover { background: #ffd16611; }
+  .pipe-gate-btn.approved { background: #06d6a022; border-color: var(--green); color: var(--green); }
+  .pipe-gate-btn.rejected { background: #ef233c18; border-color: var(--red); color: var(--red); }
+
+  /* ── Content ── */
+  .tab-content { display: none; padding: 24px 28px; }
+  .tab-content.active { display: block; }
+
+  /* ── Slate grid ── */
+  .slate-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+    gap: 16px;
+  }
+
+  /* ── Game card (standard) ── */
+  .game-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .matchup { font-size: 13px; font-weight: 700; color: var(--text); }
+  .game-time { font-size: 10px; color: var(--muted); }
+
+  .game-body { padding: 12px 14px; }
+
+  .team-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .team-row:last-child { border-bottom: none; }
+  .team-name { font-weight: 600; font-size: 13px; }
+  .team-meta { display: flex; gap: 10px; align-items: center; }
+
+  .grade-badge {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  .grade-Ap  { background: #00e5ff22; color: #00e5ff; border: 1px solid #00e5ff44; }
+  .grade-A   { background: #06d6a022; color: #06d6a0; border: 1px solid #06d6a044; }
+  .grade-Am  { background: #06d6a022; color: #06d6a0; border: 1px solid #06d6a044; }
+  .grade-Bp  { background: #ffd16622; color: #ffd166; border: 1px solid #ffd16644; }
+  .grade-B   { background: #ffd16618; color: #ffd166; border: 1px solid #ffd16630; }
+  .grade-Bm  { background: #ffd16610; color: #9a8040; border: 1px solid #ffd16620; }
+  .grade-Cp  { background: #ffffff08; color: #7a9ab0; border: 1px solid #ffffff12; }
+  .grade-C   { background: #ffffff08; color: #7a9ab0; border: 1px solid #ffffff12; }
+  .grade-D   { background: #ef233c12; color: #ef233c88; border: 1px solid #ef233c22; }
+  .grade-F   { background: #ef233c18; color: #ef233c; border: 1px solid #ef233c44; }
+
+  .record { color: var(--muted); font-size: 11px; }
+  .streak { font-size: 11px; }
+  .streak.W { color: var(--green); }
+  .streak.L { color: var(--red); }
+
+  .injury-flag {
+    font-size: 10px;
+    color: var(--red);
+    background: #ef233c18;
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+
+  .game-footer {
+    padding: 8px 14px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .consensus-grade {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .pick-pill {
+    padding: 3px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  .pick-pass {
+    background: var(--pass);
+    color: var(--muted);
+  }
+
+  .pick-A   { background: linear-gradient(90deg, #00e5ff22, #06d6a022); color: var(--teal); border: 1px solid var(--teal); }
+  .pick-B   { background: #ffd16618; color: var(--gold); border: 1px solid #ffd16644; }
+  .pick-C   { background: #ffffff08; color: var(--muted); }
+
+  /* ── Injury list ── */
+  .injury-list {
+    margin-top: 8px;
+    padding: 6px 8px;
+    background: #ef233c08;
+    border-left: 2px solid #ef233c44;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .injury-item {
+    font-size: 10px;
+    color: #ef233c99;
+    padding: 1px 0;
+  }
+
+  .injury-item.watch { color: #ffd16699; }
+
+  /* ── PROFESSIONAL TAB — Horizontal Swim Lane Cards ── */
+  .pro-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  /* Flow card wrapper */
+  .rfc {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .rfc.pick-home { border-left: 3px solid var(--teal); }
+  .rfc.pick-away { border-left: 3px solid var(--pink); }
+  .rfc.pick-pass { border-left: 3px solid var(--muted); opacity: 0.7; }
+
+  /* Card header */
+  .rfc-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 18px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+  .rfc-matchup { font-size: 14px; font-weight: 700; }
+  .rfc-matchup .home { color: var(--teal); }
+  .rfc-matchup .away { color: var(--pink); }
+  .rfc-matchup .sep  { color: var(--muted); margin: 0 8px; }
+  .rfc-meta { font-size: 10px; color: var(--muted); }
+
+  /* Body = lanes + result column */
+  .rfc-body {
+    display: flex;
+    align-items: stretch;
+  }
+
+  /* Lane stack (two rows) */
+  .rfc-lanes {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border);
+    overflow-x: auto;
+  }
+
+  /* Individual lane row */
+  .rfc-lane {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    gap: 0;
+    min-height: 76px;
+  }
+  .rfc-lane + .rfc-lane { border-top: 1px solid var(--border); }
+  .rfc-lane.lg { background: #00e5ff03; }
+  .rfc-lane.lr { background: #ff2d7803; }
+
+  /* Lane label (rotated) */
+  .rfc-lbl {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    flex-shrink: 0;
+    padding-right: 12px;
+    margin-right: 12px;
+    border-right: 1px solid var(--border);
+  }
+  .rfc-lbl.t { color: var(--teal); }
+  .rfc-lbl.p { color: var(--pink); }
+
+  /* Node */
+  .rfc-node {
+    flex-shrink: 0;
+    border-radius: 6px;
+    padding: 8px 12px;
+    text-align: center;
+    min-width: 130px;
+  }
+  .rfc-node .nt { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
+  .rfc-node .nr { font-size: 10px; display: flex; justify-content: space-between; gap: 10px; margin-bottom: 2px; white-space: nowrap; }
+  .rfc-node .nr .lbl { color: var(--muted); }
+  .rfc-node .nr .val { font-weight: 700; }
+  .rfc-node.nt { background: #00e5ff0d; border: 1px solid #00e5ff44; }
+  .rfc-node.nt .nt { color: var(--teal); }
+  .rfc-node.np { background: #ff2d780d; border: 1px solid #ff2d7844; }
+  .rfc-node.np .nt { color: var(--pink); }
+  .rfc-node.ng { background: #ffd1660d; border: 1px solid #ffd16644; }
+  .rfc-node.ng .nt { color: var(--gold); }
+
+  /* Arrow between nodes */
+  .rfc-arr { color: var(--muted); font-size: 16px; padding: 0 8px; opacity: 0.35; flex-shrink: 0; }
+
+  /* Heat winner badge (end of lane) */
+  .rfc-win {
+    margin-left: auto;
+    flex-shrink: 0;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+  .rfc-win.wh { color: var(--teal); background: #00e5ff12; border: 1px solid #00e5ff33; }
+  .rfc-win.wa { color: var(--pink); background: #ff2d7812; border: 1px solid #ff2d7833; }
+  .rfc-win.wt { color: var(--muted); background: #ffffff08; border: 1px solid var(--border); }
+
+  /* Result column */
+  .rfc-result {
+    flex-shrink: 0;
+    width: 155px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 16px 12px;
+  }
+  .rfc-scores {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    font-size: 26px;
+    font-weight: 700;
+  }
+  .rfc-scores .h { color: var(--teal); }
+  .rfc-scores .a { color: var(--pink); }
+  .rfc-scores .d { color: var(--muted); font-size: 18px; }
+  .rfc-conf {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 9px;
+    border-radius: 10px;
+  }
+  .rfc-conf.vh { color: var(--teal);   background: #00e5ff18; border: 1px solid #00e5ff33; }
+  .rfc-conf.hi { color: var(--gold);   background: #ffd16618; border: 1px solid #ffd16633; }
+  .rfc-conf.mo { color: var(--purple); background: #9b5de518; border: 1px solid #9b5de533; }
+  .rfc-conf.lo { color: var(--muted);  background: #ffffff08; border: 1px solid var(--border); }
+  .rfc-pick { text-align: center; }
+  .rfc-pick .pt { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  .rfc-pick .pt.ph { color: var(--teal); }
+  .rfc-pick .pt.pa { color: var(--pink); }
+  .rfc-pick .pt.pp { color: var(--muted); font-size: 11px; }
+  .rfc-pick .pd { font-size: 10px; color: var(--muted); }
+  .rfc-pick .pd .sz { color: var(--gold); font-weight: 700; }
+
+  /* Spread badge */
+  .spread-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    background: #ffffff08;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 11px;
+    color: var(--muted);
+    margin-left: 6px;
+  }
+
+  /* Summary bar */
+  .summary-bar {
+    display: flex;
+    gap: 24px;
+    padding: 14px 0 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+  }
+
+  .summary-stat { text-align: center; }
+  .summary-stat .val {
+    font-size: 24px;
+    font-weight: 700;
+    background: linear-gradient(90deg, var(--teal), var(--pink));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .summary-stat .lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+
+  /* Watcher badge */
+  .watch-badge {
+    font-size: 10px;
+    background: #ffd16620;
+    color: var(--gold);
+    border: 1px solid #ffd16640;
+    padding: 1px 6px;
+    border-radius: 3px;
+    margin-left: 4px;
+  }
+
+  /* Refresh */
+  .refresh-btn {
+    cursor: pointer;
+    font-size: 11px;
+    color: var(--teal);
+    background: none;
+    border: 1px solid var(--teal);
+    padding: 4px 12px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+  }
+  .refresh-btn:hover { background: #00e5ff11; }
+  .refresh-btn.busy { opacity: 0.7; pointer-events: none; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">EDGE CREW</div>
+  <div class="header-meta">
+    <div class="date" id="slate-date">Loading...</div>
+    <div id="fetch-time">—</div>
+    <button class="refresh-btn" id="analyze-btn" onclick="analyzeAllSports()">ANALYZE ALL</button>
+    <button class="refresh-btn" onclick="loadAll()">↻ REFRESH</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('slate')">Slate</div>
+  <div class="tab" onclick="switchTab('props')">Props</div>
+  <div class="tab pro" onclick="switchTab('pro')">Professional</div>
+  <div class="tab v3" onclick="switchTab('pipeline')">V3 Pipeline</div>
+  <div class="tab arch" onclick="switchTab('arch')">Architecture</div>
+</div>
+
+<!-- SLATE TAB -->
+<div id="tab-slate" class="tab-content active">
+  <div class="slate-grid" id="slate-grid">
+    <div style="color:var(--muted);padding:40px">Loading slate...</div>
+  </div>
+</div>
+
+<!-- PROPS TAB -->
+<div id="tab-props" class="tab-content">
+  <div id="props-content" style="color:var(--muted);padding:40px">Player props loading...</div>
+</div>
+
+<!-- V3 PIPELINE TAB -->
+<div id="tab-pipeline" class="tab-content">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+    <div style="color:var(--gold);font-size:12px;font-weight:700;letter-spacing:1px">V3 PIPELINE — FULL ANALYSIS FLOW</div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <select id="pipe-sport" onchange="loadPipeline()" style="background:var(--surface);color:var(--text);border:1px solid var(--border);padding:4px 8px;border-radius:4px;font-size:11px">
+        <option value="nba">NBA</option>
+        <option value="nhl">NHL</option>
+        <option value="ncaab">NCAAB</option>
+      </select>
+      <button class="refresh-btn" onclick="loadPipeline()">REFRESH</button>
+    </div>
+  </div>
+  <div id="pipeline-grid" style="color:var(--muted);padding:40px">Loading pipeline...</div>
+</div>
+
+<!-- ARCHITECTURE TAB -->
+<div id="tab-arch" class="tab-content">
+  <iframe src="/flowchart" style="width:100%;height:calc(100vh - 130px);border:none;background:#060b14;" title="System Flowchart"></iframe>
+</div>
+
+<!-- PROFESSIONAL TAB -->
+<div id="tab-pro" class="tab-content">
+  <div class="summary-bar" id="summary-bar"></div>
+  <div class="pro-grid" id="pro-grid">
+    <div style="color:var(--muted);padding:40px">Swim lane data loading...</div>
+  </div>
+</div>
+
+<script>
+const API = '';  // Same origin — FastAPI serves this
+let availableSports = [];
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  const tabEl = document.querySelector(`[onclick="switchTab('${name}')"]`);
+  if (tabEl) tabEl.classList.add('active');
+  const contentEl = document.getElementById(`tab-${name}`);
+  if (contentEl) contentEl.classList.add('active');
+}
+
+function gradeClass(g) {
+  const map = {'A+':'Ap','A':'A','A-':'Am','B+':'Bp','B':'B','B-':'Bm','C+':'Cp','C':'C','D':'D','F':'F'};
+  return 'grade-' + (map[g] || 'C');
+}
+
+function streakClass(s) {
+  return s && s.startsWith('W') ? 'W' : 'L';
+}
+
+function pickPillClass(sizing) {
+  if (!sizing || sizing === 'PASS') return 'pick-pass';
+  if (sizing.includes('2u') || sizing.includes('1.5u')) return 'pick-A';
+  if (sizing.includes('1u')) return 'pick-B';
+  return 'pick-C';
+}
+
+function formatTime(iso) {
+  try {
+    const d = new Date(iso);
+    return d.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit', timeZone:'America/New_York'}) + ' ET';
+  } catch { return iso; }
+}
+
+// ── SLATE TAB ──────────────────────────────────────────────────────────────────
+
+async function loadSlate() {
+  try {
+    availableSports = await getAvailableSports();
+    const slates = await Promise.all(
+      availableSports.map(async sport => {
+        const r = await fetch(`/api/slate/${sport.key}`);
+        if (!r.ok) return null;
+        return r.json();
+      })
+    );
+    renderSlateAggregate(slates.filter(Boolean));
+  } catch(e) {
+    document.getElementById('slate-grid').innerHTML = `<div style="color:var(--red);padding:40px">Error: ${e.message}</div>`;
+  }
+}
+
+function renderSlateAggregate(slates) {
+  const date = slates.find(s => s && s.date)?.date || '';
+  const games = slates.flatMap(s => (s.games || []).map(g => ({...g, sport: (g.sport || s.sport || '').toUpperCase()})));
+  renderSlate({date, games});
+}
+
+function renderSlate(data) {
+  const date = data.date || '';
+  document.getElementById('slate-date').textContent = date;
+  document.getElementById('fetch-time').textContent = 'Updated ' + new Date().toLocaleTimeString();
+
+  const games = data.games || [];
+  const grid = document.getElementById('slate-grid');
+
+  if (!games.length) {
+    grid.innerHTML = `<div style="color:var(--muted);padding:40px">No games found for ${date}</div>`;
+    return;
+  }
+
+  grid.innerHTML = games.map(g => {
+    const away = g.away || '?';
+    const home = g.home || '?';
+    const time = g.time ? formatTime(g.time) : '—';
+
+    const ap = g.away_profile || {};
+    const hp = g.home_profile || {};
+
+    const aGrade = g.away_grade || '—';
+    const hGrade = g.home_grade || '—';
+
+    const aInj = (g.injuries || {}).away || [];
+    const hInj = (g.injuries || {}).home || [];
+
+    const aOut = aInj.filter(i => i.status === 'OUT').length;
+    const hOut = hInj.filter(i => i.status === 'OUT').length;
+
+    const consensus = g.consensus_grade || '—';
+    const sizing = g.sizing || 'PASS';
+    const pick = g.pick || '—';
+
+    const injRow = (injs, max=3) => {
+      const sig = injs.filter(i => i.status === 'OUT' || i.status === 'GTD' || i.status === 'DAY-TO-DAY');
+      if (!sig.length) return '';
+      return `<div class="injury-list">${sig.slice(0,max).map(i => {
+        const cls = (i.status === 'DAY-TO-DAY' || i.status === 'GTD') ? 'watch' : '';
+        return `<div class="injury-item ${cls}">${i.player} (${i.pos||'?'}) — ${i.status}${i.ppg ? ' · '+i.ppg+' PPG' : ''}</div>`;
+      }).join('')}${sig.length > max ? `<div class="injury-item">+${sig.length-max} more</div>` : ''}</div>`;
+    };
+
+    return `
+    <div class="game-card">
+      <div class="game-header">
+        <div>
+          <div class="matchup">${away} @ ${home}</div>
+          <div class="game-time" style="text-align:left">${g.sport || '—'}</div>
+        </div>
+        <div class="game-time">${time}</div>
+      </div>
+      <div class="game-body">
+        <div class="team-row">
+          <div>
+            <div class="team-name">${home}</div>
+            <div class="record">${hp.L5 || '—'} L5 &nbsp;·&nbsp; ${hp.streak || '—'}</div>
+          </div>
+          <div class="team-meta">
+            ${hOut > 0 ? `<span class="injury-flag">${hOut} OUT</span>` : ''}
+            <span class="grade-badge ${gradeClass(hGrade)}">${hGrade}</span>
+          </div>
+        </div>
+        ${injRow(hInj)}
+        <div class="team-row" style="margin-top:6px">
+          <div>
+            <div class="team-name">${away}</div>
+            <div class="record">${ap.L5 || '—'} L5 &nbsp;·&nbsp; ${ap.streak || '—'}</div>
+          </div>
+          <div class="team-meta">
+            ${aOut > 0 ? `<span class="injury-flag">${aOut} OUT</span>` : ''}
+            <span class="grade-badge ${gradeClass(aGrade)}">${aGrade}</span>
+          </div>
+        </div>
+        ${injRow(aInj)}
+      </div>
+      <div class="game-footer">
+        <div class="consensus-grade">Consensus: <strong>${consensus}</strong> &nbsp;·&nbsp; ${pick}</div>
+        <div class="pick-pill ${pickPillClass(sizing)}">${sizing === 'PASS' ? 'PASS' : pick + ' ' + sizing}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── PROFESSIONAL TAB (Swim Lane) ───────────────────────────────────────────────
+
+async function loadPro() {
+  try {
+    availableSports = await getAvailableSports();
+    const raceSets = await Promise.all(
+      availableSports.map(async sport => {
+        const r = await fetch(`/api/race/${sport.key}`);
+        if (!r.ok) return null;
+        const data = await r.json();
+        return {sport: sport.key.toUpperCase(), races: data.races || []};
+      })
+    );
+    renderProAggregate(raceSets.filter(Boolean));
+  } catch(e) {
+    document.getElementById('pro-grid').innerHTML = `<div style="color:var(--red);padding:40px">Error: ${e.message}</div>`;
+  }
+}
+
+function renderProAggregate(raceSets) {
+  const races = raceSets.flatMap(set => (set.races || []).map(r => ({...r, sport: set.sport})));
+  renderPro({races});
+}
+
+function renderPro(data) {
+  const races = data.races || [];
+
+  // Summary bar
+  const picks = races.filter(r => r.race_winner !== 'push');
+  const highConf = picks.filter(r => r.confidence === 'High' || r.confidence === 'Very High');
+  document.getElementById('summary-bar').innerHTML = `
+    <div class="summary-stat"><div class="val">${races.length}</div><div class="lbl">Games</div></div>
+    <div class="summary-stat"><div class="val">${picks.length}</div><div class="lbl">Picks</div></div>
+    <div class="summary-stat"><div class="val">${highConf.length}</div><div class="lbl">High Conf</div></div>
+    <div class="summary-stat"><div class="val">${races.length - picks.length}</div><div class="lbl">Pass</div></div>
+  `;
+
+  // Sort: picks first (high conf first), then passes
+  races.sort((a,b) => {
+    const aScore = a.race_winner !== 'push' ? (a.margin * 10 + (a.confidence === 'Very High' ? 5 : a.confidence === 'High' ? 3 : 1)) : 0;
+    const bScore = b.race_winner !== 'push' ? (b.margin * 10 + (b.confidence === 'Very High' ? 5 : b.confidence === 'High' ? 3 : 1)) : 0;
+    return bScore - aScore;
+  });
+
+  document.getElementById('pro-grid').innerHTML = races.map(race => renderRaceCard(race)).join('');
+}
+
+function renderRaceCard(race) {
+  const winner = race.race_winner;
+  const cardClass = winner === 'home' ? 'pick-home' : winner === 'away' ? 'pick-away' : 'pick-pass';
+  const lanes = race.lanes || [];
+  const h1 = lanes.find(l => l.heat === 'Team Profile') || {};
+  const h2 = lanes.find(l => l.heat === 'Player Chains') || {};
+  const h3 = lanes.find(l => l.heat === 'Matchup (Off vs Def)') || {};
+
+  // Lane 1 — Grade (Team Profile)
+  const h1h = h1.home || {}, h1a = h1.away || {};
+  const h1w = h1.winner || 'tie';
+  const h1wHtml = h1w === 'home'
+    ? `<div class="rfc-win wh">${race.home} ▶</div>`
+    : h1w === 'away'
+    ? `<div class="rfc-win wa">◀ ${race.away}</div>`
+    : `<div class="rfc-win wt">— TIE —</div>`;
+
+  const lane1 = `
+    <div class="rfc-node nt">
+      <div class="nt">Team Profile</div>
+      <div class="nr"><span class="lbl">${race.home}</span><span class="val" style="color:var(--teal)">${h1h.grade || '?'} (${h1h.score || '?'})</span></div>
+      <div class="nr"><span class="lbl">${race.away}</span><span class="val" style="color:var(--pink)">${h1a.grade || '?'} (${h1a.score || '?'})</span></div>
+    </div>
+    <div class="rfc-arr">→</div>
+    <div class="rfc-node ng">
+      <div class="nt">Grade</div>
+      <div class="nr"><span class="lbl">${race.home}</span><span class="val" style="color:var(--teal)">${h1h.grade || '—'}</span></div>
+      <div class="nr"><span class="lbl">${race.away}</span><span class="val" style="color:var(--pink)">${h1a.grade || '—'}</span></div>
+    </div>
+    ${h1wHtml}`;
+
+  // Lane 2 — Race (Player Chains + Matchup)
+  const h2h = h2.home || {}, h2a = h2.away || {};
+  const h3h = h3.home || {}, h3a = h3.away || {};
+  const h2w = h2.winner || 'tie', h3w = h3.winner || 'tie';
+  const l2wins = [h2w,h3w].filter(x=>x==='home').length;
+  const l2loss = [h2w,h3w].filter(x=>x==='away').length;
+  const l2wHtml = l2wins > l2loss
+    ? `<div class="rfc-win wh">${race.home} ▶</div>`
+    : l2loss > l2wins
+    ? `<div class="rfc-win wa">◀ ${race.away}</div>`
+    : `<div class="rfc-win wt">— TIE —</div>`;
+
+  const edgeFmt = v => typeof v === 'number' ? (v >= 0 ? '+' : '') + v.toFixed(1) : '?';
+  const lane2 = `
+    <div class="rfc-node np">
+      <div class="nt">Player Chains</div>
+      <div class="nr"><span class="lbl">${race.home}</span><span class="val" style="color:var(--teal)">${h2h.chains_fired || 0} fired</span></div>
+      <div class="nr"><span class="lbl">${race.away}</span><span class="val" style="color:var(--pink)">${h2a.chains_fired || 0} fired</span></div>
+    </div>
+    <div class="rfc-arr">→</div>
+    <div class="rfc-node np">
+      <div class="nt">Matchup Edge</div>
+      <div class="nr"><span class="lbl">${race.home}</span><span class="val" style="color:var(--teal)">${h3h.off_l5 || '?'} | ${edgeFmt(h3h.edge)}</span></div>
+      <div class="nr"><span class="lbl">${race.away}</span><span class="val" style="color:var(--pink)">${h3a.off_l5 || '?'} | ${edgeFmt(h3a.edge)}</span></div>
+    </div>
+    ${l2wHtml}`;
+
+  // Confidence class
+  const cMap = {'Very High':'vh','High':'hi','Moderate':'mo','Low':'lo'};
+  const cCls = cMap[race.confidence] || 'lo';
+
+  // Pick
+  const pickCls = winner === 'home' ? 'ph' : winner === 'away' ? 'pa' : 'pp';
+  const pickLabel = winner === 'push' ? 'PASS' : (race.pick_team || '—');
+  const spread = race.pick_spread && race.pick_spread !== '?' ? race.pick_spread : '';
+  const pickDetail = winner !== 'push'
+    ? `<div class="pd"><span class="sz">${race.bet_size || '—'}</span> · ${race.confidence || '—'}${spread ? ' · ' + spread : ''}</div>`
+    : '';
+
+  return `
+  <div class="rfc ${cardClass}">
+    <div class="rfc-header">
+      <div class="rfc-matchup">
+        <span class="sep">${race.sport || ''}</span>
+        <span class="sep">·</span>
+        <span class="away">${race.away}</span>
+        <span class="sep">@</span>
+        <span class="home">${race.home}</span>
+      </div>
+      <div class="rfc-meta">H2H RACE · ${race.home_score}–${race.away_score}</div>
+    </div>
+    <div class="rfc-body">
+      <div class="rfc-lanes">
+        <div class="rfc-lane lg">
+          <div class="rfc-lbl t">Lane 1 — Grade</div>
+          ${lane1}
+        </div>
+        <div class="rfc-lane lr">
+          <div class="rfc-lbl p">Lane 2 — Race</div>
+          ${lane2}
+        </div>
+      </div>
+      <div class="rfc-result">
+        <div class="rfc-scores">
+          <span class="h">${race.home_score}</span>
+          <span class="d">–</span>
+          <span class="a">${race.away_score}</span>
+        </div>
+        <div class="rfc-conf ${cCls}">${race.confidence || '—'}</div>
+        <div class="rfc-pick">
+          <div class="pt ${pickCls}">${pickLabel}</div>
+          ${pickDetail}
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── PROPS TAB ─────────────────────────────────────────────────────────────────
+
+async function loadProps() {
+  try {
+    availableSports = await getAvailableSports();
+    const propSets = await Promise.all(
+      availableSports.map(async sport => {
+        const r = await fetch(`/api/props/${sport.key}`);
+        if (!r.ok) return null;
+        const data = await r.json();
+        return {sport: sport.key.toUpperCase(), players: data.players || []};
+      })
+    );
+    const players = propSets.filter(Boolean).flatMap(set => (set.players || []).map(p => ({...p, sport: set.sport})));
+    renderProps({players});
+  } catch(e) {
+    document.getElementById('props-content').innerHTML = `<div style="color:var(--muted)">No prop data yet — run player_profile.py</div>`;
+  }
+}
+
+function renderProps(data) {
+  const players = (data.players || []).filter(p => p.math_chain && p.math_chain.fired);
+  if (!players.length) {
+    document.getElementById('props-content').innerHTML = `<div style="color:var(--muted);padding:40px">No player chains fired yet</div>`;
+    return;
+  }
+
+  document.getElementById('props-content').innerHTML = `
+    <div style="color:var(--muted);font-size:11px;margin-bottom:16px">${players.length} chains fired</div>
+    <div class="slate-grid">
+      ${players.map(p => {
+        const mc = p.math_chain || {};
+        const bp = mc.best_prop || {};
+        const cons = p.consensus || {};
+        return `
+        <div class="game-card">
+          <div class="game-header">
+            <div class="matchup">${p.player}</div>
+            <span class="grade-badge ${gradeClass(cons.grade || 'C')}">${cons.grade || '?'}</span>
+          </div>
+          <div class="game-body" style="padding:12px 14px">
+            <div style="color:var(--gold);font-size:10px;margin-bottom:8px">${p.sport || '—'}</div>
+            <div style="color:var(--muted);font-size:11px;margin-bottom:8px">${p.team} vs ${p.opp_team} &nbsp;·&nbsp; ${p.pos}</div>
+            <div style="display:flex;gap:16px;margin-bottom:8px">
+              <div><div style="color:var(--muted);font-size:10px">PTS L5</div><div style="font-weight:700;color:var(--text)">${(p.l5_stats||{}).pts_l5||'—'}</div></div>
+              <div><div style="color:var(--muted);font-size:10px">AST L5</div><div style="font-weight:700;color:var(--text)">${(p.l5_stats||{}).ast_l5||'—'}</div></div>
+              <div><div style="color:var(--muted);font-size:10px">REB L5</div><div style="font-weight:700;color:var(--text)">${(p.l5_stats||{}).reb_l5||'—'}</div></div>
+            </div>
+            ${bp.type ? `
+            <div style="background:#00e5ff0a;border:1px solid #00e5ff22;border-radius:6px;padding:8px 10px">
+              <div style="font-size:10px;color:var(--muted)">PROP PLAY</div>
+              <div style="font-size:14px;font-weight:700;color:var(--teal)">${bp.direction || ''} ${bp.type || ''} ${bp.book || '?'}</div>
+              <div style="font-size:11px;color:var(--muted)">Our number: ${bp.our || '?'} &nbsp;·&nbsp; Gap: ${bp.gap ? (bp.gap > 0 ? '+' : '') + bp.gap : '?'}</div>
+            </div>` : ''}
+          </div>
+          <div class="game-footer">
+            <div class="consensus-grade">${mc.confidence || '—'} confidence &nbsp;·&nbsp; +${mc.bonus || 0} bonus</div>
+            <div class="pick-pill pick-A">${mc.play_type || 'prop'}</div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+// ── V3 PIPELINE TAB ─────────────────────────────────────────────────────────
+
+async function loadPipeline() {
+  availableSports = await getAvailableSports();
+  syncPipelineSelector();
+  const sport = document.getElementById('pipe-sport').value;
+  try {
+    const [slateR, raceR, propsR, gradesR] = await Promise.all([
+      fetch(`/api/slate/${sport}`),
+      fetch(`/api/race/${sport}`).catch(() => null),
+      fetch(`/api/props/${sport}`).catch(() => null),
+      fetch(`/api/grades/${sport}`).catch(() => null),
+    ]);
+    const slate = await slateR.json();
+    const race = raceR && raceR.ok ? await raceR.json() : {races:[]};
+    const props = propsR && propsR.ok ? await propsR.json() : {players:[]};
+    const grades = gradesR && gradesR.ok ? await gradesR.json() : {games:[]};
+    renderPipeline(slate, race, props, grades);
+  } catch(e) {
+    document.getElementById('pipeline-grid').innerHTML = `<div style="color:var(--red)">Error: ${e.message}</div>`;
+  }
+}
+
+async function getAvailableSports() {
+  const r = await fetch('/api/sports');
+  if (!r.ok) throw new Error('Failed to load sports');
+  const sports = await r.json();
+  return sports.filter(s => s.has_data);
+}
+
+function syncPipelineSelector() {
+  const select = document.getElementById('pipe-sport');
+  const current = select.value;
+  const options = availableSports.length ? availableSports : [
+    {key: 'nba', name: 'NBA'},
+    {key: 'nhl', name: 'NHL'},
+    {key: 'ncaab', name: 'NCAAB'},
+  ];
+  select.innerHTML = options.map(s => `<option value="${s.key}">${s.name}</option>`).join('');
+  if (options.some(s => s.key === current)) {
+    select.value = current;
+  }
+}
+
+async function analyzeAllSports() {
+  const btn = document.getElementById('analyze-btn');
+  const original = btn.textContent;
+  btn.textContent = 'ANALYZING...';
+  btn.classList.add('busy');
+  document.getElementById('fetch-time').textContent = 'Running full analysis...';
+  try {
+    const res = await fetch('/api/analyze', {method: 'POST'});
+    const data = await res.json();
+    if (!res.ok || data.status === 'error') {
+      throw new Error('Analyze all failed');
+    }
+    await loadAll();
+    document.getElementById('fetch-time').textContent = 'Analyze complete ' + new Date().toLocaleTimeString();
+  } catch (e) {
+    document.getElementById('fetch-time').textContent = `Analyze failed: ${e.message}`;
+  } finally {
+    btn.textContent = original;
+    btn.classList.remove('busy');
+  }
+}
+
+function renderPipeline(slate, race, props, grades) {
+  const games = slate.games || [];
+  const races = {};
+  (race.races || []).forEach(r => { races[`${r.away}@${r.home}`] = r; });
+  const gradeMap = {};
+  (grades.games || []).forEach(g => { gradeMap[g.game_id] = g; });
+  const playerMap = {};
+  (props.players || []).forEach(p => {
+    const t = (p.team||'').toLowerCase();
+    if (!playerMap[t]) playerMap[t] = [];
+    playerMap[t].push(p);
+  });
+
+  if (!games.length) {
+    document.getElementById('pipeline-grid').innerHTML = `<div style="color:var(--muted);padding:40px">No games for ${slate.sport} on ${slate.date}</div>`;
+    return;
+  }
+
+  // Sort: live edges first (A+/A/B+), then B, then dimmed (C/D/F)
+  const gradeOrder = {'A+':1,'A':2,'A-':3,'B+':4,'B':5,'B-':6,'C+':7,'C':8,'D':9,'F':10,'—':11};
+  games.sort((a,b) => {
+    const ga = gradeMap[a.game_id]||{}, gb = gradeMap[b.game_id]||{};
+    return (gradeOrder[ga.consensus_grade]||11) - (gradeOrder[gb.consensus_grade]||11);
+  });
+
+  // Count edges
+  const edges = games.filter(g => {
+    const gr = gradeMap[g.game_id]||{};
+    return ['A+','A','A-','B+'].includes(gr.consensus_grade);
+  });
+
+  let html = `<div style="display:flex;gap:24px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)">
+    <div class="summary-stat"><div class="val">${games.length}</div><div class="lbl">Games</div></div>
+    <div class="summary-stat"><div class="val">${edges.length}</div><div class="lbl">Edges</div></div>
+    <div class="summary-stat"><div class="val">${games.length - edges.length}</div><div class="lbl">Pass</div></div>
+  </div>`;
+
+  html += games.map((g, idx) => {
+    const home = g.home || '?', away = g.away || '?';
+    const rKey = `${away}@${home}`;
+    const r = races[rKey] || {};
+    const gr = gradeMap[g.game_id] || {};
+    const profiles = gr.profiles || {};
+    const sint = profiles.sintonia || {};
+    const renz = profiles.renzo || {};
+
+    const hInj = ((g.injuries||{}).home||[]);
+    const aInj = ((g.injuries||{}).away||[]);
+    const hOut = hInj.filter(i=>i.status==='OUT');
+    const aOut = aInj.filter(i=>i.status==='OUT');
+    const hGtd = hInj.filter(i=>i.status==='GTD'||i.status==='DAY-TO-DAY');
+    const aGtd = aInj.filter(i=>i.status==='GTD'||i.status==='DAY-TO-DAY');
+
+    const hPlayers = playerMap[home.toLowerCase()] || [];
+    const aPlayers = playerMap[away.toLowerCase()] || [];
+    const hChains = hPlayers.filter(p=>p.math_chain && p.math_chain.fired);
+    const aChains = aPlayers.filter(p=>p.math_chain && p.math_chain.fired);
+
+    const spread = g.spread_home_val || g.spread || '?';
+    const total = g.total_current || g.total || '?';
+    const time = g.time ? formatTime(g.time) : '';
+
+    const hp = g.home_profile || {};
+    const ap = g.away_profile || {};
+
+    const winner = r.race_winner || 'push';
+    const pickTeam = r.pick_team || gr.consensus_pick || '—';
+    const sizing = r.bet_size || gr.consensus_sizing || sint.sizing || 'PASS';
+    const conf = r.confidence || '—';
+    const cMap2 = {'Very High':'vh','High':'hi','Moderate':'mo','Low':'lo'};
+    const cCls = cMap2[conf] || 'lo';
+    const pickCls = winner==='home'?'ph':winner==='away'?'pa':'pp';
+    const consGrade = gr.consensus_grade || '—';
+    const isEdge = ['A+','A','A-','B+'].includes(consGrade);
+    const dimClass = isEdge ? '' : 'style="opacity:0.5"';
+
+    // Team chains from Sinton.ia
+    const tChains = sint.chains_fired || [];
+    const pFlags = gr.peter_flags || [];
+
+    // EV data
+    const ev = sint.ev || {};
+
+    return `
+    <div class="pipe-game" ${dimClass}>
+      <!-- COLLAPSED HEADER -->
+      <div class="pipe-header" onclick="togglePipe(${idx})" style="cursor:pointer">
+        <div style="display:flex;align-items:center;gap:14px">
+          <span class="grade-badge ${gradeClass(consGrade)}" style="font-size:12px">${consGrade}</span>
+          <div class="pipe-matchup">
+            <span class="away">${away}</span>
+            <span class="sep">@</span>
+            <span class="home">${home}</span>
+          </div>
+          ${hOut.length?`<span class="injury-flag">${home}: ${hOut.length} OUT</span>`:''}
+          ${aOut.length?`<span class="injury-flag">${away}: ${aOut.length} OUT</span>`:''}
+          ${tChains.length?`<span style="font-size:10px;color:var(--gold)">${tChains.length} chain${tChains.length>1?'s':''}</span>`:''}
+          ${hChains.length+aChains.length?`<span style="font-size:10px;color:var(--teal)">${hChains.length+aChains.length} player chain${hChains.length+aChains.length>1?'s':''}</span>`:''}
+        </div>
+        <div class="pipe-info">
+          <span>${time}</span>
+          <span>${spread}</span>
+          <span>O/U ${total}</span>
+          <span class="pipe-verdict" style="padding:0">
+            <span class="team ${pickCls}" style="font-size:13px">${pickTeam}</span>
+            <span class="sizing" style="font-size:11px">${sizing}</span>
+          </span>
+          <span style="font-size:16px;color:var(--muted)">&#9660;</span>
+        </div>
+      </div>
+
+      <!-- EXPANDED CONTENT -->
+      <div id="pipe-expand-${idx}" class="pipe-flow" style="display:none;flex-direction:column;border-radius:0 0 10px 10px">
+
+        <!-- ROW 1: Side by side team comparison -->
+        <div style="display:grid;grid-template-columns:1fr 80px 1fr;border-bottom:1px solid var(--border)">
+
+          <!-- HOME TEAM -->
+          <div style="padding:14px 16px;border-right:1px solid var(--border)">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+              <span style="color:var(--teal);font-weight:700;font-size:14px">${home}</span>
+              <span class="grade-badge ${gradeClass(g.home_grade||'C')}" style="font-size:10px">${g.home_grade||'—'}</span>
+            </div>
+            <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Stats L5</div>
+            <div class="pipe-row"><span class="lbl">PPG</span><span class="val neutral">${hp.ppg_L5||'?'}</span></div>
+            <div class="pipe-row"><span class="lbl">Opp PPG</span><span class="val neutral">${hp.opp_ppg_L5||'?'}</span></div>
+            <div class="pipe-row"><span class="lbl">Margin</span><span class="val ${(hp.margin_L5||0)>0?'good':'bad'}">${hp.margin_L5>0?'+':''}${hp.margin_L5||'?'}</span></div>
+            <div class="pipe-row"><span class="lbl">Record</span><span class="val neutral">${hp.home_record||'?'}</span></div>
+            <div class="pipe-row"><span class="lbl">Streak</span><span class="val ${hp.streak&&hp.streak.startsWith('W')?'good':'bad'}">${hp.streak||'?'}</span></div>
+            <div class="pipe-row"><span class="lbl">Rest</span><span class="val ${hp.is_b2b?'bad':'neutral'}">${hp.rest_days||'?'}d ${hp.is_b2b?'B2B':''}</span></div>
+
+            ${hOut.length||hGtd.length?`
+            <div style="font-size:9px;color:var(--red);text-transform:uppercase;letter-spacing:1px;margin:8px 0 4px">Injuries</div>
+            ${hOut.map(i=>`<div class="pipe-inj">${i.player} (${i.pos||'?'}) — OUT ${i.ppg?'· '+i.ppg+' PPG':''}</div>`).join('')}
+            ${hGtd.map(i=>`<div class="pipe-inj watch">${i.player} (${i.pos||'?'}) — ${i.status} ${i.ppg?'· '+i.ppg+' PPG':''}</div>`).join('')}
+            `:'<div style="font-size:10px;color:var(--green);margin-top:8px">No significant injuries</div>'}
+
+            ${hChains.length?`
+            <div style="font-size:9px;color:var(--teal);text-transform:uppercase;letter-spacing:1px;margin:10px 0 4px">Player Chains Fired</div>
+            ${hChains.map(p=>{
+              const mc=p.math_chain||{};
+              const bp=mc.best_prop||{};
+              const cons=p.consensus||{};
+              return `<div style="background:#00e5ff08;border:1px solid #00e5ff22;border-radius:6px;padding:6px 8px;margin-bottom:4px">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <span style="font-weight:700;font-size:11px;color:var(--teal)">${p.player}</span>
+                  <span class="grade-badge ${gradeClass(cons.grade||'C')}" style="font-size:9px">${cons.grade||'?'}</span>
+                </div>
+                <div style="font-size:10px;color:var(--muted)">L5: ${(p.l5_stats||{}).pts_l5||'?'} pts · ${(p.l5_stats||{}).ast_l5||'?'} ast · ${(p.l5_stats||{}).reb_l5||'?'} reb</div>
+                ${bp.type?`<div style="font-size:10px;color:var(--gold);margin-top:2px">${bp.direction||''} ${bp.type} ${bp.book||'?'} (gap: ${bp.gap>0?'+':''}${bp.gap||'?'})</div>`:''}
+                <div style="font-size:9px;color:var(--muted)">${mc.confidence||'?'} conf · +${mc.bonus||0} bonus</div>
+              </div>`;
+            }).join('')}
+            `:''}
+          </div>
+
+          <!-- VS COLUMN -->
+          <div style="display:flex;align-items:center;justify-content:center;background:var(--surface);font-size:12px;color:var(--muted);font-weight:700">VS</div>
+
+          <!-- AWAY TEAM -->
+          <div style="padding:14px 16px;border-left:1px solid var(--border)">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+              <span style="color:var(--pink);font-weight:700;font-size:14px">${away}</span>
+              <span class="grade-badge ${gradeClass(g.away_grade||'C')}" style="font-size:10px">${g.away_grade||'—'}</span>
+            </div>
+            <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Stats L5</div>
+            <div class="pipe-row"><span class="lbl">PPG</span><span class="val neutral">${ap.ppg_L5||'?'}</span></div>
+            <div class="pipe-row"><span class="lbl">Opp PPG</span><span class="val neutral">${ap.opp_ppg_L5||'?'}</span></div>
+            <div class="pipe-row"><span class="lbl">Margin</span><span class="val ${(ap.margin_L5||0)>0?'good':'bad'}">${ap.margin_L5>0?'+':''}${ap.margin_L5||'?'}</span></div>
+            <div class="pipe-row"><span class="lbl">Record</span><span class="val neutral">${ap.away_record||'?'}</span></div>
+            <div class="pipe-row"><span class="lbl">Streak</span><span class="val ${ap.streak&&ap.streak.startsWith('W')?'good':'bad'}">${ap.streak||'?'}</span></div>
+            <div class="pipe-row"><span class="lbl">Rest</span><span class="val ${ap.is_b2b?'bad':'neutral'}">${ap.rest_days||'?'}d ${ap.is_b2b?'B2B':''}</span></div>
+
+            ${aOut.length||aGtd.length?`
+            <div style="font-size:9px;color:var(--red);text-transform:uppercase;letter-spacing:1px;margin:8px 0 4px">Injuries</div>
+            ${aOut.map(i=>`<div class="pipe-inj">${i.player} (${i.pos||'?'}) — OUT ${i.ppg?'· '+i.ppg+' PPG':''}</div>`).join('')}
+            ${aGtd.map(i=>`<div class="pipe-inj watch">${i.player} (${i.pos||'?'}) — ${i.status} ${i.ppg?'· '+i.ppg+' PPG':''}</div>`).join('')}
+            `:'<div style="font-size:10px;color:var(--green);margin-top:8px">No significant injuries</div>'}
+
+            ${aChains.length?`
+            <div style="font-size:9px;color:var(--pink);text-transform:uppercase;letter-spacing:1px;margin:10px 0 4px">Player Chains Fired</div>
+            ${aChains.map(p=>{
+              const mc=p.math_chain||{};
+              const bp=mc.best_prop||{};
+              const cons=p.consensus||{};
+              return `<div style="background:#ff2d7808;border:1px solid #ff2d7822;border-radius:6px;padding:6px 8px;margin-bottom:4px">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <span style="font-weight:700;font-size:11px;color:var(--pink)">${p.player}</span>
+                  <span class="grade-badge ${gradeClass(cons.grade||'C')}" style="font-size:9px">${cons.grade||'?'}</span>
+                </div>
+                <div style="font-size:10px;color:var(--muted)">L5: ${(p.l5_stats||{}).pts_l5||'?'} pts · ${(p.l5_stats||{}).ast_l5||'?'} ast · ${(p.l5_stats||{}).reb_l5||'?'} reb</div>
+                ${bp.type?`<div style="font-size:10px;color:var(--gold);margin-top:2px">${bp.direction||''} ${bp.type} ${bp.book||'?'} (gap: ${bp.gap>0?'+':''}${bp.gap||'?'})</div>`:''}
+                <div style="font-size:9px;color:var(--muted)">${mc.confidence||'?'} conf · +${mc.bonus||0} bonus</div>
+              </div>`;
+            }).join('')}
+            `:''}
+          </div>
+        </div>
+
+        <!-- ROW 2: Grade Engine + Chains + Race -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;border-bottom:1px solid var(--border)">
+
+          <!-- Sinton.ia -->
+          <div style="padding:12px 14px;border-right:1px solid var(--border)">
+            <div style="font-size:9px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Sinton.ia</div>
+            <div class="pipe-row"><span class="lbl">Score</span><span class="val neutral">${sint.score ? sint.score.toFixed(1) : '?'}/10</span></div>
+            <div class="pipe-row"><span class="lbl">Grade</span><span class="val"><span class="grade-badge ${gradeClass(sint.grade||'C')}" style="font-size:10px">${sint.grade||'—'}</span></span></div>
+            <div class="pipe-row"><span class="lbl">Pick</span><span class="val neutral">${sint.pick||'—'}</span></div>
+            <div class="pipe-row"><span class="lbl">Sizing</span><span class="val" style="color:var(--gold)">${sint.sizing||'—'}</span></div>
+            ${tChains.length?`<div style="margin-top:6px">${tChains.map(c=>`<span class="pipe-chain-badge" style="background:#ffd16612;color:var(--gold);border-color:#ffd16633">${c}</span>`).join('')}</div>`:''}
+          </div>
+
+          <!-- Renzo -->
+          <div style="padding:12px 14px;border-right:1px solid var(--border)">
+            <div style="font-size:9px;color:var(--purple);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Renzo</div>
+            <div class="pipe-row"><span class="lbl">Score</span><span class="val neutral">${renz.score ? renz.score.toFixed(1) : '?'}/10</span></div>
+            <div class="pipe-row"><span class="lbl">Grade</span><span class="val"><span class="grade-badge ${gradeClass(renz.grade||'C')}" style="font-size:10px">${renz.grade||'—'}</span></span></div>
+            <div class="pipe-row"><span class="lbl">Thesis</span><span class="val ${renz.thesis_passed?'good':'bad'}">${renz.thesis_passed?'PASS':'FAIL'}</span></div>
+            ${renz.thesis_note?`<div style="font-size:9px;color:var(--muted);margin-top:4px">${renz.thesis_note}</div>`:''}
+          </div>
+
+          <!-- Peter Flags + Adjust -->
+          <div style="padding:12px 14px;border-right:1px solid var(--border)">
+            <div style="font-size:9px;color:var(--red);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Peter's Rules</div>
+            ${pFlags.length?pFlags.map(f=>`<div style="font-size:10px;color:var(--red);margin-bottom:2px">${f}</div>`).join(''):'<div style="font-size:10px;color:var(--green)">No flags</div>'}
+            <div style="margin-top:10px;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Adjust</div>
+            <div style="display:flex;gap:4px;align-items:center">
+              <button class="pipe-gate-btn" style="padding:2px 8px;font-size:10px" onclick="adjustGame('${g.game_id}',1)">+1</button>
+              <button class="pipe-gate-btn" style="padding:2px 8px;font-size:10px" onclick="adjustGame('${g.game_id}',-1)">-1</button>
+              <span id="adj-${g.game_id}" style="font-size:10px;color:var(--gold);margin-left:4px"></span>
+            </div>
+          </div>
+
+          <!-- Swim Lane Race -->
+          <div style="padding:12px 14px">
+            <div style="font-size:9px;color:var(--teal);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Swim Lane Race</div>
+            ${(r.lanes||[]).map(l => {
+              const hw = l.winner==='home', aw = l.winner==='away';
+              return `<div class="pipe-row"><span class="lbl" style="font-size:10px">${(l.heat||'?').replace('(Off vs Def)','')}</span><span class="val" style="color:${hw?'var(--teal)':aw?'var(--pink)':'var(--muted)'}; font-size:10px">${hw?home:aw?away:'TIE'}</span></div>`;
+            }).join('')}
+            <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:8px;font-size:22px;font-weight:700">
+              <span style="color:var(--teal)">${r.home_score||0}</span>
+              <span style="color:var(--muted);font-size:14px">-</span>
+              <span style="color:var(--pink)">${r.away_score||0}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ROW 3: Decision Gate + Final -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:var(--surface)">
+          <div style="display:flex;align-items:center;gap:16px">
+            <div>
+              <div style="font-size:9px;color:var(--gold);text-transform:uppercase;letter-spacing:1px">Decision Gate</div>
+              <div style="display:flex;gap:6px;margin-top:4px">
+                <button class="pipe-gate-btn" onclick="approveGame(this,'${g.game_id}')">APPROVE</button>
+                <button class="pipe-gate-btn" onclick="rejectGame(this,'${g.game_id}')" style="border-color:var(--red);color:var(--red)">PASS</button>
+              </div>
+            </div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Final Pick</div>
+            <div style="display:flex;align-items:center;gap:10px;margin-top:4px">
+              <span class="team ${pickCls}" style="font-size:18px;font-weight:700">${pickTeam}</span>
+              <span style="color:var(--gold);font-weight:700;font-size:14px">${sizing}</span>
+              <span class="rfc-conf ${cCls}">${conf}</span>
+              ${spread && spread !== '?' ? `<span style="font-size:11px;color:var(--muted)">${r.pick_spread||spread}</span>` : ''}
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('pipeline-grid').innerHTML = html;
+}
+
+function togglePipe(idx) {
+  const el = document.getElementById(`pipe-expand-${idx}`);
+  el.style.display = el.style.display === 'none' ? 'flex' : 'none';
+}
+
+function approveGame(btn, gameId) {
+  btn.classList.add('approved');
+  btn.textContent = 'APPROVED';
+  const sibling = btn.parentElement.querySelector('[onclick*="reject"]');
+  if (sibling) { sibling.classList.remove('rejected'); sibling.textContent = 'PASS'; }
+}
+
+function rejectGame(btn, gameId) {
+  btn.classList.add('rejected');
+  btn.textContent = 'PASSED';
+  const sibling = btn.parentElement.querySelector('[onclick*="approve"]');
+  if (sibling) { sibling.classList.remove('approved'); sibling.textContent = 'APPROVE'; }
+  // Dim the game
+  btn.closest('.pipe-game').style.opacity = '0.3';
+}
+
+const adjustments = {};
+function adjustGame(gameId, delta) {
+  if (!adjustments[gameId]) adjustments[gameId] = 0;
+  adjustments[gameId] += delta;
+  const el = document.getElementById(`adj-${gameId}`);
+  if (el) el.textContent = adjustments[gameId] > 0 ? '+' + adjustments[gameId] : adjustments[gameId] === 0 ? '' : adjustments[gameId];
+}
+
+// ── BOOT ──────────────────────────────────────────────────────────────────────
+
+async function loadAll() {
+  await Promise.all([loadSlate(), loadPro(), loadProps(), loadPipeline()]);
+}
+
+loadAll();
+setInterval(loadAll, 5 * 60 * 1000);  // refresh every 5 min
+</script>
+</body>
+</html>

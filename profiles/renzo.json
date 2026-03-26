@@ -1,0 +1,30 @@
+{
+  "name": "renzo",
+  "display_name": "Renzo",
+  "description": "5 Questions + Mathurin Test. Show me the number or it's an F.",
+  "questions": {
+    "Q0_roster_verify": {"description": "Cross-check trades/roster moves", "weight": 0, "gate": false},
+    "Q1_whos_missing": {"description": "Who's OUT? Quantify PPG gap BOTH sides", "weight": 9},
+    "Q2_line_reflects": {"description": "Does the line reflect injuries? Open vs current delta", "weight": 9},
+    "Q3_recent_form": {"description": "L5 W-L — not season record", "weight": 8},
+    "Q4_best_on_court": {"description": "Best players actually playing tonight", "weight": 8},
+    "Q5_schedule_rest": {"description": "B2B, road trip, rest, situational spots", "weight": 7}
+  },
+  "thesis_edge": {
+    "weight": 10,
+    "description": "Why is the market wrong? Specific number proving book is mispriced.",
+    "gate": true,
+    "gate_name": "Mathurin Test",
+    "gate_rule": "Must have a specific quantifiable edge or grade is D/F"
+  },
+  "grade_thresholds": {
+    "A+": 8.5, "A": 7.8, "A-": 7.0,
+    "B+": 6.5, "B": 6.0, "B-": 5.5,
+    "C+": 5.0, "C": 4.0, "D": 3.0, "F": 0.0
+  },
+  "sizing": {
+    "A+": "2u", "A": "1.5u", "A-": "1u",
+    "B+": "1u", "B": "PASS", "B-": "PASS",
+    "C+": "PASS", "C": "PASS", "D": "PASS", "F": "PASS"
+  }
+}

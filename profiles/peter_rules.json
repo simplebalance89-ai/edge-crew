@@ -1,0 +1,43 @@
+{
+  "name": "peter_rules",
+  "display_name": "Peter's Rules",
+  "description": "Hard flags from watching games. Override filters — kill or boost.",
+  "rules": [
+    {
+      "id": "big_fav_ats",
+      "description": "Spread > 15 against winning team = F",
+      "condition": "abs(spread) > 15 AND underdog_record_pct > 0.45",
+      "action": "KILL",
+      "note": "OKC -18.5 type traps"
+    },
+    {
+      "id": "no_leans",
+      "description": "No Leans — proven break-even (24-24, -0.18u)",
+      "condition": "grade in ['B', 'B-', 'C+', 'C']",
+      "action": "PASS",
+      "note": "Leans bleed vig"
+    },
+    {
+      "id": "blowout_lead_teams",
+      "description": "Teams known to blow leads — downgrade spread bets",
+      "condition": "team in BLOW_LEAD_LIST AND bet_type == 'spread'",
+      "action": "DOWNGRADE",
+      "teams": ["Phoenix Suns"],
+      "note": "Phoenix blows leads consistently"
+    },
+    {
+      "id": "fresh_injury_boost",
+      "description": "Injury announced < 2 hours before tip = line hasn't adjusted",
+      "condition": "injury.freshness == 'FRESH' AND injury.ppg >= 15",
+      "action": "BOOST",
+      "note": "Books slow to react to late scratches"
+    },
+    {
+      "id": "established_injury_priced",
+      "description": "Star out 15+ days + team winning without = PRICED",
+      "condition": "injury.days_out >= 15 AND team_record_without_pct > 0.55",
+      "action": "DOWNGRADE",
+      "note": "Team adapted — injury already in the line"
+    }
+  ]
+}
