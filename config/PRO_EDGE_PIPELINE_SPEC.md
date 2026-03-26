@@ -25,12 +25,12 @@ Last Updated: 2026-03-19 (Session 209)
 - By morning: every team and player profile for tomorrow's slate is pre-built
 - This is what feeds Step 3 — variables score off structured profiles, not raw data
 - STATUS: Need to crowdsource criteria (same process as Step 3 variables)
-- HISTORY: Peter + Renzo crowdsourced this, work was lost. Must redo and save 3x.
+- HISTORY: Peter + Rocco crowdsourced this, work was lost. Must redo and save 3x.
 
 ### Step 3 — VARIABLES (scored criteria)
 - 20-25 variables per sport, each scored 1-10
 - Variables are sport-specific (NBA has different vars than NHL)
-- Each profile (Sintonia, Renzo, Alyssa, Peter) can weight variables differently
+- Each profile (Sintonia, Rocco, Alyssa, Peter) can weight variables differently
 - Crowdsourced from 6 AI models: GPT-4.1, Grok, GPT-5.1, DeepSeek, o4-mini, Kimi K2.5
 - Peter's variables confirmed by Kimi independently: 3pt variance, minutes load, lookahead letdown
 - Variables pull from Step 2.5 profiles, not raw data
@@ -39,7 +39,7 @@ Last Updated: 2026-03-19 (Session 209)
 ### Step 4 — GRADERS (swim lanes)
 - Each profile grades independently using their own variable weights
 - Sintonia: 15 variables + 7 chain bonuses (cap 3.0)
-- Renzo: 6 questions + Mathurin Test gate (thesis_edge weight 10)
+- Rocco: 6 questions + Mathurin Test gate (thesis_edge weight 10)
 - Alyssa: TBD — needs profile definition
 - Peter: TBD — analytical pattern recognition codified
 - All profiles visible side by side on one card
@@ -84,4 +84,4 @@ Last Updated: 2026-03-19 (Session 209)
 ## Three Machines
 - ThinkStation: Alyssa + Peter (work, building, Edge Crew)
 - Mac Mini: Alyssa Spawn (personal research, async deep dives)
-- Razer (Dekan): Chiara (support, testing)
+- Razer (Dekan): Siena (support, testing)
