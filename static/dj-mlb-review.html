@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DJ — MLB Matrix Review</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+    background: #0a0a0f;
+    color: #fff;
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    min-height: 100vh;
+    padding: 20px;
+}
+a { color: #38BDF8; text-decoration: none; }
+.header {
+    padding: 20px 0;
+    border-bottom: 1px solid rgba(56,189,248,0.15);
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.header h1 { font-size: 24px; font-weight: 900; color: #38BDF8; }
+.header .subtitle { font-size: 12px; color: rgba(255,255,255,0.35); }
+.back-link {
+    font-size: 12px; color: rgba(255,255,255,0.4);
+    padding: 6px 12px; border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px;
+}
+.back-link:hover { border-color: #38BDF8; color: #38BDF8; }
+.review-banner {
+    background: rgba(234,179,8,0.1);
+    border: 1px solid rgba(234,179,8,0.3);
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 24px;
+    font-size: 13px;
+    color: #EAB308;
+    font-weight: 600;
+}
+.tier-section {
+    margin-bottom: 28px;
+}
+.tier-label {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 6px;
+    display: inline-block;
+    margin-bottom: 12px;
+}
+.tier-1 { background: rgba(239,68,68,0.15); color: #EF4444; }
+.tier-2 { background: rgba(249,115,22,0.15); color: #F97316; }
+.tier-3 { background: rgba(56,189,248,0.15); color: #38BDF8; }
+.tier-4 { background: rgba(34,197,94,0.15); color: #22C55E; }
+.tier-5 { background: rgba(168,85,247,0.15); color: #A855F7; }
+.tier-6 { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.5); }
+.var-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+.var-card:hover { border-color: rgba(56,189,248,0.2); }
+.weight-badge {
+    font-size: 20px;
+    font-weight: 900;
+    min-width: 40px;
+    text-align: center;
+}
+.w10 { color: #EF4444; }
+.w9 { color: #F97316; }
+.w8 { color: #EAB308; }
+.w7 { color: #38BDF8; }
+.w6 { color: #22C55E; }
+.w5 { color: #A855F7; }
+.w4 { color: rgba(255,255,255,0.4); }
+.var-info { flex: 1; }
+.var-name { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+.var-desc { font-size: 11px; color: rgba(255,255,255,0.4); line-height: 1.4; }
+.var-source { font-size: 10px; color: rgba(56,189,248,0.5); margin-top: 3px; }
+.new-badge {
+    font-size: 9px; font-weight: 800; letter-spacing: 1px;
+    background: rgba(34,197,94,0.15); color: #22C55E;
+    padding: 2px 8px; border-radius: 4px;
+}
+.summary-box {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 30px;
+}
+.summary-box h3 { font-size: 14px; font-weight: 800; margin-bottom: 12px; color: #38BDF8; }
+.summary-box p { font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.6; margin-bottom: 8px; }
+.stat-row { display: flex; gap: 20px; margin-top: 16px; flex-wrap: wrap; }
+.stat-item { text-align: center; }
+.stat-item .num { font-size: 28px; font-weight: 900; color: #38BDF8; }
+.stat-item .lbl { font-size: 10px; color: rgba(255,255,255,0.3); letter-spacing: 0.5px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+    <div>
+        <h1>MLB Matrix — Review Draft</h1>
+        <span class="subtitle">For DJ | Generated 2026-03-25 | Crowdsourced across 3 AI models</span>
+    </div>
+    <a href="/dj" class="back-link">Back to DJ</a>
+</div>
+
+<div class="review-banner">
+    REVIEW COPY — This matrix was crowdsourced across Groq (Llama 3.3), Gemini 2.5, and Kimi K2.5, then synthesized by Pietra. Variables marked NEW are additions to the current 21-variable matrix. Review and send feedback to Peter.
+</div>
+
+<!-- TIER 1: Starting Pitching -->
+<div class="tier-section">
+    <div class="tier-label tier-1">TIER 1 — STARTING PITCHING (THE KING)</div>
+
+    <div class="var-card">
+        <div class="weight-badge w10">10</div>
+        <div class="var-info">
+            <div class="var-name">Starting Pitcher Quality</div>
+            <div class="var-desc">xFIP/SIERA true talent, ERA, WHIP, K/9, recent form. The single most important variable in MLB betting.</div>
+            <div class="var-source">Source: FanGraphs + SGO</div>
+        </div>
+    </div>
+
+    <div class="var-card">
+        <div class="weight-badge w9">9</div>
+        <div class="var-info">
+            <div class="var-name">SP Recent Form (Last 3 Starts)</div>
+            <div class="var-desc">Velocity trend, K%, xFIP over last 3 game starts vs season average. Catches decline before the stats do.</div>
+            <div class="var-source">Source: FanGraphs / Statcast</div>
+        </div>
+        <span class="new-badge">NEW</span>
+    </div>
+
+    <div class="var-card">
+        <div class="weight-badge w8">8</div>
+        <div class="var-info">
+            <div class="var-name">SP K/BB Ratio</div>
+            <div class="var-desc">Command + swing-and-miss ability. High K/BB strongly correlated with success.</div>
+            <div class="var-source">Source: FanGraphs</div>
+        </div>
+        <span class="new-badge">NEW</span>
+    </div>
+
+    <div class="var-card">
+        <div class="weight-badge w8">8</div>
+        <div class="var-info">
+            <div class="var-name">SP Platoon Vulnerability</div>
+            <div class="var-desc">wOBA allowed vs opposite hand. RHP facing heavy LHB lineup? Check the splits.</div>
+            <div class="var-source">Source: FanGraphs splits</div>
+        </div>
+    </div>
+</div>
+
+<!-- TIER 2: Bullpen -->
+<div class="tier-section">
+    <div class="tier-label tier-2">TIER 2 — BULLPEN</div>
+
+    <div class="var-card">
+        <div class="weight-badge w9">9</div>
+        <div class="var-info">
+            <div class="var-name">Bullpen Fatigue Index</div>
+            <div class="var-desc">IP last 3 days + availability of closer/setup. All arms used 2+ days in a row = 0. Full rest = 100.</div>
+            <div class="var-source">Source: Tank01 roster + FanGraphs usage</div>
+        </div>
+        <span class="new-badge">NEW</span>
+    </div>
+
+    <div class="var-card">
+        <div class="weight-badge w9">9</div>
+        <div class="var-info">
+            <div class="var-name">Bullpen Strength</div>
+            <div class="var-desc">Bullpen ERA, xFIP (30-day), leverage usage, rest status.</div>
+            <div class="var-source">Source: FanGraphs + SGO</div>
+        </div>
+    </div>
+</div>
+
+<!-- TIER 3: Market & Value -->
+<div class="tier-section">
+    <div class="tier-label tier-3">TIER 3 — MARKET & VALUE</div>
+
+    <div class="var-card">
+        <div class="weight-badge w8">8</div>
+        <div class="var-info">
+            <div class="var-name">Sharp Money vs Public</div>
+            <div class="var-desc">Where smart money is vs public betting split. Reverse line movement = sharp action.</div>
+            <div class="var-source">Source: SGO line history</div>
+        </div>
+    </div>
+
+    <div class="var-card">
+        <div class="weight-badge w8">8</div>
+        <div class="var-info">
+            <div class="var-name">Line Movement</div>
+            <div class="var-desc">Opening vs current line. CLV (Closing Line Value) toward pick = edge signal.</div>
+            <div class="var-source">Source: SGO</div>
+        </div>
+    </div>
+
+    <div class="var-card">
+        <div class="weight-badge w8">8</div>
+        <div class="var-info">
+            <div class="var-name">F5 vs Full Game Value Gap</div>
+            <div class="var-desc">SP matchup implies different F5 vs full game win probability. If market F5 line is off from model = value.</div>
+            <div class="var-source">Source: SGO derivatives</div>
+        </div>
+        <span class="new-badge">NEW</span>
+    </div>
+
+    <div class="var-card">
+        <div class="weight-badge w6">6</div>
+        <div class="var-info">
+            <div class="var-name">Run Line Value</div>
+            <div class="var-desc">ML to run line conversion efficiency. Pythagorean expectation vs market pricing.</div>
+            <div class="var-source">Source: SGO</div>
+        </div>
+    </div>
+
+    <div class="var-card">
+        <div class="weight-badge w5">5</div>
+        <div class="var-info">
+            <div class="var-name">Line vs Model Composite</div>
+            <div class="var-desc">Our composite grade vs the posted line. Meta-edge signal when we disagree with the market.</div>
+            <div class="var-source">Source: Internal engine</div>
+        </div>
+    </div>
+</div>
+
+<!-- TIER 4: Offense -->
+<div class="tier-section">
+    <div class="tier-label tier-4">TIER 4 — OFFENSE</div>
+
+    <div class="var-card">
+        <div class="weight-badge w8">8</div>
+        <div class="var-info">
+            <div class="var-name">Lineup vs Hand (Platoon Advantage)</div>
+            <div class="var-desc">Team wOBA/OPS vs SP handedness. Heavy lefty lineup vs weak LHB pitcher = edge.</div>
+            <div class="var-source">Source: FanGraphs splits</div>
+        </div>
+    </div>
+
+    <div class="var-card">
+        <div class="weight-badge w8">8</div>
+        <div class="var-info">
+            <div class="var-name">Offensive Momentum (Weighted L7/L14/L30)</div>
+            <div class="var-desc">wRC+ weighted: L7 (50%), L14 (30%), L30 (20%). Catches hot/cold streaks with recency bias.</div>
+            <div class="var-source">Source: FanGraphs</div>
+        </div>
+        <span class="new-badge">NEW</span>
+    </div>
+
+    <div class="var-card">
+        <div class="weight-badge w7">7</div>
+        <div class="var-info">
+            <div class="var-name">Recent Form (L10)</div>
+            <div class="var-desc">Team record and run differential over last 10 games.</div>
+            <div class="var-source">Source: SGO</div>
+        </div>
+    </div>
+
+    <div class="var-card">
+        <div class="weight-badge w7">7</div>
+        <div class="var-info">
+            <div class="var-name">ATS / Run Line Trend</div>
+            <div class="var-desc">Run line cover rate last 7 and 14 days.</div>
+            <div class="var-source">Source: SGO</div>
+        </div>
+    </div>
+
+    <div class="var-card">
+        <div class="weight-badge w5">5</div>
+        <div class="var-info">
+            <div class="var-name">Clutch Hitting (RISP)</div>
+            <div class="var-desc">Runners in scoring position, late/close situations. Matters in tight games.</div>
+            <div class="var-source">Source: FanGraphs</div>
+        </div>
+    </div>
+
+    <div class="var-card">
+        <div class="weight-badge w5">5</div>
+        <div class="var-info">
+            <div class="var-name">Stolen Base Potential</div>
+            <div class="var-desc">Team speed vs catcher pop time. Creates runs in close games.</div>
+            <div class="var-source">Source: Statcast</div>
+        </div>
+    </div>
+</div>
+
+<!-- TIER 5: Environment -->
+<div class="tier-section">
+    <div class="tier-label tier-5">TIER 5 — ENVIRONMENT</div>
+
+    <div class="var-card">
+        <div class="weight-badge w8">8</div>
+        <div class="var-info">
+            <div class="var-name">Park Factor</div>
+            <div class="var-desc">HR + runs composite. Coors Field = 100, Petco Park = 0. Massive impact on totals.</div>
+            <div class="var-source">Source: FanGraphs park factors</div>
+        </div>
+    </div>
+
+    <div class="var-card">
+        <div class="weight-badge w8">8</div>
+        <div class="var-info">
+            <div class="var-name">Weather Conditions</div>
+            <div class="var-desc">Wind speed + direction (out = HR derby, in = pitcher's day), temperature, humidity. Only applies to outdoor parks.</div>
+            <div class="var-source">Source: Weather API</div>
+        </div>
+    </div>
+
+    <div class="var-card">
+        <div class="weight-badge w7">7</div>
+        <div class="var-info">
+            <div class="var-name">Umpire Strike Zone</div>
+            <div class="var-desc">Called strike %, zone size, walk rate tendency. Wide zone favors pitcher, tight zone favors hitter.</div>
+            <div class="var-source">Source: UmpireScorecards</div>
+        </div>
+    </div>
+
+    <div class="var-card">
+        <div class="weight-badge w4">4</div>
+        <div class="var-info">
+            <div class="var-name">Catcher Framing</div>
+            <div class="var-desc">Stolen strikes per game. Elite framing catcher boosts pitcher's K% and suppresses walks.</div>
+            <div class="var-source">Source: Baseball Savant</div>
+        </div>
+        <span class="new-badge">NEW</span>
+    </div>
+</div>
+
+<!-- TIER 6: Situational -->
+<div class="tier-section">
+    <div class="tier-label tier-6">TIER 6 — SITUATIONAL</div>
+
+    <div class="var-card">
+        <div class="weight-badge w7">7</div>
+        <div class="var-info">
+            <div class="var-name">DGANG (Day Game After Night Game)</div>
+            <div class="var-desc">Lineup fatigue, especially with travel. Full rest day game = 100. DGANG + cross-country travel = 0.</div>
+            <div class="var-source">Source: Schedule API</div>
+        </div>
+        <span class="new-badge">NEW</span>
+    </div>
+
+    <div class="var-card">
+        <div class="weight-badge w7">7</div>
+        <div class="var-info">
+            <div class="var-name">Defensive Metrics</div>
+            <div class="var-desc">DRS, Outs Above Average, error rate. Good defense saves runs, bad defense costs games.</div>
+            <div class="var-source">Source: Statcast / FanGraphs</div>
+        </div>
+    </div>
+
+    <div class="var-card">
+        <div class="weight-badge w6">6</div>
+        <div class="var-info">
+            <div class="var-name">Travel / Rest</div>
+            <div class="var-desc">Cross-country travel, time zones, back-to-back series. East travel harder than west.</div>
+            <div class="var-source">Source: Schedule API</div>
+        </div>
+    </div>
+
+    <div class="var-card">
+        <div class="weight-badge w6">6</div>
+        <div class="var-info">
+            <div class="var-name">Home/Away Splits</div>
+            <div class="var-desc">Team performance splits at home vs on the road.</div>
+            <div class="var-source">Source: SGO</div>
+        </div>
+    </div>
+
+    <div class="var-card">
+        <div class="weight-badge w6">6</div>
+        <div class="var-info">
+            <div class="var-name">Key Injuries</div>
+            <div class="var-desc">IL, DTD, lineup changes. A team missing its best hitter or closer is a different team.</div>
+            <div class="var-source">Source: Tank01</div>
+        </div>
+    </div>
+
+    <div class="var-card">
+        <div class="weight-badge w5">5</div>
+        <div class="var-info">
+            <div class="var-name">Manager Tendencies</div>
+            <div class="var-desc">Bullpen usage patterns, lineup decisions, quick hook vs long leash.</div>
+            <div class="var-source">Source: Historical data</div>
+        </div>
+    </div>
+</div>
+
+<!-- NRFI MATRIX -->
+<div style="margin-top:40px; padding-top:30px; border-top:2px solid rgba(234,179,8,0.3);">
+<div class="header" style="border:none; padding:0; margin-bottom:20px;">
+    <div>
+        <h1 style="color:#EAB308;">NRFI Matrix — The Primary Play</h1>
+        <span class="subtitle">No Runs First Inning | 15 Variables | First-Inning-Specific Data</span>
+    </div>
+</div>
+
+<div class="review-banner" style="border-color:rgba(34,197,94,0.3); color:#22C55E; background:rgba(34,197,94,0.1);">
+    NRFI is our primary MLB bet type. This matrix is completely different from the full-game matrix — it only cares about what happens in the first inning. SP first-inning stats, top-of-order matchups, and park/umpire/weather for that one frame.
+</div>
+
+<div class="tier-section">
+    <div class="tier-label tier-1">TIER 1 — SP FIRST-INNING DOMINANCE (Weight 9-10)</div>
+
+    <div class="var-card">
+        <div class="weight-badge w10">10</div>
+        <div class="var-info">
+            <div class="var-name">SP First-Inning ERA</div>
+            <div class="var-desc">ERA specifically in the first inning over last 2-3 seasons. Some pitchers: 4.50 overall ERA but 1.80 first-inning ERA. THE number for NRFI.</div>
+            <div class="var-source">Source: FanGraphs (inning splits)</div>
+        </div>
+    </div>
+
+    <div class="var-card">
+        <div class="weight-badge w9">9</div>
+        <div class="var-info">
+            <div class="var-name">SP First-Inning K%</div>
+            <div class="var-desc">Strikeout rate per batter faced in the first inning. High K = quick outs = no baserunners.</div>
+            <div class="var-source">Source: FanGraphs (inning splits)</div>
+        </div>
+    </div>
+
+    <div class="var-card">
+        <div class="weight-badge w9">9</div>
+        <div class="var-info">
+            <div class="var-name">SP First-Inning BB%</div>
+            <div class="var-desc">Walk rate in the first inning. Walks = free baserunners = NRFI killer. Lower is better.</div>
+            <div class="var-source">Source: FanGraphs (inning splits)</div>
+        </div>
+    </div>
+
+    <div class="var-card">
+        <div class="weight-badge w9">9</div>
+        <div class="var-info">
+            <div class="var-name">NRFI Historical Rate (Matchup)</div>
+            <div class="var-desc">Historical NRFI % for this specific SP pair. Some matchups hit 75%+ NRFI rate. Gold mine when data exists.</div>
+            <div class="var-source">Source: Historical game data</div>
+        </div>
+    </div>
+</div>
+
+<div class="tier-section">
+    <div class="tier-label tier-2">TIER 2 — TOP-OF-ORDER MATCHUP (Weight 7-8)</div>
+
+    <div class="var-card">
+        <div class="weight-badge w8">8</div>
+        <div class="var-info">
+            <div class="var-name">Top-of-Order wOBA vs SP Hand</div>
+            <div class="var-desc">First 3 batters' wOBA against this pitcher's handedness. Lefty-heavy top 3 vs weak LHB pitcher = YRFI danger.</div>
+            <div class="var-source">Source: FanGraphs splits</div>
+        </div>
+    </div>
+
+    <div class="var-card">
+        <div class="weight-badge w8">8</div>
+        <div class="var-info">
+            <div class="var-name">SP First-Inning HR/9</div>
+            <div class="var-desc">Home run rate in the first inning specifically. One solo HR kills NRFI. Lower = better.</div>
+            <div class="var-source">Source: FanGraphs (inning splits)</div>
+        </div>
+    </div>
+
+    <div class="var-card">
+        <div class="weight-badge w7">7</div>
+        <div class="var-info">
+            <div class="var-name">SP First-Pitch Strike %</div>
+            <div class="var-desc">Getting ahead early in counts = quick outs. High FPS% pitchers cruise through first innings.</div>
+            <div class="var-source">Source: Statcast</div>
+        </div>
+    </div>
+
+    <div class="var-card">
+        <div class="weight-badge w7">7</div>
+        <div class="var-info">
+            <div class="var-name">SP First-Inning GB Rate</div>
+            <div class="var-desc">Ground balls = double play potential, no HRs. High GB rate in first inning suppresses scoring.</div>
+            <div class="var-source">Source: FanGraphs</div>
+        </div>
+    </div>
+
+    <div class="var-card">
+        <div class="weight-badge w7">7</div>
+        <div class="var-info">
+            <div class="var-name">Park Factor (1st Inning)</div>
+            <div class="var-desc">Some parks play differently in the first inning than overall. Coors 1st inning NRFI rate isn't as bad as you'd think.</div>
+            <div class="var-source">Source: Historical park data</div>
+        </div>
+    </div>
+</div>
+
+<div class="tier-section">
+    <div class="tier-label tier-3">TIER 3 — CONTEXT (Weight 5-6)</div>
+
+    <div class="var-card">
+        <div class="weight-badge w6">6</div>
+        <div class="var-info">
+            <div class="var-name">Umpire 1st Inning Strike Zone</div>
+            <div class="var-desc">Wide zone = more K's, fewer walks. Tight zone = more traffic. Check umpire's first-inning tendencies specifically.</div>
+            <div class="var-source">Source: UmpireScorecards</div>
+        </div>
+    </div>
+
+    <div class="var-card">
+        <div class="weight-badge w6">6</div>
+        <div class="var-info">
+            <div class="var-name">Weather (Wind + Temp)</div>
+            <div class="var-desc">Wind blowing out + hot day = YRFI territory. Wind in + cold = NRFI boost. Only outdoor parks.</div>
+            <div class="var-source">Source: Weather API</div>
+        </div>
+    </div>
+
+    <div class="var-card">
+        <div class="weight-badge w6">6</div>
+        <div class="var-info">
+            <div class="var-name">Leadoff Hitter OBP</div>
+            <div class="var-desc">If the leadoff man gets on, the whole inning changes. High OBP leadoff = NRFI risk.</div>
+            <div class="var-source">Source: FanGraphs</div>
+        </div>
+    </div>
+
+    <div class="var-card">
+        <div class="weight-badge w6">6</div>
+        <div class="var-info">
+            <div class="var-name">SP First-Batter Retirement Rate</div>
+            <div class="var-desc">Does this pitcher retire batter #1? If not, the inning gets messy fast.</div>
+            <div class="var-source">Source: Historical game data</div>
+        </div>
+    </div>
+
+    <div class="var-card">
+        <div class="weight-badge w5">5</div>
+        <div class="var-info">
+            <div class="var-name">Lineup Top-3 ISO (Power)</div>
+            <div class="var-desc">Power in the top of the order can end NRFI with one swing. High ISO = HR threat.</div>
+            <div class="var-source">Source: FanGraphs</div>
+        </div>
+    </div>
+
+    <div class="var-card">
+        <div class="weight-badge w5">5</div>
+        <div class="var-info">
+            <div class="var-name">SP Pitch Count Efficiency (1st Inning)</div>
+            <div class="var-desc">Pitchers who throw 20+ pitches in the first inning are in trouble. Efficient = 10-12 pitches, scoreless.</div>
+            <div class="var-source">Source: Statcast</div>
+        </div>
+    </div>
+</div>
+
+<div class="summary-box" style="border-color:rgba(234,179,8,0.2);">
+    <h3 style="color:#EAB308;">NRFI Matrix Summary</h3>
+    <div class="stat-row">
+        <div class="stat-item"><div class="num">15</div><div class="lbl">VARIABLES</div></div>
+        <div class="stat-item"><div class="num">3</div><div class="lbl">TIERS</div></div>
+        <div class="stat-item"><div class="num">10</div><div class="lbl">MAX WEIGHT</div></div>
+    </div>
+    <p style="margin-top:16px;">NRFI is ranked #1 for edge in MLB by both AI models consulted. The edge: market prices NRFI using general pitcher stats, but first-inning-specific stats tell a completely different story.</p>
+    <p>Secondary plays (in order of edge): F5 ML, SP Strikeout Props, Team Totals, F5 Totals.</p>
+</div>
+</div>
+
+<!-- Summary -->
+<div class="summary-box">
+    <h3>Matrix Summary</h3>
+    <div class="stat-row">
+        <div class="stat-item"><div class="num">26</div><div class="lbl">VARIABLES</div></div>
+        <div class="stat-item"><div class="num">8</div><div class="lbl">NEW ADDITIONS</div></div>
+        <div class="stat-item"><div class="num">6</div><div class="lbl">TIERS</div></div>
+        <div class="stat-item"><div class="num">10</div><div class="lbl">MAX WEIGHT</div></div>
+    </div>
+    <p style="margin-top:16px;">Key differences from current matrix: Added SP Recent Form, K/BB Ratio, Bullpen Fatigue Index, F5 Value Gap, Offensive Momentum (weighted recency), Catcher Framing, and DGANG as distinct variables. Refined weights based on crowdsource consensus across 3 AI models.</p>
+    <p>Data gap: MLB needs FanGraphs (advanced stats), Weather API, UmpireScorecards, and Statcast integration beyond current SGO + Tank01 stack.</p>
+</div>
+
+</body>
+</html>
