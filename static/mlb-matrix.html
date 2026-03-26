@@ -126,7 +126,7 @@ a { color: #38BDF8; text-decoration: none; }
     <div class="tier-label tier-1">TIER 1 — STARTING PITCHING (THE KING)</div>
 
     <div class="var-card">
-        <div class="weight-badge w10">10</div>
+        <input class="weight-input w10" type="number" min="1" max="10" value="10" data-key="">
         <div class="var-info">
             <div class="var-name">Starting Pitcher Quality</div>
             <div class="var-desc">xFIP/SIERA true talent, ERA, WHIP, K/9, recent form. The single most important variable in MLB betting.</div>
@@ -135,7 +135,7 @@ a { color: #38BDF8; text-decoration: none; }
     </div>
 
     <div class="var-card">
-        <div class="weight-badge w9">9</div>
+        <input class="weight-input w9" type="number" min="1" max="10" value="9" data-key="">
         <div class="var-info">
             <div class="var-name">SP Recent Form (Last 3 Starts)</div>
             <div class="var-desc">Velocity trend, K%, xFIP over last 3 game starts vs season average. Catches decline before the stats do.</div>
@@ -145,7 +145,7 @@ a { color: #38BDF8; text-decoration: none; }
     </div>
 
     <div class="var-card">
-        <div class="weight-badge w8">8</div>
+        <input class="weight-input w8" type="number" min="1" max="10" value="8" data-key="">
         <div class="var-info">
             <div class="var-name">SP K/BB Ratio</div>
             <div class="var-desc">Command + swing-and-miss ability. High K/BB strongly correlated with success.</div>
@@ -155,7 +155,7 @@ a { color: #38BDF8; text-decoration: none; }
     </div>
 
     <div class="var-card">
-        <div class="weight-badge w8">8</div>
+        <input class="weight-input w8" type="number" min="1" max="10" value="8" data-key="">
         <div class="var-info">
             <div class="var-name">SP Platoon Vulnerability</div>
             <div class="var-desc">wOBA allowed vs opposite hand. RHP facing heavy LHB lineup? Check the splits.</div>
@@ -169,7 +169,7 @@ a { color: #38BDF8; text-decoration: none; }
     <div class="tier-label tier-2">TIER 2 — BULLPEN</div>
 
     <div class="var-card">
-        <div class="weight-badge w9">9</div>
+        <input class="weight-input w9" type="number" min="1" max="10" value="9" data-key="">
         <div class="var-info">
             <div class="var-name">Bullpen Fatigue Index</div>
             <div class="var-desc">IP last 3 days + availability of closer/setup. All arms used 2+ days in a row = 0. Full rest = 100.</div>
@@ -179,7 +179,7 @@ a { color: #38BDF8; text-decoration: none; }
     </div>
 
     <div class="var-card">
-        <div class="weight-badge w9">9</div>
+        <input class="weight-input w9" type="number" min="1" max="10" value="9" data-key="">
         <div class="var-info">
             <div class="var-name">Bullpen Strength</div>
             <div class="var-desc">Bullpen ERA, xFIP (30-day), leverage usage, rest status.</div>
@@ -193,7 +193,7 @@ a { color: #38BDF8; text-decoration: none; }
     <div class="tier-label tier-3">TIER 3 — MARKET & VALUE</div>
 
     <div class="var-card">
-        <div class="weight-badge w8">8</div>
+        <input class="weight-input w8" type="number" min="1" max="10" value="8" data-key="">
         <div class="var-info">
             <div class="var-name">Sharp Money vs Public</div>
             <div class="var-desc">Where smart money is vs public betting split. Reverse line movement = sharp action.</div>
@@ -202,7 +202,7 @@ a { color: #38BDF8; text-decoration: none; }
     </div>
 
     <div class="var-card">
-        <div class="weight-badge w8">8</div>
+        <input class="weight-input w8" type="number" min="1" max="10" value="8" data-key="">
         <div class="var-info">
             <div class="var-name">Line Movement</div>
             <div class="var-desc">Opening vs current line. CLV (Closing Line Value) toward pick = edge signal.</div>
@@ -211,7 +211,7 @@ a { color: #38BDF8; text-decoration: none; }
     </div>
 
     <div class="var-card">
-        <div class="weight-badge w8">8</div>
+        <input class="weight-input w8" type="number" min="1" max="10" value="8" data-key="">
         <div class="var-info">
             <div class="var-name">F5 vs Full Game Value Gap</div>
             <div class="var-desc">SP matchup implies different F5 vs full game win probability. If market F5 line is off from model = value.</div>
@@ -221,7 +221,7 @@ a { color: #38BDF8; text-decoration: none; }
     </div>
 
     <div class="var-card">
-        <div class="weight-badge w6">6</div>
+        <input class="weight-input w6" type="number" min="1" max="10" value="6" data-key="">
         <div class="var-info">
             <div class="var-name">Run Line Value</div>
             <div class="var-desc">ML to run line conversion efficiency. Pythagorean expectation vs market pricing.</div>
@@ -230,7 +230,7 @@ a { color: #38BDF8; text-decoration: none; }
     </div>
 
     <div class="var-card">
-        <div class="weight-badge w5">5</div>
+        <input class="weight-input w5" type="number" min="1" max="10" value="5" data-key="">
         <div class="var-info">
             <div class="var-name">Line vs Model Composite</div>
             <div class="var-desc">Our composite grade vs the posted line. Meta-edge signal when we disagree with the market.</div>
@@ -244,7 +244,7 @@ a { color: #38BDF8; text-decoration: none; }
     <div class="tier-label tier-4">TIER 4 — OFFENSE</div>
 
     <div class="var-card">
-        <div class="weight-badge w8">8</div>
+        <input class="weight-input w8" type="number" min="1" max="10" value="8" data-key="">
         <div class="var-info">
             <div class="var-name">Lineup vs Hand (Platoon Advantage)</div>
             <div class="var-desc">Team wOBA/OPS vs SP handedness. Heavy lefty lineup vs weak LHB pitcher = edge.</div>
@@ -253,7 +253,7 @@ a { color: #38BDF8; text-decoration: none; }
     </div>
 
     <div class="var-card">
-        <div class="weight-badge w8">8</div>
+        <input class="weight-input w8" type="number" min="1" max="10" value="8" data-key="">
         <div class="var-info">
             <div class="var-name">Offensive Momentum (Weighted L7/L14/L30)</div>
             <div class="var-desc">wRC+ weighted: L7 (50%), L14 (30%), L30 (20%). Catches hot/cold streaks with recency bias.</div>
@@ -263,7 +263,7 @@ a { color: #38BDF8; text-decoration: none; }
     </div>
 
     <div class="var-card">
-        <div class="weight-badge w7">7</div>
+        <input class="weight-input w7" type="number" min="1" max="10" value="7" data-key="">
         <div class="var-info">
             <div class="var-name">Recent Form (L10)</div>
             <div class="var-desc">Team record and run differential over last 10 games.</div>
@@ -272,7 +272,7 @@ a { color: #38BDF8; text-decoration: none; }
     </div>
 
     <div class="var-card">
-        <div class="weight-badge w7">7</div>
+        <input class="weight-input w7" type="number" min="1" max="10" value="7" data-key="">
         <div class="var-info">
             <div class="var-name">ATS / Run Line Trend</div>
             <div class="var-desc">Run line cover rate last 7 and 14 days.</div>
@@ -281,7 +281,7 @@ a { color: #38BDF8; text-decoration: none; }
     </div>
 
     <div class="var-card">
-        <div class="weight-badge w5">5</div>
+        <input class="weight-input w5" type="number" min="1" max="10" value="5" data-key="">
         <div class="var-info">
             <div class="var-name">Clutch Hitting (RISP)</div>
             <div class="var-desc">Runners in scoring position, late/close situations. Matters in tight games.</div>
@@ -290,7 +290,7 @@ a { color: #38BDF8; text-decoration: none; }
     </div>
 
     <div class="var-card">
-        <div class="weight-badge w5">5</div>
+        <input class="weight-input w5" type="number" min="1" max="10" value="5" data-key="">
         <div class="var-info">
             <div class="var-name">Stolen Base Potential</div>
             <div class="var-desc">Team speed vs catcher pop time. Creates runs in close games.</div>
@@ -304,7 +304,7 @@ a { color: #38BDF8; text-decoration: none; }
     <div class="tier-label tier-5">TIER 5 — ENVIRONMENT</div>
 
     <div class="var-card">
-        <div class="weight-badge w8">8</div>
+        <input class="weight-input w8" type="number" min="1" max="10" value="8" data-key="">
         <div class="var-info">
             <div class="var-name">Park Factor</div>
             <div class="var-desc">HR + runs composite. Coors Field = 100, Petco Park = 0. Massive impact on totals.</div>
@@ -313,7 +313,7 @@ a { color: #38BDF8; text-decoration: none; }
     </div>
 
     <div class="var-card">
-        <div class="weight-badge w8">8</div>
+        <input class="weight-input w8" type="number" min="1" max="10" value="8" data-key="">
         <div class="var-info">
             <div class="var-name">Weather Conditions</div>
             <div class="var-desc">Wind speed + direction (out = HR derby, in = pitcher's day), temperature, humidity. Only applies to outdoor parks.</div>
@@ -322,7 +322,7 @@ a { color: #38BDF8; text-decoration: none; }
     </div>
 
     <div class="var-card">
-        <div class="weight-badge w7">7</div>
+        <input class="weight-input w7" type="number" min="1" max="10" value="7" data-key="">
         <div class="var-info">
             <div class="var-name">Umpire Strike Zone</div>
             <div class="var-desc">Called strike %, zone size, walk rate tendency. Wide zone favors pitcher, tight zone favors hitter.</div>
@@ -331,7 +331,7 @@ a { color: #38BDF8; text-decoration: none; }
     </div>
 
     <div class="var-card">
-        <div class="weight-badge w4">4</div>
+        <input class="weight-input w4" type="number" min="1" max="10" value="4" data-key="">
         <div class="var-info">
             <div class="var-name">Catcher Framing</div>
             <div class="var-desc">Stolen strikes per game. Elite framing catcher boosts pitcher's K% and suppresses walks.</div>
@@ -346,7 +346,7 @@ a { color: #38BDF8; text-decoration: none; }
     <div class="tier-label tier-6">TIER 6 — SITUATIONAL</div>
 
     <div class="var-card">
-        <div class="weight-badge w7">7</div>
+        <input class="weight-input w7" type="number" min="1" max="10" value="7" data-key="">
         <div class="var-info">
             <div class="var-name">DGANG (Day Game After Night Game)</div>
             <div class="var-desc">Lineup fatigue, especially with travel. Full rest day game = 100. DGANG + cross-country travel = 0.</div>
@@ -356,7 +356,7 @@ a { color: #38BDF8; text-decoration: none; }
     </div>
 
     <div class="var-card">
-        <div class="weight-badge w7">7</div>
+        <input class="weight-input w7" type="number" min="1" max="10" value="7" data-key="">
         <div class="var-info">
             <div class="var-name">Defensive Metrics</div>
             <div class="var-desc">DRS, Outs Above Average, error rate. Good defense saves runs, bad defense costs games.</div>
@@ -365,7 +365,7 @@ a { color: #38BDF8; text-decoration: none; }
     </div>
 
     <div class="var-card">
-        <div class="weight-badge w6">6</div>
+        <input class="weight-input w6" type="number" min="1" max="10" value="6" data-key="">
         <div class="var-info">
             <div class="var-name">Travel / Rest</div>
             <div class="var-desc">Cross-country travel, time zones, back-to-back series. East travel harder than west.</div>
@@ -374,7 +374,7 @@ a { color: #38BDF8; text-decoration: none; }
     </div>
 
     <div class="var-card">
-        <div class="weight-badge w6">6</div>
+        <input class="weight-input w6" type="number" min="1" max="10" value="6" data-key="">
         <div class="var-info">
             <div class="var-name">Home/Away Splits</div>
             <div class="var-desc">Team performance splits at home vs on the road.</div>
@@ -383,7 +383,7 @@ a { color: #38BDF8; text-decoration: none; }
     </div>
 
     <div class="var-card">
-        <div class="weight-badge w6">6</div>
+        <input class="weight-input w6" type="number" min="1" max="10" value="6" data-key="">
         <div class="var-info">
             <div class="var-name">Key Injuries</div>
             <div class="var-desc">IL, DTD, lineup changes. A team missing its best hitter or closer is a different team.</div>
@@ -392,7 +392,7 @@ a { color: #38BDF8; text-decoration: none; }
     </div>
 
     <div class="var-card">
-        <div class="weight-badge w5">5</div>
+        <input class="weight-input w5" type="number" min="1" max="10" value="5" data-key="">
         <div class="var-info">
             <div class="var-name">Manager Tendencies</div>
             <div class="var-desc">Bullpen usage patterns, lineup decisions, quick hook vs long leash.</div>
@@ -418,7 +418,7 @@ a { color: #38BDF8; text-decoration: none; }
     <div class="tier-label tier-1">TIER 1 — SP FIRST-INNING DOMINANCE (Weight 9-10)</div>
 
     <div class="var-card">
-        <div class="weight-badge w10">10</div>
+        <input class="weight-input w10" type="number" min="1" max="10" value="10" data-key="">
         <div class="var-info">
             <div class="var-name">SP First-Inning ERA</div>
             <div class="var-desc">ERA specifically in the first inning over last 2-3 seasons. Some pitchers: 4.50 overall ERA but 1.80 first-inning ERA. THE number for NRFI.</div>
@@ -427,7 +427,7 @@ a { color: #38BDF8; text-decoration: none; }
     </div>
 
     <div class="var-card">
-        <div class="weight-badge w9">9</div>
+        <input class="weight-input w9" type="number" min="1" max="10" value="9" data-key="">
         <div class="var-info">
             <div class="var-name">SP First-Inning K%</div>
             <div class="var-desc">Strikeout rate per batter faced in the first inning. High K = quick outs = no baserunners.</div>
@@ -436,7 +436,7 @@ a { color: #38BDF8; text-decoration: none; }
     </div>
 
     <div class="var-card">
-        <div class="weight-badge w9">9</div>
+        <input class="weight-input w9" type="number" min="1" max="10" value="9" data-key="">
         <div class="var-info">
             <div class="var-name">SP First-Inning BB%</div>
             <div class="var-desc">Walk rate in the first inning. Walks = free baserunners = NRFI killer. Lower is better.</div>
@@ -445,7 +445,7 @@ a { color: #38BDF8; text-decoration: none; }
     </div>
 
     <div class="var-card">
-        <div class="weight-badge w9">9</div>
+        <input class="weight-input w9" type="number" min="1" max="10" value="9" data-key="">
         <div class="var-info">
             <div class="var-name">NRFI Historical Rate (Matchup)</div>
             <div class="var-desc">Historical NRFI % for this specific SP pair. Some matchups hit 75%+ NRFI rate. Gold mine when data exists.</div>
@@ -458,7 +458,7 @@ a { color: #38BDF8; text-decoration: none; }
     <div class="tier-label tier-2">TIER 2 — TOP-OF-ORDER MATCHUP (Weight 7-8)</div>
 
     <div class="var-card">
-        <div class="weight-badge w8">8</div>
+        <input class="weight-input w8" type="number" min="1" max="10" value="8" data-key="">
         <div class="var-info">
             <div class="var-name">Top-of-Order wOBA vs SP Hand</div>
             <div class="var-desc">First 3 batters' wOBA against this pitcher's handedness. Lefty-heavy top 3 vs weak LHB pitcher = YRFI danger.</div>
@@ -467,7 +467,7 @@ a { color: #38BDF8; text-decoration: none; }
     </div>
 
     <div class="var-card">
-        <div class="weight-badge w8">8</div>
+        <input class="weight-input w8" type="number" min="1" max="10" value="8" data-key="">
         <div class="var-info">
             <div class="var-name">SP First-Inning HR/9</div>
             <div class="var-desc">Home run rate in the first inning specifically. One solo HR kills NRFI. Lower = better.</div>
@@ -476,7 +476,7 @@ a { color: #38BDF8; text-decoration: none; }
     </div>
 
     <div class="var-card">
-        <div class="weight-badge w7">7</div>
+        <input class="weight-input w7" type="number" min="1" max="10" value="7" data-key="">
         <div class="var-info">
             <div class="var-name">SP First-Pitch Strike %</div>
             <div class="var-desc">Getting ahead early in counts = quick outs. High FPS% pitchers cruise through first innings.</div>
@@ -485,7 +485,7 @@ a { color: #38BDF8; text-decoration: none; }
     </div>
 
     <div class="var-card">
-        <div class="weight-badge w7">7</div>
+        <input class="weight-input w7" type="number" min="1" max="10" value="7" data-key="">
         <div class="var-info">
             <div class="var-name">SP First-Inning GB Rate</div>
             <div class="var-desc">Ground balls = double play potential, no HRs. High GB rate in first inning suppresses scoring.</div>
@@ -494,7 +494,7 @@ a { color: #38BDF8; text-decoration: none; }
     </div>
 
     <div class="var-card">
-        <div class="weight-badge w7">7</div>
+        <input class="weight-input w7" type="number" min="1" max="10" value="7" data-key="">
         <div class="var-info">
             <div class="var-name">Park Factor (1st Inning)</div>
             <div class="var-desc">Some parks play differently in the first inning than overall. Coors 1st inning NRFI rate isn't as bad as you'd think.</div>
@@ -507,7 +507,7 @@ a { color: #38BDF8; text-decoration: none; }
     <div class="tier-label tier-3">TIER 3 — CONTEXT (Weight 5-6)</div>
 
     <div class="var-card">
-        <div class="weight-badge w6">6</div>
+        <input class="weight-input w6" type="number" min="1" max="10" value="6" data-key="">
         <div class="var-info">
             <div class="var-name">Umpire 1st Inning Strike Zone</div>
             <div class="var-desc">Wide zone = more K's, fewer walks. Tight zone = more traffic. Check umpire's first-inning tendencies specifically.</div>
@@ -516,7 +516,7 @@ a { color: #38BDF8; text-decoration: none; }
     </div>
 
     <div class="var-card">
-        <div class="weight-badge w6">6</div>
+        <input class="weight-input w6" type="number" min="1" max="10" value="6" data-key="">
         <div class="var-info">
             <div class="var-name">Weather (Wind + Temp)</div>
             <div class="var-desc">Wind blowing out + hot day = YRFI territory. Wind in + cold = NRFI boost. Only outdoor parks.</div>
@@ -525,7 +525,7 @@ a { color: #38BDF8; text-decoration: none; }
     </div>
 
     <div class="var-card">
-        <div class="weight-badge w6">6</div>
+        <input class="weight-input w6" type="number" min="1" max="10" value="6" data-key="">
         <div class="var-info">
             <div class="var-name">Leadoff Hitter OBP</div>
             <div class="var-desc">If the leadoff man gets on, the whole inning changes. High OBP leadoff = NRFI risk.</div>
@@ -534,7 +534,7 @@ a { color: #38BDF8; text-decoration: none; }
     </div>
 
     <div class="var-card">
-        <div class="weight-badge w6">6</div>
+        <input class="weight-input w6" type="number" min="1" max="10" value="6" data-key="">
         <div class="var-info">
             <div class="var-name">SP First-Batter Retirement Rate</div>
             <div class="var-desc">Does this pitcher retire batter #1? If not, the inning gets messy fast.</div>
@@ -543,7 +543,7 @@ a { color: #38BDF8; text-decoration: none; }
     </div>
 
     <div class="var-card">
-        <div class="weight-badge w5">5</div>
+        <input class="weight-input w5" type="number" min="1" max="10" value="5" data-key="">
         <div class="var-info">
             <div class="var-name">Lineup Top-3 ISO (Power)</div>
             <div class="var-desc">Power in the top of the order can end NRFI with one swing. High ISO = HR threat.</div>
@@ -552,14 +552,17 @@ a { color: #38BDF8; text-decoration: none; }
     </div>
 
     <div class="var-card">
-        <div class="weight-badge w5">5</div>
+        <input class="weight-input w5" type="number" min="1" max="10" value="5" data-key="">
         <div class="var-info">
             <div class="var-name">SP Pitch Count Efficiency (1st Inning)</div>
             <div class="var-desc">Pitchers who throw 20+ pitches in the first inning are in trouble. Efficient = 10-12 pitches, scoreless.</div>
             <div class="var-source">Source: Statcast</div>
         </div>
     </div>
-</div>
+<div style="text-align:center; margin-top:20px;">
+    <button class="save-btn" onclick="saveMatrix(this)">Save Weights</button>
+    <span class="save-msg"></span>
+</div></div>
 
 <div class="summary-box" style="border-color:rgba(234,179,8,0.2);">
     <h3 style="color:#EAB308;">NRFI Matrix Summary</h3>
@@ -573,6 +576,10 @@ a { color: #38BDF8; text-decoration: none; }
 </div>
 </div>
 
+<div style="text-align:center; margin-top:20px;">
+    <button class="save-btn" onclick="saveMatrix(this)">Save Weights</button>
+    <span class="save-msg"></span>
+</div>
 <!-- Summary -->
 <div class="summary-box">
     <h3>Matrix Summary</h3>
@@ -585,6 +592,51 @@ a { color: #38BDF8; text-decoration: none; }
     <p style="margin-top:16px;">Key differences from current matrix: Added SP Recent Form, K/BB Ratio, Bullpen Fatigue Index, F5 Value Gap, Offensive Momentum (weighted recency), Catcher Framing, and DGANG as distinct variables. Refined weights based on crowdsource consensus across 3 AI models.</p>
     <p>Data gap: MLB needs FanGraphs (advanced stats), Weather API, UmpireScorecards, and Statcast integration beyond current SGO + Tank01 stack.</p>
 </div>
+
+
+<script>
+function saveMatrix(btn) {
+    var section = btn.closest('.tier-section, div');
+    var page = document.body;
+    var inputs = page.querySelectorAll('.weight-input');
+    var variables = [];
+    inputs.forEach(function(inp) {
+        var card = inp.closest('.var-card');
+        var name = card ? card.querySelector('.var-name') : null;
+        var key = name ? name.textContent.trim().toLowerCase().replace(/[^a-z0-9]+/g, '_') : 'unknown';
+        variables.push({key: key, weight: parseInt(inp.value) || 5});
+    });
+    
+    // Split into full-game (first 26) and NRFI (last 15)
+    var fullGame = variables.slice(0, 26);
+    var nrfi = variables.slice(26);
+    
+    var payload = {
+        full_game: fullGame,
+        nrfi: nrfi,
+        saved_by: 'reviewer',
+        saved_at: new Date().toISOString()
+    };
+    
+    fetch('/api/agent/dj/matrix/mlb', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+    }).then(function(r) {
+        if (r.ok) {
+            var msgs = document.querySelectorAll('.save-msg');
+            msgs.forEach(function(m) { m.textContent = 'Saved!'; m.style.color = '#22C55E'; });
+            setTimeout(function() { msgs.forEach(function(m) { m.textContent = ''; }); }, 2000);
+        } else {
+            var msgs = document.querySelectorAll('.save-msg');
+            msgs.forEach(function(m) { m.textContent = 'Error saving'; m.style.color = '#EF4444'; });
+        }
+    }).catch(function() {
+        var msgs = document.querySelectorAll('.save-msg');
+        msgs.forEach(function(m) { m.textContent = 'Network error'; m.style.color = '#EF4444'; });
+    });
+}
+</script>
 
 </body>
 </html>
