@@ -1,7 +1,7 @@
 {
   "sport": "NBA",
   "date": "2026-03-21",
-  "fetched_at": "2026-03-20T20:27:57.800064",
+  "fetched_at": "2026-03-20T20:36:34.240521",
   "games": [
     {
       "game_id": "401810877",
@@ -445,9 +445,9 @@
         "spread_away": "+15.5",
         "spread_away_odds": "-110",
         "total": null,
-        "over_odds": "-112",
+        "over_odds": "-110",
         "under_odds": "-110",
-        "ml_home": "-1250",
+        "ml_home": "-1145",
         "ml_away": "+650",
         "provider": "SGO"
       },
@@ -508,7 +508,7 @@
           {
             "player": "Cedric Coward",
             "pos": "SG",
-            "status": "OUT",
+            "status": "DAY-TO-DAY",
             "injDate": null,
             "freshness": "UNKNOWN",
             "days_out": -1,
@@ -538,12 +538,12 @@
           {
             "player": "Jahmai Mashack",
             "pos": "SG",
-            "status": "OUT",
+            "status": "DAY-TO-DAY",
             "injDate": null,
             "freshness": "UNKNOWN",
             "days_out": -1,
             "ppg": null,
-            "description": "Mar 19: Mashack is out for Friday's game against the Celtics due to a sprained left ankle."
+            "description": "Mar 20: Mashack is out for Friday's game against the Celtics due to a sprained left ankle."
           },
           {
             "player": "Walter Clayton Jr.",
@@ -618,7 +618,7 @@
           {
             "player": "Gregory Jackson",
             "pos": "PF",
-            "status": "OUT",
+            "status": "DAY-TO-DAY",
             "injDate": "",
             "freshness": "UNKNOWN",
             "days_out": -1,
@@ -668,7 +668,7 @@
           {
             "player": "Taj Gibson",
             "pos": "PF",
-            "status": "OUT",
+            "status": "DAY-TO-DAY",
             "injDate": "",
             "freshness": "UNKNOWN",
             "days_out": -1,
@@ -892,9 +892,9 @@
         "spread_away_odds": "-111",
         "total": null,
         "over_odds": "-111",
-        "under_odds": "-110",
+        "under_odds": "-111",
         "ml_home": "+128",
-        "ml_away": "-155",
+        "ml_away": "-154",
         "provider": "SGO"
       },
       "away_profile": {
@@ -1302,10 +1302,10 @@
       "away_espn_id": "5",
       "time": "2026-03-21T23:00",
       "odds": {
-        "spread_home": "+5",
-        "spread_home_odds": "-110",
-        "spread_away": "-5",
-        "spread_away_odds": "-110",
+        "spread_home": "+5.5",
+        "spread_home_odds": "-115",
+        "spread_away": "-5.5",
+        "spread_away_odds": "-106",
         "total": null,
         "over_odds": "-110",
         "under_odds": "-110",
@@ -1733,8 +1733,8 @@
         "spread_away": "+9.5",
         "spread_away_odds": "-110",
         "total": null,
-        "over_odds": "-109",
-        "under_odds": "-112",
+        "over_odds": "-110",
+        "under_odds": "-111",
         "ml_home": "-400",
         "ml_away": "+300",
         "provider": "SGO"
@@ -2018,12 +2018,12 @@
           {
             "player": "Jonathan Kuminga",
             "pos": "PF",
-            "status": "OUT",
+            "status": "DAY-TO-DAY",
             "injDate": "",
             "freshness": "UNKNOWN",
             "days_out": -1,
             "ppg": null,
-            "description": "Mar 19: Kuminga (knee) has been ruled out for Friday's game in Houston."
+            "description": "Mar 20: Kuminga (knee) has been ruled out for Friday's game in Houston."
           },
           {
             "player": "Jock Landale",
@@ -2161,7 +2161,7 @@
         "total": null,
         "over_odds": "-110",
         "under_odds": "-112",
-        "ml_home": "-134",
+        "ml_home": "-133",
         "ml_away": "+110",
         "provider": "SGO"
       },

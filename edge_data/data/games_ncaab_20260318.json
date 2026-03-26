@@ -1,0 +1,765 @@
+{
+  "sport": "NCAAB",
+  "date": "2026-03-18",
+  "games": [
+    {
+      "game_id": "cJPE53j9pxTZ7qkSbsBW",
+      "sport": "NCAAB",
+      "away": "Prairie View A&M Panthers",
+      "home": "Lehigh Mountain Hawks",
+      "time": "2026-03-18T22:40:00.000Z",
+      "odds": {
+        "spread_away": 3.5,
+        "spread_home": -3.5,
+        "spread_open": 2.5,
+        "spread_current": 3.5,
+        "spread_away_odds": -115,
+        "spread_home_odds": -105,
+        "total_open": 143.5,
+        "total_current": 142.5,
+        "over_odds": -110,
+        "under_odds": -110,
+        "away_ml_open": 116,
+        "away_ml_current": 130,
+        "home_ml_open": 116,
+        "home_ml_current": -160,
+        "fair_away_ml": 143,
+        "fair_home_ml": -143,
+        "bookmaker": "hardrockbet"
+      },
+      "shifts": {
+        "spread_delta": 1.0,
+        "total_delta": -1.0,
+        "ml_moved": true
+      },
+      "away_profile": {},
+      "home_profile": {},
+      "injuries": {
+        "away": [],
+        "home": []
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
+    },
+    {
+      "game_id": "1536I5jNPkCHBvo64I9g",
+      "sport": "NCAAB",
+      "away": "Navy Midshipmen",
+      "home": "Wake Forest Demon Deacons",
+      "time": "2026-03-18T23:00:00.000Z",
+      "odds": {
+        "spread_away": 9.5,
+        "spread_home": -9.5,
+        "spread_open": 12,
+        "spread_current": 9.5,
+        "spread_away_odds": -110,
+        "spread_home_odds": -110,
+        "total_open": 147,
+        "total_current": 148.5,
+        "over_odds": -110,
+        "under_odds": -110,
+        "away_ml_open": 420,
+        "away_ml_current": 400,
+        "home_ml_open": 420,
+        "home_ml_current": -550,
+        "fair_away_ml": 447,
+        "fair_home_ml": -447,
+        "bookmaker": "hardrockbet"
+      },
+      "shifts": {
+        "spread_delta": -2.5,
+        "total_delta": 1.5,
+        "ml_moved": true
+      },
+      "away_profile": {},
+      "home_profile": {},
+      "injuries": {
+        "away": [],
+        "home": []
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
+    },
+    {
+      "game_id": "JAde3xecml5Um16OXVDU",
+      "sport": "NCAAB",
+      "away": "George Washington Revolutionaries",
+      "home": "Utah Valley Wolverines",
+      "time": "2026-03-19T00:00:00.000Z",
+      "odds": {
+        "spread_away": 1.5,
+        "spread_home": -1.5,
+        "spread_open": 2,
+        "spread_current": 1.5,
+        "spread_away_odds": -110,
+        "spread_home_odds": -110,
+        "total_open": 156,
+        "total_current": 153.5,
+        "over_odds": -110,
+        "under_odds": -110,
+        "away_ml_open": 112,
+        "away_ml_current": 100,
+        "home_ml_open": 112,
+        "home_ml_current": -125,
+        "fair_away_ml": 111,
+        "fair_home_ml": -111,
+        "bookmaker": "hardrockbet"
+      },
+      "shifts": {
+        "spread_delta": -0.5,
+        "total_delta": -2.5,
+        "ml_moved": true
+      },
+      "away_profile": {},
+      "home_profile": {},
+      "injuries": {
+        "away": [],
+        "home": []
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
+    },
+    {
+      "game_id": "Lr0sHUXTXV0IQcoCyy9c",
+      "sport": "NCAAB",
+      "away": "Kent State Golden Flashes",
+      "home": "Illinois State Redbirds",
+      "time": "2026-03-19T00:00:00.000Z",
+      "odds": {
+        "spread_away": 4.5,
+        "spread_home": -4.5,
+        "spread_open": 6,
+        "spread_current": 4.5,
+        "spread_away_odds": -105,
+        "spread_home_odds": -120,
+        "total_open": 152,
+        "total_current": 153.5,
+        "over_odds": -110,
+        "under_odds": -110,
+        "away_ml_open": 191,
+        "away_ml_current": 170,
+        "home_ml_open": 191,
+        "home_ml_current": -210,
+        "fair_away_ml": 190,
+        "fair_home_ml": -190,
+        "bookmaker": "hardrockbet"
+      },
+      "shifts": {
+        "spread_delta": -1.5,
+        "total_delta": 1.5,
+        "ml_moved": true
+      },
+      "away_profile": {},
+      "home_profile": {},
+      "injuries": {
+        "away": [],
+        "home": []
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
+    },
+    {
+      "game_id": "Bkk7aw8Dp8uCkah3peMV",
+      "sport": "NCAAB",
+      "away": "Sam Houston State Bearkats",
+      "home": "New Mexico Lobos",
+      "time": "2026-03-19T01:00:00.000Z",
+      "odds": {
+        "spread_away": 12.5,
+        "spread_home": -12.5,
+        "spread_open": 12,
+        "spread_current": 12.5,
+        "spread_away_odds": -110,
+        "spread_home_odds": -110,
+        "total_open": 163,
+        "total_current": 162.5,
+        "over_odds": -115,
+        "under_odds": -105,
+        "away_ml_open": 540,
+        "away_ml_current": 550,
+        "home_ml_open": 540,
+        "home_ml_current": -850,
+        "fair_away_ml": 608,
+        "fair_home_ml": -608,
+        "bookmaker": "hardrockbet"
+      },
+      "shifts": {
+        "spread_delta": 0.5,
+        "total_delta": -0.5,
+        "ml_moved": true
+      },
+      "away_profile": {},
+      "home_profile": {},
+      "injuries": {
+        "away": [],
+        "home": []
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
+    },
+    {
+      "game_id": "KnsZvmeWPGM5qKIaXV1O",
+      "sport": "NCAAB",
+      "away": "Dayton Flyers",
+      "home": "Bradley Braves",
+      "time": "2026-03-19T01:00:00.000Z",
+      "odds": {
+        "spread_away": -2.5,
+        "spread_home": 2.5,
+        "spread_open": -1.5,
+        "spread_current": -2.5,
+        "spread_away_odds": -110,
+        "spread_home_odds": -110,
+        "total_open": 140,
+        "total_current": 141.5,
+        "over_odds": -110,
+        "under_odds": -110,
+        "away_ml_open": -118,
+        "away_ml_current": -140,
+        "home_ml_open": -118,
+        "home_ml_current": 115,
+        "fair_away_ml": -125,
+        "fair_home_ml": 125,
+        "bookmaker": "hardrockbet"
+      },
+      "shifts": {
+        "spread_delta": -1.0,
+        "total_delta": 1.5,
+        "ml_moved": true
+      },
+      "away_profile": {},
+      "home_profile": {},
+      "injuries": {
+        "away": [],
+        "home": []
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
+    },
+    {
+      "game_id": "RKFbbKqCff6CX9SlkgRY",
+      "sport": "NCAAB",
+      "away": "Miami (OH) RedHawks",
+      "home": "Southern Methodist Mustangs",
+      "time": "2026-03-19T01:15:00.000Z",
+      "odds": {
+        "spread_away": 7.5,
+        "spread_home": -7.5,
+        "spread_open": 7.5,
+        "spread_current": 7.5,
+        "spread_away_odds": -110,
+        "spread_home_odds": -110,
+        "total_open": 164.5,
+        "total_current": 161.5,
+        "over_odds": -110,
+        "under_odds": -110,
+        "away_ml_open": 247,
+        "away_ml_current": 240,
+        "home_ml_open": 247,
+        "home_ml_current": -325,
+        "fair_away_ml": 269,
+        "fair_home_ml": -269,
+        "bookmaker": "hardrockbet"
+      },
+      "shifts": {
+        "spread_delta": 0.0,
+        "total_delta": -3.0,
+        "ml_moved": true
+      },
+      "away_profile": {},
+      "home_profile": {},
+      "injuries": {
+        "away": [],
+        "home": []
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
+    },
+    {
+      "game_id": "6FSfwkO1uOOfwc1VEX8q",
+      "sport": "NCAAB",
+      "away": "Murray State Racers",
+      "home": "Nevada Wolf Pack",
+      "time": "2026-03-19T02:00:00.000Z",
+      "odds": {
+        "spread_away": 7.5,
+        "spread_home": -7.5,
+        "spread_open": 8.5,
+        "spread_current": 7.5,
+        "spread_away_odds": -105,
+        "spread_home_odds": -115,
+        "total_open": 161,
+        "total_current": 159.5,
+        "over_odds": -110,
+        "under_odds": -110,
+        "away_ml_open": 255,
+        "away_ml_current": 275,
+        "home_ml_open": 255,
+        "home_ml_current": -350,
+        "fair_away_ml": 304,
+        "fair_home_ml": -304,
+        "bookmaker": "hardrockbet"
+      },
+      "shifts": {
+        "spread_delta": -1.0,
+        "total_delta": -1.5,
+        "ml_moved": true
+      },
+      "away_profile": {},
+      "home_profile": {},
+      "injuries": {
+        "away": [],
+        "home": []
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
+    },
+    {
+      "game_id": "f57Hcf3BHPu2NtdHzjD5",
+      "sport": "NCAAB",
+      "away": "UIC Flames",
+      "home": "California Golden Bears",
+      "time": "2026-03-19T03:00:00.000Z",
+      "odds": {
+        "spread_away": 6.5,
+        "spread_home": -6.5,
+        "spread_open": 4.5,
+        "spread_current": 6.5,
+        "spread_away_odds": -115,
+        "spread_home_odds": -105,
+        "total_open": 147.5,
+        "total_current": 150.5,
+        "over_odds": -110,
+        "under_odds": -110,
+        "away_ml_open": 161,
+        "away_ml_current": 220,
+        "home_ml_open": 161,
+        "home_ml_current": -275,
+        "fair_away_ml": 230,
+        "fair_home_ml": -230,
+        "bookmaker": "hardrockbet"
+      },
+      "shifts": {
+        "spread_delta": 2.0,
+        "total_delta": 3.0,
+        "ml_moved": true
+      },
+      "away_profile": {},
+      "home_profile": {},
+      "injuries": {
+        "away": [],
+        "home": []
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
+    },
+    {
+      "game_id": "gQOwQ3kAQuspcRtHRoTl",
+      "sport": "NCAAB",
+      "away": "St. Joseph's Hawks",
+      "home": "Colorado State Rams",
+      "time": "2026-03-19T03:00:00.000Z",
+      "odds": {
+        "spread_away": 5.5,
+        "spread_home": -5.5,
+        "spread_open": 5.5,
+        "spread_current": 5.5,
+        "spread_away_odds": -105,
+        "spread_home_odds": -115,
+        "total_open": 143,
+        "total_current": 143.5,
+        "over_odds": -110,
+        "under_odds": -110,
+        "away_ml_open": 190,
+        "away_ml_current": 210,
+        "home_ml_open": 190,
+        "home_ml_current": -260,
+        "fair_away_ml": 222,
+        "fair_home_ml": -222,
+        "bookmaker": "hardrockbet"
+      },
+      "shifts": {
+        "spread_delta": 0.0,
+        "total_delta": 0.5,
+        "ml_moved": true
+      },
+      "away_profile": {},
+      "home_profile": {},
+      "injuries": {
+        "away": [],
+        "home": []
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
+    },
+    {
+      "game_id": "Vsna6wZrq1jwMrCQo2sA",
+      "sport": "NCAAB",
+      "away": "TCU Horned Frogs",
+      "home": "Ohio State Buckeyes",
+      "time": "2026-03-19T16:15:00.000Z",
+      "odds": {
+        "spread_away": 2.5,
+        "spread_home": -2.5,
+        "spread_open": 2.5,
+        "spread_current": 2.5,
+        "spread_away_odds": -110,
+        "spread_home_odds": -110,
+        "total_open": 146.5,
+        "total_current": 146.5,
+        "over_odds": -110,
+        "under_odds": -110,
+        "away_ml_open": 115,
+        "away_ml_current": 115,
+        "home_ml_open": 115,
+        "home_ml_current": -145,
+        "fair_away_ml": 130,
+        "fair_home_ml": -130,
+        "bookmaker": "hardrockbet"
+      },
+      "shifts": {
+        "spread_delta": 0.0,
+        "total_delta": 0.0,
+        "ml_moved": false
+      },
+      "away_profile": {},
+      "home_profile": {},
+      "injuries": {
+        "away": [],
+        "home": []
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
+    },
+    {
+      "game_id": "zYNiyH9IjaKJF98sFrOr",
+      "sport": "NCAAB",
+      "away": "Troy State Trojans",
+      "home": "Nebraska Cornhuskers",
+      "time": "2026-03-19T16:40:00.000Z",
+      "odds": {
+        "spread_away": 12.5,
+        "spread_home": -12.5,
+        "spread_open": 13.5,
+        "spread_current": 12.5,
+        "spread_away_odds": -105,
+        "spread_home_odds": -115,
+        "total_open": 137.5,
+        "total_current": 137.5,
+        "over_odds": -110,
+        "under_odds": -110,
+        "away_ml_open": 640,
+        "away_ml_current": 600,
+        "home_ml_open": 640,
+        "home_ml_current": -900,
+        "fair_away_ml": 674,
+        "fair_home_ml": -674,
+        "bookmaker": "hardrockbet"
+      },
+      "shifts": {
+        "spread_delta": -1.0,
+        "total_delta": 0.0,
+        "ml_moved": true
+      },
+      "away_profile": {},
+      "home_profile": {},
+      "injuries": {
+        "away": [],
+        "home": []
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
+    },
+    {
+      "game_id": "V404wm5nhdjP5gKoXFfK",
+      "sport": "NCAAB",
+      "away": "South Florida Bulls",
+      "home": "Louisville Cardinals",
+      "time": "2026-03-19T17:30:00.000Z",
+      "odds": {
+        "spread_away": 4.5,
+        "spread_home": -4.5,
+        "spread_open": 5.5,
+        "spread_current": 4.5,
+        "spread_away_odds": -110,
+        "spread_home_odds": -110,
+        "total_open": 165.5,
+        "total_current": 164.5,
+        "over_odds": -110,
+        "under_odds": -110,
+        "away_ml_open": 185,
+        "away_ml_current": 160,
+        "home_ml_open": 185,
+        "home_ml_current": -200,
+        "fair_away_ml": 173,
+        "fair_home_ml": -173,
+        "bookmaker": "hardrockbet"
+      },
+      "shifts": {
+        "spread_delta": -1.0,
+        "total_delta": -1.0,
+        "ml_moved": true
+      },
+      "away_profile": {},
+      "home_profile": {},
+      "injuries": {
+        "away": [],
+        "home": []
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
+    },
+    {
+      "game_id": "rRoR1kS0SZ3PRI8XVBGZ",
+      "sport": "NCAAB",
+      "away": "High Point Panthers",
+      "home": "Wisconsin Badgers",
+      "time": "2026-03-19T17:50:00.000Z",
+      "odds": {
+        "spread_away": 10.5,
+        "spread_home": -10.5,
+        "spread_open": 9.5,
+        "spread_current": 10.5,
+        "spread_away_odds": -115,
+        "spread_home_odds": -105,
+        "total_open": 164.5,
+        "total_current": 163.5,
+        "over_odds": -110,
+        "under_odds": -110,
+        "away_ml_open": 375,
+        "away_ml_current": 350,
+        "home_ml_open": 375,
+        "home_ml_current": -500,
+        "fair_away_ml": 385,
+        "fair_home_ml": -385,
+        "bookmaker": "hardrockbet"
+      },
+      "shifts": {
+        "spread_delta": 1.0,
+        "total_delta": -1.0,
+        "ml_moved": true
+      },
+      "away_profile": {},
+      "home_profile": {},
+      "injuries": {
+        "away": [],
+        "home": []
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
+    },
+    {
+      "game_id": "yz5TzSk6QxiasQzazNIL",
+      "sport": "NCAAB",
+      "away": "Siena Saints",
+      "home": "Duke Blue Devils",
+      "time": "2026-03-19T18:50:00.000Z",
+      "odds": {
+        "spread_away": 27.5,
+        "spread_home": -27.5,
+        "spread_open": 29.5,
+        "spread_current": 27.5,
+        "spread_away_odds": -105,
+        "spread_home_odds": -115,
+        "total_open": 136.5,
+        "total_current": 135.5,
+        "over_odds": -110,
+        "under_odds": -110,
+        "away_ml_open": 5455,
+        "away_ml_current": 5000,
+        "home_ml_open": 5455,
+        "home_ml_current": -50000,
+        "fair_away_ml": 4813,
+        "fair_home_ml": -4813,
+        "bookmaker": "hardrockbet"
+      },
+      "shifts": {
+        "spread_delta": -2.0,
+        "total_delta": -1.0,
+        "ml_moved": true
+      },
+      "away_profile": {},
+      "home_profile": {},
+      "injuries": {
+        "away": [],
+        "home": []
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
+    },
+    {
+      "game_id": "LEcSG3eigLfxpV85czaU",
+      "sport": "NCAAB",
+      "away": "McNeese State Cowboys",
+      "home": "Vanderbilt Commodores",
+      "time": "2026-03-19T19:15:00.000Z",
+      "odds": {
+        "spread_away": 11.5,
+        "spread_home": -11.5,
+        "spread_open": 11.5,
+        "spread_current": 11.5,
+        "spread_away_odds": -110,
+        "spread_home_odds": -110,
+        "total_open": 150.5,
+        "total_current": 150.5,
+        "over_odds": -110,
+        "under_odds": -110,
+        "away_ml_open": 425,
+        "away_ml_current": 425,
+        "home_ml_open": 425,
+        "home_ml_current": -650,
+        "fair_away_ml": 503,
+        "fair_home_ml": -503,
+        "bookmaker": "hardrockbet"
+      },
+      "shifts": {
+        "spread_delta": 0.0,
+        "total_delta": 0.0,
+        "ml_moved": false
+      },
+      "away_profile": {},
+      "home_profile": {},
+      "injuries": {
+        "away": [],
+        "home": []
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
+    },
+    {
+      "game_id": "RDqpB4conoiC3CA65P6J",
+      "sport": "NCAAB",
+      "away": "North Dakota State Bison",
+      "home": "Michigan State Spartans",
+      "time": "2026-03-19T20:05:00.000Z",
+      "odds": {
+        "spread_away": 16.5,
+        "spread_home": -16.5,
+        "spread_open": 16.5,
+        "spread_current": 16.5,
+        "spread_away_odds": -110,
+        "spread_home_odds": -110,
+        "total_open": 143.5,
+        "total_current": 143.5,
+        "over_odds": -110,
+        "under_odds": -110,
+        "away_ml_open": 865,
+        "away_ml_current": 800,
+        "home_ml_open": 865,
+        "home_ml_current": -1600,
+        "fair_away_ml": 970,
+        "fair_home_ml": -970,
+        "bookmaker": "hardrockbet"
+      },
+      "shifts": {
+        "spread_delta": 0.0,
+        "total_delta": 0.0,
+        "ml_moved": true
+      },
+      "away_profile": {},
+      "home_profile": {},
+      "injuries": {
+        "away": [],
+        "home": []
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
+    },
+    {
+      "game_id": "PBECiqACG7iZoo1QQjzj",
+      "sport": "NCAAB",
+      "away": "Hawaii Rainbow Warriors",
+      "home": "Arkansas Razorbacks",
+      "time": "2026-03-19T20:25:00.000Z",
+      "odds": {
+        "spread_away": 15.5,
+        "spread_home": -15.5,
+        "spread_open": 15.5,
+        "spread_current": 15.5,
+        "spread_away_odds": -110,
+        "spread_home_odds": -110,
+        "total_open": 160.5,
+        "total_current": 160.5,
+        "over_odds": -110,
+        "under_odds": -110,
+        "away_ml_open": 731,
+        "away_ml_current": 800,
+        "home_ml_open": 731,
+        "home_ml_current": -1600,
+        "fair_away_ml": 858,
+        "fair_home_ml": -858,
+        "bookmaker": "hardrockbet"
+      },
+      "shifts": {
+        "spread_delta": 0.0,
+        "total_delta": 0.0,
+        "ml_moved": true
+      },
+      "away_profile": {},
+      "home_profile": {},
+      "injuries": {
+        "away": [],
+        "home": []
+      },
+      "lineup": {
+        "away": [],
+        "home": []
+      },
+      "props": []
+    }
+  ],
+  "source": "SportsGameOdds | Active: hardrockbet",
+  "fetched_at": "01:37 PM PST \u2014 Mar 18, 2026",
+  "count": 18
+}

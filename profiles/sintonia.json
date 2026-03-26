@@ -1,0 +1,120 @@
+{
+  "name": "sintonia",
+  "display_name": "Sinton.ia",
+  "description": "15-var weighted matrix + 7 chain bonuses. Grades the GAME.",
+  "sports": {
+    "NBA": {
+      "variables": {
+        "star_player_status": {"weight": 9, "description": "Key player OUT/GTD impact + team record without"},
+        "rest_advantage": {"weight": 9, "description": "Days rest differential, B2B detection"},
+        "off_ranking": {"weight": 8, "description": "Offensive efficiency / PPG ranking"},
+        "def_ranking": {"weight": 8, "description": "Defensive efficiency / OPP PPG ranking"},
+        "three_pt_matchup": {"weight": 7, "description": "3PT% vs opponent 3PT defense"},
+        "pace_matchup": {"weight": 7, "description": "Pace differential and tempo impact"},
+        "recent_form": {"weight": 7, "description": "L5 W-L record and momentum"},
+        "road_trip_length": {"weight": 7, "description": "Games into road trip / home stand"},
+        "h2h_season": {"weight": 6, "description": "Head-to-head this season"},
+        "paint_scoring": {"weight": 6, "description": "Points in paint differential"},
+        "fast_break": {"weight": 6, "description": "Fast break points differential"},
+        "ats_trend": {"weight": 6, "description": "ATS record L5/L10"},
+        "sharp_vs_public": {"weight": 5, "description": "Line movement suggesting sharp action"},
+        "home_away": {"weight": 5, "description": "Home/away record and split"},
+        "depth_injuries": {"weight": 4, "description": "Bench/depth injuries beyond starters"}
+      }
+    },
+    "NHL": {
+      "variables": {
+        "goalie_confirmed": {"weight": 9, "description": "Starting goalie confirmed + save% + workload"},
+        "star_player_status": {"weight": 9, "description": "Key player OUT/GTD impact"},
+        "pp_pk": {"weight": 8, "description": "Power play % vs penalty kill %"},
+        "b2b_fatigue": {"weight": 8, "description": "Back-to-back detection and rest advantage"},
+        "off_ranking": {"weight": 7, "description": "Goals for ranking"},
+        "def_ranking": {"weight": 7, "description": "Goals against ranking"},
+        "recent_form": {"weight": 7, "description": "L5 W-L record and momentum"},
+        "road_trip_length": {"weight": 7, "description": "Games into road trip / home stand"},
+        "h2h_season": {"weight": 6, "description": "Head-to-head this season"},
+        "corsi_xg": {"weight": 6, "description": "Corsi / expected goals metrics"},
+        "save_pct_trend": {"weight": 6, "description": "Goalie save% trend L5/L10"},
+        "ats_trend": {"weight": 6, "description": "ATS/puck line record L5/L10"},
+        "sharp_vs_public": {"weight": 5, "description": "Line movement suggesting sharp action"},
+        "home_away": {"weight": 5, "description": "Home/away record and split"},
+        "depth_injuries": {"weight": 4, "description": "Bench/depth injuries beyond starters"}
+      }
+    },
+    "NCAAB": {
+      "variables": {
+        "offensive_efficiency": {"weight": 9, "description": "Points per possession / KenPom AdjO"},
+        "defensive_efficiency": {"weight": 9, "description": "Opponent points per possession / KenPom AdjD"},
+        "star_player_status": {"weight": 9, "description": "Key player OUT/GTD impact"},
+        "line_movement": {"weight": 9, "description": "Open vs current spread delta + direction"},
+        "tempo_matchup": {"weight": 8, "description": "Pace differential between teams"},
+        "ats_trend": {"weight": 8, "description": "ATS record L5/L10/season"},
+        "tournament_context": {"weight": 8, "description": "Tournament round / conference tourney / motivation"},
+        "public_money_bias": {"weight": 8, "description": "Public % on one side + line movement opposite"},
+        "three_pt_reliance": {"weight": 7, "description": "3PT attempt rate + 3PT defense"},
+        "bench_depth": {"weight": 7, "description": "Bench minutes and production"},
+        "rebounding": {"weight": 7, "description": "Rebounding margin differential"},
+        "turnover_margin": {"weight": 7, "description": "Turnover margin and forced TO rate"},
+        "recent_form": {"weight": 7, "description": "L5 W-L record and momentum"},
+        "coaching_tournament_record": {"weight": 7, "description": "Coach tournament history and adjustments"},
+        "net_ranking_gap": {"weight": 7, "description": "NET ranking differential"},
+        "neutral_site": {"weight": 6, "description": "Neutral site / true road game adjustment"},
+        "conference_strength": {"weight": 6, "description": "Conference strength of schedule"},
+        "ft_shooting": {"weight": 6, "description": "Free throw % and FTA rate"},
+        "rivalry_motivation": {"weight": 6, "description": "Rivalry / revenge / motivation factor"},
+        "fatigue_schedule": {"weight": 6, "description": "Games in last 7 days / travel"},
+        "coaching_matchup": {"weight": 6, "description": "Coaching style matchup and ATS history"}
+      }
+    }
+  },
+  "chains": {
+    "THE_MISPRICING": {
+      "bonus": 1.0,
+      "trigger": "star_player_status >= 8 AND sharp_vs_public >= 7 AND line_movement_flat",
+      "description": "Star OUT but line hasn't moved + sharps on opposite side"
+    },
+    "FATIGUE_FADE": {
+      "bonus": 1.0,
+      "trigger": "rest_advantage >= 8 AND road_trip_length >= 7 AND depth_injuries >= 7",
+      "description": "Well-rested team vs fatigued opponent with depth issues"
+    },
+    "FORM_WAVE": {
+      "bonus": 1.5,
+      "trigger": "recent_form >= 8 AND off_ranking >= 8 AND ats_trend >= 7 AND h2h_season >= 7",
+      "description": "Hot team with elite offense covering spreads and winning H2H"
+    },
+    "GOALIE_EDGE": {
+      "bonus": 1.5,
+      "sports": ["NHL"],
+      "trigger": "goalie_confirmed >= 8 AND save_pct_trend >= 7 AND b2b_fatigue >= 7 AND corsi_xg >= 7",
+      "description": "Backup goalie in with declining save% and bad underlying metrics"
+    },
+    "TRAP_GAME": {
+      "bonus": 1.0,
+      "trigger": "sharp_vs_public <= 3 AND line_movement >= 8 AND recent_form >= 7",
+      "description": "Public hammering favorite but line moving to dog"
+    },
+    "VALUE_DOG": {
+      "bonus": 1.0,
+      "trigger": "sharp_vs_public >= 7 AND star_player_status <= 4",
+      "description": "Sharps on dog + no significant injuries on dog side"
+    },
+    "BLUE_BLOOD_TRAP": {
+      "bonus": 1.0,
+      "sports": ["NCAAB"],
+      "trigger": "public_money_bias >= 8 AND line_movement <= 4 AND net_ranking_gap <= 5",
+      "description": "Public on big name but NET rankings close and line flat"
+    }
+  },
+  "chain_cap": 3.0,
+  "grade_thresholds": {
+    "A+": 8.5, "A": 7.8, "A-": 7.0,
+    "B+": 6.5, "B": 6.0, "B-": 5.5,
+    "C+": 5.0, "C": 4.0, "D": 3.0, "F": 0.0
+  },
+  "sizing": {
+    "A+": "2u", "A": "1.5u", "A-": "1u",
+    "B+": "1u", "B": "PASS", "B-": "PASS",
+    "C+": "PASS", "C": "PASS", "D": "PASS", "F": "PASS"
+  }
+}

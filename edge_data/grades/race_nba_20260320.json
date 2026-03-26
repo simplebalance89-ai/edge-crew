@@ -1,0 +1,342 @@
+{
+  "sport": "NBA",
+  "date": "20260320",
+  "races": [
+    {
+      "matchup": "New York Knicks @ Brooklyn Nets",
+      "home": "Brooklyn Nets",
+      "away": "New York Knicks",
+      "lanes": [
+        {
+          "heat": "Team Profile",
+          "home": {
+            "grade": "F",
+            "score": 1.0
+          },
+          "away": {
+            "grade": "A-",
+            "score": 7.2
+          },
+          "winner": "away",
+          "margin": 6.2
+        },
+        {
+          "heat": "Player Chains",
+          "home": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "away": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "winner": "push",
+          "margin": 0.0
+        },
+        {
+          "heat": "Matchup (Off vs Def)",
+          "home": {
+            "off_l5": 96.2,
+            "vs_opp_def": 110.4,
+            "edge": -14.2
+          },
+          "away": {
+            "off_l5": 119.8,
+            "vs_opp_def": 117.0,
+            "edge": 2.8
+          },
+          "winner": "away",
+          "margin": 17.0
+        }
+      ],
+      "home_score": 0,
+      "away_score": 2,
+      "margin": 2,
+      "race_winner": "away",
+      "pick_team": "New York Knicks",
+      "pick_spread": "?",
+      "bet_size": "1u",
+      "confidence": "High"
+    },
+    {
+      "matchup": "Golden State Warriors @ Detroit Pistons",
+      "home": "Detroit Pistons",
+      "away": "Golden State Warriors",
+      "lanes": [
+        {
+          "heat": "Team Profile",
+          "home": {
+            "grade": "B+",
+            "score": 6.7
+          },
+          "away": {
+            "grade": "D",
+            "score": 3.5
+          },
+          "winner": "home",
+          "margin": 3.2
+        },
+        {
+          "heat": "Player Chains",
+          "home": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "away": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "winner": "push",
+          "margin": 0.0
+        },
+        {
+          "heat": "Matchup (Off vs Def)",
+          "home": {
+            "off_l5": 122.4,
+            "vs_opp_def": 120.8,
+            "edge": 1.6
+          },
+          "away": {
+            "off_l5": 114.4,
+            "vs_opp_def": 110.0,
+            "edge": 4.4
+          },
+          "winner": "away",
+          "margin": 2.8
+        }
+      ],
+      "home_score": 1,
+      "away_score": 1,
+      "margin": 0,
+      "race_winner": "push",
+      "pick_team": "PASS",
+      "pick_spread": null,
+      "bet_size": "PASS",
+      "confidence": "Low"
+    },
+    {
+      "matchup": "Atlanta Hawks @ Houston Rockets",
+      "home": "Houston Rockets",
+      "away": "Atlanta Hawks",
+      "lanes": [
+        {
+          "heat": "Team Profile",
+          "home": {
+            "grade": "D",
+            "score": 3.5
+          },
+          "away": {
+            "grade": "A-",
+            "score": 7.2
+          },
+          "winner": "away",
+          "margin": 3.7
+        },
+        {
+          "heat": "Player Chains",
+          "home": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "away": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "winner": "push",
+          "margin": 0.0
+        },
+        {
+          "heat": "Matchup (Off vs Def)",
+          "home": {
+            "off_l5": 104.2,
+            "vs_opp_def": 108.0,
+            "edge": -3.8
+          },
+          "away": {
+            "off_l5": 122.6,
+            "vs_opp_def": 111.4,
+            "edge": 11.2
+          },
+          "winner": "away",
+          "margin": 15.0
+        }
+      ],
+      "home_score": 0,
+      "away_score": 2,
+      "margin": 2,
+      "race_winner": "away",
+      "pick_team": "Atlanta Hawks",
+      "pick_spread": "?",
+      "bet_size": "1u",
+      "confidence": "High"
+    },
+    {
+      "matchup": "Boston Celtics @ Memphis Grizzlies",
+      "home": "Memphis Grizzlies",
+      "away": "Boston Celtics",
+      "lanes": [
+        {
+          "heat": "Team Profile",
+          "home": {
+            "grade": "F",
+            "score": 1.0
+          },
+          "away": {
+            "grade": "A",
+            "score": 7.9
+          },
+          "winner": "away",
+          "margin": 6.9
+        },
+        {
+          "heat": "Player Chains",
+          "home": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "away": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "winner": "push",
+          "margin": 0.0
+        },
+        {
+          "heat": "Matchup (Off vs Def)",
+          "home": {
+            "off_l5": 116.6,
+            "vs_opp_def": 108.0,
+            "edge": 8.6
+          },
+          "away": {
+            "off_l5": 113.8,
+            "vs_opp_def": 127.0,
+            "edge": -13.2
+          },
+          "winner": "home",
+          "margin": 21.8
+        }
+      ],
+      "home_score": 1,
+      "away_score": 1,
+      "margin": 0,
+      "race_winner": "push",
+      "pick_team": "PASS",
+      "pick_spread": null,
+      "bet_size": "PASS",
+      "confidence": "Low"
+    },
+    {
+      "matchup": "Portland Trail Blazers @ Minnesota Timberwolves",
+      "home": "Minnesota Timberwolves",
+      "away": "Portland Trail Blazers",
+      "lanes": [
+        {
+          "heat": "Team Profile",
+          "home": {
+            "grade": "C",
+            "score": 4.5
+          },
+          "away": {
+            "grade": "B+",
+            "score": 6.7
+          },
+          "winner": "away",
+          "margin": 2.2
+        },
+        {
+          "heat": "Player Chains",
+          "home": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "away": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "winner": "push",
+          "margin": 0.0
+        },
+        {
+          "heat": "Matchup (Off vs Def)",
+          "home": {
+            "off_l5": 124.2,
+            "vs_opp_def": 108.0,
+            "edge": 16.2
+          },
+          "away": {
+            "off_l5": 113.8,
+            "vs_opp_def": 120.2,
+            "edge": -6.4
+          },
+          "winner": "home",
+          "margin": 22.6
+        }
+      ],
+      "home_score": 1,
+      "away_score": 1,
+      "margin": 0,
+      "race_winner": "push",
+      "pick_team": "PASS",
+      "pick_spread": null,
+      "bet_size": "PASS",
+      "confidence": "Low"
+    },
+    {
+      "matchup": "Toronto Raptors @ Denver Nuggets",
+      "home": "Denver Nuggets",
+      "away": "Toronto Raptors",
+      "lanes": [
+        {
+          "heat": "Team Profile",
+          "home": {
+            "grade": "C",
+            "score": 4.5
+          },
+          "away": {
+            "grade": "B+",
+            "score": 6.7
+          },
+          "winner": "away",
+          "margin": 2.2
+        },
+        {
+          "heat": "Player Chains",
+          "home": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "away": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "winner": "push",
+          "margin": 0.0
+        },
+        {
+          "heat": "Matchup (Off vs Def)",
+          "home": {
+            "off_l5": 126.4,
+            "vs_opp_def": 113.4,
+            "edge": 13.0
+          },
+          "away": {
+            "off_l5": 118.0,
+            "vs_opp_def": 114.4,
+            "edge": 3.6
+          },
+          "winner": "home",
+          "margin": 9.4
+        }
+      ],
+      "home_score": 1,
+      "away_score": 1,
+      "margin": 0,
+      "race_winner": "push",
+      "pick_team": "PASS",
+      "pick_spread": null,
+      "bet_size": "PASS",
+      "confidence": "Low"
+    }
+  ]
+}

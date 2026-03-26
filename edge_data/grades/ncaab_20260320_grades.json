@@ -1,7 +1,7 @@
 {
   "sport": "NCAAB",
   "date": "2026-03-20",
-  "graded_at": "2026-03-20T13:57:19.905919",
+  "graded_at": "2026-03-26T16:09:12.470311",
   "profiles_used": [
     "sintonia",
     "renzo",
@@ -9,363 +9,6 @@
     "edge"
   ],
   "games": [
-    {
-      "game_id": "401856525",
-      "matchup": "Santa Clara Broncos @ Kentucky Wildcats",
-      "pick_side": "away",
-      "profiles": {
-        "sintonia": {
-          "game_id": "401856525",
-          "profile": "sintonia",
-          "pick_side": "away",
-          "grade": "B-",
-          "composite": 5.78,
-          "chain_bonus": 0.0,
-          "final": 5.78,
-          "pick": "Santa Clara Broncos 3.5",
-          "sizing": "PASS",
-          "variables": {
-            "offensive_efficiency": {
-              "score": 9,
-              "weight": 9,
-              "weighted": 81,
-              "note": "PPG L5: 82.9 | OPP allows: 73.8 | Margin L5: +10.5"
-            },
-            "defensive_efficiency": {
-              "score": 5,
-              "weight": 9,
-              "weighted": 45,
-              "note": "Allow L5: 72.4 | They score L5: 80.8"
-            },
-            "star_player_status": {
-              "score": 5,
-              "weight": 9,
-              "weighted": 45,
-              "note": "No significant injuries"
-            },
-            "line_movement": {
-              "score": 3,
-              "weight": 9,
-              "weighted": 27,
-              "note": "Line flat \u2014 no sharp signal"
-            },
-            "tempo_matchup": {
-              "score": 5,
-              "weight": 8,
-              "weighted": 40,
-              "note": "No pace data"
-            },
-            "ats_trend": {
-              "score": 7,
-              "weight": 8,
-              "weighted": 56,
-              "note": "Avg margin L10: +9.0 \u2014 comfortable wins | Close: 0/10 | Blowouts: 0/10"
-            },
-            "tournament_context": {
-              "score": 8,
-              "weight": 8,
-              "weighted": 64,
-              "note": "Close matchup (3.5) \u2014 competitive game"
-            },
-            "public_money_bias": {
-              "score": 3,
-              "weight": 8,
-              "weighted": 24,
-              "note": "Public bias proxy \u2014 Line flat \u2014 no sharp signal"
-            },
-            "three_pt_reliance": {
-              "score": 9,
-              "weight": 7,
-              "weighted": 63,
-              "note": "3PT proxy \u2014 PPG L5: 82.9 | OPP allows: 73.8 | Margin L5: +10.5"
-            },
-            "bench_depth": {
-              "score": 5,
-              "weight": 7,
-              "weighted": 35,
-              "note": "Bench depth proxy \u2014 Similar injury loads (them 0, us 0)"
-            },
-            "rebounding": {
-              "score": 8,
-              "weight": 7,
-              "weighted": 56,
-              "note": "rebounding proxy from margin: +10.5"
-            },
-            "turnover_margin": {
-              "score": 8,
-              "weight": 7,
-              "weighted": 56,
-              "note": "turnover_margin proxy from margin: +10.5"
-            },
-            "recent_form": {
-              "score": 6,
-              "weight": 7,
-              "weighted": 42,
-              "note": "L5: 3-2 (margin +10.5) | Streak: W2 | OPP L5: 3-2 (margin +7.0)"
-            },
-            "coaching_tournament_record": {
-              "score": 5,
-              "weight": 7,
-              "weighted": 35,
-              "note": "Coaching data not available \u2014 neutral"
-            },
-            "net_ranking_gap": {
-              "score": 5,
-              "weight": 7,
-              "weighted": 35,
-              "note": "NET proxy: us 50% vs them 50% (diff +0%)"
-            },
-            "neutral_site": {
-              "score": 5,
-              "weight": 6,
-              "weighted": 30,
-              "note": "Neutral site detection not implemented \u2014 neutral"
-            },
-            "conference_strength": {
-              "score": 5,
-              "weight": 6,
-              "weighted": 30,
-              "note": "Conference strength data not available \u2014 neutral"
-            },
-            "ft_shooting": {
-              "score": 5,
-              "weight": 6,
-              "weighted": 30,
-              "note": "FT data not available \u2014 neutral"
-            },
-            "rivalry_motivation": {
-              "score": 5,
-              "weight": 6,
-              "weighted": 30,
-              "note": "Rivalry proxy from H2H \u2014 No H2H games this season"
-            },
-            "fatigue_schedule": {
-              "score": 5,
-              "weight": 6,
-              "weighted": 30,
-              "note": "Us: 5d rest | Them: 5d rest"
-            },
-            "coaching_matchup": {
-              "score": 5,
-              "weight": 6,
-              "weighted": 30,
-              "note": "Coaching data not available \u2014 neutral"
-            }
-          },
-          "chains_fired": []
-        },
-        "renzo": {
-          "game_id": "401856525",
-          "profile": "renzo",
-          "pick_side": "away",
-          "grade": "C+",
-          "composite": 5.24,
-          "chain_bonus": 0,
-          "final": 5.24,
-          "pick": "Santa Clara Broncos 3.5",
-          "sizing": "PASS",
-          "variables": {
-            "Q1_whos_missing": {
-              "score": 5,
-              "weight": 9,
-              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
-            },
-            "Q2_line_reflects": {
-              "score": 5,
-              "weight": 9,
-              "note": "Line moved 0 pts | Injuries roughly priced"
-            },
-            "Q3_recent_form": {
-              "score": 5,
-              "weight": 8,
-              "note": "Us L5: 3-2 | Them L5: 3-2 | Edge: +0"
-            },
-            "Q4_best_on_court": {
-              "score": 6,
-              "weight": 8,
-              "note": "Both sides mostly healthy"
-            },
-            "Q5_schedule_rest": {
-              "score": 7,
-              "weight": 7,
-              "note": "Streak: W2 | Away"
-            },
-            "thesis_edge": {
-              "score": 4,
-              "weight": 10,
-              "note": "No clear thesis edge found"
-            }
-          },
-          "chains_fired": [],
-          "mathurin_test": "FAIL",
-          "mathurin_note": "No clear thesis edge found"
-        },
-        "claude": {
-          "game_id": "401856525",
-          "profile": "claude",
-          "thesis": "Market disagreement \u2014 fading public overreaction, recency bias, and name-value inflation",
-          "pick_side": "away",
-          "grade": "C",
-          "composite": 4.67,
-          "chain_bonus": 0.0,
-          "final": 4.67,
-          "pick": "Santa Clara Broncos 3.5",
-          "sizing": "PASS",
-          "variables": {
-            "public_pct_split": {
-              "score": 3,
-              "weight": 9,
-              "weighted": 27,
-              "note": "Line flat \u2014 no public split signal",
-              "available": true
-            },
-            "line_vs_public": {
-              "score": 5,
-              "weight": 9,
-              "weighted": 45,
-              "note": "Spread delta: +0.0",
-              "available": true
-            },
-            "sharp_money": {
-              "score": 3,
-              "weight": 8,
-              "weighted": 24,
-              "note": "No sharp signal \u2014 line stable",
-              "available": true
-            },
-            "blue_blood_tax": {
-              "score": 5,
-              "weight": 9,
-              "weighted": 45,
-              "note": "Talent gap (0%) roughly matches spread (3.5)",
-              "available": true
-            },
-            "recency_bias": {
-              "score": 6,
-              "weight": 7,
-              "weighted": 42,
-              "note": "Winning (W2) \u2014 some recency bias possible",
-              "available": true
-            },
-            "seed_bias": {
-              "score": 5,
-              "weight": 8,
-              "weighted": 40,
-              "note": "No seed bias detected",
-              "available": true
-            },
-            "primetime_inflation": {
-              "score": 5,
-              "weight": 7,
-              "weighted": 35,
-              "note": "Spread: 3.5 \u2014 no inflation signal",
-              "available": true
-            },
-            "spread_value": {
-              "score": 6,
-              "weight": 6,
-              "weighted": 36,
-              "note": "Moderate dog value (50% at +3.5)",
-              "available": true
-            }
-          },
-          "chains_fired": [],
-          "vars_available": 8,
-          "vars_total": 8
-        },
-        "edge": {
-          "game_id": "401856525",
-          "profile": "edge",
-          "thesis": "Calendar/motivation spot \u2014 schedule traps, travel fatigue, lookahead, and situational context",
-          "pick_side": "away",
-          "grade": "C+",
-          "composite": 5.02,
-          "chain_bonus": 0.0,
-          "final": 5.02,
-          "pick": "Santa Clara Broncos 3.5",
-          "sizing": "PASS",
-          "variables": {
-            "schedule_spot": {
-              "score": 5,
-              "weight": 8,
-              "weighted": 40,
-              "note": "Schedule neutral (us: 0/7d, them: 0/7d)",
-              "available": true
-            },
-            "lookahead_trap": {
-              "score": 5,
-              "weight": 9,
-              "weighted": 45,
-              "note": "No clear lookahead signal",
-              "available": true
-            },
-            "letdown_spot": {
-              "score": 5,
-              "weight": 9,
-              "weighted": 45,
-              "note": "Streak: W2 \u2014 no letdown signal",
-              "available": true
-            },
-            "motivation_gap": {
-              "score": 5,
-              "weight": 8,
-              "weighted": 40,
-              "note": "Similar records (50% vs 50%) \u2014 both motivated",
-              "available": true
-            },
-            "tournament_pressure": {
-              "score": 6,
-              "weight": 9,
-              "weighted": 54,
-              "note": "Moderate spread \u2014 some pressure dynamics",
-              "available": true
-            },
-            "travel_unfamiliarity": {
-              "score": 5,
-              "weight": 7,
-              "weighted": 35,
-              "note": "Travel neutral (us road: 0, them: 0)",
-              "available": true
-            },
-            "season_phase": {
-              "score": 4,
-              "weight": 8,
-              "weighted": 32,
-              "note": "Early season \u2014 high variance, small samples",
-              "available": true
-            },
-            "coaching_experience": {
-              "score": 5,
-              "weight": 7,
-              "weighted": 35,
-              "note": "Coaching data not available \u2014 neutral",
-              "available": true
-            }
-          },
-          "chains_fired": [],
-          "vars_available": 8,
-          "vars_total": 8
-        }
-      },
-      "peter_rules": {
-        "game_id": "401856525",
-        "profile": "peter_rules",
-        "pick_side": "away",
-        "flags": [],
-        "adjustment": 0,
-        "has_kill": false,
-        "flag_count": 0
-      },
-      "consensus_avg": 5.18,
-      "consensus_grade": "C+",
-      "consensus_raw": 5.18,
-      "ev": {
-        "profile": "ev",
-        "status": "no_ml_data",
-        "ev_pct": null,
-        "kelly_size": null
-      }
-    },
     {
       "game_id": "401856520",
       "matchup": "Akron Zips @ Texas Tech Red Raiders",
@@ -5824,6 +5467,226 @@
         "ev_pct": null,
         "kelly_size": null
       }
+    },
+    {
+      "profiles": {
+        "sintonia": {
+          "game_id": "401856525",
+          "profile": "sintonia",
+          "pick_side": "away",
+          "grade": "B-",
+          "composite": 5.78,
+          "chain_bonus": 0.0,
+          "final": 5.78,
+          "pick": "Santa Clara Broncos 3.5",
+          "sizing": "PASS",
+          "variables": {
+            "offensive_efficiency": {
+              "score": 9,
+              "weight": 9,
+              "weighted": 81,
+              "note": "PPG L5: 82.9 | OPP allows: 73.8 | Margin L5: +10.5"
+            },
+            "defensive_efficiency": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "Allow L5: 72.4 | They score L5: 80.8"
+            },
+            "star_player_status": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No significant injuries"
+            },
+            "line_movement": {
+              "score": 3,
+              "weight": 9,
+              "weighted": 27,
+              "note": "Line flat \u2014 no sharp signal"
+            },
+            "tempo_matchup": {
+              "score": 5,
+              "weight": 8,
+              "weighted": 40,
+              "note": "No pace data"
+            },
+            "ats_trend": {
+              "score": 7,
+              "weight": 8,
+              "weighted": 56,
+              "note": "Avg margin L10: +9.0 \u2014 comfortable wins | Close: 0/10 | Blowouts: 0/10"
+            },
+            "tournament_context": {
+              "score": 8,
+              "weight": 8,
+              "weighted": 64,
+              "note": "Close matchup (3.5) \u2014 competitive game"
+            },
+            "public_money_bias": {
+              "score": 3,
+              "weight": 8,
+              "weighted": 24,
+              "note": "Public bias proxy \u2014 Line flat \u2014 no sharp signal"
+            },
+            "three_pt_reliance": {
+              "score": 9,
+              "weight": 7,
+              "weighted": 63,
+              "note": "3PT proxy \u2014 PPG L5: 82.9 | OPP allows: 73.8 | Margin L5: +10.5"
+            },
+            "bench_depth": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "Bench depth proxy \u2014 Similar injury loads (them 0, us 0)"
+            },
+            "rebounding": {
+              "score": 8,
+              "weight": 7,
+              "weighted": 56,
+              "note": "rebounding proxy from margin: +10.5"
+            },
+            "turnover_margin": {
+              "score": 8,
+              "weight": 7,
+              "weighted": 56,
+              "note": "turnover_margin proxy from margin: +10.5"
+            },
+            "recent_form": {
+              "score": 6,
+              "weight": 7,
+              "weighted": 42,
+              "note": "L5: 3-2 (margin +10.5) | Streak: W2 | OPP L5: 3-2 (margin +7.0)"
+            },
+            "coaching_tournament_record": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "Coaching data not available \u2014 neutral"
+            },
+            "net_ranking_gap": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "NET proxy: us 50% vs them 50% (diff +0%)"
+            },
+            "neutral_site": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Neutral site detection not implemented \u2014 neutral"
+            },
+            "conference_strength": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Conference strength data not available \u2014 neutral"
+            },
+            "ft_shooting": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "FT data not available \u2014 neutral"
+            },
+            "rivalry_motivation": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Rivalry proxy from H2H \u2014 No H2H games this season"
+            },
+            "fatigue_schedule": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Us: 5d rest | Them: 5d rest"
+            },
+            "coaching_matchup": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "Coaching data not available \u2014 neutral"
+            }
+          },
+          "chains_fired": []
+        },
+        "renzo": {
+          "game_id": "401856525",
+          "profile": "renzo",
+          "pick_side": "away",
+          "grade": "C+",
+          "composite": 5.24,
+          "chain_bonus": 0,
+          "final": 5.24,
+          "pick": "Santa Clara Broncos 3.5",
+          "sizing": "PASS",
+          "variables": {
+            "Q1_whos_missing": {
+              "score": 5,
+              "weight": 9,
+              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
+            },
+            "Q2_line_reflects": {
+              "score": 5,
+              "weight": 9,
+              "note": "Line moved 0 pts | Injuries roughly priced"
+            },
+            "Q3_recent_form": {
+              "score": 5,
+              "weight": 8,
+              "note": "Us L5: 3-2 | Them L5: 3-2 | Edge: +0"
+            },
+            "Q4_best_on_court": {
+              "score": 6,
+              "weight": 8,
+              "note": "Both sides mostly healthy"
+            },
+            "Q5_schedule_rest": {
+              "score": 7,
+              "weight": 7,
+              "note": "Streak: W2 | Away"
+            },
+            "thesis_edge": {
+              "score": 4,
+              "weight": 10,
+              "note": "No clear thesis edge found"
+            }
+          },
+          "chains_fired": [],
+          "mathurin_test": "FAIL",
+          "mathurin_note": "No clear thesis edge found"
+        }
+      },
+      "peter_rules": {
+        "game_id": "401856525",
+        "profile": "peter_rules",
+        "pick_side": "away",
+        "flags": [],
+        "adjustment": 0,
+        "has_kill": false,
+        "flag_count": 0
+      },
+      "consensus_avg": 5.51,
+      "consensus_grade": "B-",
+      "ev": {
+        "profile": "ev",
+        "game_id": "401856525",
+        "pick_side": "away",
+        "moneyline": 125.0,
+        "implied_prob": 0.4444,
+        "true_prob": 0.4597,
+        "edge": 0.0153,
+        "decimal_odds": 2.25,
+        "ev_pct": 3.44,
+        "ev_grade": "B",
+        "kelly_full": 0.0275,
+        "kelly_quarter": 0.0069,
+        "kelly_units": "0.5u",
+        "status": "ok"
+      },
+      "pick_side": "away",
+      "game_id": "401856525",
+      "matchup": "Santa Clara Broncos @ Kentucky Wildcats"
     }
   ],
   "count": 16

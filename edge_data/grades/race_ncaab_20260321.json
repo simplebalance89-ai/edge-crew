@@ -1,0 +1,454 @@
+{
+  "sport": "NCAAB",
+  "date": "20260321",
+  "races": [
+    {
+      "matchup": "Saint Louis Billikens @ Michigan Wolverines",
+      "home": "Michigan Wolverines",
+      "away": "Saint Louis Billikens",
+      "lanes": [
+        {
+          "heat": "Team Profile",
+          "home": {
+            "grade": "C",
+            "score": 4.5
+          },
+          "away": {
+            "grade": "B+",
+            "score": 6.7
+          },
+          "winner": "away",
+          "margin": 2.2
+        },
+        {
+          "heat": "Player Chains",
+          "home": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "away": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "winner": "push",
+          "margin": 0.0
+        },
+        {
+          "heat": "Matchup (Off vs Def)",
+          "home": {
+            "off_l5": 101.0,
+            "vs_opp_def": 77.0,
+            "edge": 24.0
+          },
+          "away": {
+            "off_l5": 102.0,
+            "vs_opp_def": 80.0,
+            "edge": 22.0
+          },
+          "winner": "home",
+          "margin": 2.0
+        }
+      ],
+      "home_score": 1,
+      "away_score": 1,
+      "margin": 0,
+      "race_winner": "push",
+      "pick_team": "PASS",
+      "pick_spread": null,
+      "bet_size": "PASS",
+      "confidence": "Low"
+    },
+    {
+      "matchup": "Louisville Cardinals @ Michigan State Spartans",
+      "home": "Michigan State Spartans",
+      "away": "Louisville Cardinals",
+      "lanes": [
+        {
+          "heat": "Team Profile",
+          "home": {
+            "grade": "C",
+            "score": 4.5
+          },
+          "away": {
+            "grade": "C",
+            "score": 4.5
+          },
+          "winner": "push",
+          "margin": 0.0
+        },
+        {
+          "heat": "Player Chains",
+          "home": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "away": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "winner": "push",
+          "margin": 0.0
+        },
+        {
+          "heat": "Matchup (Off vs Def)",
+          "home": {
+            "off_l5": 92.0,
+            "vs_opp_def": 79.0,
+            "edge": 13.0
+          },
+          "away": {
+            "off_l5": 83.0,
+            "vs_opp_def": 67.0,
+            "edge": 16.0
+          },
+          "winner": "away",
+          "margin": 3.0
+        }
+      ],
+      "home_score": 0,
+      "away_score": 1,
+      "margin": 1,
+      "race_winner": "away",
+      "pick_team": "Louisville Cardinals",
+      "pick_spread": "?",
+      "bet_size": "0.5u",
+      "confidence": "Moderate"
+    },
+    {
+      "matchup": "TCU Horned Frogs @ Duke Blue Devils",
+      "home": "Duke Blue Devils",
+      "away": "TCU Horned Frogs",
+      "lanes": [
+        {
+          "heat": "Team Profile",
+          "home": {
+            "grade": "C",
+            "score": 4.5
+          },
+          "away": {
+            "grade": "C+",
+            "score": 5.2
+          },
+          "winner": "away",
+          "margin": 0.7
+        },
+        {
+          "heat": "Player Chains",
+          "home": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "away": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "winner": "push",
+          "margin": 0.0
+        },
+        {
+          "heat": "Matchup (Off vs Def)",
+          "home": {
+            "off_l5": 71.0,
+            "vs_opp_def": 64.0,
+            "edge": 7.0
+          },
+          "away": {
+            "off_l5": 66.0,
+            "vs_opp_def": 65.0,
+            "edge": 1.0
+          },
+          "winner": "home",
+          "margin": 6.0
+        }
+      ],
+      "home_score": 1,
+      "away_score": 1,
+      "margin": 0,
+      "race_winner": "push",
+      "pick_team": "PASS",
+      "pick_spread": null,
+      "bet_size": "PASS",
+      "confidence": "Low"
+    },
+    {
+      "matchup": "Texas A&M Aggies @ Houston Cougars",
+      "home": "Houston Cougars",
+      "away": "Texas A&M Aggies",
+      "lanes": [
+        {
+          "heat": "Team Profile",
+          "home": {
+            "grade": "C",
+            "score": 4.5
+          },
+          "away": {
+            "grade": "C",
+            "score": 4.5
+          },
+          "winner": "push",
+          "margin": 0.0
+        },
+        {
+          "heat": "Player Chains",
+          "home": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "away": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "winner": "push",
+          "margin": 0.0
+        },
+        {
+          "heat": "Matchup (Off vs Def)",
+          "home": {
+            "off_l5": 78.0,
+            "vs_opp_def": 50.0,
+            "edge": 28.0
+          },
+          "away": {
+            "off_l5": 63.0,
+            "vs_opp_def": 47.0,
+            "edge": 16.0
+          },
+          "winner": "home",
+          "margin": 12.0
+        }
+      ],
+      "home_score": 1,
+      "away_score": 0,
+      "margin": 1,
+      "race_winner": "home",
+      "pick_team": "Houston Cougars",
+      "pick_spread": "?",
+      "bet_size": "0.5u",
+      "confidence": "Moderate"
+    },
+    {
+      "matchup": "Texas Longhorns @ Gonzaga Bulldogs",
+      "home": "Gonzaga Bulldogs",
+      "away": "Texas Longhorns",
+      "lanes": [
+        {
+          "heat": "Team Profile",
+          "home": {
+            "grade": "B-",
+            "score": 5.7
+          },
+          "away": {
+            "grade": "C",
+            "score": 4.5
+          },
+          "winner": "home",
+          "margin": 1.2
+        },
+        {
+          "heat": "Player Chains",
+          "home": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "away": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "winner": "push",
+          "margin": 0.0
+        },
+        {
+          "heat": "Matchup (Off vs Def)",
+          "home": {
+            "off_l5": 73.0,
+            "vs_opp_def": 68.5,
+            "edge": 4.5
+          },
+          "away": {
+            "off_l5": 73.5,
+            "vs_opp_def": 64.0,
+            "edge": 9.5
+          },
+          "winner": "away",
+          "margin": 5.0
+        }
+      ],
+      "home_score": 1,
+      "away_score": 1,
+      "margin": 0,
+      "race_winner": "push",
+      "pick_team": "PASS",
+      "pick_spread": null,
+      "bet_size": "PASS",
+      "confidence": "Low"
+    },
+    {
+      "matchup": "VCU Rams @ Illinois Fighting Illini",
+      "home": "Illinois Fighting Illini",
+      "away": "VCU Rams",
+      "lanes": [
+        {
+          "heat": "Team Profile",
+          "home": {
+            "grade": "B-",
+            "score": 5.7
+          },
+          "away": {
+            "grade": "C",
+            "score": 4.5
+          },
+          "winner": "home",
+          "margin": 1.2
+        },
+        {
+          "heat": "Player Chains",
+          "home": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "away": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "winner": "push",
+          "margin": 0.0
+        },
+        {
+          "heat": "Matchup (Off vs Def)",
+          "home": {
+            "off_l5": 105.0,
+            "vs_opp_def": 78.0,
+            "edge": 27.0
+          },
+          "away": {
+            "off_l5": 82.0,
+            "vs_opp_def": 70.0,
+            "edge": 12.0
+          },
+          "winner": "home",
+          "margin": 15.0
+        }
+      ],
+      "home_score": 2,
+      "away_score": 0,
+      "margin": 2,
+      "race_winner": "home",
+      "pick_team": "Illinois Fighting Illini",
+      "pick_spread": "?",
+      "bet_size": "1u",
+      "confidence": "High"
+    },
+    {
+      "matchup": "Vanderbilt Commodores @ Nebraska Cornhuskers",
+      "home": "Nebraska Cornhuskers",
+      "away": "Vanderbilt Commodores",
+      "lanes": [
+        {
+          "heat": "Team Profile",
+          "home": {
+            "grade": "C",
+            "score": 4.5
+          },
+          "away": {
+            "grade": "B-",
+            "score": 5.7
+          },
+          "winner": "away",
+          "margin": 1.2
+        },
+        {
+          "heat": "Player Chains",
+          "home": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "away": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "winner": "push",
+          "margin": 0.0
+        },
+        {
+          "heat": "Matchup (Off vs Def)",
+          "home": {
+            "off_l5": 76.0,
+            "vs_opp_def": 68.0,
+            "edge": 8.0
+          },
+          "away": {
+            "off_l5": 78.0,
+            "vs_opp_def": 47.0,
+            "edge": 31.0
+          },
+          "winner": "away",
+          "margin": 23.0
+        }
+      ],
+      "home_score": 0,
+      "away_score": 2,
+      "margin": 2,
+      "race_winner": "away",
+      "pick_team": "Vanderbilt Commodores",
+      "pick_spread": "?",
+      "bet_size": "1u",
+      "confidence": "High"
+    },
+    {
+      "matchup": "High Point Panthers @ Arkansas Razorbacks",
+      "home": "Arkansas Razorbacks",
+      "away": "High Point Panthers",
+      "lanes": [
+        {
+          "heat": "Team Profile",
+          "home": {
+            "grade": "C",
+            "score": 4.5
+          },
+          "away": {
+            "grade": "C",
+            "score": 4.5
+          },
+          "winner": "push",
+          "margin": 0.0
+        },
+        {
+          "heat": "Player Chains",
+          "home": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "away": {
+            "chains_fired": 0,
+            "score": 0.0
+          },
+          "winner": "push",
+          "margin": 0.0
+        },
+        {
+          "heat": "Matchup (Off vs Def)",
+          "home": {
+            "off_l5": 97.0,
+            "vs_opp_def": 82.0,
+            "edge": 15.0
+          },
+          "away": {
+            "off_l5": 83.0,
+            "vs_opp_def": 78.0,
+            "edge": 5.0
+          },
+          "winner": "home",
+          "margin": 10.0
+        }
+      ],
+      "home_score": 1,
+      "away_score": 0,
+      "margin": 1,
+      "race_winner": "home",
+      "pick_team": "Arkansas Razorbacks",
+      "pick_spread": "?",
+      "bet_size": "0.5u",
+      "confidence": "Moderate"
+    }
+  ]
+}

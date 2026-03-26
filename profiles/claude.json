@@ -1,0 +1,95 @@
+{
+  "name": "claude",
+  "display_name": "Claude",
+  "description": "Contrarian profile. Fades public money, targets market overreaction and recency bias.",
+  "sports": {
+    "NBA": {
+      "variables": {
+        "public_pct_split": {"weight": 9, "description": "How lopsided public $ is (>70% one side = signal)"},
+        "line_vs_public": {"weight": 9, "description": "Line moving opposite public money = sharp signal"},
+        "sharp_money": {"weight": 8, "description": "Reverse line movement / steam moves detected"},
+        "recency_bias": {"weight": 7, "description": "Team L3 results vs L20 — public chases streaks"},
+        "primetime_inflation": {"weight": 7, "description": "National TV / marquee name premium baked in"},
+        "public_star_bias": {"weight": 7, "description": "Public overvalues star name regardless of matchup"},
+        "spread_value": {"weight": 6, "description": "Current spread vs power rating implied spread"},
+        "dog_record_ats": {"weight": 6, "description": "Underdog ATS record at this spread range"}
+      }
+    },
+    "NHL": {
+      "variables": {
+        "public_pct_split": {"weight": 9, "description": "Lopsided public money on one side"},
+        "line_vs_public": {"weight": 9, "description": "Line moving opposite public money"},
+        "sharp_money": {"weight": 8, "description": "Reverse line movement / steam moves"},
+        "recency_bias": {"weight": 7, "description": "L3 vs L20 — public chases hot goalies"},
+        "goalie_name_bias": {"weight": 8, "description": "Public overvalues big-name goalie regardless of recent form"},
+        "primetime_inflation": {"weight": 7, "description": "National broadcast game premium"},
+        "spread_value": {"weight": 6, "description": "Puck line value vs true talent gap"},
+        "dog_record_ats": {"weight": 6, "description": "Underdog ATS/puck line record"}
+      }
+    },
+    "NCAAB": {
+      "variables": {
+        "public_pct_split": {"weight": 9, "description": "Lopsided public $ — tournament games especially"},
+        "line_vs_public": {"weight": 9, "description": "Line moving opposite public money"},
+        "sharp_money": {"weight": 8, "description": "Reverse line movement / steam moves"},
+        "blue_blood_tax": {"weight": 9, "description": "Public overvalues brand names (Duke, UNC, Kentucky) regardless of NET"},
+        "recency_bias": {"weight": 7, "description": "L3 vs L15 — public chases conference tournament runs"},
+        "seed_bias": {"weight": 8, "description": "Public bets seed number not team quality — 12 vs 5 edge"},
+        "primetime_inflation": {"weight": 7, "description": "Prime TV slot / ESPN GameDay premium"},
+        "spread_value": {"weight": 6, "description": "Current spread vs KenPom/NET implied spread"}
+      }
+    },
+    "MLB": {
+      "variables": {
+        "public_pct_split": {"weight": 9, "description": "Lopsided public $ on one side"},
+        "line_vs_public": {"weight": 9, "description": "Line moving opposite public money"},
+        "sharp_money": {"weight": 8, "description": "Reverse line movement / steam moves"},
+        "ace_name_bias": {"weight": 9, "description": "Public overvalues big-name pitchers regardless of recent form or matchup"},
+        "recency_bias": {"weight": 7, "description": "Team L5 vs L30 — public chases hot streaks in 162-game season"},
+        "weather_blind_spot": {"weight": 7, "description": "Public ignores wind/temp impact on totals and run lines"},
+        "umpire_tendency": {"weight": 6, "description": "Home plate umpire K-zone tendencies vs book's total"},
+        "spread_value": {"weight": 6, "description": "Run line value vs true talent gap"}
+      }
+    }
+  },
+  "chains": {
+    "PUBLIC_FADE": {
+      "bonus": 1.5,
+      "trigger": "public_pct_split >= 8 AND line_vs_public >= 8 AND sharp_money >= 7",
+      "description": "Public heavily one side + line moving opposite + sharp money confirmed"
+    },
+    "NAME_TRAP": {
+      "bonus": 1.0,
+      "trigger": "public_star_bias >= 8 AND recency_bias >= 7 AND spread_value >= 7",
+      "description": "Public betting the name not the matchup + recency inflated + spread has value"
+    },
+    "PRIMETIME_FADE": {
+      "bonus": 1.0,
+      "trigger": "primetime_inflation >= 8 AND public_pct_split >= 7 AND line_vs_public >= 7",
+      "description": "National TV game with inflated public interest + line disagrees"
+    },
+    "BLUE_BLOOD_FADE": {
+      "bonus": 1.5,
+      "sports": ["NCAAB"],
+      "trigger": "blue_blood_tax >= 8 AND seed_bias >= 7 AND line_vs_public >= 7",
+      "description": "Public on brand name school + seed bias active + sharps on other side"
+    },
+    "ACE_MIRAGE": {
+      "bonus": 1.5,
+      "sports": ["MLB"],
+      "trigger": "ace_name_bias >= 8 AND recency_bias >= 7 AND sharp_money >= 7",
+      "description": "Public on big-name pitcher but recent form bad + sharps fading"
+    }
+  },
+  "chain_cap": 3.0,
+  "grade_thresholds": {
+    "A+": 8.5, "A": 7.8, "A-": 7.0,
+    "B+": 6.5, "B": 6.0, "B-": 5.5,
+    "C+": 5.0, "C": 4.0, "D": 3.0, "F": 0.0
+  },
+  "sizing": {
+    "A+": "2u", "A": "1.5u", "A-": "1u", "B+": "1u",
+    "B": "PASS", "B-": "PASS", "C+": "PASS", "C": "PASS",
+    "D": "PASS", "F": "PASS"
+  }
+}

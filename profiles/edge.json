@@ -1,0 +1,102 @@
+{
+  "name": "edge",
+  "display_name": "Edge",
+  "description": "Situational profile. Grades calendar spots, travel, motivation, and context the math models miss.",
+  "sports": {
+    "NBA": {
+      "variables": {
+        "schedule_spot": {"weight": 9, "description": "B2B, 3-in-4, 4-in-6 — pure schedule fatigue"},
+        "lookahead_trap": {"weight": 9, "description": "Easy game before marquee matchup — team mentally elsewhere"},
+        "letdown_spot": {"weight": 8, "description": "After emotional win / rivalry / OT game — letdown risk"},
+        "motivation_gap": {"weight": 8, "description": "Playoff push vs lottery-bound / resting starters"},
+        "travel_fatigue": {"weight": 7, "description": "Miles traveled L7d + timezone crosses"},
+        "division_familiarity": {"weight": 6, "description": "3rd/4th meeting — diminishing edge, both sides know each other"},
+        "season_phase": {"weight": 7, "description": "Early variance / mid stable / late tanking-resting"},
+        "home_stand_road_trip": {"weight": 6, "description": "Deep into road trip (bad) or settled at home (good)"}
+      }
+    },
+    "NHL": {
+      "variables": {
+        "schedule_spot": {"weight": 9, "description": "B2B, 3-in-4, compressed schedule fatigue"},
+        "lookahead_trap": {"weight": 8, "description": "Easy game before divisional rival"},
+        "letdown_spot": {"weight": 8, "description": "After OT win / rivalry game / playoff-clinch"},
+        "motivation_gap": {"weight": 8, "description": "Playoff race vs eliminated team"},
+        "travel_fatigue": {"weight": 8, "description": "NHL travel brutal — coast-to-coast + timezone"},
+        "goalie_workload": {"weight": 9, "description": "Starter on B2B / 3rd start in 4 nights"},
+        "season_phase": {"weight": 7, "description": "October (variance) / Jan-Feb (stable) / April (resting)"},
+        "division_familiarity": {"weight": 6, "description": "Late-season divisional — both sides fully scouted"}
+      }
+    },
+    "NCAAB": {
+      "variables": {
+        "schedule_spot": {"weight": 8, "description": "3 games in 4 days / conference tournament grind"},
+        "lookahead_trap": {"weight": 9, "description": "Trap game before rivalry or tournament — students distracted"},
+        "letdown_spot": {"weight": 9, "description": "After huge upset win — Cinderella fatigue is real"},
+        "motivation_gap": {"weight": 8, "description": "Bubble team desperate vs locked seed / NIT-bound"},
+        "tournament_pressure": {"weight": 9, "description": "First-time tournament team nerves vs veteran program calm"},
+        "travel_unfamiliarity": {"weight": 7, "description": "Playing far from campus — 18-year-olds in hostile gym"},
+        "season_phase": {"weight": 8, "description": "November (chaos) / conference play (stable) / March (peak motivation)"},
+        "coaching_experience": {"weight": 7, "description": "Coach tournament experience — first-timers panic, veterans adjust"}
+      }
+    },
+    "MLB": {
+      "variables": {
+        "schedule_spot": {"weight": 9, "description": "Day game after night game / 4th game in getaway spot"},
+        "pitching_rotation": {"weight": 10, "description": "Ace vs bullpen day / SP on short rest / pen usage L3d"},
+        "letdown_spot": {"weight": 8, "description": "After sweep / walk-off / emotional series"},
+        "motivation_gap": {"weight": 8, "description": "Playoff race vs sellers / September call-ups"},
+        "travel_fatigue": {"weight": 7, "description": "Cross-country flight for 3-game set / west-to-east jet lag"},
+        "weather_impact": {"weight": 8, "description": "Wind (Wrigley), temp (April/Oct cold), altitude (Coors)"},
+        "bullpen_state": {"weight": 9, "description": "Pen usage last 3 days — taxed pen = late-inning collapse"},
+        "season_phase": {"weight": 7, "description": "April (cold/variance) / summer (stable) / Sept (expanded rosters)"},
+        "day_night_split": {"weight": 6, "description": "Team/pitcher day vs night performance split"}
+      }
+    }
+  },
+  "chains": {
+    "SCHEDULE_SQUEEZE": {
+      "bonus": 1.5,
+      "trigger": "schedule_spot >= 8 AND travel_fatigue >= 7 AND letdown_spot >= 7",
+      "description": "Compressed schedule + heavy travel + coming off emotional game"
+    },
+    "LOOKAHEAD_LETDOWN": {
+      "bonus": 1.0,
+      "trigger": "lookahead_trap >= 8 AND motivation_gap >= 7",
+      "description": "Team looking past this game + motivation mismatch"
+    },
+    "CINDERELLA_CRASH": {
+      "bonus": 1.5,
+      "sports": ["NCAAB"],
+      "trigger": "letdown_spot >= 8 AND tournament_pressure >= 8 AND schedule_spot >= 7",
+      "description": "Cinderella after big upset + first-time pressure + 3rd game in 4 days"
+    },
+    "BULLPEN_BURN": {
+      "bonus": 1.5,
+      "sports": ["MLB"],
+      "trigger": "bullpen_state >= 8 AND pitching_rotation >= 8 AND schedule_spot >= 7",
+      "description": "Taxed bullpen + rotation spot disadvantage + getaway game"
+    },
+    "GOALIE_GRIND": {
+      "bonus": 1.5,
+      "sports": ["NHL"],
+      "trigger": "goalie_workload >= 8 AND schedule_spot >= 8 AND travel_fatigue >= 7",
+      "description": "Overworked goalie on B2B after travel"
+    },
+    "DEAD_TEAM_WALKING": {
+      "bonus": 1.0,
+      "trigger": "motivation_gap >= 8 AND season_phase >= 7",
+      "description": "Eliminated/tanking team with nothing to play for in late season"
+    }
+  },
+  "chain_cap": 3.0,
+  "grade_thresholds": {
+    "A+": 8.5, "A": 7.8, "A-": 7.0,
+    "B+": 6.5, "B": 6.0, "B-": 5.5,
+    "C+": 5.0, "C": 4.0, "D": 3.0, "F": 0.0
+  },
+  "sizing": {
+    "A+": "2u", "A": "1.5u", "A-": "1u", "B+": "1u",
+    "B": "PASS", "B-": "PASS", "C+": "PASS", "C": "PASS",
+    "D": "PASS", "F": "PASS"
+  }
+}

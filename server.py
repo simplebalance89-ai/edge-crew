@@ -14365,6 +14365,39 @@ _LOCAL_EDGE = Path(__file__).parent / "edge_data"
 EDGE_ENGINE_DIR = Path(os.environ.get("EDGE_ENGINE_DIR", r"C:\Users\GCTII\edge_engine"))
 EDGE_DATA_DIR = _LOCAL_EDGE / "data" if (_LOCAL_EDGE / "data").exists() else EDGE_ENGINE_DIR / "data"
 EDGE_GRADES_DIR = _LOCAL_EDGE / "grades" if (_LOCAL_EDGE / "grades").exists() else EDGE_ENGINE_DIR / "grades"
+LOCAL_EDGE_ENGINE = Path(__file__).parent
+
+
+def _coerce_profedge_number(value):
+    if value in (None, "", "?"):
+        return value
+    if isinstance(value, (int, float)):
+        return value
+    try:
+        return float(str(value).replace("+", ""))
+    except (TypeError, ValueError):
+        return value
+
+
+def _prepare_profedge_game_for_grading(game: dict) -> dict:
+    prepared = json.loads(json.dumps(game))
+    odds = prepared.get("odds", {})
+    for key in (
+        "spread_home",
+        "spread_away",
+        "spread_home_val",
+        "spread_away_val",
+        "total",
+        "total_current",
+        "ml_home",
+        "ml_away",
+        "home_ml_current",
+        "away_ml_current",
+    ):
+        if key in odds:
+            odds[key] = _coerce_profedge_number(odds.get(key))
+    prepared["odds"] = odds
+    return prepared
 
 @app.get("/api/profedge/{sport}")
 async def get_profedge(sport: str):
@@ -14646,48 +14679,71 @@ async def get_profedge(sport: str):
     })
 
 
-@app.post("/api/profedge/regrade/{game_id}")
-async def regrade_game(game_id: str, request: Request):
-    """Re-grade a single game using grade_engine."""
+def _resolve_profedge_files(sport_key: str) -> tuple[str | None, dict | None]:
+    import glob as _glob
+
+    game_files = sorted(
+        _glob.glob(str(EDGE_DATA_DIR / f"games_{sport_key}_*.json")),
+        key=lambda fp: Path(fp).stem.split("_")[-1],
+        reverse=True,
+    )
+    for gf_path in game_files:
+        try:
+            with open(gf_path, "r", encoding="utf-8") as f:
+                return Path(gf_path).stem.split("_")[-1], json.load(f)
+        except Exception:
+            continue
+    return None, None
+
+
+def _resolve_profedge_game(sport_key: str, game_id: str) -> tuple[str | None, dict | None, dict | None]:
+    import glob as _glob
+
+    game_files = sorted(
+        _glob.glob(str(EDGE_DATA_DIR / f"games_{sport_key}_*.json")),
+        key=lambda fp: Path(fp).stem.split("_")[-1],
+        reverse=True,
+    )
+    for gf_path in game_files:
+        try:
+            with open(gf_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            for game in data.get("games", []):
+                if str(game.get("game_id")) == str(game_id):
+                    return Path(gf_path).stem.split("_")[-1], data, game
+        except Exception:
+            continue
+    return None, None, None
+
+
+def _load_profedge_grade_engine():
     import sys as _sys
-    _sys.path.insert(0, str(EDGE_ENGINE_DIR))
+
+    for candidate in (LOCAL_EDGE_ENGINE, EDGE_ENGINE_DIR):
+        if not candidate.exists():
+            continue
+        if str(candidate) not in _sys.path:
+            _sys.path.insert(0, str(candidate))
+        try:
+            from grade_engine import grade_sintonia, grade_renzo, grade_peter_rules, score_to_grade, calculate_ev
+            return grade_sintonia, grade_renzo, grade_peter_rules, score_to_grade, calculate_ev
+        except Exception:
+            continue
+    raise RuntimeError("Pro Edge regrade is unavailable: grade engine code is not present on this deployment")
+
+
+async def _run_profedge_regrade(game_id: str, sport: str):
+    """Re-grade a single game using the bundled or external grade engine."""
 
     try:
-        body = await request.json()
-        sport = body.get("sport", "NBA").upper()
         sport_key = sport.lower()
-        today = datetime.now(PST).strftime("%Y%m%d")
-
-        # Find the date that has this game
-        dates_to_try = [today, (datetime.now(PST) - timedelta(days=1)).strftime("%Y%m%d")]
-        data_file = None
-        used_date = today
-
-        for d in dates_to_try:
-            candidate = EDGE_DATA_DIR / f"games_{sport_key}_{d}.json"
-            if candidate.exists():
-                data_file = candidate
-                used_date = d
-                break
-
-        if not data_file:
+        used_date, data, target_game = _resolve_profedge_game(sport_key, game_id)
+        if not data or not target_game:
             return JSONResponse({"error": "No game data found"}, status_code=404)
 
-        with open(data_file, "r", encoding="utf-8") as f:
-            data = json.load(f)
-
-        # Find the specific game
-        target_game = None
-        for g in data.get("games", []):
-            if str(g.get("game_id")) == str(game_id):
-                target_game = g
-                break
-
-        if not target_game:
-            return JSONResponse({"error": f"Game {game_id} not found"}, status_code=404)
-
         # Import and run grade engine
-        from grade_engine import grade_sintonia, grade_renzo, grade_peter_rules, score_to_grade, calculate_ev
+        grade_sintonia, grade_renzo, grade_peter_rules, score_to_grade, calculate_ev = _load_profedge_grade_engine()
+        target_game = _prepare_profedge_game_for_grading(target_game)
 
         results = {}
         for side in ["home", "away"]:
@@ -14735,7 +14791,35 @@ async def regrade_game(game_id: str, request: Request):
 
     except Exception as e:
         log_error("profedge-regrade", str(e))
-        return JSONResponse({"error": str(e)}, status_code=500)
+        status_code = 503 if "unavailable" in str(e).lower() else 500
+        return JSONResponse({"error": str(e)}, status_code=status_code)
+
+
+@app.post("/api/profedge/regrade/{game_id}")
+async def regrade_game(game_id: str, request: Request):
+    body = await request.json()
+    sport = body.get("sport", "NBA").upper()
+    return await _run_profedge_regrade(game_id, sport)
+
+
+@app.post("/api/profedge/{sport}/regrade/{game_id}")
+async def regrade_game_by_sport(sport: str, game_id: str):
+    return await _run_profedge_regrade(game_id, sport.upper())
+
+
+@app.post("/api/profedge/{sport}/grade/{game_id}")
+async def grade_game_by_sport(sport: str, game_id: str):
+    return await _run_profedge_regrade(game_id, sport.upper())
+
+
+@app.post("/api/profedge/regrade")
+async def regrade_game_legacy(request: Request):
+    body = await request.json()
+    game_id = str(body.get("game_id", ""))
+    sport = body.get("sport", "NBA").upper()
+    if not game_id:
+        return JSONResponse({"error": "Missing game_id"}, status_code=400)
+    return await _run_profedge_regrade(game_id, sport)
 
 
 # ── AUTOPICKER — Auto-submit picks from graded games ──────────────────────

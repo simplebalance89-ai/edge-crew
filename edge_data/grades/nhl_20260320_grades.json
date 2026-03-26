@@ -1,7 +1,7 @@
 {
   "sport": "NHL",
   "date": "2026-03-20",
-  "graded_at": "2026-03-20T15:26:07.101487",
+  "graded_at": "2026-03-26T16:08:40.720203",
   "profiles_used": [
     "sintonia",
     "renzo",
@@ -9,327 +9,6 @@
     "edge"
   ],
   "games": [
-    {
-      "game_id": "nhl_20260320_1",
-      "matchup": "Carolina Hurricanes @ Toronto Maple Leafs",
-      "pick_side": "away",
-      "profiles": {
-        "sintonia": {
-          "game_id": "nhl_20260320_1",
-          "profile": "sintonia",
-          "pick_side": "away",
-          "grade": "C+",
-          "composite": 5.43,
-          "chain_bonus": 0.0,
-          "final": 5.43,
-          "pick": "Carolina Hurricanes -1.5",
-          "sizing": "PASS",
-          "variables": {
-            "goalie_confirmed": {
-              "score": 5,
-              "weight": 9,
-              "weighted": 45,
-              "note": "No goalie injury reported \u2014 assume starter"
-            },
-            "star_player_status": {
-              "score": 5,
-              "weight": 9,
-              "weighted": 45,
-              "note": "No significant injuries"
-            },
-            "pp_pk": {
-              "score": 5,
-              "weight": 8,
-              "weighted": 40,
-              "note": "PP/PK proxy from margin L5: +0.6"
-            },
-            "b2b_fatigue": {
-              "score": 5,
-              "weight": 8,
-              "weighted": 40,
-              "note": "Us: 2d rest | Them: 2d rest"
-            },
-            "off_ranking": {
-              "score": 8,
-              "weight": 7,
-              "weighted": 56,
-              "note": "PPG L5: 3.54 | OPP allows: 3.49 | Margin L5: +0.6"
-            },
-            "def_ranking": {
-              "score": 6,
-              "weight": 7,
-              "weighted": 42,
-              "note": "Allow L5: 2.97 | They score L5: 3.13"
-            },
-            "recent_form": {
-              "score": 6,
-              "weight": 7,
-              "weighted": 42,
-              "note": "L5: 3-2-0 (margin +0.6) | Streak: W1 | OPP L5: 1-2-2 (margin -0.4)"
-            },
-            "road_trip_length": {
-              "score": 5,
-              "weight": 7,
-              "weighted": 35,
-              "note": "No road trip data"
-            },
-            "h2h_season": {
-              "score": 5,
-              "weight": 6,
-              "weighted": 30,
-              "note": "No H2H games this season"
-            },
-            "corsi_xg": {
-              "score": 6,
-              "weight": 6,
-              "weighted": 36,
-              "note": "corsi_xg proxy \u2014 Allow L5: 2.97 | They score L5: 3.13"
-            },
-            "save_pct_trend": {
-              "score": 6,
-              "weight": 6,
-              "weighted": 36,
-              "note": "save_pct_trend proxy \u2014 Allow L5: 2.97 | They score L5: 3.13"
-            },
-            "ats_trend": {
-              "score": 6,
-              "weight": 6,
-              "weighted": 36,
-              "note": "Avg margin L10: +0.0 \u2014 close games | Close: 0/10 | Blowouts: 0/10"
-            },
-            "sharp_vs_public": {
-              "score": 3,
-              "weight": 5,
-              "weighted": 15,
-              "note": "Line flat \u2014 no sharp signal"
-            },
-            "home_away": {
-              "score": 5,
-              "weight": 5,
-              "weighted": 25,
-              "note": "Away: 18-10-4 (18/28)"
-            },
-            "depth_injuries": {
-              "score": 5,
-              "weight": 4,
-              "weighted": 20,
-              "note": "Similar injury loads (them 0, us 0)"
-            }
-          },
-          "chains_fired": []
-        },
-        "renzo": {
-          "game_id": "nhl_20260320_1",
-          "profile": "renzo",
-          "pick_side": "away",
-          "grade": "C+",
-          "composite": 5.41,
-          "chain_bonus": 0,
-          "final": 5.41,
-          "pick": "Carolina Hurricanes -1.5",
-          "sizing": "PASS",
-          "variables": {
-            "Q1_whos_missing": {
-              "score": 5,
-              "weight": 9,
-              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
-            },
-            "Q2_line_reflects": {
-              "score": 5,
-              "weight": 9,
-              "note": "Line moved 0 pts | Injuries roughly priced"
-            },
-            "Q3_recent_form": {
-              "score": 7,
-              "weight": 8,
-              "note": "Us L5: 3-2-0 | Them L5: 1-2-2 | Edge: +2"
-            },
-            "Q4_best_on_court": {
-              "score": 6,
-              "weight": 8,
-              "note": "Both sides mostly healthy"
-            },
-            "Q5_schedule_rest": {
-              "score": 6,
-              "weight": 7,
-              "note": "Streak: W1 | Away"
-            },
-            "thesis_edge": {
-              "score": 4,
-              "weight": 10,
-              "note": "No clear thesis edge found"
-            }
-          },
-          "chains_fired": [],
-          "mathurin_test": "FAIL",
-          "mathurin_note": "No clear thesis edge found"
-        },
-        "claude": {
-          "game_id": "nhl_20260320_1",
-          "profile": "claude",
-          "thesis": "Market disagreement \u2014 fading public overreaction, recency bias, and name-value inflation",
-          "pick_side": "away",
-          "grade": "C",
-          "composite": 4.55,
-          "chain_bonus": 0.0,
-          "final": 4.55,
-          "pick": "Carolina Hurricanes -1.5",
-          "sizing": "PASS",
-          "variables": {
-            "public_pct_split": {
-              "score": 3,
-              "weight": 9,
-              "weighted": 27,
-              "note": "Line flat \u2014 no public split signal",
-              "available": true
-            },
-            "line_vs_public": {
-              "score": 5,
-              "weight": 9,
-              "weighted": 45,
-              "note": "Spread delta: +0.0",
-              "available": true
-            },
-            "sharp_money": {
-              "score": 3,
-              "weight": 8,
-              "weighted": 24,
-              "note": "No sharp signal \u2014 line stable",
-              "available": true
-            },
-            "recency_bias": {
-              "score": 6,
-              "weight": 7,
-              "weighted": 42,
-              "note": "Winning (W1) \u2014 some recency bias possible",
-              "available": true
-            },
-            "goalie_name_bias": {
-              "score": 5,
-              "weight": 8,
-              "weighted": 40,
-              "note": "Spread: 1.5 \u2014 no inflation signal",
-              "available": true
-            },
-            "primetime_inflation": {
-              "score": 5,
-              "weight": 7,
-              "weighted": 35,
-              "note": "Spread: 1.5 \u2014 no inflation signal",
-              "available": true
-            },
-            "spread_value": {
-              "score": 5,
-              "weight": 6,
-              "weighted": 30,
-              "note": "Win rate: 50% | Spread: 1.5",
-              "available": true
-            },
-            "dog_record_ats": {
-              "score": 5,
-              "weight": 6,
-              "weighted": 30,
-              "note": "Win rate: 50% | Spread: 1.5",
-              "available": true
-            }
-          },
-          "chains_fired": [],
-          "vars_available": 8,
-          "vars_total": 8
-        },
-        "edge": {
-          "game_id": "nhl_20260320_1",
-          "profile": "edge",
-          "thesis": "Calendar/motivation spot \u2014 schedule traps, travel fatigue, lookahead, and situational context",
-          "pick_side": "away",
-          "grade": "C",
-          "composite": 4.98,
-          "chain_bonus": 0.0,
-          "final": 4.98,
-          "pick": "Carolina Hurricanes -1.5",
-          "sizing": "PASS",
-          "variables": {
-            "schedule_spot": {
-              "score": 5,
-              "weight": 9,
-              "weighted": 45,
-              "note": "Schedule neutral (us: 0/7d, them: 0/7d)",
-              "available": true
-            },
-            "lookahead_trap": {
-              "score": 5,
-              "weight": 8,
-              "weighted": 40,
-              "note": "No clear lookahead signal",
-              "available": true
-            },
-            "letdown_spot": {
-              "score": 5,
-              "weight": 8,
-              "weighted": 40,
-              "note": "Streak: W1 \u2014 no letdown signal",
-              "available": true
-            },
-            "motivation_gap": {
-              "score": 5,
-              "weight": 8,
-              "weighted": 40,
-              "note": "Similar records (50% vs 50%) \u2014 both motivated",
-              "available": true
-            },
-            "travel_fatigue": {
-              "score": 5,
-              "weight": 8,
-              "weighted": 40,
-              "note": "Travel neutral (us road: 0, them: 0)",
-              "available": true
-            },
-            "goalie_workload": {
-              "score": 5,
-              "weight": 9,
-              "weighted": 45,
-              "note": "Goalie workload normal",
-              "available": true
-            },
-            "season_phase": {
-              "score": 4,
-              "weight": 7,
-              "weighted": 28,
-              "note": "Early season \u2014 high variance, small samples",
-              "available": true
-            },
-            "division_familiarity": {
-              "score": 6,
-              "weight": 6,
-              "weighted": 36,
-              "note": "Early in series (0-0) \u2014 edges still fresh",
-              "available": true
-            }
-          },
-          "chains_fired": [],
-          "vars_available": 8,
-          "vars_total": 8
-        }
-      },
-      "peter_rules": {
-        "game_id": "nhl_20260320_1",
-        "profile": "peter_rules",
-        "pick_side": "away",
-        "flags": [],
-        "adjustment": 0,
-        "has_kill": false,
-        "flag_count": 0
-      },
-      "consensus_avg": 5.09,
-      "consensus_grade": "C+",
-      "consensus_raw": 5.09,
-      "ev": {
-        "profile": "ev",
-        "status": "no_ml_data",
-        "ev_pct": null,
-        "kelly_size": null
-      }
-    },
     {
       "game_id": "nhl_20260320_2",
       "matchup": "New Jersey Devils @ Washington Capitals",
@@ -1615,6 +1294,190 @@
         "ev_pct": null,
         "kelly_size": null
       }
+    },
+    {
+      "profiles": {
+        "sintonia": {
+          "game_id": "nhl_20260320_1",
+          "profile": "sintonia",
+          "pick_side": "away",
+          "grade": "C+",
+          "composite": 5.43,
+          "chain_bonus": 0.0,
+          "final": 5.43,
+          "pick": "Carolina Hurricanes -1.5",
+          "sizing": "PASS",
+          "variables": {
+            "goalie_confirmed": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No goalie injury reported \u2014 assume starter"
+            },
+            "star_player_status": {
+              "score": 5,
+              "weight": 9,
+              "weighted": 45,
+              "note": "No significant injuries"
+            },
+            "pp_pk": {
+              "score": 5,
+              "weight": 8,
+              "weighted": 40,
+              "note": "PP/PK proxy from margin L5: +0.6"
+            },
+            "b2b_fatigue": {
+              "score": 5,
+              "weight": 8,
+              "weighted": 40,
+              "note": "Us: 2d rest | Them: 2d rest"
+            },
+            "off_ranking": {
+              "score": 8,
+              "weight": 7,
+              "weighted": 56,
+              "note": "PPG L5: 3.54 | OPP allows: 3.49 | Margin L5: +0.6"
+            },
+            "def_ranking": {
+              "score": 6,
+              "weight": 7,
+              "weighted": 42,
+              "note": "Allow L5: 2.97 | They score L5: 3.13"
+            },
+            "recent_form": {
+              "score": 6,
+              "weight": 7,
+              "weighted": 42,
+              "note": "L5: 3-2-0 (margin +0.6) | Streak: W1 | OPP L5: 1-2-2 (margin -0.4)"
+            },
+            "road_trip_length": {
+              "score": 5,
+              "weight": 7,
+              "weighted": 35,
+              "note": "No road trip data"
+            },
+            "h2h_season": {
+              "score": 5,
+              "weight": 6,
+              "weighted": 30,
+              "note": "No H2H games this season"
+            },
+            "corsi_xg": {
+              "score": 6,
+              "weight": 6,
+              "weighted": 36,
+              "note": "corsi_xg proxy \u2014 Allow L5: 2.97 | They score L5: 3.13"
+            },
+            "save_pct_trend": {
+              "score": 6,
+              "weight": 6,
+              "weighted": 36,
+              "note": "save_pct_trend proxy \u2014 Allow L5: 2.97 | They score L5: 3.13"
+            },
+            "ats_trend": {
+              "score": 6,
+              "weight": 6,
+              "weighted": 36,
+              "note": "Avg margin L10: +0.0 \u2014 close games | Close: 0/10 | Blowouts: 0/10"
+            },
+            "sharp_vs_public": {
+              "score": 3,
+              "weight": 5,
+              "weighted": 15,
+              "note": "Line flat \u2014 no sharp signal"
+            },
+            "home_away": {
+              "score": 5,
+              "weight": 5,
+              "weighted": 25,
+              "note": "Away: 18-10-4 (18/28)"
+            },
+            "depth_injuries": {
+              "score": 5,
+              "weight": 4,
+              "weighted": 20,
+              "note": "Similar injury loads (them 0, us 0)"
+            }
+          },
+          "chains_fired": []
+        },
+        "renzo": {
+          "game_id": "nhl_20260320_1",
+          "profile": "renzo",
+          "pick_side": "away",
+          "grade": "C+",
+          "composite": 5.41,
+          "chain_bonus": 0,
+          "final": 5.41,
+          "pick": "Carolina Hurricanes -1.5",
+          "sizing": "PASS",
+          "variables": {
+            "Q1_whos_missing": {
+              "score": 5,
+              "weight": 9,
+              "note": "OPP lost 0.0 PPG | We lost 0.0 PPG | Gap: +0.0"
+            },
+            "Q2_line_reflects": {
+              "score": 5,
+              "weight": 9,
+              "note": "Line moved 0 pts | Injuries roughly priced"
+            },
+            "Q3_recent_form": {
+              "score": 7,
+              "weight": 8,
+              "note": "Us L5: 3-2-0 | Them L5: 1-2-2 | Edge: +2"
+            },
+            "Q4_best_on_court": {
+              "score": 6,
+              "weight": 8,
+              "note": "Both sides mostly healthy"
+            },
+            "Q5_schedule_rest": {
+              "score": 6,
+              "weight": 7,
+              "note": "Streak: W1 | Away"
+            },
+            "thesis_edge": {
+              "score": 4,
+              "weight": 10,
+              "note": "No clear thesis edge found"
+            }
+          },
+          "chains_fired": [],
+          "mathurin_test": "FAIL",
+          "mathurin_note": "No clear thesis edge found"
+        }
+      },
+      "peter_rules": {
+        "game_id": "nhl_20260320_1",
+        "profile": "peter_rules",
+        "pick_side": "away",
+        "flags": [],
+        "adjustment": 0,
+        "has_kill": false,
+        "flag_count": 0
+      },
+      "consensus_avg": 5.42,
+      "consensus_grade": "C+",
+      "ev": {
+        "profile": "ev",
+        "game_id": "nhl_20260320_1",
+        "pick_side": "away",
+        "moneyline": -222.0,
+        "implied_prob": 0.6894,
+        "true_prob": 0.702,
+        "edge": 0.0126,
+        "decimal_odds": 1.45,
+        "ev_pct": 1.83,
+        "ev_grade": "C",
+        "kelly_full": 0.0406,
+        "kelly_quarter": 0.0101,
+        "kelly_units": "0.5u",
+        "status": "ok"
+      },
+      "pick_side": "away",
+      "game_id": "nhl_20260320_1",
+      "matchup": "Carolina Hurricanes @ Toronto Maple Leafs"
     }
   ],
   "count": 5

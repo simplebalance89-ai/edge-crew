@@ -1,0 +1,197 @@
+{
+  "sport": "NBA",
+  "date": "20260321",
+  "teams": [
+    {
+      "team": "LA Clippers",
+      "side": "away",
+      "date": "2026-03-20",
+      "opponent": "Dallas Mavericks",
+      "game_time": "2026-03-22T00:30",
+      "l5_profile": {
+        "record": null,
+        "l5": "1-4",
+        "l10": "5-5",
+        "streak": "L4",
+        "ppg_l5": 110.2,
+        "opp_ppg_l5": 114.8,
+        "margin_l5": -4.6,
+        "margin_l10": null,
+        "rest_days": 1,
+        "is_b2b": true,
+        "games_last_7d": 5,
+        "road_trip_len": null,
+        "home_stand_len": null
+      },
+      "injuries": {
+        "out": [
+          "Yanic Konan Niederhauser",
+          "Bennedict Mathurin",
+          "Bradley Beal"
+        ],
+        "gtd": [],
+        "count_out": 3
+      },
+      "sintonia_matrix": {
+        "variables": {
+          "star_player_status": {
+            "score": 3,
+            "weight": 9,
+            "note": "3 OUT, 0 GTD",
+            "weighted": 27
+          },
+          "rest_advantage": {
+            "score": 3,
+            "weight": 9,
+            "note": "1 days rest | B2B: True",
+            "weighted": 27
+          },
+          "off_ranking": {
+            "score": 4,
+            "weight": 8,
+            "note": "110.2 PPG L5",
+            "weighted": 32
+          },
+          "def_ranking": {
+            "score": 6,
+            "weight": 8,
+            "note": "114.8 OPP PPG L5",
+            "weighted": 48
+          },
+          "three_pt_matchup": {
+            "score": 4,
+            "weight": 7,
+            "note": "Proxy: -4.6 margin L5 (no opp 3PT data)",
+            "weighted": 28
+          },
+          "pace_matchup": {
+            "score": 8,
+            "weight": 7,
+            "note": "Pace L5: 225 | L10: 225 | delta: 0.0",
+            "weighted": 56
+          },
+          "recent_form": {
+            "score": 2,
+            "weight": 7,
+            "note": "L5: 1-4 | streak: L4",
+            "weighted": 14
+          },
+          "road_trip_length": {
+            "score": 6,
+            "weight": 7,
+            "note": "Road trip: 0g | Home stand: 0g",
+            "weighted": 42
+          },
+          "h2h_season": {
+            "score": 5,
+            "weight": 6,
+            "note": "Season: 0-0 (50% win rate)",
+            "weighted": 30
+          },
+          "paint_scoring": {
+            "score": 4,
+            "weight": 6,
+            "note": "PPG L5: 110.2 vs season: 115 (delta: -4.8)",
+            "weighted": 24
+          },
+          "fast_break": {
+            "score": 5,
+            "weight": 6,
+            "note": "Margin L10: +0.0 (proxy)",
+            "weighted": 30
+          },
+          "ats_trend": {
+            "score": 6,
+            "weight": 6,
+            "note": "L10: 5-5 | Blowouts: 0 | Close: 0 (ATS data unavailable)",
+            "weighted": 36
+          },
+          "sharp_vs_public": {
+            "score": 3,
+            "weight": 5,
+            "note": "5 games in last 7 days (fatigue proxy \u2014 no line data)",
+            "weighted": 15
+          },
+          "home_away": {
+            "score": 5,
+            "weight": 5,
+            "note": "Home: 19-15 (56%) | Away: 15-21 (42%)",
+            "weighted": 25
+          },
+          "depth_injuries": {
+            "score": 4,
+            "weight": 4,
+            "note": "3 players OUT",
+            "weighted": 16
+          }
+        },
+        "composite": 4.5,
+        "total_weighted": 450,
+        "total_weight": 100,
+        "grade": "C",
+        "sizing": "PASS"
+      },
+      "model_grades": {
+        "grok": {
+          "model": "grok",
+          "model_name": "grok-3",
+          "status": "error",
+          "error": "Error code: 429 - {'error': {'code': 'RateLimitReached', 'message': 'Your requests to grok-3 for grok-3 in East US 2 have exceeded the call rate limit for your current AIServices S0 pricing tier. This request was for ChatCompletions_Create under OpenAI Language Model Instance API. To increase your default rate limit, visit: https://aka.ms/oai/quotaincrease.'}}"
+        },
+        "gpt41": {
+          "model": "gpt41",
+          "model_name": "gpt-4.1",
+          "status": "ok",
+          "grade": "C",
+          "score": 4.5,
+          "sizing": "PASS",
+          "form_assessment": "Fade \u2014 The Clippers are just 1-4 in their last 5 games with a -4.6 average margin and are currently on a 4-game losing streak, indicating poor recent form. Their offense has dipped (110.2 PPG L5) while allowing 114.8 PPG to opponents.",
+          "injury_impact": "The absence of three rotation players, including Mathurin and Beal, significantly lowers their ceiling and depth.",
+          "situational_flags": "They are on a back-to-back with only 1 day of rest and have played 5 games in the last 7 days, raising major fatigue concerns.",
+          "grade_reasoning": "I agree with the math grade; the combination of poor recent form, key injuries, and a tough schedule makes them a clear fade as a betting asset right now.",
+          "key_edge": "The biggest factor is their current losing streak and depleted roster, making them a high-risk pick.",
+          "confidence": "high"
+        },
+        "deepseek": {
+          "model": "deepseek",
+          "model_name": "DeepSeek-V3.2",
+          "status": "ok",
+          "grade": "D",
+          "score": 3.5,
+          "sizing": "PASS",
+          "form_assessment": "Fade \u2014 The team is in a severe slump, going 1-4 in their last 5 games with a -4.6 average margin and currently on a 4-game losing streak, indicating significant on-court issues that outweigh their neutral 5-5 L10 record.",
+          "injury_impact": "The absence of three key rotation players, including star guard Bradley Beal, severely limits their offensive firepower and overall ceiling.",
+          "situational_flags": "Playing the second night of a back-to-back with only 1 day of rest after a grueling 5 games in the last 7 days is a major fatigue red flag.",
+          "grade_reasoning": "I disagree with the math grade; the combination of terrible recent form, significant injuries, and a brutal fatigue situation makes this team a very poor betting asset, warranting a lower grade than the composite suggests.",
+          "key_edge": "Severe negative momentum from a 4-game losing streak compounded by key injuries and a back-to-back fatigue spot.",
+          "confidence": "high"
+        },
+        "grok_fast": {
+          "model": "grok_fast",
+          "model_name": "grok-4-1-fast-reasoning",
+          "status": "ok",
+          "grade": "D",
+          "score": 3.0,
+          "sizing": "PASS",
+          "form_assessment": "Fade \u2014 Clippers are 1-4 in L5 with -4.6 avg margin and L4 streak, a sharp drop from L10's 5-5 and +3.2 margin. PPG at 110.2 vs opponents' 114.8 highlights defensive woes and scoring drought.",
+          "injury_impact": "Three players out including star Bradley Beal cripples their scoring depth and raises the ceiling dramatically.",
+          "situational_flags": "B2B tonight on just 1 rest day after 5 games in 7 days screams fatigue and poor scheduling spot.",
+          "grade_reasoning": "Downgrade from math's C as L4 skid, Beal out, and B2B fatigue outweigh pace strengths, eroding betting value further.",
+          "key_edge": "L4 losing streak + Beal out + B2B = total avoid as betting asset.",
+          "confidence": "high"
+        }
+      },
+      "consensus": {
+        "grade": "D",
+        "avg_score": 3.67,
+        "sizing": "PASS",
+        "models_ok": 3,
+        "grades": [
+          "C",
+          "D",
+          "D"
+        ]
+      }
+    }
+  ]
+}
