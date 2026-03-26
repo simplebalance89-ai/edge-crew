@@ -2411,6 +2411,36 @@ CHAINS = {
             "bonus": 1.0,
             "vars": {"sharp_vs_public": (">=", 8), "line_movement": (">=", 7), "platoon_advantage": (">=", 7)},
         },
+        {
+            "name": "WEATHER PLAY",
+            "desc": "Wind blowing out at hitter's park + both offenses hot + total hasn't moved enough",
+            "bonus": 1.0,
+            "vars": {"weather_conditions": (">=", 8), "park_factor": (">=", 7), "recent_form": (">=", 6)},
+        },
+        {
+            "name": "PARK FACTOR EDGE",
+            "desc": "Extreme pitcher's park + elite SP + under value",
+            "bonus": 1.0,
+            "vars": {"park_factor": ("<=", 3), "starting_pitcher": (">=", 8), "line_vs_model": (">=", 7)},
+        },
+        {
+            "name": "NRFI MOMENTUM",
+            "desc": "Both SPs elite in first inning + pitcher's park + under-oriented weather",
+            "bonus": 0.5,
+            "vars": {"starting_pitcher": (">=", 8), "park_factor": ("<=", 4), "weather_conditions": ("<=", 4)},
+        },
+        {
+            "name": "DGAN FADE",
+            "desc": "Day game after night + travel fatigue + bullpen overworked = fade the tired team",
+            "bonus": 1.0,
+            "vars": {"travel_rest": (">=", 8), "bullpen_strength": ("<=", 4), "recent_form": ("<=", 5)},
+        },
+        {
+            "name": "PLATOON CRUSHER",
+            "desc": "Dominant lineup splits vs pitcher handedness + park favors hitting + sharp money agrees",
+            "bonus": 1.0,
+            "vars": {"lineup_vs_hand": (">=", 8), "park_factor": (">=", 7), "sharp_vs_public": (">=", 7)},
+        },
     ],
     "wnba": [
         {
@@ -6027,13 +6057,35 @@ async def get_analysis(sport: str, cached_only: bool = False, force: bool = Fals
 
     # ===== FETCH PROBABLE PITCHERS (MLB Stats API — free, no key) =====
     pitcher_context = ""
+    bullpen_context = ""
+    park_weather_context = ""
+    platoon_context = ""
+    defense_context = ""
     if sport_lower == "mlb":
         try:
-            from engines.mlb_pitcher_engine import build_pitcher_context
+            from engines.mlb_pitcher_engine import build_pitcher_context, build_bullpen_context, build_platoon_context
             pitcher_context = await build_pitcher_context()
         except Exception as e:
             pitcher_context = f"=== PROBABLE PITCHERS ===\nPITCHER DATA FETCH FAILED: {e}. Grade starting_pitcher conservatively (5-6)."
             print(f"MLB pitcher context error: {e}")
+        try:
+            bullpen_context = await build_bullpen_context(odds_data.get("games", []))
+        except Exception as e:
+            print(f"MLB bullpen context error: {e}")
+        try:
+            from engines.mlb_park_weather import build_park_weather_context
+            park_weather_context = await build_park_weather_context(odds_data.get("games", []))
+        except Exception as e:
+            print(f"MLB park/weather context error: {e}")
+        try:
+            platoon_context = await build_platoon_context(odds_data.get("games", []))
+        except Exception as e:
+            print(f"MLB platoon context error: {e}")
+        try:
+            from engines.mlb_defense import build_defense_context
+            defense_context = await build_defense_context(odds_data.get("games", []))
+        except Exception as e:
+            print(f"MLB defense context error: {e}")
 
     # ===== FETCH CASCADE/GAP PROPS (usage cascade from injuries) =====
     cascade_context = ""
@@ -6172,6 +6224,14 @@ Today's {sport.upper()} slate - {today} (pulled at {now_time}):
 {game_log_context}
 
 {pitcher_context}
+
+{bullpen_context}
+
+{park_weather_context}
+
+{platoon_context}
+
+{defense_context}
 
 {matrix_section}
 
@@ -13417,6 +13477,68 @@ async def run_screener(sport: str):
 
     _set_cache(cache_key, result)
     return JSONResponse(result)
+
+
+# ── NRFI Screener ─────────────────────────────────────────────────────────────
+
+@app.get("/api/nrfi")
+async def get_nrfi():
+    """NRFI (No Run First Inning) screener for MLB."""
+    try:
+        from engines.mlb_pitcher_engine import fetch_probable_pitchers, fetch_pitcher_season_stats
+
+        games = await fetch_probable_pitchers()
+        nrfi_picks = []
+
+        for game in games:
+            away_sp = game.get("away_pitcher", {})
+            home_sp = game.get("home_pitcher", {})
+
+            # Get pitcher stats
+            away_stats = await fetch_pitcher_season_stats(away_sp.get("id")) if away_sp.get("id") else {}
+            home_stats = await fetch_pitcher_season_stats(home_sp.get("id")) if home_sp.get("id") else {}
+
+            # Calculate NRFI score (0-10)
+            score = 5.0  # neutral baseline
+
+            # Elite SPs boost NRFI
+            for stats in [away_stats, home_stats]:
+                era = stats.get("era", "-")
+                try:
+                    era_val = float(era)
+                    if era_val < 3.0:
+                        score += 1.5
+                    elif era_val < 3.5:
+                        score += 0.75
+                    elif era_val > 5.0:
+                        score -= 1.5
+                except (ValueError, TypeError):
+                    pass
+
+            score = max(0, min(10, score))
+            verdict = "NRFI" if score >= 7 else "YRFI" if score <= 3 else "SKIP"
+
+            nrfi_picks.append({
+                "matchup": f"{game['away']} @ {game['home']}",
+                "away_sp": away_sp.get("name", "TBD"),
+                "home_sp": home_sp.get("name", "TBD"),
+                "score": round(score, 1),
+                "verdict": verdict,
+                "away_era": away_stats.get("era", "-"),
+                "home_era": home_stats.get("era", "-"),
+            })
+
+        # Sort by NRFI score descending
+        nrfi_picks.sort(key=lambda x: x["score"], reverse=True)
+
+        return JSONResponse({
+            "sport": "MLB",
+            "type": "NRFI",
+            "picks": nrfi_picks,
+            "generated_at": datetime.now(PST).strftime("%I:%M %p PST — %b %d, %Y"),
+        })
+    except Exception as e:
+        return JSONResponse({"error": str(e), "picks": []}, status_code=500)
 
 
 # ── Book Discrepancy Engine ───────────────────────────────────────────────────
