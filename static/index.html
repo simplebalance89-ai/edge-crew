@@ -29,9 +29,9 @@ window.sentryOnLoad = function () {
 <link rel="icon" type="image/png" sizes="16x16" href="/static/icons/favicon-16.png">
 <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
 <meta property="og:image" content="/static/logo.jpg">
-<meta property="og:title" content="Edge Crew Ã¢â‚¬â€ AI-Powered Sports Analytics">
+<meta property="og:title" content="Edge Crew — AI-Powered Sports Analytics">
 <meta property="og:type" content="website">
-<title>Edge Crew Ã¢â‚¬â€ AI-Powered Sports Analytics</title>
+<title>Edge Crew — AI-Powered Sports Analytics</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -135,7 +135,7 @@ body::before{content:'';position:fixed;bottom:0;left:0;right:0;height:35vh;backg
 
 /* ===== GOTCHA BANNER ===== */
 .gotcha-banner{
-    display:none !important; /* Removed Ã¢â‚¬â€ space reserved for Edge Alert / line movement tracker */
+    display:none !important; /* Removed — space reserved for Edge Alert / line movement tracker */
 }
 .gotcha-banner h3{color:var(--ec-danger);font-family:var(--ec-font-heading);font-size:15px;font-weight:700;margin-bottom:10px;}
 .gotcha-banner li{color:var(--ec-text-secondary);font-size:13px;margin-bottom:6px;line-height:1.5;}
@@ -713,7 +713,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 .combined-card-lines span{white-space:nowrap;}
 .combined-card-status{margin-top:6px;}
 
-/* ===== BOTTOM NAV BAR (universal Ã¢â‚¬â€ all screen sizes) ===== */
+/* ===== BOTTOM NAV BAR (universal — all screen sizes) ===== */
 .mobile-quick-bar{
     display:block;position:fixed;bottom:0;left:0;right:0;z-index:250;
     background:rgba(8,8,12,0.95);backdrop-filter:blur(20px);
@@ -781,7 +781,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     /* Hero stats right under topbar on mobile */
     .hero-stats{padding:8px 12px 4px;margin-top:0;}
 
-    /* Game header Ã¢â‚¬â€ card rows */
+    /* Game header — card rows */
     .game-header{padding:12px 14px;gap:4px;}
     .card-r1{flex-wrap:wrap;}
     .card-r2{padding-left:0;font-size:16px;}
@@ -804,7 +804,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     /* Content tighter on mobile */
     .content{padding:16px 12px;}
 
-    /* Bankroll: 4-col Ã¢â€ â€™ 2x2, 3-col Ã¢â€ â€™ stack */
+    /* Bankroll: 4-col → 2x2, 3-col → stack */
     .bankroll-stats-4{grid-template-columns:1fr 1fr !important;gap:8px !important;}
     .bankroll-stats-3{grid-template-columns:1fr !important;gap:8px !important;}
 
@@ -815,7 +815,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     /* Submit bar sits above mobile quick bar */
     .submit-bar{bottom:60px;}
 
-    /* Combined table Ã¢â€ â€™ cards */
+    /* Combined table → cards */
     #combinedTableContainer table{display:none !important;}
     .combined-cards-mobile{display:block !important;}
 
@@ -833,7 +833,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     #propsStatFilter .stat-filter-btn{white-space:nowrap;flex-shrink:0;}
 }
 @media(min-width:769px){
-    /* Universal nav Ã¢â‚¬â€ same bottom bar + sport picker on desktop */
+    /* Universal nav — same bottom bar + sport picker on desktop */
     .mobile-quick-bar{display:block !important;}
     .tabs-wrapper{display:none !important;}
     .combined-cards-mobile{display:none !important;}
@@ -1095,7 +1095,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 .sport-tab.active .tab-count{background:var(--ec-accent);color:#fff;}
 .sport-row{border-bottom:none;}
 .utility-row{border-bottom:none;padding-top:0;}
-/* Tab icon/label Ã¢â‚¬â€ desktop: inline row; mobile: stacked column */
+/* Tab icon/label — desktop: inline row; mobile: stacked column */
 .tab-icon{font-size:1rem;line-height:1;}
 .tab-label{font-size:12px;}
 .sport-tab{display:flex;align-items:center;gap:6px;}
@@ -1228,7 +1228,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     <div class="login-card">
         <img src="/static/logo.png" alt="Edge Crew" style="width:120px;border-radius:12px;margin:0 auto 12px;display:block;">
         <h1>Edge Crew</h1>
-        <div class="login-sub" style="font-size:12px;line-height:1.5;">AI-Powered Sports Analytics Ã¢â‚¬â€ 11 Sports, Real Edges, Full Transparency</div>
+        <div class="login-sub" style="font-size:12px;line-height:1.5;">AI-Powered Sports Analytics — 11 Sports, Real Edges, Full Transparency</div>
         <div style="font-size:10px;color:var(--ec-text-tertiary);margin-top:4px;letter-spacing:0.5px;">No edge = no bet &bull; Build your crew</div>
         <div class="login-tabs">
             <button class="login-tab active" onclick="switchLoginTab('signin')">Sign In</button>
@@ -1295,11 +1295,11 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     <div id="loadingBanner" style="font-size:28px;font-weight:900;color:#818cf8;font-family:var(--ec-font-body);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">LOADING</div>
     <div class="loading-text" id="loadingText">Loading slate...</div>
     <div class="loading-progress"><div class="loading-progress-fill" id="loadingProgress"></div></div>
-    <div style="margin-top:8px;color:rgba(255,255,255,0.3);font-size:12px;">Please wait Ã¢â‚¬â€ do not navigate away</div>
+    <div style="margin-top:8px;color:rgba(255,255,255,0.3);font-size:12px;">Please wait — do not navigate away</div>
     <div id="loadingStack" style="margin-top:24px;max-width:400px;width:90%;max-height:50vh;overflow-y:auto;"></div>
 </div>
 
-<!-- AGENT SELECTION SCREEN (merged into login Ã¢â‚¬â€ kept as hidden fallback) -->
+<!-- AGENT SELECTION SCREEN (merged into login — kept as hidden fallback) -->
 <div class="agent-select-screen" id="agentSelectScreen" style="display:none !important;"></div>
 
 <!-- TOP BAR -->
@@ -1342,47 +1342,47 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     </div>
 </div>
 
-<!-- BET REPORT TICKER (hidden Ã¢â‚¬â€ moved to profiles) -->
+<!-- BET REPORT TICKER (hidden — moved to profiles) -->
 <div class="ticker-bar" id="betTicker" style="display:none;">
     <div class="ticker-track" id="tickerTrack"></div>
 </div>
 
-<!-- LIVE INTEL FEED (hidden Ã¢â‚¬â€ moved to profiles) -->
+<!-- LIVE INTEL FEED (hidden — moved to profiles) -->
 <div class="intel-bar" id="intelTicker" style="display:none;border-top:1px solid rgba(65,234,212,0.15);background:rgba(65,234,212,0.03);">
     <div class="intel-track" id="intelTrack"></div>
 </div>
 
 <!-- EV AGENT BANNER -->
 <div onclick="openEVAgent()" style="cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;padding:10px 20px;background:linear-gradient(135deg,rgba(129,140,248,0.12),rgba(247,37,133,0.12));border-bottom:1px solid rgba(129,140,248,0.2);transition:all 0.2s;" onmouseover="this.style.background='linear-gradient(135deg,rgba(129,140,248,0.2),rgba(247,37,133,0.2))'" onmouseout="this.style.background='linear-gradient(135deg,rgba(129,140,248,0.12),rgba(247,37,133,0.12))'">
-    <span style="font-size:1.3rem;">Ã°Å¸Â¤â€“</span>
+    <span style="font-size:1.3rem;">🤖</span>
     <span style="font-size:13px;font-weight:800;color:#F72585;letter-spacing:1px;text-transform:uppercase;font-family:var(--ec-font-body);">EV AGENT</span>
-    <span style="font-size:11px;color:rgba(255,255,255,0.4);">Ã¢â‚¬â€ Ask about any game, edge, or strategy</span>
+    <span style="font-size:11px;color:rgba(255,255,255,0.4);">— Ask about any game, edge, or strategy</span>
 </div>
 
 <!-- SPORT TABS (2-Tier Nav) -->
 <div class="tabs-wrapper">
 <div class="sport-tabs sport-row">
-    <div class="sport-tab active" onclick="switchSport('landing', event)"><span class="tab-icon">Ã°Å¸ÂÂ </span><span class="tab-label">Home</span></div>
-    <div class="sport-tab" onclick="switchSport('profedge', event)" style="border-color:#F72585"><span class="tab-icon">Ã¢Å¡Â¡</span><span class="tab-label">Pro Edge</span></div>
-    <div class="sport-tab" onclick="switchSport('nba', event)"><span class="tab-icon">Ã°Å¸Ââ‚¬</span><span class="tab-label">NBA</span> <span class="tab-count">0</span></div>
-    <div class="sport-tab" onclick="switchSport('wnba', event)"><span class="tab-icon">Ã°Å¸Ââ‚¬</span><span class="tab-label">WNBA</span> <span class="tab-count">0</span></div>
-    <div class="sport-tab" onclick="switchSport('ncaab', event)"><span class="tab-icon">Ã°Å¸Å½â€œ</span><span class="tab-label">NCAAB</span> <span class="tab-count">0</span></div>
-    <div class="sport-tab" onclick="switchSport('ncaaf', event)"><span class="tab-icon">Ã°Å¸ÂË†</span><span class="tab-label">NCAAF</span> <span class="tab-count">0</span></div>
-    <div class="sport-tab" onclick="switchSport('nhl', event)"><span class="tab-icon">Ã°Å¸Ââ€™</span><span class="tab-label">NHL</span> <span class="tab-count">0</span></div>
-    <div class="sport-tab" onclick="switchSport('mlb', event)"><span class="tab-icon">Ã¢Å¡Â¾</span><span class="tab-label">MLB</span> <span class="tab-count">0</span></div>
-    <div class="sport-tab" onclick="switchSport('tennis', event)"><span class="tab-icon">Ã°Å¸Å½Â¾</span><span class="tab-label">Tennis</span> <span class="tab-count">0</span></div>
-    <div class="sport-tab" onclick="switchSport('soccer', event)"><span class="tab-icon">Ã¢Å¡Â½</span><span class="tab-label">Soccer</span> <span class="tab-count">0</span></div>
-    <div class="sport-tab" onclick="switchSport('mma', event)"><span class="tab-icon">Ã°Å¸Â¥Å </span><span class="tab-label">MMA</span> <span class="tab-count">0</span></div>
-    <div class="sport-tab" onclick="switchSport('boxing', event)"><span class="tab-icon">Ã°Å¸Â¥â€¹</span><span class="tab-label">Boxing</span> <span class="tab-count">0</span></div>
+    <div class="sport-tab active" onclick="switchSport('landing', event)"><span class="tab-icon">🏠</span><span class="tab-label">Home</span></div>
+    <div class="sport-tab" onclick="switchSport('profedge', event)" style="border-color:#F72585"><span class="tab-icon">âš¡</span><span class="tab-label">Pro Edge</span></div>
+    <div class="sport-tab" onclick="switchSport('nba', event)"><span class="tab-icon">🏀</span><span class="tab-label">NBA</span> <span class="tab-count">0</span></div>
+    <div class="sport-tab" onclick="switchSport('wnba', event)"><span class="tab-icon">🏀</span><span class="tab-label">WNBA</span> <span class="tab-count">0</span></div>
+    <div class="sport-tab" onclick="switchSport('ncaab', event)"><span class="tab-icon">🎓</span><span class="tab-label">NCAAB</span> <span class="tab-count">0</span></div>
+    <div class="sport-tab" onclick="switchSport('ncaaf', event)"><span class="tab-icon">🏈</span><span class="tab-label">NCAAF</span> <span class="tab-count">0</span></div>
+    <div class="sport-tab" onclick="switchSport('nhl', event)"><span class="tab-icon">🏒</span><span class="tab-label">NHL</span> <span class="tab-count">0</span></div>
+    <div class="sport-tab" onclick="switchSport('mlb', event)"><span class="tab-icon">âš¾</span><span class="tab-label">MLB</span> <span class="tab-count">0</span></div>
+    <div class="sport-tab" onclick="switchSport('tennis', event)"><span class="tab-icon">🎾</span><span class="tab-label">Tennis</span> <span class="tab-count">0</span></div>
+    <div class="sport-tab" onclick="switchSport('soccer', event)"><span class="tab-icon">âš½</span><span class="tab-label">Soccer</span> <span class="tab-count">0</span></div>
+    <div class="sport-tab" onclick="switchSport('mma', event)"><span class="tab-icon">🥊</span><span class="tab-label">MMA</span> <span class="tab-count">0</span></div>
+    <div class="sport-tab" onclick="switchSport('boxing', event)"><span class="tab-icon">🥋</span><span class="tab-label">Boxing</span> <span class="tab-count">0</span></div>
 </div>
 <div class="sport-tabs utility-row">
-    <div class="sport-tab utility-tab" onclick="switchSport('edge', event)" style="border-color:var(--ec-accent)"><span class="tab-icon">Ã°Å¸â€Â¥</span><span class="tab-label">EDGE</span></div>
-    <div class="sport-tab utility-tab" onclick="switchSport('props', event)"><span class="tab-icon">Ã°Å¸â€œÅ </span><span class="tab-label">Props</span> <span class="tab-count">0</span></div>
-    <div class="sport-tab utility-tab" onclick="switchSport('beat', event)"><span class="tab-icon">Ã°Å¸â€œÂ°</span><span class="tab-label">Beat</span></div>
-    <div class="sport-tab utility-tab" onclick="switchSport('arbscan', event)"><span class="tab-icon">Ã°Å¸â€™Å½</span><span class="tab-label">Arbs</span> <span class="tab-count">0</span></div>
-    <div class="sport-tab utility-tab" onclick="switchSport('bankroll', event)"><span class="tab-icon">Ã°Å¸â€™Â°</span><span class="tab-label">Bank</span></div>
-    <div class="sport-tab utility-tab" onclick="switchSport('results', event)"><span class="tab-icon">Ã°Å¸â€œË†</span><span class="tab-label">Results</span> <span class="tab-count">0</span></div>
-    <div class="sport-tab utility-tab" onclick="autoGradePicks()" title="Auto-Grade Picks"><span class="tab-icon">Ã¢Å“â€¦</span><span class="tab-label">Grade</span></div>
+    <div class="sport-tab utility-tab" onclick="switchSport('edge', event)" style="border-color:var(--ec-accent)"><span class="tab-icon">🔥</span><span class="tab-label">EDGE</span></div>
+    <div class="sport-tab utility-tab" onclick="switchSport('props', event)"><span class="tab-icon">📊</span><span class="tab-label">Props</span> <span class="tab-count">0</span></div>
+    <div class="sport-tab utility-tab" onclick="switchSport('beat', event)"><span class="tab-icon">📰</span><span class="tab-label">Beat</span></div>
+    <div class="sport-tab utility-tab" onclick="switchSport('arbscan', event)"><span class="tab-icon">💎</span><span class="tab-label">Arbs</span> <span class="tab-count">0</span></div>
+    <div class="sport-tab utility-tab" onclick="switchSport('bankroll', event)"><span class="tab-icon">💰</span><span class="tab-label">Bank</span></div>
+    <div class="sport-tab utility-tab" onclick="switchSport('results', event)"><span class="tab-icon">📈</span><span class="tab-label">Results</span> <span class="tab-count">0</span></div>
+    <div class="sport-tab utility-tab" onclick="autoGradePicks()" title="Auto-Grade Picks"><span class="tab-icon">✅</span><span class="tab-label">Grade</span></div>
 </div>
 </div>
 
@@ -1593,7 +1593,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     <div class="ml-filter-btn" onclick="toggleMLFilter('nba')" style="cursor:pointer;padding:6px 14px;border-radius:6px;background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.3);color:#818cf8;font-size:12px;font-weight:700;transition:all 0.2s;">ML+ Only</div>
 </div>
 
-<!-- NBA ANALYSIS Ã¢â‚¬â€ SIDE BY SIDE -->
+<!-- NBA ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutNBA" data-card="sintonia">
     <h3 id="peterGutNBATitle" style="color:#9B59B6;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#9B59B6" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#9B59B6" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#9B59B6" stroke-width="2" stroke-linecap="round"/></svg>Renzo's Card &mdash; NBA</h3>
@@ -1637,7 +1637,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     <div class="ml-filter-btn" onclick="toggleMLFilter('nhl')" style="cursor:pointer;padding:6px 14px;border-radius:6px;background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.3);color:#818cf8;font-size:12px;font-weight:700;transition:all 0.2s;">ML+ Only</div>
 </div>
 
-<!-- NHL ANALYSIS Ã¢â‚¬â€ SIDE BY SIDE -->
+<!-- NHL ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutNHL" data-card="sintonia">
     <h3 id="peterGutNHLTitle" style="color:#9B59B6;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#9B59B6" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#9B59B6" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#9B59B6" stroke-width="2" stroke-linecap="round"/></svg>Renzo's Card &mdash; NHL</h3>
@@ -1681,7 +1681,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     <div class="ml-filter-btn" onclick="toggleMLFilter('mlb')" style="cursor:pointer;padding:6px 14px;border-radius:6px;background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.3);color:#818cf8;font-size:12px;font-weight:700;transition:all 0.2s;">ML+ Only</div>
 </div>
 
-<!-- MLB ANALYSIS Ã¢â‚¬â€ SIDE BY SIDE -->
+<!-- MLB ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutMLB" data-card="sintonia">
     <h3 id="peterGutMLBTitle" style="color:#9B59B6;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#9B59B6" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#9B59B6" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#9B59B6" stroke-width="2" stroke-linecap="round"/></svg>Renzo's Card &mdash; MLB</h3>
@@ -1715,7 +1715,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     <textarea id="gotchaEditor-WNBA" style="display:none;width:100%;min-height:150px;background:#08080c;color:#fff;border:1px solid #6366f1;border-radius:6px;padding:10px;font-family:var(--ec-font-body);font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line..."></textarea>
 </div>
 <div class="empty-state">No WNBA games loaded.<br><strong>Hit REFRESH SLATE</strong> to load live lines.</div>
-<!-- WNBA ANALYSIS Ã¢â‚¬â€ SIDE BY SIDE -->
+<!-- WNBA ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutWNBA" data-card="sintonia">
     <h3 id="peterGutWNBATitle" style="color:#9B59B6;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#9B59B6" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#9B59B6" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#9B59B6" stroke-width="2" stroke-linecap="round"/></svg>Renzo's Card &mdash; WNBA</h3>
@@ -1744,7 +1744,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     <textarea id="gotchaEditor-NCAAB" style="display:none;width:100%;min-height:150px;background:#08080c;color:#fff;border:1px solid #3b82f6;border-radius:6px;padding:10px;font-family:var(--ec-font-body);font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line..."></textarea>
 </div>
 <div class="empty-state">No NCAAB games loaded.<br><strong>Hit REFRESH SLATE</strong> to load live lines.</div>
-<!-- NCAAB ANALYSIS Ã¢â‚¬â€ SIDE BY SIDE -->
+<!-- NCAAB ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutNCAAB" data-card="sintonia">
     <h3 id="peterGutNCAABTitle" style="color:#9B59B6;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#9B59B6" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#9B59B6" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#9B59B6" stroke-width="2" stroke-linecap="round"/></svg>Renzo's Card &mdash; NCAAB</h3>
@@ -1773,7 +1773,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     <textarea id="gotchaEditor-NCAAF" style="display:none;width:100%;min-height:150px;background:#08080c;color:#fff;border:1px solid #a855f7;border-radius:6px;padding:10px;font-family:var(--ec-font-body);font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line..."></textarea>
 </div>
 <div class="empty-state">No NCAAF games loaded.<br><strong>Hit REFRESH SLATE</strong> to load live lines.</div>
-<!-- NCAAF ANALYSIS Ã¢â‚¬â€ SIDE BY SIDE -->
+<!-- NCAAF ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutNCAAF" data-card="sintonia">
     <h3 id="peterGutNCAAFTitle" style="color:#9B59B6;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#9B59B6" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#9B59B6" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#9B59B6" stroke-width="2" stroke-linecap="round"/></svg>Renzo's Card &mdash; NCAAF</h3>
@@ -1802,7 +1802,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     <textarea id="gotchaEditor-TENNIS" style="display:none;width:100%;min-height:150px;background:#08080c;color:#fff;border:1px solid #eab308;border-radius:6px;padding:10px;font-family:var(--ec-font-body);font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line..."></textarea>
 </div>
 <div class="empty-state">No Tennis matches loaded.<br><strong>Hit REFRESH SLATE</strong> to load live lines.</div>
-<!-- TENNIS ANALYSIS Ã¢â‚¬â€ SIDE BY SIDE -->
+<!-- TENNIS ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutTENNIS" data-card="sintonia">
     <h3 id="peterGutTENNISTitle" style="color:#9B59B6;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#9B59B6" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#9B59B6" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#9B59B6" stroke-width="2" stroke-linecap="round"/></svg>Renzo's Card &mdash; Tennis</h3>
@@ -1849,7 +1849,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     <div id="soccerTier3Pills" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
 </div>
 
-<!-- SOCCER ANALYSIS Ã¢â‚¬â€ SIDE BY SIDE -->
+<!-- SOCCER ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutSOCCER" data-card="sintonia">
     <h3 id="peterGutSOCCERTitle" style="color:#9B59B6;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#9B59B6" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#9B59B6" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#9B59B6" stroke-width="2" stroke-linecap="round"/></svg>Renzo's Card &mdash; Soccer</h3>
@@ -1873,7 +1873,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <div class="sport-panel" id="panel-mma">
 <div class="gotcha-banner" style="border-color:rgba(239,68,68,0.2);background:rgba(239,68,68,0.06);">
     <div style="display:flex;justify-content:space-between;align-items:center;">
-        <h3 style="color:#EF4444;">MMA / UFC Ã¢â‚¬â€ Live Lines (Hard Rock Bet)</h3>
+        <h3 style="color:#EF4444;">MMA / UFC — Live Lines (Hard Rock Bet)</h3>
         <div style="display:flex;gap:6px;">
             <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(99,102,241,0.12);color:#818cf8;font-size:11px;font-weight:700;border:none;" onclick="toggleGotchaEdit('MMA')">EDIT</button>
             <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(16,185,129,0.15);color:#10B981;font-size:11px;font-weight:700;border:none;" onclick="saveGotcha('MMA')">SAVE</button>
@@ -1886,7 +1886,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 </div>
 <div class="empty-state">No fights on the slate.<br><strong>Hit REFRESH SLATE</strong> to check for live lines.</div>
 
-<!-- MMA ANALYSIS Ã¢â‚¬â€ SIDE BY SIDE -->
+<!-- MMA ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutMMA" data-card="sintonia">
     <h3 id="peterGutMMATitle" style="color:#9B59B6;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#9B59B6" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#9B59B6" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#9B59B6" stroke-width="2" stroke-linecap="round"/></svg>Renzo's Card &mdash; MMA</h3>
@@ -1910,7 +1910,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <div class="sport-panel" id="panel-boxing">
 <div class="gotcha-banner" style="border-color:rgba(168,85,247,0.2);background:rgba(168,85,247,0.06);">
     <div style="display:flex;justify-content:space-between;align-items:center;">
-        <h3 style="color:#A855F7;">Boxing Ã¢â‚¬â€ Live Lines (Hard Rock Bet)</h3>
+        <h3 style="color:#A855F7;">Boxing — Live Lines (Hard Rock Bet)</h3>
         <div style="display:flex;gap:6px;">
             <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(99,102,241,0.12);color:#818cf8;font-size:11px;font-weight:700;border:none;" onclick="toggleGotchaEdit('BOXING')">EDIT</button>
             <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(16,185,129,0.15);color:#10B981;font-size:11px;font-weight:700;border:none;" onclick="saveGotcha('BOXING')">SAVE</button>
@@ -1923,7 +1923,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 </div>
 <div class="empty-state">No fights on the slate.<br><strong>Hit REFRESH SLATE</strong> to check for live lines.</div>
 
-<!-- BOXING ANALYSIS Ã¢â‚¬â€ SIDE BY SIDE -->
+<!-- BOXING ANALYSIS — SIDE BY SIDE -->
 <div class="analysis-duo">
 <div class="input-section analysis-card" id="peterGutBOXING" data-card="sintonia">
     <h3 id="peterGutBOXINGTitle" style="color:#9B59B6;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#9B59B6" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#9B59B6" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#9B59B6" stroke-width="2" stroke-linecap="round"/></svg>Renzo's Card &mdash; Boxing</h3>
@@ -1950,7 +1950,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
         <h3 style="color:#FBB024;">Daily Beat Report</h3>
         <button style="cursor:pointer;padding:6px 14px;border-radius:6px;background:rgba(251,191,36,0.15);color:#FBB024;font-size:11px;font-weight:700;border:none;letter-spacing:0.5px;" onclick="loadBeatReport()">REFRESH</button>
     </div>
-    <p style="color:rgba(255,255,255,0.4);font-size:12px;margin-top:4px;">Sharp overnight moves, injury alerts, best bets, trap games, arb opps Ã¢â‚¬â€ all sports.</p>
+    <p style="color:rgba(255,255,255,0.4);font-size:12px;margin-top:4px;">Sharp overnight moves, injury alerts, best bets, trap games, arb opps — all sports.</p>
 </div>
 <div id="beatReportContent" style="padding:8px 0;">
     <p style="color:rgba(255,255,255,0.3);font-style:italic;text-align:center;padding:40px;">Hit REFRESH to generate today's beat report...</p>
@@ -1974,7 +1974,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 </div>
 
 <!-- ===== ARB SCANNER PANEL ===== -->
-<!-- ===== EDGE PANEL Ã¢â‚¬â€ Mathurin Screener + Discrepancies + Gap Props ===== -->
+<!-- ===== EDGE PANEL — Mathurin Screener + Discrepancies + Gap Props ===== -->
 <div class="sport-panel" id="panel-edge">
 <div class="gotcha-banner" style="border-color:rgba(212,160,36,0.4);background:rgba(212,160,36,0.06);">
     <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -2013,7 +2013,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     <div style="display:flex;justify-content:space-between;align-items:center;">
         <h3 style="color:#F72585;font-size:15px;font-weight:700;margin:0;">PRO EDGE <span style="font-size:11px;color:rgba(255,255,255,0.4);font-weight:400;">V3 Pipeline</span></h3>
         <button id="profedgeRefreshBtn" onclick="refreshProEdgeProfiles()" style="padding:6px 12px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(255,193,7,0.15);border:1px solid rgba(255,193,7,0.4);color:#ffc107;cursor:pointer;letter-spacing:0.5px;transition:all 0.2s;display:flex;align-items:center;gap:6px;">
-            <span id="profedgeRefreshIcon">Ã¢â€ Â»</span> <span id="profedgeRefreshText">REFRESH PROFILES</span>
+            <span id="profedgeRefreshIcon">↻</span> <span id="profedgeRefreshText">REFRESH PROFILES</span>
         </button>
     </div>
     <div id="profedgeSportTabs" style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">
@@ -2083,11 +2083,11 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     <div style="font-size:11px;color:rgba(255,255,255,0.3);" id="propsCount"></div>
 </div>
 
-<!-- PROP BOARD Ã¢â‚¬â€ Crushed Lines -->
+<!-- PROP BOARD — Crushed Lines -->
 <div id="propBoardSection" style="margin-bottom:20px;display:none;">
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding-bottom:10px;border-bottom:2px solid rgba(255,215,0,0.4);">
         <span style="font-size:18px;">&#x1F451;</span>
-        <span style="font-family:var(--ec-font-heading);font-size:15px;font-weight:700;color:#FFD700;">Prop Board Ã¢â‚¬â€ Crushed Lines</span>
+        <span style="font-family:var(--ec-font-heading);font-size:15px;font-weight:700;color:#FFD700;">Prop Board — Crushed Lines</span>
         <span style="font-size:9px;color:rgba(255,215,0,0.6);font-weight:600;margin-left:auto;">25%+ OVER LINE</span>
         <div onclick="toggleAddCrush()" style="cursor:pointer;margin-left:8px;padding:3px 10px;background:rgba(255,215,0,0.15);border:1px solid rgba(255,215,0,0.3);border-radius:6px;color:#FFD700;font-size:10px;font-weight:800;">+ ADD</div>
     </div>
@@ -2127,7 +2127,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     <div style="min-width:0;" id="gapPropsLane" class="gap-props-lane">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding-bottom:10px;border-bottom:2px solid rgba(168,85,247,0.3);">
             <span style="font-size:18px;">&#x26A1;</span>
-            <span style="font-family:var(--ec-font-heading);font-size:15px;font-weight:700;color:#A855F7;">Gap Props Ã¢â‚¬â€ Injury Edge</span>
+            <span style="font-family:var(--ec-font-heading);font-size:15px;font-weight:700;color:#A855F7;">Gap Props — Injury Edge</span>
             <span style="font-size:9px;color:rgba(168,85,247,0.6);font-weight:600;margin-left:auto;">ROLE PLAYER OVERS</span>
         </div>
         <div id="gapPropsContainer">
@@ -2361,11 +2361,11 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     </div>
     <div id="bankrollPicks"></div>
 
-    <!-- Train Your Edge Agent Ã¢â‚¬â€ v3 teaser -->
+    <!-- Train Your Edge Agent — v3 teaser -->
     <div style="margin:24px 0 8px;padding:20px;background:linear-gradient(135deg,rgba(99,102,241,0.06),rgba(247,37,133,0.06));border:1px dashed rgba(99,102,241,0.3);border-radius:14px;text-align:center;opacity:0.7;">
-        <div style="font-size:24px;margin-bottom:6px;">Ã°Å¸Â§Â </div>
+        <div style="font-size:24px;margin-bottom:6px;">🧠</div>
         <div style="color:#818cf8;font-size:16px;font-weight:800;margin-bottom:4px;">Train Your Edge Agent</div>
-        <div style="color:rgba(255,255,255,0.4);font-size:13px;line-height:1.5;">Coming in v3 Ã¢â‚¬â€ Build your own AI analyst. Set your style. Share with your crew.</div>
+        <div style="color:rgba(255,255,255,0.4);font-size:13px;line-height:1.5;">Coming in v3 — Build your own AI analyst. Set your style. Share with your crew.</div>
         <div style="margin-top:10px;display:inline-block;padding:4px 12px;border-radius:4px;background:rgba(99,102,241,0.12);color:#818cf8;font-size:11px;font-weight:700;letter-spacing:0.5px;">COMING SOON</div>
     </div>
 </div>
@@ -2554,7 +2554,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     </div>
 </div>
 
-<!-- FAB: Submit Pick Ã¢â‚¬â€ links to full /picks page -->
+<!-- FAB: Submit Pick — links to full /picks page -->
 <a class="fab" href="/picks" title="Submit Pick" style="text-decoration:none;">+<span class="fab-label">PICK</span></a>
 
 <div class="toast" id="toast">Pick locked!</div>
@@ -2588,7 +2588,7 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 </div>
 
 <script>
-// Global error handler Ã¢â‚¬â€ prevents one bad line from killing the whole app
+// Global error handler — prevents one bad line from killing the whole app
 window.onerror = function(msg, url, line, col, error) {
     console.error('Edge Crew Error:', msg, 'at line', line);
     fetch('/api/errors', {
@@ -2711,7 +2711,7 @@ function doLogin() {
         }
     }).catch(function() {
         if (loginBtn) { loginBtn.classList.remove('btn-loading'); loginBtn.textContent = loginBtn.dataset.origText || 'Sign In'; }
-        errEl.textContent = 'Server error Ã¢â‚¬â€ try again';
+        errEl.textContent = 'Server error — try again';
     });
 }
 
@@ -2741,7 +2741,7 @@ function doRegister() {
         } else {
             errEl.textContent = res.data.error || 'Registration failed';
         }
-    }).catch(function() { errEl.textContent = 'Server error Ã¢â‚¬â€ try again'; });
+    }).catch(function() { errEl.textContent = 'Server error — try again'; });
 }
 
 function doLogout() {
@@ -2769,7 +2769,7 @@ function goToMyProfile() {
     }
 }
 
-// Agent picked at login Ã¢â‚¬â€ highlight selected button
+// Agent picked at login — highlight selected button
 var _loginAgent = 'sintonia'; // default
 function pickLoginAgent(el, who) {
     _loginAgent = who;
@@ -2792,7 +2792,7 @@ function pickLoginAgent(el, who) {
 function onLoginSuccess() {
     document.getElementById('loginOverlay').classList.add('hidden');
     updateCrewUI();
-    // Apply agent choice from login Ã¢â‚¬â€ but DON'T fetch analysis yet
+    // Apply agent choice from login — but DON'T fetch analysis yet
     sessionStorage.setItem('edgeCrewAgent', _loginAgent);
     document.body.classList.remove('agent-sintonia', 'agent-alyssa');
     document.body.classList.add('agent-' + _loginAgent, 'agent-active');
@@ -2801,7 +2801,7 @@ function onLoginSuccess() {
         var names = {sintonia: "Renzo", alyssa: "Alyssa"};
         label.textContent = (names[_loginAgent] || _loginAgent) + " \u25BC";
     }
-    // NO loading overlay Ã¢â‚¬â€ cards render as each sport loads
+    // NO loading overlay — cards render as each sport loads
     // Bust SW cache on login to guarantee fresh code
     if ('caches' in window) {
         caches.keys().then(function(names) {
@@ -2907,7 +2907,7 @@ function checkSession(retries) {
             safeRemove('edgeCrewToken');
             showLoginOverlay();
         } else if (retries < 2) {
-            // Network error Ã¢â‚¬â€ retry after 2 seconds, don't nuke token
+            // Network error — retry after 2 seconds, don't nuke token
             setTimeout(function() { checkSession(retries + 1); }, 2000);
         } else {
             // After 2 retries, proceed without auth check (offline mode)
@@ -2989,7 +2989,7 @@ function refreshSlate() {
     // Update submit bar
     updateSubmitBar();
 
-    // Show loading overlay ONLY on manual refresh Ã¢â‚¬â€ initial load stays visible
+    // Show loading overlay ONLY on manual refresh — initial load stays visible
     var overlay = document.getElementById('loadingOverlay');
     var loadText = document.getElementById('loadingText');
     if (isManual) {
@@ -3007,7 +3007,7 @@ function refreshSlate() {
     if (sweepEl) sweepEl.textContent = 'LOADING';
     if (sweepDot) { sweepDot.style.background = '#F59E0B'; sweepDot.style.animation = 'edgePulse 1s ease-in-out infinite'; }
 
-    // Only load sports that are in season Ã¢â‚¬â€ don't waste API calls on dead sports
+    // Only load sports that are in season — don't waste API calls on dead sports
     var month = new Date().getMonth() + 1; // 1-12
     var allSports = ['nba','wnba','ncaab','ncaaf','nhl','mlb','tennis','soccer','mma','boxing'];
     var seasonMap = {
@@ -3028,17 +3028,17 @@ function refreshSlate() {
     var loadedCount = 0;
     var analysisCount = 0;
     var oddsPhase = true;
-    var totalSteps = sportsToLoad.length; // odds only Ã¢â‚¬â€ analysis deferred to agent selection
+    var totalSteps = sportsToLoad.length; // odds only — analysis deferred to agent selection
     var progressBar = document.getElementById('loadingProgress');
     function updateProgress() {
         var pct = Math.min(100, Math.round((loadedCount / totalSteps) * 100));
         if (progressBar) progressBar.style.width = pct + '%';
     }
-    // Legacy callback Ã¢â‚¬â€ still fired from edge cases in fetchLiveOdds catch handlers
+    // Legacy callback — still fired from edge cases in fetchLiveOdds catch handlers
     window._analysisLoadCallback = function(sport) {
-        // No-op in new architecture Ã¢â‚¬â€ overlay dismissal handled by onSportLoaded
+        // No-op in new architecture — overlay dismissal handled by onSportLoaded
     };
-    // Safety timeout Ã¢â‚¬â€ dismiss after 60s no matter what
+    // Safety timeout — dismiss after 60s no matter what
     setTimeout(function() {
         if (overlay) overlay.classList.remove('active');
         document.body.classList.remove('loading');
@@ -3051,7 +3051,7 @@ function refreshSlate() {
         updateProgress();
         if (loadText) loadText.textContent = 'Loading ' + sport.toUpperCase() + '... (' + loadedCount + '/' + sportsToLoad.length + ')';
         if (loadedCount >= sportsToLoad.length) {
-            // All odds loaded Ã¢â‚¬â€ dismiss overlay, show cards
+            // All odds loaded — dismiss overlay, show cards
             if (progressBar) progressBar.style.width = '100%';
             if (overlay) overlay.classList.remove('active');
             document.body.classList.remove('loading');
@@ -3066,7 +3066,7 @@ function refreshSlate() {
                 batch.forEach(function(s) { fetchInjuries(s); });
                 setTimeout(function() { batchInjuries(idx + 3); }, 2000);
             })(0);
-            // Auto-load cached analysis grades (no Azure calls Ã¢â‚¬â€ cached_only=true)
+            // Auto-load cached analysis grades (no Azure calls — cached_only=true)
             _autoLoadCachedGrades(sportsToLoad);
         }
     }
@@ -3077,7 +3077,7 @@ function refreshSlate() {
         : Promise.resolve();
 
     clearDone.then(function() {
-        // Batch odds fetches Ã¢â‚¬â€ 3 at a time, wait for batch to finish before next
+        // Batch odds fetches — 3 at a time, wait for batch to finish before next
         // This prevents Render proxy from choking on 10+ concurrent requests
         var batchSize = 3;
         function loadBatch(startIdx) {
@@ -3089,14 +3089,14 @@ function refreshSlate() {
                     onSportLoaded(s);
                     batchDone++;
                     if (batchDone >= batch.length) {
-                        // This batch done Ã¢â‚¬â€ fire next batch
+                        // This batch done — fire next batch
                         loadBatch(startIdx + batchSize);
                     }
                 });
             });
         }
         loadBatch(0);
-        // Rosters: only needed for analysis Ã¢â‚¬â€ defer to ANALYZE button, don't pre-fetch
+        // Rosters: only needed for analysis — defer to ANALYZE button, don't pre-fetch
     });
 
     // Combined slate: defer until odds are done (no rush)
@@ -3120,7 +3120,7 @@ function refreshSlate() {
         document.querySelectorAll('.sport-tab').forEach(function(tab) {
             if (tab.textContent.indexOf(sport.toUpperCase()) === 0) {
                 var count = tab.querySelector('.tab-count');
-                if (count) count.textContent = 'Ã¢â‚¬â€';
+                if (count) count.textContent = '—';
             }
         });
     });
@@ -3155,7 +3155,7 @@ function pickSide(event, el, side, odds) {
     var btns = row.querySelectorAll('.side-btn');
     btns.forEach(function(b) { b.classList.remove('picked'); });
     if (wasAlreadyPicked) {
-        // Toggled off Ã¢â‚¬â€ don't open slip
+        // Toggled off — don't open slip
         if (picks[gameName]) picks[gameName].side = '';
         safeSave('edgeLockedPicks', JSON.stringify(picks));
         return;
@@ -3354,7 +3354,7 @@ function submitBetSlip() {
         created_at: new Date().toISOString()
     };
 
-    // Server is source of truth Ã¢â‚¬â€ POST first, update localStorage on success
+    // Server is source of truth — POST first, update localStorage on success
     crewFetch('/api/picks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -3373,7 +3373,7 @@ function submitBetSlip() {
         }
         closeBetSlip();
         showToast(pick.selection + ' locked!');
-        syncPicksFromServer(); // Server Ã¢â€ â€™ localStorage
+        syncPicksFromServer(); // Server → localStorage
     }).catch(function(err) {
         closeBetSlip();
         console.error('Pick save failed:', err);
@@ -3415,14 +3415,14 @@ function lockCard() {
         var td2 = document.createElement('td');
         td2.textContent = g;
         var td3 = document.createElement('td');
-        td3.textContent = side || 'Ã¢â‚¬â€';
+        td3.textContent = side || '—';
         td3.style.color = side ? '#818cf8' : 'rgba(255,255,255,0.3)';
         td3.style.fontWeight = '700';
         tr.appendChild(td1);
         tr.appendChild(td2);
         tr.appendChild(td3);
         body.appendChild(tr);
-        if (!side) { td3.textContent = 'NO SIDE Ã¢â‚¬â€ skipped'; td3.style.color = '#EF4444'; continue; }
+        if (!side) { td3.textContent = 'NO SIDE — skipped'; td3.style.color = '#EF4444'; continue; }
         var pickOdds = picks[g].odds || '';
         // Fallback to liveOddsMap if odds weren't stored on the pick
         if (!pickOdds && typeof liveOddsMap !== 'undefined' && liveOddsMap[g]) {
@@ -3449,7 +3449,7 @@ function lockCard() {
             grade: grade || '',
             date: toPSTDate(), time: toPSTShort(), created_at: new Date().toISOString()
         };
-        // Server is source of truth Ã¢â‚¬â€ POST first, sync localStorage on success
+        // Server is source of truth — POST first, sync localStorage on success
         crewFetch('/api/picks', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -3581,7 +3581,7 @@ function switchSport(sport, e) {
     window.scrollTo(0, 0);
 }
 
-// ===== SOCCER HUB Ã¢â‚¬â€ League Pill Bar & Filtering =====
+// ===== SOCCER HUB — League Pill Bar & Filtering =====
 var _soccerLeagueCache = {}; // {league_key: [games]}
 var _soccerActivePill = 'high-edge';
 var _soccerLeaguesData = null; // from /api/soccer/leagues
@@ -3818,7 +3818,7 @@ function populateGameDropdown() {
         if (!sport || gameSport === sport) {
             var opt = document.createElement('option');
             opt.value = game;
-            opt.textContent = (gameSport && sport !== gameSport ? gameSport + ' Ã¢â‚¬â€ ' : '') + game;
+            opt.textContent = (gameSport && sport !== gameSport ? gameSport + ' — ' : '') + game;
             select.appendChild(opt);
             added.push(game);
         }
@@ -3835,7 +3835,7 @@ function populateGameDropdown() {
                 if (!sport || rowSport === sport) {
                     var opt = document.createElement('option');
                     opt.value = matchup;
-                    opt.textContent = (rowSport && sport !== rowSport ? rowSport + ' Ã¢â‚¬â€ ' : '') + matchup;
+                    opt.textContent = (rowSport && sport !== rowSport ? rowSport + ' — ' : '') + matchup;
                     select.appendChild(opt);
                     added.push(matchup);
                 }
@@ -3879,7 +3879,7 @@ function populatePickDropdown() {
     var customInput = document.getElementById('pickSelectionCustom');
 
     if (isProp) {
-        // Props are player-specific Ã¢â‚¬â€ show text input, hide dropdown options
+        // Props are player-specific — show text input, hide dropdown options
         select.innerHTML = '<option value="__other__">Type your prop below</option>';
         customInput.style.display = 'block';
         customInput.placeholder = 'e.g. Donovan Mitchell O 24.5 pts, Jokic O 10.5 reb';
@@ -3905,7 +3905,7 @@ function populatePickDropdown() {
                 if (pickType === 'Spread' && !isSpread) return;
                 if (pickType === 'Over/Under' && !isOU) return;
                 if (pickType === 'Moneyline' && !isML) return;
-                // No filter for Parlay, Futures, or empty Ã¢â‚¬â€ show all
+                // No filter for Parlay, Futures, or empty — show all
 
                 var opt = document.createElement('option');
                 opt.value = val;
@@ -4046,7 +4046,7 @@ function submitPick() {
         created_at: new Date().toISOString()
     };
 
-    // Server is source of truth Ã¢â‚¬â€ POST first, sync localStorage on success
+    // Server is source of truth — POST first, sync localStorage on success
     crewFetch('/api/picks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -4063,7 +4063,7 @@ function submitPick() {
             return;
         }
         showToast(pick.name + "'s pick locked!");
-        syncPicksFromServer(); // Server Ã¢â€ â€™ localStorage
+        syncPicksFromServer(); // Server → localStorage
     }).catch(function(err) {
         if (btn) { btn.disabled = false; btn.textContent = 'Lock This Pick'; }
         console.error('Pick save failed:', err);
@@ -4366,7 +4366,7 @@ function renderScoreboardGames() {
         if (g.is_yesterday && !showedYesterday) {
             showedYesterday = true;
             currentSport = '';
-            html += '<div style="color:var(--ec-warning);font-weight:800;font-size:14px;letter-spacing:1px;margin:24px 0 4px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06);">YESTERDAY Ã¢â‚¬â€ FINAL SCORES</div>';
+            html += '<div style="color:var(--ec-warning);font-weight:800;font-size:14px;letter-spacing:1px;margin:24px 0 4px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06);">YESTERDAY — FINAL SCORES</div>';
         }
         if (g.sport !== currentSport) {
             currentSport = g.sport;
@@ -4420,7 +4420,7 @@ function loadScoreboard() {
     status.textContent = 'Loading...';
     crewFetch('/api/scores').then(function(r) { return r.json(); }).then(function(data) {
         _scoreboardData = data;
-        status.textContent = data.count + ' games today Ã¢â‚¬â€ ' + data.timestamp;
+        status.textContent = data.count + ' games today — ' + data.timestamp;
         if (!data.games || data.games.length === 0) {
             container.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.3);padding:40px;font-size:16px;">No games scheduled today.</div>';
             return;
@@ -4498,7 +4498,7 @@ function populateLandingEdges(edges) {
         return;
     }
     el.innerHTML = edges.map(function(e) {
-        var sportIcon = {NBA:'Ã°Å¸Ââ‚¬',NHL:'Ã°Å¸Ââ€™',MLB:'Ã¢Å¡Â¾',SOCCER:'Ã¢Å¡Â½',TENNIS:'Ã°Å¸Å½Â¾',MMA:'Ã°Å¸Â¥Å ',BOXING:'Ã°Å¸Â¥â€¹',WNBA:'Ã°Å¸Ââ‚¬',NCAAB:'Ã°Å¸Å½â€œ',NCAAF:'Ã°Å¸ÂË†'}[e.sport] || 'Ã°Å¸Å½Â¯';
+        var sportIcon = {NBA:'🏀',NHL:'🏒',MLB:'⚾',SOCCER:'⚽',TENNIS:'🎾',MMA:'🥊',BOXING:'🥋',WNBA:'🏀',NCAAB:'🎓',NCAAF:'🏈'}[e.sport] || '🎯';
         return '<div onclick="switchSport(\'' + e.sport.toLowerCase() + '\')" style="cursor:pointer;display:flex;align-items:center;gap:12px;background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.15);border-radius:10px;padding:12px 16px;transition:all 0.2s;">' +
             '<div style="font-size:20px;">' + sportIcon + '</div>' +
             '<div style="flex:1;"><div style="font-size:14px;font-weight:700;color:#fff;">' + e.matchup + '</div><div style="font-size:11px;color:rgba(255,255,255,0.4);">' + e.sport + '</div></div>' +
@@ -4545,7 +4545,7 @@ function updateHeroStats() {
         heroROISub.className = 'hero-sub ' + (allGraded.length < 10 ? 'neutral' : (roi >= 0 ? 'positive' : 'negative'));
     }
 
-    // Streak Ã¢â‚¬â€ iterate from most recent (end of array) backward
+    // Streak — iterate from most recent (end of array) backward
     var streak = 0;
     var streakType = '';
     for (var i = stored.length - 1; i >= 0; i--) {
@@ -4562,7 +4562,7 @@ function updateHeroStats() {
         heroStreakSub.className = 'hero-sub ' + (streak === 0 ? 'neutral' : (streakType === 'W' ? 'positive' : 'negative'));
     }
 
-    // Top edges Ã¢â‚¬â€ scan ALL sport panels for A/A- grades
+    // Top edges — scan ALL sport panels for A/A- grades
     var heroTopEdge = document.getElementById('heroTopEdge');
     var heroTopEdgeSub = document.getElementById('heroTopEdgeSub');
     var allGradeAs = document.querySelectorAll('.sport-panel .ga, .sport-panel .gam');
@@ -4925,7 +4925,7 @@ function renderBankroll() {
             else if (graded === 'P') borderLeft = '3px solid #6B7280';
             div.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 0 10px 8px;border-bottom:1px solid rgba(255,255,255,0.08);border-left:' + borderLeft + ';' + (stale ? 'opacity:0.4;' : '');
 
-            // FIX 1: Button styling Ã¢â‚¬â€ dim when ungraded, solid when selected
+            // FIX 1: Button styling — dim when ungraded, solid when selected
             var btnStyle = 'cursor:pointer;padding:4px 10px;border-radius:4px;font-weight:700;font-size:12px;';
             var wClass, lClass, pClass;
             if (!graded) {
@@ -4967,9 +4967,9 @@ function renderBankroll() {
                     '<div style="' + btnStyle + wClass + '" onclick="gradePick(' + i + ',\'W\')">W</div>' +
                     '<div style="' + btnStyle + lClass + '" onclick="gradePick(' + i + ',\'L\')">L</div>' +
                     '<div style="' + btnStyle + pClass + '" onclick="gradePick(' + i + ',\'P\')">P</div>' +
-                    (graded ? '<div style="cursor:pointer;padding:4px 6px;font-size:11px;color:rgba(251,191,36,0.6);" onclick="ungradePick(' + i + ')" title="Ungrade">Ã¢â€ Â©</div>' : '') +
-                    '<div style="cursor:pointer;padding:4px 6px;font-size:11px;color:rgba(255,255,255,0.3);" onclick="editPick(' + i + ')" title="Edit">Ã¢Å“ÂÃ¯Â¸Â</div>' +
-                    '<div style="cursor:pointer;padding:4px 6px;font-size:11px;color:rgba(239,68,68,0.4);" onclick="deletePick(' + i + ')" title="Delete">Ã°Å¸â€”â€˜Ã¯Â¸Â</div>' +
+                    (graded ? '<div style="cursor:pointer;padding:4px 6px;font-size:11px;color:rgba(251,191,36,0.6);" onclick="ungradePick(' + i + ')" title="Ungrade">↩</div>' : '') +
+                    '<div style="cursor:pointer;padding:4px 6px;font-size:11px;color:rgba(255,255,255,0.3);" onclick="editPick(' + i + ')" title="Edit">✏️</div>' +
+                    '<div style="cursor:pointer;padding:4px 6px;font-size:11px;color:rgba(239,68,68,0.4);" onclick="deletePick(' + i + ')" title="Delete">🗑️</div>' +
                 '</div>';
 
             container.appendChild(div);
@@ -5221,11 +5221,11 @@ function renderParlayLegs() {
         div.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.1);';
         div.innerHTML = '<div style="flex:1;">' +
             '<span style="color:#818cf8;font-weight:700;">Leg ' + (i+1) + '</span> ' +
-            '<span style="color:rgba(255,255,255,0.5);font-size:12px;">' + leg.sport + ' Ã¢â‚¬â€ ' + leg.matchup + '</span><br>' +
+            '<span style="color:rgba(255,255,255,0.5);font-size:12px;">' + leg.sport + ' — ' + leg.matchup + '</span><br>' +
             '<span style="color:#fff;font-weight:600;">' + leg.selection + '</span> ' +
             '<span style="color:rgba(255,255,255,0.4);">(' + leg.odds + ')</span>' +
             '</div>' +
-            '<div style="cursor:pointer;color:#EF4444;padding:4px 8px;font-size:18px;" onclick="removeParlayLeg(' + i + ')">Ãƒâ€”</div>';
+            '<div style="cursor:pointer;color:#EF4444;padding:4px 8px;font-size:18px;" onclick="removeParlayLeg(' + i + ')">×</div>';
         container.appendChild(div);
     });
 
@@ -5250,7 +5250,7 @@ function renderParlayLegs() {
         combinedAmerican = '-' + Math.round(100 / (combinedDecimal - 1));
     }
 
-    document.getElementById('parlayOdds').textContent = parlayLegs.length + ' legs Ã¢â‚¬â€ ' + combinedAmerican;
+    document.getElementById('parlayOdds').textContent = parlayLegs.length + ' legs — ' + combinedAmerican;
 }
 
 function removeParlayLeg(index) {
@@ -5455,7 +5455,7 @@ function populateTicker() {
     }
 
     if (items.length === 0) {
-        // ticker disabled Ã¢â‚¬â€ sandbox mode
+        // ticker disabled — sandbox mode
         return;
     }
 
@@ -5473,7 +5473,7 @@ function populateTicker() {
     // Duplicate items for seamless loop
     var html = todayItems.join('') + todayItems.join('');
     track.innerHTML = html;
-    // ticker disabled Ã¢â‚¬â€ sandbox mode, moved to profiles
+    // ticker disabled — sandbox mode, moved to profiles
     // ticker.style.display = 'flex';
 }
 // populateTicker();
@@ -5523,7 +5523,7 @@ function renderIntelItems(items) {
     var ticker = document.getElementById('intelTicker');
     var track = document.getElementById('intelTrack');
     if (!items.length) {
-        track.innerHTML = '<span class="intel-item" style="color:rgba(255,255,255,0.4);">LIVE INTEL Ã¢â‚¬â€ Beat reports, injury updates, and line movement coming soon</span>';
+        track.innerHTML = '<span class="intel-item" style="color:rgba(255,255,255,0.4);">LIVE INTEL — Beat reports, injury updates, and line movement coming soon</span>';
         ticker.style.display = 'flex';
         return;
     }
@@ -5555,7 +5555,7 @@ var teamAbbr = {
     "Atlanta United FC":"ATL","Austin FC":"AUS","Charlotte FC":"CLT","Chicago Fire FC":"CHI",
     "Colorado Rapids":"COL","Columbus Crew":"CLB","D.C. United":"DC","FC Cincinnati":"CIN",
     "FC Dallas":"DAL","Houston Dynamo FC":"HOU","Inter Miami CF":"MIA","LA Galaxy":"LAG",
-    "Los Angeles FC":"LAFC","Minnesota United FC":"MIN","CF MontrÃƒÂ©al":"MTL",
+    "Los Angeles FC":"LAFC","Minnesota United FC":"MIN","CF Montréal":"MTL",
     "Nashville SC":"NSH","New England Revolution":"NE","New York City FC":"NYC",
     "New York Red Bulls":"NYRB","Orlando City SC":"ORL","Philadelphia Union":"PHI",
     "Portland Timbers":"POR","Real Salt Lake":"RSL","San Jose Earthquakes":"SJ",
@@ -5746,7 +5746,7 @@ function buildGameRowHTML(g) {
     }
 
     // Default pick display = favorite's spread or ML
-    // Default: show matchup spread reference Ã¢â‚¬â€ NOT a pick recommendation (analysis sets the real pick)
+    // Default: show matchup spread reference — NOT a pick recommendation (analysis sets the real pick)
     var pickDisplay = hasSpread ? (awayAbbr + ' ' + awaySpreadStr + ' / ' + homeAbbr + ' ' + spreadStr) : awayAbbr + ' vs ' + homeAbbr + ' (ML)';
 
     return '<div class="game-row" data-game="' + matchup + '" data-game-id="' + (g.game_id || '') + '" data-away="' + g.away + '" data-home="' + g.home + '" data-sport="' + (g.sport||'') + '" data-book="' + bookSource + '" data-fetched="' + fetchedAt + '" data-complete="' + (isComplete ? 'true' : 'false') + '" data-time="' + (g.time || '') + '" style="' + todayStyle + '" onclick="toggleGameExpand(this,\'' + matchup.replace(/\s/g, '_').replace(/@/g, 'at') + '\',\'' + (g.sport||'').toLowerCase() + '\')">' +
@@ -5764,7 +5764,7 @@ function buildGameRowHTML(g) {
                     '<span class="data-status-icon ' + (isComplete ? 'ds-ok' : 'ds-warn') + '">' + (isComplete ? '\u2713' : '\u26A0') + '</span>' +
                 '</div>' +
             '</div>' +
-            /* Row 2: OUR PICK Ã¢â‚¬â€ prominent */
+            /* Row 2: OUR PICK — prominent */
             '<div class="card-r2 card-pick" id="pick-' + matchup.replace(/[^a-zA-Z0-9]/g,'') + '">' + pickDisplay + '</div>' +
             /* Row 3: badges + reference data */
             '<div class="card-r3">' +
@@ -5820,12 +5820,12 @@ function buildGameRowHTML(g) {
                 '</div>' +
                 (g.arbs && g.arbs.length ? '<div class="detail-box" style="border-color:rgba(16,185,129,0.3);"><h4 style="color:#10B981;">\uD83D\uDCB0 Arbitrage Opportunities</h4>' +
                     g.arbs.map(function(a) {
-                        return '<p style="font-size:12px;"><strong>' + a.type + '</strong> Ã¢â‚¬â€ ' + a.profit_pct + '% profit<br>' +
+                        return '<p style="font-size:12px;"><strong>' + a.type + '</strong> — ' + a.profit_pct + '% profit<br>' +
                             a.legs.map(function(l) { return '<span style="color:#818cf8;">' + l.side + '</span> (' + l.odds + ') @ <span style="color:#B0BEC5;">' + l.book.toUpperCase() + '</span>'; }).join(' vs ') +
                         '</p>';
                     }).join('') +
                 '</div>' : '') +
-                '<div class="detail-box trends"><h4>Notes</h4><p>' + (isComplete ? 'Lines complete. Ready for analysis.' : 'INCOMPLETE Ã¢â‚¬â€ missing data. Do not grade.') + '</p>' +
+                '<div class="detail-box trends"><h4>Notes</h4><p>' + (isComplete ? 'Lines complete. Ready for analysis.' : 'INCOMPLETE — missing data. Do not grade.') + '</p>' +
                     (rotowireUrls[g.sport] ? '<div style="margin-top:8px;display:flex;gap:6px;">' +
                         '<a href="' + rotowireUrls[g.sport].lineups + '" target="_blank" onclick="event.stopPropagation()" style="display:inline-block;padding:4px 10px;background:rgba(99,102,241,0.12);color:#818cf8;border-radius:4px;text-decoration:none;font-size:11px;font-weight:600;">Lineups</a>' +
                         '<a href="' + rotowireUrls[g.sport].injuries + '" target="_blank" onclick="event.stopPropagation()" style="display:inline-block;padding:4px 10px;background:rgba(239,68,68,0.15);color:#EF4444;border-radius:4px;text-decoration:none;font-size:11px;font-weight:600;">Injuries</a>' +
@@ -5837,10 +5837,10 @@ function buildGameRowHTML(g) {
             (function() {
                 var mid = matchup.replace(/\s/g, '_').replace(/@/g, 'at');
                 var sp = (g.sport || '').toLowerCase();
-                var spreadStr = g.spread ? (parseFloat(g.spread) > 0 ? g.away + ' +' + g.spread : g.home + ' ' + g.spread) : 'Ã¢â‚¬â€';
-                var totalStr = g.total || 'Ã¢â‚¬â€';
-                var awayMl = g.away_ml || 'Ã¢â‚¬â€';
-                var homeMl = g.home_ml || 'Ã¢â‚¬â€';
+                var spreadStr = g.spread ? (parseFloat(g.spread) > 0 ? g.away + ' +' + g.spread : g.home + ' ' + g.spread) : '—';
+                var totalStr = g.total || '—';
+                var awayMl = g.away_ml || '—';
+                var homeMl = g.home_ml || '—';
                 return '<div class="data-card-grid">' +
                     '<div class="matchup-card" id="matchup-card-' + mid + '" data-sport="' + sp + '">' +
                         '<div class="mc-header">' +
@@ -6043,7 +6043,7 @@ function buildMatchupCol(lineup, injuries, confirmed) {
         html += '<div class="mc-confirmed">' + (confirmed ? '\u2705 Confirmed' : '\u23F3 Projected') + '</div>';
     }
 
-    // Injuries Ã¢â€ â€™ MAY NOT PLAY
+    // Injuries → MAY NOT PLAY
     var injList = injuries || [];
     if (injList.length) {
         html += '<div class="mc-section-label" style="color:rgba(239,68,68,0.6);">May Not Play</div>';
@@ -6181,7 +6181,7 @@ function fetchLiveOdds(sport, onDone) {
         }).then(function(data) {
             // Fallback: if live odds empty, serve cached slate instead of blank screen
             if (!data.games || data.games.length === 0) {
-                console.log('[ODDS] ' + sport + ' live empty Ã¢â‚¬â€ falling back to cached slate');
+                console.log('[ODDS] ' + sport + ' live empty — falling back to cached slate');
                 return fetch('/api/slate/cached/' + sport).then(function(r) { return r.json(); });
             }
             return data;
@@ -6206,7 +6206,7 @@ function fetchLiveOdds(sport, onDone) {
             });
     }
     _oddsFetch.then(function(data) {
-            console.log('[ODDS] ' + sport + ' SUCCESS Ã¢â‚¬â€ games:', (data.games||[]).length);
+            console.log('[ODDS] ' + sport + ' SUCCESS — games:', (data.games||[]).length);
             panel.classList.remove('panel-loading');
             if (data.error) {
                 var errMsg = document.createElement('div');
@@ -6315,7 +6315,7 @@ function fetchLiveOdds(sport, onDone) {
             populatePickDropdown();
             populateUpsetDropdowns(sport);
 
-            // Update sweep time Ã¢â‚¬â€ don't overwrite ANALYZING state
+            // Update sweep time — don't overwrite ANALYZING state
             var sweepEl = document.getElementById('sweepTime');
             if (sweepEl && sweepEl.textContent.indexOf('ANALYZING') === -1) {
                 var completeCount = data.lines_complete || 0;
@@ -6323,12 +6323,12 @@ function fetchLiveOdds(sport, onDone) {
             }
 
             var startedCount = (data.games ? data.games.length : 0) - pregameGames.length;
-            // Toast removed Ã¢â‚¬â€ sweep status + overlay show progress instead
+            // Toast removed — sweep status + overlay show progress instead
 
             // Re-apply saved picks after DOM rebuild
             if (typeof restoreLockedPicks === 'function') restoreLockedPicks();
 
-            // Injuries deferred Ã¢â‚¬â€ loaded in batch AFTER all odds complete (don't clog pipe)
+            // Injuries deferred — loaded in batch AFTER all odds complete (don't clog pipe)
             if (typeof onDone === 'function') onDone(sport);
         })
         .catch(function(err) {
@@ -6598,12 +6598,12 @@ function refreshDashboard() {
         }
     }
 
-    // Fetch picks Ã¢â‚¬â€ crew picks (all) + user-specific stats
+    // Fetch picks — crew picks (all) + user-specific stats
     var today = new Date().toISOString().split('T')[0];
     fetch('/api/picks').then(function(r){return r.json();}).then(function(data) {
         var allPicks = data.picks || [];
 
-        // Crew Picks Ã¢â‚¬â€ show recent from ALL crew members
+        // Crew Picks — show recent from ALL crew members
         var cpEl = document.getElementById('dashCrewPicks');
         if (cpEl) {
             var recent = allPicks.slice(-10).reverse();
@@ -6622,7 +6622,7 @@ function refreshDashboard() {
             }
         }
 
-        // User-specific bankroll stats Ã¢â‚¬â€ compute from picks
+        // User-specific bankroll stats — compute from picks
         var userPicks = allPicks.filter(function(p) {
             var who = (p.who || p.submitted_by || '').toLowerCase();
             return who === currentUser.toLowerCase();
@@ -6632,7 +6632,7 @@ function refreshDashboard() {
         var todayW = gradedToday.filter(function(p) { return p.result === 'W'; }).length;
         var todayL = gradedToday.filter(function(p) { return p.result === 'L'; }).length;
 
-        // Streak Ã¢â‚¬â€ most recent consecutive W or L
+        // Streak — most recent consecutive W or L
         var graded = userPicks.filter(function(p) { return p.result === 'W' || p.result === 'L'; });
         graded.sort(function(a, b) { return (a.date || '').localeCompare(b.date || '') || (a.created_at || '').localeCompare(b.created_at || ''); });
         var streak = '--';
@@ -6646,12 +6646,12 @@ function refreshDashboard() {
             streak = count + lastResult;
         }
 
-        // ROI Ã¢â‚¬â€ total graded picks
+        // ROI — total graded picks
         var totalW = graded.filter(function(p) { return p.result === 'W'; }).length;
         var totalGraded = graded.length;
         var roi = totalGraded > 0 ? ((totalW / totalGraded) * 100).toFixed(1) : '0.0';
 
-        // Exposure Ã¢â‚¬â€ today's pending (ungraded) picks count * unit size
+        // Exposure — today's pending (ungraded) picks count * unit size
         var pendingToday = todayPicks.filter(function(p) { return !p.result; }).length;
 
         // Update bankroll display
@@ -6674,7 +6674,7 @@ function refreshDashboard() {
                     todayRec.textContent = currentUser + '\'s Today: ' + todayW + 'W-' + todayL + 'L';
                     todayRec.style.color = todayW > todayL ? '#10B981' : todayL > todayW ? '#EF4444' : 'var(--ec-text-tertiary)';
                 } else {
-                    todayRec.textContent = currentUser + ' Ã¢â‚¬â€ no graded picks today';
+                    todayRec.textContent = currentUser + ' — no graded picks today';
                 }
             }
         }).catch(function(){});
@@ -6875,7 +6875,7 @@ function renderCombinedTable(data) {
                 mProps = '<div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.06);">';
                 mProps += '<div style="font-size:10px;color:#10B981;font-weight:700;margin-bottom:4px;">PROPS</div>';
                 mAnalysis.player_props.forEach(function(p) {
-                    var txt = typeof p === 'string' ? p : '<strong>' + (p.player||'') + '</strong> ' + (p.prop||'') + (p.line ? ' (' + p.line + ')' : '') + (p.edge ? ' Ã¢â‚¬â€ <em>' + p.edge + '</em>' : '');
+                    var txt = typeof p === 'string' ? p : '<strong>' + (p.player||'') + '</strong> ' + (p.prop||'') + (p.line ? ' (' + p.line + ')' : '') + (p.edge ? ' — <em>' + p.edge + '</em>' : '');
                     var pg = typeof p === 'object' && p.grade ? ' <span class="grade g' + p.grade.toLowerCase().replace(/[^a-z]/g,'') + '" style="font-size:9px;padding:2px 5px;">' + p.grade + '</span>' : '';
                     mProps += '<div style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:2px;">' + txt + pg + '</div>';
                 });
@@ -6969,7 +6969,7 @@ function injectPicksIntoCards(sport, analysisData) {
         // ===== SET THE PICK from edge_pick (structured) first, peter_zone (text) as fallback =====
         if (pickEl) {
             var pickSet = false;
-            // Priority 1: edge_pick Ã¢â‚¬â€ the structured recommendation from GPT
+            // Priority 1: edge_pick — the structured recommendation from GPT
             if (game.edge_pick && game.edge_pick.team && game.edge_pick.team.toUpperCase() !== 'PASS') {
                 var ep = game.edge_pick;
                 var pickText = ep.team;
@@ -6978,7 +6978,7 @@ function injectPicksIntoCards(sport, analysisData) {
                 pickEl.textContent = pickText.toUpperCase();
                 pickSet = true;
             }
-            // Priority 2: peter_zone text parsing Ã¢â‚¬â€ broader regex patterns
+            // Priority 2: peter_zone text parsing — broader regex patterns
             if (!pickSet && game.peter_zone) {
                 var pz = game.peter_zone;
                 var sideMatch = pz.match(/(?:take|lean|play|like|grab|ride|recommend|back|bet)\s+(?:full unit on |half unit on |small on )?([A-Z][a-zA-Z.]+(?:\s+[A-Z][a-zA-Z.]+)?)\s+([+-]?\d+\.?\d*)/i) ||
@@ -7004,7 +7004,7 @@ function injectPicksIntoCards(sport, analysisData) {
 
         if (row) {
             row.classList.add('has-analysis');
-            // Update grade if analysis has one Ã¢â‚¬â€ show Matrix grade / Grok grade on card badge
+            // Update grade if analysis has one — show Matrix grade / Grok grade on card badge
             if (game.grade) {
                 var gradeContainer = row.querySelector('.game-grade');
                 if (gradeContainer) {
@@ -7250,9 +7250,9 @@ function loadNrfiBadges(sport) {
 }
 
 // ===== AGENT SELECTION SYSTEM =====
-// Agent is now picked at login Ã¢â‚¬â€ these are no-ops / fallbacks
+// Agent is now picked at login — these are no-ops / fallbacks
 function showAgentSelect() {
-    // No separate screen Ã¢â‚¬â€ agent picked at login. Auto-apply saved or default.
+    // No separate screen — agent picked at login. Auto-apply saved or default.
     var saved = sessionStorage.getItem('edgeCrewAgent') || 'sintonia';
     sessionStorage.setItem('edgeCrewAgent', saved);
     applyAgentFilter(saved);
@@ -7274,7 +7274,7 @@ function applyAgentFilter(who, forceRefresh) {
         var names = {sintonia: "Renzo", alyssa: "Alyssa"};
         label.textContent = (names[who] || who.toUpperCase()) + " \u25BC";
     }
-    // Fetch agent data Ã¢â‚¬â€ batched 3 at a time, skip off-season
+    // Fetch agent data — batched 3 at a time, skip off-season
     var month = new Date().getMonth() + 1;
     var _seasonMap = {nba:[10,11,12,1,2,3,4,5,6],wnba:[5,6,7,8,9,10],ncaab:[11,12,1,2,3,4],ncaaf:[8,9,10,11,12,1],nhl:[10,11,12,1,2,3,4,5,6],mlb:[3,4,5,6,7,8,9,10,11],tennis:[1,2,3,4,5,6,7,8,9,10,11],soccer:[1,2,3,4,5,6,7,8,9,10,11,12],mma:[1,2,3,4,5,6,7,8,9,10,11,12],boxing:[1,2,3,4,5,6,7,8,9,10,11,12]};
     var activeSports = ['nba','wnba','ncaab','ncaaf','nhl','mlb','tennis','soccer','mma','boxing'].filter(function(s) {
@@ -7310,12 +7310,12 @@ function backToAgents() {
 
 var _analysisPending = 0;
 function runAnalysis() {
-    // Re-entrancy guard Ã¢â‚¬â€ prevent double-clicks spawning parallel pipelines
+    // Re-entrancy guard — prevent double-clicks spawning parallel pipelines
     if (_analysisPending > 0) {
-        showToast('Analysis already running Ã¢â‚¬â€ please wait', 'warning');
+        showToast('Analysis already running — please wait', 'warning');
         return;
     }
-    // Detect active sport panel Ã¢â‚¬â€ only analyze that one sport
+    // Detect active sport panel — only analyze that one sport
     var activePanel = document.querySelector('.sport-panel.active');
     var currentSport = activePanel ? activePanel.id.replace('panel-', '') : '';
     var validSports = ['nba','wnba','ncaab','ncaaf','nhl','mlb','tennis','soccer','mma','boxing'];
@@ -7375,7 +7375,7 @@ function runAnalysis() {
             if (window._loadingExpInterval) clearInterval(window._loadingExpInterval);
             var gutContent = document.getElementById('peterGut' + sportLabel + 'Content');
             if (gutContent && gutContent.querySelector('.loading-experience')) {
-                gutContent.innerHTML = '<div class="analysis-error">Analysis timed out. Models are running heavy tonight Ã¢â‚¬â€ try again in a few minutes.</div>';
+                gutContent.innerHTML = '<div class="analysis-error">Analysis timed out. Models are running heavy tonight — try again in a few minutes.</div>';
             }
             if (typeof stopSnowfall === 'function') stopSnowfall();
         }
@@ -7467,19 +7467,19 @@ function fetchEdge(sport) {
                 html += '<div style="font-size:10px;color:rgba(255,255,255,0.3);">' + (g.book_count || 0) + ' books | Vig: ' + g.vig + '%</div>';
                 html += '</div>';
 
-                // Consensus lines Ã¢â‚¬â€ clickable
+                // Consensus lines — clickable
                 html += '<div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:4px;">';
                 html += '<span style="color:rgba(65,234,212,0.5);font-weight:600;">CONSENSUS</span> ';
                 if (g.home_spread != null) {
                     html += 'Spread: <span class="qp-link" onclick="event.stopPropagation();quickPick(\'' + _esc(sport) + '\',\'' + _esc(_matchup) + '\',\'' + _esc(g.home + ' ' + g.home_spread) + '\',\'Spread\')" style="cursor:pointer;border-bottom:1px dashed rgba(65,234,212,0.3);">' + g.home + ' ' + g.home_spread + '</span>';
                 } else {
-                    html += 'Spread: Ã¢â‚¬â€';
+                    html += 'Spread: —';
                 }
                 if (g.spread_range > 0) html += ' <span style="color:rgba(255,255,255,0.25);">(range ' + g.spread_range + ')</span>';
                 if (g.total != null) {
                     html += ' | O/U: <span class="qp-link" onclick="event.stopPropagation();quickPick(\'' + _esc(sport) + '\',\'' + _esc(_matchup) + '\',\'OVER ' + g.total + '\',\'Total\')" style="cursor:pointer;border-bottom:1px dashed rgba(65,234,212,0.3);">' + g.total + '</span>';
                 } else {
-                    html += ' | O/U: Ã¢â‚¬â€';
+                    html += ' | O/U: —';
                 }
                 if (g.total_range > 0) html += ' <span style="color:rgba(255,255,255,0.25);">(range ' + g.total_range + ')</span>';
                 html += ' | ML: <span class="qp-link" onclick="event.stopPropagation();quickPick(\'' + _esc(sport) + '\',\'' + _esc(_matchup) + '\',\'' + _esc(g.away) + ' ML (' + g.away_ml + ')\',\'ML\')" style="cursor:pointer;border-bottom:1px dashed rgba(65,234,212,0.3);">' + g.away + ' ' + g.away_ml + '</span>';
@@ -7500,7 +7500,7 @@ function fetchEdge(sport) {
                 html += '<span style="color:#EF4444;">Fav:</span> ' + g.favorite + ' (' + g.fav_prob + '%) ';
                 html += '<span style="color:#10B981;margin-left:12px;">Dog:</span> ' + g.underdog + ' (' + g.dog_prob + '%)';
                 if (g.best_dog_ml) {
-                    html += ' Ã¢â‚¬â€ best ' + g.best_dog_ml;
+                    html += ' — best ' + g.best_dog_ml;
                     if (g.best_dog_ml_book) html += ' <span style="color:rgba(255,255,255,0.2);">(' + g.best_dog_ml_book + ')</span>';
                 }
                 if (g.dog_edge > 0) html += ' <span style="color:#41EAD4;font-weight:700;">[' + g.dog_edge + '% edge]</span>';
@@ -7647,18 +7647,18 @@ function _startLoadingExperience(sport) {
         {icon:'', text:'Finalizing grades + picks...', pct:95, stage:'5 of 5'}
     ];
     var contentCards = [
-        // Ã¢â€â‚¬Ã¢â€â‚¬ TUTORIALS: Teach the product while they wait Ã¢â€â‚¬Ã¢â€â‚¬
-        {label:'TUTORIAL', text:'See the <b>EV button</b> on every card? Tap it to run our Expected Value engine Ã¢â‚¬â€ it finds where the book is wrong and tells you exactly how much edge you have.'},
+        // ── TUTORIALS: Teach the product while they wait ──
+        {label:'TUTORIAL', text:'See the <b>EV button</b> on every card? Tap it to run our Expected Value engine — it finds where the book is wrong and tells you exactly how much edge you have.'},
         {label:'HOW TO USE', text:'Hit the <b>microphone icon</b> to voice-search any matchup. Say "Lakers tonight" and it loads the full slate with grades, props, and line movement.'},
-        {label:'TUTORIAL', text:'Every game gets graded <b>A+ through D</b>. Only A- or higher becomes a pick. Tap any card to expand it Ã¢â‚¬â€ you\'ll see the full matrix breakdown with 15+ variables.'},
-        {label:'PRO TIP', text:'Tap <b>"THE PLAY"</b> on any card to see our conviction pick with sizing. It tells you the bet type, the line, and why we like it Ã¢â‚¬â€ not just a grade.'},
-        {label:'HOW TO USE', text:'The <b>Matrix Scores</b> inside each card show exactly what\'s driving the grade Ã¢â‚¬â€ star player status, rest advantage, sharp money, injuries. Hover any bar to see the weight.'},
+        {label:'TUTORIAL', text:'Every game gets graded <b>A+ through D</b>. Only A- or higher becomes a pick. Tap any card to expand it — you\'ll see the full matrix breakdown with 15+ variables.'},
+        {label:'PRO TIP', text:'Tap <b>"THE PLAY"</b> on any card to see our conviction pick with sizing. It tells you the bet type, the line, and why we like it — not just a grade.'},
+        {label:'HOW TO USE', text:'The <b>Matrix Scores</b> inside each card show exactly what\'s driving the grade — star player status, rest advantage, sharp money, injuries. Hover any bar to see the weight.'},
         {label:'TUTORIAL', text:'Player props appear on cards with a <b>"P" badge</b> next to the grade. Tap to see each prop with the player\'s L10 average vs the book\'s line. We only show props that pass the Mathurin Test.'},
         {label:'PRO TIP', text:'Use the <b>sport tabs</b> at the top to switch between NBA, NHL, MLB, Soccer, MMA, and more. Each sport has its own analysis matrix built for that game.'},
-        {label:'HOW TO USE', text:'The <b>Challenger Grade</b> (second badge on cards) is an independent second opinion from a different AI model. When both models agree on A- or higher Ã¢â‚¬â€ that\'s a strong signal.'},
+        {label:'HOW TO USE', text:'The <b>Challenger Grade</b> (second badge on cards) is an independent second opinion from a different AI model. When both models agree on A- or higher — that\'s a strong signal.'},
         {label:'TUTORIAL', text:'See <b>line movement arrows</b> on cards? That\'s the line shifting from open to current. Movement against the public = sharp money. That\'s where edges hide.'},
-        {label:'PRO TIP', text:'The <b>Gotcha Card</b> at the top of each sport shows injury alerts, trap games, and sharp signals across the full slate Ã¢â‚¬â€ read it before picking any games.'},
-        // Ã¢â€â‚¬Ã¢â€â‚¬ Keep a few edge insights mixed in Ã¢â€â‚¬Ã¢â€â‚¬
+        {label:'PRO TIP', text:'The <b>Gotcha Card</b> at the top of each sport shows injury alerts, trap games, and sharp signals across the full slate — read it before picking any games.'},
+        // ── Keep a few edge insights mixed in ──
         {label:'EDGE INSIGHT', text:'When the line moves <b>against</b> the public but the total stays flat, sharp money is on the other side.'},
         {label:'PARLAY WIN', text:'The crew hit a <b>$1,319 parlay</b> by stacking correlated props. Player performance + team totals = hidden edges.', highlight:'+$1,319'},
         {label:'DID YOU KNOW', text:'Rest advantage is worth <b>2-3 points ATS</b> in the NBA. Our matrix weights it at 8/10.'}
@@ -7713,8 +7713,8 @@ function _stopLoadingExperience() {
 }
 
 function _autoLoadCachedGrades(sports) {
-    // Silently fetch cached analysis for each sport Ã¢â‚¬â€ if grades exist, show them
-    // This NEVER triggers new AI calls Ã¢â‚¬â€ only reads what the server already has
+    // Silently fetch cached analysis for each sport — if grades exist, show them
+    // This NEVER triggers new AI calls — only reads what the server already has
     var loaded = 0;
     sports.forEach(function(sport) {
         fetch('/api/analysis/' + sport + '?cached_only=true')
@@ -7781,11 +7781,11 @@ function fetchAnalysis(sport) {
             var elapsedStr = Math.floor(elapsedSecs / 60) + ':' + (elapsedSecs % 60 < 10 ? '0' : '') + (elapsedSecs % 60);
             if (data.error) {
                 console.error('Analysis error:', data.error);
-                if (gutContent) gutContent.innerHTML = '<p style="color:rgba(239,68,68,0.6);font-style:italic;">Analysis unavailable Ã¢â‚¬â€ ' + data.error + '</p>';
+                if (gutContent) gutContent.innerHTML = '<p style="color:rgba(239,68,68,0.6);font-style:italic;">Analysis unavailable — ' + data.error + '</p>';
                 return;
             }
 
-            // No games available Ã¢â‚¬â€ show clear message, don't fake a completed analysis
+            // No games available — show clear message, don't fake a completed analysis
             if (data.no_odds || !data.games || data.games.length === 0) {
                 if (gutContent) gutContent.innerHTML = '<p style="color:#F59E0B;font-style:italic;">' + (data.gotcha || 'No lines available yet. Check back after 10 AM.') + '</p>';
                 return;
@@ -7796,7 +7796,7 @@ function fetchAnalysis(sport) {
             refreshDashboard();
             // Show challenger fallback info if applicable
             var challengerNote = '';
-            if (data.challenger_timeout) challengerNote = '<div class="analysis-complete-time" style="color:#F59E0B;">Challenger grade unavailable Ã¢â‚¬â€ showing primary analysis</div>';
+            if (data.challenger_timeout) challengerNote = '<div class="analysis-complete-time" style="color:#F59E0B;">Challenger grade unavailable — showing primary analysis</div>';
             var completeTimeHtml = '<div class="analysis-complete-time">Analysis completed in ' + elapsedStr + (challengerNote ? '' : '') + '</div>' + challengerNote;
 
             // Update Peter's Gut Picks dynamically
@@ -7875,7 +7875,7 @@ function fetchAnalysis(sport) {
                                 });
                                 ftagsEl.innerHTML = ftagHtml;
                             }
-                            // Matrix preview Ã¢â‚¬â€ top 3 scoring variables
+                            // Matrix preview — top 3 scoring variables
                             var mprevId = 'mprev-' + (row.getAttribute('data-game') || '').replace(/[^a-zA-Z0-9]/g,'');
                             var mprevEl = document.getElementById(mprevId);
                             if (mprevEl && game.matrix_scores) {
@@ -7924,7 +7924,7 @@ function fetchAnalysis(sport) {
                                     gradeContainer.appendChild(badge);
                                 }
                             }
-                            // Challenger grade badge Ã¢â‚¬â€ prominent side-by-side
+                            // Challenger grade badge — prominent side-by-side
                             if (game.challenger_grade && game.challenger_model) {
                                 var cSlotId = 'challenger-' + (row.getAttribute('data-game') || '').replace(/[^a-zA-Z0-9]/g,'');
                                 var cSlot = document.getElementById(cSlotId);
@@ -7936,7 +7936,7 @@ function fetchAnalysis(sport) {
                                         '<span class="challenger-grade grade ' + cClass + '" title="Challenger: ' + game.challenger_model + '">' + game.challenger_grade + '</span>';
                                 }
                             }
-                            // Chain alerts Ã¢â‚¬â€ render triggered chains on card
+                            // Chain alerts — render triggered chains on card
                             if (game.chains && game.chains.length) {
                                 var existingChains = row.querySelector('.chain-alerts');
                                 if (existingChains) existingChains.remove();
@@ -7988,7 +7988,7 @@ function fetchAnalysis(sport) {
                             if (detail) {
                                 var peterBox = detail.querySelector('.detail-box.peter');
                                 if (peterBox && game.peter_zone) peterBox.innerHTML = '<h4>The Play</h4><p>' + game.peter_zone + '</p>';
-                                // === KEY FACTORS Ã¢â‚¬â€ merged Trends + Flags + Injury Impact ===
+                                // === KEY FACTORS — merged Trends + Flags + Injury Impact ===
                                 var hasKeyFactors = (game.trends && game.trends.length) || (game.flags && game.flags.length) || game.injury_impact;
                                 if (hasKeyFactors) {
                                     // Remove old separate boxes if they exist
@@ -8050,7 +8050,7 @@ function fetchAnalysis(sport) {
                                             sbh += '<div style="text-align:center;"><span style="font-size:8px;color:rgba(255,255,255,0.4);display:block;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px dashed rgba(255,255,255,0.15);padding-bottom:1px;">' + game.challenger_model + '</span><span class="grade ' + gcC + '" style="font-size:16px;opacity:0.7;">' + game.challenger_grade + '</span></div>';
                                         }
                                         if (gradeSource === 'gpt_composite_fallback') {
-                                            sbh += '<div style="font-size:9px;color:#F59E0B;margin-left:auto;">No matrix data Ã¢â‚¬â€ grade from ' + thinkerName + ' composite</div>';
+                                            sbh += '<div style="font-size:9px;color:#F59E0B;margin-left:auto;">No matrix data — grade from ' + thinkerName + ' composite</div>';
                                         }
                                         sbh += '</div>';
                                         if (game.matrix_scores) {
@@ -8108,14 +8108,14 @@ function fetchAnalysis(sport) {
                                 var propsBox = detail.querySelector('.detail-box.props');
                                 if (propsBox && game.player_props && game.player_props.length) {
                                     var ch = '<h4>Player Props</h4><ul>'; game.player_props.forEach(function(p){
-                                        var txt = typeof p === 'string' ? p : '<strong>' + (p.player||'') + '</strong> ' + (p.prop||'') + (p.line ? ' ('+p.line+')' : '') + (p.edge ? ' Ã¢â‚¬â€ <em>'+p.edge+'</em>' : '');
+                                        var txt = typeof p === 'string' ? p : '<strong>' + (p.player||'') + '</strong> ' + (p.prop||'') + (p.line ? ' ('+p.line+')' : '') + (p.edge ? ' — <em>'+p.edge+'</em>' : '');
                                         var pg = typeof p === 'object' && p.grade ? ' <span class="grade g'+p.grade.toLowerCase().replace(/[^a-z]/g,'')+'" style="font-size:9px;padding:2px 5px;">'+p.grade+'</span>' : '';
                                         ch+='<li>'+txt+pg+'</li>';
                                     }); ch+='</ul>'; propsBox.innerHTML = ch;
                                 } else if (!propsBox && game.player_props && game.player_props.length) {
                                     var nc = document.createElement('div'); nc.className = 'detail-box props';
                                     var ch2 = '<h4>Player Props</h4><ul>'; game.player_props.forEach(function(p){
-                                        var txt2 = typeof p === 'string' ? p : '<strong>' + (p.player||'') + '</strong> ' + (p.prop||'') + (p.line ? ' ('+p.line+')' : '') + (p.edge ? ' Ã¢â‚¬â€ <em>'+p.edge+'</em>' : '');
+                                        var txt2 = typeof p === 'string' ? p : '<strong>' + (p.player||'') + '</strong> ' + (p.prop||'') + (p.line ? ' ('+p.line+')' : '') + (p.edge ? ' — <em>'+p.edge+'</em>' : '');
                                         ch2+='<li>'+txt2+'</li>';
                                     }); ch2+='</ul>'; nc.innerHTML = ch2; detail.appendChild(nc);
                                 }
@@ -8132,7 +8132,7 @@ function fetchAnalysis(sport) {
             _stopLoadingExperience();
             if (window._analysisTimerInterval) clearInterval(window._analysisTimerInterval);
             console.error('Analysis fetch error:', err);
-            if (gutContent) gutContent.innerHTML = '<div class="analysis-error">Analysis failed Ã¢â‚¬â€ ' + (err.message || 'network error') + '. Try again.</div>';
+            if (gutContent) gutContent.innerHTML = '<div class="analysis-error">Analysis failed — ' + (err.message || 'network error') + '. Try again.</div>';
             if (typeof window._analysisLoadCallback === 'function') window._analysisLoadCallback(sport);
         });
 }
@@ -8208,7 +8208,7 @@ function loadProps(sportFilter) {
 
     var filterKey = (sportFilter || _currentPropsSport || '').toUpperCase();
 
-    // Auto-fetch analysis if not cached Ã¢â‚¬â€ props come from analysis data
+    // Auto-fetch analysis if not cached — props come from analysis data
     var sportsToScan = filterKey ? [filterKey] : ['NBA','WNBA','NCAAB','NCAAF','NHL','MLB','TENNIS','SOCCER','MMA','BOXING'];
     sportsToScan.forEach(function(sport) {
         if (!_analysisCache[sport]) {
@@ -8281,7 +8281,7 @@ function loadProps(sportFilter) {
             totalProps++;
             var pGrade = prop.grade || entry.grade;
             var pGradeClass = 'g' + pGrade.toLowerCase().replace(/[^a-z]/g,'');
-            var propText = prop.player ? '<strong>' + prop.player + '</strong> Ã¢â‚¬â€ ' + prop.prop : prop.prop;
+            var propText = prop.player ? '<strong>' + prop.player + '</strong> — ' + prop.prop : prop.prop;
             if (prop.line) propText += ' <span style="color:#10B981;">(' + prop.line + ')</span>';
             var pid = 'sinprop_' + propIdx;
             var propSel = (prop.player ? prop.player + ' ' : '') + prop.prop;
@@ -8310,7 +8310,7 @@ function loadProps(sportFilter) {
     if (bottomTs) bottomTs.textContent = totalProps + ' AI props | ' + ts;
 }
 
-// ===== REAL PLAYER PROPS Ã¢â‚¬â€ The Odds API =====
+// ===== REAL PLAYER PROPS — The Odds API =====
 var _realPropsData = [];
 var _realPropsSport = '';
 var _realPropsStatFilter = 'all';
@@ -8354,7 +8354,7 @@ function filterProps() {
     var filtered = _realPropsData.filter(function(p) {
         var matchSearch = !q || p.player.toLowerCase().indexOf(q) !== -1 || p.matchup.toLowerCase().indexOf(q) !== -1;
         var matchStat = _realPropsStatFilter === 'all' || p.stat === _realPropsStatFilter;
-        // Hide SLIGHT EDGE, FAIR LINE, and BAD NUMBER Ã¢â‚¬â€ only show SHARP VALUE
+        // Hide SLIGHT EDGE, FAIR LINE, and BAD NUMBER — only show SHARP VALUE
         var matchVerdict = p.verdict === 'SHARP VALUE';
         return matchSearch && matchStat && matchVerdict;
     });
@@ -8387,7 +8387,7 @@ function filterAIProps() {
     if (!container) return;
     var cards = container.querySelectorAll('[data-stat-type]');
     if (cards.length === 0) {
-        // AI props don't have data-stat-type yet Ã¢â‚¬â€ filter by text content
+        // AI props don't have data-stat-type yet — filter by text content
         var allItems = container.querySelectorAll('[style*="border-bottom"]');
         allItems.forEach(function(item) {
             var text = (item.textContent || '').toLowerCase();
@@ -8463,7 +8463,7 @@ function renderRealProps(props) {
             }
             html += '<span style="font-size:8px;font-weight:800;padding:1px 4px;border-radius:3px;background:' + vc.bg + ';color:' + vc.color + ';border:1px solid ' + vc.border + ';white-space:nowrap;">' + prop.verdict + '</span>';
             html += '</div></div></div>';
-            html += '<div style="cursor:pointer;padding:4px 8px;background:rgba(65,234,212,0.15);border:1px solid rgba(65,234,212,0.3);border-radius:5px;color:#41EAD4;font-size:10px;font-weight:800;white-space:nowrap;flex-shrink:0;" onclick="event.stopPropagation();addPropToPicks(\'' + propSel.replace(/'/g,"\\'") + '\',\'' + oddsStr.replace(/'/g,"\\'") + '\',\'' + prop.matchup.replace(/'/g,"\\'") + '\',\'' + _realPropsSport.toUpperCase() + '\',\'Alyssa sharp prop Ã¢â‚¬â€ ' + (prop.verdict || '').replace(/'/g,"\\'") + '\')">LOCK</div>';
+            html += '<div style="cursor:pointer;padding:4px 8px;background:rgba(65,234,212,0.15);border:1px solid rgba(65,234,212,0.3);border-radius:5px;color:#41EAD4;font-size:10px;font-weight:800;white-space:nowrap;flex-shrink:0;" onclick="event.stopPropagation();addPropToPicks(\'' + propSel.replace(/'/g,"\\'") + '\',\'' + oddsStr.replace(/'/g,"\\'") + '\',\'' + prop.matchup.replace(/'/g,"\\'") + '\',\'' + _realPropsSport.toUpperCase() + '\',\'Alyssa sharp prop — ' + (prop.verdict || '').replace(/'/g,"\\'") + '\')">LOCK</div>';
             html += '</div>';
 
             // Detail (hidden)
@@ -8505,13 +8505,13 @@ function renderRealProps(props) {
     container.innerHTML = html;
 }
 
-// Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
-// GAP PROPS Ã¢â‚¬â€ Injury-Driven Edge (Phase 2)
+// ═══════════════════════════════════════════════════════════════
+// GAP PROPS — Injury-Driven Edge (Phase 2)
 // Fetches /api/props/gaps/{sport} and renders gap prop cards
-// Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+// ═══════════════════════════════════════════════════════════════
 
 // ============================================================
-// PROP BOARD Ã¢â‚¬â€ Crushed Lines Tracker
+// PROP BOARD — Crushed Lines Tracker
 // ============================================================
 
 function _escapeHtml(s) {
@@ -8696,7 +8696,7 @@ function relockProp(entryId, entryJson) {
     });
 }
 
-// ===== EDGE TAB Ã¢â‚¬â€ Mathurin Screener + Discrepancies + Gap Props =====
+// ===== EDGE TAB — Mathurin Screener + Discrepancies + Gap Props =====
 var _edgeScreenerData = null;
 var _edgeDiscrepancyData = null;
 var _edgeGapsData = null;
@@ -8784,7 +8784,7 @@ function renderEdgeScreener() {
 
         html += '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-left:3px solid ' + borderColor + ';border-radius:8px;padding:12px;margin-bottom:8px;cursor:pointer;" onclick="this.querySelector(\'.edge-l5\').style.display=this.querySelector(\'.edge-l5\').style.display===\'none\'?\'block\':\'none\'">' +
             '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">' +
-                '<div><span style="font-weight:700;font-size:14px;">' + _escEdge(p.player) + '</span> <span style="color:rgba(255,255,255,0.4);font-size:12px;">' + _escEdge(p.stat) + '</span><div style="font-size:11px;color:rgba(255,255,255,0.3);">' + _escEdge(p.matchup) + ' Ã‚Â· ' + _escEdge(p.team) + '</div></div>' +
+                '<div><span style="font-weight:700;font-size:14px;">' + _escEdge(p.player) + '</span> <span style="color:rgba(255,255,255,0.4);font-size:12px;">' + _escEdge(p.stat) + '</span><div style="font-size:11px;color:rgba(255,255,255,0.3);">' + _escEdge(p.matchup) + ' · ' + _escEdge(p.team) + '</div></div>' +
                 '<span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;background:' + verdictBg + ';color:' + verdictColor + ';">' + _escEdge(p.verdict) + '</span>' +
             '</div>' +
             '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(80px,1fr));gap:6px;font-size:12px;">' +
@@ -8800,7 +8800,7 @@ function renderEdgeScreener() {
             '<div class="edge-l5" style="display:none;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06);">' +
                 '<div style="font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:4px;">L5 Game Log (tap to expand)</div>' +
                 '<div style="display:flex;gap:6px;flex-wrap:wrap;">' + l5Html + '</div>' +
-                '<div style="margin-top:6px;font-size:11px;color:rgba(255,255,255,0.3);">Ceiling: ' + p.l5_ceiling + ' Ã‚Â· L10 Avg: ' + p.l10_avg + ' Ã‚Â· Edge: ' + p.edge + '%</div>' +
+                '<div style="margin-top:6px;font-size:11px;color:rgba(255,255,255,0.3);">Ceiling: ' + p.l5_ceiling + ' · L10 Avg: ' + p.l10_avg + ' · Edge: ' + p.edge + '%</div>' +
             '</div>' +
         '</div>';
     });
@@ -8864,14 +8864,14 @@ function renderEdgeGapProps() {
         var scores = g.scores || {};
         html += '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-left:3px solid #22c55e;border-radius:8px;padding:12px;margin-bottom:8px;">' +
             '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">' +
-                '<div><span style="font-weight:700;font-size:14px;">' + _escEdge(g.player) + '</span> <span style="color:rgba(255,255,255,0.4);font-size:12px;">' + _escEdge(g.prop_type || g.stat || '') + ' O' + (g.prop_line || g.line || 0) + '</span><div style="font-size:11px;color:rgba(255,255,255,0.3);">' + _escEdge(g.matchup) + ' Ã‚Â· ' + _escEdge(g.team) + '</div></div>' +
+                '<div><span style="font-weight:700;font-size:14px;">' + _escEdge(g.player) + '</span> <span style="color:rgba(255,255,255,0.4);font-size:12px;">' + _escEdge(g.prop_type || g.stat || '') + ' O' + (g.prop_line || g.line || 0) + '</span><div style="font-size:11px;color:rgba(255,255,255,0.3);">' + _escEdge(g.matchup) + ' · ' + _escEdge(g.team) + '</div></div>' +
                 '<span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;background:rgba(34,197,94,0.15);color:' + gradeColor + ';">Grade ' + grade + '</span>' +
             '</div>' +
             '<div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.15);border-radius:6px;padding:6px 10px;margin-bottom:8px;font-size:12px;">' +
                 '<span style="color:#ef4444;font-weight:600;">' + _escEdge(gapReason.player_out || g.injured_player || '') + '</span>' +
                 '<span style="color:rgba(255,255,255,0.4);"> is </span>' +
                 '<span style="color:#ef4444;font-weight:600;">' + _escEdge(gapReason.out_status || g.injured_status || 'OUT') + '</span>' +
-                '<span style="color:rgba(255,255,255,0.4);"> (' + (gapReason.ppg_lost || g.injured_ppg || 0) + ' PPG) Ã¢â‚¬â€ ' + _escEdge(g.player) + ' absorbs</span>' +
+                '<span style="color:rgba(255,255,255,0.4);"> (' + (gapReason.ppg_lost || g.injured_ppg || 0) + ' PPG) — ' + _escEdge(g.player) + ' absorbs</span>' +
             '</div>' +
             '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(80px,1fr));gap:6px;font-size:12px;">' +
                 '<div><div style="color:rgba(255,255,255,0.4);font-size:10px;">Line</div><div style="font-weight:600;">' + (g.prop_line || g.line || 0) + '</div></div>' +
@@ -8953,7 +8953,7 @@ function loadGapProps(sport) {
                 }
                 html += '<span style="font-size:8px;font-weight:800;padding:1px 4px;border-radius:3px;background:rgba(168,85,247,0.15);color:' + gc + ';border:1px solid rgba(168,85,247,0.3);white-space:nowrap;">' + gap.grade + '</span>';
                 html += '</div></div></div>';
-                html += '<div style="cursor:pointer;padding:4px 8px;background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3);border-radius:5px;color:#A855F7;font-size:10px;font-weight:800;white-space:nowrap;flex-shrink:0;" onclick="event.stopPropagation();addPropToPicks(\'' + propSel.replace(/'/g,"\\'") + '\',\'' + oddsStr.replace(/'/g,"\\'") + '\',\'' + (gap.matchup || '').replace(/'/g,"\\'") + '\',\'' + sportKey.toUpperCase() + '\',\'Gap prop Ã¢â‚¬â€ ' + (gapReason.player_out || '') + ' OUT\')">LOCK</div>';
+                html += '<div style="cursor:pointer;padding:4px 8px;background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3);border-radius:5px;color:#A855F7;font-size:10px;font-weight:800;white-space:nowrap;flex-shrink:0;" onclick="event.stopPropagation();addPropToPicks(\'' + propSel.replace(/'/g,"\\'") + '\',\'' + oddsStr.replace(/'/g,"\\'") + '\',\'' + (gap.matchup || '').replace(/'/g,"\\'") + '\',\'' + sportKey.toUpperCase() + '\',\'Gap prop — ' + (gapReason.player_out || '') + ' OUT\')">LOCK</div>';
                 html += '</div>';
 
                 // Gap reason line (always visible)
@@ -9243,7 +9243,7 @@ function lockCustomPropCard() {
     document.getElementById('customPropMatchup').value = '';
 }
 
-// ===== UPSET SPECIALS Ã¢â‚¬â€ CREW PICKS =====
+// ===== UPSET SPECIALS — CREW PICKS =====
 var UPSET_SPORTS = ['NBA', 'WNBA', 'NCAAB', 'NCAAF', 'NHL', 'MLB', 'TENNIS', 'SOCCER', 'MMA', 'BOXING'];
 var NAME_COLORS = {peter: 'peter', jimmy: 'jimmy', alyssa: 'alyssa', 'sinton.ia': 'sintonia'};
 
@@ -9256,7 +9256,7 @@ function submitUpset(sport) {
     var odds = document.getElementById('upsetOdds' + sport);
     var thesis = document.getElementById('upsetThesis' + sport);
     if (!teamEl || !odds) return;
-    // Strip trailing odds from dropdown value, e.g. "HOU -14.5 (-110)" Ã¢â€ â€™ "HOU -14.5"
+    // Strip trailing odds from dropdown value, e.g. "HOU -14.5 (-110)" → "HOU -14.5"
     var teamVal = teamEl.value.trim().replace(/\s*\([+-]?\d+\)\s*$/, '');
     if (!teamVal) { showToast('Pick a side first', 'error'); return; }
     var name = crewProfile ? crewProfile.display_name : getUpsetName();
@@ -9273,7 +9273,7 @@ function submitUpset(sport) {
         } else {
             showToast(data.error || 'Failed to submit', 'error');
         }
-    }).catch(function() { showToast('Server error Ã¢â‚¬â€ try again', 'error'); });
+    }).catch(function() { showToast('Server error — try again', 'error'); });
 }
 
 function populateUpsetDropdowns(sport) {
@@ -9293,7 +9293,7 @@ function populateUpsetDropdowns(sport) {
         // Add game header as disabled option
         var hdr = document.createElement('option');
         hdr.disabled = true;
-        hdr.textContent = 'Ã¢â€â‚¬Ã¢â€â‚¬ ' + matchup + ' Ã¢â€â‚¬Ã¢â€â‚¬';
+        hdr.textContent = '── ' + matchup + ' ──';
         hdr.style.color = '#818cf8';
         select.appendChild(hdr);
         // Only show ML underdogs (+ moneyline = upset specials)
@@ -9314,7 +9314,7 @@ function populateUpsetDropdowns(sport) {
         if (!val) return;
         var oddsField = document.getElementById('upsetOdds' + sportUpper);
         if (!oddsField) return;
-        // Extract odds from parens, e.g. "HOU -14.5 (-110)" Ã¢â€ â€™ "-110"
+        // Extract odds from parens, e.g. "HOU -14.5 (-110)" → "-110"
         var m = val.match(/\(([+-]?\d+)\)\s*$/);
         if (m) oddsField.value = m[1];
     };
@@ -9447,7 +9447,7 @@ function restoreLockedPicks() {
 restoreLockedPicks();
 
 // ===== POST-LOGIN DATA LOAD =====
-// Does NOT fire on page load Ã¢â‚¬â€ waits for login to complete
+// Does NOT fire on page load — waits for login to complete
 var _slateLoaded = false;
 function postLoginLoad() {
     // Immediately render any local picks so they show without waiting
@@ -9456,7 +9456,7 @@ function postLoginLoad() {
     crewFetch('/api/picks').then(function(r) { return r.json(); }).then(function(data) {
         try {
             if (data.picks && data.picks.length) {
-                // Server is authoritative Ã¢â‚¬â€ replace localStorage with server data
+                // Server is authoritative — replace localStorage with server data
                 safeSave('edgePicks', JSON.stringify(data.picks));
                 renderPicks();
                 renderBankroll();
@@ -9470,7 +9470,7 @@ function postLoginLoad() {
     });
     // Safety: if pick sync takes >5s, load slate anyway
     setTimeout(function() {
-        if (!_slateLoaded) { _slateLoaded = true; console.log('Safety timeout Ã¢â‚¬â€ loading slate'); refreshSlate(); }
+        if (!_slateLoaded) { _slateLoaded = true; console.log('Safety timeout — loading slate'); refreshSlate(); }
     }, 5000);
 }
 
@@ -9481,71 +9481,71 @@ var _statusBoard = {
             title: "NEED FROM PETER",
             color: "#D4A017",
             items: [
-                {id:"p1", text:"Set ANTHROPIC_API_KEY on Render Ã¢â‚¬â€ Claude challenger can't run without it", done:false, priority:"PETER", cost:"$0", time:"2 min",
-                 steps:["Go to Render dashboard Ã¢â€ â€™ edge-crew-v2 Ã¢â€ â€™ Environment","Add ANTHROPIC_API_KEY with your Anthropic key","Also add CHALLENGER_MODEL=claude-sonnet-4-6 if you want to force Claude","Save Ã¢â€ â€™ service auto-redeploys"]},
-                {id:"p2", text:"Install Render CLI on one machine Ã¢â‚¬â€ I need deploy logs to debug", done:false, priority:"PETER", cost:"$0", time:"5 min",
+                {id:"p1", text:"Set ANTHROPIC_API_KEY on Render — Claude challenger can't run without it", done:false, priority:"PETER", cost:"$0", time:"2 min",
+                 steps:["Go to Render dashboard → edge-crew-v2 → Environment","Add ANTHROPIC_API_KEY with your Anthropic key","Also add CHALLENGER_MODEL=claude-sonnet-4-6 if you want to force Claude","Save → service auto-redeploys"]},
+                {id:"p2", text:"Install Render CLI on one machine — I need deploy logs to debug", done:false, priority:"PETER", cost:"$0", time:"5 min",
                  steps:["Terminal: npm install -g @render-cli/cli","Then: render login (browser auth)","Then: render logs --service edge-crew-v2 --tail","This lets me read error logs instead of pushing blind debug commits"]},
-                {id:"p3", text:"Review board priorities Ã¢â‚¬â€ are P1-P4 still right?", done:false, priority:"PETER", cost:"$0", time:"10 min",
-                 steps:["Scroll down to P1/P2/P3/P4 sections below","Check/uncheck what matters now vs what can wait","Tell me if priorities shifted Ã¢â‚¬â€ I'll reorder"]},
-                {id:"p4", text:"Admin sandbox model comparison Ã¢â‚¬â€ do you still want this?", done:false, priority:"PETER", cost:"$0", time:"I have frontend + backend ready",
+                {id:"p3", text:"Review board priorities — are P1-P4 still right?", done:false, priority:"PETER", cost:"$0", time:"10 min",
+                 steps:["Scroll down to P1/P2/P3/P4 sections below","Check/uncheck what matters now vs what can wait","Tell me if priorities shifted — I'll reorder"]},
+                {id:"p4", text:"Admin sandbox model comparison — do you still want this?", done:false, priority:"PETER", cost:"$0", time:"I have frontend + backend ready",
                  steps:["We discussed an admin page running all 7 models side-by-side","Frontend and backend code are built, not deployed yet","Say the word and I'll wire it into the sandbox (edge-crew-alyssa)","Won't touch production Edge Crew"]},
             ]
         },
         {
-            title: "P1 Ã¢â‚¬â€ ALYSSA DOING THIS WEEK",
+            title: "P1 — ALYSSA DOING THIS WEEK",
             color: "#EF4444",
             items: [
-                {id:"a1", text:"Model comparison sandbox Ã¢â‚¬â€ test all 7 models safely", done:false, priority:"P1", cost:"$0", time:"2-3 hrs",
+                {id:"a1", text:"Model comparison sandbox — test all 7 models safely", done:false, priority:"P1", cost:"$0", time:"2-3 hrs",
                  steps:["Deploy to edge-crew-alyssa (sandbox), NOT production","Run same prompt across GPT-4.1, Grok 4.1, DeepSeek, Llama, Mistral, Claude, Grok 4","Show grades side-by-side per game","Daily auto-run so we can track which models actually work"]},
-                {id:"n4", text:"Props reasoning QA Ã¢â‚¬â€ test live + fix prompt", done:false, priority:"P1", cost:"$0", time:"1-2 hrs",
-                 steps:["Open Props tab during a live NBA/NHL night","Check SHARP VALUE props Ã¢â‚¬â€ does reasoning cite real last-10 stats?","Verify no fabricated numbers, no wrong teams","If reasoning is weak, tweak the GPT prompt template","Goal: every reason cites a real number from ESPN data"]},
-                {id:"n1", text:"Live Intel Feed Ã¢â‚¬â€ breaking news ticker", done:false, priority:"P1", cost:"$0", time:"3-4 hrs",
+                {id:"n4", text:"Props reasoning QA — test live + fix prompt", done:false, priority:"P1", cost:"$0", time:"1-2 hrs",
+                 steps:["Open Props tab during a live NBA/NHL night","Check SHARP VALUE props — does reasoning cite real last-10 stats?","Verify no fabricated numbers, no wrong teams","If reasoning is weak, tweak the GPT prompt template","Goal: every reason cites a real number from ESPN data"]},
+                {id:"n1", text:"Live Intel Feed — breaking news ticker", done:false, priority:"P1", cost:"$0", time:"3-4 hrs",
                  steps:["Wire RotoWire RSS per sport (free, no auth) for injury breaks, scratches, lineup changes","Parse ESPN longComment field for beat reporter context","Scrolling horizontal ticker under the header bar","Auto-refresh every 30 min on game days, show timestamps"]},
-                {id:"n3", text:"Line Movement Alerts Ã¢â‚¬â€ sharp money detector", done:false, priority:"P1", cost:"$0", time:"2-3 hrs",
-                 steps:["Odds API already tracks opening vs current lines Ã¢â‚¬â€ no new API cost","Compare open spread vs current spread for each game","Flag any move > 1 point Ã¢â‚¬â€ that's sharp money or news","Show movement arrows on game cards (red/green)"]},
-                {id:"a2", text:"Loading tutorial cards Ã¢â‚¬â€ verify live + iterate", done:true, priority:"P1", cost:"$0", time:"Done",
-                 steps:["Shipped 80164c2 + 4b7161e Ã¢â‚¬â€ phase ticker + tutorial cards","Teaches EV agent, mic, matrix, props while analysis loads","Peter approved the approach Ã¢â‚¬â€ verify it works on phone"]},
+                {id:"n3", text:"Line Movement Alerts — sharp money detector", done:false, priority:"P1", cost:"$0", time:"2-3 hrs",
+                 steps:["Odds API already tracks opening vs current lines — no new API cost","Compare open spread vs current spread for each game","Flag any move > 1 point — that's sharp money or news","Show movement arrows on game cards (red/green)"]},
+                {id:"a2", text:"Loading tutorial cards — verify live + iterate", done:true, priority:"P1", cost:"$0", time:"Done",
+                 steps:["Shipped 80164c2 + 4b7161e — phase ticker + tutorial cards","Teaches EV agent, mic, matrix, props while analysis loads","Peter approved the approach — verify it works on phone"]},
             ]
         },
         {
-            title: "P2 Ã¢â‚¬â€ THIS MONTH",
+            title: "P2 — THIS MONTH",
             color: "#F59E0B",
             items: [
-                {id:"n2", text:"Bet Report Ticker Ã¢â‚¬â€ scrolling results crawl", done:false, priority:"P2", cost:"$0", time:"2-3 hrs",
-                 steps:["Pull from graded picks data: 'Tatum O30.5 PTS Ã¢â‚¬â€ W +1.0u'","Show daily ROI: 'Today: +2.3u | Season: +41.7%'","Hot streak alerts: 'W4 Hot Streak'","Smooth CSS marquee animation, works on desktop + mobile"]},
-                {id:"s5", text:"Auto-picks Ã¢â‚¬â€ Alyssa's AI swim lane", done:false, priority:"P2", cost:"$0", time:"3-4 hrs",
-                 steps:["Pull analysis grades, filter A- or higher automatically","Generate picks with reasoning from the analysis data","Post as 'Alyssa' swim lane Ã¢â‚¬â€ auto-grade when games finish","Track AI ROI separately Ã¢â‚¬â€ prove the model works"]},
-                {id:"n6", text:"Crew Invite System Ã¢â‚¬â€ shareable join link", done:false, priority:"P2", cost:"$0", time:"3-4 hrs",
+                {id:"n2", text:"Bet Report Ticker — scrolling results crawl", done:false, priority:"P2", cost:"$0", time:"2-3 hrs",
+                 steps:["Pull from graded picks data: 'Tatum O30.5 PTS — W +1.0u'","Show daily ROI: 'Today: +2.3u | Season: +41.7%'","Hot streak alerts: 'W4 Hot Streak'","Smooth CSS marquee animation, works on desktop + mobile"]},
+                {id:"s5", text:"Auto-picks — Alyssa's AI swim lane", done:false, priority:"P2", cost:"$0", time:"3-4 hrs",
+                 steps:["Pull analysis grades, filter A- or higher automatically","Generate picks with reasoning from the analysis data","Post as 'Alyssa' swim lane — auto-grade when games finish","Track AI ROI separately — prove the model works"]},
+                {id:"n6", text:"Crew Invite System — shareable join link", done:false, priority:"P2", cost:"$0", time:"3-4 hrs",
                  steps:["Generate invite codes or shareable URLs","New members join with a PIN + display name","Crew leaderboard, everyone's picks, crew ROI"]},
-                {id:"s3", text:"Prop parlay builder Ã¢â‚¬â€ correlation warnings", done:false, priority:"P2", cost:"$0", time:"2-3 hrs",
+                {id:"s3", text:"Prop parlay builder — correlation warnings", done:false, priority:"P2", cost:"$0", time:"2-3 hrs",
                  steps:["Add correlation warnings: 'Points + Rebounds same player = correlated'","Show combined implied probability across legs","Suggest uncorrelated 2-3 leg parlays from the sharp list"]},
-                {id:"a3", text:"Make this board dynamic Ã¢â‚¬â€ API-backed so Peter can edit from phone", done:false, priority:"P2", cost:"$0", time:"2-3 hrs",
-                 steps:["Currently hardcoded in JS Ã¢â‚¬â€ any change requires a code push","Move to /data/status_board.json on persistent disk","Add /api/board GET/POST endpoints","Peter can add/edit/reorder items from the site"]},
+                {id:"a3", text:"Make this board dynamic — API-backed so Peter can edit from phone", done:false, priority:"P2", cost:"$0", time:"2-3 hrs",
+                 steps:["Currently hardcoded in JS — any change requires a code push","Move to /data/status_board.json on persistent disk","Add /api/board GET/POST endpoints","Peter can add/edit/reorder items from the site"]},
             ]
         },
         {
-            title: "P3 Ã¢â‚¬â€ NEXT QUARTER",
+            title: "P3 — NEXT QUARTER",
             color: "#818cf8",
             items: [
-                {id:"s4", text:"EV Agent voice Ã¢â‚¬â€ feed it real data", done:false, priority:"P3", cost:"$0 (Azure Realtime already configured)", time:"4-6 hrs",
+                {id:"s4", text:"EV Agent voice — feed it real data", done:false, priority:"P3", cost:"$0 (Azure Realtime already configured)", time:"4-6 hrs",
                  steps:["Voice agent exists but knowledge is generic","Inject tonight's analysis, injuries, and sharp plays into voice prompt","'What's the best bet tonight?' answered with real data"]},
                 {id:"e1", text:"Weather data for outdoor sports", done:false, priority:"P3", cost:"$0 (OpenWeatherMap free)", time:"2-3 hrs",
-                 steps:["MLB, NFL, Soccer all play outdoors Ã¢â‚¬â€ wind, rain, temp matter","Free weather API for game-day forecasts by venue","Inject into analysis: 'Wind 25mph at Wrigley = under play'"]},
-                {id:"e2", text:"College sports depth Ã¢â‚¬â€ better NCAAB/NCAAF", done:false, priority:"P3", cost:"$0", time:"4-6 hrs",
+                 steps:["MLB, NFL, Soccer all play outdoors — wind, rain, temp matter","Free weather API for game-day forecasts by venue","Inject into analysis: 'Wind 25mph at Wrigley = under play'"]},
+                {id:"e2", text:"College sports depth — better NCAAB/NCAAF", done:false, priority:"P3", cost:"$0", time:"4-6 hrs",
                  steps:["ESPN has basic rosters but sparse game logs for mid-majors","Focus on top 25 + power conference matchups","Use KenPom-style efficiency metrics in analysis"]},
-                {id:"b1", text:"Mobile PWA Ã¢â‚¬â€ install to home screen", done:false, priority:"P3", cost:"$0", time:"3-4 hrs",
-                 steps:["Already 90% there Ã¢â‚¬â€ add manifest.json + service worker","Push notifications for graded picks, hot streaks","'Add to Home Screen' banner on first mobile visit"]},
+                {id:"b1", text:"Mobile PWA — install to home screen", done:false, priority:"P3", cost:"$0", time:"3-4 hrs",
+                 steps:["Already 90% there — add manifest.json + service worker","Push notifications for graded picks, hot streaks","'Add to Home Screen' banner on first mobile visit"]},
             ]
         },
         {
-            title: "P4 Ã¢â‚¬â€ WHEN READY TO SCALE",
+            title: "P4 — WHEN READY TO SCALE",
             color: "#38D4C4",
             items: [
-                {id:"b2", text:"Monetization Ã¢â‚¬â€ premium tier", done:false, priority:"P4", cost:"Stripe fees (2.9%)", time:"1-2 weeks",
-                 steps:["Free: game cards + basic grades","Premium ($9.99/mo): props reasoning, sharp alerts, line moves, AI picks","Stripe Checkout integration","Crew members always free Ã¢â‚¬â€ premium is for outside users"]},
-                {id:"b3", text:"Multi-book integration Ã¢â‚¬â€ connect sportsbooks", done:false, priority:"P4", cost:"$0", time:"2-3 weeks",
-                 steps:["DraftKings, FanDuel, BetMGM have partner APIs","Auto-track placed bets vs our picks Ã¢â‚¬â€ real P&L","One-click bet placement from the app"]},
-                {id:"b4", text:"Social features Ã¢â‚¬â€ share picks, follow bettors", done:false, priority:"P4", cost:"~$25/mo for DB scaling", time:"2-3 weeks",
+                {id:"b2", text:"Monetization — premium tier", done:false, priority:"P4", cost:"Stripe fees (2.9%)", time:"1-2 weeks",
+                 steps:["Free: game cards + basic grades","Premium ($9.99/mo): props reasoning, sharp alerts, line moves, AI picks","Stripe Checkout integration","Crew members always free — premium is for outside users"]},
+                {id:"b3", text:"Multi-book integration — connect sportsbooks", done:false, priority:"P4", cost:"$0", time:"2-3 weeks",
+                 steps:["DraftKings, FanDuel, BetMGM have partner APIs","Auto-track placed bets vs our picks — real P&L","One-click bet placement from the app"]},
+                {id:"b4", text:"Social features — share picks, follow bettors", done:false, priority:"P4", cost:"~$25/mo for DB scaling", time:"2-3 weeks",
                  steps:["Public pick cards with shareable links/images","Follow other users' picks and track their ROI","Global leaderboard across all users"]},
             ]
         }
@@ -9673,13 +9673,13 @@ async function clearAllCache() {
 <div class="mobile-quick-bar">
     <div class="mobile-quick-bar-inner">
         <button class="mqb-btn" ontouchend="event.preventDefault();openSportPicker()" onclick="openSportPicker()">
-            <span class="mqb-icon">Ã°Å¸ÂË†</span>Games
+            <span class="mqb-icon">🏈</span>Games
         </button>
         <button class="mqb-btn" ontouchend="event.preventDefault();switchSport('props')" onclick="switchSport('props',event)">
-            <span class="mqb-icon">Ã°Å¸â€œÅ </span>Props
+            <span class="mqb-icon">📊</span>Props
         </button>
         <button class="mqb-btn" ontouchend="event.preventDefault();switchSport('scores')" onclick="switchSport('scores',event)">
-            <span class="mqb-icon">Ã°Å¸â€œË†</span>Scores
+            <span class="mqb-icon">📈</span>Scores
         </button>
         <button class="mqb-btn mqb-ai-hero" onclick="toggleAgentChat()" style="
             background:linear-gradient(135deg,var(--ec-accent),#F72585);
@@ -9688,20 +9688,20 @@ async function clearAllCache() {
             min-width:60px;
             position:relative;z-index:2;
         ">
-            <span class="mqb-icon" style="font-size:1.4rem;">Ã°Å¸Â¤â€“</span>
+            <span class="mqb-icon" style="font-size:1.4rem;">🤖</span>
             <span style="font-size:0.55rem;font-weight:800;letter-spacing:0.3px;">EV AGENT</span>
         </button>
         <button class="mqb-btn" ontouchend="event.preventDefault();switchSport('submit',event)" onclick="switchSport('submit',event)">
-            <span class="mqb-icon">Ã°Å¸Å½Â¯</span>Picks
+            <span class="mqb-icon">🎯</span>Picks
         </button>
         <button class="mqb-btn mqb-results" ontouchend="event.preventDefault();switchSport('results',event)" onclick="switchSport('results',event)">
-            <span class="mqb-icon">Ã°Å¸â€œâ€¹</span>Results
+            <span class="mqb-icon">📋</span>Results
         </button>
         <button class="mqb-btn" ontouchend="event.preventDefault();switchSport('bankroll',event)" onclick="switchSport('bankroll',event)">
-            <span class="mqb-icon">Ã°Å¸â€™Â°</span>Bank
+            <span class="mqb-icon">💰</span>Bank
         </button>
         <button class="mqb-btn" ontouchend="event.preventDefault();goToMyProfile()" onclick="goToMyProfile()" style="color:#F72585;">
-            <span class="mqb-icon">Ã¢Å¡Â¡</span>My Profile
+            <span class="mqb-icon">âš¡</span>My Profile
         </button>
     </div>
 </div>
@@ -9716,64 +9716,64 @@ async function clearAllCache() {
         </div>
         <div class="sport-picker-grid" style="grid-template-columns:repeat(4,1fr);max-width:400px;">
             <button class="sport-pick-btn" onclick="pickSport('nba')">
-                <span class="sp-icon">Ã°Å¸Ââ‚¬</span>NBA
+                <span class="sp-icon">🏀</span>NBA
                 <span class="sp-count" id="sp-count-nba"></span>
             </button>
             <button class="sport-pick-btn" onclick="pickSport('wnba')">
-                <span class="sp-icon">Ã°Å¸Ââ‚¬</span>WNBA
+                <span class="sp-icon">🏀</span>WNBA
                 <span class="sp-count" id="sp-count-wnba"></span>
             </button>
             <button class="sport-pick-btn" onclick="pickSport('ncaab')">
-                <span class="sp-icon">Ã°Å¸Å½â€œ</span>NCAAB
+                <span class="sp-icon">🎓</span>NCAAB
                 <span class="sp-count" id="sp-count-ncaab"></span>
             </button>
             <button class="sport-pick-btn" onclick="pickSport('ncaaf')">
-                <span class="sp-icon">Ã°Å¸ÂË†</span>NCAAF
+                <span class="sp-icon">🏈</span>NCAAF
                 <span class="sp-count" id="sp-count-ncaaf"></span>
             </button>
             <button class="sport-pick-btn" onclick="pickSport('nhl')">
-                <span class="sp-icon">Ã°Å¸Ââ€™</span>NHL
+                <span class="sp-icon">🏒</span>NHL
                 <span class="sp-count" id="sp-count-nhl"></span>
             </button>
             <button class="sport-pick-btn" onclick="pickSport('mlb')">
-                <span class="sp-icon">Ã¢Å¡Â¾</span>MLB
+                <span class="sp-icon">âš¾</span>MLB
                 <span class="sp-count" id="sp-count-mlb"></span>
             </button>
             <button class="sport-pick-btn" onclick="pickSport('tennis')">
-                <span class="sp-icon">Ã°Å¸Å½Â¾</span>Tennis
+                <span class="sp-icon">🎾</span>Tennis
                 <span class="sp-count" id="sp-count-tennis"></span>
             </button>
             <button class="sport-pick-btn" onclick="pickSport('soccer')">
-                <span class="sp-icon">Ã¢Å¡Â½</span>Soccer
+                <span class="sp-icon">âš½</span>Soccer
                 <span class="sp-count" id="sp-count-soccer"></span>
             </button>
             <button class="sport-pick-btn" onclick="pickSport('mma')">
-                <span class="sp-icon">Ã°Å¸Â¥Å </span>MMA
+                <span class="sp-icon">🥊</span>MMA
                 <span class="sp-count" id="sp-count-mma"></span>
             </button>
             <button class="sport-pick-btn" onclick="pickSport('boxing')">
-                <span class="sp-icon">Ã°Å¸Â¥â€¹</span>Boxing
+                <span class="sp-icon">🥋</span>Boxing
                 <span class="sp-count" id="sp-count-boxing"></span>
             </button>
         </div>
         <div style="margin-top:12px;display:flex;gap:8px;justify-content:center;">
             <button class="sport-pick-btn" onclick="pickSport('props')" style="flex:1;max-width:120px;flex-direction:row;gap:6px;padding:10px;">
-                <span class="sp-icon" style="font-size:1.2rem;">Ã°Å¸â€œÅ </span>Props
+                <span class="sp-icon" style="font-size:1.2rem;">📊</span>Props
             </button>
             <button class="sport-pick-btn" onclick="pickSport('bankroll')" style="flex:1;max-width:120px;flex-direction:row;gap:6px;padding:10px;">
-                <span class="sp-icon" style="font-size:1.2rem;">Ã°Å¸â€™Â°</span>Bank
+                <span class="sp-icon" style="font-size:1.2rem;">💰</span>Bank
             </button>
             <button class="sport-pick-btn" onclick="pickSport('scores')" style="flex:1;max-width:120px;flex-direction:row;gap:6px;padding:10px;">
-                <span class="sp-icon" style="font-size:1.2rem;">Ã°Å¸â€œË†</span>Scores
+                <span class="sp-icon" style="font-size:1.2rem;">📈</span>Scores
             </button>
             <button class="sport-pick-btn" onclick="pickSport('results')" style="flex:1;max-width:120px;flex-direction:row;gap:6px;padding:10px;">
-                <span class="sp-icon" style="font-size:1.2rem;">Ã¢Å“â€¦</span>Results
+                <span class="sp-icon" style="font-size:1.2rem;">✅</span>Results
             </button>
         </div>
     </div>
 </div>
 
-<!-- ===== EV AGENT Ã¢â‚¬â€ EXPECTED VALUE ===== -->
+<!-- ===== EV AGENT — EXPECTED VALUE ===== -->
 <style>
 .agent-fab{
     position:fixed;bottom:24px;right:24px;left:auto;z-index:260;
@@ -9996,7 +9996,7 @@ async function clearAllCache() {
 }
 </style>
 
-<!-- EV Pick FAB Ã¢â‚¬â€ navigates to full /ev page with voice -->
+<!-- EV Pick FAB — navigates to full /ev page with voice -->
 <a class="agent-fab" id="agentFab" href="/ev?voice=1" style="flex-direction:column;gap:2px;text-decoration:none;">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
     <span style="font-size:7px;font-weight:800;letter-spacing:0.5px;">PICK</span>
@@ -10025,15 +10025,15 @@ async function clearAllCache() {
         <div class="ev-tagline">100% Math. No Gut. Pure Edge.</div>
     </div>
 
-    <!-- Voice Mode Buttons (above messages Ã¢â‚¬â€ welcome chrome) -->
+    <!-- Voice Mode Buttons (above messages — welcome chrome) -->
     <div class="ev-voice-row">
         <button class="ev-voice-btn" id="evBtnFreeflow" onclick="evStartVoice('freeflow')">
-            <span class="ev-v-icon">Ã°Å¸â€Å </span>
+            <span class="ev-v-icon">🔊</span>
             <span class="ev-v-label">Free Flow</span>
             <span class="ev-v-sub">Talk anytime</span>
         </button>
         <button class="ev-voice-btn" id="evBtnTurnbased" onclick="evStartVoice('turnbased')">
-            <span class="ev-v-icon">Ã°Å¸Å½Â¤</span>
+            <span class="ev-v-icon">🎤</span>
             <span class="ev-v-label">Turn-Based</span>
             <span class="ev-v-sub">Take turns</span>
         </button>
@@ -10044,18 +10044,18 @@ async function clearAllCache() {
         <button onclick="evStopVoice()">End Voice</button>
     </div>
 
-    <!-- Sport Modes (above messages Ã¢â‚¬â€ welcome chrome) -->
+    <!-- Sport Modes (above messages — welcome chrome) -->
     <div class="ev-sport-modes">
-        <button class="ev-sport-mode" onclick="evSetMode('nba',this)"><span class="esm-icon">Ã°Å¸Ââ‚¬</span>NBA</button>
-        <button class="ev-sport-mode" onclick="evSetMode('wnba',this)"><span class="esm-icon">Ã°Å¸Ââ‚¬</span>WNBA</button>
-        <button class="ev-sport-mode" onclick="evSetMode('ncaab',this)"><span class="esm-icon">Ã°Å¸Ââ‚¬</span>NCAAB</button>
-        <button class="ev-sport-mode" onclick="evSetMode('ncaaf',this)"><span class="esm-icon">Ã°Å¸ÂË†</span>NCAAF</button>
-        <button class="ev-sport-mode" onclick="evSetMode('nhl',this)"><span class="esm-icon">Ã°Å¸Ââ€™</span>NHL</button>
-        <button class="ev-sport-mode" onclick="evSetMode('mlb',this)"><span class="esm-icon">Ã¢Å¡Â¾</span>MLB</button>
-        <button class="ev-sport-mode" onclick="evSetMode('tennis',this)"><span class="esm-icon">Ã°Å¸Å½Â¾</span>Tennis</button>
-        <button class="ev-sport-mode" onclick="evSetMode('soccer',this)"><span class="esm-icon">Ã¢Å¡Â½</span>Soccer</button>
-        <button class="ev-sport-mode" onclick="evSetMode('mma',this)"><span class="esm-icon">Ã°Å¸Â¥Å </span>MMA</button>
-        <button class="ev-sport-mode" onclick="evSetMode('full',this)"><span class="esm-icon">Ã°Å¸â€œâ€¹</span>All</button>
+        <button class="ev-sport-mode" onclick="evSetMode('nba',this)"><span class="esm-icon">🏀</span>NBA</button>
+        <button class="ev-sport-mode" onclick="evSetMode('wnba',this)"><span class="esm-icon">🏀</span>WNBA</button>
+        <button class="ev-sport-mode" onclick="evSetMode('ncaab',this)"><span class="esm-icon">🏀</span>NCAAB</button>
+        <button class="ev-sport-mode" onclick="evSetMode('ncaaf',this)"><span class="esm-icon">🏈</span>NCAAF</button>
+        <button class="ev-sport-mode" onclick="evSetMode('nhl',this)"><span class="esm-icon">🏒</span>NHL</button>
+        <button class="ev-sport-mode" onclick="evSetMode('mlb',this)"><span class="esm-icon">âš¾</span>MLB</button>
+        <button class="ev-sport-mode" onclick="evSetMode('tennis',this)"><span class="esm-icon">🎾</span>Tennis</button>
+        <button class="ev-sport-mode" onclick="evSetMode('soccer',this)"><span class="esm-icon">âš½</span>Soccer</button>
+        <button class="ev-sport-mode" onclick="evSetMode('mma',this)"><span class="esm-icon">🥊</span>MMA</button>
+        <button class="ev-sport-mode" onclick="evSetMode('full',this)"><span class="esm-icon">📋</span>All</button>
     </div>
 
     <!-- Messages (scrollable middle) -->
@@ -10142,7 +10142,7 @@ function closeEVAgent() {
     fab.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>';
     if (_rtcVoiceActive || _agentListening) evStopVoice();
 }
-// EV Pick Ã¢â‚¬â€ voice-first pick entry. Opens agent + starts voice immediately.
+// EV Pick — voice-first pick entry. Opens agent + starts voice immediately.
 function openEVPick() {
     if (_agentOpen && _rtcVoiceActive) {
         closeEVAgent();
@@ -10255,7 +10255,7 @@ async function evStartVoice(mode) {
         // Connected
         _rtcVoiceActive = true;
         _agentListening = true;
-        addAgentMsg('agent', 'Voice connected. Talk to me Ã¢â‚¬â€ I hear you live.');
+        addAgentMsg('agent', 'Voice connected. Talk to me — I hear you live.');
         document.getElementById('evAvatar').classList.add('speaking');
 
         // Turn-based: mute mic initially, unmute on user's turn
@@ -10305,7 +10305,7 @@ function evStopVoice() {
 var _evVoice = null;
 var _evVoiceReady = false;
 
-// Pick the best available voice Ã¢â‚¬â€ prioritize neural/online voices
+// Pick the best available voice — prioritize neural/online voices
 function _pickBestVoice() {
     var voices = window.speechSynthesis ? window.speechSynthesis.getVoices() : [];
     if (!voices.length) return null;
@@ -10518,7 +10518,7 @@ function sendAgentMsg() {
         reply = reply.replace(/\n/g, '<br>');
         addAgentMsg('agent', reply);
 
-        // Speak response if in voice mode (skip if WebRTC Ã¢â‚¬â€ Azure handles TTS)
+        // Speak response if in voice mode (skip if WebRTC — Azure handles TTS)
         if (_evVoiceMode && !_rtcVoiceActive) evSpeak(reply);
     })
     .catch(function(err) {
@@ -10751,7 +10751,7 @@ if (window.visualViewport) {
             var ep = document.getElementById('evPrompts');
             if (ep) ep.style.display = 'none';
         } else {
-            // Keyboard closed Ã¢â‚¬â€ reset
+            // Keyboard closed — reset
             panel.style.height = '';
             panel.style.maxHeight = '';
             panel.style.bottom = '';
@@ -10761,7 +10761,7 @@ if (window.visualViewport) {
         var msgs = document.getElementById('agentMessages');
         if (msgs) msgs.scrollTop = msgs.scrollHeight;
     }
-    // Listen to both resize AND scroll Ã¢â‚¬â€ floating keyboard triggers both
+    // Listen to both resize AND scroll — floating keyboard triggers both
     ['resize', 'scroll'].forEach(function(evt) {
         window.visualViewport.addEventListener(evt, _adjustPanelForKeyboard);
     });
@@ -10769,7 +10769,7 @@ if (window.visualViewport) {
 </script>
 
 <script>
-// Service worker Ã¢â‚¬â€ register for PWA install + offline support
+// Service worker — register for PWA install + offline support
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js', { scope: '/' })
     .then(function(reg) { console.log('[SW] Registered:', reg.scope); })
@@ -10792,7 +10792,7 @@ window.addEventListener('beforeinstallprompt', function(e) {
   });
 });
 
-// iOS PWA install banner Ã¢â‚¬â€ Safari doesn't fire beforeinstallprompt
+// iOS PWA install banner — Safari doesn't fire beforeinstallprompt
 (function() {
   var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   var isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
@@ -10806,7 +10806,7 @@ window.addEventListener('beforeinstallprompt', function(e) {
   }
 })();
 
-// Auto-reload on new deploy Ã¢â‚¬â€ check build version every 60s and on page show
+// Auto-reload on new deploy — check build version every 60s and on page show
 var _localBuildVersion = null;
 function _checkBuildVersion() {
     fetch('/api/version?_t=' + Date.now()).then(function(r) { return r.json(); }).then(function(data) {
@@ -10815,7 +10815,7 @@ function _checkBuildVersion() {
             _localBuildVersion = data.version;
             console.log('[VERSION] ' + data.version);
         } else if (_localBuildVersion !== data.version) {
-            console.log('[VERSION] New build detected: ' + data.version + ' (was ' + _localBuildVersion + ') Ã¢â‚¬â€ reloading');
+            console.log('[VERSION] New build detected: ' + data.version + ' (was ' + _localBuildVersion + ') — reloading');
             window.location.reload(true);
         }
     }).catch(function() {});
@@ -10833,7 +10833,7 @@ window.addEventListener('pageshow', function(e) {
 </script>
 
 <script>
-// ===== SNOWFALL EFFECT Ã¢â‚¬â€ Miami Vice particles during analysis =====
+// ===== SNOWFALL EFFECT — Miami Vice particles during analysis =====
 (function() {
     var canvas = document.getElementById('snowCanvas');
     var ctx = canvas.getContext('2d');
@@ -10915,7 +10915,7 @@ window.addEventListener('pageshow', function(e) {
     };
 })();
 
-// Ã¢â€â‚¬Ã¢â€â‚¬ Pro Edge V3 Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// ── Pro Edge V3 ──────────────────────────────────────────────────────────────
 var _profedgeCurrentSport = 'nba';
 var _profedgeData = null;
 
@@ -11023,7 +11023,7 @@ function renderProEdgeGames(games, container) {
         var dim = (grade === 'N/A') ? 'opacity:0.6;' : _dimClass(grade);
         var gColor = (grade === 'N/A') ? 'rgba(255,255,255,0.25)' : _gradeColor(grade);
 
-        // Ã¢â€â‚¬Ã¢â€â‚¬ PERCENT COMPLETE PER CARD Ã¢â€â‚¬Ã¢â€â‚¬
+        // ── PERCENT COMPLETE PER CARD ──
         var pctSteps = 0, pctTotal = 6;
         if (g.odds && (g.odds.spread_home || g.odds.total)) pctSteps++;  // Step 1: odds loaded
         if (g.home_profile && g.home_profile.L5) pctSteps++;  // Step 2: enrichment
@@ -11048,18 +11048,18 @@ function renderProEdgeGames(games, container) {
 
         html += '<div class="profedge-card" style="' + dim + 'background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;margin-bottom:14px;">';
 
-        // Ã¢â€â‚¬Ã¢â€â‚¬ MATCHUP HEADER Ã¢â€â‚¬Ã¢â€â‚¬
+        // ── MATCHUP HEADER ──
         html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.06);">';
         html += '<div style="font-size:16px;font-weight:800;color:#fff;">' + g.matchup + ' <span style="color:rgba(255,255,255,0.3);font-size:11px;font-weight:400;">' + timeStr + '</span></div>';
         html += '<div style="text-align:right;display:flex;align-items:center;gap:10px;"><span style="font-size:10px;font-weight:700;color:' + pctColor + ';background:rgba(' + (pctComplete===100?'16,185,129':pctComplete>=60?'245,158,11':'239,68,68') + ',0.12);padding:3px 8px;border-radius:10px;">' + pctComplete + '%</span><span style="font-size:28px;font-weight:900;color:' + gColor + ';">' + grade + '</span> <span style="font-size:11px;color:rgba(255,255,255,0.4);">' + avg + '</span></div>';
         html += '</div>';
 
-        // Ã¢â€â‚¬Ã¢â€â‚¬ 5-STEP PIPELINE (horizontal scroll) Ã¢â€â‚¬Ã¢â€â‚¬
+        // ── 5-STEP PIPELINE (horizontal scroll) ──
         html += '<div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:8px;scrollbar-width:thin;-webkit-overflow-scrolling:touch;">';
 
-        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â STEP 1: RAW DATA Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        // ═══ STEP 1: RAW DATA ═══
         html += '<div style="min-width:170px;flex-shrink:0;background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.2);border-radius:10px;padding:10px;">';
-        html += '<div style="font-size:9px;font-weight:800;color:#6366f1;letter-spacing:1px;margin-bottom:6px;">STEP 1 Ã¢â‚¬â€ DATA</div>';
+        html += '<div style="font-size:9px;font-weight:800;color:#6366f1;letter-spacing:1px;margin-bottom:6px;">STEP 1 — DATA</div>';
         var odds = g.odds || {};
         var spH = odds.spread_home || odds.spread || '--';
         var ouVal = odds.total || odds.over_under || '--';
@@ -11073,9 +11073,9 @@ function renderProEdgeGames(games, container) {
         html += '</div>';
         html += '</div>';
 
-        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â STEP 2: ENRICHMENT Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        // ═══ STEP 2: ENRICHMENT ═══
         html += '<div style="min-width:200px;flex-shrink:0;background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.2);border-radius:10px;padding:10px;">';
-        html += '<div style="font-size:9px;font-weight:800;color:#38BDF8;letter-spacing:1px;margin-bottom:6px;">STEP 2 Ã¢â‚¬â€ ENRICHMENT</div>';
+        html += '<div style="font-size:9px;font-weight:800;color:#38BDF8;letter-spacing:1px;margin-bottom:6px;">STEP 2 — ENRICHMENT</div>';
         ['away', 'home'].forEach(function(side) {
             var prof = g[side + '_profile'] || {};
             var abbrev = side === 'home' ? (g.home_abbrev || g.home) : (g.away_abbrev || g.away);
@@ -11112,13 +11112,13 @@ function renderProEdgeGames(games, container) {
         });
         html += '</div>';
 
-        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â STEP 2.5: TEAM & PLAYER PROFILES Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        // ═══ STEP 2.5: TEAM & PLAYER PROFILES ═══
         // Show if ANY profile data exists (from overnight batch)
         var hasHomeProfile = g.home_profile && Object.keys(g.home_profile).length > 0;
         var hasAwayProfile = g.away_profile && Object.keys(g.away_profile).length > 0;
         if (hasHomeProfile || hasAwayProfile || g.roster_home || g.roster_away) {
             html += '<div style="min-width:220px;flex-shrink:0;background:rgba(255,193,7,0.06);border:1px solid rgba(255,193,7,0.2);border-radius:10px;padding:10px;">';
-            html += '<div style="font-size:9px;font-weight:800;color:#ffc107;letter-spacing:1px;margin-bottom:6px;">STEP 2.5 Ã¢â‚¬â€ PROFILES</div>';
+            html += '<div style="font-size:9px;font-weight:800;color:#ffc107;letter-spacing:1px;margin-bottom:6px;">STEP 2.5 — PROFILES</div>';
             ['away', 'home'].forEach(function(side) {
                 var prof = g[side + '_profile'] || {};
                 var roster = side === 'home' ? g.roster_home : g.roster_away;
@@ -11159,7 +11159,7 @@ function renderProEdgeGames(games, container) {
                         var status = p.status || 'Active';
                         var statusColor = status === 'Active' ? '#10B981' : status === 'GTD' ? '#F59E0B' : '#ef4444';
                         html += '<span style="font-size:9px;color:rgba(255,255,255,0.6);">' + p.name + ' ' + ppg.toFixed(1) + 'ppg</span>';
-                        html += '<span style="font-size:8px;color:' + statusColor + ';margin-left:4px;">Ã¢â€”Â</span>';
+                        html += '<span style="font-size:8px;color:' + statusColor + ';margin-left:4px;">●</span>';
                         if (i < topPlayers.length - 1) html += '<br>';
                     });
                     html += '</div>';
@@ -11169,9 +11169,9 @@ function renderProEdgeGames(games, container) {
             html += '</div>';
         }
 
-        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â STEP 3: VARIABLES Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        // ═══ STEP 3: VARIABLES ═══
         html += '<div style="min-width:200px;flex-shrink:0;background:rgba(212,160,36,0.06);border:1px solid rgba(212,160,36,0.2);border-radius:10px;padding:10px;">';
-        html += '<div style="font-size:9px;font-weight:800;color:#d4a024;letter-spacing:1px;margin-bottom:6px;">STEP 3 Ã¢â‚¬â€ VARIABLES</div>';
+        html += '<div style="font-size:9px;font-weight:800;color:#d4a024;letter-spacing:1px;margin-bottom:6px;">STEP 3 — VARIABLES</div>';
         if (gr && gr.profiles) {
             // Collect all unique variable names from first profile
             var firstProfile = gr.profiles[Object.keys(gr.profiles)[0]];
@@ -11201,9 +11201,9 @@ function renderProEdgeGames(games, container) {
         }
         html += '</div>';
 
-        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â STEP 4: GRADERS (swim lanes) Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        // ═══ STEP 4: GRADERS (swim lanes) ═══
         html += '<div style="min-width:220px;flex-shrink:0;background:rgba(247,37,133,0.06);border:1px solid rgba(247,37,133,0.2);border-radius:10px;padding:10px;">';
-        html += '<div style="font-size:9px;font-weight:800;color:#F72585;letter-spacing:1px;margin-bottom:6px;">STEP 4 Ã¢â‚¬â€ GRADERS</div>';
+        html += '<div style="font-size:9px;font-weight:800;color:#F72585;letter-spacing:1px;margin-bottom:6px;">STEP 4 — GRADERS</div>';
         if (gr && gr.profiles) {
             var profileNames = Object.keys(gr.profiles);
             html += '<div style="display:grid;grid-template-columns:' + (profileNames.length > 1 ? '1fr 1fr' : '1fr') + ';gap:6px;">';
@@ -11232,7 +11232,7 @@ function renderProEdgeGames(games, container) {
         }
         html += '</div>';
 
-        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â KIMI PROFILER (Layer 3 Ã¢â‚¬â€ parallel scouting) Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        // ═══ KIMI PROFILER (Layer 3 — parallel scouting) ═══
         var kp = g.kimi_profile;
         html += '<div style="min-width:180px;flex-shrink:0;background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.2);border-radius:10px;padding:10px;">';
         html += '<div style="font-size:9px;font-weight:800;color:#38bdf8;letter-spacing:1px;margin-bottom:6px;">KIMI SCOUT</div>';
@@ -11269,9 +11269,9 @@ function renderProEdgeGames(games, container) {
         }
         html += '</div>';
 
-        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â STEP 5: ENGINE VERDICT Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        // ═══ STEP 5: ENGINE VERDICT ═══
         html += '<div style="min-width:180px;flex-shrink:0;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:10px;text-align:center;display:flex;flex-direction:column;justify-content:center;">';
-        html += '<div style="font-size:9px;font-weight:800;color:#10B981;letter-spacing:1px;margin-bottom:8px;">STEP 5 Ã¢â‚¬â€ ENGINE</div>';
+        html += '<div style="font-size:9px;font-weight:800;color:#10B981;letter-spacing:1px;margin-bottom:8px;">STEP 5 — ENGINE</div>';
         html += '<div style="font-size:36px;font-weight:900;color:' + gColor + ';line-height:1;">' + grade + '</div>';
         html += '<div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:2px;">Score: ' + avg + '</div>';
         if (pickTeam && grade !== '?') {
@@ -11294,10 +11294,10 @@ function renderProEdgeGames(games, container) {
         html += '<button onclick="event.stopPropagation();regradeProEdge(\'' + g.game_id + '\')" style="margin-top:8px;background:rgba(247,37,133,0.12);border:1px solid rgba(247,37,133,0.3);color:#F72585;font-size:10px;font-weight:700;padding:5px 12px;border-radius:6px;cursor:pointer;">RE-GRADE</button>';
         html += '</div>';
 
-        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â STEP 6: RACE VISUALIZATION Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        // ═══ STEP 6: RACE VISUALIZATION ═══
         if (g.race) {
             html += '<div style="min-width:240px;flex-shrink:0;background:rgba(233,30,99,0.06);border:1px solid rgba(233,30,99,0.2);border-radius:10px;padding:10px;">';
-            html += '<div style="font-size:9px;font-weight:800;color:#e91e63;letter-spacing:1px;margin-bottom:6px;">STEP 6 Ã¢â‚¬â€ RACE</div>';
+            html += '<div style="font-size:9px;font-weight:800;color:#e91e63;letter-spacing:1px;margin-bottom:6px;">STEP 6 — RACE</div>';
             var homeScore = g.race.home_score || 0;
             var awayScore = g.race.away_score || 0;
             var totalScore = homeScore + awayScore;
@@ -11329,15 +11329,15 @@ function renderProEdgeGames(games, container) {
             html += '</div>';
         }
 
-        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â STEP 7: KALSHI MARKET VALIDATION Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        // ═══ STEP 7: KALSHI MARKET VALIDATION ═══
         if (g.kalshi_prob) {
             html += '<div style="min-width:180px;flex-shrink:0;background:rgba(0,150,136,0.06);border:1px solid rgba(0,150,136,0.2);border-radius:10px;padding:10px;">';
-            html += '<div style="font-size:9px;font-weight:800;color:#009688;letter-spacing:1px;margin-bottom:6px;">STEP 7 Ã¢â‚¬â€ KALSHI</div>';
+            html += '<div style="font-size:9px;font-weight:800;color:#009688;letter-spacing:1px;margin-bottom:6px;">STEP 7 — KALSHI</div>';
             var kalshiPct = g.kalshi_prob;
             var edgeProb = gr && gr.ev && gr.ev.win_prob ? gr.ev.win_prob * 100 : 50;
             var divergence = edgeProb - kalshiPct;
             var divColor = Math.abs(divergence) > 10 ? '#ef4444' : Math.abs(divergence) > 5 ? '#F59E0B' : '#10B981';
-            var divIcon = divergence > 0 ? 'Ã¢â€“Â²' : 'Ã¢â€“Â¼';
+            var divIcon = divergence > 0 ? 'â–²' : 'â–¼';
             html += '<div style="text-align:center;margin-bottom:8px;">';
             html += '<div style="font-size:28px;font-weight:900;color:#009688;">' + kalshiPct.toFixed(0) + '%</div>';
             html += '<div style="font-size:9px;color:rgba(255,255,255,0.4);">Market Implied</div>';
@@ -11355,7 +11355,7 @@ function renderProEdgeGames(games, container) {
 
         html += '</div>'; // end pipeline row
 
-        // Ã¢â€â‚¬Ã¢â€â‚¬ EXPANDABLE DETAIL (tap matchup header to toggle) Ã¢â€â‚¬Ã¢â€â‚¬
+        // ── EXPANDABLE DETAIL (tap matchup header to toggle) ──
         html += '<div id="profedge-detail-' + idx + '" style="display:none;margin-top:10px;border-top:1px solid rgba(255,255,255,0.06);padding-top:10px;cursor:pointer;" onclick="toggleProEdgeDetail(' + idx + ')">';
 
         // Full variable breakdown per profile
@@ -11365,7 +11365,7 @@ function renderProEdgeGames(games, container) {
                 var p = gr.profiles[pname];
                 var pc = pname === 'sintonia' ? '#F72585' : (pname === 'renzo' ? '#9B59B6' : (pname === 'peter' ? '#D4A017' : (pname === 'ai' ? '#00D4AA' : (pname === 'alyssa' ? '#41EAD4' : '#38BDF8'))));
                 html += '<div style="flex:1;min-width:200px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:10px;">';
-                html += '<div style="font-size:10px;color:' + pc + ';font-weight:700;text-transform:uppercase;margin-bottom:4px;">' + pname + ' Ã¢â‚¬â€ ALL VARIABLES</div>';
+                html += '<div style="font-size:10px;color:' + pc + ';font-weight:700;text-transform:uppercase;margin-bottom:4px;">' + pname + ' — ALL VARIABLES</div>';
                 if (p.variables) {
                     Object.keys(p.variables).forEach(function(vname) {
                         var v = p.variables[vname];
@@ -11398,7 +11398,7 @@ function renderProEdgeGames(games, container) {
                 html += '<div style="flex:1;min-width:200px;">';
                 html += '<div style="font-size:10px;color:#ef4444;font-weight:700;margin-bottom:2px;">' + team + ' INJURIES</div>';
                 inj.forEach(function(i) {
-                    html += '<div style="font-size:10px;color:rgba(255,255,255,0.4);">' + (i.status || '?') + ' Ã¢â‚¬â€ ' + i.player + ' (' + (i.pos || '?') + ')</div>';
+                    html += '<div style="font-size:10px;color:rgba(255,255,255,0.4);">' + (i.status || '?') + ' — ' + i.player + ' (' + (i.pos || '?') + ')</div>';
                 });
                 html += '</div>';
             }
@@ -11452,7 +11452,7 @@ function regradeProEdge(gameId) {
     });
 }
 
-// Ã¢â€â‚¬Ã¢â€â‚¬ Refresh Step 2.5 Profiles (Manual Trigger) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// ── Refresh Step 2.5 Profiles (Manual Trigger) ────────────────────────────────
 function refreshProEdgeProfiles() {
     var sport = _profedgeCurrentSport || 'nba';
     var btn = document.getElementById('profedgeRefreshBtn');
@@ -11463,7 +11463,7 @@ function refreshProEdgeProfiles() {
 
     // Loading state
     btn.disabled = true;
-    icon.textContent = 'Ã¢â€”Å’';
+    icon.textContent = '◌';
     text.textContent = 'REFRESHING...';
 
     fetch('/api/step25/run?sport=' + sport, {
@@ -11472,7 +11472,7 @@ function refreshProEdgeProfiles() {
     .then(function(r) { return r.json(); })
     .then(function(data) {
         btn.disabled = false;
-        icon.textContent = 'Ã¢â€ Â»';
+        icon.textContent = '↻';
         text.textContent = 'REFRESH PROFILES';
 
         if (data.error) {
@@ -11490,7 +11490,7 @@ function refreshProEdgeProfiles() {
     })
     .catch(function(err) {
         btn.disabled = false;
-        icon.textContent = 'Ã¢â€ Â»';
+        icon.textContent = '↻';
         text.textContent = 'REFRESH PROFILES';
         alert('Refresh failed: ' + err.message);
     });
