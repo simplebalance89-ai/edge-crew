@@ -283,8 +283,9 @@ async def _daily_slate_pull():
                             print(f"[PRE-ANALYSIS] Error {sport}: {e}")
                         await asyncio.sleep(2)
                 # Step 2.5: Overnight batch — pre-compute all data layers (no AI calls)
-                if hour == 2:
-                    print(f"[STEP2.5] 2 AM — launching overnight batch")
+                # Runs at 2 AM, 8 AM, 12 PM, 4 PM, 8 PM (every 4 hours during active hours)
+                if hour in (2, 8, 12, 16, 20):
+                    print(f"[STEP2.5] {hour}:00 — launching data batch")
                     try:
                         await _step25_batch_all()
                     except Exception as e:
