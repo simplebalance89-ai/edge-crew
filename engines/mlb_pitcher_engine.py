@@ -11,6 +11,7 @@ Cache: 30 min for probable pitchers, 2 hr for season stats
 import httpx
 import logging
 from datetime import datetime, timedelta, timezone
+import os
 
 logger = logging.getLogger("edge-crew")
 
@@ -38,6 +39,17 @@ MLB_TEAM_ABBR = {
 
 # Module-level cache (same pattern as server.py _cache)
 _pitcher_cache = {}
+
+
+def get_mlb_reference_season() -> int:
+    """Use the prior MLB season by default until current-year samples stabilize."""
+    override = os.environ.get("MLB_REFERENCE_SEASON")
+    if override:
+        try:
+            return int(override)
+        except ValueError:
+            pass
+    return datetime.now(timezone.utc).year - 1
 
 
 def _get_cached(key, ttl=1800):
@@ -234,7 +246,7 @@ async def fetch_pitcher_season_stats(pitcher_id: int, season: int = None) -> dic
         return {}
 
     if not season:
-        season = datetime.now(timezone.utc).year
+        season = get_mlb_reference_season()
 
     cache_key = f"mlb_pitcher_stats:{pitcher_id}:{season}"
     cached = _get_cached(cache_key, ttl=7200)  # 2 hours
@@ -401,7 +413,7 @@ async def fetch_bullpen_usage(team_id: int, days: int = 3) -> dict:
     if cached:
         return cached
 
-    season = datetime.now(timezone.utc).year
+    season = get_mlb_reference_season()
     url = f"{MLB_STATS_BASE}/teams/{team_id}/stats"
     params = {
         "stats": "gameLog",
@@ -531,7 +543,7 @@ async def fetch_platoon_splits(team_abbr: str) -> dict:
     if cached:
         return cached
 
-    season = datetime.now(timezone.utc).year
+    season = get_mlb_reference_season()
     url = f"{MLB_STATS_BASE}/teams/{team_id}/stats"
     params = {
         "stats": "vsLeftRight",

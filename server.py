@@ -13701,12 +13701,13 @@ async def run_screener(sport: str):
 async def get_nrfi():
     """NRFI (No Run First Inning) screener for MLB."""
     try:
-        from engines.mlb_pitcher_engine import fetch_probable_pitchers, fetch_pitcher_season_stats
+        from engines.mlb_pitcher_engine import fetch_probable_pitchers, fetch_pitcher_season_stats, get_mlb_reference_season
         from engines.mlb_park_weather import get_park_factor, fetch_game_weather
         from engines.mlb_defense import fetch_team_fielding
 
         games = await fetch_probable_pitchers()
         nrfi_picks = []
+        reference_season = get_mlb_reference_season()
 
         wind_from_deg = {
             "N": 0, "NNE": 22.5, "NE": 45, "ENE": 67.5, "E": 90, "ESE": 112.5,
@@ -13730,8 +13731,8 @@ async def get_nrfi():
             home_sp = game.get("home_pitcher", {})
             park = get_park_factor(game.get("home"))
 
-            away_stats_task = fetch_pitcher_season_stats(away_sp.get("id")) if away_sp.get("id") else asyncio.sleep(0, result={})
-            home_stats_task = fetch_pitcher_season_stats(home_sp.get("id")) if home_sp.get("id") else asyncio.sleep(0, result={})
+            away_stats_task = fetch_pitcher_season_stats(away_sp.get("id"), season=reference_season) if away_sp.get("id") else asyncio.sleep(0, result={})
+            home_stats_task = fetch_pitcher_season_stats(home_sp.get("id"), season=reference_season) if home_sp.get("id") else asyncio.sleep(0, result={})
             weather_task = asyncio.sleep(0, result={}) if park.get("roof") is True else fetch_game_weather(park.get("lat", 0.0), park.get("lon", 0.0))
             away_defense_task = fetch_team_fielding(game.get("away"))
             home_defense_task = fetch_team_fielding(game.get("home"))
@@ -13833,6 +13834,12 @@ async def get_nrfi():
                 "verdict": verdict,
                 "away_era": away_stats.get("era", "-"),
                 "home_era": home_stats.get("era", "-"),
+                "away_whip": away_stats.get("whip", "-"),
+                "home_whip": home_stats.get("whip", "-"),
+                "away_k_per_9": away_stats.get("k_per_9", "-"),
+                "home_k_per_9": home_stats.get("k_per_9", "-"),
+                "away_l5_era": away_stats.get("l5_era", "-"),
+                "home_l5_era": home_stats.get("l5_era", "-"),
                 "park_factor": {
                     "park_name": park.get("park_name"),
                     "runs_factor": runs_factor,
@@ -13863,6 +13870,8 @@ async def get_nrfi():
         return JSONResponse({
             "sport": "MLB",
             "type": "NRFI",
+            "reference_season": reference_season,
+            "source": f"MLB NRFI screener using {reference_season} pitcher baselines",
             "picks": nrfi_picks,
             "generated_at": datetime.now(PST).strftime("%I:%M %p PST — %b %d, %Y"),
         })
@@ -14422,10 +14431,144 @@ def _prepare_profedge_game_for_grading(game: dict) -> dict:
     prepared["odds"] = odds
     return prepared
 
+
+def _nrfi_score_to_grade(score: float, verdict: str) -> str:
+    if verdict == "SKIP":
+        return "NR"
+    if score >= 8.5:
+        return "A"
+    if score >= 7.8:
+        return "A-"
+    if score >= 7.0:
+        return "B+"
+    if score <= 2.5:
+        return "D"
+    if score <= 3.5:
+        return "C"
+    return "B"
+
+
+def _nrfi_pick_to_profedge_game(pick: dict[str, Any]) -> dict[str, Any]:
+    score = float(pick.get("score") or 0)
+    verdict = pick.get("verdict") or "SKIP"
+    matchup = pick.get("matchup", "")
+    away_team, home_team = [part.strip() for part in matchup.split("@", 1)] if "@" in matchup else ("", "")
+    park = pick.get("park_factor") or {}
+
+    return {
+        "game_id": pick.get("game_id"),
+        "matchup": matchup,
+        "home": home_team,
+        "away": away_team,
+        "home_abbrev": home_team,
+        "away_abbrev": away_team,
+        "time": "",
+        "odds": {
+            "market_type": "NRFI",
+            "target": verdict,
+            "score": score,
+            "park_name": park.get("park_name"),
+            "runs_factor": park.get("runs_factor"),
+        },
+        "home_profile": {
+            "pitcher": pick.get("home_sp", "TBD"),
+            "era": pick.get("home_era", "-"),
+            "whip": pick.get("home_whip", "-"),
+            "k_per_9": pick.get("home_k_per_9", "-"),
+            "l5_era": pick.get("home_l5_era", "-"),
+        },
+        "away_profile": {
+            "pitcher": pick.get("away_sp", "TBD"),
+            "era": pick.get("away_era", "-"),
+            "whip": pick.get("away_whip", "-"),
+            "k_per_9": pick.get("away_k_per_9", "-"),
+            "l5_era": pick.get("away_l5_era", "-"),
+        },
+        "injuries": {"home": [], "away": []},
+        "grade": {
+            "consensus_grade": _nrfi_score_to_grade(score, verdict),
+            "consensus_avg": score,
+            "consensus_raw": score,
+            "pick_side": "",
+            "profiles": {
+                "nrfi": {
+                    "grade": _nrfi_score_to_grade(score, verdict),
+                    "final": score,
+                    "sizing": verdict,
+                    "variables": {
+                        "starting_pitcher": {"score": min(10, max(0, round(score + 1.5, 1)))},
+                        "park_factor": {"score": 10 - min(10, max(0, round(float((park.get("runs_factor") or 1.0) * 5), 1)))},
+                        "weather_conditions": {"score": 6 if ((pick.get("weather") or {}).get("skipped_for_roof")) else 5},
+                        "defense": {"score": 6},
+                    },
+                    "chains_fired": [adj.get("note") for adj in (pick.get("adjustments") or [])[:3] if adj.get("note")],
+                }
+            },
+            "peter_rules": {"flags": []},
+            "ev": {
+                "ev_pct": round((score - 5.0) * 4, 1),
+                "win_prob": round(score / 10.0, 3),
+            },
+        },
+        "race": {
+            "lanes": [],
+            "home_score": score,
+            "away_score": score,
+            "race_winner": verdict,
+            "pick_team": verdict,
+            "bet_size": verdict,
+            "confidence": f"NRFI score {score}",
+        },
+        "nrfi": pick,
+        "kimi_profile": {
+            "profile_score": score,
+            "profile_tag": verdict,
+            "tactical_dna": {"score": score},
+            "h2h_context": {"score": score},
+            "structural_edge": {"score": score},
+            "market_signal": {"score": score},
+            "profile_summary": "MLB Pro Edge is temporarily constrained to NRFI using prior-season pitcher baselines.",
+        },
+    }
+
 @app.get("/api/profedge/{sport}")
 async def get_profedge(sport: str):
     """Pro Edge V3 — returns merged game data + grades + race for a sport."""
     sport_key = sport.lower()
+    if sport_key == "mlb":
+        nrfi_response = await get_nrfi()
+        nrfi_payload = json.loads(nrfi_response.body)
+        if nrfi_payload.get("error"):
+            return JSONResponse({
+                "error": nrfi_payload["error"],
+                "games": [],
+                "grades": [],
+                "race": [],
+            }, status_code=500)
+
+        picks = sorted(
+            nrfi_payload.get("picks", []),
+            key=lambda pick: float(pick.get("score") or 0),
+            reverse=True,
+        )
+        merged = [_nrfi_pick_to_profedge_game(pick) for pick in picks]
+        return JSONResponse({
+            "sport": "MLB",
+            "date": datetime.now(PST).strftime("%Y-%m-%d"),
+            "games": merged,
+            "total": len(merged),
+            "graded": len(merged),
+            "updated_at": nrfi_payload.get("generated_at", ""),
+            "data_dir": "NRFI-only MLB mode",
+            "file_count": 0,
+            "matrix": [{"name": "starting_pitcher", "weight": 10, "desc": "Prior-season SP baseline for NRFI only"}],
+            "matrix_count": 1,
+            "chains": [{"name": "NRFI ONLY", "desc": "MLB Pro Edge is temporarily constrained to NRFI using prior-season pitcher baselines", "bonus": 0}],
+            "chain_count": 1,
+            "type": "NRFI",
+            "reference_season": nrfi_payload.get("reference_season"),
+            "source": nrfi_payload.get("source"),
+        })
     today = datetime.now(PST).strftime("%Y%m%d")
 
     # Find most recent data file for this sport
