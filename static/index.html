@@ -7107,7 +7107,113 @@ function applyNrfiToCards(nrfiData) {
             'Defense: ' + (defense.away_fielding_pct || '-') + ' / ' + (defense.home_fielding_pct || '-')
         ].join('\n');
         tagRow.appendChild(badge);
+
+        var pickEl = document.getElementById('pick-' + matchupId);
+        if (pickEl) {
+            pickEl.textContent = verdict === 'SKIP' ? 'PASS' : verdict + ' ' + (pick.score || '--');
+        }
+
+        var reasonEl = document.getElementById('reason-' + matchupId);
+        if (reasonEl) {
+            var topAdj = (pick.adjustments || []).slice(0, 2).map(function(adj) {
+                return adj.note;
+            }).filter(Boolean);
+            reasonEl.textContent = topAdj.join(' | ') || 'Current-stat NRFI screen';
+        }
+
+        var gradeEl = row.querySelector('.grade');
+        if (gradeEl) {
+            var grade = 'C';
+            if ((pick.score || 0) >= 8.5) grade = 'A';
+            else if ((pick.score || 0) >= 7.5) grade = 'A-';
+            else if ((pick.score || 0) >= 7) grade = 'B+';
+            else if ((pick.score || 0) <= 2.5) grade = 'D';
+            else if ((pick.score || 0) <= 3.5) grade = 'C';
+            var gc = grade.replace(/[+-]/g, '').toLowerCase();
+            gradeEl.className = 'grade g' + gc;
+            gradeEl.textContent = verdict === 'SKIP' ? 'NR' : grade;
+        }
+
+        row.classList.add('has-analysis');
     });
+}
+
+function renderMlbNrfiCards(data) {
+    var renzo = document.getElementById('peterGutMLBContent');
+    var alyssa = document.getElementById('alyssaEdgeMLBContent');
+    var stamp = document.getElementById('peterGutMLBTimestamp');
+    if (!renzo || !alyssa) return;
+
+    var picks = (data && data.picks ? data.picks.slice() : []);
+    if (!picks.length) {
+        renzo.innerHTML = '<p style="color:rgba(255,255,255,0.3);font-style:italic;">No MLB NRFI spots right now. Refresh slate closer to first pitch.</p>';
+        alyssa.innerHTML = '<p style="color:rgba(255,255,255,0.3);font-style:italic;">No current-stat NRFI edges right now.</p>';
+        if (stamp) stamp.textContent = 'Generated: ' + ((data && data.generated_at) || 'just now') + ' | Source: current stats only';
+        return;
+    }
+
+    var top = picks.slice(0, 8);
+    var renzoHtml = '';
+    var alyssaHtml = '';
+    top.forEach(function(pick, idx) {
+        var verdict = pick.verdict || 'SKIP';
+        var verdictColor = verdict === 'NRFI' ? '#10B981' : verdict === 'YRFI' ? '#EF4444' : '#94A3B8';
+        var weather = pick.weather || {};
+        var park = pick.park_factor || {};
+        var topAdj = (pick.adjustments || []).slice(0, 3).map(function(adj) { return adj.note; }).filter(Boolean);
+        renzoHtml += '<div style="margin-bottom:8px;">' +
+            (idx + 1) + '. <strong style="color:' + verdictColor + ';">[' + verdict + ' ' + (pick.score || '--') + ']</strong> ' +
+            '<strong>' + pick.matchup + '</strong><br>' +
+            '<span style="color:rgba(255,255,255,0.5);font-size:12px;padding-left:16px;">' +
+            (pick.away_sp || 'TBD') + ' vs ' + (pick.home_sp || 'TBD') +
+            (topAdj.length ? ' | ' + topAdj.join(' | ') : '') +
+            '</span></div>';
+
+        alyssaHtml += '<div style="margin-bottom:10px;padding:10px 12px;background:rgba(65,234,212,0.03);border:1px solid rgba(65,234,212,0.12);border-radius:8px;">' +
+            '<div style="display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:4px;">' +
+            '<strong style="color:#fff;">' + pick.matchup + '</strong>' +
+            '<span style="color:' + verdictColor + ';font-weight:800;">' + verdict + ' ' + (pick.score || '--') + '</span>' +
+            '</div>' +
+            '<div style="font-size:11px;color:rgba(255,255,255,0.55);margin-bottom:4px;">SP: ' + (pick.away_sp || 'TBD') + ' vs ' + (pick.home_sp || 'TBD') + ' | ERA: ' + (pick.away_era || '-') + ' / ' + (pick.home_era || '-') + '</div>' +
+            '<div style="font-size:11px;color:rgba(255,255,255,0.45);margin-bottom:4px;">Park: ' + (park.park_name || 'Unknown') + ' (' + (park.runs_factor || '--') + ')' +
+            (weather.temp_f != null ? ' | ' + weather.temp_f + 'F' : '') +
+            (weather.wind_speed_mph != null ? ' | ' + weather.wind_speed_mph + 'mph ' + (weather.wind_direction || '') : '') +
+            '</div>' +
+            '<div style="font-size:11px;color:#41EAD4;">' + (topAdj.join(' | ') || 'Current-stat NRFI screen only') + '</div>' +
+            '</div>';
+    });
+
+    renzo.innerHTML = renzoHtml;
+    alyssa.innerHTML = alyssaHtml;
+    if (stamp) stamp.textContent = 'Generated: ' + (data.generated_at || 'just now') + ' | Source: current stats only';
+}
+
+function fetchMlbNrfi() {
+    fetch('/api/nrfi')
+        .then(function(r) {
+            if (!r.ok) throw new Error('Server returned ' + r.status);
+            return r.json();
+        })
+        .then(function(data) {
+            if (typeof stopSnowfall === 'function') stopSnowfall();
+            _stopLoadingExperience();
+            if (window._analysisTimerInterval) clearInterval(window._analysisTimerInterval);
+            renderMlbNrfiCards(data);
+            _nrfiCache = data;
+            applyNrfiToCards(data);
+            if (window._analysisLoadCallback) window._analysisLoadCallback('mlb');
+        })
+        .catch(function(err) {
+            if (typeof stopSnowfall === 'function') stopSnowfall();
+            _stopLoadingExperience();
+            if (window._analysisTimerInterval) clearInterval(window._analysisTimerInterval);
+            var renzo = document.getElementById('peterGutMLBContent');
+            var alyssa = document.getElementById('alyssaEdgeMLBContent');
+            var msg = '<p style="color:#EF4444;">MLB NRFI analysis failed: ' + err.message + '</p>';
+            if (renzo) renzo.innerHTML = msg;
+            if (alyssa) alyssa.innerHTML = msg;
+            if (window._analysisLoadCallback) window._analysisLoadCallback('mlb');
+        });
 }
 
 function loadNrfiBadges(sport) {
@@ -7639,6 +7745,11 @@ function fetchAnalysis(sport) {
         loadHtml += '</div>';
         gutContent.innerHTML = loadHtml;
         _startLoadingExperience(sport);
+    }
+
+    if ((sport || '').toLowerCase() === 'mlb') {
+        fetchMlbNrfi();
+        return;
     }
 
     fetch('/api/analysis/' + sport + '?force=true')
