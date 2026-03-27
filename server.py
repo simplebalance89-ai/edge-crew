@@ -1415,8 +1415,16 @@ def _is_soccer_sport_key(value: str) -> bool:
     return v == "soccer" or v.startswith("soccer_")
 
 # Azure OpenAI config
-AZURE_ENDPOINT = os.environ.get("AZURE_OPENAI_ENDPOINT", "https://gce-personal-resource.openai.azure.com/")
-AZURE_KEY = os.environ.get("AZURE_OPENAI_KEY", "")
+AZURE_ENDPOINT = (
+    os.environ.get("AZURE_OPENAI_ENDPOINT")
+    or "https://gce-personal-resource.openai.azure.com/"
+)
+AZURE_KEY = (
+    os.environ.get("AZURE_OPENAI_KEY")
+    or os.environ.get("AZURE_OPENAI_API_KEY")
+    or os.environ.get("AZURE_AI_KEY")
+    or ""
+)
 AZURE_MODEL = os.environ.get("AZURE_OPENAI_MODEL", "grok-4-1-fast-reasoning")
 REALTIME_DEPLOYMENT = "gpt-4o-realtime"
 AZURE_BASE = AZURE_ENDPOINT.rstrip("/")
