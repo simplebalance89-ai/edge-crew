@@ -15,10 +15,13 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from app_config import remove_dead_local_proxy_env, sanitized_env
 from paths import BASE_DIR, DATA_DIR, GRADES_DIR
 
 STATIC_DIR = BASE_DIR / "static"
 DASHBOARD_DIR = BASE_DIR / "slate_dashboard"
+
+remove_dead_local_proxy_env()
 
 app = FastAPI(title="Edge Consensus Engine", version="0.1.0")
 SUPPORTED_SPORTS = ["nba", "nhl", "ncaab"]
@@ -63,6 +66,7 @@ def _run_process(cmd: list[str], timeout: int = 120) -> dict:
             text=True,
             timeout=timeout,
             cwd=str(BASE_DIR),
+            env=sanitized_env(),
         )
         output = (proc.stdout or proc.stderr or "").strip()
         return {
@@ -85,6 +89,20 @@ def _sports_with_data(date: str) -> list[str]:
 def _missing_sports(date: str) -> list[str]:
     available = set(_sports_with_data(date))
     return [sport_key for sport_key in SUPPORTED_SPORTS if sport_key not in available]
+
+
+def _health_payload() -> dict:
+    today = datetime.now().strftime("%Y%m%d")
+    available = _sports_with_data(today)
+    return {
+        "status": "ok",
+        "service": "edge-crew-v2",
+        "date": today,
+        "supported_sports": SUPPORTED_SPORTS,
+        "available_sports": available,
+        "missing_sports": _missing_sports(today),
+        "auto_analyze_enabled": AUTO_ANALYZE_ENABLED,
+    }
 
 
 def _auto_analyze_lockfile(date: str) -> Path:
@@ -156,6 +174,16 @@ async def flowchart():
     if f.exists():
         return HTMLResponse(f.read_text(encoding="utf-8"))
     raise HTTPException(404, "Flowchart not found")
+
+
+@app.get("/health")
+async def health():
+    return _health_payload()
+
+
+@app.get("/api/health")
+async def api_health():
+    return _health_payload()
 
 
 @app.get("/api/slate/{sport}")

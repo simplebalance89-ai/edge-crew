@@ -1,0 +1,6 @@
+# Edge Crew V2 - Core Dependencies
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+requests>=2.31.0
+openai>=1.0.0
+python-multipart>=0.0.6

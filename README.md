@@ -100,6 +100,7 @@ python run_pipeline.py --sport NBA
 
 Check these URLs after deploy:
 - `https://your-service.onrender.com/` - Dashboard loads
+- `https://your-service.onrender.com/health` - Health check responds `{"status":"ok", ...}`
 - `https://your-service.onrender.com/api/sports` - Returns sports list
 - `https://your-service.onrender.com/api/slate/nba?date=20260321` - Returns games
 

@@ -46,5 +46,5 @@ services:
         value: ./grades
       - key: EDGE_AUTO_ANALYZE
         value: "0"
-    healthCheckPath: /api/sports
+    healthCheckPath: /health
     autoDeploy: true

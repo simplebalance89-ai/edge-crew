@@ -32,12 +32,16 @@ import concurrent.futures
 from datetime import datetime, timedelta
 
 import requests
-from app_config import require_env
+from app_config import remove_dead_local_proxy_env, require_env
 from paths import BASE_DIR, DATA_DIR, GRADES_DIR
 
 sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 GRADES_DIR.mkdir(parents=True, exist_ok=True)
+
+REMOVED_PROXY_VARS = remove_dead_local_proxy_env()
+if REMOVED_PROXY_VARS:
+    print(f"[network] Removed dead proxy vars: {', '.join(REMOVED_PROXY_VARS)}")
 
 RAPIDAPI_KEY = os.environ.get("RAPIDAPI_KEY")
 SGO_KEY = os.environ.get("SPORTSGAMEODDS_KEY")
@@ -103,7 +107,9 @@ def fetch_schedule(sport: str, date: str) -> list[dict]:
 
 def fetch_odds_sgo(sport: str, date: str) -> dict[str, dict]:
     """Fetch odds from SportsGameOdds API. Returns game_id -> odds dict."""
-    require_env("SPORTSGAMEODDS_KEY", "SportsGameOdds odds collection")
+    if not SGO_KEY:
+        print("  [odds] SPORTSGAMEODDS_KEY missing - continuing without odds")
+        return {}
     sgo_sport = SPORT_SGO.get(sport, sport)
     # Date format for SGO: YYYY-MM-DD
     date_fmt = f"{date[:4]}-{date[4:6]}-{date[6:]}"
@@ -325,8 +331,11 @@ def fetch_injuries_tank01_nba(team_name: str, date: str) -> list[dict]:
         return []
 
     host = "tank01-fantasy-stats.p.rapidapi.com"
+    if not RAPIDAPI_KEY:
+        print(f"    [injuries] RAPIDAPI_KEY missing - skipping injuries for {team_name}")
+        return []
     headers = {
-        "x-rapidapi-key": require_env("RAPIDAPI_KEY", "Tank01 injury collection"),
+        "x-rapidapi-key": RAPIDAPI_KEY,
         "x-rapidapi-host": host,
     }
     url = f"https://{host}/getNBATeamRoster"
