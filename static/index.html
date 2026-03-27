@@ -10,6 +10,19 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Edge Crew">
+<script>
+window.sentryOnLoad = function () {
+  Sentry.init({
+    tracesSampleRate: 1.0,
+    replaysSessionSampleRate: 0.1,
+    replaysOnErrorSampleRate: 1.0
+  });
+};
+</script>
+<script
+  src="https://js.sentry-cdn.com/deaf012f81fdea9bdc1a45b977c31fe5.min.js"
+  crossorigin="anonymous"
+></script>
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" sizes="180x180" href="/static/icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/static/icons/favicon-32.png">

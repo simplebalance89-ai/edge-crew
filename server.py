@@ -12,6 +12,7 @@ import statistics
 import db
 from openai import AzureOpenAI, OpenAI
 import anthropic as anthropic_sdk
+import sentry_sdk
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -23,6 +24,19 @@ from fastapi import FastAPI, Request, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, Response
 
+sentry_sdk.init(
+    dsn=os.environ.get(
+        "SENTRY_DSN",
+        "https://9ce6026de03798eef461506deb063c58@o4511116561285120.ingest.us.sentry.io/4511116567838720",
+    ),
+    environment=os.environ.get("SENTRY_ENVIRONMENT", "production"),
+    release=os.environ.get("SENTRY_RELEASE"),
+    send_default_pii=True,
+    traces_sample_rate=1.0,
+    profile_session_sample_rate=1.0,
+    profile_lifecycle="trace",
+    enable_logs=True,
+)
 
 import html as _html
 

@@ -4,3 +4,4 @@ httpx
 openai
 anthropic
 asyncpg
+sentry-sdk[fastapi]
