@@ -7312,9 +7312,9 @@ function runAnalysis() {
     var sportLabel = currentSport.toUpperCase();
     if (btn) { btn.textContent = 'GRADING ' + sportLabel + '...'; btn.disabled = true; }
     var agent = sessionStorage.getItem('edgeCrewAgent') || 'sintonia';
-    var fetchFn = agent === 'sintonia' ? fetchAnalysis : fetchEdge;
 
-    // Only 1 sport pending
+    // Manual Analyze should always run the full analysis pipeline.
+    // Alyssa's edge card can refresh in parallel, but it is not the main job.
     _analysisPending = 1;
     window._analysisLoadCallback = function(sport) {
         _analysisPending--;
@@ -7345,8 +7345,12 @@ function runAnalysis() {
         if (timerEl) timerEl.textContent = timerStr;
         if (btn) btn.textContent = 'GRADING ' + sportLabel + '... ' + timerStr;
     }, 1000);
-    // Fetch analysis for current sport only
-    fetchFn(currentSport);
+    // Always run the real analysis path for the active sport.
+    fetchAnalysis(currentSport);
+    // If Alyssa is the active view, refresh her lighter edge card too.
+    if (agent === 'alyssa') {
+        fetchEdge(currentSport);
+    }
     // Hard timeout: 360 seconds (6 min) — kill it and show error
     setTimeout(function() {
         if (btn && btn.textContent.indexOf('GRADING') !== -1) {
@@ -7745,11 +7749,6 @@ function fetchAnalysis(sport) {
         loadHtml += '</div>';
         gutContent.innerHTML = loadHtml;
         _startLoadingExperience(sport);
-    }
-
-    if ((sport || '').toLowerCase() === 'mlb') {
-        fetchMlbNrfi();
-        return;
     }
 
     fetch('/api/analysis/' + sport + '?force=true')
