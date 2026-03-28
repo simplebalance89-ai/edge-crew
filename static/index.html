@@ -5895,14 +5895,25 @@ function renderTeamProfile(matchupId, data) {
     // H2H section
     if (data.h2h && data.h2h.summary) {
         var h = data.h2h;
+        var meetings = h.meetings || h.games || [];
+        var showAts = meetings.some(function(gm) { return gm && gm.ats != null && gm.ats !== ''; });
+        var showOu = meetings.some(function(gm) { return gm && gm.ou != null && gm.ou !== ''; });
+        var awayRecord = h.summary.away_record || '--';
+        var homeRecord = h.summary.home_record || '--';
         html += '<div class="profile-h2h">';
-        html += '<div class="h2h-title">H2H (Last ' + (h.games ? h.games.length : '?') + ' meetings)</div>';
-        html += h.summary.record + ' | Avg margin: ' + (h.summary.avg_margin >= 0 ? '+' : '') + h.summary.avg_margin;
-        if (h.games && h.games.length) {
-            html += '<table style="margin-top:6px;"><tr><th>Date</th><th>Opp</th><th>Res</th><th>Score</th><th>ATS</th><th>O/U</th></tr>';
-            h.games.forEach(function(gm) {
+        html += '<div class="h2h-title">H2H (Last ' + meetings.length + ' meetings)</div>';
+        html += (h.away_team || 'Away') + ' ' + awayRecord + ' | ' + (h.home_team || 'Home') + ' ' + homeRecord + ' | Avg margin: ' + (h.summary.avg_margin >= 0 ? '+' : '') + h.summary.avg_margin;
+        if (meetings.length) {
+            html += '<table style="margin-top:6px;"><tr><th>Date</th><th>Matchup</th><th>Res</th><th>Score</th>';
+            if (showAts) html += '<th>ATS</th>';
+            if (showOu) html += '<th>O/U</th>';
+            html += '</tr>';
+            meetings.forEach(function(gm) {
                 var rc = gm.result === 'W' ? 'result-w' : 'result-l';
-                html += '<tr><td>' + (gm.date || '--') + '</td><td>' + (gm.opponent || '--') + '</td><td class="' + rc + '">' + gm.result + ' ' + (gm.margin >= 0 ? '+' : '') + gm.margin + '</td><td>' + (gm.score || '--') + '</td><td>' + (gm.ats || '--') + '</td><td>' + (gm.ou || '--') + '</td></tr>';
+                html += '<tr><td>' + (gm.date || '--') + '</td><td>' + ((gm.away || '--') + ' @ ' + (gm.home || '--')) + '</td><td class="' + rc + '">' + gm.result + ' ' + (gm.margin >= 0 ? '+' : '') + gm.margin + '</td><td>' + (gm.score || '--') + '</td>';
+                if (showAts) html += '<td>' + (gm.ats || '--') + '</td>';
+                if (showOu) html += '<td>' + (gm.ou || '--') + '</td>';
+                html += '</tr>';
             });
             html += '</table>';
         }
@@ -5918,16 +5929,27 @@ function renderOneTeamProfile(profile) {
     html += '<div class="team-name">' + (profile.team || 'Team') + ' (Last 5)</div>';
     if (profile.summary) {
         var s = profile.summary;
-        html += '<div class="team-summary">' + s.record + ' | ATS ' + s.ats_record + ' | O/U ' + s.ou_record;
+        var summaryParts = [s.record];
+        if (s.ats_record) summaryParts.push('ATS ' + s.ats_record);
+        if (s.ou_record) summaryParts.push('O/U ' + s.ou_record);
+        html += '<div class="team-summary">' + summaryParts.join(' | ');
         if (s.avg_margin !== undefined) html += ' | Avg ' + (s.avg_margin >= 0 ? '+' : '') + s.avg_margin;
         if (s.trend) html += ' ' + getTrendArrow(s.trend);
         html += '</div>';
     }
     if (profile.last_5 && profile.last_5.length) {
-        html += '<table><tr><th>Opp</th><th>Res</th><th>Score</th><th>ATS</th><th>O/U</th><th>Date</th></tr>';
+        var showAts = profile.last_5.some(function(gm) { return gm && gm.ats != null && gm.ats !== ''; });
+        var showOu = profile.last_5.some(function(gm) { return gm && gm.ou != null && gm.ou !== ''; });
+        html += '<table><tr><th>Opp</th><th>Res</th><th>Score</th>';
+        if (showAts) html += '<th>ATS</th>';
+        if (showOu) html += '<th>O/U</th>';
+        html += '<th>Date</th></tr>';
         profile.last_5.forEach(function(gm) {
             var rc = gm.result === 'W' ? 'result-w' : 'result-l';
-            html += '<tr><td>' + (gm.opponent || '--') + '</td><td class="' + rc + '">' + gm.result + ' ' + (gm.margin >= 0 ? '+' : '') + gm.margin + '</td><td>' + (gm.score || '--') + '</td><td>' + (gm.ats || '--') + '</td><td>' + (gm.ou || '--') + '</td><td>' + (gm.date || '--') + '</td></tr>';
+            html += '<tr><td>' + (gm.opponent || '--') + '</td><td class="' + rc + '">' + gm.result + ' ' + (gm.margin >= 0 ? '+' : '') + gm.margin + '</td><td>' + (gm.score || '--') + '</td>';
+            if (showAts) html += '<td>' + (gm.ats || '--') + '</td>';
+            if (showOu) html += '<td>' + (gm.ou || '--') + '</td>';
+            html += '<td>' + (gm.date || '--') + '</td></tr>';
         });
         html += '</table>';
     }
