@@ -12439,6 +12439,212 @@ def _get_game_scores(game: dict):
     return home_score, away_score
 
 
+def _parse_record_pair(record: str) -> tuple[int, int]:
+    try:
+        left, right = str(record or "").split("-", 1)
+        return int(left), int(right)
+    except Exception:
+        return 0, 0
+
+
+def _parse_signed_streak(streak_value) -> int:
+    streak_text = str(streak_value or "").strip().upper()
+    if len(streak_text) < 2:
+        return 0
+    direction = streak_text[0]
+    try:
+        count = int(streak_text[1:])
+    except Exception:
+        return 0
+    return count if direction == "W" else (-count if direction == "L" else 0)
+
+
+def _find_profedge_game(team: str, sport: str) -> tuple[str | None, dict | None]:
+    sport_key = sport.lower()
+    import glob as _glob
+
+    game_files = sorted(
+        _glob.glob(str(EDGE_DATA_DIR / f"games_{sport_key}_*.json")),
+        key=lambda fp: Path(fp).stem.split("_")[-1],
+        reverse=True,
+    )
+    for gf_path in game_files:
+        try:
+            with open(gf_path, "r", encoding="utf-8") as f:
+                games_data = json.load(f)
+            games = games_data.get("games", [])
+            if isinstance(games, dict) and "games" in games:
+                games = games["games"]
+            for game in games:
+                away = game.get("away", game.get("away_team", ""))
+                home = game.get("home", game.get("home_team", ""))
+                if _team_in_game(team, {"home_team": home, "away_team": away}, sport):
+                    return Path(gf_path).stem.split("_")[-1], game
+        except Exception:
+            continue
+    return None, None
+
+
+def _find_profedge_matchup(away_team: str, home_team: str, sport: str) -> tuple[str | None, dict | None]:
+    sport_key = sport.lower()
+    import glob as _glob
+
+    game_files = sorted(
+        _glob.glob(str(EDGE_DATA_DIR / f"games_{sport_key}_*.json")),
+        key=lambda fp: Path(fp).stem.split("_")[-1],
+        reverse=True,
+    )
+    for gf_path in game_files:
+        try:
+            with open(gf_path, "r", encoding="utf-8") as f:
+                games_data = json.load(f)
+            games = games_data.get("games", [])
+            if isinstance(games, dict) and "games" in games:
+                games = games["games"]
+            for game in games:
+                away = game.get("away", game.get("away_team", ""))
+                home = game.get("home", game.get("home_team", ""))
+                if _team_in_game(away_team, {"home_team": home, "away_team": away}, sport) == "away" and _team_in_game(home_team, {"home_team": home, "away_team": away}, sport) == "home":
+                    return Path(gf_path).stem.split("_")[-1], game
+        except Exception:
+            continue
+    return None, None
+
+
+def _build_team_profile_from_profedge(team: str, sport: str) -> dict | None:
+    _, game = _find_profedge_game(team, sport)
+    if not game:
+        return None
+
+    side = _team_in_game(team, {"home_team": game.get("home", ""), "away_team": game.get("away", "")}, sport)
+    if side == "away":
+        raw_profile = game.get("away_profile") or {}
+    elif side == "home":
+        raw_profile = game.get("home_profile") or {}
+    else:
+        return None
+
+    l5_wins, l5_losses = _parse_record_pair(raw_profile.get("L5"))
+    l10_wins, l10_losses = _parse_record_pair(raw_profile.get("L10"))
+    home_wins, home_losses = _parse_record_pair(raw_profile.get("home_record"))
+    away_wins, away_losses = _parse_record_pair(raw_profile.get("away_record"))
+    season_wins = home_wins + away_wins
+    season_losses = home_losses + away_losses
+    margin_l5 = raw_profile.get("margin_L5", 0) or 0
+    streak = _parse_signed_streak(raw_profile.get("streak"))
+    trend = "flat"
+    if streak >= 2:
+        trend = "up"
+    elif streak <= -2:
+        trend = "down"
+
+    return {
+        "team": team,
+        "sport": sport.lower(),
+        "last_5": [],
+        "wins": l5_wins,
+        "losses": l5_losses,
+        "summary": {
+            "record": raw_profile.get("L5", f"{l5_wins}-{l5_losses}"),
+            "ats_record": None,
+            "ou_record": None,
+            "avg_margin": round(float(margin_l5), 1),
+            "trend": trend,
+        },
+        "l10_wins": l10_wins,
+        "l10_losses": l10_losses,
+        "l10_avg_margin": round(float(raw_profile.get("avg_margin_L10", 0) or 0), 1),
+        "streak": streak,
+        "second_half_avg": None,
+        "season_wins": season_wins,
+        "season_losses": season_losses,
+        "home_record": raw_profile.get("home_record", "0-0"),
+        "away_record": raw_profile.get("away_record", "0-0"),
+        "l5_quality_wins": 0,
+        "l5_soft_wins": 0,
+        "l5_quality_losses": 0,
+        "l5_soft_losses": 0,
+    }
+
+
+def _build_h2h_from_profedge(away_team: str, home_team: str, sport: str) -> dict | None:
+    sport_key = sport.lower()
+    date_key, game = _find_profedge_matchup(away_team, home_team, sport_key)
+    if not game:
+        return None
+
+    away_abbr = str(game.get("away_abbrev", "")).upper()
+    home_abbr = str(game.get("home_abbrev", "")).upper()
+    if not date_key:
+        time_text = str(game.get("time", ""))
+        if len(time_text) >= 10:
+            date_key = time_text[:10].replace("-", "")
+
+    profile_path = EDGE_GRADES_DIR / f"{sport_key.upper()}_PROFILE_{away_abbr}_{home_abbr}_{date_key}.json"
+    if not profile_path.exists():
+        return {
+            "away_team": away_team,
+            "home_team": home_team,
+            "meetings": [],
+            "count": 0,
+            "summary": {"away_record": "0-0", "home_record": "0-0", "avg_margin": 0},
+        }
+
+    try:
+        with open(profile_path, "r", encoding="utf-8") as f:
+            profile_data = json.load(f)
+    except Exception:
+        return None
+
+    teams = profile_data.get("teams", {})
+    away_entry = None
+    for name, payload in teams.items():
+        if _team_in_game(away_team, {"home_team": home_team, "away_team": name}, sport_key) == "away":
+            away_entry = payload
+            break
+    h2h_text = str((away_entry or {}).get("h2h_vs_opponent", "")).strip()
+    record_match = re.match(r"(\d+)-(\d+)", h2h_text)
+    away_wins = int(record_match.group(1)) if record_match else 0
+    home_wins = int(record_match.group(2)) if record_match else 0
+
+    meetings = []
+    details_match = re.search(r"\((.*)\)", h2h_text)
+    if details_match:
+        for part in details_match.group(1).split(","):
+            item = part.strip()
+            parsed = re.match(r"([WL])\s+on\s+([A-Za-z]{3}\s+\d{1,2}):\s*(\d+)-(\d+)", item)
+            if not parsed:
+                continue
+            result = parsed.group(1)
+            score_for = int(parsed.group(3))
+            score_against = int(parsed.group(4))
+            meetings.append({
+                "away": away_team,
+                "home": home_team,
+                "result": result,
+                "margin": score_for - score_against,
+                "score": f"{score_for}-{score_against}",
+                "ats": None,
+                "ou": None,
+                "date": parsed.group(2),
+            })
+
+    total_margin = sum(m.get("margin", 0) for m in meetings)
+    count = len(meetings) or (away_wins + home_wins)
+    avg_margin = round(total_margin / len(meetings), 1) if meetings else 0
+    return {
+        "away_team": away_team,
+        "home_team": home_team,
+        "meetings": meetings,
+        "count": count,
+        "summary": {
+            "away_record": f"{away_wins}-{home_wins}",
+            "home_record": f"{home_wins}-{away_wins}",
+            "avg_margin": avg_margin,
+        },
+    }
+
+
 def _build_team_profile(team: str, sport: str) -> dict:
     """Build a team profile from the scores archive. Returns last 5 games + summary."""
     cache_key = f"team_profile:{sport}:{_normalize_team(team)}"
@@ -12447,6 +12653,12 @@ def _build_team_profile(team: str, sport: str) -> dict:
         return cached
 
     archive = _read_scores_archive()
+    if not archive:
+        fallback = _build_team_profile_from_profedge(team, sport)
+        if fallback is not None:
+            _set_cache(cache_key, fallback)
+            return fallback
+
     team_games = []
     for gid, game in archive.items():
         if not game.get("completed"):
@@ -12738,6 +12950,12 @@ def _build_h2h(away_team: str, home_team: str, sport: str) -> dict:
         return cached
 
     archive = _read_scores_archive()
+    if not archive:
+        fallback = _build_h2h_from_profedge(away_team, home_team, sport)
+        if fallback is not None:
+            _set_cache(cache_key, fallback)
+            return fallback
+
     h2h_games = []
     for gid, game in archive.items():
         if not game.get("completed"):
@@ -12968,13 +13186,14 @@ async def card_h2h(sport: str, matchup: str):
     away_profile = _build_team_profile(away_name, sport_lower)
     home_profile = _build_team_profile(home_name, sport_lower)
     h2h = _build_h2h(away_name, home_name, sport_lower)
+    source_label = "Scores Archive" if _read_scores_archive() else "Pro Edge local files"
 
     return JSONResponse({
         "matchup": matchup,
         "away_profile": away_profile,
         "home_profile": home_profile,
         "h2h": h2h,
-        "source": "Scores Archive",
+        "source": source_label,
     })
 
 
@@ -12998,10 +13217,15 @@ async def alt_grade_endpoint(sport: str, matchup: str):
     home_profile = _build_team_profile(home_name, sport_lower)
     h2h = _build_h2h(away_name, home_name, sport_lower)
 
-    # Don't calculate alt grade if we have no game data for either team
+    # Don't calculate alt grade if we have no usable profile or H2H data at all
     away_games = len(away_profile.get("last_5", []))
     home_games = len(home_profile.get("last_5", []))
-    if away_games == 0 and home_games == 0:
+    has_summary_data = (
+        away_profile.get("summary", {}).get("record") not in ("", "0-0")
+        or home_profile.get("summary", {}).get("record") not in ("", "0-0")
+        or h2h.get("count", 0) > 0
+    )
+    if away_games == 0 and home_games == 0 and not has_summary_data:
         alt_grade = None
     else:
         alt_grade = _calculate_alt_grade(away_profile, home_profile, h2h)

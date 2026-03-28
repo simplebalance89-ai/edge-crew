@@ -5900,8 +5900,9 @@ function renderTeamProfile(matchupId, data) {
         var showOu = meetings.some(function(gm) { return gm && gm.ou != null && gm.ou !== ''; });
         var awayRecord = h.summary.away_record || '--';
         var homeRecord = h.summary.home_record || '--';
+        var meetingCount = h.count || meetings.length;
         html += '<div class="profile-h2h">';
-        html += '<div class="h2h-title">H2H (Last ' + meetings.length + ' meetings)</div>';
+        html += '<div class="h2h-title">H2H (Last ' + meetingCount + ' meetings)</div>';
         html += (h.away_team || 'Away') + ' ' + awayRecord + ' | ' + (h.home_team || 'Home') + ' ' + homeRecord + ' | Avg margin: ' + (h.summary.avg_margin >= 0 ? '+' : '') + h.summary.avg_margin;
         if (meetings.length) {
             html += '<table style="margin-top:6px;"><tr><th>Date</th><th>Matchup</th><th>Res</th><th>Score</th>';
