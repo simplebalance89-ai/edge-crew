@@ -12694,6 +12694,8 @@ def _build_team_profile(team: str, sport: str) -> dict:
 
     # Second-half average (placeholder — not available from scores_archive without quarter data)
     second_half_avg = None
+    ats_sample_count = ats_wins + ats_losses + ats_pushes
+    ou_sample_count = ou_overs + ou_unders + ou_pushes
 
     profile = {
         "team": team,
@@ -12703,8 +12705,8 @@ def _build_team_profile(team: str, sport: str) -> dict:
         "losses": losses,
         "summary": {
             "record": f"{wins}-{losses}",
-            "ats_record": f"{ats_wins}-{ats_losses}" + (f"-{ats_pushes}" if ats_pushes else ""),
-            "ou_record": f"{ou_overs}-{ou_unders}-{ou_pushes}",
+            "ats_record": (f"{ats_wins}-{ats_losses}" + (f"-{ats_pushes}" if ats_pushes else "")) if ats_sample_count > 0 else None,
+            "ou_record": f"{ou_overs}-{ou_unders}-{ou_pushes}" if ou_sample_count > 0 else None,
             "avg_margin": avg_margin,
             "trend": trend,
         },
@@ -14412,64 +14414,33 @@ def _prepare_profedge_game_for_grading(game: dict) -> dict:
 async def get_profedge(sport: str):
     """Pro Edge V3 — returns merged game data + grades + race for a sport."""
     sport_key = sport.lower()
-    today = datetime.now(PST).strftime("%Y%m%d")
+    resolution = _resolve_profedge_files(sport_key)
+    games_data = resolution["games_data"]
+    grades_data = resolution["grades_data"]
+    race_data = resolution["race_data"]
+    roster_data = resolution["roster_data"]
+    used_date = resolution["used_date"]
+    game_files = resolution["game_files"]
+    available_dates = resolution["available_dates"]
+    selected_reason = resolution["selected_reason"]
 
-    # Find most recent data file for this sport
-    games_data = None
-    grades_data = None
-    race_data = None
-    used_date = today
-
-    # Scan for all game files for this sport, pick highest date (upcoming games)
-    import glob as _glob
-    game_files = _glob.glob(str(EDGE_DATA_DIR / f"games_{sport_key}_*.json"))
-    # Sort by extracted date from filename (not full path) to ensure correct ordering
-    def _extract_date(fp):
-        return Path(fp).stem.split("_")[-1]
-    game_files.sort(key=_extract_date, reverse=True)
-    logger.info(f"[profedge] {sport_key}: found {len(game_files)} files, "
-                f"candidates: {[_extract_date(f) for f in game_files[:3]]}")
-    for gf_path in game_files:
-        try:
-            with open(gf_path, "r", encoding="utf-8") as f:
-                games_data = json.load(f)
-            used_date = _extract_date(gf_path)
-            logger.info(f"[profedge] {sport_key}: using date {used_date} from {Path(gf_path).name}")
-            break
-        except Exception as exc:
-            logger.warning(f"[profedge] {sport_key}: failed to load {Path(gf_path).name}: {exc}")
-            continue
+    logger.info(
+        f"[profedge] {sport_key}: found {len(game_files)} files, "
+        f"available dates: {[d['date'] for d in available_dates[:5]]}, "
+        f"using {used_date} ({selected_reason})"
+    )
 
     if not games_data:
         return JSONResponse({"error": f"No game data for {sport_key}", "games": [], "grades": [], "race": []})
 
-    # Load grades
-    grf = EDGE_GRADES_DIR / f"{sport_key}_{used_date}_grades.json"
-    if grf.exists():
-        try:
-            with open(grf, "r", encoding="utf-8") as f:
-                grades_data = json.load(f)
-        except Exception:
-            pass
-
-    # Load race
-    rf = EDGE_GRADES_DIR / f"race_{sport_key}_{used_date}.json"
-    if rf.exists():
-        try:
-            with open(rf, "r", encoding="utf-8") as f:
-                race_data = json.load(f)
-        except Exception:
-            pass
-
-    # Load roster profiles
-    roster_data = None
-    rpf = EDGE_GRADES_DIR / f"{sport_key}_roster_profiles_{used_date}.json"
-    if rpf.exists():
-        try:
-            with open(rpf, "r", encoding="utf-8") as f:
-                roster_data = json.load(f)
-        except Exception:
-            pass
+    grade_status = "ready" if grades_data and grades_data.get("games") else "missing"
+    grade_message = ""
+    if grade_status != "ready":
+        if any(d["has_grades"] for d in available_dates):
+            grade_status = "stale"
+            grade_message = "Latest game file is newer than the latest graded slate."
+        else:
+            grade_message = "Game data exists, but no Pro Edge grades have been generated for this sport yet."
 
     # --- NHL normalization: SGO raw format → normalized pipeline format ---
     raw_games = games_data.get("games", [])
@@ -14678,9 +14649,13 @@ async def get_profedge(sport: str):
         "games": merged,
         "total": len(merged),
         "graded": sum(1 for m in merged if m.get("grade")),
+        "grade_status": grade_status,
+        "grade_message": grade_message,
+        "selected_reason": selected_reason,
         "updated_at": games_data.get("fetched_at", ""),
         "data_dir": str(EDGE_DATA_DIR),
         "file_count": len(game_files),
+        "available_dates": available_dates[:10],
         "matrix": [{"name": v[0], "weight": v[1], "desc": v[2]} for v in sport_matrix],
         "matrix_count": len(sport_matrix),
         "chains": [{"name": c["name"], "desc": c["desc"], "bonus": c["bonus"]} for c in sport_chains],
@@ -14688,7 +14663,7 @@ async def get_profedge(sport: str):
     })
 
 
-def _resolve_profedge_files(sport_key: str) -> tuple[str | None, dict | None]:
+def _resolve_profedge_files(sport_key: str) -> dict:
     import glob as _glob
 
     game_files = sorted(
@@ -14696,13 +14671,106 @@ def _resolve_profedge_files(sport_key: str) -> tuple[str | None, dict | None]:
         key=lambda fp: Path(fp).stem.split("_")[-1],
         reverse=True,
     )
+    available_dates = []
+    latest_entry = None
+    complete_entry = None
+
     for gf_path in game_files:
+        date_key = Path(gf_path).stem.split("_")[-1]
+        entry = {
+            "date": date_key,
+            "game_file": Path(gf_path).name,
+            "games_data": None,
+            "grades_data": None,
+            "race_data": None,
+            "roster_data": None,
+            "games_count": 0,
+            "has_grades": False,
+            "has_race": False,
+            "has_roster": False,
+        }
         try:
             with open(gf_path, "r", encoding="utf-8") as f:
-                return Path(gf_path).stem.split("_")[-1], json.load(f)
-        except Exception:
+                games_data = json.load(f)
+            raw_games = games_data.get("games", [])
+            if isinstance(raw_games, dict) and "games" in raw_games:
+                raw_games = raw_games["games"]
+            if isinstance(raw_games, list):
+                entry["games_count"] = len(raw_games)
+            entry["games_data"] = games_data
+        except Exception as exc:
+            logger.warning(f"[profedge] {sport_key}: failed to load {Path(gf_path).name}: {exc}")
+            available_dates.append(entry)
             continue
-    return None, None
+
+        grf = EDGE_GRADES_DIR / f"{sport_key}_{date_key}_grades.json"
+        if grf.exists():
+            try:
+                with open(grf, "r", encoding="utf-8") as f:
+                    grades_data = json.load(f)
+                entry["grades_data"] = grades_data
+                entry["has_grades"] = bool(grades_data.get("games"))
+            except Exception as exc:
+                logger.warning(f"[profedge] {sport_key}: failed to load {grf.name}: {exc}")
+
+        rf = EDGE_GRADES_DIR / f"race_{sport_key}_{date_key}.json"
+        if rf.exists():
+            try:
+                with open(rf, "r", encoding="utf-8") as f:
+                    entry["race_data"] = json.load(f)
+                entry["has_race"] = True
+            except Exception as exc:
+                logger.warning(f"[profedge] {sport_key}: failed to load {rf.name}: {exc}")
+
+        rpf = EDGE_GRADES_DIR / f"{sport_key}_roster_profiles_{date_key}.json"
+        if rpf.exists():
+            try:
+                with open(rpf, "r", encoding="utf-8") as f:
+                    entry["roster_data"] = json.load(f)
+                entry["has_roster"] = True
+            except Exception as exc:
+                logger.warning(f"[profedge] {sport_key}: failed to load {rpf.name}: {exc}")
+
+        if latest_entry is None:
+            latest_entry = entry
+        if complete_entry is None and entry["has_grades"]:
+            complete_entry = entry
+        available_dates.append(entry)
+
+    selected = complete_entry or latest_entry
+    if not selected:
+        return {
+            "used_date": None,
+            "games_data": None,
+            "grades_data": None,
+            "race_data": None,
+            "roster_data": None,
+            "game_files": game_files,
+            "available_dates": [],
+            "selected_reason": "missing",
+        }
+
+    selected_reason = "latest_complete" if complete_entry else "latest_games"
+    return {
+        "used_date": selected["date"],
+        "games_data": selected["games_data"],
+        "grades_data": selected["grades_data"],
+        "race_data": selected["race_data"],
+        "roster_data": selected["roster_data"],
+        "game_files": game_files,
+        "available_dates": [
+            {
+                "date": d["date"],
+                "game_file": d["game_file"],
+                "games_count": d["games_count"],
+                "has_grades": d["has_grades"],
+                "has_race": d["has_race"],
+                "has_roster": d["has_roster"],
+            }
+            for d in available_dates
+        ],
+        "selected_reason": selected_reason,
+    }
 
 
 def _resolve_profedge_game(sport_key: str, game_id: str) -> tuple[str | None, dict | None, dict | None]:
