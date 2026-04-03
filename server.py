@@ -1454,9 +1454,9 @@ THINKER_ENDPOINT = os.environ.get("THINKER_ENDPOINT", "https://gce-personal-reso
 
 # Sport-specific thinker models — Grok for NBA (best edge analysis), gpt-4.1 for speed sports
 SPORT_MODELS = {
-    "nba": {"thinker": "DeepSeek-R1-0528", "timeout": 300},
+    "nba": {"thinker": "DeepSeek-R1-0528", "timeout": 180},
     "nhl": {"thinker": "DeepSeek-R1-0528", "timeout": 180},
-    "ncaab": {"thinker": "DeepSeek-R1-0528", "timeout": 240},
+    "ncaab": {"thinker": "DeepSeek-R1-0528", "timeout": 180},
     "mlb": {"thinker": "DeepSeek-R1-0528", "timeout": 180},
     "mma": {"thinker": "DeepSeek-R1-0528", "timeout": 180},
     "boxing": {"thinker": "DeepSeek-R1-0528", "timeout": 180},
@@ -6746,11 +6746,9 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
 
     def _build_crowdsource_models():
         return [
-            {"name": "DeepSeek-R1-0528", "endpoint": "ai_services", "display": "DeepSeek R1 0528"},
-            {"name": "DeepSeek-V3-0324", "endpoint": "ai_services", "display": "DeepSeek V3 0324"},
             {"name": "grok-4-1-fast-reasoning", "endpoint": "ai_services", "display": "Grok 4.1 Fast"},
-            {"name": "Kimi-K2.5", "endpoint": "ai_services", "display": "Kimi K2.5"},
             {"name": "gpt-41", "endpoint": "azure", "display": "GPT 4.1"},
+            {"name": "Kimi-K2.5", "endpoint": "ai_services", "display": "Kimi K2.5"},
         ]
 
     def _grade_distance(grade_a, grade_b):
@@ -7047,77 +7045,14 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
             batch_game_lists.append(batch)
             batch_prop_texts.append(batch_props)
 
-        # ===== 4-LAYER PIPELINE: Matrix+Thinker → Kimi (parallel) → Crowdsource (last) → Engine =====
-        # Peter's architecture S225: Internal AI scores matrix, DeepSeek thinks, Kimi scouts parallel, Crowdsource validates last
+        # ===== 3-LAYER PIPELINE: Matrix+Thinker → Crowdsource (Grok+GPT+Kimi) → Engine =====
+        # Peter's architecture S225: DeepSeek thinks, DeepSeek formats, Crowdsource (Grok+GPT+Kimi) validates last
 
         all_analyzed_games = []
         gotcha_html = ""
 
         # ── LAYERS 1+2: INTERNAL AI + MATRIX → DEEPSEEK THINKER (all games) ──
-        # AND Layer 3: KIMI PROFILER (parallel with thinker)
-        logger.info(f"[PIPELINE] 4-layer mode — Layer 1+2 (matrix+thinker) + Layer 3 (Kimi) in parallel on {len(games_to_analyze)} games")
-
-        # Build Kimi profiler task (Layer 3 — runs parallel with thinker)
-        async def _run_kimi_profiler():
-            """Layer 3: Kimi Profiler — 4-dimension scouting, parallel with thinker."""
-            try:
-                logger.info(f"[KIMI PROFILER] Profiling {len(games_to_analyze)} games with Kimi K2.5")
-                kimi_profile_prompt = f"""You are a sharp {sport.upper()} game profiler. For each game, score these 4 dimensions from 0-10 and provide a one-line note for each.
-
-DIMENSIONS:
-1. Tactical DNA (style clash, pace mismatch, formation advantage)
-2. H2H Context (historical patterns, venue history, psychological edge)
-3. Structural Edge (rest, travel, B2B, schedule congestion)
-4. Market Signal (line movement direction, public vs sharp money indicators)
-
-GAMES:
-{chr(10).join(games_to_analyze)}
-
-INJURY CONTEXT:
-{injury_context[:3000] if injury_context else 'None available'}
-
-TEAM FORM:
-{form_context[:3000] if form_context else 'None available'}
-
-Return ONLY valid JSON, no markdown fences:
-{{"profiles": [
-  {{"matchup": "AWAY @ HOME",
-    "tactical_dna": {{"score": 7.2, "note": "Pace mismatch — NYK half-court grinds vs WAS transition"}},
-    "h2h_context": {{"score": 5.0, "note": "NYK 3-1 this season, WAS covered 3 of 4"}},
-    "structural_edge": {{"score": 8.5, "note": "WAS on B2B, NYK 2 days rest, home"}},
-    "market_signal": {{"score": 6.8, "note": "Line moved 1.5 toward NYK, public on NYK 72%"}},
-    "profile_score": 6.9,
-    "profile_tag": "STRUCTURAL EDGE + PACE MISMATCH",
-    "profile_summary": "Strong structural edge with pace mismatch. NYK grinds half-court while WAS needs transition."
-  }}
-]}}"""
-                moonshot_key = os.environ.get("MOONSHOT_API_KEY", "sk-48GFmsuLeU8OmdD7IckQvO4Q6jFqr0oCyR5BzruGduYCMywZ")
-                kimi_client = OpenAI(
-                    base_url="https://api.moonshot.ai/v1",
-                    api_key=moonshot_key,
-                    timeout=180,
-                )
-                kimi_start = time.time()
-                kimi_resp = await asyncio.to_thread(
-                    lambda: kimi_client.chat.completions.create(
-                        model="kimi-k2.5",
-                        messages=[{"role": "user", "content": kimi_profile_prompt}],
-                        max_completion_tokens=8000,
-                        extra_body={
-                            "thinking": {"type": "disabled"},
-                            "response_format": {"type": "json_object"},
-                        },
-                    )
-                )
-                kimi_raw = kimi_resp.choices[0].message.content.strip()
-                kimi_secs = round(time.time() - kimi_start, 1)
-                kimi_data = json.loads(kimi_raw)
-                kimi_profiles = kimi_data.get("profiles", [])
-                logger.info(f"[KIMI PROFILER] Got {len(kimi_profiles)} profiles in {kimi_secs}s")
-                return kimi_profiles
-            except Exception as e:
-                logger.warning(f"[KIMI PROFILER] Failed: {e} — continuing without profiles")
-                return []
+        logger.info(f"[PIPELINE] 3-layer mode — Layer 1+2 (matrix+thinker) then Layer 3 (crowdsource) on {len(games_to_analyze)} games")
 
         # Build thinker batch tasks (Layers 1+2 — matrix scoring + deep analysis)
         thinker_tasks = [
@@ -7131,17 +7066,11 @@ Return ONLY valid JSON, no markdown fences:
             for i in range(len(batch_prompts))
         ]
 
-        # Run Layers 1+2 and Layer 3 in PARALLEL
-        kimi_task = _run_kimi_profiler()
-        all_results = await asyncio.gather(kimi_task, *thinker_tasks, return_exceptions=True)
-
-        # Unpack results: first is Kimi, rest are thinker batches
-        kimi_profiles = all_results[0] if not isinstance(all_results[0], Exception) else []
-        if isinstance(all_results[0], Exception):
-            logger.warning(f"[KIMI PROFILER] Task exception: {all_results[0]}")
+        # Run Layer 1+2 thinker batches in parallel
+        all_results = await asyncio.gather(*thinker_tasks, return_exceptions=True)
 
         failed_batches = []
-        for idx, result in enumerate(all_results[1:]):
+        for idx, result in enumerate(all_results):
             if isinstance(result, Exception):
                 logger.error(f"Analysis batch {idx} failed: {result}")
                 log_error("Analysis", f"Batch {idx} failed", str(result))
@@ -7175,26 +7104,6 @@ Return ONLY valid JSON, no markdown fences:
                 if result.get("games"):
                     all_analyzed_games.extend(result["games"])
                 logger.info(f"Analysis batch {idx} retry succeeded: {len(result['games'])} games recovered")
-
-        # ── ATTACH KIMI PROFILES to analyzed games ──
-        if kimi_profiles:
-            for profile in kimi_profiles:
-                p_matchup = (profile.get("matchup", "")).replace(" ", "").upper()
-                for game in all_analyzed_games:
-                    g_matchup = (game.get("matchup", "")).replace(" ", "").upper()
-                    if p_matchup == g_matchup:
-                        game["kimi_profile"] = {
-                            "tactical_dna": profile.get("tactical_dna", {}),
-                            "h2h_context": profile.get("h2h_context", {}),
-                            "structural_edge": profile.get("structural_edge", {}),
-                            "market_signal": profile.get("market_signal", {}),
-                            "profile_score": profile.get("profile_score", 0),
-                            "profile_tag": profile.get("profile_tag", ""),
-                            "profile_summary": profile.get("profile_summary", ""),
-                        }
-                        logger.info(f"[KIMI PROFILER] {game['matchup']}: {profile.get('profile_score', '?')}/10 — {profile.get('profile_tag', '')}")
-                        break
-            logger.info(f"[KIMI PROFILER] Attached {sum(1 for g in all_analyzed_games if g.get('kimi_profile'))} profiles to game cards")
 
         # ── LAYER 4: CROWDSOURCE — different models validate LAST ──
         CROWDSOURCE_MODELS = _build_crowdsource_models()
@@ -7253,7 +7162,7 @@ Return ONLY valid JSON. Grade most games C or PASS. Only B+ when edge is clear."
 
             async def _run_crowdsource_model(cs_model):
                 try:
-                    client = _build_model_client(cs_model["name"], timeout=90)
+                    client = _build_model_client(cs_model["name"], timeout=60)
                     logger.info(f"[CROWDSOURCE] Calling {cs_model['display']}...")
                     response = await asyncio.to_thread(
                         lambda: client.chat.completions.create(
@@ -7341,9 +7250,9 @@ Return ONLY valid JSON. Grade most games C or PASS. Only B+ when edge is clear."
                     cs_note = f" | CS: {g['crowdsource_consensus']} ({g.get('crowdsource_bp_count', '?')}/{g.get('crowdsource_total', '?')})"
                 gotcha_items.append(f"<li><strong>{g['matchup']}</strong>: {pick.get('team', '?')} {pick.get('bet_type', '')} {pick.get('line', '')} — {g.get('grade', '?')} ({g.get('composite_score', '?')}){cs_note}</li>")
         if gotcha_items:
-            gotcha_html = f"<ul>{''.join(gotcha_items)}<li><em>Analysis generated {now_time} | 4-layer pipeline (matrix→thinker→kimi→crowdsource)</em></li></ul>"
+            gotcha_html = f"<ul>{''.join(gotcha_items)}<li><em>Analysis generated {now_time} | 3-layer pipeline (matrix→thinker→crowdsource)</em></li></ul>"
         elif not gotcha_html:
-            gotcha_html = f"<ul><li>No B+ edges found on today's slate.</li><li><em>Analysis generated {now_time} | 4-layer pipeline</em></li></ul>"
+            gotcha_html = f"<ul><li>No B+ edges found on today's slate.</li><li><em>Analysis generated {now_time} | 3-layer pipeline (matrix→thinker→crowdsource)</em></li></ul>"
 
         # ===== MATCHUP NORMALIZATION — ensure model output matches odds format =====
         # Build expected matchup set from odds data (e.g., "NYK @ IND")
@@ -7655,7 +7564,7 @@ Return ONLY valid JSON. Grade most games C or PASS. Only B+ when edge is clear."
         # B+ or higher consensus = best bet candidate. Split grades = dig deeper flag.
         CROWDSOURCE_MODELS = _build_crowdsource_models()
         CROWDSOURCE_ENABLED = False
-        CROWDSOURCE_TIMEOUT = int(os.environ.get("CROWDSOURCE_TIMEOUT", "90"))
+        CROWDSOURCE_TIMEOUT = int(os.environ.get("CROWDSOURCE_TIMEOUT", "60"))
 
         crowdsource_grades = crowdsource_grades  # keep Layer 4 results from the active path
 

@@ -1363,15 +1363,15 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <div class="tabs-wrapper">
 <div class="sport-tabs sport-row">
     <div class="sport-tab active" onclick="switchSport('landing', event)"><span class="tab-icon">🏠</span><span class="tab-label">Home</span></div>
-    <div class="sport-tab" onclick="switchSport('profedge', event)" style="border-color:#F72585"><span class="tab-icon">âš¡</span><span class="tab-label">Pro Edge</span></div>
+    <div class="sport-tab" onclick="switchSport('profedge', event)" style="border-color:#F72585"><span class="tab-icon">⚡</span><span class="tab-label">Pro Edge</span></div>
     <div class="sport-tab" onclick="switchSport('nba', event)"><span class="tab-icon">🏀</span><span class="tab-label">NBA</span> <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('wnba', event)"><span class="tab-icon">🏀</span><span class="tab-label">WNBA</span> <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('ncaab', event)"><span class="tab-icon">🎓</span><span class="tab-label">NCAAB</span> <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('ncaaf', event)"><span class="tab-icon">🏈</span><span class="tab-label">NCAAF</span> <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('nhl', event)"><span class="tab-icon">🏒</span><span class="tab-label">NHL</span> <span class="tab-count">0</span></div>
-    <div class="sport-tab" onclick="switchSport('mlb', event)"><span class="tab-icon">âš¾</span><span class="tab-label">MLB</span> <span class="tab-count">0</span></div>
+    <div class="sport-tab" onclick="switchSport('mlb', event)"><span class="tab-icon">⚾</span><span class="tab-label">MLB</span> <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('tennis', event)"><span class="tab-icon">🎾</span><span class="tab-label">Tennis</span> <span class="tab-count">0</span></div>
-    <div class="sport-tab" onclick="switchSport('soccer', event)"><span class="tab-icon">âš½</span><span class="tab-label">Soccer</span> <span class="tab-count">0</span></div>
+    <div class="sport-tab" onclick="switchSport('soccer', event)"><span class="tab-icon">⚽</span><span class="tab-label">Soccer</span> <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('mma', event)"><span class="tab-icon">🥊</span><span class="tab-label">MMA</span> <span class="tab-count">0</span></div>
     <div class="sport-tab" onclick="switchSport('boxing', event)"><span class="tab-icon">🥋</span><span class="tab-label">Boxing</span> <span class="tab-count">0</span></div>
 </div>
@@ -9681,6 +9681,9 @@ async function clearAllCache() {
         <button class="mqb-btn" ontouchend="event.preventDefault();switchSport('scores')" onclick="switchSport('scores',event)">
             <span class="mqb-icon">📈</span>Scores
         </button>
+        <button class="mqb-btn" ontouchend="event.preventDefault();switchSport('profedge')" onclick="switchSport('profedge',event)" style="color:#F72585;">
+            <span class="mqb-icon">⚡</span>Pro Edge
+        </button>
         <button class="mqb-btn mqb-ai-hero" onclick="toggleAgentChat()" style="
             background:linear-gradient(135deg,var(--ec-accent),#F72585);
             color:#fff;border-radius:16px;padding:8px 14px;
@@ -9701,7 +9704,7 @@ async function clearAllCache() {
             <span class="mqb-icon">💰</span>Bank
         </button>
         <button class="mqb-btn" ontouchend="event.preventDefault();goToMyProfile()" onclick="goToMyProfile()" style="color:#F72585;">
-            <span class="mqb-icon">âš¡</span>My Profile
+            <span class="mqb-icon">⚡</span>My Profile
         </button>
     </div>
 </div>
@@ -9736,7 +9739,7 @@ async function clearAllCache() {
                 <span class="sp-count" id="sp-count-nhl"></span>
             </button>
             <button class="sport-pick-btn" onclick="pickSport('mlb')">
-                <span class="sp-icon">âš¾</span>MLB
+                <span class="sp-icon">⚾</span>MLB
                 <span class="sp-count" id="sp-count-mlb"></span>
             </button>
             <button class="sport-pick-btn" onclick="pickSport('tennis')">
@@ -9744,7 +9747,7 @@ async function clearAllCache() {
                 <span class="sp-count" id="sp-count-tennis"></span>
             </button>
             <button class="sport-pick-btn" onclick="pickSport('soccer')">
-                <span class="sp-icon">âš½</span>Soccer
+                <span class="sp-icon">⚽</span>Soccer
                 <span class="sp-count" id="sp-count-soccer"></span>
             </button>
             <button class="sport-pick-btn" onclick="pickSport('mma')">
@@ -10051,9 +10054,9 @@ async function clearAllCache() {
         <button class="ev-sport-mode" onclick="evSetMode('ncaab',this)"><span class="esm-icon">🏀</span>NCAAB</button>
         <button class="ev-sport-mode" onclick="evSetMode('ncaaf',this)"><span class="esm-icon">🏈</span>NCAAF</button>
         <button class="ev-sport-mode" onclick="evSetMode('nhl',this)"><span class="esm-icon">🏒</span>NHL</button>
-        <button class="ev-sport-mode" onclick="evSetMode('mlb',this)"><span class="esm-icon">âš¾</span>MLB</button>
+        <button class="ev-sport-mode" onclick="evSetMode('mlb',this)"><span class="esm-icon">⚾</span>MLB</button>
         <button class="ev-sport-mode" onclick="evSetMode('tennis',this)"><span class="esm-icon">🎾</span>Tennis</button>
-        <button class="ev-sport-mode" onclick="evSetMode('soccer',this)"><span class="esm-icon">âš½</span>Soccer</button>
+        <button class="ev-sport-mode" onclick="evSetMode('soccer',this)"><span class="esm-icon">⚽</span>Soccer</button>
         <button class="ev-sport-mode" onclick="evSetMode('mma',this)"><span class="esm-icon">🥊</span>MMA</button>
         <button class="ev-sport-mode" onclick="evSetMode('full',this)"><span class="esm-icon">📋</span>All</button>
     </div>
@@ -11040,7 +11043,7 @@ function renderProEdgeGames(games, container) {
         var gColor = (grade === 'N/A') ? 'rgba(255,255,255,0.25)' : _gradeColor(grade);
 
         // ── PERCENT COMPLETE PER CARD ──
-        var pctSteps = 0, pctTotal = 6;
+        var pctSteps = 0, pctTotal = 5;
         if (g.odds && (g.odds.spread_home || g.odds.total)) pctSteps++;  // Step 1: odds loaded
         if (g.home_profile && g.home_profile.L5) pctSteps++;  // Step 2: enrichment
         if (gr && gr.profiles) {
@@ -11048,7 +11051,7 @@ function renderProEdgeGames(games, container) {
             if (profKeys.length > 0 && gr.profiles[profKeys[0]].variables) pctSteps++;  // Step 3: variables
             if (profKeys.length > 0 && gr.profiles[profKeys[0]].grade) pctSteps++;  // Step 4: graders
         }
-        if (g.kimi_profile && g.kimi_profile.profile_score) pctSteps++;  // Kimi scout
+        // Kimi scout step removed — now in crowdsource layer
         if (gr && gr.consensus_grade && gr.consensus_grade !== '?' && gr.consensus_grade !== 'N/A') pctSteps++;  // Step 5: verdict
         var pctComplete = Math.round((pctSteps / pctTotal) * 100);
         var pctColor = pctComplete === 100 ? '#10B981' : pctComplete >= 60 ? '#F59E0B' : '#EF4444';
