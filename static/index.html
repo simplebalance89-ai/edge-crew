@@ -2051,6 +2051,9 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
         <button class="pe-mlb-mode pe-mlb-active" onclick="switchMlbMode(this,'fullgame')" style="padding:4px 12px;border-radius:16px;font-size:10px;font-weight:700;border:1px solid #F97316;background:rgba(249,115,22,0.2);color:#F97316;cursor:pointer;letter-spacing:0.5px;transition:all 0.2s;">FULL GAME</button>
         <button class="pe-mlb-mode" onclick="switchMlbMode(this,'nrfi')" style="padding:4px 12px;border-radius:16px;font-size:10px;font-weight:700;border:1px solid rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;letter-spacing:0.5px;transition:all 0.2s;">NRFI</button>
     </div>
+    <div id="soccerLeagueStrip" style="display:none;margin-top:8px;gap:6px;flex-wrap:wrap;">
+        <button class="pe-soccer-league pe-soccer-active" onclick="filterSoccerLeague(this,'all')" style="padding:4px 12px;border-radius:16px;font-size:10px;font-weight:700;border:1px solid #10B981;background:rgba(16,185,129,0.2);color:#10B981;cursor:pointer;letter-spacing:0.5px;transition:all 0.2s;">ALL</button>
+    </div>
 </div>
 <!-- Pro Edge Stats Bar -->
 <div id="profedgeStats" style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap;"></div>
@@ -3543,7 +3546,7 @@ function switchSport(sport, e) {
     if (sport === 'props') { loadPropsForSport(_currentPropsSport || 'nba'); }
     if (sport === 'scores') { loadScoreboard(); startScoreboardRefresh(); }
     if (sport === 'edge') { loadEdgeData(_edgeCurrentSport || 'nba'); }
-    if (sport === 'profedge') { var _peSport = _profedgeCurrentSport || 'nba'; var strip = document.getElementById('mlbModeStrip'); if (strip) strip.style.display = _peSport === 'mlb' ? 'flex' : 'none'; loadProEdge(_peSport, _peSport === 'mlb' && _mlbCurrentMode === 'nrfi' ? 'nrfi' : null); }
+    if (sport === 'profedge') { var _peSport = _profedgeCurrentSport || 'nba'; var strip = document.getElementById('mlbModeStrip'); if (strip) strip.style.display = _peSport === 'mlb' ? 'flex' : 'none'; var sStrip = document.getElementById('soccerLeagueStrip'); if (sStrip) sStrip.style.display = _peSport === 'soccer' ? 'flex' : 'none'; loadProEdge(_peSport, _peSport === 'mlb' && _mlbCurrentMode === 'nrfi' ? 'nrfi' : null); }
     if (typeof populateIntel === 'function') populateIntel(sport);
     // Auto-fetch Alyssa edge data for side-by-side view
     var sportList = ['nba','wnba','ncaab','ncaaf','nhl','mlb','tennis','soccer','mma','boxing'];
@@ -10982,11 +10985,18 @@ function switchProEdgeSport(btn, sport) {
     btn.style.background = 'rgba(247,37,133,0.2)';
     btn.style.color = '#F72585';
     var strip = document.getElementById('mlbModeStrip');
+    var soccerStrip = document.getElementById('soccerLeagueStrip');
     if (sport === 'mlb') {
         strip.style.display = 'flex';
+        soccerStrip.style.display = 'none';
         loadProEdge(sport, _mlbCurrentMode === 'nrfi' ? 'nrfi' : null);
+    } else if (sport === 'soccer') {
+        strip.style.display = 'none';
+        soccerStrip.style.display = 'flex';
+        loadProEdge(sport);
     } else {
         strip.style.display = 'none';
+        soccerStrip.style.display = 'none';
         loadProEdge(sport);
     }
 }
@@ -11004,6 +11014,49 @@ function switchMlbMode(btn, mode) {
     btn.style.color = '#F97316';
     _mlbCurrentMode = mode;
     loadProEdge('mlb', mode === 'nrfi' ? 'nrfi' : null);
+}
+
+var _soccerCurrentLeague = 'all';
+
+function filterSoccerLeague(btn, league) {
+    _soccerCurrentLeague = league;
+    document.querySelectorAll('.pe-soccer-league').forEach(function(t) {
+        t.classList.remove('pe-soccer-active');
+        t.style.borderColor = 'rgba(255,255,255,0.15)';
+        t.style.background = 'transparent';
+        t.style.color = 'rgba(255,255,255,0.5)';
+    });
+    btn.classList.add('pe-soccer-active');
+    btn.style.borderColor = '#10B981';
+    btn.style.background = 'rgba(16,185,129,0.2)';
+    btn.style.color = '#10B981';
+    document.querySelectorAll('.profedge-card').forEach(function(card) {
+        if (league === 'all') {
+            card.style.display = '';
+        } else {
+            card.style.display = (card.getAttribute('data-league') === league) ? '' : 'none';
+        }
+    });
+}
+
+function populateSoccerLeagueStrip(games) {
+    var strip = document.getElementById('soccerLeagueStrip');
+    if (!strip) return;
+    var leagues = {};
+    (games || []).forEach(function(g) {
+        var lg = g.league || '';
+        if (lg && !leagues[lg]) {
+            leagues[lg] = { name: lg, flag: g.league_flag || '', count: 0 };
+        }
+        if (lg) leagues[lg].count++;
+    });
+    var sorted = Object.values(leagues).sort(function(a, b) { return b.count - a.count; });
+    var html = '<button class="pe-soccer-league pe-soccer-active" onclick="filterSoccerLeague(this,\'all\')" style="padding:4px 12px;border-radius:16px;font-size:10px;font-weight:700;border:1px solid #10B981;background:rgba(16,185,129,0.2);color:#10B981;cursor:pointer;letter-spacing:0.5px;transition:all 0.2s;">ALL (' + (games || []).length + ')</button>';
+    sorted.forEach(function(lg) {
+        html += '<button class="pe-soccer-league" onclick="filterSoccerLeague(this,\'' + lg.name.replace(/'/g,"\\'") + '\')" style="padding:4px 12px;border-radius:16px;font-size:10px;font-weight:700;border:1px solid rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;letter-spacing:0.5px;transition:all 0.2s;">' + lg.flag + ' ' + lg.name + ' (' + lg.count + ')</button>';
+    });
+    strip.innerHTML = html;
+    _soccerCurrentLeague = 'all';
 }
 
 function loadProEdge(sport, mode) {
@@ -11029,6 +11082,9 @@ function loadProEdge(sport, mode) {
             }
             renderProEdgeStats(data, statsBar);
             renderProEdgeGames(data.games, container);
+            if (sport === 'soccer') {
+                populateSoccerLeagueStrip(data.games);
+            }
         })
         .catch(function(err) {
             container.innerHTML = '<p style="color:#ef4444;text-align:center;padding:40px;">Error: ' + err.message + '</p>';
@@ -11138,11 +11194,12 @@ function renderProEdgeGames(games, container) {
             } catch(e) { timeStr = g.time; }
         }
 
-        html += '<div class="profedge-card" style="' + dim + 'background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;margin-bottom:14px;">';
+        html += '<div class="profedge-card" data-league="' + (g.league || '').replace(/"/g,'&quot;') + '" style="' + dim + 'background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;margin-bottom:14px;">';
 
         // ── MATCHUP HEADER ──
         html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.06);">';
-        html += '<div style="font-size:16px;font-weight:800;color:#fff;">' + g.matchup + ' <span style="color:rgba(255,255,255,0.3);font-size:11px;font-weight:400;">' + timeStr + '</span></div>';
+        var leagueBadge = (g.league && _profedgeCurrentSport === 'soccer') ? ' <span style="color:#10B981;font-size:9px;font-weight:700;background:rgba(16,185,129,0.12);padding:2px 6px;border-radius:6px;margin-left:4px;">' + (g.league_flag || '') + ' ' + g.league + '</span>' : '';
+        html += '<div style="font-size:16px;font-weight:800;color:#fff;">' + g.matchup + ' <span style="color:rgba(255,255,255,0.3);font-size:11px;font-weight:400;">' + timeStr + '</span>' + leagueBadge + '</div>';
         html += '<div style="text-align:right;display:flex;align-items:center;gap:10px;"><span style="font-size:10px;font-weight:700;color:' + pctColor + ';background:rgba(' + (pctComplete===100?'16,185,129':pctComplete>=60?'245,158,11':'239,68,68') + ',0.12);padding:3px 8px;border-radius:10px;">' + pctComplete + '%</span><span style="font-size:28px;font-weight:900;color:' + gColor + ';">' + grade + '</span> <span style="font-size:11px;color:rgba(255,255,255,0.4);">' + avg + '</span></div>';
         html += '</div>';
 
