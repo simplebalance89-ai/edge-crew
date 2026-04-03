@@ -957,6 +957,24 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
     .hero-stats{grid-template-columns:1fr 1fr;gap:6px;}
 }
 
+/* ===== PRO EDGE MOBILE ===== */
+@media(max-width:768px){
+    .profedge-card{padding:10px !important;margin-bottom:10px !important;}
+    .profedge-card [style*="font-size:16px"]{font-size:13px !important;}
+    .profedge-card [style*="min-width:170px"]{min-width:140px !important;padding:8px !important;}
+    .profedge-card [style*="min-width:200px"]{min-width:160px !important;padding:8px !important;}
+    .profedge-card [style*="min-width:240px"]{min-width:180px !important;padding:8px !important;}
+    .profedge-card [style*="font-size:28px"]{font-size:20px !important;}
+    .profedge-header{padding:10px 14px !important;}
+    #profedgeStats{gap:4px !important;}
+    #profedgeStats > div{padding:4px 8px !important;font-size:10px !important;}
+}
+@media(max-width:400px){
+    .profedge-card [style*="min-width:140px"]{min-width:120px !important;}
+    .profedge-card [style*="min-width:160px"]{min-width:130px !important;}
+    .profedge-card [style*="min-width:180px"]{min-width:140px !important;}
+}
+
 /* ===== V3 CARD ENTRANCE ANIMATIONS ===== */
 @keyframes cardEnter{
     from{opacity:0;transform:translateY(8px);}
