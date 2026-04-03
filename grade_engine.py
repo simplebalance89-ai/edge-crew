@@ -1681,7 +1681,7 @@ def calculate_ev(game: dict, pick_side: str, consensus_final: float) -> dict:
     implied_prob = ml_to_implied_prob(ml)
     true_prob = grade_to_true_prob(consensus_final, implied_prob)
 
-    if implied_prob is None or ml is None:
+    if implied_prob is None or ml is None or ml == 0:
         return {
             "profile": "ev",
             "status": "no_ml_data",

@@ -14424,9 +14424,9 @@ else:
 LOCAL_EDGE_ENGINE = Path(__file__).parent
 
 
-def _coerce_profedge_number(value):
+def _coerce_profedge_number(value, allow_none=False):
     if value in (None, "", "?", "--"):
-        return 0
+        return None if allow_none else 0
     if isinstance(value, (int, float)):
         return value
     try:
