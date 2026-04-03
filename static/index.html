@@ -2047,6 +2047,10 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
         <button class="pe-sport-tab" onclick="switchProEdgeSport(this,'wnba')" style="padding:6px 14px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;letter-spacing:0.5px;transition:all 0.2s;">WNBA</button>
         <button class="pe-sport-tab" onclick="switchProEdgeSport(this,'boxing')" style="padding:6px 14px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;letter-spacing:0.5px;transition:all 0.2s;">Boxing</button>
     </div>
+    <div id="mlbModeStrip" style="display:none;margin-top:8px;gap:6px;flex-wrap:wrap;">
+        <button class="pe-mlb-mode pe-mlb-active" onclick="switchMlbMode(this,'fullgame')" style="padding:4px 12px;border-radius:16px;font-size:10px;font-weight:700;border:1px solid #F97316;background:rgba(249,115,22,0.2);color:#F97316;cursor:pointer;letter-spacing:0.5px;transition:all 0.2s;">FULL GAME</button>
+        <button class="pe-mlb-mode" onclick="switchMlbMode(this,'nrfi')" style="padding:4px 12px;border-radius:16px;font-size:10px;font-weight:700;border:1px solid rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;letter-spacing:0.5px;transition:all 0.2s;">NRFI</button>
+    </div>
 </div>
 <!-- Pro Edge Stats Bar -->
 <div id="profedgeStats" style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap;"></div>
@@ -3539,7 +3543,7 @@ function switchSport(sport, e) {
     if (sport === 'props') { loadPropsForSport(_currentPropsSport || 'nba'); }
     if (sport === 'scores') { loadScoreboard(); startScoreboardRefresh(); }
     if (sport === 'edge') { loadEdgeData(_edgeCurrentSport || 'nba'); }
-    if (sport === 'profedge') { loadProEdge(_profedgeCurrentSport || 'nba'); }
+    if (sport === 'profedge') { var _peSport = _profedgeCurrentSport || 'nba'; var strip = document.getElementById('mlbModeStrip'); if (strip) strip.style.display = _peSport === 'mlb' ? 'flex' : 'none'; loadProEdge(_peSport, _peSport === 'mlb' && _mlbCurrentMode === 'nrfi' ? 'nrfi' : null); }
     if (typeof populateIntel === 'function') populateIntel(sport);
     // Auto-fetch Alyssa edge data for side-by-side view
     var sportList = ['nba','wnba','ncaab','ncaaf','nhl','mlb','tennis','soccer','mma','boxing'];
@@ -10947,6 +10951,7 @@ window.addEventListener('pageshow', function(e) {
 // ── Pro Edge V3 ──────────────────────────────────────────────────────────────
 var _profedgeCurrentSport = 'nba';
 var _profedgeData = null;
+var _mlbCurrentMode = 'fullgame';
 
 function switchProEdgeSport(btn, sport) {
     document.querySelectorAll('.pe-sport-tab').forEach(function(t) {
@@ -10959,21 +10964,45 @@ function switchProEdgeSport(btn, sport) {
     btn.style.borderColor = '#F72585';
     btn.style.background = 'rgba(247,37,133,0.2)';
     btn.style.color = '#F72585';
-    loadProEdge(sport);
+    var strip = document.getElementById('mlbModeStrip');
+    if (sport === 'mlb') {
+        strip.style.display = 'flex';
+        loadProEdge(sport, _mlbCurrentMode === 'nrfi' ? 'nrfi' : null);
+    } else {
+        strip.style.display = 'none';
+        loadProEdge(sport);
+    }
 }
 
-function loadProEdge(sport) {
+function switchMlbMode(btn, mode) {
+    document.querySelectorAll('.pe-mlb-mode').forEach(function(t) {
+        t.classList.remove('pe-mlb-active');
+        t.style.borderColor = 'rgba(255,255,255,0.15)';
+        t.style.background = 'transparent';
+        t.style.color = 'rgba(255,255,255,0.5)';
+    });
+    btn.classList.add('pe-mlb-active');
+    btn.style.borderColor = '#F97316';
+    btn.style.background = 'rgba(249,115,22,0.2)';
+    btn.style.color = '#F97316';
+    _mlbCurrentMode = mode;
+    loadProEdge('mlb', mode === 'nrfi' ? 'nrfi' : null);
+}
+
+function loadProEdge(sport, mode) {
     _profedgeCurrentSport = sport;
     var container = document.getElementById('profedgeGames');
     var statsBar = document.getElementById('profedgeStats');
-    container.innerHTML = '<p style="color:rgba(255,255,255,0.3);font-style:italic;text-align:center;padding:40px;">Loading ' + sport.toUpperCase() + ' pipeline data...</p>';
+    container.innerHTML = '<p style="color:rgba(255,255,255,0.3);font-style:italic;text-align:center;padding:40px;">Loading ' + sport.toUpperCase() + (mode === 'nrfi' ? ' NRFI' : '') + ' pipeline data...</p>';
     statsBar.innerHTML = '';
 
     // Highlight active option
     var sel = document.getElementById('profedgeSportSelect');
     if (sel) sel.value = sport;
 
-    fetch('/api/profedge/' + sport)
+    var url = '/api/profedge/' + sport;
+    if (mode) url += '?mode=' + mode;
+    fetch(url)
         .then(function(r) { return r.json(); })
         .then(function(data) {
             _profedgeData = data;

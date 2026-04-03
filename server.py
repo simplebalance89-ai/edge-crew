@@ -14625,10 +14625,10 @@ def _nrfi_pick_to_profedge_game(pick: dict[str, Any]) -> dict[str, Any]:
     }
 
 @app.get("/api/profedge/{sport}")
-async def get_profedge(sport: str):
+async def get_profedge(sport: str, mode: str = None):
     """Pro Edge V3 — returns merged game data + grades + race for a sport."""
     sport_key = sport.lower()
-    if sport_key == "mlb":
+    if sport_key == "mlb" and mode == "nrfi":
         nrfi_response = await get_nrfi()
         nrfi_payload = json.loads(nrfi_response.body)
         if nrfi_payload.get("error"):
