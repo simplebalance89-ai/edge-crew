@@ -14375,14 +14375,14 @@ LOCAL_EDGE_ENGINE = Path(__file__).parent
 
 
 def _coerce_profedge_number(value):
-    if value in (None, "", "?"):
-        return value
+    if value in (None, "", "?", "--"):
+        return 0
     if isinstance(value, (int, float)):
         return value
     try:
         return float(str(value).replace("+", ""))
     except (TypeError, ValueError):
-        return value
+        return 0
 
 
 def _adapt_profile_for_grading(profile: dict) -> dict:
@@ -14398,9 +14398,25 @@ def _adapt_profile_for_grading(profile: dict) -> dict:
     opp_ppg_sum = 0
     margin_sum = 0
     for g in last_5:
-        ppg_sum += g.get("team_score", 0)
-        opp_ppg_sum += g.get("opp_score", 0)
-        margin_sum += g.get("margin", 0)
+        # Parse team/opp scores from "105-98" format
+        score_str = g.get("score", "")
+        result = g.get("result", "")
+        margin = g.get("margin", 0)
+        if isinstance(margin, str):
+            try: margin = float(margin)
+            except: margin = 0
+        try:
+            parts = str(score_str).split("-")
+            s1, s2 = float(parts[0]), float(parts[1])
+            if result == "W":
+                ppg_sum += max(s1, s2)
+                opp_ppg_sum += min(s1, s2)
+            else:
+                ppg_sum += min(s1, s2)
+                opp_ppg_sum += max(s1, s2)
+        except (ValueError, IndexError):
+            pass
+        margin_sum += margin
     count = len(last_5) or 1
 
     # Rest days and B2B from most recent game
