@@ -50,7 +50,7 @@ def _sanitize(s):
 app = FastAPI()
 
 # ── Error Log ─────────────────────────────────────────────────────────────────
-from collections import deque
+from collections import defaultdict, deque
 _error_log = deque(maxlen=100)
 
 def log_error(source: str, message: str, detail: str = ""):
@@ -5846,6 +5846,93 @@ async def get_analysis(sport: str, cached_only: bool = False, force: bool = Fals
                 g["_preview"] = True  # Flag: show on slate but skip AI grading
                 preview_games.append(g)
         odds_data["games"] = graded_games + preview_games
+
+    # ===== Filter futures/contingent matchups (e.g., NCAAB championship combos) =====
+    # Two-pass approach:
+    #   Pass 1: Drop time-buckets where 4+ games share the EXACT same time AND every
+    #           team in that bucket also appears in a game at a different time (classic
+    #           "if X beats Y then X plays Z" cross-product futures).
+    #   Pass 2: For tournament sports (NCAAB), enforce one-game-per-team-per-day —
+    #           keep only the earliest game for each team.
+    if odds_data.get("games"):
+        _by_time = defaultdict(list)
+        for _g in odds_data["games"]:
+            _t = (_g.get("time") or "").strip()
+            if _t:
+                _by_time[_t].append(_g)
+        # Collect all teams that appear in the full slate (exact-match counts)
+        _all_teams = defaultdict(int)
+        for _g in odds_data["games"]:
+            _away = (_g.get("away") or _g.get("away_team") or "").strip().lower()
+            _home = (_g.get("home") or _g.get("home_team") or "").strip().lower()
+            if _away:
+                _all_teams[_away] += 1
+            if _home:
+                _all_teams[_home] += 1
+        # Identify time buckets that are futures: 4+ games at exact same time
+        # where every team in that bucket also appears in a game at a different time
+        _futures_times = set()
+        for _t, _bucket in _by_time.items():
+            if len(_bucket) < 4:
+                continue
+            # Get teams in this bucket
+            _bucket_teams = set()
+            for _g in _bucket:
+                _away = (_g.get("away") or _g.get("away_team") or "").strip().lower()
+                _home = (_g.get("home") or _g.get("home_team") or "").strip().lower()
+                if _away:
+                    _bucket_teams.add(_away)
+                if _home:
+                    _bucket_teams.add(_home)
+            # Count how many times each team appears IN THIS BUCKET (exact match)
+            _bucket_team_counts = defaultdict(int)
+            for _g in _bucket:
+                _away = (_g.get("away") or _g.get("away_team") or "").strip().lower()
+                _home = (_g.get("home") or _g.get("home_team") or "").strip().lower()
+                if _away:
+                    _bucket_team_counts[_away] += 1
+                if _home:
+                    _bucket_team_counts[_home] += 1
+            # Check if every team in this bucket also appears in games at OTHER times
+            _all_have_other_game = all(
+                _all_teams.get(_team, 0) > _bucket_team_counts.get(_team, 0)
+                for _team in _bucket_teams if _team
+            )
+            if _all_have_other_game and _bucket_teams:
+                _futures_times.add(_t)
+                logger.info(f"[FUTURES FILTER] Dropping {len(_bucket)} contingent games at time={_t} "
+                            f"(teams: {_bucket_teams})")
+        if _futures_times:
+            _before = len(odds_data["games"])
+            odds_data["games"] = [
+                _g for _g in odds_data["games"]
+                if (_g.get("time") or "").strip() not in _futures_times
+            ]
+            logger.info(f"[FUTURES FILTER] Removed {_before - len(odds_data['games'])} futures from {sport_lower} slate")
+
+    # ===== Pass 2: One-game-per-team for tournament sports (NCAAB) =====
+    # In tournament context, a team can only play once per day. If a team appears in
+    # multiple games, keep only their earliest game (by tip time).
+    if odds_data.get("games") and sport_lower in ("ncaab",):
+        _sorted_games = sorted(odds_data["games"], key=lambda x: (x.get("time") or "9999"))
+        _seen_teams = set()
+        _kept = []
+        for _g in _sorted_games:
+            _away = (_g.get("away") or _g.get("away_team") or "").strip().lower()
+            _home = (_g.get("home") or _g.get("home_team") or "").strip().lower()
+            if _away in _seen_teams and _home in _seen_teams:
+                logger.info(f"[FUTURES FILTER] Dropping duplicate-team game: "
+                            f"{_g.get('away', '?')} @ {_g.get('home', '?')} "
+                            f"(both teams already have earlier games)")
+                continue
+            if _away:
+                _seen_teams.add(_away)
+            if _home:
+                _seen_teams.add(_home)
+            _kept.append(_g)
+        if len(_kept) < len(odds_data["games"]):
+            logger.info(f"[FUTURES FILTER] NCAAB one-game-per-team: kept {len(_kept)}/{len(odds_data['games'])} games")
+            odds_data["games"] = _kept
 
     # Fallback: if live odds are empty, try the cached daily slate
     if not odds_data.get("games"):
@@ -14764,6 +14851,8 @@ async def get_profedge(sport: str, mode: str = None):
                         "home_profile": ag.get("home_profile", {}),
                         "away_profile": ag.get("away_profile", {}),
                         "injuries": ag.get("injuries", {"home": [], "away": []}),
+                        "league": ag.get("league", ""),
+                        "league_flag": ag.get("league_flag", ""),
                         # Pass through analysis grading data
                         "grade": {
                             "consensus_grade": ag.get("grade", "?"),
@@ -14939,6 +15028,8 @@ async def get_profedge(sport: str, mode: str = None):
             "home_profile": game.get("home_profile", {}),
             "away_profile": game.get("away_profile", {}),
             "injuries": game.get("injuries", {"home": [], "away": []}),
+            "league": game.get("league", ""),
+            "league_flag": game.get("league_flag", ""),
         }
 
         # Attach grade
@@ -15309,6 +15400,55 @@ async def _run_profedge_batch_grade(sport: str):
     live_games = [g for g in live_data.get("games", []) if not g.get("_preview")]
     if not live_games:
         logger.info(f"[PROFEDGE GRADE] No games for {sport_key}")
+        return {"graded": 0, "sport": sport_key}
+
+    # ===== Freshness check: validate analysis games exist in current odds =====
+    # CRITICAL: if odds cache is empty, fetch fresh odds so the check is never skipped.
+    # Skipping this check is what caused stale games (yesterday's NHL) to leak through.
+    odds_cache_key_check = f"{sport_key}:h2h,spreads,totals"
+    odds_raw_check = _get_cached(odds_cache_key_check)
+    if not odds_raw_check:
+        try:
+            _odds_resp = await get_odds(sport_key)
+            if hasattr(_odds_resp, 'body'):
+                odds_raw_check = json.loads(_odds_resp.body)
+            else:
+                odds_raw_check = None
+        except Exception as _e:
+            logger.warning(f"[PROFEDGE GRADE] Failed to fetch fresh odds for freshness check: {_e}")
+            odds_raw_check = None
+    if odds_raw_check:
+        if isinstance(odds_raw_check, dict):
+            _odds_games_check = odds_raw_check.get("games", odds_raw_check.get("events", []))
+        elif isinstance(odds_raw_check, list):
+            _odds_games_check = odds_raw_check
+        else:
+            _odds_games_check = []
+        if _odds_games_check:
+            _current_matchups = set()
+            for _og in _odds_games_check:
+                _away = (_og.get("away") or _og.get("away_team") or "").strip().lower()
+                _home = (_og.get("home") or _og.get("home_team") or "").strip().lower()
+                _current_matchups.add(f"{_away} @ {_home}")
+            _fresh_games = []
+            for _ag in live_games:
+                _m = (_ag.get("matchup", "") or "").strip().lower()
+                if _m in _current_matchups:
+                    _fresh_games.append(_ag)
+            if _fresh_games:
+                logger.info(f"[PROFEDGE GRADE] {sport_key.upper()}: {len(_fresh_games)}/{len(live_games)} games validated against current odds")
+                live_games = _fresh_games
+            elif live_games:
+                logger.warning(f"[PROFEDGE GRADE] {sport_key.upper()}: ALL {len(live_games)} analysis games are stale (no odds match) — skipping")
+                live_games = []
+        else:
+            logger.warning(f"[PROFEDGE GRADE] {sport_key.upper()}: odds available but no games found — cannot validate freshness, skipping all {len(live_games)} games")
+            live_games = []
+    else:
+        logger.warning(f"[PROFEDGE GRADE] {sport_key.upper()}: no odds available at all — cannot validate freshness, skipping all {len(live_games)} games")
+        live_games = []
+    if not live_games:
+        logger.info(f"[PROFEDGE GRADE] No fresh games for {sport_key} after validation")
         return {"graded": 0, "sport": sport_key}
 
     # Merge odds from cache onto analysis games (analysis cache doesn't carry odds)
