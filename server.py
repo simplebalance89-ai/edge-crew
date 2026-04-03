@@ -5078,7 +5078,7 @@ async def get_cached_sport_slate(sport: str):
 
 # ===== PLAYER PROPS — Real Lines (SGO primary, Odds API fallback) =====
 PROP_MARKETS = {
-    "nba": "player_points,player_rebounds,player_assists,player_threes",
+    "nba": "player_points,player_rebounds,player_assists,player_threes,player_points_rebounds_assists,player_points_rebounds,player_points_assists,player_rebounds_assists",
     "nhl": "player_points,player_assists,player_goals",
     "nfl": "player_pass_yds,player_rush_yds,player_reception_yds,player_pass_tds",
     "mlb": "pitcher_strikeouts,batter_total_bases,batter_hits",
@@ -5339,6 +5339,7 @@ async def get_player_props(sport: str, game: str = None):
         "count": len(all_props),
         "games_scanned": min(6, len(all_props)),
         "fetched_at": _now_ts(),
+        "source": "The Odds API",
         "cached": False,
     }
 

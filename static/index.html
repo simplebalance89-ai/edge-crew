@@ -8342,7 +8342,7 @@ function loadRealProps(sport) {
         // Filter to SHARP VALUE only on load
         var sharpOnly = _realPropsData.filter(function(p) { return p.verdict === 'SHARP VALUE'; });
         document.getElementById('propsCount').textContent = sharpOnly.length + ' props | ' + (data.fetched_at || '');
-        document.getElementById('propsTimestamp').textContent = 'Real lines from The Odds API | ' + (data.fetched_at || '');
+        document.getElementById('propsTimestamp').textContent = 'Real lines from ' + (data.source || 'The Odds API') + ' | ' + (data.fetched_at || '');
         renderRealProps(sharpOnly);
     }).catch(function(err) {
         container.innerHTML = '<div class="empty-state" style="font-size:12px;">Failed to load props: ' + err.message + '</div>';
