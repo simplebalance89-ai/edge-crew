@@ -14352,11 +14352,25 @@ async def get_simple_slate(sport: str):
 
 # ── Pro Edge V3 Pipeline ────────────────────────────────────────────────────
 
-# Try local repo bundle first (for Render), then edge_engine path (for local dev)
+# Try persistent disk first (/data/ on Render), then local repo bundle, then edge_engine path (local dev)
+_PERSISTENT_EDGE = Path("/data/edge_data")
 _LOCAL_EDGE = Path(__file__).parent / "edge_data"
 EDGE_ENGINE_DIR = Path(os.environ.get("EDGE_ENGINE_DIR", r"C:\Users\GCTII\edge_engine"))
-EDGE_DATA_DIR = _LOCAL_EDGE / "data" if (_LOCAL_EDGE / "data").exists() else EDGE_ENGINE_DIR / "data"
-EDGE_GRADES_DIR = _LOCAL_EDGE / "grades" if (_LOCAL_EDGE / "grades").exists() else EDGE_ENGINE_DIR / "grades"
+
+# Data + grades: prefer persistent disk so deploys don't wipe grading data
+if _PERSISTENT_EDGE.exists() or Path("/data").exists():
+    _PERSISTENT_EDGE.mkdir(parents=True, exist_ok=True)
+    EDGE_DATA_DIR = _PERSISTENT_EDGE / "data"
+    EDGE_GRADES_DIR = _PERSISTENT_EDGE / "grades"
+    EDGE_DATA_DIR.mkdir(parents=True, exist_ok=True)
+    EDGE_GRADES_DIR.mkdir(parents=True, exist_ok=True)
+    logger.info(f"[PROFEDGE] Using persistent disk: {_PERSISTENT_EDGE}")
+elif (_LOCAL_EDGE / "data").exists():
+    EDGE_DATA_DIR = _LOCAL_EDGE / "data"
+    EDGE_GRADES_DIR = _LOCAL_EDGE / "grades"
+else:
+    EDGE_DATA_DIR = EDGE_ENGINE_DIR / "data"
+    EDGE_GRADES_DIR = EDGE_ENGINE_DIR / "grades"
 LOCAL_EDGE_ENGINE = Path(__file__).parent
 
 
@@ -14369,6 +14383,56 @@ def _coerce_profedge_number(value):
         return float(str(value).replace("+", ""))
     except (TypeError, ValueError):
         return value
+
+
+def _adapt_profile_for_grading(profile: dict) -> dict:
+    """Convert _build_team_profile output to the format grade_engine expects."""
+    if not profile or profile.get("L5"):
+        return profile  # Already in grade engine format
+
+    summary = profile.get("summary", {})
+    last_5 = profile.get("last_5", [])
+
+    # Calculate PPG and Opp PPG from last 5 games
+    ppg_sum = 0
+    opp_ppg_sum = 0
+    margin_sum = 0
+    for g in last_5:
+        ppg_sum += g.get("team_score", 0)
+        opp_ppg_sum += g.get("opp_score", 0)
+        margin_sum += g.get("margin", 0)
+    count = len(last_5) or 1
+
+    # Rest days and B2B from most recent game
+    rest_days = None
+    is_b2b = False
+    if last_5 and last_5[0].get("date"):
+        try:
+            last_date = datetime.fromisoformat(last_5[0]["date"][:10])
+            rest_days = (datetime.now() - last_date).days
+            is_b2b = rest_days <= 1
+        except Exception:
+            pass
+
+    streak = profile.get("streak", 0)
+    streak_str = f"{'W' if streak > 0 else 'L'}{abs(streak)}" if streak != 0 else "0"
+
+    return {
+        "L5": summary.get("record", f"{profile.get('wins', 0)}-{profile.get('losses', 0)}"),
+        "L10": f"{profile.get('l10_wins', 0)}-{profile.get('l10_losses', 0)}",
+        "ppg_L5": round(ppg_sum / count, 1),
+        "opp_ppg_L5": round(opp_ppg_sum / count, 1),
+        "margin_L5": round(margin_sum / count, 1),
+        "streak": streak_str,
+        "rest_days": rest_days,
+        "is_b2b": is_b2b,
+        "games_last_7d": min(len(last_5), 3),
+        "home_record": profile.get("home_record", "0-0"),
+        "away_record": profile.get("away_record", "0-0"),
+        "ats_record": summary.get("ats_record", "0-0"),
+        "season_wins": profile.get("season_wins", 0),
+        "season_losses": profile.get("season_losses", 0),
+    }
 
 
 def _prepare_profedge_game_for_grading(game: dict) -> dict:
@@ -14389,6 +14453,9 @@ def _prepare_profedge_game_for_grading(game: dict) -> dict:
         if key in odds:
             odds[key] = _coerce_profedge_number(odds.get(key))
     prepared["odds"] = odds
+    # Adapt profiles to grade engine format
+    prepared["home_profile"] = _adapt_profile_for_grading(prepared.get("home_profile", {}))
+    prepared["away_profile"] = _adapt_profile_for_grading(prepared.get("away_profile", {}))
     return prepared
 
 
@@ -14949,8 +15016,8 @@ def _load_profedge_grade_engine():
         if str(candidate) not in _sys.path:
             _sys.path.insert(0, str(candidate))
         try:
-            from grade_engine import grade_sintonia, grade_renzo, grade_peter_rules, score_to_grade, calculate_ev
-            return grade_sintonia, grade_renzo, grade_peter_rules, score_to_grade, calculate_ev
+            from grade_engine import grade_sintonia, grade_renzo, grade_claude, grade_edge, grade_peter_rules, score_to_grade, calculate_ev
+            return grade_sintonia, grade_renzo, grade_claude, grade_edge, grade_peter_rules, score_to_grade, calculate_ev
         except Exception:
             continue
     raise RuntimeError("Pro Edge regrade is unavailable: grade engine code is not present on this deployment")
@@ -14966,16 +15033,18 @@ async def _run_profedge_regrade(game_id: str, sport: str):
             return JSONResponse({"error": "No game data found"}, status_code=404)
 
         # Import and run grade engine
-        grade_sintonia, grade_renzo, grade_peter_rules, score_to_grade, calculate_ev = _load_profedge_grade_engine()
+        grade_sintonia, grade_renzo, grade_claude, grade_edge, grade_peter_rules, score_to_grade, calculate_ev = _load_profedge_grade_engine()
         target_game = _prepare_profedge_game_for_grading(target_game)
 
         results = {}
         for side in ["home", "away"]:
             sintonia = grade_sintonia(target_game, side)
             renzo = grade_renzo(target_game, side)
+            claude = grade_claude(target_game, side)
+            edge = grade_edge(target_game, side)
             peter = grade_peter_rules(target_game, side)
 
-            avg_final = (sintonia["final"] + renzo["final"]) / 2
+            avg_final = (sintonia["final"] + renzo["final"] + claude["final"] + edge["final"]) / 4
             adjusted = round(avg_final + peter["adjustment"], 2)
             adjusted = max(0, min(10, adjusted))
             if peter.get("has_kill"):
@@ -14984,7 +15053,7 @@ async def _run_profedge_regrade(game_id: str, sport: str):
             ev = calculate_ev(target_game, side, adjusted)
 
             results[side] = {
-                "profiles": {"sintonia": sintonia, "renzo": renzo},
+                "profiles": {"sintonia": sintonia, "renzo": renzo, "claude": claude, "edge": edge},
                 "peter_rules": peter,
                 "consensus_avg": adjusted,
                 "consensus_grade": score_to_grade(adjusted),
@@ -15103,7 +15172,7 @@ async def _run_profedge_batch_grade(sport: str):
     """
     sport_key = sport.lower()
     try:
-        grade_sintonia, grade_renzo, grade_peter_rules, score_to_grade, calculate_ev = _load_profedge_grade_engine()
+        grade_sintonia, grade_renzo, grade_claude, grade_edge, grade_peter_rules, score_to_grade, calculate_ev = _load_profedge_grade_engine()
     except Exception as e:
         logger.warning(f"[PROFEDGE GRADE] Engine not available: {e}")
         return {"error": str(e), "graded": 0}
@@ -15151,8 +15220,8 @@ async def _run_profedge_batch_grade(sport: str):
                 "ml_home": str(ag.get("home_ml", "")),
                 "ml_away": str(ag.get("away_ml", "")),
             },
-            "home_profile": ag.get("home_profile", {}),
-            "away_profile": ag.get("away_profile", {}),
+            "home_profile": ag.get("home_profile") or _build_team_profile(home_name, sport_key),
+            "away_profile": ag.get("away_profile") or _build_team_profile(away_name, sport_key),
             "injuries": ag.get("injuries", {"home": [], "away": []}),
         })
 
@@ -15161,15 +15230,17 @@ async def _run_profedge_batch_grade(sport: str):
         for side in ["home", "away"]:
             sintonia = grade_sintonia(game, side)
             renzo = grade_renzo(game, side)
+            claude = grade_claude(game, side)
+            edge = grade_edge(game, side)
             peter = grade_peter_rules(game, side)
-            avg_final = (sintonia["final"] + renzo["final"]) / 2
+            avg_final = (sintonia["final"] + renzo["final"] + claude["final"] + edge["final"]) / 4
             adjusted = round(avg_final + peter["adjustment"], 2)
             adjusted = max(0, min(10, adjusted))
             if peter.get("has_kill"):
                 adjusted = min(adjusted, 2.9)
             ev = calculate_ev(game, side, adjusted)
             results[side] = {
-                "profiles": {"sintonia": sintonia, "renzo": renzo},
+                "profiles": {"sintonia": sintonia, "renzo": renzo, "claude": claude, "edge": edge},
                 "peter_rules": peter,
                 "consensus_avg": adjusted,
                 "consensus_grade": score_to_grade(adjusted),
@@ -15219,7 +15290,7 @@ async def _run_profedge_batch_grade(sport: str):
         "sport": sport_key.upper(),
         "date": today,
         "graded_at": datetime.now().isoformat(),
-        "profiles_used": ["sintonia", "renzo"],
+        "profiles_used": ["sintonia", "renzo", "claude", "edge"],
         "games": all_grades,
         "count": len(all_grades),
     }
