@@ -6927,6 +6927,13 @@ function updatePeterGut(sport, analysisData) {
     var gutTimestamp = document.getElementById('peterGut' + sport.toUpperCase() + 'Timestamp');
     if (!gutContent || !analysisData.games) return;
 
+    // Reject stale data from previous days — don't show old games
+    if (analysisData._from_previous_day) {
+        gutContent.innerHTML = '<p style="color:rgba(255,255,255,0.3);font-style:italic;">No current analysis. Waiting for next scheduled run.</p>';
+        if (gutTimestamp) gutTimestamp.textContent = '';
+        return;
+    }
+
     var gradeOrder = {'A':1,'A-':2,'B+':3,'B':4,'B-':5,'C+':6,'C':7,'INCOMPLETE':8};
     var sorted = analysisData.games.slice().sort(function(a,b) {
         return (gradeOrder[a.grade]||9) - (gradeOrder[b.grade]||9);
