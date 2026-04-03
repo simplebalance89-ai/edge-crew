@@ -1,7 +1,7 @@
 {
-  "name": "Edge Crew",
-  "short_name": "Edge Crew",
-  "description": "Sports betting dashboard — odds, picks, bankroll",
+  "name": "EC\u2078 — Edge Crew",
+  "short_name": "EC\u2078",
+  "description": "EC\u2078 — Edge Crew sports analytics. Let's Eat.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0a1a",

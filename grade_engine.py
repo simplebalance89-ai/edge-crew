@@ -1848,10 +1848,20 @@ def grade_all(sport: str | None = None, date: str | None = None, profiles: list[
 
                     game_grades["profiles"][profile_name] = grade_result
 
-                # Consensus: best side based on average final score
+                # Consensus: average of ENGINE profiles only (exclude Renzo — independent grader)
+                engine_profiles = {k: v for k, v in game_grades["profiles"].items() if k != "renzo"}
                 avg_final = sum(
-                    g["final"] for g in game_grades["profiles"].values()
-                ) / max(len(game_grades["profiles"]), 1)
+                    g["final"] for g in engine_profiles.values()
+                ) / max(len(engine_profiles), 1)
+                # Store Renzo's independent grade separately
+                renzo_result = game_grades["profiles"].get("renzo")
+                if renzo_result:
+                    game_grades["renzo_independent"] = {
+                        "grade": renzo_result["grade"],
+                        "score": renzo_result["final"],
+                        "sizing": renzo_result.get("sizing", ""),
+                        "mathurin_test": renzo_result.get("mathurin_test", ""),
+                    }
 
                 # Apply Peter's Rules
                 peter = grade_peter_rules(game, side)

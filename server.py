@@ -1365,6 +1365,179 @@ async def _step25_batch_all():
     return results
 
 
+# ── Kimi Scout Profiler (Step 2.5) ─────────────────────────────────────────
+# Runs Kimi K2.5 on all sports to generate 4-dimension scouting profiles.
+# Profiles are attached to profedge game cards as bonus context.
+KIMI_SCOUT_ENDPOINT = os.environ.get(
+    "KIMI_SCOUT_ENDPOINT",
+    "https://peter-mna31gr3-swedencentral.services.ai.azure.com/openai/deployments/Kimi-K2.5/chat/completions?api-version=2024-12-01-preview",
+)
+KIMI_SCOUT_KEY = os.environ.get("KIMI_SCOUT_KEY", "")
+KIMI_SCOUT_CACHE_DIR = os.path.join(DATA_DIR, "kimi_scout")
+os.makedirs(KIMI_SCOUT_CACHE_DIR, exist_ok=True)
+
+
+def _kimi_scout_cache_path(sport: str, date_str: str = None) -> str:
+    if not date_str:
+        date_str = datetime.now(PST).strftime("%Y-%m-%d")
+    return os.path.join(KIMI_SCOUT_CACHE_DIR, f"{sport}_{date_str}.json")
+
+
+def _load_kimi_scout(sport: str) -> dict | None:
+    path = _kimi_scout_cache_path(sport)
+    if os.path.exists(path):
+        try:
+            with open(path) as f:
+                data = json.load(f)
+            if data.get("date") == datetime.now(PST).strftime("%Y-%m-%d"):
+                return data
+        except Exception:
+            pass
+    return None
+
+
+async def _run_kimi_scout(sport: str, games: list[dict]) -> dict:
+    """Run Kimi K2.5 profiler on a batch of games for any sport.
+
+    Returns dict with profiles keyed by matchup string.
+    """
+    today = datetime.now(PST).strftime("%Y-%m-%d")
+
+    # Check cache first
+    cached = _load_kimi_scout(sport)
+    if cached and cached.get("profiles"):
+        logger.info(f"[KIMI SCOUT] {sport.upper()}: loaded {len(cached['profiles'])} cached profiles")
+        return cached
+
+    if not games:
+        return {"sport": sport, "date": today, "profiles": {}}
+
+    # Build game summaries for prompt
+    game_summaries = []
+    for g in games:
+        matchup = g.get("matchup", f"{g.get('away', '?')} @ {g.get('home', '?')}")
+        odds = g.get("odds", {})
+        summary = f"- {matchup}"
+        spread = odds.get("spread_home") or odds.get("spread_away", "")
+        total = odds.get("total", "")
+        if spread:
+            summary += f" | Spread: {spread}"
+        if total:
+            summary += f" | Total: {total}"
+        ml_home = odds.get("ml_home", "")
+        ml_away = odds.get("ml_away", "")
+        if ml_home and ml_away:
+            summary += f" | ML: {ml_away}/{ml_home}"
+        # Add profile info if available
+        hp = g.get("home_profile", {})
+        ap = g.get("away_profile", {})
+        if hp.get("l5"):
+            summary += f" | Home L5: {hp['l5']}"
+        if ap.get("l5"):
+            summary += f" | Away L5: {ap['l5']}"
+        game_summaries.append(summary)
+
+    games_block = "\n".join(game_summaries)
+
+    prompt = f"""You are EC⁸ Kimi Scout — an elite sports profiler. Score EVERY game below on 4 dimensions (0-10 each).
+
+SPORT: {sport.upper()}
+DATE: {today}
+
+GAMES:
+{games_block}
+
+For EACH game, return a JSON object with:
+- "matchup": "AWAY @ HOME" (exactly as listed)
+- "tactical_dna": {{"score": 0-10, "note": "one sentence"}}
+- "h2h_context": {{"score": 0-10, "note": "one sentence"}}
+- "structural_edge": {{"score": 0-10, "note": "one sentence"}}
+- "market_signal": {{"score": 0-10, "note": "one sentence"}}
+- "profile_score": average of the 4 scores (1 decimal)
+- "profile_tag": your one-line label (e.g., "SHARP CONTRARIAN", "MOMENTUM MISMATCH", "TRAP LINE", "ELITE CLASH")
+- "profile_summary": 1-2 sentence scouting report
+
+SCORING GUIDE:
+- Tactical DNA: Style clash, pace mismatch, offensive vs defensive identity, scheme advantages
+- H2H Context: Historical matchup patterns, recent meetings, psychological edge, rivalry factor
+- Structural Edge: Rest days, travel, venue, momentum, schedule spot (back-to-back, lookahead)
+- Market Signal: Line movement direction, sharp vs public split, steam moves, trap indicators
+
+Return ONLY valid JSON: {{"profiles": [...]}}
+Score ALL {len(games)} games. Do not skip any."""
+
+    try:
+        async with httpx.AsyncClient(timeout=180) as client:
+            resp = await client.post(
+                KIMI_SCOUT_ENDPOINT,
+                headers={
+                    "api-key": KIMI_SCOUT_KEY,
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "messages": [{"role": "user", "content": prompt}],
+                    "max_completion_tokens": 8000,
+                    "response_format": {"type": "json_object"},
+                },
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+
+            # Parse JSON from response
+            parsed = json.loads(content)
+            profiles_list = parsed.get("profiles", [])
+
+            # Index by matchup
+            profiles = {}
+            for p in profiles_list:
+                m = p.get("matchup", "")
+                if m:
+                    profiles[m] = p
+
+            result = {
+                "sport": sport,
+                "date": today,
+                "profiles": profiles,
+                "generated_at": _now_ts(),
+                "game_count": len(games),
+                "profiled_count": len(profiles),
+            }
+
+            # Save cache
+            path = _kimi_scout_cache_path(sport, today)
+            with open(path, "w") as f:
+                json.dump(result, f, indent=2)
+
+            logger.info(f"[KIMI SCOUT] {sport.upper()}: profiled {len(profiles)}/{len(games)} games")
+            return result
+
+    except Exception as e:
+        logger.warning(f"[KIMI SCOUT] {sport.upper()} failed: {e}")
+        return {"sport": sport, "date": today, "profiles": {}, "error": str(e)}
+
+
+def _attach_kimi_profiles(games: list[dict], kimi_data: dict, sport: str) -> None:
+    """Attach Kimi Scout profiles to game entries (mutates in place)."""
+    profiles = kimi_data.get("profiles", {})
+    if not profiles:
+        return
+    for game in games:
+        matchup = game.get("matchup", "")
+        # Exact match first
+        kp = profiles.get(matchup)
+        # Fuzzy fallback
+        if not kp:
+            home = game.get("home", "")
+            away = game.get("away", "")
+            for km, kv in profiles.items():
+                if _teams_match(km, home, away, sport):
+                    kp = kv
+                    break
+        if kp:
+            game["kimi_profile"] = kp
+
+
 def _save_analysis_cache(sport, analysis_data):
     path = _analysis_cache_path(sport)
     with open(path, "w") as f:
@@ -8691,11 +8864,28 @@ _MLB_ABBREVS = {
     "det": "tigers", "kc": "royals", "kcr": "royals", "min": "twins",
     "hou": "astros", "sea": "mariners", "tex": "rangers", "oak": "athletics",
     "laa": "angels", "ana": "angels",
-    "atl": "braves", "phi": "phillies", "nym": "mets", "was": "nationals",
+    "atl": "braves", "phi": "phillies", "was": "nationals", "wsh": "nationals",
     "mia": "marlins", "mil": "brewers", "chc": "cubs", "stl": "cardinals",
     "pit": "pirates", "cin": "reds",
     "lad": "dodgers", "sd": "padres", "sdp": "padres", "sf": "giants",
     "sfg": "giants", "ari": "diamondbacks", "col": "rockies",
+    # City name aliases (odds APIs often use these)
+    "new york yankees": "yankees", "new york mets": "mets",
+    "boston red sox": "red sox", "tampa bay rays": "rays",
+    "baltimore orioles": "orioles", "toronto blue jays": "blue jays",
+    "chicago white sox": "white sox", "cleveland guardians": "guardians",
+    "detroit tigers": "tigers", "kansas city royals": "royals",
+    "minnesota twins": "twins", "houston astros": "astros",
+    "seattle mariners": "mariners", "texas rangers": "rangers",
+    "oakland athletics": "athletics", "los angeles angels": "angels",
+    "atlanta braves": "braves", "philadelphia phillies": "phillies",
+    "washington nationals": "nationals", "miami marlins": "marlins",
+    "milwaukee brewers": "brewers", "chicago cubs": "cubs",
+    "st. louis cardinals": "cardinals", "st louis cardinals": "cardinals",
+    "pittsburgh pirates": "pirates", "cincinnati reds": "reds",
+    "los angeles dodgers": "dodgers", "san diego padres": "padres",
+    "san francisco giants": "giants", "arizona diamondbacks": "diamondbacks",
+    "colorado rockies": "rockies",
 }
 
 _SOCCER_ABBREVS = {
@@ -9346,8 +9536,79 @@ def _match_board_to_fresh_odds(entry: dict, props_data: dict) -> dict | None:
     return None
 
 
+def _normalize_fighter(name: str) -> str:
+    """Normalize fighter name for matching: strip titles, suffixes, initials."""
+    n = name.lower().strip()
+    # Remove common prefixes/suffixes
+    for remove in ["jr.", "jr", "sr.", "sr", "iii", "ii", "\"", "'", "'"]:
+        n = n.replace(remove, "")
+    # Remove anything in parentheses (nicknames like 'The Spider')
+    n = re.sub(r'\([^)]*\)', '', n)
+    # Collapse whitespace
+    n = re.sub(r'\s+', ' ', n).strip()
+    return n
+
+
+def _fighter_match(name_a: str, name_b: str) -> bool:
+    """Fuzzy match two fighter names.
+
+    Handles: "Islam Makhachev" vs "I. Makhachev", last-name matching,
+    accent-insensitive, partial first-name matching.
+    """
+    a = _normalize_fighter(name_a)
+    b = _normalize_fighter(name_b)
+    if not a or not b:
+        return False
+    # Exact match
+    if a == b:
+        return True
+    a_parts = a.split()
+    b_parts = b.split()
+    # Last name match (most reliable for fighters)
+    a_last = a_parts[-1] if a_parts else ""
+    b_last = b_parts[-1] if b_parts else ""
+    if len(a_last) > 2 and len(b_last) > 2 and a_last == b_last:
+        # Last names match — check first initial or first name overlap
+        a_first = a_parts[0] if a_parts else ""
+        b_first = b_parts[0] if b_parts else ""
+        if not a_first or not b_first:
+            return True
+        # "I." matches "Islam", "A" matches "Alex"
+        if a_first[0] == b_first[0]:
+            return True
+    # Substring containment (one name inside the other)
+    if len(a) > 4 and a in b:
+        return True
+    if len(b) > 4 and b in a:
+        return True
+    # Any last-name part with length > 3 appears in the other string
+    for p in a_parts:
+        if len(p) > 3 and p in b:
+            return True
+    for p in b_parts:
+        if len(p) > 3 and p in a:
+            return True
+    return False
+
+
 def _teams_match(pick_text: str, home: str, away: str, sport: str = "") -> bool:
     """Check if a pick's matchup references this game."""
+    s = (sport or "").lower()
+
+    # MMA / Boxing: use fighter name matching
+    if s in ("mma", "boxing"):
+        pt = _normalize_team(pick_text)
+        h = _normalize_team(home)
+        a = _normalize_team(away)
+        # For fighter sports, check if both fighters appear in the pick text
+        h_match = _fighter_match(pt, h) or h in pt or any(
+            _fighter_match(p, h) for p in pt.split(" vs ") + pt.split(" @ ") + pt.split(" v ")
+        )
+        a_match = _fighter_match(pt, a) or a in pt or any(
+            _fighter_match(p, a) for p in pt.split(" vs ") + pt.split(" @ ") + pt.split(" v ")
+        )
+        return h_match and a_match
+
     pt = _expand_abbrevs(_normalize_team(pick_text), sport)
     h = _expand_abbrevs(_normalize_team(home), sport)
     a = _expand_abbrevs(_normalize_team(away), sport)
@@ -14804,15 +15065,26 @@ async def get_profedge(sport: str, mode: str = None):
                     odds_games = odds_raw
                 else:
                     odds_games = []
-                _odds_by_matchup = {}
+                _odds_list = []
                 for _og in odds_games:
-                    _away = (_og.get("away", _og.get("away_team", "")) or "").strip().lower()
-                    _home = (_og.get("home", _og.get("home_team", "")) or "").strip().lower()
-                    _key = f"{_away} @ {_home}"
-                    _odds_by_matchup[_key] = _og
+                    _away = (_og.get("away", _og.get("away_team", "")) or "").strip()
+                    _home = (_og.get("home", _og.get("home_team", "")) or "").strip()
+                    _odds_list.append((_away, _home, _og))
                 for ag in live_games:
-                    _m = (ag.get("matchup", "") or "").strip().lower()
-                    _og = _odds_by_matchup.get(_m)
+                    _m = ag.get("matchup", "") or ""
+                    _og = None
+                    # Try exact match first
+                    for _oa, _oh, _od in _odds_list:
+                        _key = f"{_oa} @ {_oh}".lower()
+                        if _m.strip().lower() == _key:
+                            _og = _od
+                            break
+                    # Fuzzy match via _teams_match if exact failed
+                    if not _og:
+                        for _oa, _oh, _od in _odds_list:
+                            if _teams_match(_m, _oh, _oa, sport_key):
+                                _og = _od
+                                break
                     if _og:
                         if not ag.get("home_spread"):
                             ag["home_spread"] = _og.get("spread_home", _og.get("home_spread", ""))
@@ -15002,7 +15274,7 @@ async def get_profedge(sport: str, mode: str = None):
 
     # Index grades by game_id
     grades_by_id = {g["game_id"]: g for g in grades_list}
-    # Index races by matchup
+    # Index races by matchup (exact + list for fuzzy fallback)
     races_by_matchup = {r.get("matchup", ""): r for r in races_list}
     # Index roster profiles by team name
     roster_by_team = {}
@@ -15047,8 +15319,13 @@ async def get_profedge(sport: str, mode: str = None):
         else:
             entry["grade"] = game.get("grade")  # preserve inline grade from analysis fallback
 
-        # Attach race
+        # Attach race (exact first, then fuzzy)
         race = races_by_matchup.get(matchup)
+        if not race:
+            for _rm, _rv in races_by_matchup.items():
+                if _teams_match(_rm, entry.get("home", ""), entry.get("away", ""), sport_key):
+                    race = _rv
+                    break
         if race:
             entry["race"] = {
                 "lanes": race.get("lanes", []),
@@ -15124,19 +15401,32 @@ async def get_profedge(sport: str, mode: str = None):
         if not ai_cached:
             ai_cached = _load_analysis_cache(sport_key)
         ai_games = ai_cached.get("games", []) if ai_cached else []
-        # Index AI grades by normalized matchup
+        # Index AI grades by matchup — store both key and raw names for fuzzy fallback
         ai_by_matchup = {}
+        ai_games_indexed = []
         for ag in ai_games:
-            m = (ag.get("matchup", "")).replace(" ", "").upper()
-            ai_by_matchup[m] = {
+            raw_m = ag.get("matchup", "")
+            m = raw_m.replace(" ", "").upper()
+            ai_entry = {
                 "ai_grade": ag.get("grade", ""),
                 "ai_score": ag.get("composite_score", 0),
                 "ai_pick": (ag.get("edge_pick") or {}).get("team", ""),
                 "ai_bet_type": (ag.get("edge_pick") or {}).get("bet_type", ""),
             }
+            ai_by_matchup[m] = ai_entry
+            ai_games_indexed.append((raw_m, ai_entry))
         for entry in merged:
-            m_key = (entry.get("matchup", "")).replace(" ", "").upper()
+            m_raw = entry.get("matchup", "")
+            m_key = m_raw.replace(" ", "").upper()
             ai_data = ai_by_matchup.get(m_key)
+            # Fuzzy fallback: use _teams_match if exact key missed
+            if not ai_data:
+                for _aim, _aie in ai_games_indexed:
+                    e_home = entry.get("home", "")
+                    e_away = entry.get("away", "")
+                    if e_home and e_away and _teams_match(_aim, e_home, e_away, sport_key):
+                        ai_data = _aie
+                        break
             if ai_data and entry.get("grade"):
                 entry["ai"] = ai_data
                 # Convergence signal
@@ -15158,6 +15448,16 @@ async def get_profedge(sport: str, mode: str = None):
                 entry["convergence"] = "NO_AI"
     except Exception as e:
         logger.warning(f"[CONVERGENCE] Failed to attach AI grades: {e}")
+
+    # ── Kimi Scout Profiler: attach 4-dimension profiles to each game ──
+    try:
+        kimi_data = _load_kimi_scout(sport_key)
+        if not kimi_data:
+            # Run scout in background — don't block the response
+            kimi_data = await _run_kimi_scout(sport_key, merged)
+        _attach_kimi_profiles(merged, kimi_data, sport_key)
+    except Exception as e:
+        logger.warning(f"[KIMI SCOUT] profedge attach failed for {sport_key}: {e}")
 
     # Sport matrix and chains metadata
     sport_matrix = SPORT_MATRICES.get(sport_key, [])

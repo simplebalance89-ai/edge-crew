@@ -11185,12 +11185,14 @@ function renderProEdgeGames(games, container) {
         var pctComplete = Math.round((pctSteps / pctTotal) * 100);
         var pctColor = pctComplete === 100 ? '#10B981' : pctComplete >= 60 ? '#F59E0B' : '#EF4444';
 
-        // Time
+        // Date + Time
         var timeStr = '';
         if (g.time) {
             try {
                 var dt = new Date(g.time);
-                timeStr = dt.toLocaleTimeString('en-US', {hour:'numeric',minute:'2-digit',hour12:true});
+                var dateStr = dt.toLocaleDateString('en-US', {weekday:'short',month:'short',day:'numeric'});
+                var tStr = dt.toLocaleTimeString('en-US', {hour:'numeric',minute:'2-digit',hour12:true});
+                timeStr = dateStr + ' · ' + tStr;
             } catch(e) { timeStr = g.time; }
         }
 
@@ -11199,7 +11201,7 @@ function renderProEdgeGames(games, container) {
         // ── MATCHUP HEADER ──
         html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.06);">';
         var leagueBadge = (g.league && _profedgeCurrentSport === 'soccer') ? ' <span style="color:#10B981;font-size:9px;font-weight:700;background:rgba(16,185,129,0.12);padding:2px 6px;border-radius:6px;margin-left:4px;">' + (g.league_flag || '') + ' ' + g.league + '</span>' : '';
-        html += '<div style="font-size:16px;font-weight:800;color:#fff;">' + g.matchup + ' <span style="color:rgba(255,255,255,0.3);font-size:11px;font-weight:400;">' + timeStr + '</span>' + leagueBadge + '</div>';
+        html += '<div style="font-size:16px;font-weight:800;color:#fff;">' + g.matchup + '<br><span style="color:rgba(255,255,255,0.55);font-size:12px;font-weight:500;">' + timeStr + '</span>' + leagueBadge + '</div>';
         html += '<div style="text-align:right;display:flex;align-items:center;gap:10px;"><span style="font-size:10px;font-weight:700;color:' + pctColor + ';background:rgba(' + (pctComplete===100?'16,185,129':pctComplete>=60?'245,158,11':'239,68,68') + ',0.12);padding:3px 8px;border-radius:10px;">' + pctComplete + '%</span><span style="font-size:28px;font-weight:900;color:' + gColor + ';">' + grade + '</span> <span style="font-size:11px;color:rgba(255,255,255,0.4);">' + avg + '</span></div>';
         html += '</div>';
 
@@ -11387,11 +11389,15 @@ function renderProEdgeGames(games, container) {
             profileNames.forEach(function(pname) {
                 var p = gr.profiles[pname];
                 var pc = pname === 'sintonia' ? '#F72585' : (pname === 'renzo' ? '#9B59B6' : (pname === 'peter' ? '#D4A017' : (pname === 'ai' ? '#00D4AA' : (pname === 'alyssa' ? '#41EAD4' : '#38BDF8'))));
-                html += '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:8px;text-align:center;">';
+                var isRenzo = pname === 'renzo';
+                var borderStyle = isRenzo ? '2px solid #9B59B6' : '1px solid rgba(255,255,255,0.08)';
+                html += '<div style="background:rgba(255,255,255,0.03);border:' + borderStyle + ';border-radius:8px;padding:8px;text-align:center;' + (isRenzo ? 'position:relative;' : '') + '">';
+                if (isRenzo) html += '<div style="position:absolute;top:-6px;right:6px;font-size:7px;font-weight:800;color:#9B59B6;background:#1a1a2e;padding:1px 5px;border-radius:3px;border:1px solid #9B59B6;">INDEPENDENT</div>';
                 html += '<div style="font-size:9px;font-weight:800;color:' + pc + ';letter-spacing:0.5px;text-transform:uppercase;">' + pname + '</div>';
                 html += '<div style="font-size:24px;font-weight:900;color:' + _gradeColor(p.grade) + ';line-height:1.2;">' + (p.grade || '?') + '</div>';
                 html += '<div style="font-size:10px;color:rgba(255,255,255,0.4);">' + (p.final || 0).toFixed(1) + '</div>';
                 if (p.sizing) html += '<div style="font-size:9px;color:rgba(255,255,255,0.5);margin-top:2px;">' + p.sizing + '</div>';
+                if (isRenzo && p.mathurin_test) html += '<div style="font-size:8px;color:' + (p.mathurin_test==='PASS'?'#22c55e':'#ef4444') + ';margin-top:2px;">Mathurin: ' + p.mathurin_test + '</div>';
                 html += '</div>';
             });
             html += '</div>';
@@ -11476,6 +11482,21 @@ function renderProEdgeGames(games, container) {
             html += '<button onclick="event.stopPropagation();regradeProEdge(\'' + g.game_id + '\')" style="margin-top:8px;background:rgba(247,37,133,0.12);border:1px solid rgba(247,37,133,0.3);color:#F72585;font-size:10px;font-weight:700;padding:5px 12px;border-radius:6px;cursor:pointer;">RE-GRADE</button>';
         }
         html += '</div>';
+
+        // ═══ RENZO CARD (Independent Grade) ═══
+        if (gr && gr.renzo_independent) {
+            var ri = gr.renzo_independent;
+            var riColor = _gradeColor(ri.grade);
+            var mathColor = ri.mathurin_test === 'PASS' ? '#22c55e' : '#ef4444';
+            html += '<div style="min-width:140px;flex-shrink:0;background:rgba(155,89,182,0.08);border:2px solid rgba(155,89,182,0.4);border-radius:10px;padding:10px;text-align:center;display:flex;flex-direction:column;justify-content:center;">';
+            html += '<div style="font-size:9px;font-weight:800;color:#9B59B6;letter-spacing:1px;margin-bottom:4px;">RENZO CARD</div>';
+            html += '<div style="font-size:8px;color:rgba(255,255,255,0.4);margin-bottom:6px;">Independent Grade</div>';
+            html += '<div style="font-size:32px;font-weight:900;color:' + riColor + ';line-height:1;">' + ri.grade + '</div>';
+            html += '<div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;">' + (ri.score || 0).toFixed(1) + '</div>';
+            if (ri.sizing && ri.sizing !== 'PASS') html += '<div style="font-size:10px;font-weight:700;color:#9B59B6;margin-top:4px;">' + ri.sizing + '</div>';
+            html += '<div style="font-size:9px;font-weight:700;color:' + mathColor + ';margin-top:4px;">Mathurin: ' + (ri.mathurin_test || '?') + '</div>';
+            html += '</div>';
+        }
 
         // ═══ STEP 6: RACE VISUALIZATION ═══
         if (g.race) {
