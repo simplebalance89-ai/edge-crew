@@ -361,6 +361,12 @@ async def _daily_slate_pull():
                                 print(f"[ANALYSIS] Smart T-30m {s.upper()}: {len(d['games'])} games")
                     except Exception as e:
                         print(f"[ANALYSIS] Smart T-30m {s.upper()} failed: {e}")
+                    # Grade Pro Edge at T-30m (final grades before tip)
+                    try:
+                        pe = await _run_profedge_batch_grade(s)
+                        print(f"[PROFEDGE GRADE] T-30m {s.upper()}: {pe.get('graded', 0)} games")
+                    except Exception as e:
+                        print(f"[PROFEDGE GRADE] T-30m {s.upper()} failed: {e}")
 
             # ── Fixed Analysis Runs: 7 AM, Noon, 4 PM PST ──────────────
             # All in-season sports get analyzed at these times so DJ always
@@ -391,6 +397,14 @@ async def _daily_slate_pull():
                     print(f"[AUTOPICKER] {label} run: {autopick_result.get('submitted', 0)} picks submitted")
                 except Exception as e:
                     print(f"[AUTOPICKER] {label} run failed: {e}")
+
+                # ── PRO EDGE BATCH GRADE: Run after analysis completes ──
+                try:
+                    pe_results = await _profedge_grade_all()
+                    pe_total = sum(r.get("graded", 0) for r in pe_results.values())
+                    print(f"[PROFEDGE GRADE] {label} run: {pe_total} games graded across {len(pe_results)} sports")
+                except Exception as e:
+                    print(f"[PROFEDGE GRADE] {label} run failed: {e}")
 
             # ── 7 AM PST NCAAB Morning Slate ──────────────────────────────────
             # March Madness & regular season: NCAAB games tip early, analyze at 7 AM
@@ -14995,6 +15009,202 @@ async def regrade_game_legacy(request: Request):
     if not game_id:
         return JSONResponse({"error": "Missing game_id"}, status_code=400)
     return await _run_profedge_regrade(game_id, sport)
+
+
+@app.post("/api/profedge/{sport}/grade-all")
+async def grade_all_profedge(sport: str):
+    """Manual trigger: batch-grade all games for a sport."""
+    result = await _run_profedge_batch_grade(sport)
+    return JSONResponse(result)
+
+
+# ── PRO EDGE BATCH GRADER — Grade all games for a sport ──────────────────
+async def _run_profedge_batch_grade(sport: str):
+    """Batch-grade all games for a sport using the Pro Edge pipeline.
+    Writes grades + race files so Pro Edge cards show full pipeline data.
+    """
+    sport_key = sport.lower()
+    try:
+        grade_sintonia, grade_renzo, grade_peter_rules, score_to_grade, calculate_ev = _load_profedge_grade_engine()
+    except Exception as e:
+        logger.warning(f"[PROFEDGE GRADE] Engine not available: {e}")
+        return {"error": str(e), "graded": 0}
+
+    # Get today's games from live analysis (same source as Pro Edge fallback)
+    try:
+        analysis_resp = await get_analysis(sport_key, cached_only=True)
+        if hasattr(analysis_resp, 'body'):
+            live_data = json.loads(analysis_resp.body)
+        else:
+            live_data = {}
+    except Exception as e:
+        logger.warning(f"[PROFEDGE GRADE] No analysis for {sport_key}: {e}")
+        return {"error": str(e), "graded": 0}
+
+    live_games = live_data.get("games", [])
+    if not live_games:
+        logger.info(f"[PROFEDGE GRADE] No games for {sport_key}")
+        return {"graded": 0, "sport": sport_key}
+
+    today = datetime.now(PST).strftime("%Y%m%d")
+    all_grades = []
+    all_race_entries = []
+
+    for ag in live_games:
+        matchup = ag.get("matchup", "")
+        parts = matchup.split(" @ ") if " @ " in matchup else [matchup, ""]
+        away_name = parts[0].strip() if len(parts) > 0 else ""
+        home_name = parts[1].strip() if len(parts) > 1 else ""
+        game_id = ag.get("game_id", matchup.replace(" ", "_"))
+
+        # Build game dict for grade engine
+        game = _prepare_profedge_game_for_grading({
+            "game_id": game_id,
+            "matchup": matchup,
+            "home": home_name,
+            "away": away_name,
+            "home_abbrev": home_name.split()[-1][:3].upper() if home_name else "",
+            "away_abbrev": away_name.split()[-1][:3].upper() if away_name else "",
+            "time": ag.get("time", ""),
+            "odds": {
+                "spread_home": str(ag.get("home_spread", "")),
+                "spread_away": str(ag.get("away_spread", "")),
+                "total": str(ag.get("total", "")),
+                "ml_home": str(ag.get("home_ml", "")),
+                "ml_away": str(ag.get("away_ml", "")),
+            },
+            "home_profile": ag.get("home_profile", {}),
+            "away_profile": ag.get("away_profile", {}),
+            "injuries": ag.get("injuries", {"home": [], "away": []}),
+        })
+
+        # Grade both sides
+        results = {}
+        for side in ["home", "away"]:
+            sintonia = grade_sintonia(game, side)
+            renzo = grade_renzo(game, side)
+            peter = grade_peter_rules(game, side)
+            avg_final = (sintonia["final"] + renzo["final"]) / 2
+            adjusted = round(avg_final + peter["adjustment"], 2)
+            adjusted = max(0, min(10, adjusted))
+            if peter.get("has_kill"):
+                adjusted = min(adjusted, 2.9)
+            ev = calculate_ev(game, side, adjusted)
+            results[side] = {
+                "profiles": {"sintonia": sintonia, "renzo": renzo},
+                "peter_rules": peter,
+                "consensus_avg": adjusted,
+                "consensus_grade": score_to_grade(adjusted),
+                "ev": ev,
+            }
+
+        # Pick best side
+        best_side = max(results, key=lambda s: results[s]["consensus_avg"])
+        best = results[best_side]
+        best["pick_side"] = best_side
+        best["game_id"] = game_id
+        best["matchup"] = matchup
+        all_grades.append(best)
+
+        # Build race entry from both sides
+        home_side = results["home"]
+        away_side = results["away"]
+        lanes = []
+        home_total = 0
+        away_total = 0
+        all_profiles = set(list(home_side["profiles"].keys()) + list(away_side["profiles"].keys()))
+        for pname in sorted(all_profiles):
+            h_sc = home_side["profiles"].get(pname, {}).get("final", 0)
+            a_sc = away_side["profiles"].get(pname, {}).get("final", 0)
+            winner = "home" if h_sc > a_sc else ("away" if a_sc > h_sc else "tie")
+            lanes.append({"profile": pname, "home_score": h_sc, "away_score": a_sc, "winner": winner})
+            home_total += h_sc
+            away_total += a_sc
+        home_won = sum(1 for l in lanes if l["winner"] == "home")
+        away_won = sum(1 for l in lanes if l["winner"] == "away")
+        total_l = len(lanes)
+        race_winner = "home" if home_won > away_won else ("away" if away_won > home_won else ("home" if home_total > away_total else "away"))
+        unanimity = max(home_won, away_won) / max(total_l, 1)
+        confidence = f"UNANIMOUS ({total_l}/{total_l})" if unanimity == 1.0 else (f"STRONG ({max(home_won, away_won)}/{total_l})" if unanimity >= 0.75 else (f"LEAN ({max(home_won, away_won)}/{total_l})" if unanimity > 0.5 else f"SPLIT ({home_won}-{away_won})"))
+        pick_team = home_name if best_side == "home" else away_name
+        all_race_entries.append({
+            "game_id": game_id, "matchup": matchup, "lanes": lanes,
+            "home_score": round(home_total, 2), "away_score": round(away_total, 2),
+            "race_winner": race_winner, "pick_team": pick_team,
+            "bet_size": best["profiles"].get("sintonia", {}).get("sizing", "PASS"),
+            "confidence": confidence,
+        })
+
+    # Write grades file
+    EDGE_GRADES_DIR.mkdir(parents=True, exist_ok=True)
+    grades_output = {
+        "sport": sport_key.upper(),
+        "date": today,
+        "graded_at": datetime.now().isoformat(),
+        "profiles_used": ["sintonia", "renzo"],
+        "games": all_grades,
+        "count": len(all_grades),
+    }
+    grades_file = EDGE_GRADES_DIR / f"{sport_key}_{today}_grades.json"
+    with open(grades_file, "w", encoding="utf-8") as f:
+        json.dump(grades_output, f, indent=2)
+
+    # Write race file
+    race_output = {
+        "sport": sport_key.upper(),
+        "date": today,
+        "generated_at": datetime.now().isoformat(),
+        "races": all_race_entries,
+        "count": len(all_race_entries),
+    }
+    race_file = EDGE_GRADES_DIR / f"race_{sport_key}_{today}.json"
+    with open(race_file, "w", encoding="utf-8") as f:
+        json.dump(race_output, f, indent=2)
+
+    # Also write games file so profedge endpoint finds today's data
+    games_output = {
+        "sport": sport_key.upper(),
+        "date": today,
+        "games": [{
+            "game_id": ag.get("game_id", ag.get("matchup", "").replace(" ", "_")),
+            "matchup": ag.get("matchup", ""),
+            "home": ag.get("matchup", "").split(" @ ")[-1].strip() if " @ " in ag.get("matchup", "") else "",
+            "away": ag.get("matchup", "").split(" @ ")[0].strip() if " @ " in ag.get("matchup", "") else "",
+            "time": ag.get("time", ""),
+            "odds": {
+                "spread_home": str(ag.get("home_spread", "")),
+                "total": str(ag.get("total", "")),
+                "ml_home": str(ag.get("home_ml", "")),
+                "ml_away": str(ag.get("away_ml", "")),
+            },
+            "home_profile": ag.get("home_profile", {}),
+            "away_profile": ag.get("away_profile", {}),
+            "injuries": ag.get("injuries", {"home": [], "away": []}),
+        } for ag in live_games],
+    }
+    EDGE_DATA_DIR.mkdir(parents=True, exist_ok=True)
+    games_file = EDGE_DATA_DIR / f"games_{sport_key}_{today}.json"
+    with open(games_file, "w", encoding="utf-8") as f:
+        json.dump(games_output, f, indent=2)
+
+    logger.info(f"[PROFEDGE GRADE] {sport_key.upper()}: {len(all_grades)} games graded, {len(all_race_entries)} races -> {grades_file.name}")
+    return {"graded": len(all_grades), "sport": sport_key, "races": len(all_race_entries)}
+
+
+async def _profedge_grade_all():
+    """Grade all in-season sports for Pro Edge."""
+    active = _in_season_sports()
+    results = {}
+    for sport in active:
+        try:
+            r = await _run_profedge_batch_grade(sport)
+            results[sport] = r
+            logger.info(f"[PROFEDGE GRADE] {sport.upper()}: {r.get('graded', 0)} games")
+        except Exception as e:
+            logger.warning(f"[PROFEDGE GRADE] {sport.upper()} failed: {e}")
+            results[sport] = {"error": str(e)}
+        await asyncio.sleep(2)
+    return results
 
 
 # ── AUTOPICKER — Auto-submit picks from graded games ──────────────────────
