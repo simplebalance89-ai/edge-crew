@@ -1434,9 +1434,10 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <!-- ===== LANDING PAGE ===== -->
 <div class="sport-panel active" id="panel-landing">
 
-<!-- GO TO MY PROFILE -->
-<div style="padding:20px 20px 0;text-align:center;">
-    <button onclick="goToMyProfile()" style="width:100%;max-width:400px;padding:14px 24px;background:linear-gradient(135deg,#F72585,#6366f1);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:800;letter-spacing:0.5px;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 20px rgba(247,37,133,0.3);">GO TO MY PROFILE</button>
+<!-- GO TO MY PROFILE + PRO EDGE -->
+<div style="padding:20px 20px 0;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+    <button onclick="goToMyProfile()" style="flex:1;max-width:240px;padding:14px 24px;background:linear-gradient(135deg,#F72585,#6366f1);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:800;letter-spacing:0.5px;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 20px rgba(247,37,133,0.3);">GO TO MY PROFILE</button>
+    <button onclick="switchSport('profedge')" style="flex:1;max-width:240px;padding:14px 24px;background:linear-gradient(135deg,#6366f1,#F72585);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:800;letter-spacing:0.5px;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 20px rgba(99,102,241,0.3);">⚡ PRO EDGE</button>
 </div>
 
 <!-- HOW IT WORKS -->
@@ -1451,22 +1452,22 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px;margin-bottom:12px;">
     <div style="font-size:11px;font-weight:800;color:#F59E0B;letter-spacing:1px;margin-bottom:10px;">THE CREW</div>
     <div style="display:flex;flex-direction:column;gap:8px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(255,255,255,0.04);border-radius:8px;border-left:3px solid #fff;">
+        <a href="/static/peter.html" style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(255,255,255,0.04);border-radius:8px;border-left:3px solid #fff;text-decoration:none;cursor:pointer;transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
             <div><span style="font-size:13px;font-weight:700;color:#fff;">Peter</span> <span style="font-size:10px;color:rgba(255,255,255,0.35);">Director</span></div>
             <div style="font-size:10px;color:rgba(255,255,255,0.5);">NBA + NCAAB</div>
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(255,255,255,0.04);border-radius:8px;border-left:3px solid #10B981;">
+        </a>
+        <a href="/static/chinny.html" style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(255,255,255,0.04);border-radius:8px;border-left:3px solid #10B981;text-decoration:none;cursor:pointer;transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
             <div><span style="font-size:13px;font-weight:700;color:#10B981;">Chinny</span> <span style="font-size:10px;color:rgba(255,255,255,0.35);">Specialist</span></div>
             <div style="font-size:10px;color:rgba(255,255,255,0.5);">Soccer + NHL + NCAAB</div>
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(255,255,255,0.04);border-radius:8px;border-left:3px solid #60A5FA;">
+        </a>
+        <a href="/static/jimmy.html" style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(255,255,255,0.04);border-radius:8px;border-left:3px solid #60A5FA;text-decoration:none;cursor:pointer;transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
             <div><span style="font-size:13px;font-weight:700;color:#60A5FA;">Jimmy</span> <span style="font-size:10px;color:rgba(255,255,255,0.35);">Operations</span></div>
             <div style="font-size:10px;color:rgba(255,255,255,0.5);">Places bets + logs tickets</div>
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(255,255,255,0.04);border-radius:8px;border-left:3px solid #E74C3C;">
+        </a>
+        <a href="/static/dj.html" style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(255,255,255,0.04);border-radius:8px;border-left:3px solid #E74C3C;text-decoration:none;cursor:pointer;transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
             <div><span style="font-size:13px;font-weight:700;color:#E74C3C;">DJ</span> <span style="font-size:10px;color:rgba(255,255,255,0.35);">Contributor</span></div>
             <div style="font-size:10px;color:rgba(255,255,255,0.5);">NCAAB</div>
-        </div>
+        </a>
     </div>
 </div>
 
