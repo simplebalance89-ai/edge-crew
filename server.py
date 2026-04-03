@@ -14840,6 +14840,49 @@ async def get_profedge(sport: str):
         -(x["grade"]["consensus_avg"] if x.get("grade") else 0)
     ))
 
+    # ── AI vs Engine Convergence ──
+    # Pull cached AI analysis grades and attach to each game for comparison
+    GRADE_VALUES = {"A+": 10, "A": 9, "A-": 8, "B+": 7, "B": 6, "B-": 5, "C+": 4, "C": 3, "D": 2, "F": 1}
+    try:
+        ai_cached = _get_cached(f"analysis:{sport_key}", ttl=ANALYSIS_CACHE_TTL)
+        if not ai_cached:
+            ai_cached = _load_analysis_cache(sport_key)
+        ai_games = ai_cached.get("games", []) if ai_cached else []
+        # Index AI grades by normalized matchup
+        ai_by_matchup = {}
+        for ag in ai_games:
+            m = (ag.get("matchup", "")).replace(" ", "").upper()
+            ai_by_matchup[m] = {
+                "ai_grade": ag.get("grade", ""),
+                "ai_score": ag.get("composite_score", 0),
+                "ai_pick": (ag.get("edge_pick") or {}).get("team", ""),
+                "ai_bet_type": (ag.get("edge_pick") or {}).get("bet_type", ""),
+            }
+        for entry in merged:
+            m_key = (entry.get("matchup", "")).replace(" ", "").upper()
+            ai_data = ai_by_matchup.get(m_key)
+            if ai_data and entry.get("grade"):
+                entry["ai"] = ai_data
+                # Convergence signal
+                engine_val = GRADE_VALUES.get(entry["grade"].get("consensus_grade", ""), 0)
+                ai_val = GRADE_VALUES.get(ai_data.get("ai_grade", ""), 0)
+                delta = abs(engine_val - ai_val)
+                if delta == 0:
+                    entry["convergence"] = "LOCK"       # Exact match
+                elif delta <= 1:
+                    entry["convergence"] = "ALIGNED"    # Within 1 grade
+                elif delta <= 2:
+                    entry["convergence"] = "CLOSE"      # Within 2 grades
+                else:
+                    entry["convergence"] = "DIVERGENT"   # 3+ grades apart — investigate
+            elif ai_data:
+                entry["ai"] = ai_data
+                entry["convergence"] = "ENGINE_ONLY"
+            else:
+                entry["convergence"] = "NO_AI"
+    except Exception as e:
+        logger.warning(f"[CONVERGENCE] Failed to attach AI grades: {e}")
+
     # Sport matrix and chains metadata
     sport_matrix = SPORT_MATRICES.get(sport_key, [])
     sport_chains = CHAINS.get(sport_key, [])

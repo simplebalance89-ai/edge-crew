@@ -11092,6 +11092,24 @@ function renderProEdgeGames(games, container) {
         html += '<div style="text-align:right;display:flex;align-items:center;gap:10px;"><span style="font-size:10px;font-weight:700;color:' + pctColor + ';background:rgba(' + (pctComplete===100?'16,185,129':pctComplete>=60?'245,158,11':'239,68,68') + ',0.12);padding:3px 8px;border-radius:10px;">' + pctComplete + '%</span><span style="font-size:28px;font-weight:900;color:' + gColor + ';">' + grade + '</span> <span style="font-size:11px;color:rgba(255,255,255,0.4);">' + avg + '</span></div>';
         html += '</div>';
 
+        // ── AI vs ENGINE CONVERGENCE BADGE ──
+        if (g.ai && g.convergence) {
+            var cvColors = {LOCK:'#10B981',ALIGNED:'#22c55e',CLOSE:'#F59E0B',DIVERGENT:'#EF4444',ENGINE_ONLY:'rgba(255,255,255,0.2)',NO_AI:'rgba(255,255,255,0.1)'};
+            var cvLabels = {LOCK:'🔒 LOCK — AI + Engine agree',ALIGNED:'✓ ALIGNED — within 1 grade',CLOSE:'~ CLOSE — within 2 grades',DIVERGENT:'⚠ DIVERGENT — AI and Engine disagree',ENGINE_ONLY:'Engine graded, no AI data',NO_AI:'No AI analysis'};
+            var cvColor = cvColors[g.convergence] || '#666';
+            var cvLabel = cvLabels[g.convergence] || g.convergence;
+            html += '<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;padding:8px 12px;background:rgba(' + (g.convergence==='LOCK'?'16,185,129':g.convergence==='ALIGNED'?'34,197,94':g.convergence==='DIVERGENT'?'239,68,68':'255,255,255') + ',0.06);border:1px solid ' + cvColor + '40;border-radius:8px;">';
+            html += '<div style="font-size:10px;font-weight:700;color:' + cvColor + ';letter-spacing:0.5px;">' + cvLabel + '</div>';
+            if (g.ai.ai_grade) {
+                html += '<div style="margin-left:auto;display:flex;align-items:center;gap:8px;">';
+                html += '<span style="font-size:9px;color:rgba(255,255,255,0.4);">AI:</span><span style="font-size:14px;font-weight:800;color:' + cvColor + ';">' + g.ai.ai_grade + '</span>';
+                html += '<span style="font-size:9px;color:rgba(255,255,255,0.4);">Engine:</span><span style="font-size:14px;font-weight:800;color:' + gColor + ';">' + grade + '</span>';
+                if (g.ai.ai_pick) { html += '<span style="font-size:9px;color:rgba(255,255,255,0.3);">AI pick: ' + g.ai.ai_pick + ' ' + (g.ai.ai_bet_type||'') + '</span>'; }
+                html += '</div>';
+            }
+            html += '</div>';
+        }
+
         // ── 5-STEP PIPELINE (horizontal scroll) ──
         html += '<div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:8px;scrollbar-width:thin;-webkit-overflow-scrolling:touch;">';
 
