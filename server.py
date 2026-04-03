@@ -4888,9 +4888,9 @@ async def get_odds(sport: str, markets: str = "h2h,spreads,totals"):
     if not all_games and not SPORTSGAMEODDS_KEY and not SHARPAPI_KEY and not ODDS_API_KEY:
         return JSONResponse({"error": "No odds API configured (set SPORTSGAMEODDS_KEY, SHARPAPI_KEY, or ODDS_API_KEY)"}, status_code=500)
 
-    # Filter: only future games within 24h window
+    # Filter: only future games within 7-day window
     now = datetime.now(PST)
-    cutoff = now + timedelta(hours=24)
+    cutoff = now + timedelta(days=7)
     filtered_games = []
     for g in all_games:
         game_time_str = g.get('time', '')
@@ -5040,9 +5040,9 @@ async def get_soccer_league_odds(league_key: str):
     label = "SOCCER"
     games = await _fetch_sport_odds(league_key, markets, label)
 
-    # Filter: only future games within 24h
+    # Filter: only future games within 7 days
     now = datetime.now(PST)
-    cutoff = now + timedelta(hours=24)
+    cutoff = now + timedelta(days=7)
     filtered = []
     for g in games:
         t = g.get("time", "")
@@ -5827,7 +5827,7 @@ async def get_analysis(sport: str, cached_only: bool = False, force: bool = Fals
     # Filter out started games
     if odds_data.get("games"):
         now = datetime.now(PST)
-        cutoff = now + timedelta(hours=24)
+        cutoff = now + timedelta(days=7)
         odds_data["games"] = [
             g for g in odds_data["games"]
             if _game_not_started(g, now) and _game_within_cutoff(g, cutoff)
