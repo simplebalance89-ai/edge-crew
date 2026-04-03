@@ -1510,7 +1510,21 @@ def grade_peter_rules(game: dict, pick_side: str) -> dict:
     """
     Apply Peter's hard rules as kill/boost flags.
     Returns flags that override or adjust the consensus.
+    Applies to: NBA, NHL, MLB, WNBA, NFL, NCAAB, NCAAF.
+    Skipped for: Soccer, Tennis, MMA, Boxing (no relevant rules).
     """
+    sport = (game.get("sport", "") or "").upper()
+    # Skip Peter's Rules for sports where they don't apply
+    if sport in ("SOCCER", "TENNIS", "MMA", "BOXING"):
+        return {
+            "game_id": game.get("game_id", ""),
+            "profile": "peter_rules",
+            "pick_side": pick_side,
+            "flags": [],
+            "adjustment": 0,
+            "has_kill": False,
+        }
+
     odds = game.get("odds", {})
     profile = game.get(f"{pick_side}_profile", {})
     opp_side = "away" if pick_side == "home" else "home"
@@ -1524,12 +1538,18 @@ def grade_peter_rules(game: dict, pick_side: str) -> dict:
     spread = odds.get("spread_home") or odds.get("spread_away") or 0
     abs_spread = abs(spread)
 
-    # Rule 1: Big fav ATS trap — spread > 15 against winning team
+    # Sport-specific thresholds
+    # PPG threshold for "star player" impact
+    star_ppg = {"NBA": 15, "WNBA": 15, "NCAAB": 12, "NCAAF": 0, "NHL": 0.8, "MLB": 0, "NFL": 0}.get(sport, 15)
+    # Spread threshold for "big favorite" trap
+    big_fav_spread = {"NBA": 15, "WNBA": 12, "NCAAB": 20, "NCAAF": 21, "NHL": 2.5, "MLB": 2.5, "NFL": 14}.get(sport, 15)
+
+    # Rule 1: Big fav ATS trap — spread beyond threshold against winning team
     opp_record = opp_profile.get("record", "0-0")
     opp_w, opp_l = parse_record(opp_record)
     opp_pct = opp_w / max(opp_w + opp_l, 1)
 
-    if abs_spread > 15 and opp_pct > 0.45:
+    if abs_spread > big_fav_spread and opp_pct > 0.45:
         flags.append({
             "rule": "big_fav_ats",
             "action": "KILL",
@@ -1557,7 +1577,7 @@ def grade_peter_rules(game: dict, pick_side: str) -> dict:
     for inj in opp_injuries:
         if (inj.get("status") == "OUT" and
             inj.get("freshness") == "FRESH" and
-            (inj.get("ppg") or 0) >= 15):
+            star_ppg > 0 and (inj.get("ppg") or 0) >= star_ppg):
             flags.append({
                 "rule": "fresh_injury_boost",
                 "action": "BOOST",
@@ -1570,7 +1590,7 @@ def grade_peter_rules(game: dict, pick_side: str) -> dict:
     for inj in opp_injuries:
         if (inj.get("status") == "OUT" and
             inj.get("freshness") in ("ESTABLISHED", "SEASON") and
-            (inj.get("ppg") or 0) >= 15):
+            star_ppg > 0 and (inj.get("ppg") or 0) >= star_ppg):
             flags.append({
                 "rule": "established_injury_priced",
                 "action": "DOWNGRADE",

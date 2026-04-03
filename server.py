@@ -338,9 +338,13 @@ async def _daily_slate_pull():
                         resp = await get_analysis(s)
                         if hasattr(resp, 'body'):
                             d = json.loads(resp.body)
-                            if d.get("games"):
+                            if d.get("error"):
+                                print(f"[ANALYSIS] Smart T-2h {s.upper()}: error — {d['error']}")
+                            elif d.get("games"):
                                 _save_analysis_cache(s, d)
                                 print(f"[ANALYSIS] Smart T-2h {s.upper()}: {len(d['games'])} games")
+                            else:
+                                print(f"[ANALYSIS] Smart T-2h {s.upper()}: no games on slate")
                     except Exception as e:
                         print(f"[ANALYSIS] Smart T-2h {s.upper()} failed: {e}")
 
@@ -5737,7 +5741,7 @@ async def get_analysis(sport: str, cached_only: bool = False, force: bool = Fals
     Games missing spread, total, or ML get grade "INCOMPLETE".
     """
     if not AZURE_ENDPOINT or not AZURE_KEY:
-        return JSONResponse({"error": "Azure OpenAI not configured"}, status_code=500)
+        return JSONResponse({"error": "Azure OpenAI not configured", "games": [], "generated_at": _now_ts()}, status_code=500)
 
     sport_lower = sport.lower()
 
@@ -5746,9 +5750,9 @@ async def get_analysis(sport: str, cached_only: bool = False, force: bool = Fals
     if user_id:
         user_profile = _load_user_profile(user_id)
         if not user_profile:
-            return JSONResponse({"error": f"User profile '{user_id}' not found"}, status_code=404)
+            return JSONResponse({"error": f"User profile '{user_id}' not found", "games": [], "generated_at": _now_ts()}, status_code=404)
         if not _check_user_rate_limit(user_id, sport_lower):
-            return JSONResponse({"error": f"Rate limit exceeded. Max {MAX_USER_ANALYSIS_PER_SPORT_PER_DAY} custom runs per sport per day."}, status_code=429)
+            return JSONResponse({"error": f"Rate limit exceeded. Max {MAX_USER_ANALYSIS_PER_SPORT_PER_DAY} custom runs per sport per day.", "games": [], "generated_at": _now_ts()}, status_code=429)
 
     cache_key = f"analysis:{sport_lower}:{user_id}" if user_id else f"analysis:{sport_lower}"
 
@@ -7377,6 +7381,20 @@ Return ONLY valid JSON. Grade most games C or PASS. Only B+ when edge is clear."
                     if fixed in expected_matchups:
                         logger.info(f"[MATCHUP FIX] '{raw_matchup}' → '{fixed}'")
                         game["matchup"] = fixed
+
+        # ===== DROP HALLUCINATED MATCHUPS — reject games not in odds data =====
+        valid_games = []
+        dropped = []
+        for game in all_analyzed_games:
+            m = game.get("matchup", "").replace(" ", "").upper()
+            matched = any(m == e.replace(" ", "").upper() for e in expected_matchups)
+            if matched:
+                valid_games.append(game)
+            else:
+                dropped.append(game.get("matchup", "?"))
+        if dropped:
+            logger.warning(f"[HALLUCINATION FILTER] Dropped {len(dropped)} games not in odds data: {dropped}")
+        all_analyzed_games = valid_games
 
         # ===== LOG: Raw model output before our grading =====
         for game in all_analyzed_games:
@@ -10386,7 +10404,7 @@ For everything else, just respond conversationally. Keep responses under 150 wor
 async def agent_chat(request: Request):
     """Edge Crew AI Agent — conversational pick locking and analysis."""
     if not AZURE_ENDPOINT or not AZURE_KEY:
-        return JSONResponse({"error": "Azure OpenAI not configured"}, status_code=500)
+        return JSONResponse({"error": "Azure OpenAI not configured", "games": [], "generated_at": _now_ts()}, status_code=500)
 
     body = await request.json()
     user_msg = body.get("message", "")
@@ -14687,6 +14705,9 @@ async def get_profedge(sport: str):
                 logger.info(f"[profedge] {sport_key}: rejecting stale analysis from previous day")
                 live_games = []
             if live_games:
+                # Filter out preview games (beyond 24h) — don't grade them
+                live_games = [g for g in live_games if not g.get("_preview")]
+            if live_games:
                 # Convert analysis games to profedge format
                 converted = []
                 for ag in live_games:
@@ -14930,13 +14951,22 @@ async def get_profedge(sport: str):
         except (ValueError, TypeError):
             pass
         # Find matching Kalshi event by team name from market title
+        # Use team nickname (last word) as primary match to avoid "Los Angeles" matching both Lakers/Clippers
         for evt, strikes in kalshi_by_event.items():
             kalshi_team = kalshi_teams_by_event.get(evt, "")
             if not kalshi_team:
                 continue
-            home_words = [w for w in home_name.split() if len(w) > 3]
-            away_words = [w for w in away_name.split() if len(w) > 3]
-            matched = any(w in kalshi_team for w in home_words) or any(w in kalshi_team for w in away_words)
+            # Primary: match on nickname (last word, e.g. "lakers", "clippers", "warriors")
+            home_nickname = home_name.split()[-1].lower() if home_name else ""
+            away_nickname = away_name.split()[-1].lower() if away_name else ""
+            matched = (home_nickname and len(home_nickname) > 3 and home_nickname in kalshi_team) or \
+                      (away_nickname and len(away_nickname) > 3 and away_nickname in kalshi_team)
+            # Fallback: try unique city words (skip generic words like "new", "los", "san")
+            if not matched:
+                skip_words = {"new", "los", "san", "the", "city", "bay", "north", "south", "east", "west"}
+                home_city = [w for w in home_name.lower().split()[:-1] if len(w) > 3 and w not in skip_words]
+                away_city = [w for w in away_name.lower().split()[:-1] if len(w) > 3 and w not in skip_words]
+                matched = any(w in kalshi_team for w in home_city) or any(w in kalshi_team for w in away_city)
             if matched:
                 if spread_val and spread_val > 0:
                     best = min(strikes, key=lambda s: abs(s["strike"] - spread_val))
@@ -15240,7 +15270,7 @@ async def _run_profedge_batch_grade(sport: str):
         logger.warning(f"[PROFEDGE GRADE] No analysis for {sport_key}: {e}")
         return {"error": str(e), "graded": 0}
 
-    live_games = live_data.get("games", [])
+    live_games = [g for g in live_data.get("games", []) if not g.get("_preview")]
     if not live_games:
         logger.info(f"[PROFEDGE GRADE] No games for {sport_key}")
         return {"graded": 0, "sport": sport_key}
