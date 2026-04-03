@@ -14863,7 +14863,50 @@ async def _run_profedge_regrade(game_id: str, sport: str):
             with open(grades_file, "w", encoding="utf-8") as f:
                 json.dump(grades_data, f, indent=2)
 
-        return JSONResponse({"status": "ok", "game_id": game_id, "grade": best})
+        # Update race file with both sides for this game
+        matchup = best["matchup"]
+        home_side = results["home"]
+        away_side = results["away"]
+        lanes = []
+        home_total = 0
+        away_total = 0
+        all_profiles = set(list(home_side["profiles"].keys()) + list(away_side["profiles"].keys()))
+        for pname in sorted(all_profiles):
+            h_sc = home_side["profiles"].get(pname, {}).get("final", 0)
+            a_sc = away_side["profiles"].get(pname, {}).get("final", 0)
+            winner = "home" if h_sc > a_sc else ("away" if a_sc > h_sc else "tie")
+            lanes.append({"profile": pname, "home_score": h_sc, "away_score": a_sc, "winner": winner})
+            home_total += h_sc
+            away_total += a_sc
+        home_won = sum(1 for l in lanes if l["winner"] == "home")
+        away_won = sum(1 for l in lanes if l["winner"] == "away")
+        total_l = len(lanes)
+        race_winner = "home" if home_won > away_won else ("away" if away_won > home_won else ("home" if home_total > away_total else "away"))
+        unanimity = max(home_won, away_won) / max(total_l, 1)
+        confidence = f"UNANIMOUS ({total_l}/{total_l})" if unanimity == 1.0 else (f"STRONG ({max(home_won, away_won)}/{total_l})" if unanimity >= 0.75 else (f"LEAN ({max(home_won, away_won)}/{total_l})" if unanimity > 0.5 else f"SPLIT ({home_won}-{away_won})"))
+        race_entry = {
+            "game_id": game_id, "matchup": matchup, "lanes": lanes,
+            "home_score": round(home_total, 2), "away_score": round(away_total, 2),
+            "race_winner": race_winner, "pick_team": target_game.get(race_winner, ""),
+            "bet_size": best["profiles"].get("sintonia", {}).get("sizing", "PASS"),
+            "confidence": confidence,
+        }
+        race_file = EDGE_GRADES_DIR / f"race_{sport_key}_{used_date}.json"
+        race_data = {"sport": sport_key.upper(), "date": used_date, "generated_at": datetime.now().isoformat(), "races": [], "count": 0}
+        if race_file.exists():
+            try:
+                with open(race_file, "r", encoding="utf-8") as f:
+                    race_data = json.load(f)
+            except Exception:
+                pass
+        race_data["races"] = [r for r in race_data.get("races", []) if str(r.get("game_id")) != str(game_id)]
+        race_data["races"].append(race_entry)
+        race_data["count"] = len(race_data["races"])
+        race_data["generated_at"] = datetime.now().isoformat()
+        with open(race_file, "w", encoding="utf-8") as f:
+            json.dump(race_data, f, indent=2)
+
+        return JSONResponse({"status": "ok", "game_id": game_id, "grade": best, "race": race_entry})
 
     except Exception as e:
         log_error("profedge-regrade", str(e))

@@ -1866,6 +1866,101 @@ def grade_all(sport: str | None = None, date: str | None = None, profiles: list[
         with open(out_file, "w", encoding="utf-8") as f:
             json.dump(output, f, indent=2)
 
+        # ── RACE GENERATOR: build swim-lane consensus from both sides ──
+        # all_grades has both home and away entries for every game
+        both_sides = {}  # game_id -> {"home": {...}, "away": {...}}
+        for g in all_grades:
+            gid = g["game_id"]
+            side = g["pick_side"]
+            both_sides.setdefault(gid, {})[side] = g
+
+        races = []
+        for gid, sides in both_sides.items():
+            home_g = sides.get("home")
+            away_g = sides.get("away")
+            if not home_g or not away_g:
+                continue
+
+            matchup = home_g["matchup"]
+            lanes = []
+            home_total = 0
+            away_total = 0
+
+            # Each profile is a swim lane — compare home vs away final scores
+            all_profiles = set(list(home_g.get("profiles", {}).keys()) +
+                              list(away_g.get("profiles", {}).keys()))
+            for pname in sorted(all_profiles):
+                h_score = home_g.get("profiles", {}).get(pname, {}).get("final", 0)
+                a_score = away_g.get("profiles", {}).get(pname, {}).get("final", 0)
+                winner = "home" if h_score > a_score else ("away" if a_score > h_score else "tie")
+                lanes.append({
+                    "profile": pname,
+                    "home_score": h_score,
+                    "away_score": a_score,
+                    "winner": winner,
+                })
+                home_total += h_score
+                away_total += a_score
+
+            # Consensus: which side wins the race overall
+            home_lanes_won = sum(1 for l in lanes if l["winner"] == "home")
+            away_lanes_won = sum(1 for l in lanes if l["winner"] == "away")
+            total_lanes = len(lanes)
+
+            if home_lanes_won > away_lanes_won:
+                race_winner = "home"
+            elif away_lanes_won > home_lanes_won:
+                race_winner = "away"
+            else:
+                race_winner = "home" if home_total > away_total else "away"
+
+            # Pick from the winning side's grades
+            winner_grades = games_graded.get(gid, {})
+            pick_team = ""
+            bet_size = ""
+            if winner_grades:
+                pick_side = winner_grades.get("pick_side", "")
+                if pick_side == "home":
+                    pick_team = home_g.get("matchup", "").split(" @ ")[-1]
+                else:
+                    pick_team = home_g.get("matchup", "").split(" @ ")[0]
+                bet_size = winner_grades.get("profiles", {}).get("sintonia", {}).get("sizing", "PASS")
+
+            # Confidence label based on lane agreement
+            unanimity = max(home_lanes_won, away_lanes_won) / max(total_lanes, 1)
+            if unanimity == 1.0:
+                confidence = f"UNANIMOUS ({total_lanes}/{total_lanes} lanes)"
+            elif unanimity >= 0.75:
+                confidence = f"STRONG ({max(home_lanes_won, away_lanes_won)}/{total_lanes} lanes)"
+            elif unanimity > 0.5:
+                confidence = f"LEAN ({max(home_lanes_won, away_lanes_won)}/{total_lanes} lanes)"
+            else:
+                confidence = f"SPLIT ({home_lanes_won}-{away_lanes_won})"
+
+            races.append({
+                "game_id": gid,
+                "matchup": matchup,
+                "lanes": lanes,
+                "home_score": round(home_total, 2),
+                "away_score": round(away_total, 2),
+                "race_winner": race_winner,
+                "pick_team": pick_team,
+                "bet_size": bet_size,
+                "confidence": confidence,
+            })
+
+        race_output = {
+            "sport": sport_key.upper(),
+            "date": date,
+            "generated_at": datetime.now().isoformat(),
+            "races": races,
+            "count": len(races),
+        }
+        race_file = GRADES_DIR / f"race_{sport_key}_{date}.json"
+        with open(race_file, "w", encoding="utf-8") as f:
+            json.dump(race_output, f, indent=2)
+        print(f"[race] {sport_key.upper()}: {len(races)} races generated -> {race_file.name}")
+
         # Summary
         for g in games_graded.values():
             consensus = g["consensus_grade"]

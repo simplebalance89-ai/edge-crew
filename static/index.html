@@ -11043,7 +11043,7 @@ function renderProEdgeGames(games, container) {
         var gColor = (grade === 'N/A') ? 'rgba(255,255,255,0.25)' : _gradeColor(grade);
 
         // ── PERCENT COMPLETE PER CARD ──
-        var pctSteps = 0, pctTotal = 5;
+        var pctSteps = 0, pctTotal = 7;
         if (g.odds && (g.odds.spread_home || g.odds.total)) pctSteps++;  // Step 1: odds loaded
         if (g.home_profile && g.home_profile.L5) pctSteps++;  // Step 2: enrichment
         if (gr && gr.profiles) {
@@ -11051,8 +11051,9 @@ function renderProEdgeGames(games, container) {
             if (profKeys.length > 0 && gr.profiles[profKeys[0]].variables) pctSteps++;  // Step 3: variables
             if (profKeys.length > 0 && gr.profiles[profKeys[0]].grade) pctSteps++;  // Step 4: graders
         }
-        // Kimi scout step removed — now in crowdsource layer
-        if (gr && gr.consensus_grade && gr.consensus_grade !== '?' && gr.consensus_grade !== 'N/A') pctSteps++;  // Step 5: verdict
+        if (gr && gr.consensus_grade && gr.consensus_grade !== '?' && gr.consensus_grade !== 'N/A') pctSteps++;  // Step 5: engine verdict
+        if (g.race && g.race.lanes && g.race.lanes.length > 0) pctSteps++;  // Step 6: race
+        if (g.kalshi_prob) pctSteps++;  // Step 7: kalshi market validation
         var pctComplete = Math.round((pctSteps / pctTotal) * 100);
         var pctColor = pctComplete === 100 ? '#10B981' : pctComplete >= 60 ? '#F59E0B' : '#EF4444';
 
