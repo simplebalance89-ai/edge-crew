@@ -15425,28 +15425,47 @@ async def _run_profedge_batch_grade(sport: str):
         else:
             _odds_games_check = []
         if _odds_games_check:
-            _current_matchups = set()
+            # Build fuzzy matchup set using team nicknames (last word) for cross-format matching
+            _current_nicknames = set()
             for _og in _odds_games_check:
                 _away = (_og.get("away") or _og.get("away_team") or "").strip().lower()
                 _home = (_og.get("home") or _og.get("home_team") or "").strip().lower()
-                _current_matchups.add(f"{_away} @ {_home}")
+                _away_nick = _away.split()[-1] if _away.split() else _away
+                _home_nick = _home.split()[-1] if _home.split() else _home
+                _current_nicknames.add(f"{_away_nick}@{_home_nick}")
+                _current_nicknames.add(f"{_away} @ {_home}")  # also keep exact match
             _fresh_games = []
             for _ag in live_games:
                 _m = (_ag.get("matchup", "") or "").strip().lower()
-                if _m in _current_matchups:
+                # Try exact match first
+                if _m in _current_nicknames:
                     _fresh_games.append(_ag)
+                    continue
+                # Try nickname match
+                _parts = _m.split(" @ ") if " @ " in _m else _m.split(" vs ")
+                if len(_parts) == 2:
+                    _a_nick = _parts[0].strip().split()[-1] if _parts[0].strip().split() else ""
+                    _h_nick = _parts[1].strip().split()[-1] if _parts[1].strip().split() else ""
+                    if f"{_a_nick}@{_h_nick}" in _current_nicknames:
+                        _fresh_games.append(_ag)
+                        continue
+                # No match — skip this game
             if _fresh_games:
                 logger.info(f"[PROFEDGE GRADE] {sport_key.upper()}: {len(_fresh_games)}/{len(live_games)} games validated against current odds")
                 live_games = _fresh_games
             elif live_games:
-                logger.warning(f"[PROFEDGE GRADE] {sport_key.upper()}: ALL {len(live_games)} analysis games are stale (no odds match) — skipping")
-                live_games = []
+                # Fail-open: if NO games match but analysis is from today, trust it
+                _analysis_date = live_data.get("generated_at", "")[:10] or live_data.get("cached_at", "")[:10]
+                _today_str = datetime.now(PST).strftime("%Y-%m-%d")
+                if _analysis_date == _today_str:
+                    logger.warning(f"[PROFEDGE GRADE] {sport_key.upper()}: no odds matchup matches but analysis is from today — grading anyway")
+                else:
+                    logger.warning(f"[PROFEDGE GRADE] {sport_key.upper()}: ALL {len(live_games)} analysis games are stale (no odds match, analysis from {_analysis_date}) — skipping")
+                    live_games = []
         else:
-            logger.warning(f"[PROFEDGE GRADE] {sport_key.upper()}: odds available but no games found — cannot validate freshness, skipping all {len(live_games)} games")
-            live_games = []
+            logger.info(f"[PROFEDGE GRADE] {sport_key.upper()}: no odds games in response — grading from analysis only")
     else:
-        logger.warning(f"[PROFEDGE GRADE] {sport_key.upper()}: no odds available at all — cannot validate freshness, skipping all {len(live_games)} games")
-        live_games = []
+        logger.info(f"[PROFEDGE GRADE] {sport_key.upper()}: no odds available — grading from analysis only")
     if not live_games:
         logger.info(f"[PROFEDGE GRADE] No fresh games for {sport_key} after validation")
         return {"graded": 0, "sport": sport_key}
