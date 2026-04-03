@@ -14634,6 +14634,10 @@ async def get_profedge(sport: str):
             else:
                 live_data = {}
             live_games = live_data.get("games", [])
+            # Reject stale analysis from previous days
+            if live_data.get("_from_previous_day"):
+                logger.info(f"[profedge] {sport_key}: rejecting stale analysis from previous day")
+                live_games = []
             if live_games:
                 # Convert analysis games to profedge format
                 converted = []
