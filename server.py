@@ -14507,6 +14507,61 @@ async def get_profedge(sport: str):
             logger.warning(f"[profedge] {sport_key}: failed to load {Path(gf_path).name}: {exc}")
             continue
 
+    # If file data is stale (not today), fall back to live analysis
+    if not games_data or used_date != today:
+        logger.info(f"[profedge] {sport_key}: no today file (have {used_date}), falling back to live analysis")
+        try:
+            analysis_resp = await get_analysis(sport_key, cached_only=True)
+            if hasattr(analysis_resp, 'body'):
+                live_data = json.loads(analysis_resp.body)
+            else:
+                live_data = {}
+            live_games = live_data.get("games", [])
+            if live_games:
+                # Convert analysis games to profedge format
+                converted = []
+                for ag in live_games:
+                    matchup = ag.get("matchup", "")
+                    parts = matchup.split(" @ ") if " @ " in matchup else [matchup, ""]
+                    away_name = parts[0].strip() if len(parts) > 0 else ""
+                    home_name = parts[1].strip() if len(parts) > 1 else ""
+                    game_entry = {
+                        "game_id": ag.get("game_id", matchup.replace(" ", "_")),
+                        "matchup": matchup,
+                        "home": home_name,
+                        "away": away_name,
+                        "home_abbrev": home_name.split()[-1][:3].upper() if home_name else "",
+                        "away_abbrev": away_name.split()[-1][:3].upper() if away_name else "",
+                        "time": ag.get("time", ""),
+                        "odds": {
+                            "spread_home": str(ag.get("home_spread", "")),
+                            "spread_away": str(ag.get("away_spread", "")),
+                            "total": str(ag.get("total", "")),
+                            "ml_home": str(ag.get("home_ml", "")),
+                            "ml_away": str(ag.get("away_ml", "")),
+                        },
+                        "home_profile": ag.get("home_profile", {}),
+                        "away_profile": ag.get("away_profile", {}),
+                        "injuries": ag.get("injuries", {"home": [], "away": []}),
+                        # Pass through analysis grading data
+                        "grade": {
+                            "consensus_grade": ag.get("grade", "?"),
+                            "consensus_avg": ag.get("composite_score", 0),
+                            "consensus_raw": ag.get("composite_score", 0),
+                            "pick_side": "",
+                            "profiles": ag.get("matrix_scores", {}),
+                            "peter_rules": {},
+                            "ev": {},
+                        } if ag.get("grade") else None,
+                        "race": None,
+                    }
+                    converted.append(game_entry)
+                games_data = {"games": converted, "date": today}
+                used_date = today
+                logger.info(f"[profedge] {sport_key}: loaded {len(converted)} games from live analysis")
+        except Exception as e:
+            logger.warning(f"[profedge] {sport_key}: live analysis fallback failed: {e}")
+
     if not games_data:
         return JSONResponse({"error": f"No game data for {sport_key}", "games": [], "grades": [], "race": []})
 
