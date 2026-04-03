@@ -5824,14 +5824,24 @@ async def get_analysis(sport: str, cached_only: bool = False, force: bool = Fals
         else:
             odds_data = {"games": [], "count": 0}
 
-    # Filter out started games
+    # Filter out started games — keep full 7-day slate but only grade within 24h
     if odds_data.get("games"):
         now = datetime.now(PST)
-        cutoff = now + timedelta(days=7)
-        odds_data["games"] = [
-            g for g in odds_data["games"]
-            if _game_not_started(g, now) and _game_within_cutoff(g, cutoff)
-        ]
+        grade_cutoff = now + timedelta(hours=24)
+        slate_cutoff = now + timedelta(days=7)
+        graded_games = []
+        preview_games = []
+        for g in odds_data["games"]:
+            if not _game_not_started(g, now):
+                continue
+            if not _game_within_cutoff(g, slate_cutoff):
+                continue
+            if _game_within_cutoff(g, grade_cutoff):
+                graded_games.append(g)
+            else:
+                g["_preview"] = True  # Flag: show on slate but skip AI grading
+                preview_games.append(g)
+        odds_data["games"] = graded_games + preview_games
 
     # Fallback: if live odds are empty, try the cached daily slate
     if not odds_data.get("games"):
@@ -5866,10 +5876,14 @@ async def get_analysis(sport: str, cached_only: bool = False, force: bool = Fals
             "no_odds": True,
         })
 
-    # Separate complete vs incomplete games
+    # Separate complete vs incomplete games (skip preview games beyond 24h)
     complete_games = []
     incomplete_games = []
+    preview_count = 0
     for g in odds_data["games"]:
+        if g.get("_preview"):
+            preview_count += 1
+            continue  # Show on slate but don't burn AI tokens
         away = g.get("away", "?")
         home = g.get("home", "?")
         spread = g.get("home_spread", "?")
@@ -7719,6 +7733,23 @@ Return ONLY valid JSON. Grade most games C or PASS. Only B+ when edge is clear."
             logger.info(f"[CROWDSOURCE] Complete — {len(crowdsource_grades)} games graded by {len(CROWDSOURCE_MODELS)} models")
         # ===== END CROWDSOURCE =====
 
+        # Append preview games (beyond 24h) as ungraded entries
+        for g in odds_data.get("games", []):
+            if g.get("_preview"):
+                all_analyzed_games.append({
+                    "matchup": f"{g.get('away', '?')} @ {g.get('home', '?')}",
+                    "grade": "PREVIEW",
+                    "composite_score": 0,
+                    "edge_summary": f"Game on {g.get('time', '?')[:10]} — will be graded within 24h of tip",
+                    "edge_pick": {"team": "TBD", "bet_type": "", "line": "", "confidence": "", "reasoning": "Preview — not yet graded"},
+                    "home_spread": g.get("home_spread"),
+                    "total": g.get("total"),
+                    "home_ml": g.get("home_ml"),
+                    "away_ml": g.get("away_ml"),
+                    "time": g.get("time"),
+                    "_preview": True,
+                })
+
         analysis = {
             "gotcha": gotcha_html or "Analysis partially generated. Some batches may have failed.",
             "games": all_analyzed_games,
@@ -7729,6 +7760,7 @@ Return ONLY valid JSON. Grade most games C or PASS. Only B+ when edge is clear."
             "games_complete": len(complete_games),
             "games_incomplete": len(incomplete_games),
             "games_analyzed": len(all_analyzed_games),
+            "games_preview": preview_count,
             "batches": len(game_batches),
             "injury_source": "CBS Sports + ESPN + RotoWire + API-Sports" if injury_context else "none",
             "injury_data_length": len(injury_context),
