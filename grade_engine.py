@@ -15,9 +15,9 @@ from paths import DATA_DIR, GRADES_DIR, PROFILES_DIR
 # ─── Grade Thresholds ───────────────────────────────────────────────────────────
 
 GRADE_THRESHOLDS = [
-    (8.5, "A+"), (7.8, "A"), (7.0, "A-"),
-    (6.5, "B+"), (6.0, "B"), (5.5, "B-"),
-    (5.0, "C+"), (4.0, "C"), (3.0, "D"), (0.0, "F"),
+    (8.0, "A+"), (7.3, "A"), (6.5, "A-"),
+    (6.0, "B+"), (5.5, "B"), (5.0, "B-"),
+    (4.5, "C+"), (3.5, "C"), (2.5, "D"), (0.0, "F"),
 ]
 
 SIZING_MAP = {
@@ -219,7 +219,7 @@ def score_home_away(game: dict, side: str) -> tuple[int, str]:
         base = 6  # Home court/ice inherent advantage
     else:
         w, l = parse_record(profile.get("away_record"))
-        base = 4  # Away inherent disadvantage
+        base = 5  # Away — neutral baseline
 
     if w + l > 0:
         pct = w / (w + l)
@@ -260,8 +260,8 @@ def score_line_movement(game: dict, pick_side: str) -> tuple[int, str]:
         base = 5
         note = f"Spread moved {spread_delta:+.1f} pts"
     else:
-        base = 3
-        note = "Line flat — no sharp signal"
+        base = 5
+        note = "Line flat — neutral"
 
     if ml_moved:
         note += " | ML shifted"
@@ -624,7 +624,12 @@ def grade_sintonia(game: dict, pick_side: str) -> dict:
             note = f"{var_name} proxy from margin: {margin:+.1f}"
         elif var_name in ("coaching_tournament_record", "coaching_matchup"):
             score = 5
-            note = "Coaching data not available — neutral"
+            note = f"[{var_name}] NCAAB data not yet available — excluded from composite"
+            variables[var_name] = {
+                "score": _clamp(score), "weight": weight, "weighted": 0,
+                "note": note, "available": False,
+            }
+            continue
         elif var_name in ("net_ranking_gap",):
             # Use season win % differential as proxy
             our_pct = win_pct(profile.get("record"))
@@ -632,15 +637,14 @@ def grade_sintonia(game: dict, pick_side: str) -> dict:
             pct_diff = our_pct - opp_pct
             score = _clamp(5 + pct_diff * 8)
             note = f"NET proxy: us {our_pct:.0%} vs them {opp_pct:.0%} (diff {pct_diff:+.0%})"
-        elif var_name in ("neutral_site",):
+        elif var_name in ("neutral_site", "conference_strength", "ft_shooting"):
             score = 5
-            note = "Neutral site detection not implemented — neutral"
-        elif var_name in ("conference_strength",):
-            score = 5
-            note = "Conference strength data not available — neutral"
-        elif var_name in ("ft_shooting",):
-            score = 5
-            note = "FT data not available — neutral"
+            note = f"[{var_name}] NCAAB data not yet available — excluded from composite"
+            variables[var_name] = {
+                "score": _clamp(score), "weight": weight, "weighted": 0,
+                "note": note, "available": False,
+            }
+            continue
         elif var_name in ("rivalry_motivation",):
             score, note = score_h2h(profile)
             note = f"Rivalry proxy from H2H — {note}"
@@ -653,11 +657,13 @@ def grade_sintonia(game: dict, pick_side: str) -> dict:
             "weight": weight,
             "weighted": round(score * weight, 1),
             "note": note,
+            "available": True,
         }
 
-    # Calculate composite
-    total_weighted = sum(v["weighted"] for v in variables.values())
-    max_possible = sum(v["weight"] * 10 for v in variables.values())
+    # Calculate composite — only from available variables (excludes unimplemented NCAAB vars)
+    active_vars = {k: v for k, v in variables.items() if v.get("available", True)}
+    total_weighted = sum(v["weighted"] for v in active_vars.values())
+    max_possible = sum(v["weight"] * 10 for v in active_vars.values())
     composite = round(total_weighted / max_possible * 10, 2) if max_possible > 0 else 0
 
     # Check chain bonuses
@@ -700,6 +706,8 @@ def grade_sintonia(game: dict, pick_side: str) -> dict:
         "sizing": score_to_sizing(final),
         "variables": variables,
         "chains_fired": chains_fired,
+        "vars_available": len(active_vars),
+        "vars_total": len(variables),
     }
 
 
@@ -1093,11 +1101,11 @@ def grade_edge(game: dict, pick_side: str) -> dict:
             if streak.startswith("W"):
                 streak_n = int(streak[1:]) if len(streak) > 1 and streak[1:].isdigit() else 0
                 if streak_n >= 5:
-                    score = 3
-                    note = f"On {streak} win streak — letdown risk HIGH"
+                    score = 5
+                    note = f"On {streak} win streak — hot team, no penalty"
                 elif streak_n >= 3:
-                    score = 4
-                    note = f"On {streak} streak — some letdown risk"
+                    score = 5
+                    note = f"On {streak} streak — neutral"
                 else:
                     score = 5
                     note = f"Streak: {streak} — no letdown signal"
@@ -1468,7 +1476,7 @@ def grade_renzo(game: dict, pick_side: str) -> dict:
         mathurin_pass = True
 
     if not mathurin_pass:
-        thesis_score = min(thesis_score, 4)  # Cap at D without thesis
+        thesis_score = min(thesis_score, 5)  # Cap at neutral without thesis
 
     questions["thesis_edge"] = {"score": thesis_score, "weight": 10, "note": thesis_note}
 

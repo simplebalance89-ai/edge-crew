@@ -11414,19 +11414,26 @@ function renderProEdgeGames(games, container) {
             html += '<div style="min-width:180px;flex-shrink:0;background:rgba(0,150,136,0.06);border:1px solid rgba(0,150,136,0.2);border-radius:10px;padding:10px;">';
             html += '<div style="font-size:9px;font-weight:800;color:#009688;letter-spacing:1px;margin-bottom:6px;">STEP 7 — KALSHI</div>';
             var kalshiPct = g.kalshi_prob;
-            var edgeProb = gr && gr.ev && gr.ev.win_prob ? gr.ev.win_prob * 100 : 50;
-            var divergence = edgeProb - kalshiPct;
-            var divColor = Math.abs(divergence) > 10 ? '#ef4444' : Math.abs(divergence) > 5 ? '#F59E0B' : '#10B981';
-            var divIcon = divergence > 0 ? 'â–²' : 'â–¼';
+            var hasEdgeData = gr && gr.ev && gr.ev.win_prob;
+            var edgeProb = hasEdgeData ? gr.ev.win_prob * 100 : null;
             html += '<div style="text-align:center;margin-bottom:8px;">';
             html += '<div style="font-size:28px;font-weight:900;color:#009688;">' + kalshiPct.toFixed(0) + '%</div>';
             html += '<div style="font-size:9px;color:rgba(255,255,255,0.4);">Market Implied</div>';
             html += '</div>';
-            html += '<div style="background:rgba(255,255,255,0.03);border-radius:6px;padding:6px;text-align:center;">';
-            html += '<div style="font-size:10px;color:rgba(255,255,255,0.5);">Our Edge vs Market</div>';
-            html += '<div style="font-size:14px;font-weight:800;color:' + divColor + ';">' + divIcon + ' ' + Math.abs(divergence).toFixed(1) + '%</div>';
-            html += '<div style="font-size:9px;color:' + divColor + ';">' + (Math.abs(divergence) > 10 ? 'Strong Divergence' : Math.abs(divergence) > 5 ? 'Moderate Edge' : 'Aligned') + '</div>';
-            html += '</div>';
+            if (hasEdgeData) {
+                var divergence = edgeProb - kalshiPct;
+                var divColor = Math.abs(divergence) > 10 ? '#ef4444' : Math.abs(divergence) > 5 ? '#F59E0B' : '#10B981';
+                var divIcon = divergence > 0 ? 'â–²' : 'â–¼';
+                html += '<div style="background:rgba(255,255,255,0.03);border-radius:6px;padding:6px;text-align:center;">';
+                html += '<div style="font-size:10px;color:rgba(255,255,255,0.5);">Our Edge vs Market</div>';
+                html += '<div style="font-size:14px;font-weight:800;color:' + divColor + ';">' + divIcon + ' ' + Math.abs(divergence).toFixed(1) + '%</div>';
+                html += '<div style="font-size:9px;color:' + divColor + ';">' + (Math.abs(divergence) > 10 ? 'Strong Divergence' : Math.abs(divergence) > 5 ? 'Moderate Edge' : 'Aligned') + '</div>';
+                html += '</div>';
+            } else {
+                html += '<div style="background:rgba(255,255,255,0.03);border-radius:6px;padding:6px;text-align:center;">';
+                html += '<div style="font-size:10px;color:rgba(255,255,255,0.3);font-style:italic;">Awaiting grade data</div>';
+                html += '</div>';
+            }
             if (g.kalshi_strike) {
                 html += '<div style="margin-top:6px;font-size:9px;color:rgba(255,255,255,0.4);text-align:center;">Strike: ' + g.kalshi_strike + '</div>';
             }

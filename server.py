@@ -14708,6 +14708,37 @@ async def get_profedge(sport: str):
                 # Filter out preview games (beyond 24h) — don't grade them
                 live_games = [g for g in live_games if not g.get("_preview")]
             if live_games:
+                # Merge odds from cache onto analysis games (analysis cache doesn't carry odds)
+                odds_cache_key = f"{sport_key}:h2h,spreads,totals"
+                odds_raw = _get_cached(odds_cache_key)
+                if odds_raw and isinstance(odds_raw, dict):
+                    odds_games = odds_raw.get("games", odds_raw.get("events", []))
+                elif isinstance(odds_raw, list):
+                    odds_games = odds_raw
+                else:
+                    odds_games = []
+                _odds_by_matchup = {}
+                for _og in odds_games:
+                    _away = (_og.get("away", _og.get("away_team", "")) or "").strip().lower()
+                    _home = (_og.get("home", _og.get("home_team", "")) or "").strip().lower()
+                    _key = f"{_away} @ {_home}"
+                    _odds_by_matchup[_key] = _og
+                for ag in live_games:
+                    _m = (ag.get("matchup", "") or "").strip().lower()
+                    _og = _odds_by_matchup.get(_m)
+                    if _og:
+                        if not ag.get("home_spread"):
+                            ag["home_spread"] = _og.get("spread_home", _og.get("home_spread", ""))
+                        if not ag.get("away_spread"):
+                            ag["away_spread"] = _og.get("spread_away", _og.get("away_spread", ""))
+                        if not ag.get("total"):
+                            ag["total"] = _og.get("total", "")
+                        if not ag.get("home_ml"):
+                            ag["home_ml"] = _og.get("ml_home", _og.get("home_ml", ""))
+                        if not ag.get("away_ml"):
+                            ag["away_ml"] = _og.get("ml_away", _og.get("away_ml", ""))
+                logger.info(f"[profedge] {sport_key}: merged odds for {len(_odds_by_matchup)} matchups onto {len(live_games)} live analysis games")
+
                 # Convert analysis games to profedge format
                 converted = []
                 for ag in live_games:
@@ -14745,6 +14776,11 @@ async def get_profedge(sport: str):
                         } if ag.get("grade") else None,
                         "race": None,
                     }
+                    # Fill missing profiles from _build_team_profile
+                    if not game_entry.get("home_profile") or game_entry["home_profile"] == {}:
+                        game_entry["home_profile"] = _build_team_profile(home_name, sport_key)
+                    if not game_entry.get("away_profile") or game_entry["away_profile"] == {}:
+                        game_entry["away_profile"] = _build_team_profile(away_name, sport_key)
                     converted.append(game_entry)
                 games_data = {"games": converted, "date": today}
                 used_date = today
@@ -14858,7 +14894,7 @@ async def get_profedge(sport: str):
         strike = km.get("floor_strike")
         yes_bid = float(km.get("yes_bid_dollars") or 0)
         yes_ask = float(km.get("yes_ask_dollars") or 0)
-        mid = (yes_ask + yes_bid) / 2 if (yes_ask + yes_bid) > 0 else None
+        mid = ((yes_ask + yes_bid) / 2) * 100 if (yes_ask + yes_bid) > 0 else None
         title = km.get("title", "")
         if evt and strike is not None and mid:
             kalshi_by_event.setdefault(evt, []).append({
@@ -14918,7 +14954,7 @@ async def get_profedge(sport: str):
                 "ev": grade.get("ev", {}),
             }
         else:
-            entry["grade"] = None
+            entry["grade"] = game.get("grade")  # preserve inline grade from analysis fallback
 
         # Attach race
         race = races_by_matchup.get(matchup)
@@ -15274,6 +15310,39 @@ async def _run_profedge_batch_grade(sport: str):
     if not live_games:
         logger.info(f"[PROFEDGE GRADE] No games for {sport_key}")
         return {"graded": 0, "sport": sport_key}
+
+    # Merge odds from cache onto analysis games (analysis cache doesn't carry odds)
+    odds_cache_key = f"{sport_key}:h2h,spreads,totals"
+    odds_raw = _get_cached(odds_cache_key)
+    if odds_raw and isinstance(odds_raw, dict):
+        odds_games = odds_raw.get("games", odds_raw.get("events", []))
+    elif isinstance(odds_raw, list):
+        odds_games = odds_raw
+    else:
+        odds_games = []
+    # Build lookup by normalized matchup
+    _odds_by_matchup = {}
+    for _og in odds_games:
+        _away = (_og.get("away", _og.get("away_team", "")) or "").strip().lower()
+        _home = (_og.get("home", _og.get("home_team", "")) or "").strip().lower()
+        _key = f"{_away} @ {_home}"
+        _odds_by_matchup[_key] = _og
+    # Merge onto analysis games
+    for ag in live_games:
+        _m = (ag.get("matchup", "") or "").strip().lower()
+        _og = _odds_by_matchup.get(_m)
+        if _og:
+            if not ag.get("home_spread"):
+                ag["home_spread"] = _og.get("spread_home", _og.get("home_spread", ""))
+            if not ag.get("away_spread"):
+                ag["away_spread"] = _og.get("spread_away", _og.get("away_spread", ""))
+            if not ag.get("total"):
+                ag["total"] = _og.get("total", "")
+            if not ag.get("home_ml"):
+                ag["home_ml"] = _og.get("ml_home", _og.get("home_ml", ""))
+            if not ag.get("away_ml"):
+                ag["away_ml"] = _og.get("ml_away", _og.get("away_ml", ""))
+    logger.info(f"[PROFEDGE GRADE] Merged odds for {len(_odds_by_matchup)} matchups onto {len(live_games)} games")
 
     today = datetime.now(PST).strftime("%Y%m%d")
     all_grades = []
