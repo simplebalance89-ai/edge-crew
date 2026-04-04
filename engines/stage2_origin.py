@@ -1,17 +1,23 @@
 """
-STAGE 2: ORIGIN CHECK — Player fitness and availability gate.
+STAGE 2: PLAYER DATA — Injuries, star availability, usage, lineup status.
 
+Displays and aggregates all player-level data for the pipeline.
 Uses sport-specific star impact tables to quantify how much each injury
 affects win probability. Wraps existing ESPN + RotoWire injury data.
 
-PASS: Key players >80% fit, no critical outs (score >= 4.0)
-SOFT_FAIL: Star questionable → retry at T-60min
-DEGRADE: Some depth concerns but not disqualifying
-KILL: Multiple key outs destroy structural edge (star_impact > 20%)
+SCORING STAGES (0-5): accumulate data, NO KILLS.
+S2 never kills — only PASS, SOFT_FAIL, or DEGRADE.
+
+Key methodology:
+- Fresh scratches (0-3 days) = market hasn't adjusted = edge opportunity
+- Stale absences (30+ days, team winning without them) = already priced in
+- Injury differential = clear edge for the healthier side
+- Both sides heavily hurt = chaos, reduce confidence
 """
 
 import logging
 import re
+from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Tuple
 
 from engines.stage_models import HurdleGame, StageResult, Verdict
@@ -77,46 +83,66 @@ STATUS_SEVERITY = {
     "doubtful": 3,
     "questionable": 2,
     "gtd": 2,
+    "game-time decision": 2,
     "day-to-day": 2,
     "probable": 1,
     "p": 1,
     "active": 0,
+    "available": 0,
 }
 
-# Threshold: total star impact % above which we KILL
-KILL_THRESHOLD = 20  # 20% win prob impact = too much uncertainty
+# Thresholds
 DEGRADE_THRESHOLD = 10
 PASS_SCORE_THRESHOLD = 4.0
+
+# Freshness boundaries (days)
+FRESH_INJURY_DAYS = 3       # 0-3 days = fresh scratch, market hasn't adjusted
+STALE_INJURY_DAYS = 30      # 30+ days = priced in if team is winning without them
 
 
 async def run_stage2(
     games: List[HurdleGame],
+    soft_fail_games: Optional[List[HurdleGame]] = None,
     fetch_injuries_fn=None,
-    sport: str = "",
 ) -> Tuple[List[HurdleGame], List[HurdleGame], List[HurdleGame]]:
     """
-    Run origin check on all games.
+    Run player data stage on all games.
 
-    If fetch_injuries_fn is provided, will call it to get fresh injury data.
-    Otherwise relies on injury data already on the HurdleGame objects.
+    Evaluates injuries, star availability, usage patterns, and lineup status.
+    Never kills — only PASS, SOFT_FAIL, or DEGRADE.
 
-    Returns: (passed, soft_fail, killed)
+    Args:
+        games: Active games to evaluate.
+        soft_fail_games: Previously soft-failed games to re-evaluate.
+        fetch_injuries_fn: Optional async callable(sport) -> injury text/data.
+
+    Returns: (passed, soft_fail, killed) — killed is always empty.
     """
-    # Optionally fetch fresh injuries (Phase 2+ — for now, use what's on the game)
-    if fetch_injuries_fn and sport:
-        try:
-            injury_text = await fetch_injuries_fn(sport)
-            if injury_text:
-                _parse_injury_text_onto_games(games, injury_text, sport)
-        except Exception as e:
-            logger.warning(f"[STAGE 2] Injury fetch failed: {e} — using existing data")
+    all_games = list(games)
+    if soft_fail_games:
+        all_games.extend(soft_fail_games)
+
+    # Optionally fetch fresh injuries
+    if fetch_injuries_fn:
+        # Group games by sport for efficient fetching
+        sports_seen = set()
+        for g in all_games:
+            if g.sport and g.sport not in sports_seen:
+                sports_seen.add(g.sport)
+                try:
+                    injury_data = await fetch_injuries_fn(g.sport)
+                    if injury_data:
+                        sport_games = [gm for gm in all_games if gm.sport == g.sport]
+                        _parse_injury_text_onto_games(sport_games, injury_data, g.sport)
+                except Exception as e:
+                    logger.warning(f"[STAGE 2] Injury fetch failed for {g.sport}: {e}")
 
     passed = []
     soft_fail = []
-    killed = []
+    killed = []  # Always empty — S2 never kills
 
-    for game in games:
-        result = _evaluate_origin(game)
+    for game in all_games:
+        result = _evaluate_player_data(game)
         game.stage_results.append(result)
 
         if result.verdict == Verdict.PASS:
@@ -127,22 +153,22 @@ async def run_stage2(
             game.degraded = True
             game.degrade_factor *= 0.8  # Reduce downstream confidence by 20%
             passed.append(game)  # Degraded games still proceed
-        else:
-            killed.append(game)
 
     logger.info(
-        f"[STAGE 2] {len(passed)} passed (inc. degraded), "
-        f"{len(soft_fail)} soft_fail, {len(killed)} killed"
+        f"[STAGE 2] Player Data: {len(passed)} passed (inc. degraded), "
+        f"{len(soft_fail)} soft_fail, 0 killed"
     )
     return passed, soft_fail, killed
 
 
-def _evaluate_origin(game: HurdleGame) -> StageResult:
-    """Score a single game's injury situation."""
-    factors = {}
+def _evaluate_player_data(game: HurdleGame) -> StageResult:
+    """Score a single game's full player picture."""
+    factors: Dict = {}
     sport = game.sport
 
-    # Calculate impact for each side
+    # ------------------------------------------------------------------
+    # 1. STAR AVAILABILITY — calculate impact for each side
+    # ------------------------------------------------------------------
     home_impact = _calculate_side_impact(
         game.home_star_out, game.home_star_questionable, sport, "home"
     )
@@ -153,8 +179,6 @@ def _evaluate_origin(game: HurdleGame) -> StageResult:
     factors["home_impact"] = home_impact
     factors["away_impact"] = away_impact
 
-    # The EDGE from injuries: if one side is hurt more, the other side benefits
-    # We care about differential — a game where BOTH sides are hurt is less edgy
     home_pct = home_impact["total_impact_pct"]
     away_pct = away_impact["total_impact_pct"]
     impact_diff = abs(home_pct - away_pct)
@@ -163,7 +187,7 @@ def _evaluate_origin(game: HurdleGame) -> StageResult:
     factors["impact_differential"] = round(impact_diff, 1)
     factors["max_side_impact"] = round(max_impact, 1)
 
-    # Determine which side the edge favors
+    # Which side has the edge from injuries
     if home_pct > away_pct:
         factors["edge_favors"] = game.away_team
         factors["hurt_side"] = game.home_team
@@ -173,8 +197,52 @@ def _evaluate_origin(game: HurdleGame) -> StageResult:
     else:
         factors["edge_favors"] = "neutral"
 
-    # Score: start at 5 (neutral), adjust based on differential
-    # High differential = good (clear edge), both sides hurt = bad (chaos)
+    # ------------------------------------------------------------------
+    # 2. INJURY FRESHNESS — fresh scratches vs stale absences
+    # ------------------------------------------------------------------
+    freshness = _assess_injury_freshness(game)
+    factors["injury_freshness"] = freshness
+
+    # ------------------------------------------------------------------
+    # 3. INJURY DETAIL BREAKDOWN (per-player if available)
+    # ------------------------------------------------------------------
+    if game.injuries:
+        home_injuries = []
+        away_injuries = []
+        for inj in game.injuries:
+            entry = {
+                "player": inj.get("player", "Unknown"),
+                "status": inj.get("status", "unknown"),
+                "tier": inj.get("tier", "unknown"),
+                "days_out": inj.get("days_out", -1),
+                "reason": inj.get("reason", ""),
+            }
+            side = inj.get("side", "")
+            if side == "home":
+                home_injuries.append(entry)
+            elif side == "away":
+                away_injuries.append(entry)
+        if home_injuries:
+            factors["home_injuries_detail"] = home_injuries
+        if away_injuries:
+            factors["away_injuries_detail"] = away_injuries
+
+    # ------------------------------------------------------------------
+    # 4. USAGE / LOAD MANAGEMENT SIGNALS
+    # ------------------------------------------------------------------
+    usage_flags = _check_usage_signals(game)
+    if usage_flags:
+        factors["usage_signals"] = usage_flags
+
+    # ------------------------------------------------------------------
+    # 5. LINEUP CONFIRMATION STATUS
+    # ------------------------------------------------------------------
+    lineup_info = _check_lineup_status(game)
+    factors["lineup_status"] = lineup_info
+
+    # ------------------------------------------------------------------
+    # 6. SCORING — start at 5.0 (neutral)
+    # ------------------------------------------------------------------
     score = 5.0
 
     # Bonus for injury differential (creates edge)
@@ -185,28 +253,38 @@ def _evaluate_origin(game: HurdleGame) -> StageResult:
     elif impact_diff >= 5:
         score += 1.0
 
-    # Penalty if both sides are heavily impacted (unpredictable)
+    # Penalty if both sides heavily impacted (unpredictable chaos)
     if home_pct > 10 and away_pct > 10:
         score -= 2.0
         factors["both_sides_hurt"] = True
 
     # Penalty for extreme single-side impact (too much uncertainty)
-    if max_impact > KILL_THRESHOLD:
+    if max_impact > 20:
         score -= 3.0
+
+    # Fresh injury bonus: market hasn't fully adjusted
+    if freshness.get("has_fresh_scratch"):
+        score += 1.0
+        factors["fresh_scratch_bonus"] = True
+
+    # Stale injury discount: already priced in
+    if freshness.get("has_stale_absence"):
+        score -= 1.0
+        factors["stale_absence_discount"] = True
 
     score = max(0.0, min(10.0, score))
 
-    # --- Verdict ---
+    # ------------------------------------------------------------------
+    # 7. VERDICT — never KILL, only PASS / SOFT_FAIL / DEGRADE
+    # ------------------------------------------------------------------
     has_questionable = (
         game.home_star_questionable > 0 or game.away_star_questionable > 0
     )
 
-    # Stages 0-3 are SCORING stages — accumulate, don't kill.
-    # Injury data feeds into cumulative score evaluated at Stage 4.
     if has_questionable and score >= PASS_SCORE_THRESHOLD:
         verdict = Verdict.SOFT_FAIL
         notes = (
-            f"Score {score:.1f} but star(s) questionable — retry when status confirmed"
+            f"Score {score:.1f} — star(s) questionable, retry when status confirmed"
         )
     elif max_impact > DEGRADE_THRESHOLD:
         verdict = Verdict.DEGRADE
@@ -215,16 +293,35 @@ def _evaluate_origin(game: HurdleGame) -> StageResult:
         )
     else:
         verdict = Verdict.PASS
-        notes = f"Score {score:.1f} — injury data accumulated"
+        notes = f"Score {score:.1f} — player data accumulated"
+
+    # Add summary to notes
+    summary_parts = []
+    if game.home_star_out or game.away_star_out:
+        summary_parts.append(
+            f"OUT: {game.home_team}={game.home_star_out}, "
+            f"{game.away_team}={game.away_star_out}"
+        )
+    if game.home_star_questionable or game.away_star_questionable:
+        summary_parts.append(
+            f"GTD: {game.home_team}={game.home_star_questionable}, "
+            f"{game.away_team}={game.away_star_questionable}"
+        )
+    if freshness.get("has_fresh_scratch"):
+        summary_parts.append("FRESH scratch detected")
+    if freshness.get("has_stale_absence"):
+        summary_parts.append("STALE absence (priced in)")
+    if summary_parts:
+        notes += " | " + "; ".join(summary_parts)
 
     return StageResult(
         stage=2,
-        name="Origin Check",
+        name="Player Data",
         game_id=game.game_id,
         score=round(score, 1),
         threshold=PASS_SCORE_THRESHOLD,
         verdict=verdict,
-        confidence=0.7 if verdict == Verdict.PASS else 0.4,
+        confidence=_calc_confidence(verdict, lineup_info),
         next_stage=3 if verdict in (Verdict.PASS, Verdict.DEGRADE) else None,
         factors=factors,
         notes=notes,
@@ -237,13 +334,12 @@ def _calculate_side_impact(
     """
     Calculate total win probability impact for one side's injuries.
 
-    For Phase 1, we use star counts with average tier impact.
-    Phase 2+ will have actual player names → tier lookups.
+    Uses mid-tier defaults per star count.
+    Phase 2+ will have actual player names -> tier lookups.
     """
     impact_table = STAR_IMPACT.get(sport, STAR_IMPACT.get("nba", {}))
 
     # Use mid-tier default per star count
-    # (Phase 2 will have real player → tier mapping)
     avg_star_impact = impact_table.get("all_star", impact_table.get("starter", 8))
     avg_role_impact = impact_table.get("role", 3)
 
@@ -262,19 +358,162 @@ def _calculate_side_impact(
     }
 
 
+def _assess_injury_freshness(game: HurdleGame) -> Dict:
+    """
+    Evaluate whether injuries are fresh scratches or stale absences.
+
+    Fresh (0-3 days): Market hasn't fully adjusted -> edge opportunity.
+    Stale (30+ days, team winning): Already priced in -> discount.
+    """
+    result = {
+        "has_fresh_scratch": False,
+        "has_stale_absence": False,
+        "fresh_players": [],
+        "stale_players": [],
+    }
+
+    if not game.injuries:
+        return result
+
+    for inj in game.injuries:
+        days_out = inj.get("days_out", -1)
+        player = inj.get("player", "Unknown")
+        status = inj.get("status", "").lower()
+
+        # Only care about players actually out or doubtful
+        if status not in ("out", "o", "doubtful"):
+            continue
+
+        if 0 <= days_out <= FRESH_INJURY_DAYS:
+            result["has_fresh_scratch"] = True
+            result["fresh_players"].append({
+                "player": player,
+                "days_out": days_out,
+                "note": "Fresh scratch — market may not have adjusted",
+            })
+        elif days_out >= STALE_INJURY_DAYS:
+            # Check if team is winning without them (use streak as proxy)
+            side = inj.get("side", "")
+            team_winning = False
+            if side == "home" and game.home_streak > 0:
+                team_winning = True
+            elif side == "away" and game.away_streak > 0:
+                team_winning = True
+
+            if team_winning:
+                result["has_stale_absence"] = True
+                result["stale_players"].append({
+                    "player": player,
+                    "days_out": days_out,
+                    "note": "Stale absence — team winning without them, priced in",
+                })
+
+    return result
+
+
+def _check_usage_signals(game: HurdleGame) -> List[Dict]:
+    """
+    Check for usage / load management signals from metadata.
+
+    Looks for load management flags, minutes restrictions, usage rate data
+    that may have been injected by upstream data fetchers.
+    """
+    signals = []
+    meta = game.metadata or {}
+
+    # Load management flags (set by NBA usage engine or upstream fetcher)
+    for key in ("load_management", "usage_signals", "minutes_restrictions"):
+        if key in meta:
+            data = meta[key]
+            if isinstance(data, list):
+                for item in data:
+                    signals.append({
+                        "type": key,
+                        "player": item.get("player", "Unknown"),
+                        "detail": item.get("detail", str(item)),
+                    })
+            elif isinstance(data, dict):
+                signals.append({
+                    "type": key,
+                    "detail": data,
+                })
+
+    # Check for B2B load management (back-to-back = likely rest stars)
+    if game.home_b2b:
+        signals.append({
+            "type": "b2b_rest_risk",
+            "team": game.home_team,
+            "detail": f"{game.home_team} on back-to-back — star rest risk elevated",
+        })
+    if game.away_b2b:
+        signals.append({
+            "type": "b2b_rest_risk",
+            "team": game.away_team,
+            "detail": f"{game.away_team} on back-to-back — star rest risk elevated",
+        })
+
+    return signals
+
+
+def _check_lineup_status(game: HurdleGame) -> Dict:
+    """
+    Check lineup confirmation status from metadata.
+
+    Returns confidence level based on whether lineups are confirmed,
+    projected, or unknown.
+    """
+    meta = game.metadata or {}
+    lineup_data = meta.get("lineup_status", {})
+
+    if lineup_data:
+        return {
+            "confirmed": lineup_data.get("confirmed", False),
+            "source": lineup_data.get("source", "unknown"),
+            "confidence": "high" if lineup_data.get("confirmed") else "projected",
+            "home_lineup": lineup_data.get("home_lineup", []),
+            "away_lineup": lineup_data.get("away_lineup", []),
+        }
+
+    # Default: no lineup data available
+    return {
+        "confirmed": False,
+        "source": "none",
+        "confidence": "unknown",
+        "note": "Lineup data not yet available",
+    }
+
+
+def _calc_confidence(verdict: Verdict, lineup_info: Dict) -> float:
+    """Calculate confidence based on verdict and data quality."""
+    base = 0.7 if verdict == Verdict.PASS else 0.5 if verdict == Verdict.DEGRADE else 0.4
+
+    # Boost confidence if lineups are confirmed
+    if lineup_info.get("confirmed"):
+        base = min(base + 0.1, 0.9)
+
+    # Reduce confidence if no lineup data at all
+    if lineup_info.get("source") == "none":
+        base = max(base - 0.05, 0.2)
+
+    return round(base, 2)
+
+
+# ==================================================================
+# INJURY TEXT PARSING (ESPN / RotoWire raw text -> game enrichment)
+# ==================================================================
+
 def _parse_injury_text_onto_games(
     games: List[HurdleGame], injury_text: str, sport: str
 ) -> None:
     """
     Parse injury text from ESPN/RotoWire and enrich HurdleGame objects.
 
-    This is a best-effort parser for the text format our injury fetchers return.
+    Best-effort parser for the text format our injury fetchers return.
     Phase 2 will have structured injury data instead of text parsing.
     """
     if not injury_text:
         return
 
-    # Simple heuristic: look for OUT/GTD/Questionable patterns near team names
     lines = injury_text.split("\n")
     current_team = ""
 
@@ -283,8 +522,6 @@ def _parse_injury_text_onto_games(
         if not line_stripped:
             continue
 
-        # Detect team headers (usually bold or all caps)
-        # Pattern: "TEAM NAME" or "**Team Name**"
         upper_line = line_stripped.upper()
 
         # Check if this line names a team that's in our games
@@ -308,6 +545,9 @@ def _parse_injury_text_onto_games(
                 _increment_injury(games, current_team, "out", is_star_indicator)
             elif any(s in upper_line for s in ["GTD", "QUESTIONABLE", "DOUBTFUL"]):
                 _increment_injury(games, current_team, "questionable", is_star_indicator)
+            elif "PROBABLE" in upper_line:
+                # Track probable but don't count as questionable
+                pass
 
 
 def _increment_injury(
