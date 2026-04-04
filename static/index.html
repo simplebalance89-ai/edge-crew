@@ -11298,9 +11298,9 @@ function renderProEdgeGames(games, container) {
         // ── 5-STEP PIPELINE (horizontal scroll) ──
         html += '<div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:8px;scrollbar-width:thin;-webkit-overflow-scrolling:touch;">';
 
-        // ═══ S0: TEAM DATA (lines + form + rankings) ═══
-        html += '<div style="min-width:170px;flex-shrink:0;background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.2);border-radius:10px;padding:10px;">';
-        html += '<div style="font-size:9px;font-weight:800;color:#6366f1;letter-spacing:1px;margin-bottom:6px;">S0 — TEAM DATA</div>';
+        // ═══ S0: LINES (spread, O/U, ML — just the numbers) ═══
+        html += '<div style="min-width:150px;flex-shrink:0;background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.2);border-radius:10px;padding:10px;">';
+        html += '<div style="font-size:9px;font-weight:800;color:#6366f1;letter-spacing:1px;margin-bottom:6px;">S0 — LINES</div>';
         var odds = g.odds || {};
         var spreadLabel = _profedgeCurrentSport === 'nhl' ? 'PL' : 'Spread';
         html += '<div style="font-size:11px;color:rgba(255,255,255,0.6);line-height:1.6;">';
@@ -11317,16 +11317,6 @@ function renderProEdgeGames(games, container) {
             html += 'O/U: <span style="color:#fff;font-weight:700;">' + ouVal + '</span><br>';
             html += 'ML: <span style="color:#fff;font-weight:700;">' + mlH + ' / ' + mlA + '</span>';
         }
-        // Team form summary
-        ['away', 'home'].forEach(function(side) {
-            var prof = g[side + '_profile'] || {};
-            var abbrev = side === 'home' ? (g.home_abbrev || g.home) : (g.away_abbrev || g.away);
-            var parts = [];
-            if (prof.L5 && prof.L5 !== '0-0') parts.push('L5:' + prof.L5);
-            if (prof.streak && prof.streak !== 'L0' && prof.streak !== 'W0') parts.push(prof.streak);
-            if (prof.ats_record) parts.push('ATS:' + prof.ats_record);
-            if (parts.length) html += '<br><span style="font-size:9px;color:rgba(255,255,255,0.5);"><b style="color:#fff;">' + abbrev + '</b> ' + parts.join(' | ') + '</span>';
-        });
         html += '</div>';
         html += '</div>';
 
@@ -11392,63 +11382,6 @@ function renderProEdgeGames(games, container) {
             html += '</div>';
         });
         html += '</div>';
-
-        // ═══ STEP 2.5: TEAM & PLAYER PROFILES ═══
-        // Show if ANY profile data exists (from overnight batch)
-        var hasHomeProfile = g.home_profile && Object.keys(g.home_profile).length > 0;
-        var hasAwayProfile = g.away_profile && Object.keys(g.away_profile).length > 0;
-        if (hasHomeProfile || hasAwayProfile || g.roster_home || g.roster_away) {
-            html += '<div style="min-width:220px;flex-shrink:0;background:rgba(255,193,7,0.06);border:1px solid rgba(255,193,7,0.2);border-radius:10px;padding:10px;">';
-            html += '<div style="font-size:9px;font-weight:800;color:#ffc107;letter-spacing:1px;margin-bottom:6px;">STEP 2.5 — PROFILES</div>';
-            ['away', 'home'].forEach(function(side) {
-                var prof = g[side + '_profile'] || {};
-                var roster = side === 'home' ? g.roster_home : g.roster_away;
-                var abbrev = side === 'home' ? (g.home_abbrev || g.home) : (g.away_abbrev || g.away);
-                var tag = side === 'home' ? 'HOME' : 'AWAY';
-                html += '<div style="margin-bottom:6px;">';
-                html += '<span style="font-size:10px;font-weight:700;color:#fff;">' + abbrev + '</span> <span style="font-size:9px;color:rgba(255,255,255,0.3);">' + tag + '</span>';
-
-                // Profile grade badge (if available)
-                if (prof.profile_grade) {
-                    var pgColor = prof.profile_grade.startsWith('A') ? '#10B981' : prof.profile_grade.startsWith('B') ? '#38BDF8' : '#d4a024';
-                    html += ' <span style="font-size:9px;font-weight:700;color:' + pgColor + ';background:rgba(255,255,255,0.05);padding:1px 5px;border-radius:3px;">' + prof.profile_grade + '</span>';
-                }
-                html += '<br>';
-
-                // Show what we have from overnight batch
-                var details = [];
-                if (prof.L5 && prof.L5 !== '0-0') details.push('L5:' + prof.L5);
-                if (prof.L10 && prof.L10 !== '0-0') details.push('L10:' + prof.L10);
-                if (prof.ppg_L5) details.push('PPG:' + prof.ppg_L5.toFixed(1));
-                if (prof.opp_ppg_L5) details.push('Opp:' + prof.opp_ppg_L5.toFixed(1));
-                if (prof.streak && prof.streak !== 'L0' && prof.streak !== 'W0') details.push('Stk:' + prof.streak);
-                if (prof.rest_days != null) details.push('Rest:' + prof.rest_days + 'd');
-                if (prof.ats_record) details.push('ATS:' + prof.ats_record);
-                if (prof.off_rating) details.push('Off:' + prof.off_rating);
-                if (prof.def_rating) details.push('Def:' + prof.def_rating);
-
-                if (details.length > 0) {
-                    html += '<span style="font-size:9px;color:rgba(255,255,255,0.5);">' + details.join(' | ') + '</span><br>';
-                }
-
-                // Top players from roster
-                if (roster && roster.players && roster.players.length > 0) {
-                    var topPlayers = roster.players.slice(0, 3);
-                    html += '<div style="margin-top:3px;padding:3px 5px;background:rgba(255,255,255,0.03);border-radius:4px;">';
-                    topPlayers.forEach(function(p, i) {
-                        var ppg = p.ppg || p.points || 0;
-                        var status = p.status || 'Active';
-                        var statusColor = status === 'Active' ? '#10B981' : status === 'GTD' ? '#F59E0B' : '#ef4444';
-                        html += '<span style="font-size:9px;color:rgba(255,255,255,0.6);">' + p.name + ' ' + ppg.toFixed(1) + 'ppg</span>';
-                        html += '<span style="font-size:8px;color:' + statusColor + ';margin-left:4px;">●</span>';
-                        if (i < topPlayers.length - 1) html += '<br>';
-                    });
-                    html += '</div>';
-                }
-                html += '</div>';
-            });
-            html += '</div>';
-        }
 
         // ═══ STEP 3: VARIABLES ═══
         html += '<div style="min-width:200px;flex-shrink:0;background:rgba(212,160,36,0.06);border:1px solid rgba(212,160,36,0.2);border-radius:10px;padding:10px;">';

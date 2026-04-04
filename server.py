@@ -15728,6 +15728,27 @@ async def get_profedge(sport: str, mode: str = None):
                     if s_inj and (s_inj.get("home") or s_inj.get("away")):
                         game["injuries"] = s_inj
 
+        # ── Final fallback: fetch injuries from card API for games still missing ──
+        for game in (raw_games if isinstance(raw_games, list) else []):
+            game_inj = game.get("injuries", {"home": [], "away": []})
+            if not game_inj.get("home") and not game_inj.get("away"):
+                try:
+                    away = game.get("away", "")
+                    home = game.get("home", "")
+                    away_abbr = game.get("away_abbrev", away.split()[-1][:3].upper() if away else "")
+                    home_abbr = game.get("home_abbrev", home.split()[-1][:3].upper() if home else "")
+                    matchup_str = f"{away_abbr} @ {home_abbr}"
+                    inj_resp = await card_injuries(sport_key, matchup_str)
+                    if hasattr(inj_resp, 'body'):
+                        inj_data = json.loads(inj_resp.body)
+                        home_inj = inj_data.get("home_team", [])
+                        away_inj = inj_data.get("away_team", [])
+                        if home_inj or away_inj:
+                            game["injuries"] = {"home": home_inj, "away": away_inj}
+                            logger.info(f"[profedge] Fetched {len(home_inj)}+{len(away_inj)} injuries for {matchup_str}")
+                except Exception as ie:
+                    logger.debug(f"[profedge] Injury fetch failed for {game.get('matchup','?')}: {ie}")
+
         if enriched_count:
             logger.info(f"[profedge] {sport_key}: enriched {enriched_count} profiles from analysis/slate cache")
     except Exception as e:
