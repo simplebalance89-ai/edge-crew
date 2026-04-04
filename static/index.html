@@ -11304,7 +11304,7 @@ function renderProEdgeGames(games, container) {
             html += '</div>';
         }
 
-        // ── 5-STEP PIPELINE (horizontal scroll) ──
+        // ═══ SHARED FOUNDATION: S0 → S1 → S2 (horizontal scroll) ═══
         html += '<div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:8px;scrollbar-width:thin;-webkit-overflow-scrolling:touch;">';
 
         // ═══ S0: LINES (spread, O/U, ML — just the numbers) ═══
@@ -11392,290 +11392,162 @@ function renderProEdgeGames(games, container) {
         });
         html += '</div>';
 
-        // ═══ STEP 3: VARIABLES ═══
-        html += '<div style="min-width:200px;flex-shrink:0;background:rgba(212,160,36,0.06);border:1px solid rgba(212,160,36,0.2);border-radius:10px;padding:10px;">';
-        html += '<div style="font-size:9px;font-weight:800;color:#d4a024;letter-spacing:1px;margin-bottom:6px;">STEP 3 — VARIABLES</div>';
+        html += '</div>'; // end S0-S1-S2 row
+
+        // ═══ TWO-LANE FORK ═══
+        html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;">';
+
+        // ── LEFT LANE: OUR PROCESS ──
+        html += '<div style="background:rgba(247,37,133,0.04);border:1px solid rgba(247,37,133,0.2);border-radius:12px;padding:12px;">';
+        html += '<div style="font-size:10px;font-weight:900;letter-spacing:1.5px;color:#F72585;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.06);">OUR PROCESS</div>';
         if (gr && gr.profiles) {
-            // Collect all unique variable names from first profile
-            var firstProfile = gr.profiles[Object.keys(gr.profiles)[0]];
-            if (firstProfile && firstProfile.variables) {
-                var vars = firstProfile.variables;
-                var varNames = Object.keys(vars);
-                // Show top 8 by score (highest impact)
-                varNames.sort(function(a,b) { return (vars[b].score || 0) - (vars[a].score || 0); });
-                var showVars = varNames.slice(0, 8);
-                showVars.forEach(function(vname) {
-                    var v = vars[vname];
-                    var vs = v.score || 0;
-                    var vc = vs >= 7 ? '#10B981' : (vs >= 5 ? '#d4a024' : '#ef4444');
-                    html += '<div style="display:flex;justify-content:space-between;font-size:10px;padding:1px 0;">';
-                    html += '<span style="color:rgba(255,255,255,0.5);">' + vname.replace(/_/g, ' ') + '</span>';
-                    html += '<span style="color:' + vc + ';font-weight:700;">' + vs + '</span>';
+            // Variables
+            var sintoniaProf = gr.profiles.sintonia || gr.profiles[Object.keys(gr.profiles)[0]];
+            if (sintoniaProf && sintoniaProf.variables) {
+                html += '<div style="margin-bottom:8px;"><div style="font-size:9px;color:rgba(255,255,255,0.35);font-weight:700;letter-spacing:0.5px;margin-bottom:4px;">TOP VARIABLES</div>';
+                var vars = sintoniaProf.variables; var varNames = Object.keys(vars);
+                varNames.sort(function(a,b) { return (vars[b].score||0) - (vars[a].score||0); });
+                varNames.slice(0,6).forEach(function(vname) {
+                    var vs = vars[vname].score||0; var vc = vs >= 7 ? '#10B981' : (vs >= 5 ? '#d4a024' : '#ef4444');
+                    html += '<div style="display:flex;justify-content:space-between;font-size:10px;padding:1px 0;"><span style="color:rgba(255,255,255,0.5);">' + vname.replace(/_/g,' ') + '</span><span style="color:' + vc + ';font-weight:700;">' + vs + '</span></div>';
+                });
+                if (varNames.length > 6) html += '<div style="font-size:9px;color:rgba(255,255,255,0.25);margin-top:2px;">+' + (varNames.length-6) + ' more</div>';
+                html += '</div>';
+            }
+            // Grader cards — our process only
+            var ourGraders = ['sintonia','edge','renzo'];
+            var ourKeys = Object.keys(gr.profiles).filter(function(k) { return ourGraders.indexOf(k) !== -1; });
+            if (ourKeys.length > 0) {
+                html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(80px,1fr));gap:6px;">';
+                ourKeys.forEach(function(pname) {
+                    var p = gr.profiles[pname];
+                    var pc = pname === 'sintonia' ? '#F72585' : (pname === 'edge' ? '#818cf8' : '#9B59B6');
+                    var isRenzo = pname === 'renzo';
+                    html += '<div style="background:rgba(255,255,255,0.03);border:' + (isRenzo ? '2px solid #9B59B6' : '1px solid rgba(255,255,255,0.08)') + ';border-radius:8px;padding:8px;text-align:center;">';
+                    html += '<div style="font-size:9px;font-weight:800;color:' + pc + ';text-transform:uppercase;">' + pname + '</div>';
+                    html += '<div style="font-size:22px;font-weight:900;color:' + _gradeColor(p.grade) + ';line-height:1.2;">' + (p.grade||'?') + '</div>';
+                    html += '<div style="font-size:10px;color:rgba(255,255,255,0.4);">' + (p.final||0).toFixed(1) + '</div>';
+                    if (p.sizing && p.sizing !== 'PASS') html += '<div style="font-size:9px;color:rgba(255,255,255,0.5);margin-top:2px;">' + p.sizing + '</div>';
+                    if (isRenzo && p.mathurin_test) html += '<div style="font-size:8px;color:' + (p.mathurin_test==='PASS'?'#22c55e':'#ef4444') + ';margin-top:2px;">Mathurin: ' + p.mathurin_test + '</div>';
+                    var pp = gr.profile_picks ? gr.profile_picks[pname] : null;
+                    if (pp && pp.pick !== 'tie') { var ppTeam = pp.pick === 'home' ? (g.home_abbrev||'HOME') : (g.away_abbrev||'AWAY'); html += '<div style="font-size:8px;color:' + (pp.pick === pickSide ? '#22c55e' : '#ef4444') + ';margin-top:2px;font-weight:700;">' + ppTeam + '</div>'; }
                     html += '</div>';
                 });
-                if (varNames.length > 8) {
-                    html += '<div style="font-size:9px;color:rgba(255,255,255,0.3);margin-top:2px;">+' + (varNames.length - 8) + ' more</div>';
-                }
-            } else {
-                html += '<div style="font-size:10px;color:rgba(255,255,255,0.3);font-style:italic;">No variables</div>';
-            }
-        } else {
-            html += '<div style="font-size:10px;color:rgba(255,255,255,0.3);font-style:italic;">Awaiting analysis</div>';
-        }
-        html += '</div>';
-
-        // ═══ STEP 4: GRADERS (swim lanes) ═══
-        html += '<div style="min-width:220px;flex-shrink:0;background:rgba(247,37,133,0.06);border:1px solid rgba(247,37,133,0.2);border-radius:10px;padding:10px;">';
-        html += '<div style="font-size:9px;font-weight:800;color:#F72585;letter-spacing:1px;margin-bottom:6px;">STEP 4 — GRADERS</div>';
-        if (gr && gr.profiles) {
-            var profileNames = Object.keys(gr.profiles);
-            html += '<div style="display:grid;grid-template-columns:' + (profileNames.length > 1 ? '1fr 1fr' : '1fr') + ';gap:6px;">';
-            profileNames.forEach(function(pname) {
-                var p = gr.profiles[pname];
-                var pc = pname === 'sintonia' ? '#F72585' : (pname === 'renzo' ? '#9B59B6' : (pname === 'peter' ? '#D4A017' : (pname === 'ai' ? '#00D4AA' : (pname === 'alyssa' ? '#41EAD4' : '#38BDF8'))));
-                var isRenzo = pname === 'renzo';
-                var borderStyle = isRenzo ? '2px solid #9B59B6' : '1px solid rgba(255,255,255,0.08)';
-                html += '<div style="background:rgba(255,255,255,0.03);border:' + borderStyle + ';border-radius:8px;padding:8px;text-align:center;' + (isRenzo ? 'position:relative;' : '') + '">';
-                if (isRenzo) html += '<div style="position:absolute;top:-6px;right:6px;font-size:7px;font-weight:800;color:#9B59B6;background:#1a1a2e;padding:1px 5px;border-radius:3px;border:1px solid #9B59B6;">INDEPENDENT</div>';
-                html += '<div style="font-size:9px;font-weight:800;color:' + pc + ';letter-spacing:0.5px;text-transform:uppercase;">' + pname + '</div>';
-                html += '<div style="font-size:24px;font-weight:900;color:' + _gradeColor(p.grade) + ';line-height:1.2;">' + (p.grade || '?') + '</div>';
-                html += '<div style="font-size:10px;color:rgba(255,255,255,0.4);">' + (p.final || 0).toFixed(1) + '</div>';
-                if (p.sizing) html += '<div style="font-size:9px;color:rgba(255,255,255,0.5);margin-top:2px;">' + p.sizing + '</div>';
-                if (isRenzo && p.mathurin_test) html += '<div style="font-size:8px;color:' + (p.mathurin_test==='PASS'?'#22c55e':'#ef4444') + ';margin-top:2px;">Mathurin: ' + p.mathurin_test + '</div>';
-                var pp = gr.profile_picks ? gr.profile_picks[pname] : null;
-                if (pp && pp.pick !== 'tie') {
-                    var ppTeam = pp.pick === 'home' ? (g.home_abbrev || 'HOME') : (g.away_abbrev || 'AWAY');
-                    var ppColor = pp.pick === pickSide ? '#22c55e' : '#ef4444';
-                    html += '<div style="font-size:8px;color:' + ppColor + ';margin-top:2px;font-weight:700;">' + ppTeam + ' (+' + pp.margin.toFixed(1) + ')</div>';
-                }
                 html += '</div>';
-            });
-            html += '</div>';
-        } else {
-            html += '<div style="font-size:24px;font-weight:900;color:rgba(255,255,255,0.15);text-align:center;padding:12px 0;">N/A</div>';
-        }
-        html += '</div>';
-
-        // ═══ KIMI PROFILER (Layer 3 — parallel scouting) ═══
-        var kp = g.kimi_profile;
-        html += '<div style="min-width:180px;flex-shrink:0;background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.2);border-radius:10px;padding:10px;">';
-        html += '<div style="font-size:9px;font-weight:800;color:#38bdf8;letter-spacing:1px;margin-bottom:6px;">KIMI SCOUT</div>';
-        if (kp && kp.profile_score) {
-            var kpScore = kp.profile_score || 0;
-            var kpColor = kpScore >= 7 ? '#22c55e' : kpScore >= 5.5 ? '#F59E0B' : '#ef4444';
-            html += '<div style="text-align:center;margin-bottom:6px;">';
-            html += '<span style="font-size:24px;font-weight:900;color:' + kpColor + ';">' + kpScore.toFixed(1) + '</span>';
-            html += '<span style="font-size:10px;color:rgba(255,255,255,0.4);">/10</span>';
-            html += '</div>';
-            if (kp.profile_tag) {
-                html += '<div style="text-align:center;margin-bottom:6px;"><span style="font-size:9px;font-weight:700;color:' + kpColor + ';background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:3px;border:1px solid ' + kpColor + '30;">' + kp.profile_tag + '</span></div>';
             }
-            if (kp.pick_team) {
-                html += '<div style="font-size:9px;font-weight:700;color:#38bdf8;margin-bottom:4px;text-align:center;">' + kp.pick_team + '</div>';
-            }
-            var kimiDims = [
-                {key:'tactical_dna', label:'Tactical'},
-                {key:'h2h_context', label:'H2H'},
-                {key:'structural_edge', label:'Structure'},
-                {key:'market_signal', label:'Market'}
-            ];
-            kimiDims.forEach(function(d) {
-                var dd = kp[d.key] || {};
-                var sc = dd.score || 0;
-                var bc = sc >= 7 ? '#22c55e' : sc >= 5 ? '#F59E0B' : '#ef4444';
-                html += '<div style="display:flex;justify-content:space-between;font-size:10px;padding:1px 0;">';
-                html += '<span style="color:rgba(255,255,255,0.5);">' + d.label + '</span>';
-                html += '<span style="color:' + bc + ';font-weight:700;">' + sc + '</span>';
+            // Peter Rules
+            var prFlags = (gr.peter_rules && gr.peter_rules.flags) ? gr.peter_rules.flags : [];
+            if (prFlags.length > 0) {
+                html += '<div style="margin-top:8px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.06);">';
+                html += '<div style="font-size:9px;color:rgba(255,255,255,0.35);font-weight:700;margin-bottom:3px;">PETER RULES</div>';
+                prFlags.forEach(function(f) {
+                    var fc = f.action === 'KILL' ? '#ef4444' : (f.action === 'BOOST' ? '#10B981' : '#d4a024');
+                    html += '<span style="font-size:9px;padding:2px 6px;border-radius:3px;background:rgba(255,255,255,0.04);border:1px solid ' + fc + ';color:' + fc + ';margin-right:4px;">' + f.action + '</span>';
+                });
                 html += '</div>';
-            });
-            if (kp.profile_summary) {
-                html += '<div style="margin-top:4px;font-size:9px;color:rgba(255,255,255,0.4);line-height:1.4;">' + kp.profile_summary + '</div>';
+            }
+            // Chains
+            if (sintoniaProf && sintoniaProf.chains_fired && sintoniaProf.chains_fired.length > 0) {
+                html += '<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:3px;">';
+                sintoniaProf.chains_fired.forEach(function(c) { html += '<span style="font-size:8px;background:rgba(247,37,133,0.1);border:1px solid rgba(247,37,133,0.3);color:#F72585;padding:2px 5px;border-radius:3px;">&#9939; ' + c + '</span>'; });
+                html += '</div>';
             }
         } else {
-            html += '<div style="font-size:24px;font-weight:900;color:rgba(255,255,255,0.15);text-align:center;padding:12px 0;">N/A</div>';
+            html += '<div style="font-size:11px;color:rgba(255,255,255,0.2);text-align:center;padding:20px 0;">Awaiting analysis</div>';
         }
-        html += '</div>';
+        html += '</div>'; // end lane-our
 
-        // ═══ CROWDSOURCE (who said what — model consensus) ═══
+        // ── RIGHT LANE: AI PROCESS ──
+        html += '<div style="background:rgba(0,212,170,0.04);border:1px solid rgba(0,212,170,0.2);border-radius:12px;padding:12px;">';
+        html += '<div style="font-size:10px;font-weight:900;letter-spacing:1.5px;color:#00D4AA;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.06);">AI PROCESS</div>';
+        // Crowdsource
         var csGrades = g.crowdsource_grades || [];
         var csConsensus = g.crowdsource_consensus || '';
-        html += '<div style="min-width:200px;flex-shrink:0;background:rgba(168,85,247,0.06);border:1px solid rgba(168,85,247,0.2);border-radius:10px;padding:10px;">';
-        html += '<div style="font-size:9px;font-weight:800;color:#A855F7;letter-spacing:1px;margin-bottom:6px;">CROWDSOURCE</div>';
         if (csGrades.length > 0) {
-            var csColor = csConsensus === 'UNANIMOUS_BP' ? '#10B981' : csConsensus === 'MAJORITY_BP' ? '#F59E0B' : csConsensus === 'SPLIT' ? '#ef4444' : 'rgba(255,255,255,0.4)';
-            html += '<div style="text-align:center;margin-bottom:6px;"><span style="font-size:9px;font-weight:700;color:' + csColor + ';background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:3px;border:1px solid ' + csColor + '30;">' + (csConsensus || 'N/A').replace(/_/g,' ') + '</span></div>';
-            if (g.crowdsource_avg_score) {
-                html += '<div style="text-align:center;margin-bottom:6px;"><span style="font-size:20px;font-weight:900;color:' + csColor + ';">' + (g.crowdsource_avg_grade || '?') + '</span> <span style="font-size:10px;color:rgba(255,255,255,0.4);">' + (g.crowdsource_avg_score || 0).toFixed(1) + '</span></div>';
-            }
-            var csTeams = {};
-            csGrades.forEach(function(cs) {
-                var t = (cs.pick && cs.pick.team) ? cs.pick.team : 'PASS';
-                csTeams[t] = (csTeams[t] || 0) + 1;
-            });
-            var topCsTeam = Object.keys(csTeams).sort(function(a,b) { return csTeams[b]-csTeams[a]; })[0];
-            if (topCsTeam && topCsTeam !== 'PASS') {
-                html += '<div style="font-size:9px;font-weight:700;color:#A855F7;text-align:center;margin-bottom:4px;">' + topCsTeam + '</div>';
-            }
+            html += '<div style="margin-bottom:8px;"><div style="font-size:9px;color:rgba(255,255,255,0.35);font-weight:700;letter-spacing:0.5px;margin-bottom:4px;">MODEL GRADES</div>';
+            html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(80px,1fr));gap:6px;">';
             csGrades.forEach(function(cs) {
                 var csc = (cs.grade||'').startsWith('A') ? '#10B981' : (cs.grade||'').startsWith('B') ? '#38BDF8' : '#d4a024';
-                html += '<div style="display:flex;justify-content:space-between;font-size:10px;padding:2px 0;border-bottom:1px solid rgba(255,255,255,0.04);">';
-                html += '<span style="color:rgba(255,255,255,0.5);">' + (cs.model || '?') + '</span>';
-                html += '<span style="color:' + csc + ';font-weight:700;">' + (cs.grade || '?') + ' (' + (cs.score || 0).toFixed(1) + ')</span>';
+                html += '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:8px;text-align:center;">';
+                html += '<div style="font-size:8px;font-weight:800;color:#00D4AA;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (cs.model||'?') + '</div>';
+                html += '<div style="font-size:22px;font-weight:900;color:' + csc + ';line-height:1.2;">' + (cs.grade||'?') + '</div>';
+                html += '<div style="font-size:10px;color:rgba(255,255,255,0.4);">' + (cs.score||0).toFixed(1) + '</div>';
+                if (cs.pick && cs.pick.team) html += '<div style="font-size:8px;color:#00D4AA;margin-top:2px;">' + cs.pick.team + '</div>';
                 html += '</div>';
-                if (cs.pick && cs.pick.team && cs.pick.team !== 'PASS') {
-                    html += '<div style="font-size:8px;color:rgba(255,255,255,0.3);padding-left:4px;">' + cs.pick.team + ' ' + (cs.pick.bet_type||'') + ' ' + (cs.pick.line||'') + '</div>';
-                }
             });
-        } else {
-            html += '<div style="font-size:10px;color:rgba(255,255,255,0.3);font-style:italic;text-align:center;padding:12px 0;">Awaiting crowdsource</div>';
+            html += '</div>';
+            if (csConsensus) {
+                var csBadgeColor = csConsensus === 'UNANIMOUS_BP' ? '#10B981' : csConsensus === 'MAJORITY_BP' ? '#F59E0B' : '#ef4444';
+                html += '<div style="text-align:center;margin-top:6px;"><span style="font-size:9px;font-weight:700;color:' + csBadgeColor + ';background:rgba(255,255,255,0.05);padding:2px 8px;border-radius:10px;border:1px solid ' + csBadgeColor + '40;">' + csConsensus.replace(/_/g,' ') + '</span></div>';
+            }
+            html += '</div>';
         }
-        html += '</div>';
+        // Kimi Scout
+        var kp = g.kimi_profile;
+        if (kp && kp.profile_score) {
+            html += '<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06);">';
+            html += '<div style="font-size:9px;color:rgba(255,255,255,0.35);font-weight:700;letter-spacing:0.5px;margin-bottom:4px;">KIMI SCOUT</div>';
+            var kpScore = kp.profile_score||0; var kpColor = kpScore >= 7 ? '#22c55e' : kpScore >= 5.5 ? '#F59E0B' : '#ef4444';
+            html += '<div style="text-align:center;margin-bottom:6px;"><span style="font-size:24px;font-weight:900;color:' + kpColor + ';">' + kpScore.toFixed(1) + '</span><span style="font-size:10px;color:rgba(255,255,255,0.4);">/10</span></div>';
+            if (kp.profile_tag) html += '<div style="text-align:center;margin-bottom:6px;"><span style="font-size:9px;font-weight:700;color:' + kpColor + ';background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:3px;border:1px solid ' + kpColor + '30;">' + kp.profile_tag + '</span></div>';
+            if (kp.pick_team) html += '<div style="font-size:9px;font-weight:700;color:#38bdf8;margin-bottom:4px;text-align:center;">' + kp.pick_team + '</div>';
+            [{key:'tactical_dna',label:'Tactical'},{key:'h2h_context',label:'H2H'},{key:'structural_edge',label:'Structure'},{key:'market_signal',label:'Market'}].forEach(function(d) {
+                var dd = kp[d.key]||{}; var sc = dd.score||0; var bc = sc >= 7 ? '#22c55e' : sc >= 5 ? '#F59E0B' : '#ef4444';
+                html += '<div style="display:flex;justify-content:space-between;font-size:10px;padding:1px 0;"><span style="color:rgba(255,255,255,0.5);">' + d.label + '</span><span style="color:' + bc + ';font-weight:700;">' + sc + '</span></div>';
+            });
+            if (kp.profile_summary) html += '<div style="margin-top:4px;font-size:9px;color:rgba(255,255,255,0.4);line-height:1.4;max-height:40px;overflow:hidden;">' + kp.profile_summary + '</div>';
+            html += '</div>';
+        }
+        if (csGrades.length === 0 && (!kp || !kp.profile_score)) {
+            html += '<div style="font-size:11px;color:rgba(255,255,255,0.2);text-align:center;padding:20px 0;">Awaiting AI models</div>';
+        }
+        html += '</div>'; // end lane-ai
+        html += '</div>'; // end two-lane fork
 
-        // ═══ ENGINE (final composite grade + pick) ═══
-        html += '<div style="min-width:160px;flex-shrink:0;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:10px;text-align:center;display:flex;flex-direction:column;justify-content:center;">';
-        html += '<div style="font-size:9px;font-weight:800;color:#10B981;letter-spacing:1px;margin-bottom:8px;">ENGINE</div>';
-        html += '<div style="font-size:36px;font-weight:900;color:' + gColor + ';line-height:1;">' + grade + '</div>';
-        html += '<div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:2px;">Score: ' + avg + '</div>';
+        // ═══ CONVERGENCE ═══
+        html += '<div style="margin-top:12px;background:rgba(212,160,23,0.06);border:1px solid rgba(212,160,23,0.25);border-radius:12px;padding:16px;text-align:center;">';
+        html += '<div style="font-size:10px;font-weight:900;letter-spacing:2px;color:#D4A017;margin-bottom:10px;">CONVERGENCE</div>';
+        // Calculate agreement
+        var ourAvg = gr ? (gr.consensus_avg||0) : 0;
+        var aiAvg = 0; var aiCount = 0;
+        csGrades.forEach(function(cs) { if (cs.score) { aiAvg += parseFloat(cs.score)||0; aiCount++; } });
+        if (kp && kp.profile_score) { aiAvg += parseFloat(kp.profile_score)||0; aiCount++; }
+        aiAvg = aiCount > 0 ? aiAvg / aiCount : 0;
+        var gap = Math.abs(ourAvg - aiAvg);
+        var cvLabel = 'PENDING'; var cvBg = 'rgba(255,255,255,0.05)'; var cvBorder = 'rgba(255,255,255,0.15)'; var cvColor = 'rgba(255,255,255,0.4)';
+        if (ourAvg > 0 && aiAvg > 0) {
+            if (gap <= 0.8) { cvLabel = 'LOCK'; cvBg = 'rgba(16,185,129,0.15)'; cvBorder = '#10B981'; cvColor = '#10B981'; }
+            else if (gap <= 1.5) { cvLabel = 'ALIGNED'; cvBg = 'rgba(56,189,248,0.15)'; cvBorder = '#38BDF8'; cvColor = '#38BDF8'; }
+            else if (gap <= 2.5) { cvLabel = 'CLOSE'; cvBg = 'rgba(245,158,11,0.15)'; cvBorder = '#F59E0B'; cvColor = '#F59E0B'; }
+            else { cvLabel = 'DIVERGENT'; cvBg = 'rgba(239,68,68,0.15)'; cvBorder = '#ef4444'; cvColor = '#ef4444'; }
+        }
+        html += '<span style="display:inline-block;padding:4px 14px;border-radius:20px;font-size:11px;font-weight:900;letter-spacing:1px;background:' + cvBg + ';border:1px solid ' + cvBorder + ';color:' + cvColor + ';">' + cvLabel + '</span>';
+        // Score comparison
+        html += '<div style="display:flex;justify-content:center;align-items:center;gap:24px;margin-top:10px;flex-wrap:wrap;">';
+        html += '<div style="text-align:center;"><div style="font-size:9px;color:#F72585;font-weight:700;">OUR</div><div style="font-size:20px;font-weight:900;color:' + gColor + ';">' + (ourAvg ? ourAvg.toFixed(1) : '--') + '</div></div>';
+        html += '<div style="font-size:20px;color:rgba(255,255,255,0.15);">vs</div>';
+        html += '<div style="text-align:center;"><div style="font-size:9px;color:#00D4AA;font-weight:700;">AI</div><div style="font-size:20px;font-weight:900;color:' + (aiAvg >= 7 ? '#10B981' : aiAvg >= 5 ? '#d4a024' : '#ef4444') + ';">' + (aiAvg ? aiAvg.toFixed(1) : '--') + '</div></div>';
+        html += '</div>';
+        // Final grade + pick + EV
+        html += '<div style="font-size:42px;font-weight:900;color:' + gColor + ';line-height:1;margin-top:8px;">' + grade + '</div>';
         if (_profedgeCurrentSport === 'mlb' && g.nrfi) {
             var verdict = g.nrfi.verdict || 'SKIP';
             var verdictColor = verdict === 'NRFI' ? '#10B981' : verdict === 'YRFI' ? '#EF4444' : '#94A3B8';
-            html += '<div style="margin-top:8px;background:rgba(255,255,255,0.08);border:1px solid ' + verdictColor + ';color:' + verdictColor + ';font-size:12px;font-weight:800;padding:6px 10px;border-radius:6px;">' + verdict + '</div>';
+            html += '<div style="margin-top:8px;display:inline-block;background:rgba(255,255,255,0.08);border:1px solid ' + verdictColor + ';color:' + verdictColor + ';font-size:13px;font-weight:800;padding:8px 16px;border-radius:8px;">' + verdict + '</div>';
         } else if (pickTeam && grade !== '?') {
-            var sizing = '';
-            if (gr && gr.profiles && gr.profiles.sintonia) sizing = gr.profiles.sintonia.sizing || '';
-            html += '<div style="margin-top:8px;background:rgba(247,37,133,0.15);border:1px solid rgba(247,37,133,0.3);color:#F72585;font-size:12px;font-weight:800;padding:6px 10px;border-radius:6px;">' + pickTeam + (sizing && sizing !== 'PASS' ? ' (' + sizing + ')' : '') + '</div>';
+            var sizing = ''; if (gr && gr.profiles && gr.profiles.sintonia) sizing = gr.profiles.sintonia.sizing || '';
+            html += '<div style="margin-top:8px;display:inline-block;background:rgba(212,160,23,0.15);border:1px solid rgba(212,160,23,0.3);color:#D4A017;font-size:13px;font-weight:800;padding:8px 16px;border-radius:8px;">' + pickTeam + (sizing && sizing !== 'PASS' ? ' (' + sizing + ')' : '') + '</div>';
         }
-        if (_profedgeCurrentSport !== 'mlb') {
-            html += '<button onclick="event.stopPropagation();regradeProEdge(\'' + g.game_id + '\')" style="margin-top:8px;background:rgba(247,37,133,0.12);border:1px solid rgba(247,37,133,0.3);color:#F72585;font-size:10px;font-weight:700;padding:5px 12px;border-radius:6px;cursor:pointer;">RE-GRADE</button>';
-        }
-        html += '</div>';
-
-        // ═══ RENZO CARD (Independent Grade) ═══
-        if (gr && gr.renzo_independent) {
-            var ri = gr.renzo_independent;
-            var riColor = _gradeColor(ri.grade);
-            var mathColor = ri.mathurin_test === 'PASS' ? '#22c55e' : '#ef4444';
-            html += '<div style="min-width:140px;flex-shrink:0;background:rgba(155,89,182,0.08);border:2px solid rgba(155,89,182,0.4);border-radius:10px;padding:10px;text-align:center;display:flex;flex-direction:column;justify-content:center;">';
-            html += '<div style="font-size:9px;font-weight:800;color:#9B59B6;letter-spacing:1px;margin-bottom:4px;">RENZO CARD</div>';
-            html += '<div style="font-size:8px;color:rgba(255,255,255,0.4);margin-bottom:6px;">Independent Grade</div>';
-            html += '<div style="font-size:32px;font-weight:900;color:' + riColor + ';line-height:1;">' + ri.grade + '</div>';
-            html += '<div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;">' + (ri.score || 0).toFixed(1) + '</div>';
-            if (ri.sizing && ri.sizing !== 'PASS') html += '<div style="font-size:10px;font-weight:700;color:#9B59B6;margin-top:4px;">' + ri.sizing + '</div>';
-            html += '<div style="font-size:9px;font-weight:700;color:' + mathColor + ';margin-top:4px;">Mathurin: ' + (ri.mathurin_test || '?') + '</div>';
-            html += '</div>';
-        }
-
-        // ═══ STEP 6: RACE VISUALIZATION ═══
-        if (g.race) {
-            html += '<div style="min-width:240px;flex-shrink:0;background:rgba(233,30,99,0.06);border:1px solid rgba(233,30,99,0.2);border-radius:10px;padding:10px;">';
-            html += '<div style="font-size:9px;font-weight:800;color:#e91e63;letter-spacing:1px;margin-bottom:6px;">STEP 6 — RACE</div>';
-            var homeScore = g.race.home_score || 0;
-            var awayScore = g.race.away_score || 0;
-            var totalScore = homeScore + awayScore;
-            var homePct = totalScore > 0 ? (homeScore / totalScore) * 100 : 50;
-            var awayPct = totalScore > 0 ? (awayScore / totalScore) * 100 : 50;
-            html += '<div style="display:flex;align-items:center;margin-bottom:8px;">';
-            html += '<span style="font-size:10px;font-weight:700;color:#fff;width:50px;">' + (g.away_abbrev || 'AWAY') + '</span>';
-            html += '<div style="flex:1;height:20px;background:rgba(255,255,255,0.05);border-radius:10px;overflow:hidden;position:relative;">';
-            html += '<div style="position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#ef4444,#f97316);width:' + awayPct.toFixed(1) + '%;"></div>';
-            html += '<div style="position:absolute;right:0;top:0;bottom:0;background:linear-gradient(270deg,#10B981,#38BDF8);width:' + homePct.toFixed(1) + '%;"></div>';
-            html += '</div>';
-            html += '<span style="font-size:10px;font-weight:700;color:#fff;width:50px;text-align:right;">' + (g.home_abbrev || 'HOME') + '</span>';
-            html += '</div>';
-            if (g.race.lanes && g.race.lanes.length > 0) {
-                html += '<div style="font-size:9px;color:rgba(255,255,255,0.5);margin-bottom:4px;">Grader Lanes:</div>';
-                html += '<div style="display:flex;gap:4px;flex-wrap:wrap;">';
-                g.race.lanes.forEach(function(lane) {
-                    var laneColor = lane.winner === 'home' ? '#10B981' : lane.winner === 'away' ? '#ef4444' : '#d4a024';
-                    html += '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:4px;padding:3px 6px;text-align:center;min-width:50px;">';
-                    html += '<div style="font-size:8px;color:rgba(255,255,255,0.4);text-transform:uppercase;">' + lane.profile + '</div>';
-                    html += '<div style="font-size:11px;font-weight:700;color:' + laneColor + ';">' + (lane.home_score || 0) + '-' + (lane.away_score || 0) + '</div>';
-                    html += '</div>';
-                });
-                html += '</div>';
-            }
-            if (g.race.confidence) {
-                html += '<div style="margin-top:6px;font-size:9px;color:rgba(255,255,255,0.4);text-align:center;">' + g.race.confidence + '</div>';
-            }
-            html += '</div>';
-        }
-
-        // ═══ STEP 7: KALSHI MARKET VALIDATION ═══
-        // ═══ PETER'S RULES (own entity — kill/boost flags) ═══
-        html += '<div style="min-width:160px;flex-shrink:0;background:rgba(212,160,23,0.06);border:1px solid rgba(212,160,23,0.2);border-radius:10px;padding:10px;">';
-        html += '<div style="font-size:9px;font-weight:800;color:#D4A017;letter-spacing:1px;margin-bottom:6px;">PETER\'S RULES</div>';
-        var prFlags = (gr && gr.peter_rules && gr.peter_rules.flags) ? gr.peter_rules.flags : [];
-        var prAdj = (gr && gr.peter_rules) ? gr.peter_rules.adjustment || 0 : 0;
-        var prKill = (gr && gr.peter_rules) ? gr.peter_rules.has_kill : false;
-        if (prFlags.length > 0) {
-            prFlags.forEach(function(f) {
-                var fc = f.action === 'KILL' ? '#ef4444' : (f.action === 'BOOST' ? '#10B981' : '#D4A017');
-                html += '<div style="margin-bottom:4px;padding:4px 6px;background:rgba(255,255,255,0.03);border:1px solid ' + fc + '30;border-radius:4px;">';
-                html += '<span style="font-size:9px;font-weight:800;color:' + fc + ';">' + f.action + '</span>';
-                html += '<div style="font-size:8px;color:rgba(255,255,255,0.4);margin-top:1px;">' + (f.note || f.rule || '') + '</div>';
-                html += '</div>';
-            });
-            html += '<div style="font-size:10px;font-weight:700;color:' + (prAdj > 0 ? '#10B981' : prAdj < 0 ? '#ef4444' : 'rgba(255,255,255,0.4)') + ';margin-top:4px;">Adj: ' + (prAdj > 0 ? '+' : '') + prAdj.toFixed(1) + '</div>';
-            if (pickTeam) { html += '<div style="font-size:8px;color:rgba(255,255,255,0.3);margin-top:4px;">Applied to: ' + pickTeam + '</div>'; }
-        } else {
-            html += '<div style="text-align:center;padding:8px 0;">';
-            html += '<div style="font-size:20px;font-weight:900;color:#10B981;">CLEAN</div>';
-            html += '<div style="font-size:9px;color:rgba(255,255,255,0.4);">No flags triggered</div>';
-            if (pickTeam) { html += '<div style="font-size:8px;color:rgba(255,255,255,0.3);margin-top:4px;">Applied to: ' + pickTeam + '</div>'; }
-            html += '</div>';
-        }
-        html += '</div>';
-
-        // ═══ EV GRADE (own entity — expected value math) ═══
-        html += '<div style="min-width:150px;flex-shrink:0;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:10px;text-align:center;">';
-        html += '<div style="font-size:9px;font-weight:800;color:#10B981;letter-spacing:1px;margin-bottom:6px;">EV GRADE</div>';
         if (gr && gr.ev && gr.ev.ev_pct != null) {
-            var evPct = gr.ev.ev_pct;
-            var evColor = evPct > 5 ? '#10B981' : evPct > 0 ? '#F59E0B' : '#ef4444';
-            var evGrade = evPct >= 10 ? 'A+' : evPct >= 7 ? 'A' : evPct >= 5 ? 'B+' : evPct >= 3 ? 'B' : evPct >= 0 ? 'C' : 'F';
-            html += '<div style="font-size:28px;font-weight:900;color:' + evColor + ';">' + (evPct > 0 ? '+' : '') + evPct.toFixed(1) + '%</div>';
-            html += '<div style="font-size:10px;color:rgba(255,255,255,0.4);">EV Grade: <span style="color:' + evColor + ';font-weight:700;">' + evGrade + '</span></div>';
-            if (gr.ev.win_prob) html += '<div style="font-size:9px;color:rgba(255,255,255,0.35);margin-top:2px;">Win prob: ' + (gr.ev.win_prob * 100).toFixed(0) + '%</div>';
-            if (gr.ev.kelly_units) html += '<div style="font-size:9px;color:rgba(255,255,255,0.35);">Kelly: ' + gr.ev.kelly_units + '</div>';
-            if (pickTeam) { html += '<div style="font-size:8px;color:rgba(255,255,255,0.3);margin-top:4px;">For: ' + pickTeam + '</div>'; }
-        } else {
-            html += '<div style="font-size:20px;font-weight:900;color:rgba(255,255,255,0.15);padding:8px 0;">--</div>';
-            html += '<div style="font-size:9px;color:rgba(255,255,255,0.3);">Awaiting EV calc</div>';
+            var evPct = gr.ev.ev_pct; var evColor = evPct > 5 ? '#10B981' : evPct > 0 ? '#F59E0B' : '#ef4444';
+            html += '<div style="margin-top:6px;font-size:13px;font-weight:700;color:' + evColor + ';">EV: ' + (evPct > 0 ? '+' : '') + evPct.toFixed(1) + '%</div>';
+            if (gr.ev.win_prob) html += '<div style="font-size:9px;color:rgba(255,255,255,0.35);">Win prob: ' + (gr.ev.win_prob * 100).toFixed(0) + '% | Kelly: ' + (gr.ev.kelly_units||'--') + '</div>';
         }
-        html += '</div>';
-
-        // ═══ KALSHI (market validation) ═══
-        if (g.kalshi_prob) {
-            html += '<div style="min-width:180px;flex-shrink:0;background:rgba(0,150,136,0.06);border:1px solid rgba(0,150,136,0.2);border-radius:10px;padding:10px;">';
-            html += '<div style="font-size:9px;font-weight:800;color:#009688;letter-spacing:1px;margin-bottom:6px;">KALSHI</div>';
-            var kalshiPct = g.kalshi_prob;
-            var hasEdgeData = gr && gr.ev && gr.ev.win_prob;
-            var edgeProb = hasEdgeData ? gr.ev.win_prob * 100 : null;
-            html += '<div style="text-align:center;margin-bottom:8px;">';
-            html += '<div style="font-size:28px;font-weight:900;color:#009688;">' + kalshiPct.toFixed(0) + '%</div>';
-            html += '<div style="font-size:9px;color:rgba(255,255,255,0.4);">Market Implied</div>';
-            html += '</div>';
-            if (hasEdgeData) {
-                var divergence = edgeProb - kalshiPct;
-                var divColor = Math.abs(divergence) > 10 ? '#ef4444' : Math.abs(divergence) > 5 ? '#F59E0B' : '#10B981';
-                var divIcon = divergence > 0 ? 'â–²' : 'â–¼';
-                html += '<div style="background:rgba(255,255,255,0.03);border-radius:6px;padding:6px;text-align:center;">';
-                html += '<div style="font-size:10px;color:rgba(255,255,255,0.5);">Our Edge vs Market</div>';
-                html += '<div style="font-size:14px;font-weight:800;color:' + divColor + ';">' + divIcon + ' ' + Math.abs(divergence).toFixed(1) + '%</div>';
-                html += '<div style="font-size:9px;color:' + divColor + ';">' + (Math.abs(divergence) > 10 ? 'Strong Divergence' : Math.abs(divergence) > 5 ? 'Moderate Edge' : 'Aligned') + '</div>';
-                html += '</div>';
-            } else {
-                html += '<div style="background:rgba(255,255,255,0.03);border-radius:6px;padding:6px;text-align:center;">';
-                html += '<div style="font-size:10px;color:rgba(255,255,255,0.3);font-style:italic;">Awaiting grade data</div>';
-                html += '</div>';
-            }
-            if (g.kalshi_strike) {
-                html += '<div style="margin-top:6px;font-size:9px;color:rgba(255,255,255,0.4);text-align:center;">Strike: ' + g.kalshi_strike + '</div>';
-            }
-            html += '</div>';
+        if (g.kalshi_prob) html += '<div style="margin-top:4px;font-size:10px;color:rgba(255,255,255,0.4);">Kalshi: ' + (parseFloat(g.kalshi_prob) * 100).toFixed(0) + '% implied</div>';
+        if (_profedgeCurrentSport !== 'mlb') {
+            html += '<button onclick="event.stopPropagation();regradeProEdge(\'' + g.game_id + '\')" style="margin-top:10px;background:rgba(212,160,23,0.12);border:1px solid rgba(212,160,23,0.3);color:#D4A017;font-size:10px;font-weight:700;padding:5px 12px;border-radius:6px;cursor:pointer;">RE-GRADE</button>';
         }
-
-        html += '</div>'; // end pipeline row
+        html += '</div>'; // end convergence
 
         // ── EXPANDABLE DETAIL (tap matchup header to toggle) ──
         html += '<div id="profedge-detail-' + idx + '" style="display:none;margin-top:10px;border-top:1px solid rgba(255,255,255,0.06);padding-top:10px;cursor:pointer;" onclick="toggleProEdgeDetail(' + idx + ')">';
