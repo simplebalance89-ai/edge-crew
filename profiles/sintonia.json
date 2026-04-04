@@ -178,6 +178,37 @@
       "sports": ["SOCCER"],
       "trigger": "home_away_venue >= 8 AND clean_sheet_rate >= 7 AND form_league_position >= 7",
       "description": "Elite home record + high CS rate + strong league position — fortress venue"
+    },
+    "INJURY_GOLDMINE": {
+      "bonus": 1.5,
+      "trigger": "star_player_status >= 8 AND line_movement <= 3 AND recent_form >= 6",
+      "description": "Opponent star OUT + line hasn't adjusted + our team in decent form"
+    },
+    "REST_DOMINATION": {
+      "bonus": 1.0,
+      "trigger": "rest_advantage >= 8 AND home_away >= 6 AND road_trip >= 6",
+      "description": "Massive rest edge + home + opponent traveling"
+    },
+    "SHARPS_LOVE": {
+      "bonus": 1.5,
+      "trigger": "sharp_vs_public >= 8 AND line_movement >= 7 AND recent_form >= 6",
+      "description": "Sharp money pouring in + line moving our way + solid form"
+    },
+    "BLOWOUT_INCOMING": {
+      "bonus": 1.5,
+      "sports": ["NBA", "NCAAB"],
+      "trigger": "off_ranking >= 8 AND def_ranking >= 7 AND home_away >= 6",
+      "description": "Elite offense + strong defense + home = mismatch"
+    },
+    "DUMPSTER_FIRE": {
+      "bonus": -2.0,
+      "trigger": "recent_form <= 3 AND off_ranking <= 3 AND star_player_status <= 4",
+      "description": "NEGATIVE: Bad form + bad offense + injuries = stay away"
+    },
+    "COLD_TAKE": {
+      "bonus": -1.5,
+      "trigger": "average_score <= 4.5",
+      "description": "NEGATIVE: No edge found anywhere — below-neutral average across all variables"
     }
   },
   "chain_cap": 3.0,

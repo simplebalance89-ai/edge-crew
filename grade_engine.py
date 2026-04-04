@@ -64,6 +64,51 @@ def _clamp(val: int | float, lo: int = 1, hi: int = 10) -> float:
     return max(lo, min(hi, round(float(val), 1)))
 
 
+def _apply_spread_amplifier(composite: float, variables: dict) -> float:
+    """Amplify grade spread by weighting top/bottom variables heavier.
+
+    1. TOP-3 AMPLIFIER: The 3 highest-impact variables get 2x influence.
+       If they're all 8+, composite gets pulled up. If they're all 3-, pulled down.
+    2. FLOOR/CEILING GATES: Any variable scoring 9+ or 2- forces the grade.
+    """
+    scores = sorted(
+        [(v.get("score", 5), v.get("weight", 5)) for v in variables.values() if v.get("available", True)],
+        key=lambda x: x[0] * x[1],  # sort by impact (score * weight)
+        reverse=True
+    )
+    if not scores:
+        return composite
+
+    # TOP-3 AMPLIFIER: pull composite toward top 3 weighted scores
+    top3 = scores[:3]
+    bot3 = scores[-3:]
+    top3_avg = sum(s for s, w in top3) / len(top3)
+    bot3_avg = sum(s for s, w in bot3) / len(bot3)
+
+    # Blend: 70% composite + 30% top/bottom signal
+    if top3_avg >= 8.0:
+        # Strong edge detected — pull up
+        composite = composite * 0.7 + top3_avg * 0.3
+    elif bot3_avg <= 3.0:
+        # Major weakness — pull down
+        composite = composite * 0.7 + bot3_avg * 0.3
+    elif top3_avg >= 7.0 and bot3_avg >= 5.0:
+        # Solid across the board — slight pull up
+        composite = composite * 0.85 + top3_avg * 0.15
+
+    # FLOOR/CEILING GATES: extreme single variables override
+    all_scores = [s for s, w in scores]
+    max_score = max(all_scores) if all_scores else 5
+    min_score = min(all_scores) if all_scores else 5
+
+    if max_score >= 9.5 and composite < 7.0:
+        composite = max(composite, 7.0)  # Dominant edge can't grade below B+
+    if min_score <= 1.5 and composite > 4.0:
+        composite = min(composite, 4.0)  # Critical weakness caps at C
+
+    return round(composite, 2)
+
+
 def score_star_player_status(game: dict, side: str) -> tuple[int, str]:
     """Score based on injury differential. Higher = better for our side."""
     opp_side = "away" if side == "home" else "home"
@@ -1179,6 +1224,7 @@ def grade_sintonia(game: dict, pick_side: str) -> dict:
     total_weighted = sum(v["weighted"] for v in active_vars.values())
     max_possible = sum(v["weight"] * 10 for v in active_vars.values())
     composite = round(total_weighted / max_possible * 10, 2) if max_possible > 0 else 0
+    composite = _apply_spread_amplifier(composite, active_vars)
 
     # Check chain bonuses
     chains_fired = []
@@ -1197,8 +1243,9 @@ def grade_sintonia(game: dict, pick_side: str) -> dict:
             chain_bonus += bonus
             chains_fired.append(chain_name)
 
-    chain_bonus = min(chain_bonus, config.get("chain_cap", 2.0))
-    final = round(min(10.0, composite + chain_bonus), 2)
+    cap = config.get("chain_cap", 3.0)
+    chain_bonus = max(-cap, min(chain_bonus, cap))  # Cap both positive and negative
+    final = round(max(1.0, min(10.0, composite + chain_bonus)), 2)
     grade = score_to_grade(final)
 
     # Determine pick
@@ -1282,6 +1329,36 @@ def check_chain(chain_name: str, variables: dict) -> bool:
         return (v.get("home_away_venue", 0) >= 8 and
                 v.get("clean_sheet_rate", 0) >= 7 and
                 v.get("form_league_position", 0) >= 7)
+    # ── NEW CHAINS: More compound signals for grade differentiation ──
+    # Cross-sport: INJURY_GOLDMINE — star out + line hasn't moved + good form
+    elif chain_name == "INJURY_GOLDMINE":
+        return (v.get("star_player_status", 0) >= 8 and
+                v.get("line_movement", 5) <= 3 and
+                v.get("recent_form", 0) >= 6)
+    # Cross-sport: REST_DOMINATION — massive rest + schedule + travel advantage
+    elif chain_name == "REST_DOMINATION":
+        return (v.get("rest_advantage", 0) >= 8 and
+                v.get("home_away", 0) >= 6 and
+                v.get("road_trip_length", v.get("home_stand_road_trip", 0)) >= 6)
+    # Cross-sport: DUMPSTER_FIRE — everything bad, force grade down
+    elif chain_name == "DUMPSTER_FIRE":
+        return (v.get("recent_form", 10) <= 3 and
+                v.get("off_ranking", v.get("offensive_efficiency", 10)) <= 3 and
+                v.get("star_player_status", 10) <= 4)
+    # Cross-sport: SHARPS_LOVE — line moving our way + strong fundamentals
+    elif chain_name == "SHARPS_LOVE":
+        return (v.get("sharp_vs_public", 0) >= 8 and
+                v.get("line_movement", 0) >= 7 and
+                v.get("recent_form", 0) >= 6)
+    # NBA/NCAAB: BLOWOUT_INCOMING — elite offense vs trash defense + home
+    elif chain_name == "BLOWOUT_INCOMING":
+        return (v.get("off_ranking", v.get("offensive_efficiency", 0)) >= 8 and
+                v.get("def_ranking", v.get("defensive_efficiency", 0)) >= 7 and
+                v.get("home_away", 0) >= 6)
+    # Cross-sport: COLD_TAKE — no edge anywhere, force grade down
+    elif chain_name == "COLD_TAKE":
+        avg_score = sum(v.values()) / len(v) if v else 5
+        return avg_score <= 4.5  # Average variable score is below neutral
 
     return False
 
@@ -1582,6 +1659,7 @@ def grade_claude(game: dict, pick_side: str) -> dict:
     total_weighted = sum(v["weighted"] for v in active_vars.values())
     max_possible = sum(v["weight"] * 10 for v in active_vars.values())
     composite = round(total_weighted / max_possible * 10, 2) if max_possible > 0 else 0
+    composite = _apply_spread_amplifier(composite, active_vars)
 
     # Check chains
     chains_fired = []
@@ -1597,8 +1675,9 @@ def grade_claude(game: dict, pick_side: str) -> dict:
             chain_bonus += bonus
             chains_fired.append(chain_name)
 
-    chain_bonus = min(chain_bonus, config.get("chain_cap", 2.0))
-    final = round(min(10.0, composite + chain_bonus), 2)
+    cap = config.get("chain_cap", 3.0)
+    chain_bonus = max(-cap, min(chain_bonus, cap))  # Cap both positive and negative
+    final = round(max(1.0, min(10.0, composite + chain_bonus)), 2)
     grade = score_to_grade(final)
 
     if pick_side == "home":
@@ -1945,6 +2024,7 @@ def grade_edge(game: dict, pick_side: str) -> dict:
     total_weighted = sum(v["weighted"] for v in active_vars.values())
     max_possible = sum(v["weight"] * 10 for v in active_vars.values())
     composite = round(total_weighted / max_possible * 10, 2) if max_possible > 0 else 0
+    composite = _apply_spread_amplifier(composite, active_vars)
 
     # Check chains
     chains_fired = []
@@ -1960,8 +2040,9 @@ def grade_edge(game: dict, pick_side: str) -> dict:
             chain_bonus += bonus
             chains_fired.append(chain_name)
 
-    chain_bonus = min(chain_bonus, config.get("chain_cap", 2.0))
-    final = round(min(10.0, composite + chain_bonus), 2)
+    cap = config.get("chain_cap", 3.0)
+    chain_bonus = max(-cap, min(chain_bonus, cap))  # Cap both positive and negative
+    final = round(max(1.0, min(10.0, composite + chain_bonus)), 2)
     grade = score_to_grade(final)
 
     if pick_side == "home":
@@ -2161,6 +2242,9 @@ def grade_renzo(game: dict, pick_side: str) -> dict:
     total_weighted = sum(q["score"] * q["weight"] for q in questions.values())
     max_possible = sum(q["weight"] * 10 for q in questions.values())
     composite = round(total_weighted / max_possible * 10, 2) if max_possible > 0 else 0
+    # Convert questions to variables format for amplifier
+    _renzo_vars = {k: {"score": v["score"], "weight": v["weight"], "available": True} for k, v in questions.items()}
+    composite = _apply_spread_amplifier(composite, _renzo_vars)
     final = composite  # No chain bonus for Renzo
     grade = score_to_grade(final)
 
