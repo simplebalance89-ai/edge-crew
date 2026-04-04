@@ -209,6 +209,59 @@
       "bonus": -1.5,
       "trigger": "average_score <= 4.5",
       "description": "NEGATIVE: No edge found anywhere — below-neutral average across all variables"
+    },
+    "MISMATCH_MASSACRE": {
+      "bonus": 2.0,
+      "trigger": "off_ranking >= 8 AND def_ranking >= 7",
+      "description": "Elite offense + solid defense = total mismatch. Rare but high-conviction."
+    },
+    "GLASS_CANNON": {
+      "bonus": -1.0,
+      "trigger": "off_ranking >= 7 AND def_ranking <= 3",
+      "description": "NEGATIVE: Scores a lot but leaks — volatile, reduce confidence"
+    },
+    "BRICK_WALL": {
+      "bonus": -0.5,
+      "trigger": "def_ranking >= 8 AND off_ranking <= 4",
+      "description": "NEGATIVE: Can't score. Elite defense but no firepower to capitalize."
+    },
+    "REVENGE_GAME": {
+      "bonus": 1.0,
+      "trigger": "h2h_season <= 3 AND recent_form >= 7 AND home_away >= 6",
+      "description": "Lost H2H badly but now in form + at home = revenge motivation"
+    },
+    "LETDOWN_ALERT": {
+      "bonus": -1.0,
+      "trigger": "recent_form >= 8 AND motivation <= 4",
+      "description": "NEGATIVE: On huge streak but no motivation — letdown spot"
+    },
+    "ROAD_WARRIOR": {
+      "bonus": 1.0,
+      "trigger": "home_away <= 4 AND recent_form >= 7 AND rest_advantage >= 6",
+      "description": "Away team in form with rest edge — road warrior spot"
+    },
+    "SCHEDULE_LOSS": {
+      "bonus": -2.0,
+      "trigger": "rest_advantage <= 3 AND road_trip <= 3 AND recent_form <= 4",
+      "description": "NEGATIVE: B2B + road + bad form = scheduled loss. Stay away."
+    },
+    "PITCHING_DUEL": {
+      "bonus": 1.0,
+      "sports": ["MLB"],
+      "trigger": "starting_pitcher >= 8 AND defense_rating >= 7 AND park_factor <= 4",
+      "description": "Both aces + pitcher park = under play, our SP has edge"
+    },
+    "DERBY_CHAOS": {
+      "bonus": 1.0,
+      "sports": ["SOCCER"],
+      "trigger": "rivalry >= 7 AND recent_form >= 6 AND motivation >= 6",
+      "description": "Derby with both teams in form + table stakes — intensity boost"
+    },
+    "TOURIST_TRAP": {
+      "bonus": -1.5,
+      "sports": ["SOCCER"],
+      "trigger": "home_away <= 4 AND congestion <= 3 AND form_position <= 5",
+      "description": "NEGATIVE: Big club away at tough venue while congested — trap"
     }
   },
   "chain_cap": 3.0,

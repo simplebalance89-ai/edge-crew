@@ -1359,6 +1359,59 @@ def check_chain(chain_name: str, variables: dict) -> bool:
     elif chain_name == "COLD_TAKE":
         avg_score = sum(v.values()) / len(v) if v else 5
         return avg_score <= 4.5  # Average variable score is below neutral
+    # ── OFFENSE vs DEFENSE MATCHUP CHAINS ──
+    # MISMATCH_MASSACRE — elite offense vs garbage defense
+    elif chain_name == "MISMATCH_MASSACRE":
+        off = v.get("off_ranking", v.get("offensive_efficiency", 0))
+        defn = v.get("def_ranking", v.get("defensive_efficiency", 0))
+        return off >= 8 and defn >= 7  # Our offense is elite AND our defense is solid
+    # GLASS_CANNON — great offense but terrible defense (volatile, reduce confidence)
+    elif chain_name == "GLASS_CANNON":
+        off = v.get("off_ranking", v.get("offensive_efficiency", 0))
+        defn = v.get("def_ranking", v.get("defensive_efficiency", 10))
+        return off >= 7 and defn <= 3  # Score a lot but leak — unpredictable
+    # BRICK_WALL — elite defense but no offense (unders, low-scoring grinds)
+    elif chain_name == "BRICK_WALL":
+        off = v.get("off_ranking", v.get("offensive_efficiency", 10))
+        defn = v.get("def_ranking", v.get("defensive_efficiency", 0))
+        return defn >= 8 and off <= 4  # Can't score but opponent can't either
+    # ── SITUATIONAL CHAINS ──
+    # REVENGE_GAME — lost H2H badly + on form now + home
+    elif chain_name == "REVENGE_GAME":
+        return (v.get("h2h_season", 10) <= 3 and
+                v.get("recent_form", 0) >= 7 and
+                v.get("home_away", 0) >= 6)
+    # LETDOWN_AFTER_BIG_WIN — opponent on huge streak, our team flat
+    elif chain_name == "LETDOWN_ALERT":
+        return (v.get("recent_form", 0) >= 8 and
+                v.get("motivation_gap", v.get("motivation_context", 10)) <= 4)
+    # ROAD_WARRIOR — winning on road + good form + rest
+    elif chain_name == "ROAD_WARRIOR":
+        return (v.get("home_away", 10) <= 4 and  # We're away
+                v.get("recent_form", 0) >= 7 and
+                v.get("rest_advantage", 0) >= 6)
+    # SCHEDULE_LOSS — B2B + road + bad form = stay away
+    elif chain_name == "SCHEDULE_LOSS":
+        return (v.get("rest_advantage", 10) <= 3 and
+                v.get("road_trip_length", v.get("home_stand_road_trip", 10)) <= 3 and
+                v.get("recent_form", 10) <= 4)
+    # ── MLB SPECIFIC ──
+    # PITCHING_DUEL — both SPs elite, expect under
+    elif chain_name == "PITCHING_DUEL":
+        return (v.get("starting_pitcher", 0) >= 8 and
+                v.get("def_ranking", v.get("defense_rating", 0)) >= 7 and
+                v.get("park_factor", 5) <= 4)  # Pitcher-friendly park
+    # ── SOCCER SPECIFIC ──
+    # DERBY_CHAOS — rivalry + both in form + tight table
+    elif chain_name == "DERBY_CHAOS":
+        return (v.get("rivalry_motivation", v.get("derby_motivation", 0)) >= 7 and
+                v.get("recent_form", 0) >= 6 and
+                v.get("motivation_context", 0) >= 6)
+    # TOURIST_TRAP — big name team away in a tough venue with congestion
+    elif chain_name == "TOURIST_TRAP":
+        return (v.get("home_away_venue", v.get("home_away", 10)) <= 4 and
+                v.get("fixture_congestion", v.get("fixture_congestion_spot", 10)) <= 3 and
+                v.get("form_league_position", 10) <= 5)
 
     return False
 
