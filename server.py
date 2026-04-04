@@ -2454,18 +2454,21 @@ CHAINS = {
             "name": "TRAP GAME",
             "desc": "Public hammering one side but sharps + line movement say opposite",
             "bonus": 1.0,
+            "implies_side": "contrarian",
             "vars": {"sharp_vs_public": ("<=", 3), "line_movement": (">=", 8), "recent_form": (">=", 7)},
         },
         {
             "name": "VALUE DOG",
             "desc": "Model says line is off + sharps agree + star missing on other side",
             "bonus": 1.0,
+            "implies_side": "dog",
             "vars": {"line_vs_model": (">=", 8), "sharp_vs_public": (">=", 7), "star_player_status": ("<=", 4)},
         },
         {
             "name": "SHARP DOG",
             "desc": "Sharps on inflated dog line + strong ATS trend + star out on favorite",
             "bonus": 1.0,
+            "implies_side": "dog",
             "vars": {"sharp_vs_public": (">=", 7), "ats_trend": (">=", 7), "star_player_status": (">=", 8)},
         },
     ],
@@ -2492,6 +2495,7 @@ CHAINS = {
             "name": "TRAP GAME",
             "desc": "Market signal strong (sharps disagree with public) — contrarian spot",
             "bonus": 0.5,
+            "implies_side": "contrarian",
             "vars": {"market_signal": (">=", 8)},
         },
         {
@@ -2578,6 +2582,7 @@ CHAINS = {
             "name": "DERBY NOISE",
             "desc": "High-stakes derby + public hammering one side + sharp line move other way — noise vs signal",
             "bonus": 1.0,
+            "implies_side": "contrarian",
             "vars": {"seasonal_incentive": (">=", 8), "sharp_vs_public": ("<=", 3), "line_movement": (">=", 7)},
         },
     ],
@@ -2592,12 +2597,14 @@ CHAINS = {
             "name": "BRAND TAX FADE",
             "desc": "Public >70% on blue blood + line moves WITH public + regression flags align — biggest March market error",
             "bonus": 2.5,
+            "implies_side": "dog",
             "vars": {"public_market_bias": (">=", 8), "line_movement": ("<=", 4), "regression_markers": (">=", 6)},
         },
         {
             "name": "CINDERELLA SIGNAL",
             "desc": "Mid-major with top-50 D + low TO rate + experienced roster — classic tournament upset profile",
             "bonus": 2.0,
+            "implies_side": "dog",
             "vars": {"defensive_efficiency": (">=", 7), "turnover_margin": (">=", 7), "net_ranking_gap": (">=", 7), "experience_maturity": (">=", 6)},
         },
         {
@@ -2660,6 +2667,7 @@ CHAINS = {
             "name": "SHARP STEAM",
             "desc": "Sharp money pouring in + line moving + platoon advantage",
             "bonus": 1.0,
+            "implies_side": "sharp",
             "vars": {"sharp_vs_public": (">=", 8), "line_movement": (">=", 7), "platoon_advantage": (">=", 7)},
         },
         {
@@ -2822,10 +2830,64 @@ def _detect_chains(game, sport, matrix_scores):
                 "name": chain["name"],
                 "desc": chain["desc"],
                 "bonus": chain["bonus"],
+                "implies_side": chain.get("implies_side"),  # "dog", "contrarian", "sharp", or None
                 "var_scores": var_scores,
             })
-            print(f"[CHAIN] {game.get('matchup')} — {chain['name']} triggered (+{chain['bonus']})")
+            print(f"[CHAIN] {game.get('matchup')} — {chain['name']} triggered (+{chain['bonus']}, implies={chain.get('implies_side', 'neutral')})")
     return triggered
+
+
+def _chain_conflicts_with_pick(chain: dict, game: dict) -> bool:
+    """Check if a directional chain contradicts the engine's pick side.
+
+    Returns True if the chain says 'play the dog' but the engine picked the favorite, etc.
+    """
+    implied = chain.get("implies_side")
+    if not implied:
+        return False  # Non-directional chain — always applies
+
+    pick = game.get("edge_pick", {})
+    pick_team = (pick.get("team", "") or "").lower()
+    bet_type = (pick.get("bet_type", "") or "").upper()
+
+    # Determine if pick is on the favorite or dog
+    odds = game.get("odds", {})
+    try:
+        spread_home = float(odds.get("spread_home", 0) or 0)
+    except (ValueError, TypeError):
+        spread_home = 0
+
+    home = (game.get("home", game.get("home_team", "")) or "").lower()
+    away = (game.get("away", game.get("away_team", "")) or "").lower()
+
+    # Figure out which side is favorite (negative spread = favorite)
+    if spread_home < 0:
+        fav_team, dog_team = home, away
+    elif spread_home > 0:
+        fav_team, dog_team = away, home
+    else:
+        return False  # Pick'em — no conflict possible
+
+    # Determine if the pick is on the favorite or dog
+    pick_is_fav = any(t in pick_team for t in fav_team.split() if len(t) > 2)
+    pick_is_dog = any(t in pick_team for t in dog_team.split() if len(t) > 2)
+
+    if implied == "dog":
+        # Chain says play the dog — conflict if pick is on the favorite
+        return pick_is_fav and not pick_is_dog
+    elif implied in ("contrarian", "sharp"):
+        # Chain says go against public / with sharps — conflict if pick is on the heavy public side
+        # Use sharp_vs_public score as proxy: high score = sharps on opposite side of public
+        sharp_score = 0
+        ms = game.get("matrix_scores", {})
+        svp = ms.get("sharp_vs_public", ms.get("market_signal", {}))
+        if isinstance(svp, dict):
+            sharp_score = svp.get("score", 5)
+        # If sharps score high AND pick is on the favorite (usually public side), that's a conflict
+        if sharp_score >= 7 and pick_is_fav:
+            return True
+
+    return False
 
 
 def _score_to_grade(score):
@@ -3025,16 +3087,58 @@ def _recalculate_grade(game, sport):
     game["composite_score"] = recalculated
     game["gpt_original_score"] = gpt_score
 
-    # Chain detection — compound signal bonuses
+    # Chain detection — compound signal bonuses with directional conflict check
     chains_triggered = _detect_chains(game, sport, matrix_scores)
-    chain_bonus = min(sum(c["bonus"] for c in chains_triggered), 3.0)
-    if chain_bonus > 0:
-        game["composite_score_pre_chain"] = recalculated
-        game["chain_bonus"] = chain_bonus
-        game["chains"] = chains_triggered
-        recalculated = min(10.0, recalculated + chain_bonus)
-        game["composite_score"] = recalculated
-        print(f"[CHAIN BONUS] {game.get('matchup')} — +{chain_bonus} → {recalculated} (was {game['composite_score_pre_chain']})")
+    chain_bonus = 0.0
+    chain_penalty = 0.0
+    chains_agreed = []
+    chains_conflicted = []
+
+    for c in chains_triggered:
+        if _chain_conflicts_with_pick(c, game):
+            # Chain contradicts the pick — this is a CAUTION signal
+            c["status"] = "CAUTION"
+            c["original_bonus"] = c["bonus"]
+            c["bonus"] = 0  # Don't boost
+            chains_conflicted.append(c)
+            # Determine the chain's implied alternative pick
+            odds = game.get("odds", {})
+            pick = game.get("edge_pick", {})
+            pick_team = (pick.get("team", "") or "")
+            home = game.get("home", game.get("home_team", ""))
+            away = game.get("away", game.get("away_team", ""))
+            alt_team = away if pick_team.lower() in (home or "").lower() else home
+            c["alt_pick"] = f"Chain says: {alt_team}"
+            print(f"[CHAIN CAUTION] {game.get('matchup')} — {c['name']} CONFLICTS with pick ({pick_team}). Chain implies {alt_team}. Penalty applied.")
+        else:
+            c["status"] = "CONFIRMED"
+            chain_bonus += c["bonus"]
+            chains_agreed.append(c)
+
+    chain_bonus = min(chain_bonus, 3.0)
+
+    # Apply penalty for conflicting chains: 15% reduction per conflict
+    if chains_conflicted:
+        chain_penalty = round(recalculated * 0.15 * len(chains_conflicted), 2)
+        chain_penalty = min(chain_penalty, recalculated * 0.30)  # Cap at 30% total penalty
+
+    game["composite_score_pre_chain"] = recalculated
+    game["chains"] = chains_triggered
+    game["chains_agreed"] = len(chains_agreed)
+    game["chains_conflicted"] = len(chains_conflicted)
+
+    if chain_bonus > 0 or chain_penalty > 0:
+        game["chain_bonus"] = round(chain_bonus - chain_penalty, 2)
+        adjusted = recalculated + chain_bonus - chain_penalty
+        adjusted = max(1.0, min(10.0, round(adjusted, 1)))
+        game["composite_score"] = adjusted
+        recalculated = adjusted
+        if chain_bonus > 0 and chain_penalty > 0:
+            print(f"[CHAIN MIXED] {game.get('matchup')} — +{chain_bonus} agreed, -{chain_penalty} penalty → {recalculated} (was {game['composite_score_pre_chain']})")
+        elif chain_penalty > 0:
+            print(f"[CHAIN PENALTY] {game.get('matchup')} — -{chain_penalty} penalty → {recalculated} (was {game['composite_score_pre_chain']})")
+        else:
+            print(f"[CHAIN BONUS] {game.get('matchup')} — +{chain_bonus} → {recalculated} (was {game['composite_score_pre_chain']})")
 
     # P7: Auto-flag edge games — 3+ FRESH injuries on one side
     injury_notes = []

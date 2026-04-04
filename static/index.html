@@ -6591,11 +6591,16 @@ function refreshDashboard() {
             var html = '';
             edgeAlerts.forEach(function(e) {
                 e.chains.forEach(function(c) {
-                    html += '<div class="chain-alert" style="margin-bottom:6px;cursor:pointer;" onclick="switchSport(\'' + e.sport.toLowerCase() + '\')">' +
-                        '<span class="chain-icon">&#9889;</span>' +
-                        '<div><div class="chain-name">' + c.name + '</div>' +
-                        '<div class="chain-desc">' + e.matchup + ' &mdash; ' + c.desc + '</div></div>' +
-                        '<span class="chain-bonus">+' + c.bonus.toFixed(1) + '</span></div>';
+                    var isCaution = c.status === 'CAUTION';
+                    var icon = isCaution ? '&#9888;' : '&#9889;';
+                    var bonusText = isCaution ? 'CAUTION' : '+' + c.bonus.toFixed(1);
+                    var bonusColor = isCaution ? '#EF4444' : '#FCD34D';
+                    var altText = (isCaution && c.alt_pick) ? '<div style="font-size:10px;color:#EF4444;margin-top:2px;">' + c.alt_pick + '</div>' : '';
+                    html += '<div class="chain-alert" style="margin-bottom:6px;cursor:pointer;' + (isCaution ? 'border-color:rgba(239,68,68,0.4);background:rgba(239,68,68,0.06);' : '') + '" onclick="switchSport(\'' + e.sport.toLowerCase() + '\')">' +
+                        '<span class="chain-icon">' + icon + '</span>' +
+                        '<div><div class="chain-name" style="' + (isCaution ? 'color:#EF4444;' : '') + '">' + c.name + (isCaution ? ' (CONFLICTS)' : '') + '</div>' +
+                        '<div class="chain-desc">' + e.matchup + ' &mdash; ' + c.desc + '</div>' + altText + '</div>' +
+                        '<span class="chain-bonus" style="color:' + bonusColor + ';">' + bonusText + '</span></div>';
                 });
             });
             eaEl.innerHTML = html;
@@ -7995,11 +8000,16 @@ function fetchAnalysis(sport) {
                                 chainDiv.style.cssText = 'padding:4px 16px 8px;';
                                 var chainHtml = '';
                                 game.chains.forEach(function(c) {
-                                    chainHtml += '<div class="chain-alert">' +
-                                        '<span class="chain-icon">&#9889;</span>' +
-                                        '<div><div class="chain-name">' + c.name + '</div>' +
-                                        '<div class="chain-desc">' + c.desc + '</div></div>' +
-                                        '<span class="chain-bonus">+' + c.bonus.toFixed(1) + '</span></div>';
+                                    var isCaution = c.status === 'CAUTION';
+                                    var icon = isCaution ? '&#9888;' : '&#9889;';
+                                    var bonusText = isCaution ? 'CAUTION' : '+' + c.bonus.toFixed(1);
+                                    var bonusColor = isCaution ? '#EF4444' : '#FCD34D';
+                                    var altText = (isCaution && c.alt_pick) ? '<div style="font-size:10px;color:#EF4444;margin-top:2px;">' + c.alt_pick + '</div>' : '';
+                                    chainHtml += '<div class="chain-alert" style="' + (isCaution ? 'border-color:rgba(239,68,68,0.4);background:rgba(239,68,68,0.06);' : '') + '">' +
+                                        '<span class="chain-icon">' + icon + '</span>' +
+                                        '<div><div class="chain-name" style="' + (isCaution ? 'color:#EF4444;' : '') + '">' + c.name + (isCaution ? ' (CONFLICTS)' : '') + '</div>' +
+                                        '<div class="chain-desc">' + c.desc + '</div>' + altText + '</div>' +
+                                        '<span class="chain-bonus" style="color:' + bonusColor + ';">' + bonusText + '</span></div>';
                                 });
                                 if (game.chain_bonus) {
                                     chainHtml += '<div style="text-align:right;font-size:10px;color:#10B981;font-weight:700;margin-top:4px;">Chain Bonus: +' + game.chain_bonus.toFixed(1) + ' &rarr; ' + (game.composite_score || '').toString() + '</div>';
