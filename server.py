@@ -13838,7 +13838,9 @@ async def alt_grade_endpoint(sport: str, matchup: str):
 
 @app.get("/api/card/lineup/{sport}/{matchup}")
 async def card_lineup(sport: str, matchup: str):
-    """Return lineup data for a specific matchup."""
+    """Return lineup data using ESPN depth charts (actual starters, not roster dump).
+    Depth chart gives position-ranked players with embedded injury status.
+    """
     sport_lower = sport.lower()
     away_abbr, home_abbr = _parse_matchup_teams(matchup)
     if not away_abbr or not home_abbr:
@@ -13848,38 +13850,109 @@ async def card_lineup(sport: str, matchup: str):
     home_name = _expand_abbrevs(home_abbr, sport_lower)
     away_lineup = []
     home_lineup = []
+    away_out = []
+    home_out = []
     confirmed = False
 
     espn_sport = _ESPN_SPORT_PATHS.get(sport_lower)
-    if espn_sport:
-        # Try ESPN roster/depth chart as a proxy for lineups
-        for tid, target, name in [(away_abbr.lower(), away_lineup, away_name),
-                                   (home_abbr.lower(), home_lineup, home_name)]:
-            cache_key = f"espn_roster_card:{sport_lower}:{tid}"
-            cached = _get_cached(cache_key, ttl=1800)
-            if cached:
-                target.extend(cached)
-                continue
+    if not espn_sport:
+        return JSONResponse({
+            "away_lineup": [], "home_lineup": [],
+            "away_out": [], "home_out": [],
+            "away_name": away_abbr, "home_name": home_abbr,
+            "confirmed": False,
+        })
+
+    # Position limits: how many starters per position per sport
+    _POS_LIMITS = {
+        "nba": 1,   # 1 per position (PG, SG, SF, PF, C)
+        "nhl": 2,   # depth lines
+        "mlb": 1,
+        "soccer": 1,
+    }
+    pos_limit = _POS_LIMITS.get(sport_lower, 1)
+
+    for tid, lineup_target, out_target, name in [
+        (away_abbr.lower(), away_lineup, away_out, away_name),
+        (home_abbr.lower(), home_lineup, home_out, home_name),
+    ]:
+        cache_key = f"espn_depth:{sport_lower}:{tid}"
+        depth_data = _get_cached(cache_key, ttl=1800)
+        if not depth_data:
             try:
-                url = f"https://site.api.espn.com/apis/site/v2/sports/{espn_sport}/teams/{tid}/roster"
+                url = f"https://site.api.espn.com/apis/site/v2/sports/{espn_sport}/teams/{tid}/depthcharts"
                 async with httpx.AsyncClient(timeout=10.0) as client:
                     resp = await client.get(url, headers={"User-Agent": "Mozilla/5.0"})
                     if resp.status_code == 200:
-                        data = resp.json()
-                        players = []
-                        for a in data.get("athletes", []):
-                            players.append({
-                                "name": a.get("displayName", "?"),
-                                "pos": a.get("position", {}).get("abbreviation", "?"),
-                            })
-                        _set_cache(cache_key, players)
-                        target.extend(players)
+                        depth_data = resp.json()
+                        _set_cache(cache_key, depth_data)
             except Exception as e:
-                logger.warning(f"ESPN roster card fetch failed for {tid}: {e}")
+                logger.warning(f"[LINEUP] ESPN depth chart fetch failed for {tid}: {e}")
+
+        if not depth_data:
+            continue
+
+        # Parse depth chart: first player per position = starter
+        seen_names = set()
+        positions = depth_data.get("positions", depth_data.get("items", []))
+        # Handle both dict format {"pg": {...}, "sg": {...}} and list format
+        if isinstance(positions, dict):
+            pos_items = positions.values()
+        elif isinstance(positions, list):
+            pos_items = positions
+        else:
+            pos_items = []
+
+        for pos_data in pos_items:
+            if isinstance(pos_data, dict):
+                athletes = pos_data.get("athletes", [])
+            else:
+                continue
+            added_for_pos = 0
+            for athlete_entry in athletes:
+                if added_for_pos >= pos_limit:
+                    break
+                # athlete_entry might be the athlete directly or wrapped
+                athlete = athlete_entry.get("athlete", athlete_entry) if isinstance(athlete_entry, dict) else athlete_entry
+                if not isinstance(athlete, dict):
+                    continue
+                pname = athlete.get("displayName") or athlete.get("shortName") or "?"
+                if pname.lower() in seen_names:
+                    continue
+                seen_names.add(pname.lower())
+
+                pos_abbr = "?"
+                if isinstance(pos_data, dict):
+                    pos_abbr = pos_data.get("abbreviation", pos_data.get("name", "?"))
+                    if isinstance(pos_abbr, str) and len(pos_abbr) > 3:
+                        pos_abbr = pos_abbr[:2].upper()
+
+                # Check injury status embedded in depth chart
+                injuries = athlete.get("injuries", [])
+                injury_status = ""
+                injury_type = ""
+                if injuries and isinstance(injuries, list):
+                    inj = injuries[0] if injuries else {}
+                    injury_status = (inj.get("status", "") or "").upper()
+                    injury_type = inj.get("type", inj.get("shortComment", "")) or ""
+
+                if injury_status == "OUT":
+                    out_target.append({"name": pname, "status": "OUT", "injury": injury_type, "pos": pos_abbr})
+                    continue  # Don't put OUT players in lineup
+                elif injury_status in ("DAY-TO-DAY", "QUESTIONABLE", "DOUBTFUL"):
+                    out_target.append({"name": pname, "status": injury_status, "injury": injury_type, "pos": pos_abbr})
+                    # Still include GTD in lineup but flagged
+                    lineup_target.append({"name": pname, "pos": pos_abbr, "status": "GTD"})
+                    added_for_pos += 1
+                else:
+                    lineup_target.append({"name": pname, "pos": pos_abbr})
+                    added_for_pos += 1
 
     return JSONResponse({
-        "away_lineup": away_lineup[:15],
-        "home_lineup": home_lineup[:15],
+        "away_lineup": away_lineup,
+        "home_lineup": home_lineup,
+        "away_out": away_out,
+        "home_out": home_out,
         "away_name": away_abbr,
         "home_name": home_abbr,
         "confirmed": confirmed,
