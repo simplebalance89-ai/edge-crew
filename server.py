@@ -1530,7 +1530,7 @@ Format as plain text, one section per game, with the 4 dimension headers."""
         "S4_BRIDGE_ENDPOINT",
         "https://peter-mna31gr3-swedencentral.services.ai.azure.com/openai/v1/"
     )
-    S4_KEY = os.environ.get("S4_BRIDGE_KEY", AZURE_KEY)
+    S4_KEY = os.environ.get("S4_BRIDGE_KEY", "") or KIMI_SCOUT_KEY or AZURE_KEY
 
     # Try DeepSeek V3 first (fast, reliable formatter), then Grok 4.1 (deep reasoning, slower)
     models_to_try = [
