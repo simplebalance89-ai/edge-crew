@@ -11401,29 +11401,73 @@ function renderProEdgeGames(games, container) {
         html += '<div style="background:rgba(247,37,133,0.04);border:1px solid rgba(247,37,133,0.2);border-radius:12px;padding:12px;">';
         html += '<div style="font-size:10px;font-weight:900;letter-spacing:1.5px;color:#F72585;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.06);">OUR PROCESS</div>';
         if (gr && gr.profiles) {
-            // Variables — profiles contains variable scores (thesis_edge, star_player_status, etc.)
-            var varKeys = Object.keys(gr.profiles);
-            if (varKeys.length > 0) {
-                html += '<div style="margin-bottom:8px;"><div style="font-size:9px;color:rgba(255,255,255,0.35);font-weight:700;letter-spacing:0.5px;margin-bottom:4px;">SCORED VARIABLES</div>';
-                // Sort by score descending
-                var sortedVars = varKeys.filter(function(k) { return gr.profiles[k] && (gr.profiles[k].score != null || gr.profiles[k].final != null); });
+            // Detect if profiles = grader names (batch-graded) or variable names (analysis fallback)
+            var profKeys = Object.keys(gr.profiles);
+            var graderNames = ['sintonia','edge','renzo','claude','peter','ai','alyssa'];
+            var hasBatchGrades = profKeys.some(function(k) { return graderNames.indexOf(k) !== -1; });
+
+            if (hasBatchGrades) {
+                // ── BATCH-GRADED: Show grader cards + variables from Sintonia ──
+                var sintoniaProf = gr.profiles.sintonia || gr.profiles[profKeys[0]];
+                // Top variables from first grader
+                if (sintoniaProf && sintoniaProf.variables) {
+                    html += '<div style="margin-bottom:8px;"><div style="font-size:9px;color:rgba(255,255,255,0.35);font-weight:700;letter-spacing:0.5px;margin-bottom:4px;">MAIN MATRIX</div>';
+                    var vars = sintoniaProf.variables; var varNames = Object.keys(vars);
+                    varNames.sort(function(a,b) { return (vars[b].score||0) - (vars[a].score||0); });
+                    varNames.slice(0,8).forEach(function(vname) {
+                        var vs = vars[vname].score||0; var vc = vs >= 7 ? '#10B981' : (vs >= 5 ? '#d4a024' : '#ef4444');
+                        html += '<div style="display:flex;justify-content:space-between;font-size:10px;padding:1px 0;"><span style="color:rgba(255,255,255,0.5);">' + vname.replace(/_/g,' ') + '</span><span style="color:' + vc + ';font-weight:700;">' + vs + '</span></div>';
+                    });
+                    if (varNames.length > 8) html += '<div style="font-size:9px;color:rgba(255,255,255,0.25);margin-top:2px;">+' + (varNames.length-8) + ' more</div>';
+                    html += '</div>';
+                    // Chains
+                    if (sintoniaProf.chains_fired && sintoniaProf.chains_fired.length > 0) {
+                        html += '<div style="margin-bottom:8px;display:flex;flex-wrap:wrap;gap:3px;">';
+                        sintoniaProf.chains_fired.forEach(function(c) { html += '<span style="font-size:8px;background:rgba(247,37,133,0.1);border:1px solid rgba(247,37,133,0.3);color:#F72585;padding:2px 5px;border-radius:3px;">&#9939; ' + c + '</span>'; });
+                        html += '</div>';
+                    }
+                }
+                // Grader cards
+                var ourGraders = ['sintonia','edge','renzo'];
+                var ourKeys = profKeys.filter(function(k) { return ourGraders.indexOf(k) !== -1; });
+                if (ourKeys.length > 0) {
+                    html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(80px,1fr));gap:6px;">';
+                    ourKeys.forEach(function(pname) {
+                        var p = gr.profiles[pname];
+                        var pc = pname === 'sintonia' ? '#F72585' : (pname === 'edge' ? '#818cf8' : '#9B59B6');
+                        html += '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:8px;text-align:center;">';
+                        html += '<div style="font-size:9px;font-weight:800;color:' + pc + ';text-transform:uppercase;">' + pname + '</div>';
+                        html += '<div style="font-size:22px;font-weight:900;color:' + _gradeColor(p.grade) + ';line-height:1.2;">' + (p.grade||'?') + '</div>';
+                        html += '<div style="font-size:10px;color:rgba(255,255,255,0.4);">' + (p.final||0).toFixed(1) + '</div>';
+                        if (p.sizing && p.sizing !== 'PASS') html += '<div style="font-size:9px;color:rgba(255,255,255,0.5);margin-top:2px;">' + p.sizing + '</div>';
+                        if (pname === 'renzo' && p.mathurin_test) html += '<div style="font-size:8px;color:' + (p.mathurin_test==='PASS'?'#22c55e':'#ef4444') + ';margin-top:2px;">Mathurin: ' + p.mathurin_test + '</div>';
+                        var pp = gr.profile_picks ? gr.profile_picks[pname] : null;
+                        if (pp && pp.pick !== 'tie') { var ppTeam = pp.pick === 'home' ? (g.home_abbrev||'HOME') : (g.away_abbrev||'AWAY'); html += '<div style="font-size:8px;color:' + (pp.pick === pickSide ? '#22c55e' : '#ef4444') + ';margin-top:2px;font-weight:700;">' + ppTeam + '</div>'; }
+                        html += '</div>';
+                    });
+                    html += '</div>';
+                }
+            } else {
+                // ── ANALYSIS FALLBACK: Show variable scores directly ──
+                html += '<div style="margin-bottom:8px;"><div style="font-size:9px;color:rgba(255,255,255,0.35);font-weight:700;letter-spacing:0.5px;margin-bottom:4px;">MAIN MATRIX ANALYSIS</div>';
+                var sortedVars = profKeys.filter(function(k) { return gr.profiles[k] && (gr.profiles[k].score != null || gr.profiles[k].final != null); });
                 sortedVars.sort(function(a,b) { return ((gr.profiles[b].score||gr.profiles[b].final||0)) - ((gr.profiles[a].score||gr.profiles[a].final||0)); });
                 sortedVars.slice(0,10).forEach(function(vname) {
-                    var v = gr.profiles[vname];
-                    var vs = v.score || v.final || 0;
+                    var v = gr.profiles[vname]; var vs = v.score || v.final || 0;
                     var vc = vs >= 7 ? '#10B981' : (vs >= 5 ? '#d4a024' : '#ef4444');
                     html += '<div style="display:flex;justify-content:space-between;font-size:10px;padding:1px 0;"><span style="color:rgba(255,255,255,0.5);">' + vname.replace(/_/g,' ') + '</span><span style="color:' + vc + ';font-weight:700;">' + vs + '</span></div>';
                 });
                 if (sortedVars.length > 10) html += '<div style="font-size:9px;color:rgba(255,255,255,0.25);margin-top:2px;">+' + (sortedVars.length-10) + ' more</div>';
                 html += '</div>';
+                html += '<div style="text-align:center;font-size:9px;color:rgba(255,255,255,0.25);font-style:italic;">Grading in progress...</div>';
             }
-            // Consensus grade card
+            // Engine grade card (always show)
             html += '<div style="text-align:center;margin-top:8px;padding:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;">';
             html += '<div style="font-size:9px;font-weight:800;color:#F72585;letter-spacing:0.5px;">ENGINE GRADE</div>';
             html += '<div style="font-size:28px;font-weight:900;color:' + gColor + ';line-height:1.2;">' + grade + '</div>';
             html += '<div style="font-size:10px;color:rgba(255,255,255,0.4);">' + avg + '</div>';
             html += '</div>';
-            // Peter Rules
+            // Peter Rules (always show)
             var prData = gr.peter_rules || g.peter_rules || {};
             var prFlags = prData.flags || [];
             if (prFlags.length > 0) {

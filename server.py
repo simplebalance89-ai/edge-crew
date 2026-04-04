@@ -8548,6 +8548,14 @@ Return ONLY valid JSON. Grade most games C or PASS. Only B+ when edge is clear."
             analysis["user_id"] = user_id
         else:
             _save_analysis_cache(sport_lower, analysis)
+            # Fire batch grading in background so Pro Edge has grader profiles immediately
+            async def _bg_grade():
+                try:
+                    r = await _run_profedge_batch_grade(sport_lower)
+                    logger.info(f"[ANALYSIS→GRADE] {sport_lower.upper()}: {r.get('graded', 0)} games graded")
+                except Exception as _e:
+                    logger.warning(f"[ANALYSIS→GRADE] {sport_lower.upper()} failed: {_e}")
+            asyncio.create_task(_bg_grade())
         return JSONResponse(analysis)
 
     except json.JSONDecodeError:
