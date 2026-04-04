@@ -1372,7 +1372,7 @@ KIMI_SCOUT_ENDPOINT = os.environ.get(
     "KIMI_SCOUT_ENDPOINT",
     "https://peter-mna31gr3-swedencentral.services.ai.azure.com/openai/deployments/Kimi-K2.5/chat/completions?api-version=2024-12-01-preview",
 )
-KIMI_SCOUT_KEY = os.environ.get("KIMI_SCOUT_KEY", "")
+KIMI_SCOUT_KEY = os.environ.get("KIMI_SCOUT_KEY", "") or AZURE_KEY
 KIMI_SCOUT_CACHE_DIR = os.path.join(DATA_DIR, "kimi_scout")
 os.makedirs(KIMI_SCOUT_CACHE_DIR, exist_ok=True)
 
@@ -1390,6 +1390,10 @@ def _load_kimi_scout(sport: str) -> dict | None:
             with open(path) as f:
                 data = json.load(f)
             if data.get("date") == datetime.now(PST).strftime("%Y-%m-%d"):
+                # Don't return cached empty results — allow retry
+                if not data.get("profiles"):
+                    logger.info(f"[KIMI SCOUT] Skipping empty cache for {sport}")
+                    return None
                 return data
         except Exception:
             pass
@@ -1627,6 +1631,10 @@ CRITICAL RULES:
 
 Return ONLY valid JSON: {{"profiles": [...]}}
 Score ALL {len(games)} games. Do not skip any."""
+
+    if not KIMI_SCOUT_KEY:
+        logger.warning("[KIMI SCOUT] No API key configured (set KIMI_SCOUT_KEY or AZURE_OPENAI_KEY)")
+        return {"sport": sport, "date": today, "profiles": {}, "error": "No API key"}
 
     try:
         async with httpx.AsyncClient(timeout=180) as client:
