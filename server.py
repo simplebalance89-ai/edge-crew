@@ -15658,6 +15658,80 @@ async def get_profedge(sport: str, mode: str = None):
         if "away_abbrev" not in game and game.get("away"):
             game["away_abbrev"] = game["away"].split()[-1][:3].upper()
 
+    # ── Enrich empty profiles/injuries from analysis cache + daily slate ──
+    try:
+        # Pull from cached analysis (has full profiles + injuries from ESPN/CBS/RotoWire)
+        analysis_resp = await get_analysis(sport_key, cached_only=True)
+        analysis_games = []
+        if hasattr(analysis_resp, 'body'):
+            analysis_data = json.loads(analysis_resp.body)
+            analysis_games = analysis_data.get("games", [])
+
+        # Also pull from daily slate (has injury/lineup data)
+        slate = _load_daily_slate(sport_key)
+        slate_games = (slate.get("games", []) if isinstance(slate, dict) else slate) if slate else []
+
+        # Build lookup by matchup
+        analysis_by_matchup = {}
+        for ag in analysis_games:
+            m = (ag.get("matchup", "") or "").lower().replace(" ", "")
+            if m:
+                analysis_by_matchup[m] = ag
+        slate_by_matchup = {}
+        for sg in slate_games:
+            away = sg.get("away", sg.get("away_team", ""))
+            home = sg.get("home", sg.get("home_team", ""))
+            m = f"{away}@{home}".lower().replace(" ", "")
+            if m:
+                slate_by_matchup[m] = sg
+
+        enriched_count = 0
+        for game in (raw_games if isinstance(raw_games, list) else []):
+            matchup_key = (game.get("matchup", "") or "").lower().replace(" ", "")
+            if not matchup_key:
+                away = game.get("away", "")
+                home = game.get("home", "")
+                matchup_key = f"{away}@{home}".lower().replace(" ", "")
+
+            ag = analysis_by_matchup.get(matchup_key, {})
+            sg = slate_by_matchup.get(matchup_key, {})
+
+            # Enrich profiles
+            for side in ["home", "away"]:
+                prof = game.get(f"{side}_profile", {})
+                if not prof or len(prof) < 3:
+                    # Try analysis cache profile
+                    a_prof = ag.get(f"{side}_profile", {})
+                    if a_prof and len(a_prof) >= 3:
+                        game[f"{side}_profile"] = a_prof
+                        enriched_count += 1
+                    else:
+                        # Fallback: build from scores archive
+                        team_name = game.get(side, "")
+                        if team_name:
+                            built = _build_team_profile(team_name, sport_key)
+                            if built and len(built) >= 3:
+                                game[f"{side}_profile"] = built
+                                enriched_count += 1
+
+            # Enrich injuries
+            game_inj = game.get("injuries", {"home": [], "away": []})
+            if not game_inj.get("home") and not game_inj.get("away"):
+                # Try analysis cache injuries
+                a_inj = ag.get("injuries", {})
+                if a_inj and (a_inj.get("home") or a_inj.get("away")):
+                    game["injuries"] = a_inj
+                else:
+                    # Try slate injuries
+                    s_inj = sg.get("injuries", {})
+                    if s_inj and (s_inj.get("home") or s_inj.get("away")):
+                        game["injuries"] = s_inj
+
+        if enriched_count:
+            logger.info(f"[profedge] {sport_key}: enriched {enriched_count} profiles from analysis/slate cache")
+    except Exception as e:
+        logger.warning(f"[profedge] Profile enrichment failed: {e}")
+
     # Fetch Kalshi market-implied probabilities (raw markets, not processed)
     kalshi_raw = []
     try:
