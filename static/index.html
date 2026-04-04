@@ -11401,56 +11401,43 @@ function renderProEdgeGames(games, container) {
         html += '<div style="background:rgba(247,37,133,0.04);border:1px solid rgba(247,37,133,0.2);border-radius:12px;padding:12px;">';
         html += '<div style="font-size:10px;font-weight:900;letter-spacing:1.5px;color:#F72585;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.06);">OUR PROCESS</div>';
         if (gr && gr.profiles) {
-            // Variables
-            var sintoniaProf = gr.profiles.sintonia || gr.profiles[Object.keys(gr.profiles)[0]];
-            if (sintoniaProf && sintoniaProf.variables) {
-                html += '<div style="margin-bottom:8px;"><div style="font-size:9px;color:rgba(255,255,255,0.35);font-weight:700;letter-spacing:0.5px;margin-bottom:4px;">TOP VARIABLES</div>';
-                var vars = sintoniaProf.variables; var varNames = Object.keys(vars);
-                varNames.sort(function(a,b) { return (vars[b].score||0) - (vars[a].score||0); });
-                varNames.slice(0,6).forEach(function(vname) {
-                    var vs = vars[vname].score||0; var vc = vs >= 7 ? '#10B981' : (vs >= 5 ? '#d4a024' : '#ef4444');
+            // Variables — profiles contains variable scores (thesis_edge, star_player_status, etc.)
+            var varKeys = Object.keys(gr.profiles);
+            if (varKeys.length > 0) {
+                html += '<div style="margin-bottom:8px;"><div style="font-size:9px;color:rgba(255,255,255,0.35);font-weight:700;letter-spacing:0.5px;margin-bottom:4px;">SCORED VARIABLES</div>';
+                // Sort by score descending
+                var sortedVars = varKeys.filter(function(k) { return gr.profiles[k] && (gr.profiles[k].score != null || gr.profiles[k].final != null); });
+                sortedVars.sort(function(a,b) { return ((gr.profiles[b].score||gr.profiles[b].final||0)) - ((gr.profiles[a].score||gr.profiles[a].final||0)); });
+                sortedVars.slice(0,10).forEach(function(vname) {
+                    var v = gr.profiles[vname];
+                    var vs = v.score || v.final || 0;
+                    var vc = vs >= 7 ? '#10B981' : (vs >= 5 ? '#d4a024' : '#ef4444');
                     html += '<div style="display:flex;justify-content:space-between;font-size:10px;padding:1px 0;"><span style="color:rgba(255,255,255,0.5);">' + vname.replace(/_/g,' ') + '</span><span style="color:' + vc + ';font-weight:700;">' + vs + '</span></div>';
                 });
-                if (varNames.length > 6) html += '<div style="font-size:9px;color:rgba(255,255,255,0.25);margin-top:2px;">+' + (varNames.length-6) + ' more</div>';
+                if (sortedVars.length > 10) html += '<div style="font-size:9px;color:rgba(255,255,255,0.25);margin-top:2px;">+' + (sortedVars.length-10) + ' more</div>';
                 html += '</div>';
             }
-            // Grader cards — our process only
-            var ourGraders = ['sintonia','edge','renzo'];
-            var ourKeys = Object.keys(gr.profiles).filter(function(k) { return ourGraders.indexOf(k) !== -1; });
-            if (ourKeys.length > 0) {
-                html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(80px,1fr));gap:6px;">';
-                ourKeys.forEach(function(pname) {
-                    var p = gr.profiles[pname];
-                    var pc = pname === 'sintonia' ? '#F72585' : (pname === 'edge' ? '#818cf8' : '#9B59B6');
-                    var isRenzo = pname === 'renzo';
-                    html += '<div style="background:rgba(255,255,255,0.03);border:' + (isRenzo ? '2px solid #9B59B6' : '1px solid rgba(255,255,255,0.08)') + ';border-radius:8px;padding:8px;text-align:center;">';
-                    html += '<div style="font-size:9px;font-weight:800;color:' + pc + ';text-transform:uppercase;">' + pname + '</div>';
-                    html += '<div style="font-size:22px;font-weight:900;color:' + _gradeColor(p.grade) + ';line-height:1.2;">' + (p.grade||'?') + '</div>';
-                    html += '<div style="font-size:10px;color:rgba(255,255,255,0.4);">' + (p.final||0).toFixed(1) + '</div>';
-                    if (p.sizing && p.sizing !== 'PASS') html += '<div style="font-size:9px;color:rgba(255,255,255,0.5);margin-top:2px;">' + p.sizing + '</div>';
-                    if (isRenzo && p.mathurin_test) html += '<div style="font-size:8px;color:' + (p.mathurin_test==='PASS'?'#22c55e':'#ef4444') + ';margin-top:2px;">Mathurin: ' + p.mathurin_test + '</div>';
-                    var pp = gr.profile_picks ? gr.profile_picks[pname] : null;
-                    if (pp && pp.pick !== 'tie') { var ppTeam = pp.pick === 'home' ? (g.home_abbrev||'HOME') : (g.away_abbrev||'AWAY'); html += '<div style="font-size:8px;color:' + (pp.pick === pickSide ? '#22c55e' : '#ef4444') + ';margin-top:2px;font-weight:700;">' + ppTeam + '</div>'; }
-                    html += '</div>';
-                });
-                html += '</div>';
-            }
+            // Consensus grade card
+            html += '<div style="text-align:center;margin-top:8px;padding:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;">';
+            html += '<div style="font-size:9px;font-weight:800;color:#F72585;letter-spacing:0.5px;">ENGINE GRADE</div>';
+            html += '<div style="font-size:28px;font-weight:900;color:' + gColor + ';line-height:1.2;">' + grade + '</div>';
+            html += '<div style="font-size:10px;color:rgba(255,255,255,0.4);">' + avg + '</div>';
+            html += '</div>';
             // Peter Rules
-            var prFlags = (gr.peter_rules && gr.peter_rules.flags) ? gr.peter_rules.flags : [];
+            var prData = gr.peter_rules || g.peter_rules || {};
+            var prFlags = prData.flags || [];
             if (prFlags.length > 0) {
                 html += '<div style="margin-top:8px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.06);">';
                 html += '<div style="font-size:9px;color:rgba(255,255,255,0.35);font-weight:700;margin-bottom:3px;">PETER RULES</div>';
                 prFlags.forEach(function(f) {
                     var fc = f.action === 'KILL' ? '#ef4444' : (f.action === 'BOOST' ? '#10B981' : '#d4a024');
-                    html += '<span style="font-size:9px;padding:2px 6px;border-radius:3px;background:rgba(255,255,255,0.04);border:1px solid ' + fc + ';color:' + fc + ';margin-right:4px;">' + f.action + '</span>';
+                    html += '<div style="margin-bottom:3px;"><span style="font-size:9px;padding:2px 6px;border-radius:3px;background:rgba(255,255,255,0.04);border:1px solid ' + fc + ';color:' + fc + ';">' + f.action + '</span>';
+                    if (f.note || f.rule) html += ' <span style="font-size:8px;color:rgba(255,255,255,0.3);">' + (f.note || f.rule) + '</span>';
+                    html += '</div>';
                 });
-                html += '</div>';
-            }
-            // Chains
-            if (sintoniaProf && sintoniaProf.chains_fired && sintoniaProf.chains_fired.length > 0) {
-                html += '<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:3px;">';
-                sintoniaProf.chains_fired.forEach(function(c) { html += '<span style="font-size:8px;background:rgba(247,37,133,0.1);border:1px solid rgba(247,37,133,0.3);color:#F72585;padding:2px 5px;border-radius:3px;">&#9939; ' + c + '</span>'; });
-                html += '</div>';
+                if (prData.adjustment) html += '<div style="font-size:9px;color:' + (prData.adjustment > 0 ? '#10B981' : '#ef4444') + ';font-weight:700;">Adj: ' + (prData.adjustment > 0 ? '+' : '') + prData.adjustment.toFixed(1) + '</div>';
+            } else {
+                html += '<div style="margin-top:6px;text-align:center;font-size:9px;color:#10B981;font-weight:700;">CLEAN — No flags</div>';
             }
         } else {
             html += '<div style="font-size:11px;color:rgba(255,255,255,0.2);text-align:center;padding:20px 0;">Awaiting analysis</div>';
@@ -11548,6 +11535,74 @@ function renderProEdgeGames(games, container) {
             html += '<button onclick="event.stopPropagation();regradeProEdge(\'' + g.game_id + '\')" style="margin-top:10px;background:rgba(212,160,23,0.12);border:1px solid rgba(212,160,23,0.3);color:#D4A017;font-size:10px;font-weight:700;padding:5px 12px;border-radius:6px;cursor:pointer;">RE-GRADE</button>';
         }
         html += '</div>'; // end convergence
+
+        // ═══ POST-CONVERGENCE: Peter's Report + EV + Kalshi (horizontal row) ═══
+        html += '<div style="display:flex;gap:10px;overflow-x:auto;margin-top:12px;padding-bottom:4px;">';
+        // Peter's Rules detail
+        html += '<div style="min-width:160px;flex-shrink:0;background:rgba(212,160,23,0.06);border:1px solid rgba(212,160,23,0.2);border-radius:10px;padding:10px;">';
+        html += '<div style="font-size:9px;font-weight:800;color:#D4A017;letter-spacing:1px;margin-bottom:6px;">PETER\'S REPORT</div>';
+        var prData2 = (gr && gr.peter_rules) ? gr.peter_rules : (g.peter_rules || {});
+        var prFlags2 = prData2.flags || [];
+        if (prFlags2.length > 0) {
+            prFlags2.forEach(function(f) {
+                var fc = f.action === 'KILL' ? '#ef4444' : (f.action === 'BOOST' ? '#10B981' : '#D4A017');
+                html += '<div style="margin-bottom:4px;padding:4px 6px;background:rgba(255,255,255,0.03);border:1px solid ' + fc + '30;border-radius:4px;">';
+                html += '<span style="font-size:9px;font-weight:800;color:' + fc + ';">' + f.action + '</span>';
+                html += '<div style="font-size:8px;color:rgba(255,255,255,0.4);margin-top:1px;">' + (f.note || f.rule || '') + '</div>';
+                html += '</div>';
+            });
+            var prAdj2 = prData2.adjustment || 0;
+            html += '<div style="font-size:10px;font-weight:700;color:' + (prAdj2 > 0 ? '#10B981' : prAdj2 < 0 ? '#ef4444' : 'rgba(255,255,255,0.4)') + ';margin-top:4px;">Adj: ' + (prAdj2 > 0 ? '+' : '') + prAdj2.toFixed(1) + '</div>';
+        } else {
+            html += '<div style="text-align:center;padding:8px 0;"><div style="font-size:20px;font-weight:900;color:#10B981;">CLEAN</div><div style="font-size:9px;color:rgba(255,255,255,0.4);">No flags triggered</div></div>';
+        }
+        if (pickTeam) html += '<div style="font-size:8px;color:rgba(255,255,255,0.3);margin-top:4px;">Applied to: ' + pickTeam + '</div>';
+        html += '</div>';
+
+        // EV Grade
+        html += '<div style="min-width:150px;flex-shrink:0;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:10px;text-align:center;">';
+        html += '<div style="font-size:9px;font-weight:800;color:#10B981;letter-spacing:1px;margin-bottom:6px;">EV GRADE</div>';
+        var evData = (gr && gr.ev) ? gr.ev : (g.ev || {});
+        if (evData.ev_pct != null) {
+            var evPct2 = evData.ev_pct;
+            var evColor2 = evPct2 > 5 ? '#10B981' : evPct2 > 0 ? '#F59E0B' : '#ef4444';
+            var evGrade2 = evPct2 >= 10 ? 'A+' : evPct2 >= 7 ? 'A' : evPct2 >= 5 ? 'B+' : evPct2 >= 3 ? 'B' : evPct2 >= 0 ? 'C' : 'F';
+            html += '<div style="font-size:28px;font-weight:900;color:' + evColor2 + ';">' + (evPct2 > 0 ? '+' : '') + evPct2.toFixed(1) + '%</div>';
+            html += '<div style="font-size:10px;color:rgba(255,255,255,0.4);">EV Grade: <span style="color:' + evColor2 + ';font-weight:700;">' + evGrade2 + '</span></div>';
+            if (evData.win_prob) html += '<div style="font-size:9px;color:rgba(255,255,255,0.35);margin-top:2px;">Win prob: ' + (evData.win_prob * 100).toFixed(0) + '%</div>';
+            if (evData.kelly_units) html += '<div style="font-size:9px;color:rgba(255,255,255,0.35);">Kelly: ' + evData.kelly_units + '</div>';
+        } else {
+            html += '<div style="font-size:20px;font-weight:900;color:rgba(255,255,255,0.15);padding:8px 0;">--</div>';
+            html += '<div style="font-size:9px;color:rgba(255,255,255,0.3);">Awaiting EV calc</div>';
+        }
+        html += '</div>';
+
+        // Kalshi
+        if (g.kalshi_prob) {
+            html += '<div style="min-width:160px;flex-shrink:0;background:rgba(0,150,136,0.06);border:1px solid rgba(0,150,136,0.2);border-radius:10px;padding:10px;text-align:center;">';
+            html += '<div style="font-size:9px;font-weight:800;color:#009688;letter-spacing:1px;margin-bottom:6px;">KALSHI</div>';
+            html += '<div style="font-size:28px;font-weight:900;color:#009688;">' + parseFloat(g.kalshi_prob).toFixed(0) + '%</div>';
+            html += '<div style="font-size:9px;color:rgba(255,255,255,0.4);">Market Implied</div>';
+            if (evData.win_prob) {
+                var div2 = (evData.win_prob * 100) - parseFloat(g.kalshi_prob);
+                var divColor2 = Math.abs(div2) > 10 ? '#ef4444' : Math.abs(div2) > 5 ? '#F59E0B' : '#10B981';
+                html += '<div style="margin-top:6px;font-size:12px;font-weight:800;color:' + divColor2 + ';">' + (div2 > 0 ? '+' : '') + div2.toFixed(1) + '% edge</div>';
+            }
+            if (g.kalshi_strike) html += '<div style="font-size:9px;color:rgba(255,255,255,0.4);margin-top:2px;">Strike: ' + g.kalshi_strike + '</div>';
+            html += '</div>';
+        }
+
+        // Renzo Independent (if batch-graded)
+        if (gr && gr.renzo_independent) {
+            var ri = gr.renzo_independent; var riColor = _gradeColor(ri.grade);
+            html += '<div style="min-width:130px;flex-shrink:0;background:rgba(155,89,182,0.08);border:2px solid rgba(155,89,182,0.4);border-radius:10px;padding:10px;text-align:center;">';
+            html += '<div style="font-size:9px;font-weight:800;color:#9B59B6;letter-spacing:1px;margin-bottom:4px;">RENZO</div>';
+            html += '<div style="font-size:28px;font-weight:900;color:' + riColor + ';">' + ri.grade + '</div>';
+            html += '<div style="font-size:10px;color:rgba(255,255,255,0.4);">' + (ri.score||0).toFixed(1) + '</div>';
+            if (ri.mathurin_test) html += '<div style="font-size:8px;color:' + (ri.mathurin_test==='PASS'?'#22c55e':'#ef4444') + ';margin-top:2px;">Mathurin: ' + ri.mathurin_test + '</div>';
+            html += '</div>';
+        }
+        html += '</div>'; // end post-convergence row
 
         // ── EXPANDABLE DETAIL (tap matchup header to toggle) ──
         html += '<div id="profedge-detail-' + idx + '" style="display:none;margin-top:10px;border-top:1px solid rgba(255,255,255,0.06);padding-top:10px;cursor:pointer;" onclick="toggleProEdgeDetail(' + idx + ')">';
