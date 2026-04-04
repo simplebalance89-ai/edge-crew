@@ -1104,7 +1104,23 @@ def grade_sintonia(game: dict, pick_side: str) -> dict:
             pct_diff = our_pct - opp_pct
             score = _clamp(5 + pct_diff * 8)
             note = f"NET proxy: us {our_pct:.0%} vs them {opp_pct:.0%} (diff {pct_diff:+.0%})"
-        elif var_name in ("neutral_site", "conference_strength", "ft_shooting"):
+        elif var_name == "neutral_site":
+            # Detect neutral site: NCAA Tournament, bowl games, etc.
+            is_neutral = game.get("neutral_site", False) or game.get("is_neutral", False)
+            venue = game.get("venue", "") or game.get("venue_name", "")
+            league = game.get("league", "") or ""
+            # Tournament detection from matchup context
+            if any(t in str(venue).lower() for t in ["lucas oil", "superdome", "alamodome", "nrg", "state farm"]):
+                is_neutral = True
+            if any(t in str(league).lower() for t in ["ncaa", "tournament", "march madness", "final four", "elite eight", "sweet sixteen"]):
+                is_neutral = True
+            if is_neutral:
+                score = 8
+                note = f"NEUTRAL SITE — home/away splits DO NOT APPLY. Venue: {venue or 'tournament'}. Grade on talent, matchup, and tournament experience ONLY."
+            else:
+                score = 5
+                note = "Standard home/away game"
+        elif var_name in ("conference_strength", "ft_shooting"):
             score = 5
             note = f"[{var_name}] NCAAB data not yet available — excluded from composite"
             variables[var_name] = {
