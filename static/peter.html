@@ -253,7 +253,7 @@ function _dimStyle(grade) {
 
 // ── LOAD GAMES ──
 function loadGames() {
-    fetch('/api/profedge/' + _currentSport)
+    fetch('https://edge-crew-ai-production.up.railway.app/api/games?sport=' + _currentSport)
         .then(function(r) { return r.json(); })
         .then(function(data) {
             _gamesData = data.games || [];
