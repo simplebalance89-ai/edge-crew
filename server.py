@@ -15989,6 +15989,13 @@ async def get_profedge(sport: str, mode: str = None):
     except Exception as e:
         logger.warning(f"[PROFEDGE] Engine data load failed: {e}")
 
+    # ── Normalize profiles to flat JS-expected format (L5, ppg_L5, rest_days, is_b2b, streak) ──
+    for _game in merged:
+        for _side in ("home", "away"):
+            _prof = _game.get(f"{_side}_profile", {})
+            if _prof and not _prof.get("L5"):  # Raw format from _build_team_profile, needs conversion
+                _game[f"{_side}_profile"] = _adapt_profile_for_grading(_prof)
+
     return JSONResponse({
         "sport": sport_key.upper(),
         "date": games_data.get("date", used_date),
