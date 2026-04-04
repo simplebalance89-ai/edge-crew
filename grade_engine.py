@@ -1412,6 +1412,57 @@ def check_chain(chain_name: str, variables: dict) -> bool:
         return (v.get("home_away_venue", v.get("home_away", 10)) <= 4 and
                 v.get("fixture_congestion", v.get("fixture_congestion_spot", 10)) <= 3 and
                 v.get("form_league_position", 10) <= 5)
+    # ── NARRATIVE / MOTIVATION CHAINS ──
+    # HUNGRY_DOG — underdog with good form + strong recent play = playing for something
+    elif chain_name == "HUNGRY_DOG":
+        return (v.get("recent_form", 0) >= 7 and
+                v.get("motivation_gap", v.get("motivation_context", 0)) >= 7 and
+                v.get("sharp_vs_public", 0) >= 6)
+    # COASTING_FAV — big favorite but form dropping + no motivation
+    elif chain_name == "COASTING_FAV":
+        return (v.get("recent_form", 10) <= 4 and
+                v.get("motivation_gap", v.get("motivation_context", 10)) <= 4 and
+                v.get("off_ranking", v.get("offensive_efficiency", 10)) <= 5)
+    # NOTHING_TO_LOSE — eliminated/bad team playing free + home = upset spot
+    elif chain_name == "NOTHING_TO_LOSE":
+        return (v.get("motivation_gap", v.get("motivation_context", 0)) >= 6 and
+                v.get("home_away", 0) >= 6 and
+                v.get("recent_form", 10) <= 4)
+    # PUBLIC_TRAP — heavy public side + line not moving + sharps quiet
+    elif chain_name == "PUBLIC_TRAP":
+        return (v.get("sharp_vs_public", 10) <= 3 and
+                v.get("line_movement", 5) <= 3 and
+                v.get("ats_trend", 0) >= 6)
+    # BOUNCE_BACK — lost 3+ straight but elite team + home = regression
+    elif chain_name == "BOUNCE_BACK":
+        return (v.get("recent_form", 10) <= 3 and
+                v.get("off_ranking", v.get("offensive_efficiency", 0)) >= 7 and
+                v.get("home_away", 0) >= 6)
+    # FADE_THE_STREAK — long win streak + away + B2B = regression spot
+    elif chain_name == "FADE_THE_STREAK":
+        return (v.get("recent_form", 0) >= 9 and
+                v.get("home_away", 10) <= 4 and
+                v.get("rest_advantage", 10) <= 4)
+    # ── BENCH / DEPTH CHAINS ──
+    # BENCH_MOB — deep rotation + healthy + in form
+    elif chain_name == "BENCH_MOB":
+        return (v.get("depth_injuries", v.get("bench_depth", 0)) >= 7 and
+                v.get("star_player_status", 0) >= 6 and
+                v.get("recent_form", 0) >= 6)
+    # THIN_ROSTER — key players OUT + no depth = trouble
+    elif chain_name == "THIN_ROSTER":
+        return (v.get("depth_injuries", v.get("bench_depth", 10)) <= 3 and
+                v.get("star_player_status", 10) <= 4)
+    # ── LEFT/RIGHT (PLATOON) CHAINS — MLB specific ──
+    # PLATOON_EDGE — favorable handedness matchup + park + lineup
+    elif chain_name == "PLATOON_EDGE":
+        return (v.get("platoon_matchup", v.get("lineup_vs_hand", 0)) >= 8 and
+                v.get("starting_pitcher", 0) >= 6 and
+                v.get("park_factor", 5) >= 6)
+    # WRONG_SIDE — bad platoon matchup + pitcher dominant = fade
+    elif chain_name == "WRONG_SIDE":
+        return (v.get("platoon_matchup", v.get("lineup_vs_hand", 10)) <= 3 and
+                v.get("starting_pitcher", 10) <= 4)
 
     return False
 

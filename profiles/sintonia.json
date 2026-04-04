@@ -262,6 +262,58 @@
       "sports": ["SOCCER"],
       "trigger": "home_away <= 4 AND congestion <= 3 AND form_position <= 5",
       "description": "NEGATIVE: Big club away at tough venue while congested — trap"
+    },
+    "HUNGRY_DOG": {
+      "bonus": 1.5,
+      "trigger": "recent_form >= 7 AND motivation >= 7 AND sharp_vs_public >= 6",
+      "description": "Underdog playing hungry — good form, motivated, sharps notice"
+    },
+    "COASTING_FAV": {
+      "bonus": -1.5,
+      "trigger": "recent_form <= 4 AND motivation <= 4 AND off_ranking <= 5",
+      "description": "NEGATIVE: Favorite coasting — bad form, no motivation, offense flat"
+    },
+    "NOTHING_TO_LOSE": {
+      "bonus": 1.0,
+      "trigger": "motivation >= 6 AND home_away >= 6 AND recent_form <= 4",
+      "description": "Bad team at home playing free — upset potential"
+    },
+    "PUBLIC_TRAP": {
+      "bonus": 1.5,
+      "trigger": "sharp_vs_public <= 3 AND line_movement <= 3 AND ats_trend >= 6",
+      "description": "Public hammering one side but line won't move + ATS trend disagrees"
+    },
+    "BOUNCE_BACK": {
+      "bonus": 1.0,
+      "trigger": "recent_form <= 3 AND off_ranking >= 7 AND home_away >= 6",
+      "description": "Elite team on cold streak at home — regression to the mean incoming"
+    },
+    "FADE_THE_STREAK": {
+      "bonus": -1.0,
+      "trigger": "recent_form >= 9 AND home_away <= 4 AND rest <= 4",
+      "description": "NEGATIVE: Long win streak but away + tired = regression spot"
+    },
+    "BENCH_MOB": {
+      "bonus": 1.0,
+      "trigger": "depth_injuries >= 7 AND star_player_status >= 6 AND recent_form >= 6",
+      "description": "Deep bench + healthy rotation + playing well = sustainable edge"
+    },
+    "THIN_ROSTER": {
+      "bonus": -1.5,
+      "trigger": "depth_injuries <= 3 AND star_player_status <= 4",
+      "description": "NEGATIVE: Key players OUT + no depth = trouble"
+    },
+    "PLATOON_EDGE": {
+      "bonus": 1.0,
+      "sports": ["MLB"],
+      "trigger": "platoon >= 8 AND starting_pitcher >= 6 AND park_factor >= 6",
+      "description": "Favorable handedness matchup + decent SP + hitter-friendly park"
+    },
+    "WRONG_SIDE": {
+      "bonus": -1.0,
+      "sports": ["MLB"],
+      "trigger": "platoon <= 3 AND starting_pitcher <= 4",
+      "description": "NEGATIVE: Bad platoon matchup vs dominant pitcher = fade"
     }
   },
   "chain_cap": 3.0,
