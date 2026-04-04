@@ -11298,9 +11298,9 @@ function renderProEdgeGames(games, container) {
         // ── 5-STEP PIPELINE (horizontal scroll) ──
         html += '<div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:8px;scrollbar-width:thin;-webkit-overflow-scrolling:touch;">';
 
-        // ═══ STEP 1: RAW DATA ═══
+        // ═══ S0: TEAM DATA (lines + form + rankings) ═══
         html += '<div style="min-width:170px;flex-shrink:0;background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.2);border-radius:10px;padding:10px;">';
-        html += '<div style="font-size:9px;font-weight:800;color:#6366f1;letter-spacing:1px;margin-bottom:6px;">STEP 1 — DATA</div>';
+        html += '<div style="font-size:9px;font-weight:800;color:#6366f1;letter-spacing:1px;margin-bottom:6px;">S0 — TEAM DATA</div>';
         var odds = g.odds || {};
         var spreadLabel = _profedgeCurrentSport === 'nhl' ? 'PL' : 'Spread';
         html += '<div style="font-size:11px;color:rgba(255,255,255,0.6);line-height:1.6;">';
@@ -11317,47 +11317,77 @@ function renderProEdgeGames(games, container) {
             html += 'O/U: <span style="color:#fff;font-weight:700;">' + ouVal + '</span><br>';
             html += 'ML: <span style="color:#fff;font-weight:700;">' + mlH + ' / ' + mlA + '</span>';
         }
-        html += '</div>';
-        html += '</div>';
-
-        // ═══ STEP 2: ENRICHMENT ═══
-        html += '<div style="min-width:200px;flex-shrink:0;background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.2);border-radius:10px;padding:10px;">';
-        html += '<div style="font-size:9px;font-weight:800;color:#38BDF8;letter-spacing:1px;margin-bottom:6px;">STEP 2 — ENRICHMENT</div>';
+        // Team form summary
         ['away', 'home'].forEach(function(side) {
             var prof = g[side + '_profile'] || {};
             var abbrev = side === 'home' ? (g.home_abbrev || g.home) : (g.away_abbrev || g.away);
-            var tag = side === 'home' ? 'HOME' : 'AWAY';
-            html += '<div style="margin-bottom:4px;">';
-            html += '<span style="font-size:10px;font-weight:700;color:#fff;">' + abbrev + '</span> <span style="font-size:9px;color:rgba(255,255,255,0.3);">' + tag + '</span><br>';
+            var parts = [];
+            if (prof.L5 && prof.L5 !== '0-0') parts.push('L5:' + prof.L5);
+            if (prof.streak && prof.streak !== 'L0' && prof.streak !== 'W0') parts.push(prof.streak);
+            if (prof.ats_record) parts.push('ATS:' + prof.ats_record);
+            if (parts.length) html += '<br><span style="font-size:9px;color:rgba(255,255,255,0.5);"><b style="color:#fff;">' + abbrev + '</b> ' + parts.join(' | ') + '</span>';
+        });
+        html += '</div>';
+        html += '</div>';
 
-            var hasAny = false;
-            // Record (all sports)
-            if (prof.L5 && prof.L5 !== '0-0') { html += '<span style="font-size:10px;color:rgba(255,255,255,0.5);">L5: ' + prof.L5 + ' | L10: ' + (prof.L10 || '--') + '</span><br>'; hasAny = true; }
-            // Sport-specific stats
-            if (_profedgeCurrentSport === 'nhl') {
-                if (prof.ppg_L5) { html += '<span style="font-size:10px;color:rgba(255,255,255,0.5);">GF/G: ' + prof.ppg_L5.toFixed(1) + ' | GA/G: ' + (prof.opp_ppg_L5 || 0).toFixed(1) + '</span><br>'; hasAny = true; }
-                if (prof.save_pct) { html += '<span style="font-size:10px;color:rgba(255,255,255,0.5);">SV%: ' + prof.save_pct + '</span><br>'; hasAny = true; }
-                if (prof.goalie) { html += '<span style="font-size:10px;color:#38BDF8;">Goalie: ' + prof.goalie + '</span><br>'; hasAny = true; }
-            } else if (_profedgeCurrentSport === 'mlb') {
-                if (prof.pitcher) { html += '<span style="font-size:10px;color:#38BDF8;">SP: ' + prof.pitcher + '</span><br>'; hasAny = true; }
-                if (prof.era || prof.whip || prof.k_per_9) { html += '<span style="font-size:10px;color:rgba(255,255,255,0.5);">ERA: ' + (prof.era || '-') + ' | WHIP: ' + (prof.whip || '-') + ' | K/9: ' + (prof.k_per_9 || '-') + '</span><br>'; hasAny = true; }
-                if (prof.l5_era && prof.l5_era !== '-') { html += '<span style="font-size:10px;color:rgba(255,255,255,0.5);">L5 ERA: ' + prof.l5_era + '</span><br>'; hasAny = true; }
-            } else {
-                if (prof.ppg_L5) { html += '<span style="font-size:10px;color:rgba(255,255,255,0.5);">PPG: ' + prof.ppg_L5.toFixed(1) + ' | Opp: ' + (prof.opp_ppg_L5 || 0).toFixed(1) + '</span><br>'; hasAny = true; }
-                if (prof.kenpom_off) { html += '<span style="font-size:10px;color:rgba(255,255,255,0.5);">AdjO: ' + prof.kenpom_off + ' | AdjD: ' + (prof.kenpom_def || '?') + '</span><br>'; hasAny = true; }
-                if (prof.tempo) { html += '<span style="font-size:10px;color:rgba(255,255,255,0.5);">Tempo: ' + prof.tempo + '</span><br>'; hasAny = true; }
-                if (prof.seed) { html += '<span style="font-size:10px;color:#d4a024;">Seed: #' + prof.seed + '</span><br>'; hasAny = true; }
+        // ═══ S1: SCHEDULE / REST ═══
+        html += '<div style="min-width:180px;flex-shrink:0;background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.2);border-radius:10px;padding:10px;">';
+        html += '<div style="font-size:9px;font-weight:800;color:#38BDF8;letter-spacing:1px;margin-bottom:6px;">S1 — SCHEDULE</div>';
+        ['away', 'home'].forEach(function(side) {
+            var prof = g[side + '_profile'] || {};
+            var abbrev = side === 'home' ? (g.home_abbrev || g.home) : (g.away_abbrev || g.away);
+            var tag = side === 'home' ? 'H' : 'A';
+            html += '<div style="margin-bottom:3px;">';
+            html += '<span style="font-size:10px;font-weight:700;color:#fff;">' + abbrev + '</span> <span style="font-size:9px;color:rgba(255,255,255,0.25);">' + tag + '</span><br>';
+            var hasData = false;
+            if (prof.rest_days != null) {
+                var restColor = prof.rest_days === 0 ? '#ef4444' : (prof.rest_days >= 2 ? '#10B981' : '#F59E0B');
+                html += '<span style="font-size:10px;color:' + restColor + ';font-weight:700;">Rest: ' + prof.rest_days + 'd</span>';
+                if (prof.is_b2b) html += ' <span style="font-size:9px;background:rgba(239,68,68,0.2);color:#ef4444;padding:1px 4px;border-radius:3px;font-weight:700;">B2B</span>';
+                html += '<br>'; hasData = true;
             }
-            // Common fields
-            if (prof.streak && prof.streak !== 'L0' && prof.streak !== 'W0') { html += '<span style="font-size:10px;color:rgba(255,255,255,0.5);">Streak: ' + prof.streak + ' | Rest: ' + (prof.rest_days != null ? prof.rest_days + 'd' : '--') + '</span><br>'; hasAny = true; }
-            else if (prof.rest_days != null) { html += '<span style="font-size:10px;color:rgba(255,255,255,0.5);">Rest: ' + prof.rest_days + 'd</span><br>'; hasAny = true; }
-            if (!hasAny) html += '<span style="font-size:10px;color:rgba(255,255,255,0.3);font-style:italic;">Awaiting data</span><br>';
+            if (prof.games_last_7d) { html += '<span style="font-size:9px;color:rgba(255,255,255,0.5);">L7d: ' + prof.games_last_7d + ' games</span><br>'; hasData = true; }
+            if (prof.road_trip_len) { html += '<span style="font-size:9px;color:rgba(255,255,255,0.5);">Road trip: game ' + prof.road_trip_len + '</span><br>'; hasData = true; }
+            if (prof.matches_in_10d) { html += '<span style="font-size:9px;color:rgba(255,255,255,0.5);">10d: ' + prof.matches_in_10d + ' matches</span><br>'; hasData = true; }
+            // Sport-specific
+            if (_profedgeCurrentSport === 'nhl' && prof.goalie) { html += '<span style="font-size:9px;color:#38BDF8;">Goalie: ' + prof.goalie + '</span><br>'; hasData = true; }
+            if (_profedgeCurrentSport === 'mlb' && prof.pitcher) { html += '<span style="font-size:9px;color:#38BDF8;">SP: ' + prof.pitcher + '</span><br>'; hasData = true; }
+            if (!hasData) html += '<span style="font-size:9px;color:rgba(255,255,255,0.25);font-style:italic;">Schedule pending</span><br>';
+            html += '</div>';
+        });
+        html += '</div>';
 
-            // Injuries (all sports)
+        // ═══ S2: PLAYER DATA (injuries + stats) ═══
+        html += '<div style="min-width:200px;flex-shrink:0;background:rgba(239,68,68,0.04);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:10px;">';
+        html += '<div style="font-size:9px;font-weight:800;color:#ef4444;letter-spacing:1px;margin-bottom:6px;">S2 — PLAYERS</div>';
+        ['away', 'home'].forEach(function(side) {
+            var prof = g[side + '_profile'] || {};
+            var abbrev = side === 'home' ? (g.home_abbrev || g.home) : (g.away_abbrev || g.away);
+            var tag = side === 'home' ? 'H' : 'A';
+            html += '<div style="margin-bottom:3px;">';
+            html += '<span style="font-size:10px;font-weight:700;color:#fff;">' + abbrev + '</span> <span style="font-size:9px;color:rgba(255,255,255,0.25);">' + tag + '</span><br>';
+            // Stats
+            if (_profedgeCurrentSport === 'nhl') {
+                if (prof.ppg_L5) html += '<span style="font-size:9px;color:rgba(255,255,255,0.5);">GF: ' + prof.ppg_L5.toFixed(1) + ' | GA: ' + (prof.opp_ppg_L5 || 0).toFixed(1) + '</span><br>';
+                if (prof.save_pct) html += '<span style="font-size:9px;color:rgba(255,255,255,0.5);">SV%: ' + prof.save_pct + '</span><br>';
+            } else if (_profedgeCurrentSport === 'mlb') {
+                if (prof.era || prof.whip) html += '<span style="font-size:9px;color:rgba(255,255,255,0.5);">ERA: ' + (prof.era||'-') + ' | WHIP: ' + (prof.whip||'-') + '</span><br>';
+            } else {
+                if (prof.ppg_L5) html += '<span style="font-size:9px;color:rgba(255,255,255,0.5);">PPG: ' + prof.ppg_L5.toFixed(1) + ' | Opp: ' + (prof.opp_ppg_L5 || 0).toFixed(1) + '</span><br>';
+                if (prof.kenpom_off) html += '<span style="font-size:9px;color:rgba(255,255,255,0.5);">AdjO: ' + prof.kenpom_off + ' | AdjD: ' + (prof.kenpom_def||'?') + '</span><br>';
+            }
+            // Injuries
             var inj = (g.injuries && g.injuries[side]) || [];
             if (inj.length > 0) {
                 var outCount = inj.filter(function(i){return i.status === 'OUT';}).length;
-                html += '<span style="font-size:10px;color:#ef4444;">' + inj.length + ' injuries (' + outCount + ' OUT)</span>';
+                var gtdCount = inj.filter(function(i){return i.status === 'GTD' || i.status === 'QUESTIONABLE';}).length;
+                html += '<span style="font-size:10px;color:#ef4444;font-weight:700;">' + outCount + ' OUT</span>';
+                if (gtdCount > 0) html += ' <span style="font-size:9px;color:#F59E0B;">' + gtdCount + ' GTD</span>';
+                html += '<br>';
+                var sorted = inj.filter(function(i){return i.status==='OUT';}).sort(function(a,b){return (b.ppg||0)-(a.ppg||0);});
+                sorted.slice(0,2).forEach(function(i) { html += '<span style="font-size:8px;color:rgba(239,68,68,0.7);">' + (i.player||'?') + (i.ppg ? ' ('+i.ppg+'ppg)' : '') + '</span><br>'; });
+            } else {
+                html += '<span style="font-size:9px;color:#10B981;">Healthy</span><br>';
             }
             html += '</div>';
         });
