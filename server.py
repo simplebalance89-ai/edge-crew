@@ -1925,12 +1925,22 @@ For EACH game, you must return one of three actions:
 - "CHALLENGE" — grade is too high, something looks off (adjustment = -1 to -2)
 - "BOOST" — grade is too low given the evidence (adjustment = +1 to +2)
 
-RULES:
-1. Adjustments must be between -2 and +2 (inclusive). Use 0 for CONFIRM.
-2. CHALLENGE when: graders disagree significantly, Peter Kill is active but score is still high, EV is negative but grade is strong, structural red flags ignored.
-3. BOOST when: all graders agree strongly, chains fired are highly predictive, EV is exceptional, profile picks are unanimous.
-4. Give a 1-sentence reason for your decision.
-5. After adjustment, calculate the new final_score (clamp 0-10) and map to a letter grade using: A+ >= 8.5, A >= 7.8, A- >= 7.0, B+ >= 6.5, B >= 6.0, B- >= 5.5, C+ >= 5.0, C >= 4.0, D >= 3.0, F < 3.0.
+RULES — BE AGGRESSIVE, NOT A RUBBER STAMP:
+1. Adjustments must be between -2 and +2 (inclusive). Use 0 ONLY for CONFIRM.
+2. You MUST CHALLENGE (negative adjustment) when ANY of these are true:
+   - Graders disagree by 2+ points (e.g., Renzo 7.0 vs Claude 4.5 = DIVERGENCE — pick a side)
+   - EV is negative but consensus grade is B or higher
+   - GLASS_CANNON or DUMPSTER_FIRE chains fired
+   - Big spread (15+ points) — these are trap games
+   - Team on 5+ game losing streak
+3. You MUST BOOST (positive adjustment) when ANY of these are true:
+   - All 4 graders agree within 1 point AND EV is positive
+   - MISMATCH_MASSACRE, INJURY_GOLDMINE, or SHARPS_LOVE chains fired
+   - EV exceeds +5% AND consensus is B+ or higher
+   - All profile picks are unanimous (same team)
+4. CONFIRM (0 adjustment) ONLY when the grade genuinely looks right — no red flags, no standout edges. This should be RARE. Most games should get adjusted.
+5. Give a 1-sentence reason that TAKES A SIDE — don't hedge. Say WHY you agree with one grader over another.
+6. After adjustment, calculate the new final_score (clamp 1-10) and map to a letter grade using: A+ >= 8.5, A >= 7.8, A- >= 7.0, B+ >= 6.5, B >= 6.0, B- >= 5.5, C+ >= 5.0, C >= 4.0, D >= 3.0, F < 3.0.
 
 Return ONLY valid JSON:
 {{"games": [
