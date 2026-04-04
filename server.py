@@ -12,6 +12,7 @@ import statistics
 import db
 from openai import AzureOpenAI, OpenAI
 import anthropic as anthropic_sdk
+from engines.ai_caller import call_ai, test_ai
 import sentry_sdk
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -579,6 +580,123 @@ async def health_check():
     """Health check for Render auto-restart."""
     return JSONResponse({"status": "ok", "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ"), "version": BUILD_VERSION})
 
+
+@app.get("/api/health")
+async def api_health_check():
+    """Detailed health check with database and cache status."""
+    try:
+        checks = {
+            "database": "ok",
+            "cache": "ok",
+        }
+        
+        # Check database connectivity
+        try:
+            await db.execute("SELECT 1")
+        except Exception as db_err:
+            checks["database"] = f"error: {str(db_err)[:50]}"
+        
+        # Check cache status
+        try:
+            cache_size = len(_cache)
+            checks["cache"] = f"ok ({cache_size} entries)"
+        except Exception as cache_err:
+            checks["cache"] = f"error: {str(cache_err)[:50]}"
+        
+        return JSONResponse({
+            "status": "healthy",
+            "ts": datetime.now(PST).isoformat(),
+            "version": BUILD_VERSION,
+            "checks": checks
+        })
+    except Exception as e:
+        return JSONResponse({
+            "status": "unhealthy",
+            "ts": datetime.now(PST).isoformat(),
+            "version": BUILD_VERSION,
+            "error": str(e)[:100]
+        }, status_code=500)
+
+
+@app.get("/api/ai/health")
+async def ai_health_check():
+    """Check AI model health status."""
+    try:
+        ai_status = {
+            "azure_openai": "unknown",
+            "ai_services": "unknown",
+        }
+        
+        # Check Azure OpenAI connectivity
+        if AZURE_ENDPOINT and AZURE_KEY:
+            try:
+                client = AzureOpenAI(
+                    azure_endpoint=AZURE_ENDPOINT,
+                    api_key=AZURE_KEY,
+                    api_version=AZURE_API_VERSION,
+                    timeout=10,
+                )
+                # Simple models list check
+                _ = client.models.list()
+                ai_status["azure_openai"] = "ok"
+            except Exception as azure_err:
+                ai_status["azure_openai"] = f"error: {str(azure_err)[:50]}"
+        else:
+            ai_status["azure_openai"] = "not_configured"
+        
+        # Check AI Services endpoint (for Grok, DeepSeek, Kimi)
+        if THINKER_ENDPOINT and AZURE_KEY:
+            try:
+                client = OpenAI(
+                    base_url=THINKER_ENDPOINT,
+                    api_key=AZURE_KEY,
+                    timeout=10,
+                )
+                # Try a simple chat completion to verify connectivity
+                _ = client.chat.completions.create(
+                    model=ANALYSIS_FORMATTER,
+                    messages=[{"role": "user", "content": "ping"}],
+                    max_tokens=1,
+                )
+                ai_status["ai_services"] = "ok"
+            except Exception as svc_err:
+                # A 404 or auth error means the endpoint is reachable but model may differ
+                if "not found" in str(svc_err).lower() or "404" in str(svc_err):
+                    ai_status["ai_services"] = "ok (endpoint reachable)"
+                else:
+                    ai_status["ai_services"] = f"error: {str(svc_err)[:50]}"
+        else:
+            ai_status["ai_services"] = "not_configured"
+        
+        # Check Anthropic if key is present
+        if ANTHROPIC_API_KEY:
+            try:
+                anth_client = anthropic_sdk.Anthropic(api_key=ANTHROPIC_API_KEY, timeout=10)
+                # Anthropic doesn't have a simple ping, assume ok if key exists
+                ai_status["anthropic"] = "configured"
+            except Exception as anth_err:
+                ai_status["anthropic"] = f"error: {str(anth_err)[:50]}"
+        else:
+            ai_status["anthropic"] = "not_configured"
+        
+        # Determine overall status
+        overall = "healthy" if any(s == "ok" for s in ai_status.values() if s not in ("unknown", "not_configured")) else "degraded"
+        
+        return JSONResponse({
+            "status": overall,
+            "ts": datetime.now(PST).isoformat(),
+            "models": ai_status,
+            "thinker": ANALYSIS_THINKER,
+            "formatter": ANALYSIS_FORMATTER,
+        })
+    except Exception as e:
+        return JSONResponse({
+            "status": "unhealthy",
+            "ts": datetime.now(PST).isoformat(),
+            "error": str(e)[:100]
+        }, status_code=500)
+
+
 @app.get("/api/step25")
 async def step25_status(sport: str = None):
     """Check Step 2.5 batch status. ?sport=nba for one sport, omit for all."""
@@ -967,9 +1085,9 @@ SGO_PROP_STATS = {
     "mma": {},
     "boxing": {},
 }
-BALLDONTLIE_API_KEY = os.environ.get("BALLDONTLIE_API_KEY", "373a65ea-c799-4c41-b54a-64909073123c")
+BALLDONTLIE_API_KEY = os.environ.get("BALLDONTLIE_API_KEY", "")
 BALLDONTLIE_BASE = "https://api.balldontlie.io/v1"
-RAPIDAPI_KEY = os.environ.get("RAPIDAPI_KEY", "409e417a5amshc8f88f3da5eb1c8p1b356bjsn648bb9e45f03")
+RAPIDAPI_KEY = os.environ.get("RAPIDAPI_KEY", "")
 TANK01_HOSTS = {
     "nba": "tank01-fantasy-stats.p.rapidapi.com",
     "nhl": "tank01-nhl-live-in-game-real-time-statistics-nhl.p.rapidapi.com",
@@ -1124,7 +1242,7 @@ async def _build_pre_analysis(sport: str):
                     if not team_name:
                         continue
                     try:
-                        profile = _build_team_profile(team_name, sport)
+                        profile = await _build_team_profile(team_name, sport)
                         if profile and profile.get("last_5"):
                             last_game = profile["last_5"][0]
                             last_date = last_game.get("date", "")
@@ -1284,7 +1402,7 @@ async def _step25_batch_sport(sport: str):
     # Step 2: Team profiles (sync — from scores archive)
     for team in sorted(teams):
         try:
-            profile = _build_team_profile(team, sport)
+            profile = await _build_team_profile(team, sport)
             if profile:
                 result["team_profiles"][team] = profile
         except Exception as e:
@@ -1704,6 +1822,172 @@ def _attach_kimi_profiles(games: list[dict], kimi_data: dict, sport: str) -> Non
                     break
         if kp:
             game["kimi_profile"] = kp
+
+
+# ── KIMI GATEKEEPER — post-convergence validation layer ──────────────────
+async def _run_kimi_gatekeeper(sport: str, graded_games: list[dict]) -> dict:
+    """Run Kimi K2.5 as a Gatekeeper on already-graded games.
+
+    After the two-lane convergence (4 graders + Peter Rules), Kimi reviews
+    the FULL pipeline output and can CONFIRM, CHALLENGE, or BOOST each game
+    with a -2 to +2 point adjustment.
+
+    Returns dict keyed by game_id with action, adjustment, reason, final_grade, final_score.
+    """
+    if not KIMI_SCOUT_KEY:
+        logger.warning("[KIMI GATEKEEPER] No API key configured")
+        return {}
+
+    if not graded_games:
+        return {}
+
+    today = datetime.now(PST).strftime("%Y-%m-%d")
+
+    # Build per-game summaries for Kimi to review
+    game_blocks = []
+    game_ids = []
+    for g in graded_games:
+        gid = g.get("game_id", g.get("matchup", "unknown"))
+        game_ids.append(gid)
+        matchup = g.get("matchup", "?")
+        cons_grade = g.get("consensus_grade", "?")
+        cons_avg = g.get("consensus_avg", 0)
+
+        # Matrix scores from each grader
+        profiles = g.get("profiles", {})
+        profile_lines = []
+        for pname in ("sintonia", "renzo", "claude", "edge"):
+            pdata = profiles.get(pname, {})
+            profile_lines.append(f"  {pname.title()}: {pdata.get('final', 0):.1f}/10 (vars: {pdata.get('variables', {})})")
+
+        # Peter Rules
+        peter = g.get("peter_rules", {})
+        peter_flags = []
+        if peter.get("has_kill"):
+            peter_flags.append("KILL ACTIVE")
+        if peter.get("adjustment"):
+            peter_flags.append(f"adj={peter.get('adjustment')}")
+        for rule in peter.get("rules_fired", peter.get("flags", [])):
+            if isinstance(rule, dict):
+                peter_flags.append(rule.get("name", str(rule)))
+            else:
+                peter_flags.append(str(rule))
+        peter_str = ", ".join(peter_flags) if peter_flags else "none"
+
+        # EV
+        ev = g.get("ev", {})
+        ev_str = f"EV={ev.get('ev', 'N/A')}, edge={ev.get('edge', 'N/A')}" if ev else "N/A"
+
+        # Chains fired (from peter_rules or profile data)
+        chains = peter.get("chains_fired", [])
+        chains_str = ", ".join(chains) if chains else "none"
+
+        # Pick side
+        pick_side = g.get("pick_side", "?")
+
+        # Other side score for context
+        other = g.get("other_side", {})
+        other_str = f"{other.get('consensus_grade', '?')} ({other.get('consensus_avg', 0):.1f})" if other else "N/A"
+
+        # Profile picks (which grader picks which side)
+        pp = g.get("profile_picks", {})
+        pp_lines = []
+        for pname, ppdata in pp.items():
+            pp_lines.append(f"  {pname}: picks {ppdata.get('pick', '?')} (margin {ppdata.get('margin', 0):.1f})")
+
+        block = f"""GAME: {matchup}
+Game ID: {gid}
+Pick Side: {pick_side} | Other Side: {other_str}
+Consensus: {cons_grade} ({cons_avg:.2f}/10)
+Matrix Scores:
+{chr(10).join(profile_lines)}
+Profile Picks:
+{chr(10).join(pp_lines)}
+Peter Rules: {peter_str}
+Chains Fired: {chains_str}
+EV: {ev_str}"""
+        game_blocks.append(block)
+
+    games_text = "\n\n---\n\n".join(game_blocks)
+
+    prompt = f"""You are EC⁸ Kimi Gatekeeper — the FINAL validation layer in the Pro Edge grading pipeline.
+
+SPORT: {sport.upper()}
+DATE: {today}
+
+You are reviewing {len(graded_games)} games that have ALREADY been graded by our 4-grader matrix (Sintonia, Renzo, Claude, Edge) and adjusted by Peter's Rules. Your job is to validate or challenge each grade.
+
+=== GRADED GAMES ===
+{games_text}
+
+For EACH game, you must return one of three actions:
+- "CONFIRM" — grade looks right, no adjustment needed (adjustment = 0)
+- "CHALLENGE" — grade is too high, something looks off (adjustment = -1 to -2)
+- "BOOST" — grade is too low given the evidence (adjustment = +1 to +2)
+
+RULES:
+1. Adjustments must be between -2 and +2 (inclusive). Use 0 for CONFIRM.
+2. CHALLENGE when: graders disagree significantly, Peter Kill is active but score is still high, EV is negative but grade is strong, structural red flags ignored.
+3. BOOST when: all graders agree strongly, chains fired are highly predictive, EV is exceptional, profile picks are unanimous.
+4. Give a 1-sentence reason for your decision.
+5. After adjustment, calculate the new final_score (clamp 0-10) and map to a letter grade using: A+ >= 8.5, A >= 7.8, A- >= 7.0, B+ >= 6.5, B >= 6.0, B- >= 5.5, C+ >= 5.0, C >= 4.0, D >= 3.0, F < 3.0.
+
+Return ONLY valid JSON:
+{{"games": [
+  {{"game_id": "...", "action": "CONFIRM|CHALLENGE|BOOST", "adjustment": 0, "reason": "one sentence", "final_score": 7.5, "final_grade": "A-"}}
+]}}
+
+Review ALL {len(graded_games)} games. Do not skip any."""
+
+    try:
+        async with httpx.AsyncClient(timeout=180) as client:
+            resp = await client.post(
+                KIMI_SCOUT_ENDPOINT,
+                headers={
+                    "api-key": KIMI_SCOUT_KEY,
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "messages": [{"role": "user", "content": prompt}],
+                    "max_completion_tokens": 6000,
+                    "response_format": {"type": "json_object"},
+                },
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+            parsed = json.loads(content)
+            games_list = parsed.get("games", [])
+
+            # Index by game_id
+            result = {}
+            for item in games_list:
+                gid = item.get("game_id", "")
+                adj = item.get("adjustment", 0)
+                adj = max(-2, min(2, float(adj)))  # clamp
+                action = item.get("action", "CONFIRM").upper()
+                if action not in ("CONFIRM", "CHALLENGE", "BOOST"):
+                    action = "CONFIRM"
+                reason = item.get("reason", "")
+                final_score = item.get("final_score", 0)
+                final_grade = item.get("final_grade", "?")
+                result[gid] = {
+                    "action": action,
+                    "adjustment": adj,
+                    "reason": reason,
+                    "final_grade": final_grade,
+                    "final_score": round(float(final_score), 2),
+                }
+
+            logger.info(f"[KIMI GATEKEEPER] {sport.upper()}: reviewed {len(result)}/{len(graded_games)} games "
+                        f"({sum(1 for v in result.values() if v['action'] == 'CONFIRM')} CONFIRM, "
+                        f"{sum(1 for v in result.values() if v['action'] == 'CHALLENGE')} CHALLENGE, "
+                        f"{sum(1 for v in result.values() if v['action'] == 'BOOST')} BOOST)")
+            return result
+
+    except Exception as e:
+        logger.warning(f"[KIMI GATEKEEPER] {sport.upper()} failed: {e}")
+        return {}
 
 
 def _save_analysis_cache(sport, analysis_data):
@@ -6737,7 +7021,7 @@ async def get_analysis(sport: str, cached_only: bool = False, force: bool = Fals
             if not team_name:
                 continue
             try:
-                profile = _build_team_profile(team_name, sport_lower)
+                profile = await _build_team_profile(team_name, sport_lower)
                 if profile and profile.get("last_5"):
                     w = profile.get("wins", 0)
                     l = profile.get("losses", 0)
@@ -8260,8 +8544,8 @@ Return ONLY valid JSON. Grade most games C or PASS. Only B+ when edge is clear."
                     continue
                 away_name = _expand_abbrevs(away_abbr, sport_lower)
                 home_name = _expand_abbrevs(home_abbr, sport_lower)
-                away_prof = _build_team_profile(away_name, sport_lower)
-                home_prof = _build_team_profile(home_name, sport_lower)
+                away_prof = await _build_team_profile(away_name, sport_lower)
+                home_prof = await _build_team_profile(home_name, sport_lower)
                 h2h_data = _build_h2h(away_name, home_name, sport_lower)
                 alt = _calculate_alt_grade(away_prof, home_prof, h2h_data)
                 game["alt_grade"] = alt
@@ -13338,8 +13622,248 @@ def _get_game_scores(game: dict):
     return home_score, away_score
 
 
-def _build_team_profile(team: str, sport: str) -> dict:
-    """Build a team profile from the scores archive. Returns last 5 games + summary."""
+async def _fetch_fresh_team_data_from_espn(team: str, sport: str) -> dict | None:
+    """Fetch fresh team data from ESPN API when archive is stale.
+    
+    Returns a team profile dict with last_5 games, record, etc.
+    Returns None if fetch fails or sport/team not supported.
+    """
+    # ESPN sport path mapping
+    ESPN_SPORT_PATHS = {
+        "nba": "basketball/nba",
+        "nhl": "hockey/nhl", 
+        "mlb": "baseball/mlb",
+        "ncaab": "basketball/mens-college-basketball",
+        "wnba": "basketball/wnba",
+        "nfl": "football/nfl",
+        "ncaaf": "football/college-football",
+    }
+    
+    sport_lower = sport.lower()
+    if sport_lower not in ESPN_SPORT_PATHS:
+        return None
+    
+    espn_path = ESPN_SPORT_PATHS[sport_lower]
+    
+    # Try to get team abbreviation for ESPN lookup
+    team_norm = _normalize_team(team)
+    team_abbr = None
+    
+    # Try to extract abbreviation from team name (e.g., "Lakers" -> "lal")
+    # This is a best-effort mapping
+    TEAM_ABBREV_MAP = {
+        # NBA
+        "lakers": "lal", "celtics": "bos", "warriors": "gs", "nets": "bkn",
+        "knicks": "ny", "76ers": "phi", "raptors": "tor", "bulls": "chi",
+        "cavaliers": "cle", "pistons": "det", "pacers": "ind", "bucks": "mil",
+        "hawks": "atl", "hornets": "cha", "heat": "mia", "magic": "orl",
+        "wizards": "was", "mavericks": "dal", "rockets": "hou", "grizzlies": "mem",
+        "pelicans": "no", "spurs": "sa", "nuggets": "den", "timberwolves": "min",
+        "thunder": "okc", "trail blazers": "por", "jazz": "uta", "kings": "sac",
+        "suns": "phx", "clippers": "lac",
+        # NHL
+        "ducks": "ana", "coyotes": "ari", "bruins": "bos", "sabres": "buf",
+        "flames": "cgy", "hurricanes": "car", "blackhawks": "chi", "avalanche": "col",
+        "blue jackets": "cbj", "stars": "dal", "red wings": "det", "oilers": "edm",
+        "panthers": "fla", "kings": "lak", "wild": "min", "canadiens": "mtl",
+        "predators": "nsh", "devils": "nj", "islanders": "nyi", "rangers": "nyr",
+        "senators": "ott", "flyers": "phi", "penguins": "pit", "sharks": "sj",
+        "kraken": "sea", "blues": "stl", "lightning": "tb", "maple leafs": "tor",
+        "canucks": "van", "golden knights": "vgk", "capitals": "wsh", "jets": "wpg",
+        # MLB
+        "diamondbacks": "ari", "braves": "atl", "orioles": "bal", "red sox": "bos",
+        "cubs": "chc", "white sox": "chw", "reds": "cin", "guardians": "cle",
+        "rockies": "col", "tigers": "det", "astros": "hou", "royals": "kc",
+        "angels": "laa", "dodgers": "lad", "marlins": "mia", "brewers": "mil",
+        "twins": "min", "mets": "nym", "yankees": "nyy", "athletics": "oak",
+        "phillies": "phi", "pirates": "pit", "padres": "sd", "giants": "sf",
+        "mariners": "sea", "cardinals": "stl", "rays": "tb", "rangers": "tex",
+        "blue jays": "tor", "nationals": "wsh",
+    }
+    
+    # Try to match team name to abbreviation
+    for name_part in team_norm.split():
+        if name_part in TEAM_ABBREV_MAP:
+            team_abbr = TEAM_ABBREV_MAP[name_part]
+            break
+    
+    if not team_abbr:
+        # Try direct match
+        team_abbr = TEAM_ABBREV_MAP.get(team_norm)
+    
+    if not team_abbr:
+        return None
+    
+    try:
+        url = f"https://site.api.espn.com/apis/site/v2/sports/{espn_path}/teams/{team_abbr}"
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = await client.get(url, headers={"User-Agent": "Mozilla/5.0"})
+            if resp.status_code != 200:
+                return None
+            
+            data = resp.json()
+            team_data = data.get("team", {})
+            
+            # Extract record
+            record_items = team_data.get("record", {}).get("items", [])
+            overall_record = "0-0"
+            home_record = "0-0"
+            away_record = "0-0"
+            streak_str = ""
+            
+            for item in record_items:
+                if item.get("type") == "total":
+                    overall_record = item.get("summary", "0-0")
+                    # Get streak from stats
+                    stats = {s.get("name", ""): s.get("displayValue", "") 
+                            for s in item.get("stats", [])}
+                    streak_str = stats.get("streak", "")
+                elif item.get("type") == "home":
+                    home_record = item.get("summary", "0-0")
+                elif item.get("type") in ["road", "away"]:
+                    away_record = item.get("summary", "0-0")
+            
+            # Parse record for wins/losses
+            try:
+                w_l = overall_record.split("-")
+                season_wins = int(w_l[0])
+                season_losses = int(w_l[1]) if len(w_l) > 1 else 0
+            except (ValueError, IndexError):
+                season_wins = 0
+                season_losses = 0
+            
+            # Parse streak
+            streak = 0
+            if streak_str:
+                try:
+                    if streak_str[0].upper() == "W":
+                        streak = int(streak_str[1:])
+                    elif streak_str[0].upper() == "L":
+                        streak = -int(streak_str[1:])
+                except (ValueError, IndexError):
+                    pass
+            
+            # Fetch recent games from scoreboard
+            from datetime import timedelta
+            today = datetime.now(PST)
+            last_5 = []
+            
+            # Try to get last 7 days of games from ESPN scoreboard
+            for days_ago in range(1, 10):
+                game_date = today - timedelta(days=days_ago)
+                date_str = game_date.strftime("%Y%m%d")
+                
+                try:
+                    scoreboard_url = f"https://site.api.espn.com/apis/site/v2/sports/{espn_path}/scoreboard?dates={date_str}"
+                    sb_resp = await client.get(scoreboard_url, headers={"User-Agent": "Mozilla/5.0"}, timeout=5.0)
+                    
+                    if sb_resp.status_code == 200:
+                        sb_data = sb_resp.json()
+                        for event in sb_data.get("events", []):
+                            competitions = event.get("competitions", [])
+                            if not competitions:
+                                continue
+                            comp = competitions[0]
+                            
+                            # Check if our team is in this game
+                            teams_data = comp.get("competitors", [])
+                            team_side = None
+                            opp_name = None
+                            team_score = None
+                            opp_score = None
+                            
+                            for td in teams_data:
+                                team_data_inner = td.get("team", {})
+                                abbrev = team_data_inner.get("abbreviation", "").lower()
+                                display_name = team_data_inner.get("displayName", "").lower()
+                                
+                                if abbrev == team_abbr or team_norm in display_name:
+                                    team_side = td.get("homeAway", "")
+                                    team_score = td.get("score", "")
+                                    
+                                    # Get opponent info
+                                    for opp_td in teams_data:
+                                        if opp_td != td:
+                                            opp_team = opp_td.get("team", {})
+                                            opp_name = opp_team.get("displayName", "?")
+                                            opp_score = opp_td.get("score", "")
+                                    break
+                            
+                            if team_side and len(last_5) < 5:
+                                try:
+                                    ts = int(team_score) if team_score else 0
+                                    os = int(opp_score) if opp_score else 0
+                                    margin = ts - os
+                                    result = "W" if margin > 0 else "L"
+                                    
+                                    last_5.append({
+                                        "opponent": opp_name or "?",
+                                        "result": result,
+                                        "margin": margin,
+                                        "score": f"{ts}-{os}",
+                                        "ats": None,
+                                        "ou": None,
+                                        "date": game_date.strftime("%Y-%m-%d"),
+                                    })
+                                except (ValueError, TypeError):
+                                    pass
+                                    
+                except Exception:
+                    pass
+                
+                if len(last_5) >= 5:
+                    break
+            
+            # Build profile similar to archive-based one
+            wins = sum(1 for g in last_5 if g.get("result") == "W")
+            losses = len(last_5) - wins
+            total_margin = sum(g.get("margin", 0) for g in last_5)
+            avg_margin = round(total_margin / len(last_5), 1) if last_5 else 0
+            
+            # Determine trend
+            trend = "flat"
+            if len(last_5) >= 2:
+                if last_5[0].get("result") == "W" and last_5[1].get("result") == "W":
+                    trend = "up"
+                elif last_5[0].get("result") == "L" and last_5[1].get("result") == "L":
+                    trend = "down"
+            
+            return {
+                "team": team,
+                "sport": sport_lower,
+                "last_5": last_5,
+                "wins": wins,
+                "losses": losses,
+                "summary": {
+                    "record": f"{wins}-{losses}",
+                    "ats_record": "",
+                    "ou_record": "",
+                    "avg_margin": avg_margin,
+                    "trend": trend,
+                },
+                "l10_wins": season_wins,  # Use season as approximation
+                "l10_losses": season_losses,
+                "l10_avg_margin": avg_margin,
+                "streak": streak,
+                "second_half_avg": None,
+                "season_wins": season_wins,
+                "season_losses": season_losses,
+                "home_record": home_record,
+                "away_record": away_record,
+                "l5_quality_wins": 0,
+                "l5_soft_wins": 0,
+                "l5_quality_losses": 0,
+                "l5_soft_losses": 0,
+                "_fresh_from_espn": True,  # Flag to indicate fresh data
+            }
+            
+    except Exception as e:
+        logger.warning(f"[ESPN FRESH FETCH] Failed for {team} ({sport}): {e}")
+        return None
+
+
+async def _build_team_profile(team: str, sport: str) -> dict:
+    """Build a team profile from the scores archive. Falls back to ESPN API if archive is stale (>7 days)."""
     cache_key = f"team_profile:{sport}:{_normalize_team(team)}"
     cached = _get_cached(cache_key, ttl=1800)
     if cached is not None:
@@ -13594,6 +14118,37 @@ def _build_team_profile(team: str, sport: str) -> dict:
     # Second-half average (placeholder — not available from scores_archive without quarter data)
     second_half_avg = None
 
+    # ===== CHECK FOR STALE DATA (> 7 days old) =====
+    # If no games found or last game is > 7 days old, fetch fresh data from ESPN
+    is_stale = False
+    if not last_5:
+        is_stale = True
+        logger.info(f"[TEAM PROFILE] No archive data for {team} ({sport}) - will try fresh fetch")
+    else:
+        # Check age of most recent game
+        most_recent_date = last_5[0].get("date", "") if last_5 else ""
+        if most_recent_date and most_recent_date != "?":
+            try:
+                last_game_dt = datetime.fromisoformat(most_recent_date)
+                days_since = (datetime.now(PST) - last_game_dt).days
+                if days_since > 7:
+                    is_stale = True
+                    logger.info(f"[TEAM PROFILE] Stale data for {team} ({sport}): last game {days_since} days ago - fetching fresh")
+            except (ValueError, TypeError):
+                pass
+
+    # If data is stale, try to fetch fresh data from ESPN
+    if is_stale:
+        try:
+            fresh_profile = await _fetch_fresh_team_data_from_espn(team, sport)
+            if fresh_profile:
+                logger.info(f"[TEAM PROFILE] Using fresh ESPN data for {team} ({sport})")
+                _set_cache(cache_key, fresh_profile)
+                return fresh_profile
+        except Exception as e:
+            logger.warning(f"[TEAM PROFILE] Fresh fetch failed for {team} ({sport}): {e}")
+            # Fall through to return archive-based profile (even if stale)
+
     profile = {
         "team": team,
         "sport": sport.lower(),
@@ -13847,7 +14402,7 @@ async def team_profile_endpoint(sport: str, team: str):
     """Get team profile with last 5 games, ATS/OU records, and trend."""
     sport_lower = sport.lower()
     team_name = _expand_abbrevs(team, sport_lower)
-    profile = _build_team_profile(team_name, sport_lower)
+    profile = await _build_team_profile(team_name, sport_lower)
     return JSONResponse(profile)
 
 
@@ -13862,8 +14417,8 @@ async def card_h2h(sport: str, matchup: str):
     away_name = _expand_abbrevs(away_abbr, sport_lower)
     home_name = _expand_abbrevs(home_abbr, sport_lower)
 
-    away_profile = _build_team_profile(away_name, sport_lower)
-    home_profile = _build_team_profile(home_name, sport_lower)
+    away_profile = await _build_team_profile(away_name, sport_lower)
+    home_profile = await _build_team_profile(home_name, sport_lower)
     h2h = _build_h2h(away_name, home_name, sport_lower)
 
     return JSONResponse({
@@ -13891,8 +14446,8 @@ async def alt_grade_endpoint(sport: str, matchup: str):
     away_name = _expand_abbrevs(away_abbr, sport_lower)
     home_name = _expand_abbrevs(home_abbr, sport_lower)
 
-    away_profile = _build_team_profile(away_name, sport_lower)
-    home_profile = _build_team_profile(home_name, sport_lower)
+    away_profile = await _build_team_profile(away_name, sport_lower)
+    home_profile = await _build_team_profile(home_name, sport_lower)
     h2h = _build_h2h(away_name, home_name, sport_lower)
 
     # Don't calculate alt grade if we have no game data for either team
@@ -15771,9 +16326,9 @@ async def get_profedge(sport: str, mode: str = None):
                             game_entry["grade"]["ev"] = ag["ev"]
                     # Fill missing profiles from _build_team_profile
                     if not game_entry.get("home_profile") or game_entry["home_profile"] == {}:
-                        game_entry["home_profile"] = _build_team_profile(home_name, sport_key)
+                        game_entry["home_profile"] = await _build_team_profile(home_name, sport_key)
                     if not game_entry.get("away_profile") or game_entry["away_profile"] == {}:
-                        game_entry["away_profile"] = _build_team_profile(away_name, sport_key)
+                        game_entry["away_profile"] = await _build_team_profile(away_name, sport_key)
                     converted.append(game_entry)
                 games_data = {"games": converted, "date": today}
                 used_date = today
@@ -15900,7 +16455,7 @@ async def get_profedge(sport: str, mode: str = None):
                         # Fallback: build from scores archive
                         team_name = game.get(side, "")
                         if team_name:
-                            built = _build_team_profile(team_name, sport_key)
+                            built = await _build_team_profile(team_name, sport_key)
                             if built and len(built) >= 3:
                                 game[f"{side}_profile"] = built
                                 enriched_count += 1
@@ -16054,8 +16609,14 @@ async def get_profedge(sport: str, mode: str = None):
                 "profile_picks": grade.get("profile_picks", {}),
                 "other_side": grade.get("other_side", {}),
             }
+            # Attach Kimi Gatekeeper result
+            if grade.get("kimi_gatekeeper"):
+                entry["kimi_gatekeeper"] = grade["kimi_gatekeeper"]
+            else:
+                entry["kimi_gatekeeper"] = None
         else:
             entry["grade"] = game.get("grade")  # preserve inline grade from analysis fallback
+            entry["kimi_gatekeeper"] = game.get("kimi_gatekeeper")  # preserve from analysis fallback
 
         # Attach race (exact first, then fuzzy)
         race = races_by_matchup.get(matchup)
@@ -16579,8 +17140,8 @@ async def _run_profedge_batch_grade(sport: str):
                 "ml_home": str(ag.get("home_ml", "")),
                 "ml_away": str(ag.get("away_ml", "")),
             },
-            "home_profile": ag.get("home_profile") or _build_team_profile(home_name, sport_key),
-            "away_profile": ag.get("away_profile") or _build_team_profile(away_name, sport_key),
+            "home_profile": ag.get("home_profile") or await _build_team_profile(home_name, sport_key),
+            "away_profile": ag.get("away_profile") or await _build_team_profile(away_name, sport_key),
             "injuries": ag.get("injuries", {"home": [], "away": []}),
         })
 
@@ -16666,6 +17227,41 @@ async def _run_profedge_batch_grade(sport: str):
             "bet_size": best["profiles"].get("sintonia", {}).get("sizing", "PASS"),
             "confidence": confidence,
         })
+
+    # ── KIMI GATEKEEPER: post-convergence validation ──
+    try:
+        gatekeeper_results = await _run_kimi_gatekeeper(sport_key, all_grades)
+        if gatekeeper_results:
+            for grade_entry in all_grades:
+                gid = grade_entry.get("game_id", "")
+                gk = gatekeeper_results.get(gid)
+                if gk:
+                    # Apply adjustment to consensus score
+                    original_avg = grade_entry["consensus_avg"]
+                    adjusted_avg = max(0, min(10, round(original_avg + gk["adjustment"], 2)))
+                    # If Peter kill is active, keep the cap
+                    if grade_entry.get("peter_rules", {}).get("has_kill"):
+                        adjusted_avg = min(adjusted_avg, 2.9)
+                    grade_entry["kimi_gatekeeper"] = {
+                        "action": gk["action"],
+                        "adjustment": gk["adjustment"],
+                        "reason": gk["reason"],
+                        "original_score": original_avg,
+                        "original_grade": grade_entry["consensus_grade"],
+                        "final_score": adjusted_avg,
+                        "final_grade": score_to_grade(adjusted_avg),
+                    }
+                    # Update the consensus fields with gatekeeper-adjusted values
+                    grade_entry["consensus_raw"] = original_avg
+                    grade_entry["consensus_avg"] = adjusted_avg
+                    grade_entry["consensus_grade"] = score_to_grade(adjusted_avg)
+                else:
+                    grade_entry["kimi_gatekeeper"] = None
+            logger.info(f"[PROFEDGE GRADE] {sport_key.upper()}: Kimi Gatekeeper applied to {len(gatekeeper_results)} games")
+    except Exception as e:
+        logger.warning(f"[PROFEDGE GRADE] {sport_key.upper()}: Kimi Gatekeeper failed (grades unchanged): {e}")
+        for grade_entry in all_grades:
+            grade_entry["kimi_gatekeeper"] = None
 
     # Write grades file
     EDGE_GRADES_DIR.mkdir(parents=True, exist_ok=True)
