@@ -1396,9 +1396,176 @@ def _load_kimi_scout(sport: str) -> dict | None:
     return None
 
 
+async def _build_s4_kimi_prompt(sport: str, games: list[dict]) -> str:
+    """S4 Bridge: Format grader outputs + engine data into enriched Kimi Scout prompt.
+
+    Uses DeepSeek or Grok 4.1 Thinking to synthesize grader context,
+    then structures the prompt for Kimi K2.5 profiling.
+    """
+    today = datetime.now(PST).strftime("%Y-%m-%d")
+
+    # Build rich game context from grader outputs + engine data
+    game_blocks = []
+    for g in games:
+        matchup = g.get("matchup", f"{g.get('away', '?')} @ {g.get('home', '?')}")
+        odds = g.get("odds", {})
+        gr = g.get("grade", {})
+        hp = g.get("home_profile", {})
+        ap = g.get("away_profile", {})
+
+        lines = [f"GAME: {matchup}"]
+
+        # S0: Lines
+        spread = odds.get("spread_home") or odds.get("spread_away", "")
+        total = odds.get("total", "")
+        ml_home = odds.get("ml_home", "")
+        ml_away = odds.get("ml_away", "")
+        if spread:
+            lines.append(f"  Spread: {spread} | Total: {total} | ML: {ml_away}/{ml_home}")
+
+        # S1: Schedule context
+        for side, prof, tag in [("away", ap, "AWAY"), ("home", hp, "HOME")]:
+            parts = []
+            if prof.get("L5"):
+                parts.append(f"L5:{prof['L5']}")
+            if prof.get("streak"):
+                parts.append(f"Streak:{prof['streak']}")
+            if prof.get("rest_days") is not None:
+                parts.append(f"Rest:{prof['rest_days']}d")
+            if prof.get("is_b2b"):
+                parts.append("B2B")
+            if prof.get("record"):
+                parts.append(f"Record:{prof['record']}")
+            if prof.get("ppg_L5"):
+                parts.append(f"PPG:{prof['ppg_L5']}")
+            if parts:
+                lines.append(f"  {tag}: {' | '.join(parts)}")
+
+        # S2: Injuries
+        for side in ["away", "home"]:
+            inj = (g.get("injuries") or {}).get(side, [])
+            outs = [i for i in inj if i.get("status") == "OUT"]
+            if outs:
+                names = ", ".join(f"{i.get('player','?')}({i.get('ppg','?')}ppg)" for i in outs[:4])
+                lines.append(f"  {side.upper()} OUT: {names}")
+
+        # S3: Grader scores (the key enrichment for Kimi)
+        if gr and gr.get("profiles"):
+            grader_parts = []
+            for pname, pdata in gr["profiles"].items():
+                grade_val = pdata.get("grade", "?")
+                final_val = pdata.get("final", 0)
+                grader_parts.append(f"{pname}:{grade_val}({final_val})")
+            lines.append(f"  GRADERS: {' | '.join(grader_parts)}")
+
+            # Top variables from first profile
+            first_prof = list(gr["profiles"].values())[0]
+            if first_prof.get("variables"):
+                top_vars = sorted(first_prof["variables"].items(),
+                                  key=lambda x: x[1].get("score", 0), reverse=True)[:5]
+                var_strs = [f"{k.replace('_',' ')}:{v.get('score',0)}" for k, v in top_vars]
+                lines.append(f"  TOP VARS: {' | '.join(var_strs)}")
+
+            # Chains fired
+            for pname, pdata in gr["profiles"].items():
+                chains = pdata.get("chains_fired", [])
+                if chains:
+                    lines.append(f"  CHAINS ({pname}): {', '.join(chains)}")
+
+        # Consensus
+        if gr and gr.get("consensus_grade"):
+            lines.append(f"  CONSENSUS: {gr['consensus_grade']} ({gr.get('consensus_avg', '?')})")
+
+        # Peter's Rules
+        if gr and gr.get("peter_rules", {}).get("flags"):
+            flags = gr["peter_rules"]["flags"]
+            flag_strs = [f"{f.get('action','?')}:{f.get('rule','?')}" for f in flags]
+            lines.append(f"  PETER FLAGS: {', '.join(flag_strs)}")
+
+        # EV
+        if gr and gr.get("ev", {}).get("ev_pct") is not None:
+            lines.append(f"  EV: {gr['ev']['ev_pct']:+.1f}%")
+
+        game_blocks.append("\n".join(lines))
+
+    return "\n\n".join(game_blocks)
+
+
+async def _s4_format_for_kimi(sport: str, games_context: str, game_count: int) -> str:
+    """S4: Use DeepSeek R1 or Grok 4.1 Thinking to synthesize grader data into Kimi prompt.
+
+    This is the bridge layer — takes raw grader output and makes it digestible
+    for Kimi Scout's 4-dimension profiling.
+    """
+    today = datetime.now(PST).strftime("%Y-%m-%d")
+
+    synthesis_prompt = f"""You are the S4 Bridge — a prompt engineer for the EC⁸ sports analytics pipeline.
+
+Your job: Take the grader outputs below and synthesize them into a FOCUSED scouting brief for Kimi Scout.
+
+For EACH game, extract and highlight:
+1. TACTICAL DNA signals — what do the variable scores reveal about style/matchup?
+2. H2H CONTEXT — any historical patterns, H2H scores, rivalry indicators?
+3. STRUCTURAL EDGE — rest, B2B, travel, congestion, schedule spot advantages?
+4. MARKET SIGNAL — where are the graders aligned vs divergent? Any chain bonuses fired? EV?
+
+Also flag:
+- Games where graders DISAGREE (divergent grades = Kimi should investigate)
+- Games with KILL flags from Peter's Rules
+- Games with chain bonuses (high-conviction signals)
+
+GRADER DATA:
+{games_context}
+
+Output a clean scouting brief for each game. Keep it dense and factual — Kimi will score each dimension 0-10 based on your brief. Do NOT score anything yourself. Just present the evidence.
+
+Format as plain text, one section per game, with the 4 dimension headers."""
+
+    # Try Grok 4.1 Thinking first (best at synthesis), fallback to DeepSeek R1
+    models_to_try = [
+        ("grok-4-1-fast-reasoning", THINKER_ENDPOINT),
+        (ANALYSIS_THINKER, THINKER_ENDPOINT),  # DeepSeek-R1-0528
+    ]
+
+    for model_name, endpoint in models_to_try:
+        try:
+            if "openai.azure.com" in endpoint:
+                client = AzureOpenAI(
+                    azure_endpoint=endpoint,
+                    api_key=AZURE_KEY,
+                    api_version="2024-10-21",
+                    timeout=120,
+                )
+            else:
+                client = OpenAI(
+                    base_url=endpoint,
+                    api_key=AZURE_KEY,
+                    timeout=120,
+                )
+            logger.info(f"[S4 BRIDGE] Formatting {game_count} games for Kimi via {model_name}")
+            start = time.time()
+            resp = client.chat.completions.create(
+                model=model_name,
+                messages=[{"role": "user", "content": synthesis_prompt}],
+                max_tokens=8000,
+            )
+            brief = resp.choices[0].message.content.strip()
+            secs = round(time.time() - start, 1)
+            logger.info(f"[S4 BRIDGE] {model_name} done in {secs}s, {len(brief)} chars")
+            return brief
+        except Exception as e:
+            logger.warning(f"[S4 BRIDGE] {model_name} failed: {e}")
+            continue
+
+    # Final fallback: pass raw context directly to Kimi (no formatting)
+    logger.warning("[S4 BRIDGE] All models failed — passing raw grader data to Kimi")
+    return games_context
+
+
 async def _run_kimi_scout(sport: str, games: list[dict]) -> dict:
     """Run Kimi K2.5 profiler on a batch of games for any sport.
 
+    S4 Pipeline: Grader outputs → DeepSeek/Grok synthesis → Kimi Scout profiling.
     Returns dict with profiles keyed by matchup string.
     """
     today = datetime.now(PST).strftime("%Y-%m-%d")
@@ -1412,56 +1579,44 @@ async def _run_kimi_scout(sport: str, games: list[dict]) -> dict:
     if not games:
         return {"sport": sport, "date": today, "profiles": {}}
 
-    # Build game summaries for prompt
-    game_summaries = []
-    for g in games:
-        matchup = g.get("matchup", f"{g.get('away', '?')} @ {g.get('home', '?')}")
-        odds = g.get("odds", {})
-        summary = f"- {matchup}"
-        spread = odds.get("spread_home") or odds.get("spread_away", "")
-        total = odds.get("total", "")
-        if spread:
-            summary += f" | Spread: {spread}"
-        if total:
-            summary += f" | Total: {total}"
-        ml_home = odds.get("ml_home", "")
-        ml_away = odds.get("ml_away", "")
-        if ml_home and ml_away:
-            summary += f" | ML: {ml_away}/{ml_home}"
-        # Add profile info if available
-        hp = g.get("home_profile", {})
-        ap = g.get("away_profile", {})
-        if hp.get("l5"):
-            summary += f" | Home L5: {hp['l5']}"
-        if ap.get("l5"):
-            summary += f" | Away L5: {ap['l5']}"
-        game_summaries.append(summary)
+    # ── S4 BRIDGE: Build enriched context from grader outputs ──
+    games_context = await _build_s4_kimi_prompt(sport, games)
 
-    games_block = "\n".join(game_summaries)
+    # ── S4 BRIDGE: Format with DeepSeek/Grok for Kimi ──
+    formatted_brief = await _s4_format_for_kimi(sport, games_context, len(games))
+
+    # Build matchup list for Kimi to reference
+    matchup_list = []
+    for g in games:
+        matchup_list.append(g.get("matchup", f"{g.get('away', '?')} @ {g.get('home', '?')}"))
+    matchups_block = "\n".join(f"- {m}" for m in matchup_list)
 
     prompt = f"""You are EC⁸ Kimi Scout — an elite sports profiler. Score EVERY game below on 4 dimensions (0-10 each).
 
 SPORT: {sport.upper()}
 DATE: {today}
 
-GAMES:
-{games_block}
+GAMES TO PROFILE:
+{matchups_block}
+
+=== SCOUTING BRIEF (from S0-S3 grader pipeline) ===
+{formatted_brief}
 
 For EACH game, return a JSON object with:
-- "matchup": "AWAY @ HOME" (exactly as listed)
-- "tactical_dna": {{"score": 0-10, "note": "one sentence"}}
-- "h2h_context": {{"score": 0-10, "note": "one sentence"}}
-- "structural_edge": {{"score": 0-10, "note": "one sentence"}}
-- "market_signal": {{"score": 0-10, "note": "one sentence"}}
+- "matchup": "AWAY @ HOME" (exactly as listed above)
+- "tactical_dna": {{"score": 0-10, "note": "one sentence — style clash, pace mismatch, scheme edge"}}
+- "h2h_context": {{"score": 0-10, "note": "one sentence — historical patterns, rivalry factor"}}
+- "structural_edge": {{"score": 0-10, "note": "one sentence — rest, travel, B2B, congestion"}}
+- "market_signal": {{"score": 0-10, "note": "one sentence — grader consensus, chain bonuses, EV, sharp signals"}}
 - "profile_score": average of the 4 scores (1 decimal)
-- "profile_tag": your one-line label (e.g., "SHARP CONTRARIAN", "MOMENTUM MISMATCH", "TRAP LINE", "ELITE CLASH")
-- "profile_summary": 1-2 sentence scouting report
+- "profile_tag": your one-line label (e.g., "SHARP CONTRARIAN", "MOMENTUM MISMATCH", "TRAP LINE", "ELITE CLASH", "CONGESTION FADE", "ACE DOMINATION")
+- "profile_summary": 1-2 sentence scouting report — what makes this game interesting or dangerous?
 
-SCORING GUIDE:
-- Tactical DNA: Style clash, pace mismatch, offensive vs defensive identity, scheme advantages
-- H2H Context: Historical matchup patterns, recent meetings, psychological edge, rivalry factor
-- Structural Edge: Rest days, travel, venue, momentum, schedule spot (back-to-back, lookahead)
-- Market Signal: Line movement direction, sharp vs public split, steam moves, trap indicators
+CRITICAL RULES:
+- Use the SCOUTING BRIEF data above — it has real grader scores, variables, chain bonuses, and Peter's Rules flags.
+- Games where graders DISAGREE (e.g., Sintonia A- but Edge C+) should get special attention in market_signal.
+- Games with CHAIN BONUSES (CONGESTION_FADE, ACE_DOMINATION, etc.) should boost the relevant dimension.
+- Games with PETER KILL flags = profile_tag should include "CAUTION" or "FADE".
 
 Return ONLY valid JSON: {{"profiles": [...]}}
 Score ALL {len(games)} games. Do not skip any."""
