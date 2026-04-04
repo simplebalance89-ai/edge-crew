@@ -174,7 +174,7 @@ def score_recent_form(profile: dict, opp_profile: dict) -> tuple[int, str]:
         return 5, "No L5 data"
 
     # Base from L5 wins
-    base = {5: 9, 4: 7.5, 3: 5.5, 2: 4, 1: 2.5, 0: 1}.get(w, 5)
+    base = {5: 9, 4: 7, 3: 5, 2: 3.5, 1: 2, 0: 1}.get(w, 5)
 
     # Streak bonus/penalty
     if streak.startswith("W"):
@@ -216,10 +216,10 @@ def score_home_away(game: dict, side: str) -> tuple[int, str]:
 
     if is_home:
         w, l = parse_record(profile.get("home_record"))
-        base = 6  # Home court/ice inherent advantage
+        base = 5.5  # Home court/ice — slight advantage, not a full point
     else:
         w, l = parse_record(profile.get("away_record"))
-        base = 5  # Away — neutral baseline
+        base = 4.5  # Away — slight disadvantage
 
     if w + l > 0:
         pct = w / (w + l)
@@ -280,63 +280,62 @@ def score_off_ranking(profile: dict, opp_profile: dict, sport: str) -> tuple[int
 
     # Score based on how our offense compares to what opponent allows
     if sport == "NBA":
-        # NBA average ~112 PPG
-        if ppg >= 120:
+        # NBA average ~112 PPG — avg offense should be 5, not 7
+        if ppg >= 122:
             base = 9
-        elif ppg >= 115:
-            base = 8
+        elif ppg >= 118:
+            base = 7.5
+        elif ppg >= 114:
+            base = 6
         elif ppg >= 110:
-            base = 7
+            base = 5
         elif ppg >= 105:
-            base = 5.5
-        elif ppg >= 100:
             base = 4
         else:
-            base = 3
+            base = 2.5
 
-        # Matchup boost: our offense vs their defense
         if opp_def and opp_def >= 115:
-            base += 1  # They allow a lot
+            base += 0.5
         elif opp_def and opp_def <= 100:
-            base -= 1  # They're stingy
+            base -= 0.5
     elif sport == "NHL":
         if ppg >= 4.0: base = 9
-        elif ppg >= 3.5: base = 8
-        elif ppg >= 3.0: base = 6.5
-        elif ppg >= 2.5: base = 5
-        else: base = 3
+        elif ppg >= 3.5: base = 7
+        elif ppg >= 3.0: base = 5
+        elif ppg >= 2.5: base = 3.5
+        else: base = 2
 
-        if opp_def and opp_def >= 3.5: base += 1
-        elif opp_def and opp_def <= 2.5: base -= 1
+        if opp_def and opp_def >= 3.5: base += 0.5
+        elif opp_def and opp_def <= 2.5: base -= 0.5
     elif sport == "MLB":
-        # MLB: runs per game (avg ~4.5)
+        # MLB avg ~4.5 RPG — avg should be 5
         if ppg >= 6.0: base = 9
-        elif ppg >= 5.5: base = 8
-        elif ppg >= 5.0: base = 7
-        elif ppg >= 4.5: base = 5.5
-        elif ppg >= 4.0: base = 4
-        else: base = 3
+        elif ppg >= 5.5: base = 7.5
+        elif ppg >= 5.0: base = 6
+        elif ppg >= 4.5: base = 5
+        elif ppg >= 4.0: base = 3.5
+        else: base = 2
 
-        if opp_def and opp_def >= 5.5: base += 1
-        elif opp_def and opp_def <= 3.5: base -= 1
+        if opp_def and opp_def >= 5.5: base += 0.5
+        elif opp_def and opp_def <= 3.5: base -= 0.5
     elif sport == "SOCCER":
-        # Soccer: goals per game (avg ~1.3-1.5)
+        # Soccer avg ~1.3 GPG — avg should be 5
         if ppg >= 2.5: base = 9
-        elif ppg >= 2.0: base = 8
-        elif ppg >= 1.5: base = 7
-        elif ppg >= 1.2: base = 5.5
-        elif ppg >= 0.8: base = 4
-        else: base = 3
+        elif ppg >= 2.0: base = 7.5
+        elif ppg >= 1.5: base = 6
+        elif ppg >= 1.2: base = 5
+        elif ppg >= 0.8: base = 3.5
+        else: base = 2
 
-        if opp_def and opp_def >= 2.0: base += 1
-        elif opp_def and opp_def <= 1.0: base -= 1
+        if opp_def and opp_def >= 2.0: base += 0.5
+        elif opp_def and opp_def <= 1.0: base -= 0.5
     else:  # NCAAB
         if ppg >= 82: base = 9
-        elif ppg >= 78: base = 8
-        elif ppg >= 74: base = 7
-        elif ppg >= 70: base = 5.5
-        elif ppg >= 65: base = 4
-        else: base = 3
+        elif ppg >= 78: base = 7.5
+        elif ppg >= 74: base = 6
+        elif ppg >= 70: base = 5
+        elif ppg >= 65: base = 3.5
+        else: base = 2
 
     return _clamp(base), f"PPG L5: {ppg} | OPP allows: {opp_def} | Margin L5: {margin:+.1f}"
 
@@ -350,50 +349,50 @@ def score_def_ranking(profile: dict, opp_profile: dict, sport: str) -> tuple[int
         return 5, "No OPP PPG data"
 
     if sport == "NBA":
+        # NBA avg ~112 allowed — avg defense should be 5
         if opp_ppg <= 100: base = 9
-        elif opp_ppg <= 105: base = 8
-        elif opp_ppg <= 110: base = 6.5
-        elif opp_ppg <= 115: base = 5
-        elif opp_ppg <= 120: base = 3.5
+        elif opp_ppg <= 105: base = 7.5
+        elif opp_ppg <= 110: base = 6
+        elif opp_ppg <= 114: base = 5
+        elif opp_ppg <= 118: base = 3.5
         else: base = 2
 
-        # Matchup: opponent scores a lot but we're stingy = edge
         if their_ppg and their_ppg >= 115 and opp_ppg <= 108:
-            base += 1  # Matchup advantage
+            base += 0.5
     elif sport == "NHL":
         if opp_ppg <= 2.0: base = 9
-        elif opp_ppg <= 2.5: base = 7.5
-        elif opp_ppg <= 3.0: base = 6
-        elif opp_ppg <= 3.5: base = 4
+        elif opp_ppg <= 2.5: base = 7
+        elif opp_ppg <= 3.0: base = 5
+        elif opp_ppg <= 3.5: base = 3.5
         else: base = 2
     elif sport == "MLB":
-        # MLB: runs allowed per game (avg ~4.5)
+        # MLB avg ~4.5 RA — avg should be 5
         if opp_ppg <= 3.0: base = 9
-        elif opp_ppg <= 3.5: base = 8
-        elif opp_ppg <= 4.0: base = 7
-        elif opp_ppg <= 4.5: base = 5.5
-        elif opp_ppg <= 5.5: base = 4
-        else: base = 2.5
+        elif opp_ppg <= 3.5: base = 7.5
+        elif opp_ppg <= 4.0: base = 6
+        elif opp_ppg <= 4.5: base = 5
+        elif opp_ppg <= 5.5: base = 3.5
+        else: base = 2
 
         if their_ppg and their_ppg >= 5.5 and opp_ppg <= 4.0:
-            base += 1  # Pitching advantage vs heavy-scoring opponent
+            base += 0.5
     elif sport == "SOCCER":
-        # Soccer: goals conceded per game (avg ~1.2)
+        # Soccer avg ~1.2 GA — avg should be 5
         if opp_ppg <= 0.5: base = 9
-        elif opp_ppg <= 0.8: base = 8
-        elif opp_ppg <= 1.0: base = 7
-        elif opp_ppg <= 1.3: base = 5.5
-        elif opp_ppg <= 1.8: base = 4
-        else: base = 2.5
+        elif opp_ppg <= 0.8: base = 7.5
+        elif opp_ppg <= 1.0: base = 6
+        elif opp_ppg <= 1.3: base = 5
+        elif opp_ppg <= 1.8: base = 3.5
+        else: base = 2
 
         if their_ppg and their_ppg >= 2.0 and opp_ppg <= 1.0:
-            base += 1  # Defensive edge vs high-scoring opponent
-    else:
+            base += 0.5
+    else:  # NCAAB
         if opp_ppg <= 62: base = 9
-        elif opp_ppg <= 66: base = 8
-        elif opp_ppg <= 70: base = 6.5
-        elif opp_ppg <= 75: base = 5
-        else: base = 3
+        elif opp_ppg <= 66: base = 7.5
+        elif opp_ppg <= 70: base = 5
+        elif opp_ppg <= 75: base = 3.5
+        else: base = 2
 
     return _clamp(base), f"Allow L5: {opp_ppg} | They score L5: {their_ppg}"
 
@@ -411,16 +410,16 @@ def score_pace_matchup(profile: dict, opp_profile: dict, sport: str) -> tuple[in
     if sport == "NBA":
         # NBA avg combined ~225. High pace = more variance = riskier spreads
         if our_pace >= 235 and opp_pace >= 235:
-            score = 7  # Both fast = high scoring
+            score = 6.5  # Both fast = high scoring
             note = "FAST matchup — high scoring expected"
         elif our_pace <= 210 and opp_pace <= 210:
-            score = 6  # Both slow = grind
+            score = 5  # Both slow = grind, neutral
             note = "SLOW matchup — grind game"
         elif pace_diff >= 20:
-            score = 4  # Big mismatch = unpredictable
+            score = 3.5  # Big mismatch = unpredictable
             note = f"PACE MISMATCH: {pace_diff:.0f} pt difference"
         else:
-            score = 6
+            score = 5  # Aligned = neutral, not an edge
             note = f"Pace aligned ({pace_diff:.0f} diff)"
     else:
         score = 5
@@ -435,10 +434,10 @@ def score_road_trip(profile: dict) -> tuple[int, str]:
     home_len = profile.get("home_stand_len", 0)
 
     if home_len >= 4:
-        score = 7
+        score = 6
         note = f"Home stand: {home_len} games — well rested at home"
     elif home_len >= 2:
-        score = 6
+        score = 5.5
         note = f"Home stand: {home_len} games"
     elif road_len >= 5:
         score = 2
@@ -1198,7 +1197,7 @@ def grade_sintonia(game: dict, pick_side: str) -> dict:
             chain_bonus += bonus
             chains_fired.append(chain_name)
 
-    chain_bonus = min(chain_bonus, config.get("chain_cap", 3.0))
+    chain_bonus = min(chain_bonus, config.get("chain_cap", 2.0))
     final = round(min(10.0, composite + chain_bonus), 2)
     grade = score_to_grade(final)
 
@@ -1598,7 +1597,7 @@ def grade_claude(game: dict, pick_side: str) -> dict:
             chain_bonus += bonus
             chains_fired.append(chain_name)
 
-    chain_bonus = min(chain_bonus, config.get("chain_cap", 3.0))
+    chain_bonus = min(chain_bonus, config.get("chain_cap", 2.0))
     final = round(min(10.0, composite + chain_bonus), 2)
     grade = score_to_grade(final)
 
@@ -1961,7 +1960,7 @@ def grade_edge(game: dict, pick_side: str) -> dict:
             chain_bonus += bonus
             chains_fired.append(chain_name)
 
-    chain_bonus = min(chain_bonus, config.get("chain_cap", 3.0))
+    chain_bonus = min(chain_bonus, config.get("chain_cap", 2.0))
     final = round(min(10.0, composite + chain_bonus), 2)
     grade = score_to_grade(final)
 
