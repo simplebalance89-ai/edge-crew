@@ -5350,6 +5350,21 @@ async def get_soccer_league_odds(league_key: str):
     return JSONResponse(result)
 
 
+@app.get("/api/engines/{sport}")
+async def get_engine_data(sport: str):
+    """Return cached S0-S2 engine context blocks for a sport."""
+    sport_key = sport.lower()
+    today = datetime.now(PST).strftime("%Y%m%d")
+    engine_file = EDGE_DATA_DIR / f"engines_{sport_key}_{today}.json"
+    if engine_file.exists():
+        try:
+            with open(engine_file, "r", encoding="utf-8") as ef:
+                return JSONResponse(json.load(ef))
+        except Exception as e:
+            return JSONResponse({"error": str(e), "engines": {}})
+    return JSONResponse({"sport": sport_key, "engines": {}, "message": "No engine data yet — run analysis first"})
+
+
 @app.get("/api/slate")
 async def get_slate():
     """Fetch full slate — all sports combined. Uses cached daily slates first, falls back to live fetch."""
@@ -6615,6 +6630,139 @@ async def get_analysis(sport: str, cached_only: bool = False, force: bool = Fals
         except Exception as e:
             print(f"MLB defense context error: {e}")
 
+    # ===== NBA SPORT ENGINES (S0-S2: rest/B2B, matchup/pace, usage, homecourt) =====
+    nba_rest_context = ""
+    nba_matchup_context = ""
+    nba_usage_context = ""
+    nba_homecourt_context = ""
+    if sport_lower == "nba":
+        games_list = odds_data.get("games", [])
+        try:
+            from engines.nba_rest_engine import build_rest_context
+            nba_rest_context = await build_rest_context(games_list)
+        except Exception as e:
+            print(f"NBA rest engine error: {e}")
+        try:
+            from engines.nba_matchup_engine import build_matchup_context
+            nba_matchup_context = await build_matchup_context(games_list)
+        except Exception as e:
+            print(f"NBA matchup engine error: {e}")
+        try:
+            from engines.nba_usage_engine import build_usage_context
+            nba_usage_context = await build_usage_context(games_list)
+        except Exception as e:
+            print(f"NBA usage engine error: {e}")
+        try:
+            from engines.nba_homecourt_engine import build_homecourt_context
+            nba_homecourt_context = await build_homecourt_context(games_list)
+        except Exception as e:
+            print(f"NBA homecourt engine error: {e}")
+
+    # ===== NHL SPORT ENGINES (S0-S2: goalie, special teams, travel/B2B, scoring depth) =====
+    nhl_goalie_context = ""
+    nhl_specialteams_context = ""
+    nhl_travel_context = ""
+    nhl_scoring_context = ""
+    if sport_lower == "nhl":
+        games_list = odds_data.get("games", [])
+        try:
+            from engines.nhl_goalie_engine import build_goalie_context
+            nhl_goalie_context = await build_goalie_context()
+        except Exception as e:
+            print(f"NHL goalie engine error: {e}")
+        try:
+            from engines.nhl_specialteams_engine import build_specialteams_context
+            nhl_specialteams_context = await build_specialteams_context(games_list)
+        except Exception as e:
+            print(f"NHL special teams engine error: {e}")
+        try:
+            from engines.nhl_travel_engine import build_travel_context
+            nhl_travel_context = await build_travel_context(games_list)
+        except Exception as e:
+            print(f"NHL travel engine error: {e}")
+        try:
+            from engines.nhl_scoring_engine import build_scoring_depth_context
+            nhl_scoring_context = await build_scoring_depth_context(games_list)
+        except Exception as e:
+            print(f"NHL scoring depth engine error: {e}")
+
+    # ===== SOCCER SPORT ENGINES (S0-S2: form/league, congestion, attack/defense, venue) =====
+    soccer_form_context = ""
+    soccer_congestion_context = ""
+    soccer_attack_context = ""
+    soccer_venue_context = ""
+    if sport_lower == "soccer":
+        games_list = odds_data.get("games", [])
+        try:
+            from engines.soccer_form_engine import build_form_context as build_soccer_form
+            soccer_form_context = await build_soccer_form(games_list)
+        except Exception as e:
+            print(f"Soccer form engine error: {e}")
+        try:
+            from engines.soccer_congestion_engine import build_congestion_context
+            congestion_parts = []
+            for g in games_list[:8]:  # Cap to avoid excessive API calls
+                home = g.get("home", "")
+                away = g.get("away", "")
+                if home and away:
+                    try:
+                        part = await build_congestion_context(home, away)
+                        if part:
+                            congestion_parts.append(part)
+                    except Exception:
+                        pass
+            soccer_congestion_context = "\n\n".join(congestion_parts)
+        except Exception as e:
+            print(f"Soccer congestion engine error: {e}")
+        try:
+            from engines.soccer_attack_engine import build_attack_defense_context
+            league = "eng.1"  # Default; could detect from games
+            for g in games_list:
+                if g.get("league"):
+                    league = g["league"]
+                    break
+            soccer_attack_context = await build_attack_defense_context(games_list, league)
+        except Exception as e:
+            print(f"Soccer attack/defense engine error: {e}")
+        try:
+            from engines.soccer_venue_engine import build_soccer_venue_context
+            soccer_venue_context = await build_soccer_venue_context(games_list)
+        except Exception as e:
+            print(f"Soccer venue engine error: {e}")
+
+    # ===== CACHE ENGINE CONTEXT FOR CARD DISPLAY (S0-S2 visibility) =====
+    engine_blocks = {}
+    if sport_lower == "nba":
+        if nba_rest_context: engine_blocks["rest_b2b"] = nba_rest_context
+        if nba_matchup_context: engine_blocks["pace_matchup"] = nba_matchup_context
+        if nba_usage_context: engine_blocks["usage_cascade"] = nba_usage_context
+        if nba_homecourt_context: engine_blocks["homecourt"] = nba_homecourt_context
+    elif sport_lower == "nhl":
+        if nhl_goalie_context: engine_blocks["goalie"] = nhl_goalie_context
+        if nhl_specialteams_context: engine_blocks["special_teams"] = nhl_specialteams_context
+        if nhl_travel_context: engine_blocks["travel_b2b"] = nhl_travel_context
+        if nhl_scoring_context: engine_blocks["scoring_depth"] = nhl_scoring_context
+    elif sport_lower == "soccer":
+        if soccer_form_context: engine_blocks["form_league"] = soccer_form_context
+        if soccer_congestion_context: engine_blocks["congestion"] = soccer_congestion_context
+        if soccer_attack_context: engine_blocks["attack_defense"] = soccer_attack_context
+        if soccer_venue_context: engine_blocks["venue"] = soccer_venue_context
+    elif sport_lower == "mlb":
+        if pitcher_context: engine_blocks["pitchers"] = pitcher_context
+        if bullpen_context: engine_blocks["bullpen"] = bullpen_context
+        if park_weather_context: engine_blocks["park_weather"] = park_weather_context
+        if platoon_context: engine_blocks["platoon"] = platoon_context
+        if defense_context: engine_blocks["defense"] = defense_context
+    if engine_blocks:
+        try:
+            engine_cache_path = EDGE_DATA_DIR / f"engines_{sport_lower}_{datetime.now(PST).strftime('%Y%m%d')}.json"
+            engine_cache_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(engine_cache_path, "w", encoding="utf-8") as ef:
+                json.dump({"sport": sport_lower, "engines": engine_blocks, "updated_at": _now_ts()}, ef)
+            print(f"[ENGINES] Cached {len(engine_blocks)} engine blocks for {sport_lower}")
+        except Exception as e:
+            print(f"[ENGINES] Cache write failed: {e}")
+
     # ===== FETCH CASCADE/GAP PROPS (usage cascade from injuries) =====
     cascade_context = ""
     try:
@@ -6730,6 +6878,9 @@ MULTI-INJURY RULE: When one team has 3+ rotation players OUT with FRESH injuries
 PICKING-INTO-INJURY RULE: If you are recommending a team that has FRESH injuries, you MUST explain WHY you still like them despite being weakened. Include a "despite X being out, we still like this because Y" line in edge_summary. Without this explanation, the grade is capped at C+.
 
 {"MLB-SPECIFIC RULES: (1) STARTING PITCHER is the #1 edge variable — elite SP (ERA < 3.00, K/9 > 9) vs weak lineup = strongest MLB edge, score starting_pitcher 8-10. (2) BULLPEN FATIGUE: 15+ innings in last 3 days = score bullpen_strength 2-4. (3) PLATOON: Heavy RHB lineup vs LHP (or vice versa) with strong splits = score lineup_vs_hand 7-9. (4) PARK FACTOR: Coors adds +1.5 runs, Petco/Oracle suppress. Factor into totals. (5) DGAN: Day game after night = fatigue, score travel_rest 3-4. (6) RUN LINE: Only recommend -1.5 for A-grade with clear SP edge. (7) WEATHER: Wind out at Wrigley/Coors = over, cold (<55F)/wind in = under." if sport_lower == "mlb" else ""}
+{"NBA-SPECIFIC RULES: USE THE ENGINE DATA BELOW. (1) REST/B2B is the #1 edge — team on B2B vs rested opponent = score rest_advantage 8-10, especially 2nd of B2B on the road. (2) PACE/MATCHUP: fast-pace vs slow-pace = totals edge. Check pace differential from matchup engine. (3) USAGE CASCADE: When a star is OUT, the usage engine shows who absorbs minutes — look for prop value on those players. (4) HOME COURT: altitude venues (Denver, Utah, Mexico City) give 2-4 pt home edge. Back-to-back road games at altitude = FADE. Check the homecourt engine data for arena-specific edges." if sport_lower == "nba" else ""}
+{"NHL-SPECIFIC RULES: USE THE ENGINE DATA BELOW. (1) GOALIE is the #1 edge — confirmed starter with SV% > .920 vs backup = score goaltending 8-10. Check goalie engine for starter confirmation and recent form. (2) SPECIAL TEAMS: PP% > 25% or PK% > 83% = elite. Power play differential > 10% between teams = significant edge. (3) TRAVEL/B2B: NHL B2B is brutal — team on 2nd of B2B with travel > 500mi = score rest_advantage 8-9 for opponent. Check travel engine for exact distances and timezone crossings. (4) SCORING DEPTH: Top-heavy teams (60%+ scoring from top line) are volatile — fade on B2B when stars are fatigued." if sport_lower == "nhl" else ""}
+{"SOCCER-SPECIFIC RULES: USE THE ENGINE DATA BELOW. (1) FIXTURE CONGESTION is the #1 edge — team with UCL/UEL midweek + weekend league = HEAVY rotation risk. 3+ matches in 10 days = score fixture_congestion 8-9 for opponent. European away trip + domestic within 72hrs = FADE. (2) FORM/LEAGUE POSITION: Position gap > 10 places = class gap. L5 form diverging from season position = momentum signal. (3) ATTACK/DEFENSE: BTTS rate > 65% + O2.5 rate > 60% = back BTTS Yes and Over 2.5. (4) HOME/AWAY VENUE: altitude venues and artificial turf give measurable home edge. Check venue engine for specific ground advantages." if sport_lower == "soccer" else ""}
 
 CREW: Peter (heavy/value/sharp, sizes up on conviction), Jimmy (new, learning), Alyssa (pure math/EV edge), Renzo (card builder/grader), Tunk (wild/aggressive, tracks everything, high volume).
 RULES: "Why is the market wrong?" = required for every grade. No answer = NO BET (grade D/F). Valid edges: news not priced in, public overreaction, rest/schedule, matchup-specific, sharp vs public, situational. Invalid: "better team", "should win", "volume play".
@@ -6760,6 +6911,30 @@ Today's {sport.upper()} slate - {today} (pulled at {now_time}):
 {platoon_context}
 
 {defense_context}
+
+{nba_rest_context}
+
+{nba_matchup_context}
+
+{nba_usage_context}
+
+{nba_homecourt_context}
+
+{nhl_goalie_context}
+
+{nhl_specialteams_context}
+
+{nhl_travel_context}
+
+{nhl_scoring_context}
+
+{soccer_form_context}
+
+{soccer_congestion_context}
+
+{soccer_attack_context}
+
+{soccer_venue_context}
 
 {matrix_section}
 
@@ -15567,6 +15742,17 @@ async def get_profedge(sport: str, mode: str = None):
     sport_matrix = SPORT_MATRICES.get(sport_key, [])
     sport_chains = CHAINS.get(sport_key, [])
 
+    # ── Load cached engine data (S0-S2) for card display ──
+    engine_display = {}
+    try:
+        engine_file = EDGE_DATA_DIR / f"engines_{sport_key}_{today}.json"
+        if engine_file.exists():
+            with open(engine_file, "r", encoding="utf-8") as ef:
+                engine_payload = json.load(ef)
+                engine_display = engine_payload.get("engines", {})
+    except Exception as e:
+        logger.warning(f"[PROFEDGE] Engine data load failed: {e}")
+
     return JSONResponse({
         "sport": sport_key.upper(),
         "date": games_data.get("date", used_date),
@@ -15580,6 +15766,7 @@ async def get_profedge(sport: str, mode: str = None):
         "matrix_count": len(sport_matrix),
         "chains": [{"name": c["name"], "desc": c["desc"], "bonus": c["bonus"]} for c in sport_chains],
         "chain_count": len(sport_chains),
+        "engines": engine_display,
     })
 
 

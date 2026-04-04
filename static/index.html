@@ -7866,6 +7866,68 @@ function fetchAnalysis(sport) {
             injectPicksIntoCards(sport, data);
             loadNrfiBadges(sport);
 
+            // Fetch and display S0-S2 engine data on cards
+            fetch('/api/engines/' + sport)
+                .then(function(r) { return r.json(); })
+                .then(function(engData) {
+                    if (!engData || !engData.engines || !Object.keys(engData.engines).length) return;
+                    var engineLabels = {
+                        rest_b2b:'REST/B2B', pace_matchup:'PACE', usage_cascade:'USAGE', homecourt:'HOME CT',
+                        goalie:'GOALIE', special_teams:'SP TEAMS', travel_b2b:'TRAVEL', scoring_depth:'DEPTH',
+                        form_league:'FORM', congestion:'CONGEST', attack_defense:'ATK/DEF', venue:'VENUE',
+                        pitchers:'SP', bullpen:'BULLPEN', park_weather:'PARK/WX', platoon:'PLATOON', defense:'DEF'
+                    };
+                    var rows = panel.querySelectorAll('.game-row');
+                    rows.forEach(function(row) {
+                        var matchupEl = row.querySelector('.game-matchup');
+                        if (!matchupEl) return;
+                        var matchupText = matchupEl.textContent.toUpperCase();
+                        var tagRow = row.querySelector('[id^="ftags-"]');
+                        if (!tagRow) return;
+                        // Add engine count badge
+                        var engCount = Object.keys(engData.engines).length;
+                        var existingBadge = tagRow.querySelector('.engine-badge');
+                        if (!existingBadge) {
+                            var badge = document.createElement('span');
+                            badge.className = 'ftag engine-badge';
+                            badge.style.cssText = 'background:rgba(99,102,241,0.15);color:#6366f1;cursor:pointer;';
+                            badge.textContent = 'S0-S2: ' + engCount + ' ENGINES';
+                            badge.title = Object.keys(engData.engines).map(function(k) { return (engineLabels[k] || k); }).join(', ');
+                            badge.onclick = function(e) {
+                                e.stopPropagation();
+                                var detailId = 'eng-detail-' + row.getAttribute('data-game').replace(/[^a-zA-Z0-9]/g,'');
+                                var det = document.getElementById(detailId);
+                                if (det) { det.style.display = det.style.display === 'none' ? 'block' : 'none'; return; }
+                                det = document.createElement('div');
+                                det.id = detailId;
+                                det.style.cssText = 'padding:8px 16px;background:rgba(99,102,241,0.04);border-top:1px solid rgba(99,102,241,0.15);';
+                                var h = '<div style="font-size:10px;font-weight:700;color:#6366f1;margin-bottom:6px;">S0-S2 ENGINE DATA</div>';
+                                h += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:6px;">';
+                                Object.keys(engData.engines).forEach(function(ek) {
+                                    var lbl = engineLabels[ek] || ek;
+                                    var txt = engData.engines[ek] || '';
+                                    var lines = txt.split('\\n').filter(function(l) { return l.trim() && !l.trim().startsWith('===') && !l.trim().startsWith('RULE:') && l.trim().length > 5; }).slice(0,4);
+                                    // Check if this game's teams appear in the engine text
+                                    var away = (row.getAttribute('data-away') || '').toUpperCase();
+                                    var home = (row.getAttribute('data-home') || '').toUpperCase();
+                                    var relevantLines = lines.filter(function(l) { var u = l.toUpperCase(); return u.indexOf(away) !== -1 || u.indexOf(home) !== -1; });
+                                    var showLines = relevantLines.length > 0 ? relevantLines.slice(0,3) : lines.slice(0,2);
+                                    h += '<div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:6px;overflow:hidden;">';
+                                    h += '<div style="font-size:9px;font-weight:700;color:#818cf8;margin-bottom:2px;">' + lbl + '</div>';
+                                    showLines.forEach(function(l) { h += '<div style="font-size:9px;color:rgba(255,255,255,0.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + l.trim().substring(0,100) + '</div>'; });
+                                    if (!showLines.length) h += '<div style="font-size:9px;color:rgba(255,255,255,0.25);font-style:italic;">No data for this game</div>';
+                                    h += '</div>';
+                                });
+                                h += '</div>';
+                                det.innerHTML = h;
+                                row.querySelector('.game-detail').prepend(det);
+                            };
+                            tagRow.appendChild(badge);
+                        }
+                    });
+                })
+                .catch(function(e) { console.log('[ENGINES] Slate badge inject failed:', e); });
+
             // Update gotcha banner
             var gotcha = panel.querySelector('.gotcha-banner');
             if (gotcha && data.gotcha) {

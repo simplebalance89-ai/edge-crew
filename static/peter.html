@@ -183,6 +183,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <script>
 var _gamesData = [];
 var _matrixData = [];
+var _engineData = {};
 var _peterWeights = {};
 
 // ── TAB SWITCHING ──
@@ -225,6 +226,7 @@ function loadGames() {
         .then(function(data) {
             _gamesData = data.games || [];
             _matrixData = data.matrix || [];
+            _engineData = data.engines || {};
             document.getElementById('gamesLoading').style.display = 'none';
             renderStats(data);
             renderGames(_gamesData);
@@ -451,6 +453,48 @@ function renderGames(games) {
         html += '</div>';
 
         html += '</div>'; // end pipeline-row
+
+        // S0-S2 Engine Data Panel
+        var engineKeys = Object.keys(_engineData);
+        if (engineKeys.length > 0) {
+            html += '<div style="margin-top:8px;">';
+            html += '<div onclick="var el=document.getElementById(\'engine-panel-' + idx + '\');el.style.display=el.style.display===\'none\'?\'block\':\'none\';" style="cursor:pointer;display:flex;align-items:center;gap:6px;padding:4px 0;">';
+            html += '<span style="font-size:10px;font-weight:700;color:#6366f1;letter-spacing:0.5px;">S0-S2 ENGINE DATA</span>';
+            html += '<span style="font-size:9px;color:rgba(255,255,255,0.3);">' + engineKeys.length + ' engines ▾</span>';
+            html += '</div>';
+            html += '<div id="engine-panel-' + idx + '" style="display:none;margin-top:4px;">';
+            html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:8px;">';
+            var engineLabels = {
+                rest_b2b: '🏃 REST / B2B', pace_matchup: '⚡ PACE / MATCHUP', usage_cascade: '📊 USAGE CASCADE', homecourt: '🏟️ HOME COURT',
+                goalie: '🥅 GOALIE', special_teams: '⚡ SPECIAL TEAMS', travel_b2b: '✈️ TRAVEL / B2B', scoring_depth: '📊 SCORING DEPTH',
+                form_league: '📈 FORM / LEAGUE', congestion: '⏱️ CONGESTION', attack_defense: '⚔️ ATTACK / DEFENSE', venue: '🏟️ VENUE',
+                pitchers: '⚾ PITCHERS', bullpen: '⚾ BULLPEN', park_weather: '🌤️ PARK / WEATHER', platoon: '⚾ PLATOON', defense: '🧤 DEFENSE'
+            };
+            var engineColors = {
+                rest_b2b: '#38BDF8', pace_matchup: '#F59E0B', usage_cascade: '#10B981', homecourt: '#6366f1',
+                goalie: '#38BDF8', special_teams: '#F59E0B', travel_b2b: '#ef4444', scoring_depth: '#10B981',
+                form_league: '#10B981', congestion: '#ef4444', attack_defense: '#F59E0B', venue: '#6366f1',
+                pitchers: '#38BDF8', bullpen: '#F59E0B', park_weather: '#10B981', platoon: '#6366f1', defense: '#ef4444'
+            };
+            engineKeys.forEach(function(ek) {
+                var label = engineLabels[ek] || ek.replace(/_/g, ' ').toUpperCase();
+                var color = engineColors[ek] || '#818cf8';
+                var text = _engineData[ek] || '';
+                // Extract key lines (skip headers/rules, show data lines)
+                var dataLines = text.split('\n').filter(function(l) {
+                    l = l.trim();
+                    return l && !l.startsWith('===') && !l.startsWith('RULE:') && l.length > 5;
+                }).slice(0, 6);
+                html += '<div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:8px;overflow:hidden;">';
+                html += '<div style="font-size:9px;font-weight:800;color:' + color + ';letter-spacing:0.5px;margin-bottom:4px;">' + label + '</div>';
+                dataLines.forEach(function(line) {
+                    html += '<div style="font-size:9px;color:rgba(255,255,255,0.55);line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + line.trim().substring(0, 120) + '</div>';
+                });
+                if (!dataLines.length) html += '<div style="font-size:9px;color:rgba(255,255,255,0.25);font-style:italic;">No data</div>';
+                html += '</div>';
+            });
+            html += '</div></div></div>';
+        }
 
         // Expandable detail
         html += '<div id="peter-detail-' + idx + '" style="display:none;margin-top:10px;border-top:1px solid rgba(255,255,255,0.06);padding-top:10px;">';
