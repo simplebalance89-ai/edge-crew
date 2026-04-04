@@ -50,6 +50,18 @@
         "umpire_tendency": {"weight": 6, "description": "Home plate umpire K-zone tendencies vs book's total"},
         "spread_value": {"weight": 6, "description": "Run line value vs true talent gap"}
       }
+    },
+    "SOCCER": {
+      "variables": {
+        "public_pct_split": {"weight": 9, "description": "Lopsided public $ — public loves favorites in big leagues"},
+        "line_vs_public": {"weight": 9, "description": "Line/handicap moving opposite public money"},
+        "sharp_money": {"weight": 8, "description": "Reverse line movement / Asian handicap steam"},
+        "league_reputation_tax": {"weight": 9, "description": "Public overvalues big club names (Real Madrid, Man City) regardless of form/congestion"},
+        "recency_bias": {"weight": 7, "description": "L3 vs L15 — public chases UCL heroics into weekend league letdown"},
+        "home_draw_blind": {"weight": 7, "description": "Public ignores draw probability — value in draw markets when evenly matched"},
+        "congestion_blind_spot": {"weight": 8, "description": "Public ignores fixture congestion + European travel fatigue impact"},
+        "spread_value": {"weight": 6, "description": "Asian handicap value vs true talent gap"}
+      }
     }
   },
   "chains": {
@@ -79,6 +91,18 @@
       "sports": ["MLB"],
       "trigger": "ace_name_bias >= 8 AND recency_bias >= 7 AND sharp_money >= 7",
       "description": "Public on big-name pitcher but recent form bad + sharps fading"
+    },
+    "BIG_CLUB_FADE": {
+      "bonus": 1.5,
+      "sports": ["SOCCER"],
+      "trigger": "league_reputation_tax >= 8 AND congestion_blind_spot >= 7 AND line_vs_public >= 7",
+      "description": "Public on big club name but they're congested from European travel + sharps fading"
+    },
+    "DRAW_VALUE": {
+      "bonus": 1.0,
+      "sports": ["SOCCER"],
+      "trigger": "home_draw_blind >= 8 AND spread_value >= 7 AND public_pct_split >= 7",
+      "description": "Evenly matched teams but public ignoring draw — value in X market"
     }
   },
   "chain_cap": 3.0,

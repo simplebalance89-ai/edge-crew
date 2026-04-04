@@ -41,6 +41,44 @@
         "depth_injuries": {"weight": 4, "description": "Bench/depth injuries beyond starters"}
       }
     },
+    "MLB": {
+      "variables": {
+        "starting_pitcher": {"weight": 10, "description": "SP ERA, K/9, WHIP, L5 starts — #1 MLB edge variable"},
+        "bullpen_state": {"weight": 9, "description": "Bullpen IP last 3 days, high-leverage availability, closer status"},
+        "star_player_status": {"weight": 8, "description": "Key batter OUT/GTD impact on lineup — OPS gap"},
+        "park_factor": {"weight": 8, "description": "Park run factor (Coors 1.3x, Oracle 0.85x) + altitude"},
+        "platoon_matchup": {"weight": 8, "description": "RHB% vs LHP or LHB% vs RHP — platoon splits advantage"},
+        "defense_rating": {"weight": 7, "description": "Team fielding (DRS, OAA, error rate) — run prevention"},
+        "recent_form": {"weight": 7, "description": "L5/L10 W-L record and run differential trend"},
+        "weather_impact": {"weight": 7, "description": "Wind speed/direction, temp, humidity at game time"},
+        "lineup_vs_hand": {"weight": 7, "description": "Lineup OPS vs SP handedness — L/R matchup advantage"},
+        "rest_advantage": {"weight": 6, "description": "Day game after night, travel, series position"},
+        "h2h_season": {"weight": 6, "description": "Head-to-head this season and SP vs lineup history"},
+        "ats_trend": {"weight": 6, "description": "Run line cover rate L10 + O/U trend"},
+        "sharp_vs_public": {"weight": 5, "description": "Line movement suggesting sharp action on ML/RL"},
+        "home_away": {"weight": 5, "description": "Home/away record split and SP home/away splits"},
+        "depth_injuries": {"weight": 4, "description": "Bench/bullpen injuries beyond key starters"}
+      }
+    },
+    "SOCCER": {
+      "variables": {
+        "fixture_congestion": {"weight": 10, "description": "Matches in 10/14 days, UCL/UEL midweek + weekend — #1 soccer edge"},
+        "form_league_position": {"weight": 9, "description": "League table position gap, L5 form (WWDLW), PPG trend"},
+        "star_player_status": {"weight": 8, "description": "Key player OUT/GTD impact — goals+assists contribution"},
+        "attack_defense_rating": {"weight": 8, "description": "xG for/against, BTTS rate, O2.5 rate — scoring profile"},
+        "home_away_venue": {"weight": 8, "description": "Home/away record split + venue factors (altitude, turf, travel)"},
+        "european_hangover": {"weight": 8, "description": "UCL/UEL away trip within 72hrs of domestic match — rotation/fatigue"},
+        "recent_form": {"weight": 7, "description": "L5 results, goals scored/conceded trend, momentum"},
+        "h2h_season": {"weight": 7, "description": "Head-to-head record, goals in H2H, style matchup"},
+        "motivation_context": {"weight": 7, "description": "Title race / relegation battle / mid-table dead rubber / cup focus"},
+        "rotation_risk": {"weight": 7, "description": "Expected squad rotation due to upcoming fixtures or manager pattern"},
+        "clean_sheet_rate": {"weight": 6, "description": "CS% L10 home/away — defensive solidity for BTTS/O-U"},
+        "league_context": {"weight": 6, "description": "League quality tier + cross-league form adjustment"},
+        "ats_trend": {"weight": 6, "description": "Asian handicap cover rate L10 and line value"},
+        "sharp_vs_public": {"weight": 5, "description": "Line movement / steam moves on match odds or handicap"},
+        "depth_injuries": {"weight": 4, "description": "Squad depth beyond starting XI — bench quality"}
+      }
+    },
     "NCAAB": {
       "variables": {
         "offensive_efficiency": {"weight": 9, "description": "Points per possession / KenPom AdjO"},
@@ -104,6 +142,42 @@
       "sports": ["NCAAB"],
       "trigger": "public_money_bias >= 8 AND line_movement <= 4 AND net_ranking_gap <= 5",
       "description": "Public on big name but NET rankings close and line flat"
+    },
+    "ACE_DOMINATION": {
+      "bonus": 1.5,
+      "sports": ["MLB"],
+      "trigger": "starting_pitcher >= 9 AND platoon_matchup >= 7 AND bullpen_state >= 7",
+      "description": "Elite SP with favorable platoon matchup and rested bullpen — full pitching edge"
+    },
+    "BULLPEN_MELTDOWN": {
+      "bonus": 1.0,
+      "sports": ["MLB"],
+      "trigger": "bullpen_state >= 8 AND starting_pitcher >= 7 AND defense_rating >= 6",
+      "description": "Opponent's bullpen taxed (15+ IP L3d) while our pen is fresh and SP is solid"
+    },
+    "COORS_OVER": {
+      "bonus": 1.0,
+      "sports": ["MLB"],
+      "trigger": "park_factor >= 8 AND weather_impact >= 7 AND attack_defense_rating >= 7",
+      "description": "High-altitude park + favorable weather (wind out, warm) + high-scoring offenses"
+    },
+    "CONGESTION_FADE": {
+      "bonus": 1.5,
+      "sports": ["SOCCER"],
+      "trigger": "fixture_congestion >= 8 AND european_hangover >= 7 AND rotation_risk >= 7",
+      "description": "Opponent played UCL/UEL away midweek + heavy congestion + expected rotation"
+    },
+    "CLASS_GAP": {
+      "bonus": 1.0,
+      "sports": ["SOCCER"],
+      "trigger": "form_league_position >= 8 AND attack_defense_rating >= 7 AND home_away_venue >= 7",
+      "description": "10+ league position gap with form team at home — class difference"
+    },
+    "FORTRESS_HOME": {
+      "bonus": 1.0,
+      "sports": ["SOCCER"],
+      "trigger": "home_away_venue >= 8 AND clean_sheet_rate >= 7 AND form_league_position >= 7",
+      "description": "Elite home record + high CS rate + strong league position — fortress venue"
     }
   },
   "chain_cap": 3.0,

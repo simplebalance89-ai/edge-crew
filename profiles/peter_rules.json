@@ -38,6 +38,27 @@
       "condition": "injury.days_out >= 15 AND team_record_without_pct > 0.55",
       "action": "DOWNGRADE",
       "note": "Team adapted — injury already in the line"
+    },
+    {
+      "id": "soccer_congestion_kill",
+      "description": "4+ matches in 10 days = KILL — cannot back congested team",
+      "condition": "sport == 'SOCCER' AND matches_in_10d >= 4",
+      "action": "KILL",
+      "note": "Fixture congestion is the #1 fade signal in soccer"
+    },
+    {
+      "id": "soccer_european_hangover",
+      "description": "UCL/UEL away trip within 72hrs of domestic match",
+      "condition": "sport == 'SOCCER' AND european_away_days <= 3",
+      "action": "DOWNGRADE",
+      "note": "European travel fatigue + rotation risk"
+    },
+    {
+      "id": "soccer_draw_trap",
+      "description": "Evenly matched teams (ML gap < 40) with draw value",
+      "condition": "sport == 'SOCCER' AND abs(home_ml - away_ml) < 40 AND draw_ml >= 250",
+      "action": "BOOST",
+      "note": "Public ignores draw market — value when teams are close"
     }
   ]
 }

@@ -308,6 +308,28 @@ def score_off_ranking(profile: dict, opp_profile: dict, sport: str) -> tuple[int
 
         if opp_def and opp_def >= 3.5: base += 1
         elif opp_def and opp_def <= 2.5: base -= 1
+    elif sport == "MLB":
+        # MLB: runs per game (avg ~4.5)
+        if ppg >= 6.0: base = 9
+        elif ppg >= 5.5: base = 8
+        elif ppg >= 5.0: base = 7
+        elif ppg >= 4.5: base = 5.5
+        elif ppg >= 4.0: base = 4
+        else: base = 3
+
+        if opp_def and opp_def >= 5.5: base += 1
+        elif opp_def and opp_def <= 3.5: base -= 1
+    elif sport == "SOCCER":
+        # Soccer: goals per game (avg ~1.3-1.5)
+        if ppg >= 2.5: base = 9
+        elif ppg >= 2.0: base = 8
+        elif ppg >= 1.5: base = 7
+        elif ppg >= 1.2: base = 5.5
+        elif ppg >= 0.8: base = 4
+        else: base = 3
+
+        if opp_def and opp_def >= 2.0: base += 1
+        elif opp_def and opp_def <= 1.0: base -= 1
     else:  # NCAAB
         if ppg >= 82: base = 9
         elif ppg >= 78: base = 8
@@ -344,6 +366,28 @@ def score_def_ranking(profile: dict, opp_profile: dict, sport: str) -> tuple[int
         elif opp_ppg <= 3.0: base = 6
         elif opp_ppg <= 3.5: base = 4
         else: base = 2
+    elif sport == "MLB":
+        # MLB: runs allowed per game (avg ~4.5)
+        if opp_ppg <= 3.0: base = 9
+        elif opp_ppg <= 3.5: base = 8
+        elif opp_ppg <= 4.0: base = 7
+        elif opp_ppg <= 4.5: base = 5.5
+        elif opp_ppg <= 5.5: base = 4
+        else: base = 2.5
+
+        if their_ppg and their_ppg >= 5.5 and opp_ppg <= 4.0:
+            base += 1  # Pitching advantage vs heavy-scoring opponent
+    elif sport == "SOCCER":
+        # Soccer: goals conceded per game (avg ~1.2)
+        if opp_ppg <= 0.5: base = 9
+        elif opp_ppg <= 0.8: base = 8
+        elif opp_ppg <= 1.0: base = 7
+        elif opp_ppg <= 1.3: base = 5.5
+        elif opp_ppg <= 1.8: base = 4
+        else: base = 2.5
+
+        if their_ppg and their_ppg >= 2.0 and opp_ppg <= 1.0:
+            base += 1  # Defensive edge vs high-scoring opponent
     else:
         if opp_ppg <= 62: base = 9
         elif opp_ppg <= 66: base = 8
@@ -537,6 +581,429 @@ def score_tournament_context(game: dict) -> tuple[int, str]:
     return _clamp(score), note
 
 
+# ─── MLB Scoring Functions ──────────────────────────────────────────────────────
+
+def score_starting_pitcher(game: dict, side: str) -> tuple[int, str]:
+    """MLB: Starting pitcher quality — ERA, K/9, WHIP from engine data."""
+    profile = game.get(f"{side}_profile", {})
+    opp_side = "away" if side == "home" else "home"
+    opp_profile = game.get(f"{opp_side}_profile", {})
+
+    sp = profile.get("starting_pitcher", {})
+    opp_sp = opp_profile.get("starting_pitcher", {})
+
+    # Try direct engine data first
+    era = sp.get("era") or sp.get("ERA")
+    opp_era = opp_sp.get("era") or opp_sp.get("ERA")
+    if era is not None and opp_era is not None:
+        try:
+            era, opp_era = float(era), float(opp_era)
+            diff = opp_era - era  # positive = our SP is better
+            score = _clamp(5 + diff * 1.2)
+            return score, f"SP ERA {era:.2f} vs {opp_era:.2f} (diff {diff:+.2f})"
+        except (ValueError, TypeError):
+            pass
+
+    # Fallback: proxy from margin/ppg
+    margin = profile.get("margin_L5", 0)
+    score = _clamp(5 + margin / 3)
+    return score, f"SP proxy from margin L5: {margin:+.1f}"
+
+
+def score_bullpen_state(game: dict, side: str) -> tuple[int, str]:
+    """MLB: Bullpen fatigue — IP last 3 days, availability."""
+    profile = game.get(f"{side}_profile", {})
+    opp_side = "away" if side == "home" else "home"
+    opp_profile = game.get(f"{opp_side}_profile", {})
+
+    bp = profile.get("bullpen", {})
+    opp_bp = opp_profile.get("bullpen", {})
+
+    bp_ip = bp.get("ip_last_3d") or bp.get("innings_last_3d")
+    opp_bp_ip = opp_bp.get("ip_last_3d") or opp_bp.get("innings_last_3d")
+    if bp_ip is not None and opp_bp_ip is not None:
+        try:
+            bp_ip, opp_bp_ip = float(bp_ip), float(opp_bp_ip)
+            diff = opp_bp_ip - bp_ip  # positive = their pen more tired
+            score = _clamp(5 + diff / 3)
+            return score, f"Bullpen IP L3d: us {bp_ip:.1f} vs them {opp_bp_ip:.1f}"
+        except (ValueError, TypeError):
+            pass
+
+    # Fallback: use rest/schedule as proxy
+    rest = profile.get("rest_days")
+    if rest is not None and rest == 0:
+        return 4, "Day game after night / no rest — pen likely tired"
+    return 5, "Bullpen state — no direct data, neutral"
+
+
+def score_park_factor(game: dict, side: str) -> tuple[int, str]:
+    """MLB: Park factor scoring — Coors boosts, Oracle suppresses."""
+    profile = game.get(f"{side}_profile", {})
+    park = game.get("park_factor") or game.get("venue", {}).get("park_factor")
+    venue = game.get("venue_name", "") or game.get("venue", "")
+
+    if park is not None:
+        try:
+            pf = float(park)
+            if pf >= 1.15:
+                return 9, f"High-altitude/hitter park (PF {pf:.2f}) — {venue}"
+            elif pf >= 1.05:
+                return 7, f"Moderate hitter park (PF {pf:.2f}) — {venue}"
+            elif pf <= 0.90:
+                return 3, f"Pitcher park (PF {pf:.2f}) — {venue}"
+            else:
+                return 5, f"Neutral park (PF {pf:.2f}) — {venue}"
+        except (ValueError, TypeError):
+            pass
+
+    # Known parks by name fragment
+    v_lower = str(venue).lower()
+    if "coors" in v_lower:
+        return 9, "Coors Field — +1.3x run factor, altitude"
+    elif "oracle" in v_lower or "petco" in v_lower:
+        return 3, f"Pitcher park — {venue}"
+    elif "wrigley" in v_lower:
+        return 7, "Wrigley — wind-dependent, check weather"
+    return 5, "Park factor — no data, neutral"
+
+
+def score_platoon_matchup(game: dict, side: str) -> tuple[int, str]:
+    """MLB: Lineup handedness vs SP — platoon advantage."""
+    profile = game.get(f"{side}_profile", {})
+    opp_profile = game.get(f"{'away' if side == 'home' else 'home'}_profile", {})
+
+    platoon = profile.get("platoon", {})
+    if platoon:
+        adv = platoon.get("advantage") or platoon.get("platoon_advantage")
+        if adv:
+            try:
+                adv_val = float(adv)
+                score = _clamp(5 + adv_val * 2)
+                return score, f"Platoon advantage: {adv_val:+.1f}"
+            except (ValueError, TypeError):
+                pass
+
+    # Proxy from offense ranking
+    score, note = score_off_ranking(profile, opp_profile, "MLB")
+    return score, f"Platoon proxy — {note}"
+
+
+def score_defense_rating(game: dict, side: str) -> tuple[int, str]:
+    """MLB: Team fielding/defense quality."""
+    profile = game.get(f"{side}_profile", {})
+    defense = profile.get("defense", {})
+
+    drs = defense.get("drs") or defense.get("DRS")
+    if drs is not None:
+        try:
+            drs = float(drs)
+            if drs >= 20:
+                return 9, f"Elite defense (DRS {drs:+.0f})"
+            elif drs >= 5:
+                return 7, f"Good defense (DRS {drs:+.0f})"
+            elif drs >= -5:
+                return 5, f"Average defense (DRS {drs:+.0f})"
+            else:
+                return 3, f"Poor defense (DRS {drs:+.0f})"
+        except (ValueError, TypeError):
+            pass
+
+    error_rate = defense.get("errors_per_game") or defense.get("error_rate")
+    if error_rate is not None:
+        try:
+            er = float(error_rate)
+            score = _clamp(8 - er * 5)
+            return score, f"Defense from error rate: {er:.2f}/game"
+        except (ValueError, TypeError):
+            pass
+
+    return 5, "Defense rating — no direct data, neutral"
+
+
+def score_weather_impact(game: dict, side: str) -> tuple[int, str]:
+    """MLB: Weather scoring for totals/run impact."""
+    weather = game.get("weather", {})
+    wind = weather.get("wind_speed") or weather.get("wind_mph")
+    temp = weather.get("temp") or weather.get("temperature")
+    wind_dir = weather.get("wind_direction", "")
+
+    notes = []
+    score = 5  # neutral
+
+    if temp is not None:
+        try:
+            t = float(temp)
+            if t >= 85:
+                score += 1
+                notes.append(f"Hot ({t}°F) — ball carries")
+            elif t <= 50:
+                score -= 1
+                notes.append(f"Cold ({t}°F) — suppresses scoring")
+        except (ValueError, TypeError):
+            pass
+
+    if wind is not None:
+        try:
+            w = float(wind)
+            if w >= 15 and "out" in str(wind_dir).lower():
+                score += 2
+                notes.append(f"Wind {w}mph OUT — boosts scoring")
+            elif w >= 15 and "in" in str(wind_dir).lower():
+                score -= 2
+                notes.append(f"Wind {w}mph IN — suppresses scoring")
+            elif w >= 10:
+                notes.append(f"Wind {w}mph {wind_dir}")
+        except (ValueError, TypeError):
+            pass
+
+    return _clamp(score), " | ".join(notes) if notes else "Weather — no data, neutral"
+
+
+# ─── Soccer Scoring Functions ───────────────────────────────────────────────────
+
+def score_fixture_congestion(game: dict, side: str) -> tuple[int, str]:
+    """Soccer: Fixture congestion — matches in 10/14 days, European travel."""
+    profile = game.get(f"{side}_profile", {})
+    opp_side = "away" if side == "home" else "home"
+    opp_profile = game.get(f"{opp_side}_profile", {})
+
+    our_m10 = profile.get("matches_in_10d") or profile.get("congestion_10d")
+    opp_m10 = opp_profile.get("matches_in_10d") or opp_profile.get("congestion_10d")
+
+    if our_m10 is not None and opp_m10 is not None:
+        try:
+            our_m10, opp_m10 = int(our_m10), int(opp_m10)
+            diff = opp_m10 - our_m10  # positive = they're more congested
+            if diff >= 2:
+                return 9, f"Heavy congestion edge: them {opp_m10} vs us {our_m10} matches in 10d"
+            elif diff >= 1:
+                return 7, f"Congestion edge: them {opp_m10} vs us {our_m10} matches in 10d"
+            elif diff == 0:
+                return 5, f"Even congestion: both {our_m10} matches in 10d"
+            else:
+                return _clamp(5 + diff), f"We're more congested: us {our_m10} vs them {opp_m10} in 10d"
+        except (ValueError, TypeError):
+            pass
+
+    # Fallback: rest days differential
+    score, note = score_rest_advantage(profile, opp_profile)
+    return score, f"Congestion proxy from rest — {note}"
+
+
+def score_form_league_position(game: dict, side: str) -> tuple[int, str]:
+    """Soccer: Form + league table position gap."""
+    profile = game.get(f"{side}_profile", {})
+    opp_side = "away" if side == "home" else "home"
+    opp_profile = game.get(f"{opp_side}_profile", {})
+
+    our_pos = profile.get("league_position") or profile.get("table_position")
+    opp_pos = opp_profile.get("league_position") or opp_profile.get("table_position")
+
+    if our_pos is not None and opp_pos is not None:
+        try:
+            our_pos, opp_pos = int(our_pos), int(opp_pos)
+            gap = opp_pos - our_pos  # positive = we're higher in table
+            if gap >= 10:
+                return 9, f"Class gap: #{our_pos} vs #{opp_pos} (gap {gap})"
+            elif gap >= 5:
+                return 7, f"Position edge: #{our_pos} vs #{opp_pos} (gap {gap})"
+            elif gap >= 0:
+                return 5 + (gap // 2), f"Close: #{our_pos} vs #{opp_pos} (gap {gap})"
+            else:
+                return _clamp(5 + gap // 2), f"Lower position: #{our_pos} vs #{opp_pos} (gap {gap})"
+        except (ValueError, TypeError):
+            pass
+
+    # Fallback from win %
+    our_pct = win_pct(profile.get("record"))
+    opp_pct = win_pct(opp_profile.get("record"))
+    diff = our_pct - opp_pct
+    return _clamp(5 + diff * 8), f"Form proxy: us {our_pct:.0%} vs them {opp_pct:.0%}"
+
+
+def score_attack_defense_rating(game: dict, side: str) -> tuple[int, str]:
+    """Soccer: xG/goals for and against — BTTS and O/U profile."""
+    profile = game.get(f"{side}_profile", {})
+    opp_profile = game.get(f"{'away' if side == 'home' else 'home'}_profile", {})
+
+    gpg = profile.get("goals_per_game") or profile.get("gpg")
+    ga_pg = profile.get("goals_against_per_game") or profile.get("ga_pg")
+
+    if gpg is not None and ga_pg is not None:
+        try:
+            gpg, ga_pg = float(gpg), float(ga_pg)
+            gd_pg = gpg - ga_pg
+            if gd_pg >= 1.0:
+                return 9, f"Elite: {gpg:.1f} GF/game, {ga_pg:.1f} GA/game (GD {gd_pg:+.1f})"
+            elif gd_pg >= 0.3:
+                return 7, f"Positive: {gpg:.1f} GF, {ga_pg:.1f} GA (GD {gd_pg:+.1f})"
+            elif gd_pg >= -0.3:
+                return 5, f"Balanced: {gpg:.1f} GF, {ga_pg:.1f} GA (GD {gd_pg:+.1f})"
+            else:
+                return _clamp(3 + gd_pg), f"Negative: {gpg:.1f} GF, {ga_pg:.1f} GA (GD {gd_pg:+.1f})"
+        except (ValueError, TypeError):
+            pass
+
+    # Fallback to off/def ranking
+    score, note = score_off_ranking(profile, opp_profile, "SOCCER")
+    return score, f"Attack/defense proxy — {note}"
+
+
+def score_home_away_venue(game: dict, side: str) -> tuple[int, str]:
+    """Soccer: Home/away record + venue factors (altitude, turf)."""
+    score, note = score_home_away(game, side)
+    venue = game.get("venue", {})
+
+    # Venue adjustments
+    altitude = venue.get("altitude") or venue.get("elevation")
+    surface = venue.get("surface", "")
+
+    extras = []
+    if altitude is not None:
+        try:
+            alt = float(altitude)
+            if alt >= 2000:
+                if side == "home":
+                    score = min(10, score + 2)
+                    extras.append(f"Altitude {alt:.0f}m — major home edge")
+                else:
+                    score = max(1, score - 2)
+                    extras.append(f"Altitude {alt:.0f}m — away disadvantage")
+        except (ValueError, TypeError):
+            pass
+
+    if "artificial" in surface.lower() or "turf" in surface.lower():
+        if side == "home":
+            score = min(10, score + 1)
+            extras.append("Artificial turf — home familiar")
+
+    full_note = note + (" | " + " | ".join(extras) if extras else "")
+    return _clamp(score), full_note
+
+
+def score_european_hangover(game: dict, side: str) -> tuple[int, str]:
+    """Soccer: UCL/UEL away trip within 72hrs of this match."""
+    opp_side = "away" if side == "home" else "home"
+    opp_profile = game.get(f"{opp_side}_profile", {})
+
+    # Check if opponent has European fixture data
+    euro = opp_profile.get("european_match") or opp_profile.get("ucl_uel_last")
+    if euro:
+        days_since = euro.get("days_since") or euro.get("days_ago")
+        was_away = euro.get("away", False)
+        if days_since is not None:
+            try:
+                ds = int(days_since)
+                if ds <= 3 and was_away:
+                    return 9, f"European hangover: opponent played away {ds}d ago — rotation + fatigue"
+                elif ds <= 3:
+                    return 7, f"European match {ds}d ago (home) — moderate congestion"
+                elif ds <= 5:
+                    return 6, f"European match {ds}d ago — some recovery time"
+            except (ValueError, TypeError):
+                pass
+
+    # Fallback: check our advantage from rest
+    profile = game.get(f"{side}_profile", {})
+    rest = profile.get("rest_days", 0)
+    opp_rest = opp_profile.get("rest_days", 0)
+    if opp_rest is not None and rest is not None:
+        try:
+            if int(rest) - int(opp_rest) >= 3:
+                return 7, f"Rest gap: us {rest}d vs them {opp_rest}d — possible midweek fixture"
+        except (ValueError, TypeError):
+            pass
+
+    return 5, "No European hangover detected"
+
+
+def score_rotation_risk(game: dict, side: str) -> tuple[int, str]:
+    """Soccer: Expected squad rotation from congestion/upcoming fixtures."""
+    opp_side = "away" if side == "home" else "home"
+    opp_profile = game.get(f"{opp_side}_profile", {})
+
+    opp_m10 = opp_profile.get("matches_in_10d") or opp_profile.get("congestion_10d")
+    if opp_m10 is not None:
+        try:
+            m10 = int(opp_m10)
+            if m10 >= 4:
+                return 9, f"Opponent {m10} matches in 10d — heavy rotation expected"
+            elif m10 >= 3:
+                return 7, f"Opponent {m10} matches in 10d — moderate rotation"
+        except (ValueError, TypeError):
+            pass
+
+    return 5, "Rotation risk — no direct data"
+
+
+def score_clean_sheet_rate(game: dict, side: str) -> tuple[int, str]:
+    """Soccer: Clean sheet % for BTTS/O-U analysis."""
+    profile = game.get(f"{side}_profile", {})
+    cs_rate = profile.get("clean_sheet_pct") or profile.get("cs_rate")
+
+    if cs_rate is not None:
+        try:
+            cs = float(cs_rate)
+            if cs >= 50:
+                return 9, f"Elite CS rate: {cs:.0f}%"
+            elif cs >= 35:
+                return 7, f"Good CS rate: {cs:.0f}%"
+            elif cs >= 20:
+                return 5, f"Average CS rate: {cs:.0f}%"
+            else:
+                return 3, f"Poor CS rate: {cs:.0f}% — leaky defense"
+        except (ValueError, TypeError):
+            pass
+
+    # Fallback
+    score, note = score_def_ranking(profile, game.get(f"{'away' if side == 'home' else 'home'}_profile", {}), "SOCCER")
+    return score, f"CS proxy — {note}"
+
+
+def score_motivation_context(game: dict, side: str) -> tuple[int, str]:
+    """Soccer: Motivation — title race, relegation, dead rubber."""
+    profile = game.get(f"{side}_profile", {})
+    opp_profile = game.get(f"{'away' if side == 'home' else 'home'}_profile", {})
+
+    our_pos = profile.get("league_position") or profile.get("table_position")
+    opp_pos = opp_profile.get("league_position") or opp_profile.get("table_position")
+
+    if our_pos is not None:
+        try:
+            pos = int(our_pos)
+            if pos <= 4:
+                return 8, f"Title/CL race (#{pos}) — high motivation"
+            elif pos >= 17:
+                return 8, f"Relegation battle (#{pos}) — desperate"
+            elif pos <= 8:
+                return 6, f"European push (#{pos}) — moderate motivation"
+            else:
+                return 4, f"Mid-table (#{pos}) — limited motivation"
+        except (ValueError, TypeError):
+            pass
+
+    return 5, "Motivation context — no position data"
+
+
+def score_league_context(game: dict, side: str) -> tuple[int, str]:
+    """Soccer: League quality tier."""
+    league = game.get("league", "")
+    l_lower = str(league).lower()
+
+    tier1 = ["eng.1", "epl", "premier league", "esp.1", "la liga", "ger.1", "bundesliga", "ita.1", "serie a", "fra.1", "ligue 1"]
+    tier2 = ["eng.2", "championship", "ned.1", "eredivisie", "por.1", "primeira liga", "tur.1", "super lig"]
+
+    for t in tier1:
+        if t in l_lower:
+            return 7, f"Tier 1 league: {league} — high reliability"
+    for t in tier2:
+        if t in l_lower:
+            return 5, f"Tier 2 league: {league} — moderate reliability"
+
+    return 4, f"Lower tier / unknown league: {league}"
+
+
 # ─── Sinton.ia Profile Grader ────────────────────────────────────────────────────
 
 def grade_sintonia(game: dict, pick_side: str) -> dict:
@@ -648,6 +1115,38 @@ def grade_sintonia(game: dict, pick_side: str) -> dict:
         elif var_name in ("rivalry_motivation",):
             score, note = score_h2h(profile)
             note = f"Rivalry proxy from H2H — {note}"
+        # ── MLB variables ──
+        elif var_name == "starting_pitcher":
+            score, note = score_starting_pitcher(game, pick_side)
+        elif var_name == "bullpen_state":
+            score, note = score_bullpen_state(game, pick_side)
+        elif var_name == "park_factor":
+            score, note = score_park_factor(game, pick_side)
+        elif var_name in ("platoon_matchup", "lineup_vs_hand"):
+            score, note = score_platoon_matchup(game, pick_side)
+        elif var_name == "defense_rating":
+            score, note = score_defense_rating(game, pick_side)
+        elif var_name == "weather_impact":
+            score, note = score_weather_impact(game, pick_side)
+        # ── Soccer variables ──
+        elif var_name == "fixture_congestion":
+            score, note = score_fixture_congestion(game, pick_side)
+        elif var_name == "form_league_position":
+            score, note = score_form_league_position(game, pick_side)
+        elif var_name == "attack_defense_rating":
+            score, note = score_attack_defense_rating(game, pick_side)
+        elif var_name in ("home_away_venue",):
+            score, note = score_home_away_venue(game, pick_side)
+        elif var_name == "european_hangover":
+            score, note = score_european_hangover(game, pick_side)
+        elif var_name == "rotation_risk":
+            score, note = score_rotation_risk(game, pick_side)
+        elif var_name == "clean_sheet_rate":
+            score, note = score_clean_sheet_rate(game, pick_side)
+        elif var_name == "motivation_context":
+            score, note = score_motivation_context(game, pick_side)
+        elif var_name == "league_context":
+            score, note = score_league_context(game, pick_side)
         else:
             score = 5
             note = f"[{var_name}] Not yet implemented"
@@ -742,6 +1241,32 @@ def check_chain(chain_name: str, variables: dict) -> bool:
     elif chain_name == "BLUE_BLOOD_TRAP":
         return (v.get("public_money_bias", 0) >= 8 and
                 v.get("net_ranking_gap", 10) <= 5)
+    # MLB chains
+    elif chain_name == "ACE_DOMINATION":
+        return (v.get("starting_pitcher", 0) >= 9 and
+                v.get("platoon_matchup", 0) >= 7 and
+                v.get("bullpen_state", 0) >= 7)
+    elif chain_name == "BULLPEN_MELTDOWN":
+        return (v.get("bullpen_state", 0) >= 8 and
+                v.get("starting_pitcher", 0) >= 7 and
+                v.get("defense_rating", 0) >= 6)
+    elif chain_name == "COORS_OVER":
+        return (v.get("park_factor", 0) >= 8 and
+                v.get("weather_impact", 0) >= 7 and
+                v.get("attack_defense_rating", v.get("off_ranking", 0)) >= 7)
+    # Soccer chains
+    elif chain_name == "CONGESTION_FADE":
+        return (v.get("fixture_congestion", 0) >= 8 and
+                v.get("european_hangover", 0) >= 7 and
+                v.get("rotation_risk", 0) >= 7)
+    elif chain_name == "CLASS_GAP":
+        return (v.get("form_league_position", 0) >= 8 and
+                v.get("attack_defense_rating", 0) >= 7 and
+                v.get("home_away_venue", 0) >= 7)
+    elif chain_name == "FORTRESS_HOME":
+        return (v.get("home_away_venue", 0) >= 8 and
+                v.get("clean_sheet_rate", 0) >= 7 and
+                v.get("form_league_position", 0) >= 7)
 
     return False
 
@@ -923,15 +1448,107 @@ def grade_claude(game: dict, pick_side: str) -> dict:
                 score = 5
                 note = f"No seed bias detected"
 
-        elif var_name in ("ace_name_bias", "weather_blind_spot", "umpire_tendency"):
-            # MLB-specific — will be populated when MLB collectors exist
-            score = 5
-            note = f"[{var_name}] MLB data not yet available — excluded from composite"
-            variables[var_name] = {
-                "score": _clamp(score), "weight": weight, "weighted": 0,
-                "note": note, "available": False,
-            }
-            continue
+        elif var_name == "ace_name_bias":
+            # MLB: Public overvalues big-name pitchers — proxy from SP data
+            opp_sp = opp_profile.get("starting_pitcher", {})
+            era = opp_sp.get("era") or opp_sp.get("ERA")
+            try:
+                abs_spread = abs(float(odds.get("spread_home") or 0))
+            except (ValueError, TypeError):
+                abs_spread = 0
+            if era is not None:
+                try:
+                    era_val = float(era)
+                    # Big name but bad recent ERA + public still on them
+                    if era_val >= 4.5 and abs_spread > 0.5:
+                        score = 8
+                        note = f"Opp SP ERA {era_val:.2f} but public still backing — ace mirage"
+                    elif era_val >= 3.8:
+                        score = 6
+                        note = f"Opp SP ERA {era_val:.2f} — moderate name bias risk"
+                    else:
+                        score = 4
+                        note = f"Opp SP ERA {era_val:.2f} — legit ace, no bias"
+                except (ValueError, TypeError):
+                    score = 5
+                    note = "Ace bias — ERA parse failed"
+            else:
+                score = 5
+                note = "Ace bias — no SP ERA data"
+
+        elif var_name == "weather_blind_spot":
+            # MLB: Public ignores weather — use weather engine data
+            score, note = score_weather_impact(game, pick_side)
+            if score >= 7 or score <= 3:
+                note = f"Weather blind spot — public ignoring: {note}"
+                score = max(score, 7) if score >= 7 else max(7, 10 - score)
+            else:
+                note = f"Weather neutral — no blind spot"
+
+        elif var_name == "umpire_tendency":
+            # MLB: Umpire K-zone — proxy from total line
+            total = odds.get("total") or odds.get("over_under")
+            try:
+                total_val = float(total) if total else 0
+                if total_val >= 10:
+                    score = 7
+                    note = f"High total ({total_val}) — ump/park context may be mispriced"
+                elif total_val <= 7:
+                    score = 7
+                    note = f"Low total ({total_val}) — tight K-zone / pitcher park"
+                else:
+                    score = 5
+                    note = f"Total {total_val} — neutral ump signal"
+            except (ValueError, TypeError):
+                score = 5
+                note = "Umpire tendency — no total data"
+
+        # ── Soccer contrarian variables ──
+        elif var_name == "league_reputation_tax":
+            # Public overvalues big club names regardless of form
+            our_pct = win_pct(profile.get("record"))
+            opp_pct = win_pct(opp_profile.get("record"))
+            try:
+                abs_spread = abs(float(odds.get("spread_home") or 0))
+            except (ValueError, TypeError):
+                abs_spread = 0
+            pct_diff = abs(our_pct - opp_pct)
+            if pct_diff < 0.12 and abs_spread > 1.0:
+                score = 9
+                note = f"Close form ({pct_diff:.0%} diff) but handicap {abs_spread} — club reputation tax"
+            elif pct_diff < 0.18 and abs_spread > 1.5:
+                score = 7
+                note = f"Form gap ({pct_diff:.0%}) doesn't justify handicap ({abs_spread})"
+            else:
+                score = 5
+                note = f"Handicap roughly matches form gap"
+
+        elif var_name == "home_draw_blind":
+            # Public ignores draw probability in soccer
+            try:
+                home_ml = float(odds.get("ml_home") or odds.get("home_ml") or 0)
+                away_ml = float(odds.get("ml_away") or odds.get("away_ml") or 0)
+                draw_ml = float(game.get("draw_ml") or 0)
+            except (ValueError, TypeError):
+                home_ml, away_ml, draw_ml = 0, 0, 0
+            if draw_ml and abs(home_ml - away_ml) < 50:
+                score = 8
+                note = f"Evenly matched (ML gap <50) — draw undervalued at {draw_ml}"
+            elif draw_ml and draw_ml >= 300:
+                score = 6
+                note = f"Draw at {draw_ml} — public typically ignores"
+            else:
+                score = 5
+                note = "No draw blind spot detected"
+
+        elif var_name == "congestion_blind_spot":
+            # Public ignores fixture congestion
+            score, note = score_fixture_congestion(game, pick_side)
+            if score >= 7:
+                note = f"Public blind to congestion edge: {note}"
+            else:
+                score = 5
+                note = "No congestion blind spot"
 
         else:
             score = 5
@@ -1016,6 +1633,14 @@ def check_chain_claude(chain_name: str, variables: dict) -> bool:
         return (v.get("ace_name_bias", 0) >= 8 and
                 v.get("recency_bias", 0) >= 7 and
                 v.get("sharp_money", 0) >= 7)
+    elif chain_name == "BIG_CLUB_FADE":
+        return (v.get("league_reputation_tax", 0) >= 8 and
+                v.get("congestion_blind_spot", 0) >= 7 and
+                v.get("line_vs_public", 0) >= 7)
+    elif chain_name == "DRAW_VALUE":
+        return (v.get("home_draw_blind", 0) >= 8 and
+                v.get("spread_value", 0) >= 7 and
+                v.get("public_pct_split", 0) >= 7)
     return False
 
 
@@ -1252,15 +1877,41 @@ def grade_edge(game: dict, pick_side: str) -> dict:
             score = 5
             note = "Coaching data not available — neutral"
 
-        elif var_name in ("pitching_rotation", "weather_impact", "bullpen_state", "day_night_split"):
-            # MLB-specific — populated when MLB collectors exist
-            score = 5
-            note = f"[{var_name}] MLB data not yet available — excluded from composite"
-            variables[var_name] = {
-                "score": _clamp(score), "weight": weight, "weighted": 0,
-                "note": note, "available": False,
-            }
-            continue
+        elif var_name == "pitching_rotation":
+            score, note = score_starting_pitcher(game, pick_side)
+            note = f"Rotation spot — {note}"
+        elif var_name == "weather_impact":
+            score, note = score_weather_impact(game, pick_side)
+        elif var_name == "bullpen_state":
+            score, note = score_bullpen_state(game, pick_side)
+        elif var_name == "day_night_split":
+            # Day vs night — proxy from rest/schedule
+            rest = profile.get("rest_days")
+            if rest is not None and rest == 0:
+                score = 4
+                note = "Day game after night — DGAN fatigue risk"
+            else:
+                score = 5
+                note = "Day/night split — no data, neutral"
+
+        # ── Soccer situational variables ──
+        elif var_name == "fixture_congestion_spot":
+            score, note = score_fixture_congestion(game, pick_side)
+        elif var_name == "european_travel":
+            score, note = score_european_hangover(game, pick_side)
+        elif var_name == "derby_motivation":
+            # Proxy from H2H and motivation
+            score_h, note_h = score_h2h(profile)
+            score_m, note_m = score_motivation_context(game, pick_side)
+            score = max(score_h, score_m)
+            note = f"Derby proxy: H2H {note_h} | Motivation {note_m}"
+        elif var_name == "rotation_risk":
+            score, note = score_rotation_risk(game, pick_side)
+        elif var_name == "midweek_letdown":
+            # After big European result
+            score, note = score_european_hangover(game, pick_side)
+            if score >= 7:
+                note = f"Midweek letdown — {note}"
 
         else:
             score = 5
@@ -1347,6 +1998,17 @@ def check_chain_edge(chain_name: str, variables: dict) -> bool:
     elif chain_name == "DEAD_TEAM_WALKING":
         return (v.get("motivation_gap", 0) >= 8 and
                 v.get("season_phase", 0) >= 7)
+    elif chain_name == "EUROPEAN_HANGOVER":
+        return (v.get("european_travel", 0) >= 8 and
+                v.get("fixture_congestion_spot", 0) >= 8 and
+                v.get("midweek_letdown", 0) >= 7)
+    elif chain_name == "CONGESTION_CRASH":
+        return (v.get("fixture_congestion_spot", 0) >= 9 and
+                v.get("rotation_risk", 0) >= 8 and
+                v.get("travel_unfamiliarity", 0) >= 6)
+    elif chain_name == "DERBY_FIRE":
+        return (v.get("derby_motivation", 0) >= 9 and
+                v.get("motivation_gap", 0) >= 7)
     return False
 
 
@@ -1518,12 +2180,12 @@ def grade_peter_rules(game: dict, pick_side: str) -> dict:
     """
     Apply Peter's hard rules as kill/boost flags.
     Returns flags that override or adjust the consensus.
-    Applies to: NBA, NHL, MLB, WNBA, NFL, NCAAB, NCAAF.
-    Skipped for: Soccer, Tennis, MMA, Boxing (no relevant rules).
+    Applies to: NBA, NHL, MLB, WNBA, NFL, NCAAB, NCAAF, Soccer.
+    Skipped for: Tennis, MMA, Boxing (no relevant rules).
     """
     sport = (game.get("sport", "") or "").upper()
     # Skip Peter's Rules for sports where they don't apply
-    if sport in ("SOCCER", "TENNIS", "MMA", "BOXING"):
+    if sport in ("TENNIS", "MMA", "BOXING"):
         return {
             "game_id": game.get("game_id", ""),
             "profile": "peter_rules",
@@ -1548,9 +2210,9 @@ def grade_peter_rules(game: dict, pick_side: str) -> dict:
 
     # Sport-specific thresholds
     # PPG threshold for "star player" impact
-    star_ppg = {"NBA": 15, "WNBA": 15, "NCAAB": 12, "NCAAF": 0, "NHL": 0.8, "MLB": 0, "NFL": 0}.get(sport, 15)
+    star_ppg = {"NBA": 15, "WNBA": 15, "NCAAB": 12, "NCAAF": 0, "NHL": 0.8, "MLB": 0, "NFL": 0, "SOCCER": 0.3}.get(sport, 15)
     # Spread threshold for "big favorite" trap
-    big_fav_spread = {"NBA": 15, "WNBA": 12, "NCAAB": 20, "NCAAF": 21, "NHL": 2.5, "MLB": 2.5, "NFL": 14}.get(sport, 15)
+    big_fav_spread = {"NBA": 15, "WNBA": 12, "NCAAB": 20, "NCAAF": 21, "NHL": 2.5, "MLB": 2.5, "NFL": 14, "SOCCER": 2.5}.get(sport, 15)
 
     # Rule 1: Big fav ATS trap — spread beyond threshold against winning team
     opp_record = opp_profile.get("record", "0-0")
@@ -1608,8 +2270,8 @@ def grade_peter_rules(game: dict, pick_side: str) -> dict:
             adjustment -= 0.5
 
     # Rule 6: Massive spread + tournament (NCAAB) — first round blowouts unreliable ATS
-    sport = game.get("sport", "")
-    if sport == "NCAAB" and abs_spread > 20:
+    sport_check = game.get("sport", "")
+    if sport_check == "NCAAB" and abs_spread > 20:
         flags.append({
             "rule": "ncaab_massive_spread",
             "action": "DOWNGRADE",
@@ -1617,6 +2279,60 @@ def grade_peter_rules(game: dict, pick_side: str) -> dict:
             "note": f"NCAAB spread {abs_spread} — massive spreads ATS unreliable in tournament",
         })
         adjustment -= 1.0
+
+    # ── Soccer-specific rules ──
+    if sport == "SOCCER":
+        # Rule S1: Heavy congestion KILL — 4+ matches in 10d backing that team
+        our_m10 = profile.get("matches_in_10d") or profile.get("congestion_10d")
+        if our_m10 is not None:
+            try:
+                m10 = int(our_m10)
+                if m10 >= 4:
+                    flags.append({
+                        "rule": "soccer_congestion_kill",
+                        "action": "KILL",
+                        "severity": "CRITICAL",
+                        "note": f"Backing team with {m10} matches in 10 days — congestion KILL",
+                    })
+                    adjustment -= 3.0
+            except (ValueError, TypeError):
+                pass
+
+        # Rule S2: European hangover — UCL/UEL away within 72hrs
+        euro = profile.get("european_match") or profile.get("ucl_uel_last")
+        if euro:
+            days_since = euro.get("days_since") or euro.get("days_ago")
+            was_away = euro.get("away", False)
+            if days_since is not None:
+                try:
+                    ds = int(days_since)
+                    if ds <= 3 and was_away:
+                        flags.append({
+                            "rule": "soccer_european_hangover",
+                            "action": "DOWNGRADE",
+                            "severity": "WARNING",
+                            "note": f"Played European away {ds}d ago — rotation + fatigue risk",
+                        })
+                        adjustment -= 1.5
+                except (ValueError, TypeError):
+                    pass
+
+        # Rule S3: Draw trap boost — evenly matched teams, draw undervalued
+        draw_ml = game.get("draw_ml")
+        if draw_ml:
+            try:
+                home_ml = float(odds.get("ml_home") or odds.get("home_ml") or 0)
+                away_ml = float(odds.get("ml_away") or odds.get("away_ml") or 0)
+                if abs(home_ml - away_ml) < 40 and float(draw_ml) >= 250:
+                    flags.append({
+                        "rule": "soccer_draw_trap",
+                        "action": "BOOST",
+                        "severity": "EDGE",
+                        "note": f"Evenly matched (ML gap <40) + draw at {draw_ml} — draw value",
+                    })
+                    adjustment += 0.5
+            except (ValueError, TypeError):
+                pass
 
     has_kill = any(f["action"] == "KILL" for f in flags)
 

@@ -51,6 +51,18 @@
         "season_phase": {"weight": 7, "description": "April (cold/variance) / summer (stable) / Sept (expanded rosters)"},
         "day_night_split": {"weight": 6, "description": "Team/pitcher day vs night performance split"}
       }
+    },
+    "SOCCER": {
+      "variables": {
+        "fixture_congestion_spot": {"weight": 10, "description": "UCL/UEL midweek + weekend league = heavy rotation risk — #1 soccer situational edge"},
+        "european_travel": {"weight": 9, "description": "Away European trip (2000+ km) within 72hrs of domestic match"},
+        "derby_motivation": {"weight": 8, "description": "Local derby / rivalry / relegation 6-pointer — peak intensity"},
+        "rotation_risk": {"weight": 8, "description": "Manager rotation pattern + upcoming big fixture = expected changes"},
+        "midweek_letdown": {"weight": 8, "description": "After big UCL/UEL result — emotional hangover into domestic match"},
+        "motivation_gap": {"weight": 7, "description": "Title race / relegation battle vs mid-table nothing-to-play-for"},
+        "season_phase": {"weight": 7, "description": "Aug-Sep (early variance) / Dec (congestion peak) / Apr-May (decisive)"},
+        "travel_unfamiliarity": {"weight": 6, "description": "New ground / hostile atmosphere / altitude/turf adjustment"}
+      }
     }
   },
   "chains": {
@@ -86,6 +98,24 @@
       "bonus": 1.0,
       "trigger": "motivation_gap >= 8 AND season_phase >= 7",
       "description": "Eliminated/tanking team with nothing to play for in late season"
+    },
+    "EUROPEAN_HANGOVER": {
+      "bonus": 1.5,
+      "sports": ["SOCCER"],
+      "trigger": "european_travel >= 8 AND fixture_congestion_spot >= 8 AND midweek_letdown >= 7",
+      "description": "Away European trip + congested fixture list + emotional letdown — fade heavily"
+    },
+    "CONGESTION_CRASH": {
+      "bonus": 1.5,
+      "sports": ["SOCCER"],
+      "trigger": "fixture_congestion_spot >= 9 AND rotation_risk >= 8 AND travel_unfamiliarity >= 6",
+      "description": "4+ matches in 10 days + heavy rotation expected + unfamiliar ground"
+    },
+    "DERBY_FIRE": {
+      "bonus": 1.0,
+      "sports": ["SOCCER"],
+      "trigger": "derby_motivation >= 9 AND motivation_gap >= 7",
+      "description": "Local derby with major stakes (relegation/title) — form goes out the window"
     }
   },
   "chain_cap": 3.0,
