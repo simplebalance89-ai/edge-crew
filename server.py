@@ -15962,6 +15962,15 @@ async def get_profedge(sport: str, mode: str = None):
             "league": game.get("league", ""),
             "league_flag": game.get("league_flag", ""),
         }
+        # Pass through crowdsource data from analysis
+        for cs_field in ("crowdsource_grades", "crowdsource_consensus", "crowdsource_avg_score",
+                         "crowdsource_avg_grade", "crowdsource_bp_count", "crowdsource_total",
+                         "crowdsource_count", "crowdsource_divergence"):
+            if game.get(cs_field) is not None:
+                entry[cs_field] = game[cs_field]
+        # Pass through kimi scout data
+        if game.get("kimi_scout"):
+            entry["kimi_scout"] = game["kimi_scout"]
 
         # Attach grade
         grade = grades_by_id.get(gid)
