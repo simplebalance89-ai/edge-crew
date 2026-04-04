@@ -5893,6 +5893,19 @@ async def get_credits():
         result["odds_api"] = {"status": "not configured"}
 
     result["primary"] = "The Odds API" if ODDS_API_KEY else "SharpAPI"
+
+    # Include active soccer sport keys from Odds API
+    if ODDS_API_KEY:
+        try:
+            async with httpx.AsyncClient(timeout=10) as client:
+                resp = await client.get(f"{ODDS_API_BASE}/", params={"apiKey": ODDS_API_KEY})
+                if resp.status_code == 200:
+                    all_sports = resp.json()
+                    soccer_keys = [s["key"] for s in all_sports if "soccer" in s.get("key", "") and s.get("active")]
+                    result["odds_api_soccer_keys"] = soccer_keys
+        except Exception:
+            pass
+
     return JSONResponse(result)
 
 
