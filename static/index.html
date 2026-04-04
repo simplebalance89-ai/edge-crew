@@ -11603,6 +11603,28 @@ function renderProEdgeGames(games, container) {
             if (gr.ev.win_prob) html += '<div style="font-size:9px;color:rgba(255,255,255,0.35);">Win prob: ' + (gr.ev.win_prob * 100).toFixed(0) + '% | Kelly: ' + (gr.ev.kelly_units||'--') + '</div>';
         }
         if (g.kalshi_prob) html += '<div style="margin-top:4px;font-size:10px;color:rgba(255,255,255,0.4);">Kalshi: ' + (parseFloat(g.kalshi_prob) * 100).toFixed(0) + '% implied</div>';
+        // ── KIMI GATEKEEPER VERDICT ──
+        var kg = g.kimi_gatekeeper || {};
+        if (kg.action) {
+            var kgColor = kg.action === 'BOOST' ? '#10B981' : kg.action === 'CHALLENGE' ? '#ef4444' : '#D4A017';
+            var kgBg = kg.action === 'BOOST' ? 'rgba(16,185,129,0.12)' : kg.action === 'CHALLENGE' ? 'rgba(239,68,68,0.12)' : 'rgba(212,160,23,0.08)';
+            var kgIcon = kg.action === 'BOOST' ? '&#9650;' : kg.action === 'CHALLENGE' ? '&#9660;' : '&#10003;';
+            html += '<div style="margin-top:12px;padding:10px 14px;background:' + kgBg + ';border:1px solid ' + kgColor + '40;border-radius:8px;">';
+            html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">';
+            html += '<span style="font-size:10px;font-weight:900;letter-spacing:1px;color:' + kgColor + ';">KIMI GATEKEEPER</span>';
+            html += '<span style="font-size:12px;font-weight:900;color:' + kgColor + ';">' + kgIcon + ' ' + kg.action + '</span>';
+            if (kg.adjustment && kg.adjustment !== 0) {
+                html += '<span style="font-size:11px;font-weight:800;color:' + kgColor + ';">(' + (kg.adjustment > 0 ? '+' : '') + kg.adjustment.toFixed(1) + ')</span>';
+            }
+            html += '</div>';
+            if (kg.reason) {
+                html += '<div style="font-size:11px;color:rgba(255,255,255,0.6);line-height:1.4;">' + kg.reason + '</div>';
+            }
+            if (kg.original_grade && kg.action !== 'CONFIRM') {
+                html += '<div style="font-size:9px;color:rgba(255,255,255,0.3);margin-top:4px;">Was: ' + kg.original_grade + ' (' + (kg.original_score||0).toFixed(1) + ') → Now: ' + (kg.final_grade||grade) + ' (' + (kg.final_score||avg).toFixed(1) + ')</div>';
+            }
+            html += '</div>';
+        }
         if (_profedgeCurrentSport !== 'mlb') {
             html += '<button onclick="event.stopPropagation();regradeProEdge(\'' + g.game_id + '\')" style="margin-top:10px;background:rgba(212,160,23,0.12);border:1px solid rgba(212,160,23,0.3);color:#D4A017;font-size:10px;font-weight:700;padding:5px 12px;border-radius:6px;cursor:pointer;">RE-GRADE</button>';
         }
