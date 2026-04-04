@@ -97,12 +97,22 @@ body { background:#0a0a0f; color:#fff; font-family:-apple-system,BlinkMacSystemF
 </head>
 <body>
 
-<div class="header">
-    <h1>Peter — NBA Edge <span>| Director</span></h1>
+<div class="header" style="display:flex;align-items:center;justify-content:space-between;">
+    <h1>Peter — <span id="sportLabel">NBA</span> Edge <span>| Director</span></h1>
+    <div style="display:flex;gap:6px;align-items:center;">
+        <select id="sportSelect" onchange="switchSport(this.value)" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:#fff;padding:6px 10px;border-radius:6px;font-size:11px;font-weight:700;">
+            <option value="nba" selected>NBA</option>
+            <option value="nhl">NHL</option>
+            <option value="mlb">MLB</option>
+            <option value="soccer">SOCCER</option>
+            <option value="ncaab">NCAAB</option>
+        </select>
+        <button onclick="runAnalysis()" id="analyzeBtn" style="background:linear-gradient(135deg,#6366f1,#818cf8);border:none;color:#fff;padding:8px 16px;border-radius:6px;font-size:11px;font-weight:800;cursor:pointer;letter-spacing:0.5px;">ANALYZE</button>
+    </div>
 </div>
 
 <div class="tabs">
-    <div class="tab active" onclick="switchTab('games')">NBA GAMES</div>
+    <div class="tab active" onclick="switchTab('games')"><span id="tabGamesLabel">NBA</span> GAMES</div>
     <div class="tab" onclick="switchTab('matrix')">MY MATRIX</div>
     <div class="tab" onclick="switchTab('board')">BOARD</div>
 </div>
@@ -221,7 +231,7 @@ function _dimStyle(grade) {
 
 // ── LOAD GAMES ──
 function loadGames() {
-    fetch('/api/profedge/nba')
+    fetch('/api/profedge/' + _currentSport)
         .then(function(r) { return r.json(); })
         .then(function(data) {
             _gamesData = data.games || [];
@@ -330,37 +340,131 @@ function renderGames(games) {
         // Pipeline
         html += '<div class="pipeline-row">';
 
-        // Step 1: Data
+        // ── S0 — TEAM DATA (lines + form + rankings + line movement) ──
         html += '<div class="pipeline-step" style="background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.2);">';
-        html += '<div class="step-label" style="color:#6366f1;">STEP 1 — DATA</div>';
+        html += '<div class="step-label" style="color:#6366f1;">S0 — TEAM DATA</div>';
         var odds = g.odds || {};
-        var atsHome = (g.home_profile && g.home_profile.ats_record) ? g.home_profile.ats_record : '';
-        var atsAway = (g.away_profile && g.away_profile.ats_record) ? g.away_profile.ats_record : '';
-        var atsStr = (atsHome || atsAway) ? '<br>ATS: <b>' + (atsAway || '--') + ' / ' + (atsHome || '--') + '</b>' : '';
-        html += '<div class="step-data">Spread: <b>' + (odds.spread_home || odds.spread || '--') + '</b><br>O/U: <b>' + (odds.total || odds.over_under || '--') + '</b><br>ML: <b>' + (odds.ml_home || odds.home_ml || '--') + ' / ' + (odds.ml_away || odds.away_ml || '--') + '</b>' + atsStr + '</div>';
-        html += '</div>';
-
-        // Step 2: Enrichment
-        html += '<div class="pipeline-step" style="min-width:200px;background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.2);">';
-        html += '<div class="step-label" style="color:#38BDF8;">STEP 2 — ENRICHMENT</div>';
+        html += '<div class="step-data">';
+        html += 'Spread: <b>' + (odds.spread_home || odds.spread || '--') + '</b><br>';
+        html += 'O/U: <b>' + (odds.total || odds.over_under || '--') + '</b><br>';
+        html += 'ML: <b>' + (odds.ml_home || odds.home_ml || '--') + ' / ' + (odds.ml_away || odds.away_ml || '--') + '</b><br>';
         ['away','home'].forEach(function(side) {
             var prof = g[side + '_profile'] || {};
             var abbrev = side === 'home' ? (g.home_abbrev || g.home) : (g.away_abbrev || g.away);
-            var tag = side === 'home' ? 'HOME' : 'AWAY';
-            html += '<div style="margin-bottom:4px;">';
-            html += '<span style="font-size:10px;font-weight:700;color:#fff;">' + abbrev + '</span> <span style="font-size:9px;color:rgba(255,255,255,0.3);">' + tag + '</span><br>';
-            var hasAny = false;
-            if (prof.L5 && prof.L5 !== '0-0') { html += '<span style="font-size:10px;color:rgba(255,255,255,0.5);">L5: ' + prof.L5 + ' | L10: ' + (prof.L10 || '--') + '</span><br>'; hasAny = true; }
-            if (prof.ppg_L5) { html += '<span style="font-size:10px;color:rgba(255,255,255,0.5);">PPG: ' + prof.ppg_L5.toFixed(1) + ' | Opp: ' + (prof.opp_ppg_L5 || 0).toFixed(1) + '</span><br>'; hasAny = true; }
-            if (prof.streak && prof.streak !== 'L0' && prof.streak !== 'W0') { html += '<span style="font-size:10px;color:rgba(255,255,255,0.5);">Streak: ' + prof.streak + ' | Rest: ' + (prof.rest_days != null ? prof.rest_days + 'd' : '--') + '</span><br>'; hasAny = true; }
-            else if (prof.rest_days != null) { html += '<span style="font-size:10px;color:rgba(255,255,255,0.5);">Rest: ' + prof.rest_days + 'd</span><br>'; hasAny = true; }
-            if (!hasAny) html += '<span style="font-size:10px;color:rgba(255,255,255,0.3);font-style:italic;">Awaiting data</span><br>';
+            var tag = side === 'home' ? 'H' : 'A';
+            var parts = [];
+            if (prof.L5 && prof.L5 !== '0-0') parts.push('L5:' + prof.L5);
+            if (prof.streak && prof.streak !== 'L0' && prof.streak !== 'W0') parts.push(prof.streak);
+            var ats = prof.ats_record || '';
+            if (ats) parts.push('ATS:' + ats);
+            if (parts.length) {
+                html += '<span style="font-size:9px;color:rgba(255,255,255,0.5);"><b style="color:#fff;">' + abbrev + '</b> <span style="color:rgba(255,255,255,0.25);">' + tag + '</span> ' + parts.join(' | ') + '</span><br>';
+            }
+        });
+        // Engine data: S0 block (overnight line movement, rankings)
+        var engS0Keys = ['rest_b2b', 'pace_matchup', 'goalie', 'form_league', 'pitchers'];
+        var hasEngineS0 = false;
+        engS0Keys.forEach(function(ek) {
+            if (_engineData[ek]) {
+                var lines = _engineData[ek].split('\n').filter(function(l) {
+                    var t = l.trim();
+                    return t && !t.startsWith('===') && !t.startsWith('RULE:') && t.length > 10;
+                });
+                // Find lines relevant to this game's teams
+                var away = (g.away || '').toUpperCase();
+                var home = (g.home || '').toUpperCase();
+                var relevant = lines.filter(function(l) { var u = l.toUpperCase(); return u.indexOf(away) !== -1 || u.indexOf(home) !== -1; });
+                if (relevant.length > 0) {
+                    hasEngineS0 = true;
+                    relevant.slice(0, 2).forEach(function(l) {
+                        html += '<span style="font-size:8px;color:#6366f1;line-height:1.3;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;">' + l.trim().substring(0, 80) + '</span>';
+                    });
+                }
+            }
+        });
+        html += '</div></div>';
+
+        // ── S1 — SCHEDULE / REST (B2B, travel, congestion) ──
+        html += '<div class="pipeline-step" style="min-width:180px;background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.2);">';
+        html += '<div class="step-label" style="color:#38BDF8;">S1 — SCHEDULE</div>';
+        ['away','home'].forEach(function(side) {
+            var prof = g[side + '_profile'] || {};
+            var abbrev = side === 'home' ? (g.home_abbrev || g.home) : (g.away_abbrev || g.away);
+            var tag = side === 'home' ? 'H' : 'A';
+            html += '<div style="margin-bottom:3px;">';
+            html += '<span style="font-size:10px;font-weight:700;color:#fff;">' + abbrev + '</span> <span style="font-size:9px;color:rgba(255,255,255,0.25);">' + tag + '</span><br>';
+            var hasData = false;
+            if (prof.rest_days != null) {
+                var restColor = prof.rest_days === 0 ? '#ef4444' : (prof.rest_days >= 2 ? '#10B981' : '#F59E0B');
+                html += '<span style="font-size:10px;color:' + restColor + ';font-weight:700;">Rest: ' + prof.rest_days + 'd</span>';
+                if (prof.is_b2b) html += ' <span style="font-size:9px;background:rgba(239,68,68,0.2);color:#ef4444;padding:1px 4px;border-radius:3px;font-weight:700;">B2B</span>';
+                html += '<br>';
+                hasData = true;
+            }
+            if (prof.games_last_7d) { html += '<span style="font-size:9px;color:rgba(255,255,255,0.5);">L7d: ' + prof.games_last_7d + ' games</span><br>'; hasData = true; }
+            if (prof.road_trip_len) { html += '<span style="font-size:9px;color:rgba(255,255,255,0.5);">Road trip: game ' + prof.road_trip_len + '</span><br>'; hasData = true; }
+            if (prof.matches_in_10d) { html += '<span style="font-size:9px;color:rgba(255,255,255,0.5);">10d: ' + prof.matches_in_10d + ' matches</span><br>'; hasData = true; }
+            if (!hasData) html += '<span style="font-size:9px;color:rgba(255,255,255,0.25);font-style:italic;">Schedule pending</span><br>';
+            html += '</div>';
+        });
+        // Engine data: S1 block (travel, congestion)
+        var engS1Keys = ['rest_b2b', 'travel_b2b', 'congestion', 'homecourt', 'scoring_depth'];
+        engS1Keys.forEach(function(ek) {
+            if (_engineData[ek]) {
+                var lines = _engineData[ek].split('\n').filter(function(l) {
+                    var t = l.trim(); return t && !t.startsWith('===') && !t.startsWith('RULE:') && t.length > 10;
+                });
+                var away = (g.away || '').toUpperCase(), home = (g.home || '').toUpperCase();
+                var relevant = lines.filter(function(l) { var u = l.toUpperCase(); return u.indexOf(away) !== -1 || u.indexOf(home) !== -1; });
+                relevant.slice(0, 2).forEach(function(l) {
+                    html += '<span style="font-size:8px;color:#38BDF8;line-height:1.3;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;">' + l.trim().substring(0, 80) + '</span>';
+                });
+            }
+        });
+        html += '</div>';
+
+        // ── S2 — PLAYER DATA (injuries, star impact, usage) ──
+        html += '<div class="pipeline-step" style="min-width:200px;background:rgba(239,68,68,0.04);border:1px solid rgba(239,68,68,0.2);">';
+        html += '<div class="step-label" style="color:#ef4444;">S2 — PLAYERS</div>';
+        ['away','home'].forEach(function(side) {
+            var prof = g[side + '_profile'] || {};
+            var abbrev = side === 'home' ? (g.home_abbrev || g.home) : (g.away_abbrev || g.away);
+            var tag = side === 'home' ? 'H' : 'A';
+            html += '<div style="margin-bottom:3px;">';
+            html += '<span style="font-size:10px;font-weight:700;color:#fff;">' + abbrev + '</span> <span style="font-size:9px;color:rgba(255,255,255,0.25);">' + tag + '</span><br>';
+            if (prof.ppg_L5) {
+                html += '<span style="font-size:9px;color:rgba(255,255,255,0.5);">PPG: ' + prof.ppg_L5.toFixed(1) + ' | Opp: ' + (prof.opp_ppg_L5 || 0).toFixed(1) + '</span><br>';
+            }
             var inj = (g.injuries && g.injuries[side]) || [];
             if (inj.length > 0) {
                 var outCount = inj.filter(function(i){return i.status === 'OUT';}).length;
-                html += '<span style="font-size:10px;color:#ef4444;">' + inj.length + ' injuries (' + outCount + ' OUT)</span>';
+                var gtdCount = inj.filter(function(i){return i.status === 'GTD' || i.status === 'QUESTIONABLE';}).length;
+                html += '<span style="font-size:10px;color:#ef4444;font-weight:700;">' + outCount + ' OUT</span>';
+                if (gtdCount > 0) html += ' <span style="font-size:9px;color:#F59E0B;">' + gtdCount + ' GTD</span>';
+                html += '<br>';
+                // Show top 2 impact injuries
+                var sorted = inj.filter(function(i){return i.status === 'OUT';}).sort(function(a,b){return (b.ppg||0)-(a.ppg||0);});
+                sorted.slice(0,2).forEach(function(i) {
+                    html += '<span style="font-size:8px;color:rgba(239,68,68,0.7);">' + (i.player||'?') + (i.ppg ? ' (' + i.ppg + 'ppg)' : '') + '</span><br>';
+                });
+            } else {
+                html += '<span style="font-size:9px;color:#10B981;">Healthy</span><br>';
             }
             html += '</div>';
+        });
+        // Engine data: S2 block (usage, matchup, attack/defense)
+        var engS2Keys = ['usage_cascade', 'pace_matchup', 'special_teams', 'attack_defense', 'venue'];
+        engS2Keys.forEach(function(ek) {
+            if (_engineData[ek]) {
+                var lines = _engineData[ek].split('\n').filter(function(l) {
+                    var t = l.trim(); return t && !t.startsWith('===') && !t.startsWith('RULE:') && t.length > 10;
+                });
+                var away = (g.away || '').toUpperCase(), home = (g.home || '').toUpperCase();
+                var relevant = lines.filter(function(l) { var u = l.toUpperCase(); return u.indexOf(away) !== -1 || u.indexOf(home) !== -1; });
+                relevant.slice(0, 2).forEach(function(l) {
+                    html += '<span style="font-size:8px;color:#ef4444;line-height:1.3;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px;">' + l.trim().substring(0, 90) + '</span>';
+                });
+            }
         });
         html += '</div>';
 
@@ -454,48 +558,6 @@ function renderGames(games) {
 
         html += '</div>'; // end pipeline-row
 
-        // S0-S2 Engine Data Panel
-        var engineKeys = Object.keys(_engineData);
-        if (engineKeys.length > 0) {
-            html += '<div style="margin-top:8px;">';
-            html += '<div onclick="var el=document.getElementById(\'engine-panel-' + idx + '\');el.style.display=el.style.display===\'none\'?\'block\':\'none\';" style="cursor:pointer;display:flex;align-items:center;gap:6px;padding:4px 0;">';
-            html += '<span style="font-size:10px;font-weight:700;color:#6366f1;letter-spacing:0.5px;">S0-S2 ENGINE DATA</span>';
-            html += '<span style="font-size:9px;color:rgba(255,255,255,0.3);">' + engineKeys.length + ' engines ▾</span>';
-            html += '</div>';
-            html += '<div id="engine-panel-' + idx + '" style="display:none;margin-top:4px;">';
-            html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:8px;">';
-            var engineLabels = {
-                rest_b2b: '🏃 REST / B2B', pace_matchup: '⚡ PACE / MATCHUP', usage_cascade: '📊 USAGE CASCADE', homecourt: '🏟️ HOME COURT',
-                goalie: '🥅 GOALIE', special_teams: '⚡ SPECIAL TEAMS', travel_b2b: '✈️ TRAVEL / B2B', scoring_depth: '📊 SCORING DEPTH',
-                form_league: '📈 FORM / LEAGUE', congestion: '⏱️ CONGESTION', attack_defense: '⚔️ ATTACK / DEFENSE', venue: '🏟️ VENUE',
-                pitchers: '⚾ PITCHERS', bullpen: '⚾ BULLPEN', park_weather: '🌤️ PARK / WEATHER', platoon: '⚾ PLATOON', defense: '🧤 DEFENSE'
-            };
-            var engineColors = {
-                rest_b2b: '#38BDF8', pace_matchup: '#F59E0B', usage_cascade: '#10B981', homecourt: '#6366f1',
-                goalie: '#38BDF8', special_teams: '#F59E0B', travel_b2b: '#ef4444', scoring_depth: '#10B981',
-                form_league: '#10B981', congestion: '#ef4444', attack_defense: '#F59E0B', venue: '#6366f1',
-                pitchers: '#38BDF8', bullpen: '#F59E0B', park_weather: '#10B981', platoon: '#6366f1', defense: '#ef4444'
-            };
-            engineKeys.forEach(function(ek) {
-                var label = engineLabels[ek] || ek.replace(/_/g, ' ').toUpperCase();
-                var color = engineColors[ek] || '#818cf8';
-                var text = _engineData[ek] || '';
-                // Extract key lines (skip headers/rules, show data lines)
-                var dataLines = text.split('\n').filter(function(l) {
-                    l = l.trim();
-                    return l && !l.startsWith('===') && !l.startsWith('RULE:') && l.length > 5;
-                }).slice(0, 6);
-                html += '<div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:8px;overflow:hidden;">';
-                html += '<div style="font-size:9px;font-weight:800;color:' + color + ';letter-spacing:0.5px;margin-bottom:4px;">' + label + '</div>';
-                dataLines.forEach(function(line) {
-                    html += '<div style="font-size:9px;color:rgba(255,255,255,0.55);line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + line.trim().substring(0, 120) + '</div>';
-                });
-                if (!dataLines.length) html += '<div style="font-size:9px;color:rgba(255,255,255,0.25);font-style:italic;">No data</div>';
-                html += '</div>';
-            });
-            html += '</div></div></div>';
-        }
-
         // Expandable detail
         html += '<div id="peter-detail-' + idx + '" style="display:none;margin-top:10px;border-top:1px solid rgba(255,255,255,0.06);padding-top:10px;">';
         if (gr && gr.profiles) {
@@ -587,7 +649,7 @@ function regradeGame(gameId) {
 function loadMatrix() {
     // Load official matrix from profedge response (already cached) and Peter's overrides
     Promise.all([
-        fetch('/api/profedge/nba').then(function(r) { return r.json(); }),
+        fetch('/api/profedge/' + _currentSport).then(function(r) { return r.json(); }),
         fetch('/api/agent/peter/matrix/nba').then(function(r) { return r.json(); }).catch(function() { return null; })
     ]).then(function(results) {
         var profData = results[0];
@@ -946,6 +1008,45 @@ function lockPick(idx) {
         }, 2000);
         console.error('Lock pick failed:', err);
     });
+}
+
+// ── SPORT SWITCHING ──
+var _currentSport = 'nba';
+
+function switchSport(sport) {
+    _currentSport = sport;
+    document.getElementById('sportLabel').textContent = sport.toUpperCase();
+    document.getElementById('tabGamesLabel').textContent = sport.toUpperCase();
+    document.getElementById('gamesLoading').style.display = 'block';
+    document.getElementById('gamesLoading').textContent = 'Loading ' + sport.toUpperCase() + ' games...';
+    document.getElementById('gamesContainer').innerHTML = '';
+    loadGames();
+}
+
+function runAnalysis() {
+    var btn = document.getElementById('analyzeBtn');
+    btn.textContent = 'ANALYZING...';
+    btn.disabled = true;
+    btn.style.opacity = '0.5';
+    fetch('/api/analysis/' + _currentSport + '?force=true')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            btn.textContent = 'ANALYZE';
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            if (data.error) {
+                alert('Analysis error: ' + data.error);
+                return;
+            }
+            // Reload games to pick up fresh grades + engine data
+            loadGames();
+        })
+        .catch(function(err) {
+            btn.textContent = 'ANALYZE';
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            alert('Analysis failed: ' + err.message);
+        });
 }
 
 // ── INIT ──
