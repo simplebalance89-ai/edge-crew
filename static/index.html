@@ -11442,6 +11442,12 @@ function renderProEdgeGames(games, container) {
                 html += '<div style="font-size:10px;color:rgba(255,255,255,0.4);">' + (p.final || 0).toFixed(1) + '</div>';
                 if (p.sizing) html += '<div style="font-size:9px;color:rgba(255,255,255,0.5);margin-top:2px;">' + p.sizing + '</div>';
                 if (isRenzo && p.mathurin_test) html += '<div style="font-size:8px;color:' + (p.mathurin_test==='PASS'?'#22c55e':'#ef4444') + ';margin-top:2px;">Mathurin: ' + p.mathurin_test + '</div>';
+                var pp = gr.profile_picks ? gr.profile_picks[pname] : null;
+                if (pp && pp.pick !== 'tie') {
+                    var ppTeam = pp.pick === 'home' ? (g.home_abbrev || 'HOME') : (g.away_abbrev || 'AWAY');
+                    var ppColor = pp.pick === pickSide ? '#22c55e' : '#ef4444';
+                    html += '<div style="font-size:8px;color:' + ppColor + ';margin-top:2px;font-weight:700;">' + ppTeam + ' (+' + pp.margin.toFixed(1) + ')</div>';
+                }
                 html += '</div>';
             });
             html += '</div>';
@@ -11463,6 +11469,9 @@ function renderProEdgeGames(games, container) {
             html += '</div>';
             if (kp.profile_tag) {
                 html += '<div style="text-align:center;margin-bottom:6px;"><span style="font-size:9px;font-weight:700;color:' + kpColor + ';background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:3px;border:1px solid ' + kpColor + '30;">' + kp.profile_tag + '</span></div>';
+            }
+            if (kp.pick_team) {
+                html += '<div style="font-size:9px;font-weight:700;color:#38bdf8;margin-bottom:4px;text-align:center;">' + kp.pick_team + '</div>';
             }
             var kimiDims = [
                 {key:'tactical_dna', label:'Tactical'},
@@ -11497,6 +11506,15 @@ function renderProEdgeGames(games, container) {
             html += '<div style="text-align:center;margin-bottom:6px;"><span style="font-size:9px;font-weight:700;color:' + csColor + ';background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:3px;border:1px solid ' + csColor + '30;">' + (csConsensus || 'N/A').replace(/_/g,' ') + '</span></div>';
             if (g.crowdsource_avg_score) {
                 html += '<div style="text-align:center;margin-bottom:6px;"><span style="font-size:20px;font-weight:900;color:' + csColor + ';">' + (g.crowdsource_avg_grade || '?') + '</span> <span style="font-size:10px;color:rgba(255,255,255,0.4);">' + (g.crowdsource_avg_score || 0).toFixed(1) + '</span></div>';
+            }
+            var csTeams = {};
+            csGrades.forEach(function(cs) {
+                var t = (cs.pick && cs.pick.team) ? cs.pick.team : 'PASS';
+                csTeams[t] = (csTeams[t] || 0) + 1;
+            });
+            var topCsTeam = Object.keys(csTeams).sort(function(a,b) { return csTeams[b]-csTeams[a]; })[0];
+            if (topCsTeam && topCsTeam !== 'PASS') {
+                html += '<div style="font-size:9px;font-weight:700;color:#A855F7;text-align:center;margin-bottom:4px;">' + topCsTeam + '</div>';
             }
             csGrades.forEach(function(cs) {
                 var csc = (cs.grade||'').startsWith('A') ? '#10B981' : (cs.grade||'').startsWith('B') ? '#38BDF8' : '#d4a024';
@@ -11598,10 +11616,12 @@ function renderProEdgeGames(games, container) {
                 html += '</div>';
             });
             html += '<div style="font-size:10px;font-weight:700;color:' + (prAdj > 0 ? '#10B981' : prAdj < 0 ? '#ef4444' : 'rgba(255,255,255,0.4)') + ';margin-top:4px;">Adj: ' + (prAdj > 0 ? '+' : '') + prAdj.toFixed(1) + '</div>';
+            if (pickTeam) { html += '<div style="font-size:8px;color:rgba(255,255,255,0.3);margin-top:4px;">Applied to: ' + pickTeam + '</div>'; }
         } else {
             html += '<div style="text-align:center;padding:8px 0;">';
             html += '<div style="font-size:20px;font-weight:900;color:#10B981;">CLEAN</div>';
             html += '<div style="font-size:9px;color:rgba(255,255,255,0.4);">No flags triggered</div>';
+            if (pickTeam) { html += '<div style="font-size:8px;color:rgba(255,255,255,0.3);margin-top:4px;">Applied to: ' + pickTeam + '</div>'; }
             html += '</div>';
         }
         html += '</div>';
@@ -11617,6 +11637,7 @@ function renderProEdgeGames(games, container) {
             html += '<div style="font-size:10px;color:rgba(255,255,255,0.4);">EV Grade: <span style="color:' + evColor + ';font-weight:700;">' + evGrade + '</span></div>';
             if (gr.ev.win_prob) html += '<div style="font-size:9px;color:rgba(255,255,255,0.35);margin-top:2px;">Win prob: ' + (gr.ev.win_prob * 100).toFixed(0) + '%</div>';
             if (gr.ev.kelly_units) html += '<div style="font-size:9px;color:rgba(255,255,255,0.35);">Kelly: ' + gr.ev.kelly_units + '</div>';
+            if (pickTeam) { html += '<div style="font-size:8px;color:rgba(255,255,255,0.3);margin-top:4px;">For: ' + pickTeam + '</div>'; }
         } else {
             html += '<div style="font-size:20px;font-weight:900;color:rgba(255,255,255,0.15);padding:8px 0;">--</div>';
             html += '<div style="font-size:9px;color:rgba(255,255,255,0.3);">Awaiting EV calc</div>';

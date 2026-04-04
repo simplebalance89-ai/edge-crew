@@ -15576,17 +15576,33 @@ async def get_profedge(sport: str, mode: str = None):
                         "league": ag.get("league", ""),
                         "league_flag": ag.get("league_flag", ""),
                         # Pass through analysis grading data
-                        "grade": {
+                        "grade": None,  # set below after pick_side calc
+                        "race": None,
+                    }
+                    # Determine pick_side from analysis edge_pick
+                    if ag.get("grade"):
+                        _edge_pick = ag.get("edge_pick", {})
+                        _pick_team = _edge_pick.get("team", "") if isinstance(_edge_pick, dict) else ""
+                        _pick_side = ""
+                        if _pick_team:
+                            # Match team name to home/away
+                            if home_name and _pick_team.upper().endswith(home_name.split()[-1].upper()):
+                                _pick_side = "home"
+                            elif away_name and _pick_team.upper().endswith(away_name.split()[-1].upper()):
+                                _pick_side = "away"
+                            elif home_name and home_name.upper() in _pick_team.upper():
+                                _pick_side = "home"
+                            elif away_name and away_name.upper() in _pick_team.upper():
+                                _pick_side = "away"
+                        game_entry["grade"] = {
                             "consensus_grade": ag.get("grade", "?"),
                             "consensus_avg": ag.get("composite_score", 0),
                             "consensus_raw": ag.get("composite_score", 0),
-                            "pick_side": "",
+                            "pick_side": _pick_side,
                             "profiles": ag.get("matrix_scores", {}),
                             "peter_rules": {},
                             "ev": {},
-                        } if ag.get("grade") else None,
-                        "race": None,
-                    }
+                        }
                     # Pass through crowdsource data from analysis
                     for cs_field in ("crowdsource_grades", "crowdsource_consensus", "crowdsource_avg_score",
                                      "crowdsource_avg_grade", "crowdsource_bp_count", "crowdsource_total",
@@ -15876,6 +15892,8 @@ async def get_profedge(sport: str, mode: str = None):
                 "profiles": grade.get("profiles", {}),
                 "peter_rules": grade.get("peter_rules", {}),
                 "ev": grade.get("ev", {}),
+                "profile_picks": grade.get("profile_picks", {}),
+                "other_side": grade.get("other_side", {}),
             }
         else:
             entry["grade"] = game.get("grade")  # preserve inline grade from analysis fallback
@@ -16153,6 +16171,30 @@ async def _run_profedge_regrade(game_id: str, sport: str):
         best_side = max(results, key=lambda s: results[s]["consensus_avg"])
         best = results[best_side]
         best["pick_side"] = best_side
+
+        # Store both sides so frontend can show per-grader team picks
+        other_side = "away" if best_side == "home" else "home"
+        best["other_side"] = {
+            "consensus_avg": results[other_side]["consensus_avg"],
+            "consensus_grade": results[other_side]["consensus_grade"],
+            "profiles": results[other_side]["profiles"],
+            "peter_rules": results[other_side]["peter_rules"],
+            "ev": results[other_side]["ev"],
+        }
+
+        # Per-profile picks: which team does each grader individually favor?
+        profile_picks = {}
+        for pname in ["sintonia", "renzo", "claude", "edge"]:
+            h_score = results["home"]["profiles"].get(pname, {}).get("final", 0)
+            a_score = results["away"]["profiles"].get(pname, {}).get("final", 0)
+            profile_picks[pname] = {
+                "pick": "home" if h_score > a_score else ("away" if a_score > h_score else "tie"),
+                "home_score": h_score,
+                "away_score": a_score,
+                "margin": round(abs(h_score - a_score), 2),
+            }
+        best["profile_picks"] = profile_picks
+
         best["game_id"] = game_id
         best["matchup"] = f"{target_game.get('away', '?')} @ {target_game.get('home', '?')}"
 
@@ -16441,6 +16483,30 @@ async def _run_profedge_batch_grade(sport: str):
         best_side = max(results, key=lambda s: results[s]["consensus_avg"])
         best = results[best_side]
         best["pick_side"] = best_side
+
+        # Store both sides so frontend can show per-grader team picks
+        other_side = "away" if best_side == "home" else "home"
+        best["other_side"] = {
+            "consensus_avg": results[other_side]["consensus_avg"],
+            "consensus_grade": results[other_side]["consensus_grade"],
+            "profiles": results[other_side]["profiles"],
+            "peter_rules": results[other_side]["peter_rules"],
+            "ev": results[other_side]["ev"],
+        }
+
+        # Per-profile picks: which team does each grader individually favor?
+        profile_picks = {}
+        for pname in ["sintonia", "renzo", "claude", "edge"]:
+            h_score = results["home"]["profiles"].get(pname, {}).get("final", 0)
+            a_score = results["away"]["profiles"].get(pname, {}).get("final", 0)
+            profile_picks[pname] = {
+                "pick": "home" if h_score > a_score else ("away" if a_score > h_score else "tie"),
+                "home_score": h_score,
+                "away_score": a_score,
+                "margin": round(abs(h_score - a_score), 2),
+            }
+        best["profile_picks"] = profile_picks
+
         best["game_id"] = game_id
         best["matchup"] = matchup
         all_grades.append(best)
