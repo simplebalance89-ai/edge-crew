@@ -15587,6 +15587,22 @@ async def get_profedge(sport: str, mode: str = None):
                         } if ag.get("grade") else None,
                         "race": None,
                     }
+                    # Pass through crowdsource data from analysis
+                    for cs_field in ("crowdsource_grades", "crowdsource_consensus", "crowdsource_avg_score",
+                                     "crowdsource_avg_grade", "crowdsource_bp_count", "crowdsource_total",
+                                     "crowdsource_count", "crowdsource_divergence"):
+                        if ag.get(cs_field) is not None:
+                            game_entry[cs_field] = ag[cs_field]
+                    # Pass through kimi scout data
+                    if ag.get("kimi_scout"):
+                        game_entry["kimi_scout"] = ag["kimi_scout"]
+                    # Pass through peter_rules and ev from analysis
+                    if ag.get("peter_rules"):
+                        if game_entry.get("grade"):
+                            game_entry["grade"]["peter_rules"] = ag["peter_rules"]
+                    if ag.get("ev"):
+                        if game_entry.get("grade"):
+                            game_entry["grade"]["ev"] = ag["ev"]
                     # Fill missing profiles from _build_team_profile
                     if not game_entry.get("home_profile") or game_entry["home_profile"] == {}:
                         game_entry["home_profile"] = _build_team_profile(home_name, sport_key)
