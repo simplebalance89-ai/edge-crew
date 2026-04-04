@@ -1771,11 +1771,15 @@ SOCCER_LEAGUES = {
     "soccer_italy_serie_a":      {"name": "Serie A",      "country": "Italy",     "flag": "\U0001F1EE\U0001F1F9", "api_sports_id": 135, "tier": 1},
     "soccer_france_ligue_one":   {"name": "Ligue 1",      "country": "France",    "flag": "\U0001F1EB\U0001F1F7", "api_sports_id": 61,  "tier": 1},
     "soccer_uefa_champs_league": {"name": "UCL",          "country": "Europe",    "flag": "\U0001F3C6", "api_sports_id": 2,   "tier": 1},
-    # Tier 2 — Always fetched (Americas + Europa)
+    # Tier 2 — Always fetched (Americas + Europa + Cups)
     "soccer_usa_mls":            {"name": "MLS",          "country": "USA",       "flag": "\U0001F1FA\U0001F1F8", "api_sports_id": 253, "tier": 2},
     "soccer_mexico_ligamx":      {"name": "Liga MX",      "country": "Mexico",    "flag": "\U0001F1F2\U0001F1FD", "api_sports_id": 262, "tier": 2},
-    "soccer_brazil_serie_a":     {"name": "Brasileir\u00e3o",  "country": "Brazil",    "flag": "\U0001F1E7\U0001F1F7", "api_sports_id": 71,  "tier": 2},
+    "soccer_brazil_campeonato":  {"name": "Brasileir\u00e3o",  "country": "Brazil",    "flag": "\U0001F1E7\U0001F1F7", "api_sports_id": 71,  "tier": 2},
     "soccer_uefa_europa_league": {"name": "Europa League", "country": "Europe",   "flag": "\U0001F3C6", "api_sports_id": 3,   "tier": 2},
+    "soccer_fa_cup":             {"name": "FA Cup",        "country": "England",  "flag": "\U0001F3C6", "api_sports_id": 45,  "tier": 2},
+    "soccer_efl_champ":          {"name": "EFL Champ",     "country": "England",  "flag": "\U0001F3F4", "api_sports_id": 40,  "tier": 2},
+    "soccer_argentina_primera_division": {"name": "Argentina", "country": "Argentina", "flag": "\U0001F1E6\U0001F1F7", "api_sports_id": 128, "tier": 2},
+    "soccer_spl":                {"name": "Scottish PL",   "country": "Scotland", "flag": "\U0001F3F4", "api_sports_id": 179, "tier": 2},
     # Tier 3 — On-demand only (user clicks to load, saves API quota)
     "soccer_netherlands_eredivisie":      {"name": "Eredivisie",    "country": "Netherlands", "flag": "\U0001F1F3\U0001F1F1", "api_sports_id": 88,  "tier": 3},
     "soccer_portugal_primeira_liga":      {"name": "Primeira Liga", "country": "Portugal",    "flag": "\U0001F1F5\U0001F1F9", "api_sports_id": 94,  "tier": 3},
@@ -5285,9 +5289,10 @@ async def _fetch_sport_odds(sport_key, markets, sport_label):
 async def get_odds(sport: str, markets: str = "h2h,spreads,totals"):
     """Fetch live odds — SGO primary, The Odds API fallback."""
     sport_lower = sport.lower()
-    # Soccer gets extra markets: BTTS, draw no bet
-    if sport_lower == "soccer" and markets == "h2h,spreads,totals":
-        markets = "h2h,spreads,totals,btts,draw_no_bet"
+    # Soccer: btts/draw_no_bet cause 422 on Odds API v4 /odds/ endpoint
+    # Use standard markets; BTTS can be fetched per-event if needed
+    # if sport_lower == "soccer" and markets == "h2h,spreads,totals":
+    #     markets = "h2h,spreads,totals,btts,draw_no_bet"
     cache_key = f"{sport_lower}:{markets}"
     cached = _get_cached(cache_key)
     if cached:
