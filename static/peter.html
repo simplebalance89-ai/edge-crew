@@ -295,7 +295,7 @@ function renderStats(data) {
 function renderGames(games) {
     var container = document.getElementById('gamesContainer');
     if (!games || games.length === 0) {
-        container.innerHTML = '<div class="loading">No NBA games today</div>';
+        container.innerHTML = '<div class="loading">No ' + _currentSport.toUpperCase() + ' games today</div>';
         return;
     }
     var html = '';
@@ -362,7 +362,7 @@ function renderGames(games) {
             }
         });
         // Engine data: S0 block (overnight line movement, rankings)
-        var engS0Keys = ['rest_b2b', 'pace_matchup', 'goalie', 'form_league', 'pitchers'];
+        var engS0Keys = ['pace_matchup', 'goalie', 'form_league', 'pitchers'];
         var hasEngineS0 = false;
         engS0Keys.forEach(function(ek) {
             if (_engineData[ek]) {
@@ -639,7 +639,7 @@ function regradeGame(gameId) {
     fetch('/api/profedge/regrade', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({game_id: gameId, sport: 'nba'})
+        body: JSON.stringify({game_id: gameId, sport: _currentSport})
     }).then(function(r) { return r.json(); })
     .then(function() { loadGames(); })
     .catch(function(err) { console.error('Regrade failed:', err); });
@@ -650,7 +650,7 @@ function loadMatrix() {
     // Load official matrix from profedge response (already cached) and Peter's overrides
     Promise.all([
         fetch('/api/profedge/' + _currentSport).then(function(r) { return r.json(); }),
-        fetch('/api/agent/peter/matrix/nba').then(function(r) { return r.json(); }).catch(function() { return null; })
+        fetch('/api/agent/peter/matrix/' + _currentSport).then(function(r) { return r.json(); }).catch(function() { return null; })
     ]).then(function(results) {
         var profData = results[0];
         var agentMatrix = results[1];

@@ -15628,7 +15628,7 @@ async def get_profedge(sport: str, mode: str = None):
                             ag["home_ml"] = _og.get("ml_home", _og.get("home_ml", ""))
                         if not ag.get("away_ml"):
                             ag["away_ml"] = _og.get("ml_away", _og.get("away_ml", ""))
-                logger.info(f"[profedge] {sport_key}: merged odds for {len(_odds_by_matchup)} matchups onto {len(live_games)} live analysis games")
+                logger.info(f"[profedge] {sport_key}: merged odds for {len(_odds_list)} matchups onto {len(live_games)} live analysis games")
 
                 # Convert analysis games to profedge format
                 converted = []

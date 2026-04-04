@@ -337,13 +337,16 @@
 const SPORTS = [
   { key: 'nba', label: 'NBA' },
   { key: 'ncaab', label: 'NCAAB' },
-  { key: 'nhl', label: 'NHL' }
+  { key: 'nhl', label: 'NHL' },
+  { key: 'mlb', label: 'MLB' },
+  { key: 'soccer', label: 'Soccer' }
 ];
 
 const CREW = [
   { name: 'Peter', path: '/peter', sport: 'NBA', page: 'peter' },
   { name: 'DJ', path: '/dj', sport: 'NCAAB', page: 'dj' },
-  { name: 'Chinny', path: '/chinny', sport: 'NHL', page: 'chinny' }
+  { name: 'Chinny', path: '/chinny', sport: 'NHL', page: 'chinny' },
+  { name: 'Jimmy', path: '/jimmy', sport: 'ALL', page: 'jimmy' }
 ];
 
 async function fetchSport(key) {

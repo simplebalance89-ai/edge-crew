@@ -60,8 +60,8 @@ def win_pct(record_str: str | None) -> float:
 
 # ─── Sinton.ia Scoring Functions ─────────────────────────────────────────────────
 
-def _clamp(val: int | float, lo: int = 1, hi: int = 10) -> int:
-    return max(lo, min(hi, int(round(val))))
+def _clamp(val: int | float, lo: int = 1, hi: int = 10) -> float:
+    return max(lo, min(hi, round(float(val), 1)))
 
 
 def score_star_player_status(game: dict, side: str) -> tuple[int, str]:
@@ -1233,7 +1233,7 @@ def check_chain(chain_name: str, variables: dict) -> bool:
     if chain_name == "THE_MISPRICING":
         return (v.get("star_player_status", 0) >= 8 and
                 v.get("sharp_vs_public", 10) <= 4 and  # Line flat
-                True)  # Simplified — full implementation needs sharp data
+                v.get("line_movement", 5) <= 3)  # Line hasn't moved despite star impact
     elif chain_name == "FATIGUE_FADE":
         return (v.get("rest_advantage", 0) >= 8 and
                 v.get("road_trip_length", 0) >= 7 and
