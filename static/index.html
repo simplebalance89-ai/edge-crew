@@ -11436,15 +11436,6 @@ function renderProEdgeGames(games, container) {
                 html += '</div>';
             });
             html += '</div>';
-            // Peter rules flags
-            if (gr.peter_rules && gr.peter_rules.flags && gr.peter_rules.flags.length > 0) {
-                html += '<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:3px;">';
-                gr.peter_rules.flags.forEach(function(f) {
-                    var fc = f.action === 'KILL' ? '#ef4444' : (f.action === 'BOOST' ? '#10B981' : '#d4a024');
-                    html += '<span style="font-size:9px;padding:2px 5px;border-radius:3px;background:rgba(255,255,255,0.04);border:1px solid ' + fc + ';color:' + fc + ';">' + f.action + '</span>';
-                });
-                html += '</div>';
-            }
         } else {
             html += '<div style="font-size:24px;font-weight:900;color:rgba(255,255,255,0.15);text-align:center;padding:12px 0;">N/A</div>';
         }
@@ -11487,9 +11478,35 @@ function renderProEdgeGames(games, container) {
         }
         html += '</div>';
 
-        // ═══ STEP 5: ENGINE VERDICT ═══
-        html += '<div style="min-width:180px;flex-shrink:0;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:10px;text-align:center;display:flex;flex-direction:column;justify-content:center;">';
-        html += '<div style="font-size:9px;font-weight:800;color:#10B981;letter-spacing:1px;margin-bottom:8px;">STEP 5 — ENGINE</div>';
+        // ═══ CROWDSOURCE (who said what — model consensus) ═══
+        var csGrades = g.crowdsource_grades || [];
+        var csConsensus = g.crowdsource_consensus || '';
+        html += '<div style="min-width:200px;flex-shrink:0;background:rgba(168,85,247,0.06);border:1px solid rgba(168,85,247,0.2);border-radius:10px;padding:10px;">';
+        html += '<div style="font-size:9px;font-weight:800;color:#A855F7;letter-spacing:1px;margin-bottom:6px;">CROWDSOURCE</div>';
+        if (csGrades.length > 0) {
+            var csColor = csConsensus === 'UNANIMOUS_BP' ? '#10B981' : csConsensus === 'MAJORITY_BP' ? '#F59E0B' : csConsensus === 'SPLIT' ? '#ef4444' : 'rgba(255,255,255,0.4)';
+            html += '<div style="text-align:center;margin-bottom:6px;"><span style="font-size:9px;font-weight:700;color:' + csColor + ';background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:3px;border:1px solid ' + csColor + '30;">' + (csConsensus || 'N/A').replace(/_/g,' ') + '</span></div>';
+            if (g.crowdsource_avg_score) {
+                html += '<div style="text-align:center;margin-bottom:6px;"><span style="font-size:20px;font-weight:900;color:' + csColor + ';">' + (g.crowdsource_avg_grade || '?') + '</span> <span style="font-size:10px;color:rgba(255,255,255,0.4);">' + (g.crowdsource_avg_score || 0).toFixed(1) + '</span></div>';
+            }
+            csGrades.forEach(function(cs) {
+                var csc = (cs.grade||'').startsWith('A') ? '#10B981' : (cs.grade||'').startsWith('B') ? '#38BDF8' : '#d4a024';
+                html += '<div style="display:flex;justify-content:space-between;font-size:10px;padding:2px 0;border-bottom:1px solid rgba(255,255,255,0.04);">';
+                html += '<span style="color:rgba(255,255,255,0.5);">' + (cs.model || '?') + '</span>';
+                html += '<span style="color:' + csc + ';font-weight:700;">' + (cs.grade || '?') + ' (' + (cs.score || 0).toFixed(1) + ')</span>';
+                html += '</div>';
+                if (cs.pick && cs.pick.team && cs.pick.team !== 'PASS') {
+                    html += '<div style="font-size:8px;color:rgba(255,255,255,0.3);padding-left:4px;">' + cs.pick.team + ' ' + (cs.pick.bet_type||'') + ' ' + (cs.pick.line||'') + '</div>';
+                }
+            });
+        } else {
+            html += '<div style="font-size:10px;color:rgba(255,255,255,0.3);font-style:italic;text-align:center;padding:12px 0;">Awaiting crowdsource</div>';
+        }
+        html += '</div>';
+
+        // ═══ ENGINE (final composite grade + pick) ═══
+        html += '<div style="min-width:160px;flex-shrink:0;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:10px;text-align:center;display:flex;flex-direction:column;justify-content:center;">';
+        html += '<div style="font-size:9px;font-weight:800;color:#10B981;letter-spacing:1px;margin-bottom:8px;">ENGINE</div>';
         html += '<div style="font-size:36px;font-weight:900;color:' + gColor + ';line-height:1;">' + grade + '</div>';
         html += '<div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:2px;">Score: ' + avg + '</div>';
         if (_profedgeCurrentSport === 'mlb' && g.nrfi) {
@@ -11501,18 +11518,6 @@ function renderProEdgeGames(games, container) {
             if (gr && gr.profiles && gr.profiles.sintonia) sizing = gr.profiles.sintonia.sizing || '';
             html += '<div style="margin-top:8px;background:rgba(247,37,133,0.15);border:1px solid rgba(247,37,133,0.3);color:#F72585;font-size:12px;font-weight:800;padding:6px 10px;border-radius:6px;">' + pickTeam + (sizing && sizing !== 'PASS' ? ' (' + sizing + ')' : '') + '</div>';
         }
-        // EV
-        if (gr && gr.ev && gr.ev.ev_pct != null) {
-            var evPct = gr.ev.ev_pct;
-            var evColor = evPct > 0 ? '#10B981' : '#ef4444';
-            html += '<div style="margin-top:4px;font-size:11px;font-weight:700;color:' + evColor + ';">EV: ' + (evPct > 0 ? '+' : '') + evPct.toFixed(1) + '%</div>';
-        }
-        // Race
-        if (g.race) {
-            html += '<div style="margin-top:4px;font-size:10px;color:rgba(255,255,255,0.5);">Race: ' + g.race.home_score + '-' + g.race.away_score + '</div>';
-            html += '<div style="font-size:10px;color:rgba(255,255,255,0.4);">' + (g.race.confidence || '') + '</div>';
-        }
-        // Regrade
         if (_profedgeCurrentSport !== 'mlb') {
             html += '<button onclick="event.stopPropagation();regradeProEdge(\'' + g.game_id + '\')" style="margin-top:8px;background:rgba(247,37,133,0.12);border:1px solid rgba(247,37,133,0.3);color:#F72585;font-size:10px;font-weight:700;padding:5px 12px;border-radius:6px;cursor:pointer;">RE-GRADE</button>';
         }
@@ -11569,9 +11574,50 @@ function renderProEdgeGames(games, container) {
         }
 
         // ═══ STEP 7: KALSHI MARKET VALIDATION ═══
+        // ═══ PETER'S RULES (own entity — kill/boost flags) ═══
+        html += '<div style="min-width:160px;flex-shrink:0;background:rgba(212,160,23,0.06);border:1px solid rgba(212,160,23,0.2);border-radius:10px;padding:10px;">';
+        html += '<div style="font-size:9px;font-weight:800;color:#D4A017;letter-spacing:1px;margin-bottom:6px;">PETER\'S RULES</div>';
+        var prFlags = (gr && gr.peter_rules && gr.peter_rules.flags) ? gr.peter_rules.flags : [];
+        var prAdj = (gr && gr.peter_rules) ? gr.peter_rules.adjustment || 0 : 0;
+        var prKill = (gr && gr.peter_rules) ? gr.peter_rules.has_kill : false;
+        if (prFlags.length > 0) {
+            prFlags.forEach(function(f) {
+                var fc = f.action === 'KILL' ? '#ef4444' : (f.action === 'BOOST' ? '#10B981' : '#D4A017');
+                html += '<div style="margin-bottom:4px;padding:4px 6px;background:rgba(255,255,255,0.03);border:1px solid ' + fc + '30;border-radius:4px;">';
+                html += '<span style="font-size:9px;font-weight:800;color:' + fc + ';">' + f.action + '</span>';
+                html += '<div style="font-size:8px;color:rgba(255,255,255,0.4);margin-top:1px;">' + (f.note || f.rule || '') + '</div>';
+                html += '</div>';
+            });
+            html += '<div style="font-size:10px;font-weight:700;color:' + (prAdj > 0 ? '#10B981' : prAdj < 0 ? '#ef4444' : 'rgba(255,255,255,0.4)') + ';margin-top:4px;">Adj: ' + (prAdj > 0 ? '+' : '') + prAdj.toFixed(1) + '</div>';
+        } else {
+            html += '<div style="text-align:center;padding:8px 0;">';
+            html += '<div style="font-size:20px;font-weight:900;color:#10B981;">CLEAN</div>';
+            html += '<div style="font-size:9px;color:rgba(255,255,255,0.4);">No flags triggered</div>';
+            html += '</div>';
+        }
+        html += '</div>';
+
+        // ═══ EV GRADE (own entity — expected value math) ═══
+        html += '<div style="min-width:150px;flex-shrink:0;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:10px;text-align:center;">';
+        html += '<div style="font-size:9px;font-weight:800;color:#10B981;letter-spacing:1px;margin-bottom:6px;">EV GRADE</div>';
+        if (gr && gr.ev && gr.ev.ev_pct != null) {
+            var evPct = gr.ev.ev_pct;
+            var evColor = evPct > 5 ? '#10B981' : evPct > 0 ? '#F59E0B' : '#ef4444';
+            var evGrade = evPct >= 10 ? 'A+' : evPct >= 7 ? 'A' : evPct >= 5 ? 'B+' : evPct >= 3 ? 'B' : evPct >= 0 ? 'C' : 'F';
+            html += '<div style="font-size:28px;font-weight:900;color:' + evColor + ';">' + (evPct > 0 ? '+' : '') + evPct.toFixed(1) + '%</div>';
+            html += '<div style="font-size:10px;color:rgba(255,255,255,0.4);">EV Grade: <span style="color:' + evColor + ';font-weight:700;">' + evGrade + '</span></div>';
+            if (gr.ev.win_prob) html += '<div style="font-size:9px;color:rgba(255,255,255,0.35);margin-top:2px;">Win prob: ' + (gr.ev.win_prob * 100).toFixed(0) + '%</div>';
+            if (gr.ev.kelly_units) html += '<div style="font-size:9px;color:rgba(255,255,255,0.35);">Kelly: ' + gr.ev.kelly_units + '</div>';
+        } else {
+            html += '<div style="font-size:20px;font-weight:900;color:rgba(255,255,255,0.15);padding:8px 0;">--</div>';
+            html += '<div style="font-size:9px;color:rgba(255,255,255,0.3);">Awaiting EV calc</div>';
+        }
+        html += '</div>';
+
+        // ═══ KALSHI (market validation) ═══
         if (g.kalshi_prob) {
             html += '<div style="min-width:180px;flex-shrink:0;background:rgba(0,150,136,0.06);border:1px solid rgba(0,150,136,0.2);border-radius:10px;padding:10px;">';
-            html += '<div style="font-size:9px;font-weight:800;color:#009688;letter-spacing:1px;margin-bottom:6px;">STEP 7 — KALSHI</div>';
+            html += '<div style="font-size:9px;font-weight:800;color:#009688;letter-spacing:1px;margin-bottom:6px;">KALSHI</div>';
             var kalshiPct = g.kalshi_prob;
             var hasEdgeData = gr && gr.ev && gr.ev.win_prob;
             var edgeProb = hasEdgeData ? gr.ev.win_prob * 100 : null;
