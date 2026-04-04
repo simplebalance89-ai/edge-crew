@@ -1807,6 +1807,34 @@ body.agent-active .agent-switcher{display:flex;align-items:center;gap:6px;}
 </div>
 </div>
 
+<!-- ===== NFL PANEL ===== -->
+<div class="sport-panel" id="panel-nfl">
+<div class="gotcha-banner" style="border-color:rgba(16,185,129,0.2);background:rgba(16,185,129,0.06);">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h3 style="color:#10B981;">Gotcha Card &mdash; NFL</h3>
+        <div style="display:flex;gap:6px;">
+            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(99,102,241,0.12);color:#818cf8;font-size:11px;font-weight:700;border:none;" onclick="toggleGotchaEdit('NFL')">EDIT</button>
+            <button style="cursor:pointer;padding:4px 10px;border-radius:4px;background:rgba(16,185,129,0.15);color:#10B981;font-size:11px;font-weight:700;border:none;" onclick="saveGotcha('NFL')">SAVE</button>
+        </div>
+    </div>
+    <div id="gotchaDisplay-NFL"><p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load today's gotcha card...</p></div>
+    <textarea id="gotchaEditor-NFL" style="display:none;width:100%;min-height:150px;background:#08080c;color:#fff;border:1px solid #10B981;border-radius:6px;padding:10px;font-family:var(--ec-font-body);font-size:13px;resize:vertical;margin-top:8px;" placeholder="One note per line..."></textarea>
+</div>
+<div class="empty-state">No NFL games loaded.<br><strong>Hit REFRESH SLATE</strong> to load live lines.</div>
+<div class="analysis-duo">
+<div class="input-section analysis-card" id="peterGutNFL" data-card="sintonia">
+    <h3 id="peterGutNFLTitle" style="color:#9B59B6;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><circle cx="32" cy="32" r="28" fill="none" stroke="#9B59B6" stroke-width="3"/><circle cx="32" cy="22" r="8" fill="none" stroke="#9B59B6" stroke-width="2"/><path d="M20 40 Q26 28 32 34 Q38 28 44 40" fill="none" stroke="#9B59B6" stroke-width="2" stroke-linecap="round"/></svg>EC(8) &mdash; NFL</h3>
+    <div id="peterGutNFLContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;"><p style="color:rgba(255,255,255,0.3);font-style:italic;">Refresh slate to load...</p></div>
+    <div id="peterGutNFLTimestamp" style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;"></div>
+</div>
+<div class="input-section analysis-card" id="alyssaEdgeNFL" data-card="alyssa">
+    <h3 style="color:#41EAD4;font-size:13px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 64 64" width="16" height="16" style="flex-shrink:0;"><polygon points="32,6 38,24 58,24 42,36 48,54 32,44 16,54 22,36 6,24 26,24" fill="none" stroke="#41EAD4" stroke-width="3" stroke-linejoin="round"/></svg>Alyssa's Edge &mdash; NFL</h3>
+    <div style="font-size:10px;color:rgba(65,234,212,0.5);font-weight:700;letter-spacing:1px;margin-bottom:8px;">100% MATH. NO AI. PURE EDGE.</div>
+    <div id="alyssaEdgeNFLContent" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8;"><p style="color:rgba(255,255,255,0.3);font-style:italic;">Hit REFRESH SLATE to load edge analysis...</p></div>
+</div>
+</div>
+</div>
+
 <!-- ===== TENNIS PANEL ===== -->
 <div class="sport-panel" id="panel-tennis">
 <div class="gotcha-banner" style="border-color:rgba(234,179,8,0.2);background:rgba(234,179,8,0.06);">

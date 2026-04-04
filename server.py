@@ -7522,10 +7522,14 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
             timeout=timeout,
         )
 
+    # Secondary Azure endpoint for GPT-5.4-nano
+    _AZURE_PETERWILSON_ENDPOINT = os.environ.get("AZURE_PETERWILSON_ENDPOINT", "https://ai-peterwilson7092ai011379814834.openai.azure.com/")
+    _AZURE_PETERWILSON_KEY = os.environ.get("AZURE_PETERWILSON_KEY", "")
+
     def _build_crowdsource_models():
         return [
             {"name": "grok-4-1-fast-reasoning", "endpoint": "ai_services", "display": "Grok 4.1 Fast"},
-            {"name": "gpt-41", "endpoint": "azure", "display": "GPT 4.1"},
+            {"name": "gpt-5.4-nano", "endpoint": "azure_peterwilson", "display": "GPT 5.4 Nano"},
             {"name": "DeepSeek-R1-0528", "endpoint": "ai_services", "display": "DeepSeek R1"},
             {"name": "Kimi-K2.5", "endpoint": "ai_services", "display": "Kimi K2.5"},
             {"name": "claude-sonnet-4-6", "endpoint": "anthropic", "display": "Claude 4.6"},
@@ -7957,6 +7961,25 @@ Return ONLY valid JSON. Grade most games C or PASS. Only B+ when edge is clear."
                             )
                         )
                         raw = anth_response.content[0].text.strip()
+                    elif cs_model.get("endpoint") == "azure_peterwilson":
+                        if not _AZURE_PETERWILSON_KEY:
+                            logger.warning(f"[CROWDSOURCE] Skipping {cs_model['display']} — AZURE_PETERWILSON_KEY not set")
+                            return cs_model, None
+                        pw_client = AzureOpenAI(
+                            azure_endpoint=_AZURE_PETERWILSON_ENDPOINT,
+                            api_key=_AZURE_PETERWILSON_KEY,
+                            api_version=AZURE_API_VERSION,
+                            timeout=60,
+                        )
+                        response = await asyncio.to_thread(
+                            lambda: pw_client.chat.completions.create(
+                                model=cs_model["name"],
+                                messages=[{"role": "user", "content": cs_prompt}],
+                                temperature=0.4,
+                                max_tokens=4000,
+                            )
+                        )
+                        raw = response.choices[0].message.content.strip()
                     else:
                         client = _build_model_client(cs_model["name"], timeout=60)
                         response = await asyncio.to_thread(
