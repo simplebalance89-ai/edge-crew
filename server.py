@@ -7526,7 +7526,9 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
         return [
             {"name": "grok-4-1-fast-reasoning", "endpoint": "ai_services", "display": "Grok 4.1 Fast"},
             {"name": "gpt-41", "endpoint": "azure", "display": "GPT 4.1"},
+            {"name": "DeepSeek-R1-0528", "endpoint": "ai_services", "display": "DeepSeek R1"},
             {"name": "Kimi-K2.5", "endpoint": "ai_services", "display": "Kimi K2.5"},
+            {"name": "claude-sonnet-4-6", "endpoint": "anthropic", "display": "Claude 4.6"},
         ]
 
     def _grade_distance(grade_a, grade_b):
@@ -7940,18 +7942,33 @@ Return ONLY valid JSON. Grade most games C or PASS. Only B+ when edge is clear."
 
             async def _run_crowdsource_model(cs_model):
                 try:
-                    client = _build_model_client(cs_model["name"], timeout=60)
                     logger.info(f"[CROWDSOURCE] Calling {cs_model['display']}...")
-                    response = await asyncio.to_thread(
-                        lambda: client.chat.completions.create(
-                            model=cs_model["name"],
-                            messages=[{"role": "user", "content": cs_prompt}],
-                            temperature=0.4,
-                            max_tokens=4000,
-                            response_format={"type": "json_object"} if cs_model["endpoint"] != "azure" else None,
+                    if cs_model.get("endpoint") == "anthropic":
+                        if not ANTHROPIC_API_KEY:
+                            logger.warning(f"[CROWDSOURCE] Skipping {cs_model['display']} — ANTHROPIC_API_KEY not set")
+                            return cs_model, None
+                        anth_client = anthropic_sdk.Anthropic(api_key=ANTHROPIC_API_KEY, timeout=60)
+                        anth_response = await asyncio.to_thread(
+                            lambda: anth_client.messages.create(
+                                model=cs_model["name"],
+                                max_tokens=4000,
+                                temperature=0.4,
+                                messages=[{"role": "user", "content": cs_prompt}],
+                            )
                         )
-                    )
-                    raw = response.choices[0].message.content.strip()
+                        raw = anth_response.content[0].text.strip()
+                    else:
+                        client = _build_model_client(cs_model["name"], timeout=60)
+                        response = await asyncio.to_thread(
+                            lambda: client.chat.completions.create(
+                                model=cs_model["name"],
+                                messages=[{"role": "user", "content": cs_prompt}],
+                                temperature=0.4,
+                                max_tokens=4000,
+                                response_format={"type": "json_object"} if cs_model["endpoint"] != "azure" else None,
+                            )
+                        )
+                        raw = response.choices[0].message.content.strip()
                     parsed = _clean_json(raw)
                     return cs_model, parsed
                 except Exception as e:
