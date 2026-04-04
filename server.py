@@ -13111,12 +13111,21 @@ async def card_injuries(sport: str, matchup: str):
                 team_n = (team_data.get("displayName") or
                           team_data.get("team", {}).get("displayName", "")).lower()
                 is_away = (team_a == away_abbr.lower() or
-                           away_name in team_n or away_abbr.lower() in team_n)
+                           away_name.lower() in team_n or away_abbr.lower() in team_n)
                 is_home = (team_a == home_abbr.lower() or
-                           home_name in team_n or home_abbr.lower() in team_n)
+                           home_name.lower() in team_n or home_abbr.lower() in team_n)
                 if not is_away and not is_home:
                     continue
-                target = away_injuries if is_away else home_injuries
+                # Disambiguate when both match (substring overlap like "New Orleans" vs "New York")
+                if is_away and is_home:
+                    if team_a == away_abbr.lower():
+                        target = away_injuries
+                    elif team_a == home_abbr.lower():
+                        target = home_injuries
+                    else:
+                        continue  # skip ambiguous
+                else:
+                    target = away_injuries if is_away else home_injuries
                 for inj in team_data.get("injuries", []):
                     athlete = inj.get("athlete", {})
                     pname = athlete.get("displayName", "?") if isinstance(athlete, dict) else "?"
