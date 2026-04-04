@@ -476,7 +476,7 @@ async def _warm_analysis_cache():
     for sport in active_sports:
         cached = _load_analysis_cache(sport)
         if cached and cached.get("games"):
-            cached_date = cached.get("generated_at", "")[:10] or cached.get("cached_at", "")[:10]
+            cached_date = _extract_date_from_ts(cached.get("generated_at", "") or cached.get("cached_at", ""))
             if cached_date == today:
                 print(f"[ANALYSIS WARM] {sport.upper()}: today's cache exists ({len(cached['games'])} games)")
                 _set_cache(f"analysis:{sport}", cached)
@@ -820,7 +820,7 @@ async def get_analysis_schedule():
         has_analysis = False
         cached = _load_analysis_cache(s)
         if cached and cached.get("games"):
-            cached_date = cached.get("generated_at", "")[:10] or cached.get("cached_at", "")[:10]
+            cached_date = _extract_date_from_ts(cached.get("generated_at", "") or cached.get("cached_at", ""))
             if cached_date == today:
                 has_analysis = True
         entry = {
@@ -2225,6 +2225,20 @@ _opening_lines = {}  # key: "YYYY-MM-DD:{game_id}" -> {spread, total, away_ml, h
 def _now_ts():
     """Return current timestamp string for API responses (PST)."""
     return datetime.now(PST).strftime("%I:%M %p PST — %b %d, %Y")
+
+
+def _extract_date_from_ts(raw_ts: str) -> str:
+    """Extract YYYY-MM-DD from either ISO or human-readable timestamp."""
+    if not raw_ts:
+        return ""
+    if raw_ts[:4].isdigit():
+        return raw_ts[:10]  # ISO format
+    if "\u2014" in raw_ts:  # em-dash in human format
+        try:
+            return datetime.strptime(raw_ts.split("\u2014 ")[1].strip(), "%b %d, %Y").strftime("%Y-%m-%d")
+        except Exception:
+            return ""
+    return raw_ts[:10]
 
 
 def _game_not_started(game, now=None):
@@ -17046,7 +17060,7 @@ async def _run_profedge_batch_grade(sport: str):
 
     # ===== Freshness check: validate analysis is from today =====
     # If analysis was generated today, trust it. Only reject if it's from a previous day.
-    _analysis_date = live_data.get("generated_at", "")[:10] or live_data.get("cached_at", "")[:10]
+    _analysis_date = _extract_date_from_ts(live_data.get("generated_at", "") or live_data.get("cached_at", ""))
     _today_str = datetime.now(PST).strftime("%Y-%m-%d")
     if _analysis_date == _today_str:
         logger.info(f"[PROFEDGE GRADE] {sport_key.upper()}: analysis from today ({_analysis_date}) — grading {len(live_games)} games")
