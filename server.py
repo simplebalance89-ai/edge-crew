@@ -935,10 +935,8 @@ SPORTSGAMEODDS_KEY = os.environ.get("SPORTSGAMEODDS_KEY", "")
 SPORTSGAMEODDS_BASE = "https://api.sportsgameodds.com/v2"
 # SportsGameOdds league IDs mapped from our sport keys
 SGO_LEAGUE_MAP = {
-    "nba": "NBA", "wnba": "WNBA", "ncaab": "NCAAB",
-    "nhl": "NHL", "nfl": "NFL", "mlb": "MLB",
-    "mma": "UFC",
-    "soccer": "EPL,LA_LIGA,BUNDESLIGA,IT_SERIE_A,FR_LIGUE_1,UEFA_CHAMPIONS_LEAGUE,MLS",
+    # SGO disabled — API returning 403 across all sports (dead as of 2026-04-04)
+    # All odds now flow through The Odds API (primary) with 4.5M credits remaining
 }
 # SGO player prop stat types per sport (oddID prefix → display label)
 SGO_PROP_STATS = {
@@ -5272,10 +5270,14 @@ async def _fetch_sport_odds(sport_key, markets, sport_label):
                 except Exception:
                     logger.warning(f"Odds API {sport_key}: response was not valid JSON")
                     return games
+                if events:
+                    logger.info(f"[ODDS API] {sport_key}: {len(events)} events")
                 for event in events:
                     games.append(_parse_event(event, sport_label))
-    except Exception:
-        pass
+            else:
+                logger.warning(f"[ODDS API] {sport_key}: HTTP {resp.status_code}")
+    except Exception as e:
+        logger.warning(f"[ODDS API] {sport_key}: exception {e}")
     return games
 
 
