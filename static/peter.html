@@ -37,12 +37,34 @@ body { background:#0a0a0f; color:#fff; font-family:-apple-system,BlinkMacSystemF
 .grade-big { font-size:28px; font-weight:900; }
 .grade-avg { font-size:11px; color:rgba(255,255,255,0.4); }
 
-/* Pipeline */
+/* Pipeline — Shared Foundation */
 .pipeline-row { display:flex; gap:10px; overflow-x:auto; padding-bottom:8px; scrollbar-width:thin; -webkit-overflow-scrolling:touch; }
 .pipeline-step { min-width:170px; flex-shrink:0; border-radius:10px; padding:10px; }
 .step-label { font-size:9px; font-weight:800; letter-spacing:1px; margin-bottom:6px; }
 .step-data { font-size:11px; color:rgba(255,255,255,0.6); line-height:1.6; }
 .step-data b { color:#fff; font-weight:700; }
+
+/* Two-Lane Fork */
+.lane-fork { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px; }
+@media (max-width:640px) { .lane-fork { grid-template-columns:1fr; } }
+.lane { border-radius:12px; padding:12px; }
+.lane-our { background:rgba(247,37,133,0.04); border:1px solid rgba(247,37,133,0.2); }
+.lane-ai { background:rgba(0,212,170,0.04); border:1px solid rgba(0,212,170,0.2); }
+.lane-title { font-size:10px; font-weight:900; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:10px; padding-bottom:6px; border-bottom:1px solid rgba(255,255,255,0.06); }
+.lane-our .lane-title { color:#F72585; }
+.lane-ai .lane-title { color:#00D4AA; }
+.grader-card { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:8px; text-align:center; }
+.grader-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(90px, 1fr)); gap:6px; }
+
+/* Convergence */
+.convergence { margin-top:12px; background:rgba(212,160,23,0.06); border:1px solid rgba(212,160,23,0.25); border-radius:12px; padding:16px; text-align:center; }
+.convergence-title { font-size:10px; font-weight:900; letter-spacing:2px; color:#D4A017; margin-bottom:10px; }
+.convergence-badge { display:inline-block; padding:4px 14px; border-radius:20px; font-size:11px; font-weight:900; letter-spacing:1px; }
+.badge-lock { background:rgba(16,185,129,0.15); border:1px solid #10B981; color:#10B981; }
+.badge-aligned { background:rgba(56,189,248,0.15); border:1px solid #38BDF8; color:#38BDF8; }
+.badge-close { background:rgba(245,158,11,0.15); border:1px solid #F59E0B; color:#F59E0B; }
+.badge-divergent { background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#ef4444; }
+.convergence-row { display:flex; justify-content:center; align-items:center; gap:24px; margin-top:10px; flex-wrap:wrap; }
 
 /* Matrix tab */
 .matrix-container { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
@@ -337,10 +359,10 @@ function renderGames(games) {
         html += '<div class="grade-area"><span class="pct-badge" style="color:' + pctColor + ';background:rgba(' + pctBg + ',0.12);">' + pctComplete + '%</span><span class="grade-big" style="color:' + gColor + ';">' + grade + '</span> <span class="grade-avg">' + avg + '</span></div>';
         html += '</div>';
 
-        // Pipeline
+        // ═══ SHARED FOUNDATION: S0 → S1 → S2 ═══
         html += '<div class="pipeline-row">';
 
-        // ── S0 — TEAM DATA (lines + form + rankings + line movement) ──
+        // ── S0 — TEAM DATA ──
         html += '<div class="pipeline-step" style="background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.2);">';
         html += '<div class="step-label" style="color:#6366f1;">S0 — TEAM DATA</div>';
         var odds = g.odds || {};
@@ -361,30 +383,20 @@ function renderGames(games) {
                 html += '<span style="font-size:9px;color:rgba(255,255,255,0.5);"><b style="color:#fff;">' + abbrev + '</b> <span style="color:rgba(255,255,255,0.25);">' + tag + '</span> ' + parts.join(' | ') + '</span><br>';
             }
         });
-        // Engine data: S0 block (overnight line movement, rankings)
         var engS0Keys = ['pace_matchup', 'goalie', 'form_league', 'pitchers'];
-        var hasEngineS0 = false;
         engS0Keys.forEach(function(ek) {
             if (_engineData[ek]) {
-                var lines = _engineData[ek].split('\n').filter(function(l) {
-                    var t = l.trim();
-                    return t && !t.startsWith('===') && !t.startsWith('RULE:') && t.length > 10;
-                });
-                // Find lines relevant to this game's teams
-                var away = (g.away || '').toUpperCase();
-                var home = (g.home || '').toUpperCase();
+                var lines = _engineData[ek].split('\n').filter(function(l) { var t = l.trim(); return t && !t.startsWith('===') && !t.startsWith('RULE:') && t.length > 10; });
+                var away = (g.away || '').toUpperCase(), home = (g.home || '').toUpperCase();
                 var relevant = lines.filter(function(l) { var u = l.toUpperCase(); return u.indexOf(away) !== -1 || u.indexOf(home) !== -1; });
-                if (relevant.length > 0) {
-                    hasEngineS0 = true;
-                    relevant.slice(0, 2).forEach(function(l) {
-                        html += '<span style="font-size:8px;color:#6366f1;line-height:1.3;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;">' + l.trim().substring(0, 80) + '</span>';
-                    });
-                }
+                relevant.slice(0, 2).forEach(function(l) {
+                    html += '<span style="font-size:8px;color:#6366f1;line-height:1.3;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;">' + l.trim().substring(0, 80) + '</span>';
+                });
             }
         });
         html += '</div></div>';
 
-        // ── S1 — SCHEDULE / REST (B2B, travel, congestion) ──
+        // ── S1 — SCHEDULE ──
         html += '<div class="pipeline-step" style="min-width:180px;background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.2);">';
         html += '<div class="step-label" style="color:#38BDF8;">S1 — SCHEDULE</div>';
         ['away','home'].forEach(function(side) {
@@ -398,8 +410,7 @@ function renderGames(games) {
                 var restColor = prof.rest_days === 0 ? '#ef4444' : (prof.rest_days >= 2 ? '#10B981' : '#F59E0B');
                 html += '<span style="font-size:10px;color:' + restColor + ';font-weight:700;">Rest: ' + prof.rest_days + 'd</span>';
                 if (prof.is_b2b) html += ' <span style="font-size:9px;background:rgba(239,68,68,0.2);color:#ef4444;padding:1px 4px;border-radius:3px;font-weight:700;">B2B</span>';
-                html += '<br>';
-                hasData = true;
+                html += '<br>'; hasData = true;
             }
             if (prof.games_last_7d) { html += '<span style="font-size:9px;color:rgba(255,255,255,0.5);">L7d: ' + prof.games_last_7d + ' games</span><br>'; hasData = true; }
             if (prof.road_trip_len) { html += '<span style="font-size:9px;color:rgba(255,255,255,0.5);">Road trip: game ' + prof.road_trip_len + '</span><br>'; hasData = true; }
@@ -407,13 +418,10 @@ function renderGames(games) {
             if (!hasData) html += '<span style="font-size:9px;color:rgba(255,255,255,0.25);font-style:italic;">Schedule pending</span><br>';
             html += '</div>';
         });
-        // Engine data: S1 block (travel, congestion)
         var engS1Keys = ['rest_b2b', 'travel_b2b', 'congestion', 'homecourt', 'scoring_depth'];
         engS1Keys.forEach(function(ek) {
             if (_engineData[ek]) {
-                var lines = _engineData[ek].split('\n').filter(function(l) {
-                    var t = l.trim(); return t && !t.startsWith('===') && !t.startsWith('RULE:') && t.length > 10;
-                });
+                var lines = _engineData[ek].split('\n').filter(function(l) { var t = l.trim(); return t && !t.startsWith('===') && !t.startsWith('RULE:') && t.length > 10; });
                 var away = (g.away || '').toUpperCase(), home = (g.home || '').toUpperCase();
                 var relevant = lines.filter(function(l) { var u = l.toUpperCase(); return u.indexOf(away) !== -1 || u.indexOf(home) !== -1; });
                 relevant.slice(0, 2).forEach(function(l) {
@@ -423,7 +431,7 @@ function renderGames(games) {
         });
         html += '</div>';
 
-        // ── S2 — PLAYER DATA (injuries, star impact, usage) ──
+        // ── S2 — PLAYERS ──
         html += '<div class="pipeline-step" style="min-width:200px;background:rgba(239,68,68,0.04);border:1px solid rgba(239,68,68,0.2);">';
         html += '<div class="step-label" style="color:#ef4444;">S2 — PLAYERS</div>';
         ['away','home'].forEach(function(side) {
@@ -432,9 +440,7 @@ function renderGames(games) {
             var tag = side === 'home' ? 'H' : 'A';
             html += '<div style="margin-bottom:3px;">';
             html += '<span style="font-size:10px;font-weight:700;color:#fff;">' + abbrev + '</span> <span style="font-size:9px;color:rgba(255,255,255,0.25);">' + tag + '</span><br>';
-            if (prof.ppg_L5) {
-                html += '<span style="font-size:9px;color:rgba(255,255,255,0.5);">PPG: ' + prof.ppg_L5.toFixed(1) + ' | Opp: ' + (prof.opp_ppg_L5 || 0).toFixed(1) + '</span><br>';
-            }
+            if (prof.ppg_L5) html += '<span style="font-size:9px;color:rgba(255,255,255,0.5);">PPG: ' + prof.ppg_L5.toFixed(1) + ' | Opp: ' + (prof.opp_ppg_L5 || 0).toFixed(1) + '</span><br>';
             var inj = (g.injuries && g.injuries[side]) || [];
             if (inj.length > 0) {
                 var outCount = inj.filter(function(i){return i.status === 'OUT';}).length;
@@ -442,9 +448,7 @@ function renderGames(games) {
                 html += '<span style="font-size:10px;color:#ef4444;font-weight:700;">' + outCount + ' OUT</span>';
                 if (gtdCount > 0) html += ' <span style="font-size:9px;color:#F59E0B;">' + gtdCount + ' GTD</span>';
                 html += '<br>';
-                // Show top 2 impact injuries
-                var sorted = inj.filter(function(i){return i.status === 'OUT';}).sort(function(a,b){return (b.ppg||0)-(a.ppg||0);});
-                sorted.slice(0,2).forEach(function(i) {
+                inj.filter(function(i){return i.status === 'OUT';}).sort(function(a,b){return (b.ppg||0)-(a.ppg||0);}).slice(0,2).forEach(function(i) {
                     html += '<span style="font-size:8px;color:rgba(239,68,68,0.7);">' + (i.player||'?') + (i.ppg ? ' (' + i.ppg + 'ppg)' : '') + '</span><br>';
                 });
             } else {
@@ -452,13 +456,10 @@ function renderGames(games) {
             }
             html += '</div>';
         });
-        // Engine data: S2 block (usage, matchup, attack/defense)
         var engS2Keys = ['usage_cascade', 'pace_matchup', 'special_teams', 'attack_defense', 'venue'];
         engS2Keys.forEach(function(ek) {
             if (_engineData[ek]) {
-                var lines = _engineData[ek].split('\n').filter(function(l) {
-                    var t = l.trim(); return t && !t.startsWith('===') && !t.startsWith('RULE:') && t.length > 10;
-                });
+                var lines = _engineData[ek].split('\n').filter(function(l) { var t = l.trim(); return t && !t.startsWith('===') && !t.startsWith('RULE:') && t.length > 10; });
                 var away = (g.away || '').toUpperCase(), home = (g.home || '').toUpperCase();
                 var relevant = lines.filter(function(l) { var u = l.toUpperCase(); return u.indexOf(away) !== -1 || u.indexOf(home) !== -1; });
                 relevant.slice(0, 2).forEach(function(l) {
@@ -467,96 +468,176 @@ function renderGames(games) {
             }
         });
         html += '</div>';
+        html += '</div>'; // end S0-S2 pipeline-row
 
-        // Step 3: Variables
-        html += '<div class="pipeline-step" style="min-width:200px;background:rgba(212,160,36,0.06);border:1px solid rgba(212,160,36,0.2);">';
-        html += '<div class="step-label" style="color:#d4a024;">STEP 3 — VARIABLES</div>';
+        // ═══ TWO-LANE FORK ═══
+        html += '<div class="lane-fork">';
+
+        // ── LEFT LANE: OUR PROCESS (Sintonia + Edge + Peter Rules) ──
+        html += '<div class="lane lane-our">';
+        html += '<div class="lane-title">OUR PROCESS</div>';
         if (gr && gr.profiles) {
-            var firstProfile = gr.profiles[Object.keys(gr.profiles)[0]];
-            if (firstProfile && firstProfile.variables) {
-                var vars = firstProfile.variables;
+            // Variables from Sintonia (primary grader)
+            var sintoniaProf = gr.profiles.sintonia || gr.profiles[Object.keys(gr.profiles)[0]];
+            if (sintoniaProf && sintoniaProf.variables) {
+                html += '<div style="margin-bottom:8px;">';
+                html += '<div style="font-size:9px;color:rgba(255,255,255,0.35);font-weight:700;letter-spacing:0.5px;margin-bottom:4px;">TOP VARIABLES</div>';
+                var vars = sintoniaProf.variables;
                 var varNames = Object.keys(vars);
                 varNames.sort(function(a,b) { return (vars[b].score || 0) - (vars[a].score || 0); });
-                var showVars = varNames.slice(0, 8);
-                showVars.forEach(function(vname) {
-                    var v = vars[vname];
-                    var vs = v.score || 0;
+                varNames.slice(0, 6).forEach(function(vname) {
+                    var vs = vars[vname].score || 0;
                     var vc = vs >= 7 ? '#10B981' : (vs >= 5 ? '#d4a024' : '#ef4444');
                     html += '<div style="display:flex;justify-content:space-between;font-size:10px;padding:1px 0;"><span style="color:rgba(255,255,255,0.5);">' + vname.replace(/_/g, ' ') + '</span><span style="color:' + vc + ';font-weight:700;">' + vs + '</span></div>';
                 });
-                if (varNames.length > 8) html += '<div style="font-size:9px;color:rgba(255,255,255,0.3);margin-top:2px;">+' + (varNames.length - 8) + ' more</div>';
-            } else {
-                html += '<div style="font-size:10px;color:rgba(255,255,255,0.3);font-style:italic;">No variables</div>';
-            }
-        } else {
-            html += '<div style="font-size:10px;color:rgba(255,255,255,0.3);font-style:italic;">Awaiting analysis</div>';
-        }
-        html += '</div>';
-
-        // Step 4: Graders
-        html += '<div class="pipeline-step" style="min-width:220px;background:rgba(212,160,23,0.06);border:1px solid rgba(212,160,23,0.2);">';
-        html += '<div class="step-label" style="color:#D4A017;">STEP 4 — GRADERS</div>';
-        if (gr && gr.profiles) {
-            var profileNames = Object.keys(gr.profiles);
-            var priority = ['sintonia', 'peter'];
-            profileNames.sort(function(a, b) {
-                var ai = priority.indexOf(a), bi = priority.indexOf(b);
-                if (ai !== -1 && bi !== -1) return ai - bi;
-                if (ai !== -1) return -1;
-                if (bi !== -1) return 1;
-                return 0;
-            });
-            html += '<div style="display:grid;grid-template-columns:' + (profileNames.length > 1 ? '1fr 1fr' : '1fr') + ';gap:6px;">';
-            profileNames.forEach(function(pname) {
-                var p = gr.profiles[pname];
-                var pc = pname === 'sintonia' ? '#F72585' : (pname === 'renzo' ? '#9B59B6' : (pname === 'peter' ? '#D4A017' : (pname === 'ai' ? '#00D4AA' : (pname === 'alyssa' ? '#41EAD4' : '#38BDF8'))));
-                html += '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:8px;text-align:center;">';
-                html += '<div style="font-size:9px;font-weight:800;color:' + pc + ';letter-spacing:0.5px;text-transform:uppercase;">' + pname + '</div>';
-                html += '<div style="font-size:24px;font-weight:900;color:' + _gradeColor(p.grade) + ';line-height:1.2;">' + (p.grade || 'N/A') + '</div>';
-                html += '<div style="font-size:10px;color:rgba(255,255,255,0.4);">' + (p.final || 0).toFixed(1) + '</div>';
-                if (p.sizing) html += '<div style="font-size:9px;color:rgba(255,255,255,0.5);margin-top:2px;">' + p.sizing + '</div>';
+                if (varNames.length > 6) html += '<div style="font-size:9px;color:rgba(255,255,255,0.25);margin-top:2px;">+' + (varNames.length - 6) + ' more</div>';
                 html += '</div>';
-            });
-            html += '</div>';
+            }
+            // Grader cards — only our process graders
+            var ourGraders = ['sintonia', 'edge', 'renzo'];
+            var ourKeys = Object.keys(gr.profiles).filter(function(k) { return ourGraders.indexOf(k) !== -1; });
+            if (ourKeys.length > 0) {
+                html += '<div class="grader-grid">';
+                ourKeys.forEach(function(pname) {
+                    var p = gr.profiles[pname];
+                    var pc = pname === 'sintonia' ? '#F72585' : (pname === 'edge' ? '#818cf8' : '#9B59B6');
+                    html += '<div class="grader-card">';
+                    html += '<div style="font-size:9px;font-weight:800;color:' + pc + ';letter-spacing:0.5px;text-transform:uppercase;">' + pname + '</div>';
+                    html += '<div style="font-size:22px;font-weight:900;color:' + _gradeColor(p.grade) + ';line-height:1.2;">' + (p.grade || 'N/A') + '</div>';
+                    html += '<div style="font-size:10px;color:rgba(255,255,255,0.4);">' + (p.final || 0).toFixed(1) + '</div>';
+                    if (p.sizing && p.sizing !== 'PASS') html += '<div style="font-size:9px;color:rgba(255,255,255,0.5);margin-top:2px;">' + p.sizing + '</div>';
+                    if (p.pick_team) html += '<div style="font-size:8px;color:' + pc + ';margin-top:2px;">' + p.pick_team + '</div>';
+                    html += '</div>';
+                });
+                html += '</div>';
+            }
+            // Peter Rules flags
             if (gr.peter_rules && gr.peter_rules.flags && gr.peter_rules.flags.length > 0) {
-                html += '<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:3px;">';
+                html += '<div style="margin-top:8px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.06);">';
+                html += '<div style="font-size:9px;color:rgba(255,255,255,0.35);font-weight:700;margin-bottom:3px;">PETER RULES</div>';
                 gr.peter_rules.flags.forEach(function(f) {
                     var fc = f.action === 'KILL' ? '#ef4444' : (f.action === 'BOOST' ? '#10B981' : '#d4a024');
-                    html += '<span style="font-size:9px;padding:2px 5px;border-radius:3px;background:rgba(255,255,255,0.04);border:1px solid ' + fc + ';color:' + fc + ';">' + f.action + '</span>';
+                    html += '<span style="font-size:9px;padding:2px 6px;border-radius:3px;background:rgba(255,255,255,0.04);border:1px solid ' + fc + ';color:' + fc + ';margin-right:4px;">' + f.action + (f.rule ? ': ' + f.rule : '') + '</span>';
+                });
+                html += '</div>';
+            }
+            // Chains fired
+            if (sintoniaProf && sintoniaProf.chains_fired && sintoniaProf.chains_fired.length > 0) {
+                html += '<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:3px;">';
+                sintoniaProf.chains_fired.forEach(function(c) {
+                    html += '<span style="font-size:8px;background:rgba(247,37,133,0.1);border:1px solid rgba(247,37,133,0.3);color:#F72585;padding:2px 5px;border-radius:3px;">&#9939; ' + c + '</span>';
                 });
                 html += '</div>';
             }
         } else {
-            html += '<div style="font-size:24px;font-weight:900;color:rgba(255,255,255,0.15);text-align:center;padding:12px 0;">N/A</div>';
+            html += '<div style="font-size:11px;color:rgba(255,255,255,0.2);text-align:center;padding:20px 0;">Awaiting analysis</div>';
         }
-        html += '</div>';
+        html += '</div>'; // end lane-our
 
-        // Step 5: Engine
-        html += '<div class="pipeline-step" style="min-width:180px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);text-align:center;display:flex;flex-direction:column;justify-content:center;">';
-        html += '<div class="step-label" style="color:#10B981;">STEP 5 — ENGINE</div>';
-        html += '<div style="font-size:36px;font-weight:900;color:' + gColor + ';line-height:1;">' + grade + '</div>';
-        html += '<div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:2px;">Score: ' + avg + '</div>';
+        // ── RIGHT LANE: AI PROCESS (Crowdsource + Kimi Scout) ──
+        html += '<div class="lane lane-ai">';
+        html += '<div class="lane-title">AI PROCESS</div>';
+        // Crowdsource grades (per-model AI grades)
+        var csGrades = g.crowdsource_grades || [];
+        if (csGrades.length > 0) {
+            html += '<div style="margin-bottom:8px;">';
+            html += '<div style="font-size:9px;color:rgba(255,255,255,0.35);font-weight:700;letter-spacing:0.5px;margin-bottom:4px;">MODEL GRADES</div>';
+            html += '<div class="grader-grid">';
+            csGrades.forEach(function(cs) {
+                html += '<div class="grader-card">';
+                html += '<div style="font-size:8px;font-weight:800;color:#00D4AA;letter-spacing:0.3px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (cs.model || '?') + '</div>';
+                html += '<div style="font-size:22px;font-weight:900;color:' + _gradeColor(cs.grade) + ';line-height:1.2;">' + (cs.grade || '?') + '</div>';
+                html += '<div style="font-size:10px;color:rgba(255,255,255,0.4);">' + (cs.score || 0) + '</div>';
+                if (cs.pick) html += '<div style="font-size:8px;color:#00D4AA;margin-top:2px;">' + cs.pick + '</div>';
+                html += '</div>';
+            });
+            html += '</div>';
+            // Consensus badge
+            var csConsensus = g.crowdsource_consensus || '';
+            if (csConsensus) {
+                var csBadge = csConsensus === 'UNANIMOUS_BP' ? 'badge-lock' : (csConsensus === 'MAJORITY_BP' ? 'badge-aligned' : (csConsensus === 'SPLIT' ? 'badge-close' : 'badge-divergent'));
+                html += '<div style="text-align:center;margin-top:6px;"><span class="convergence-badge ' + csBadge + '" style="font-size:9px;padding:2px 8px;">' + csConsensus.replace(/_/g, ' ') + '</span></div>';
+            }
+            html += '</div>';
+        }
+        // Kimi Scout
+        var kp = g.kimi_profile || {};
+        if (kp.profile_score || kp.tactical_dna) {
+            html += '<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06);">';
+            html += '<div style="font-size:9px;color:rgba(255,255,255,0.35);font-weight:700;letter-spacing:0.5px;margin-bottom:4px;">KIMI SCOUT</div>';
+            if (kp.profile_score) {
+                var kScore = parseFloat(kp.profile_score) || 0;
+                var kColor = kScore >= 7 ? '#10B981' : (kScore >= 5 ? '#00D4AA' : '#ef4444');
+                html += '<div style="text-align:center;margin-bottom:6px;"><span style="font-size:24px;font-weight:900;color:' + kColor + ';">' + kScore.toFixed(1) + '</span><span style="font-size:10px;color:rgba(255,255,255,0.3);">/10</span></div>';
+            }
+            if (kp.profile_tag) html += '<div style="text-align:center;font-size:10px;color:#00D4AA;font-weight:700;margin-bottom:6px;">' + kp.profile_tag + '</div>';
+            // 4 dimensions
+            var dims = [
+                {key: 'tactical_dna', label: 'Tactical', color: '#6366f1'},
+                {key: 'h2h_context', label: 'H2H', color: '#38BDF8'},
+                {key: 'structural_edge', label: 'Structure', color: '#F59E0B'},
+                {key: 'market_signal', label: 'Market', color: '#10B981'}
+            ];
+            html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">';
+            dims.forEach(function(d) {
+                var dv = kp[d.key];
+                var ds = dv ? (dv.score || 0) : 0;
+                html += '<div style="font-size:9px;display:flex;justify-content:space-between;padding:2px 0;"><span style="color:' + d.color + ';">' + d.label + '</span><span style="color:rgba(255,255,255,0.5);font-weight:700;">' + ds + '</span></div>';
+            });
+            html += '</div>';
+            if (kp.pick_team) html += '<div style="text-align:center;font-size:9px;color:#00D4AA;margin-top:4px;font-weight:700;">Pick: ' + kp.pick_team + '</div>';
+            html += '</div>';
+        }
+        // If no AI data at all
+        if (csGrades.length === 0 && !kp.profile_score && !kp.tactical_dna) {
+            html += '<div style="font-size:11px;color:rgba(255,255,255,0.2);text-align:center;padding:20px 0;">Awaiting AI models</div>';
+        }
+        html += '</div>'; // end lane-ai
+
+        html += '</div>'; // end lane-fork
+
+        // ═══ CONVERGENCE: Both lanes merge ═══
+        html += '<div class="convergence">';
+        html += '<div class="convergence-title">CONVERGENCE</div>';
+        // Determine agreement between Our Process and AI Process
+        var ourAvg = gr ? (gr.consensus_avg || 0) : 0;
+        var aiAvg = 0; var aiCount = 0;
+        csGrades.forEach(function(cs) { if (cs.score) { aiAvg += parseFloat(cs.score) || 0; aiCount++; } });
+        if (kp.profile_score) { aiAvg += parseFloat(kp.profile_score) || 0; aiCount++; }
+        aiAvg = aiCount > 0 ? aiAvg / aiCount : 0;
+        var gap = Math.abs(ourAvg - aiAvg);
+        var convergenceLabel = 'PENDING';
+        var convergenceClass = 'badge-close';
+        if (ourAvg > 0 && aiAvg > 0) {
+            if (gap <= 0.8) { convergenceLabel = 'LOCK'; convergenceClass = 'badge-lock'; }
+            else if (gap <= 1.5) { convergenceLabel = 'ALIGNED'; convergenceClass = 'badge-aligned'; }
+            else if (gap <= 2.5) { convergenceLabel = 'CLOSE'; convergenceClass = 'badge-close'; }
+            else { convergenceLabel = 'DIVERGENT'; convergenceClass = 'badge-divergent'; }
+        }
+        html += '<span class="convergence-badge ' + convergenceClass + '">' + convergenceLabel + '</span>';
+        // Score comparison
+        html += '<div class="convergence-row">';
+        html += '<div style="text-align:center;"><div style="font-size:9px;color:#F72585;font-weight:700;">OUR</div><div style="font-size:20px;font-weight:900;color:' + _gradeColor(grade) + ';">' + (ourAvg ? ourAvg.toFixed(1) : '--') + '</div></div>';
+        html += '<div style="font-size:20px;color:rgba(255,255,255,0.15);">vs</div>';
+        html += '<div style="text-align:center;"><div style="font-size:9px;color:#00D4AA;font-weight:700;">AI</div><div style="font-size:20px;font-weight:900;color:' + (aiAvg >= 7 ? '#10B981' : aiAvg >= 5 ? '#d4a024' : '#ef4444') + ';">' + (aiAvg ? aiAvg.toFixed(1) : '--') + '</div></div>';
+        html += '</div>';
+        // Final grade + pick + EV
+        html += '<div style="font-size:42px;font-weight:900;color:' + gColor + ';line-height:1;margin-top:8px;">' + grade + '</div>';
         if (pickTeam && grade !== 'N/A') {
             var sizing = '';
             if (gr && gr.profiles && gr.profiles.sintonia) sizing = gr.profiles.sintonia.sizing || '';
-            html += '<div style="margin-top:8px;background:rgba(212,160,23,0.15);border:1px solid rgba(212,160,23,0.3);color:#D4A017;font-size:12px;font-weight:800;padding:6px 10px;border-radius:6px;">' + pickTeam + (sizing && sizing !== 'PASS' ? ' (' + sizing + ')' : '') + '</div>';
+            html += '<div style="margin-top:8px;display:inline-block;background:rgba(212,160,23,0.15);border:1px solid rgba(212,160,23,0.3);color:#D4A017;font-size:13px;font-weight:800;padding:8px 16px;border-radius:8px;">' + pickTeam + (sizing && sizing !== 'PASS' ? ' (' + sizing + ')' : '') + '</div>';
         }
         if (gr && gr.ev && gr.ev.ev_pct != null) {
             var evPct = gr.ev.ev_pct;
             var evColor = evPct > 0 ? '#10B981' : '#ef4444';
-            html += '<div style="margin-top:4px;font-size:11px;font-weight:700;color:' + evColor + ';">EV: ' + (evPct > 0 ? '+' : '') + evPct.toFixed(1) + '%</div>';
+            html += '<div style="margin-top:6px;font-size:13px;font-weight:700;color:' + evColor + ';">EV: ' + (evPct > 0 ? '+' : '') + evPct.toFixed(1) + '%</div>';
         }
         if (g.kalshi_prob) {
-            html += '<input type="hidden" class="kalshi-data" data-game="' + (g.game_id || idx) + '" data-prob="' + g.kalshi_prob + '" data-strike="' + (g.kalshi_strike || '') + '" data-matchup="' + g.matchup + '">';
+            html += '<div style="margin-top:4px;font-size:10px;color:rgba(255,255,255,0.4);">Kalshi: ' + (parseFloat(g.kalshi_prob) * 100).toFixed(0) + '% implied</div>';
         }
-        if (g.race) {
-            html += '<div style="margin-top:4px;font-size:10px;color:rgba(255,255,255,0.5);">Race: ' + g.race.home_score + '-' + g.race.away_score + '</div>';
-            html += '<div style="font-size:10px;color:rgba(255,255,255,0.4);">' + (g.race.confidence || '') + '</div>';
-        }
-        html += '<button class="regrade-btn" onclick="event.stopPropagation();regradeGame(\'' + g.game_id + '\')">RE-GRADE</button>';
-        html += '</div>';
-
-        html += '</div>'; // end pipeline-row
+        html += '<button class="regrade-btn" onclick="event.stopPropagation();regradeGame(\'' + g.game_id + '\')" style="margin-top:10px;">RE-GRADE</button>';
+        html += '</div>'; // end convergence
 
         // Expandable detail
         html += '<div id="peter-detail-' + idx + '" style="display:none;margin-top:10px;border-top:1px solid rgba(255,255,255,0.06);padding-top:10px;">';
