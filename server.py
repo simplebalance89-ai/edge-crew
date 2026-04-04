@@ -16483,9 +16483,16 @@ async def _run_profedge_batch_grade(sport: str):
         logger.info(f"[PROFEDGE GRADE] No games for {sport_key}")
         return {"graded": 0, "sport": sport_key}
 
-    # ===== Freshness check: validate analysis games exist in current odds =====
-    # CRITICAL: if odds cache is empty, fetch fresh odds so the check is never skipped.
-    # Skipping this check is what caused stale games (yesterday's NHL) to leak through.
+    # ===== Freshness check: validate analysis is from today =====
+    # If analysis was generated today, trust it. Only reject if it's from a previous day.
+    _analysis_date = live_data.get("generated_at", "")[:10] or live_data.get("cached_at", "")[:10]
+    _today_str = datetime.now(PST).strftime("%Y-%m-%d")
+    if _analysis_date == _today_str:
+        logger.info(f"[PROFEDGE GRADE] {sport_key.upper()}: analysis from today ({_analysis_date}) — grading {len(live_games)} games")
+    elif _analysis_date:
+        logger.warning(f"[PROFEDGE GRADE] {sport_key.upper()}: analysis from {_analysis_date} (not today {_today_str}) — skipping")
+        return {"graded": 0, "sport": sport_key, "reason": "stale_analysis"}
+    # Legacy odds cross-check kept but relaxed — only used for odds merging, not filtering
     odds_cache_key_check = f"{sport_key}:h2h,spreads,totals"
     odds_raw_check = _get_cached(odds_cache_key_check)
     if not odds_raw_check:
@@ -16506,50 +16513,11 @@ async def _run_profedge_batch_grade(sport: str):
         else:
             _odds_games_check = []
         if _odds_games_check:
-            # Build fuzzy matchup set using team nicknames (last word) for cross-format matching
-            _current_nicknames = set()
-            for _og in _odds_games_check:
-                _away = (_og.get("away") or _og.get("away_team") or "").strip().lower()
-                _home = (_og.get("home") or _og.get("home_team") or "").strip().lower()
-                _away_nick = _away.split()[-1] if _away.split() else _away
-                _home_nick = _home.split()[-1] if _home.split() else _home
-                _current_nicknames.add(f"{_away_nick}@{_home_nick}")
-                _current_nicknames.add(f"{_away} @ {_home}")  # also keep exact match
-            _fresh_games = []
-            for _ag in live_games:
-                _m = (_ag.get("matchup", "") or "").strip().lower()
-                # Try exact match first
-                if _m in _current_nicknames:
-                    _fresh_games.append(_ag)
-                    continue
-                # Try nickname match
-                _parts = _m.split(" @ ") if " @ " in _m else _m.split(" vs ")
-                if len(_parts) == 2:
-                    _a_nick = _parts[0].strip().split()[-1] if _parts[0].strip().split() else ""
-                    _h_nick = _parts[1].strip().split()[-1] if _parts[1].strip().split() else ""
-                    if f"{_a_nick}@{_h_nick}" in _current_nicknames:
-                        _fresh_games.append(_ag)
-                        continue
-                # No match — skip this game
-            if _fresh_games:
-                logger.info(f"[PROFEDGE GRADE] {sport_key.upper()}: {len(_fresh_games)}/{len(live_games)} games validated against current odds")
-                live_games = _fresh_games
-            elif live_games:
-                # Fail-open: if NO games match but analysis is from today, trust it
-                _analysis_date = live_data.get("generated_at", "")[:10] or live_data.get("cached_at", "")[:10]
-                _today_str = datetime.now(PST).strftime("%Y-%m-%d")
-                if _analysis_date == _today_str:
-                    logger.warning(f"[PROFEDGE GRADE] {sport_key.upper()}: no odds matchup matches but analysis is from today — grading anyway")
-                else:
-                    logger.warning(f"[PROFEDGE GRADE] {sport_key.upper()}: ALL {len(live_games)} analysis games are stale (no odds match, analysis from {_analysis_date}) — skipping")
-                    live_games = []
+            logger.info(f"[PROFEDGE GRADE] {sport_key.upper()}: {len(_odds_games_check)} odds games available for merging")
         else:
-            logger.info(f"[PROFEDGE GRADE] {sport_key.upper()}: no odds games in response — grading from analysis only")
+            logger.info(f"[PROFEDGE GRADE] {sport_key.upper()}: no odds games — grading from analysis only")
     else:
-        logger.info(f"[PROFEDGE GRADE] {sport_key.upper()}: no odds available — grading from analysis only")
-    if not live_games:
-        logger.info(f"[PROFEDGE GRADE] No fresh games for {sport_key} after validation")
-        return {"graded": 0, "sport": sport_key}
+        logger.info(f"[PROFEDGE GRADE] {sport_key.upper()}: no odds cache — grading from analysis only")
 
     # Merge odds from cache onto analysis games (analysis cache doesn't carry odds)
     odds_cache_key = f"{sport_key}:h2h,spreads,totals"
