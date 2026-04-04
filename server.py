@@ -1521,38 +1521,45 @@ Output a clean scouting brief for each game. Keep it dense and factual — Kimi 
 
 Format as plain text, one section per game, with the 4 dimension headers."""
 
-    # Try Grok 4.1 Thinking first (best at synthesis), fallback to DeepSeek R1
+    # S4 Bridge uses Sweden Central AI Services (Grok + DeepSeek + Kimi all deployed here)
+    S4_ENDPOINT = os.environ.get(
+        "S4_BRIDGE_ENDPOINT",
+        "https://peter-mna31gr3-swedencentral.services.ai.azure.com/openai/v1/"
+    )
+    S4_KEY = os.environ.get("S4_BRIDGE_KEY", AZURE_KEY)
+
+    # Try DeepSeek V3 first (fast, reliable formatter), then Grok 4.1 (deep reasoning, slower)
     models_to_try = [
-        ("grok-4-1-fast-reasoning", THINKER_ENDPOINT),
-        (ANALYSIS_THINKER, THINKER_ENDPOINT),  # DeepSeek-R1-0528
+        ("DeepSeek-V3-0324", 60),     # Fast formatter — 60s timeout
+        ("grok-4-1-fast-reasoning", 180),  # Deep reasoning — 180s timeout
     ]
 
-    for model_name, endpoint in models_to_try:
+    for model_name, timeout in models_to_try:
         try:
-            if "openai.azure.com" in endpoint:
-                client = AzureOpenAI(
-                    azure_endpoint=endpoint,
-                    api_key=AZURE_KEY,
-                    api_version="2024-10-21",
-                    timeout=120,
-                )
-            else:
-                client = OpenAI(
-                    base_url=endpoint,
-                    api_key=AZURE_KEY,
-                    timeout=120,
-                )
-            logger.info(f"[S4 BRIDGE] Formatting {game_count} games for Kimi via {model_name}")
+            client = OpenAI(
+                base_url=S4_ENDPOINT,
+                api_key=S4_KEY,
+                timeout=timeout,
+            )
+            logger.info(f"[S4 BRIDGE] Formatting {game_count} games for Kimi via {model_name} (timeout={timeout}s)")
             start = time.time()
             resp = client.chat.completions.create(
                 model=model_name,
                 messages=[{"role": "user", "content": synthesis_prompt}],
                 max_tokens=8000,
             )
-            brief = resp.choices[0].message.content.strip()
+            brief = resp.choices[0].message.content or ""
+            # Grok returns reasoning in reasoning_content, content may be separate
+            if not brief and hasattr(resp.choices[0].message, 'reasoning_content'):
+                brief = resp.choices[0].message.reasoning_content or ""
+            brief = brief.strip()
             secs = round(time.time() - start, 1)
             logger.info(f"[S4 BRIDGE] {model_name} done in {secs}s, {len(brief)} chars")
-            return brief
+            if brief and len(brief) > 50:
+                return brief
+            else:
+                logger.warning(f"[S4 BRIDGE] {model_name} returned short/empty response, trying next")
+                continue
         except Exception as e:
             logger.warning(f"[S4 BRIDGE] {model_name} failed: {e}")
             continue
