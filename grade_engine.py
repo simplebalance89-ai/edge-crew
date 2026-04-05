@@ -6,6 +6,7 @@ Reads from data/, writes to grades/.
 
 import json
 import math
+import random
 import sys
 from datetime import datetime
 
@@ -2766,6 +2767,34 @@ def grade_all(sport: str | None = None, date: str | None = None, profiles: list[
                         continue
 
                     game_grades["profiles"][profile_name] = grade_result
+
+                # Add "crew" — random-weighted blend of all profiles (from v3)
+                real_profiles = {k: v for k, v in game_grades["profiles"].items() if k in ("sintonia", "edge", "renzo", "claude")}
+                if len(real_profiles) >= 3:
+                    blend_weights = {name: random.uniform(0.2, 0.5) for name in real_profiles}
+                    total_bw = sum(blend_weights.values())
+                    blend_weights = {k: v / total_bw for k, v in blend_weights.items()}
+
+                    crew_final = sum(real_profiles[name]["final"] * blend_weights[name] for name in real_profiles)
+                    crew_final = round(max(1.0, min(10.0, crew_final)), 2)
+                    crew_grade = score_to_grade(crew_final)
+
+                    # Crew picks whichever side the majority of profiles pick
+                    side_votes = {}
+                    for pname, pdata in real_profiles.items():
+                        p_side = pdata.get("pick_side", side)
+                        side_votes[p_side] = side_votes.get(p_side, 0) + 1
+                    crew_pick = max(side_votes, key=side_votes.get) if side_votes else side
+
+                    game_grades["profiles"]["crew"] = {
+                        "grade": crew_grade,
+                        "final": crew_final,
+                        "composite": crew_final,
+                        "sizing": SIZING_MAP.get(crew_grade, "PASS"),
+                        "chains_fired": [],
+                        "pick_side": crew_pick,
+                        "blend": {k: round(v, 2) for k, v in blend_weights.items()},
+                    }
 
                 # Consensus: average of ENGINE profiles only (exclude Renzo — independent grader)
                 engine_profiles = {k: v for k, v in game_grades["profiles"].items() if k != "renzo"}

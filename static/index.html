@@ -11431,7 +11431,7 @@ function renderProEdgeGames(games, container) {
         if (gr && gr.profiles) {
             // Detect if profiles = grader names (batch-graded) or variable names (analysis fallback)
             var profKeys = Object.keys(gr.profiles);
-            var graderNames = ['sintonia','edge','renzo','claude','peter','ai','alyssa'];
+            var graderNames = ['sintonia','edge','renzo','claude','crew','peter','ai','alyssa'];
             var hasBatchGrades = profKeys.some(function(k) { return graderNames.indexOf(k) !== -1; });
 
             if (hasBatchGrades) {
@@ -11456,19 +11456,20 @@ function renderProEdgeGames(games, container) {
                     }
                 }
                 // Grader cards
-                var ourGraders = ['sintonia','edge','renzo'];
+                var ourGraders = ['sintonia','edge','renzo','crew'];
                 var ourKeys = profKeys.filter(function(k) { return ourGraders.indexOf(k) !== -1; });
                 if (ourKeys.length > 0) {
                     html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(80px,1fr));gap:6px;">';
                     ourKeys.forEach(function(pname) {
                         var p = gr.profiles[pname];
-                        var pc = pname === 'sintonia' ? '#F72585' : (pname === 'edge' ? '#818cf8' : '#9B59B6');
+                        var pc = pname === 'sintonia' ? '#F72585' : (pname === 'edge' ? '#818cf8' : (pname === 'crew' ? '#D4A017' : '#9B59B6'));
                         html += '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:8px;text-align:center;">';
                         html += '<div style="font-size:9px;font-weight:800;color:' + pc + ';text-transform:uppercase;">' + pname + '</div>';
                         html += '<div style="font-size:22px;font-weight:900;color:' + _gradeColor(p.grade) + ';line-height:1.2;">' + (p.grade||'?') + '</div>';
                         html += '<div style="font-size:10px;color:rgba(255,255,255,0.4);">' + (p.final||0).toFixed(1) + '</div>';
                         if (p.sizing && p.sizing !== 'PASS') html += '<div style="font-size:9px;color:rgba(255,255,255,0.5);margin-top:2px;">' + p.sizing + '</div>';
                         if (pname === 'renzo' && p.mathurin_test) html += '<div style="font-size:8px;color:' + (p.mathurin_test==='PASS'?'#22c55e':'#ef4444') + ';margin-top:2px;">Mathurin: ' + p.mathurin_test + '</div>';
+                        if (pname === 'crew' && p.blend) { var blendStr = Object.keys(p.blend).map(function(bk){ return bk.charAt(0).toUpperCase() + ':' + Math.round(p.blend[bk]*100) + '%'; }).join(' '); html += '<div style="font-size:7px;color:rgba(255,255,255,0.3);margin-top:2px;">' + blendStr + '</div>'; }
                         var pp = gr.profile_picks ? gr.profile_picks[pname] : null;
                         if (pp && pp.pick !== 'tie') { var ppTeam = pp.pick === 'home' ? (g.home_abbrev||'HOME') : (g.away_abbrev||'AWAY'); html += '<div style="font-size:8px;color:' + (pp.pick === pickSide ? '#22c55e' : '#ef4444') + ';margin-top:2px;font-weight:700;">' + ppTeam + '</div>'; }
                         html += '</div>';
@@ -11519,19 +11520,34 @@ function renderProEdgeGames(games, container) {
         // ── RIGHT LANE: AI PROCESS ──
         html += '<div style="background:rgba(0,212,170,0.04);border:1px solid rgba(0,212,170,0.2);border-radius:12px;padding:12px;">';
         html += '<div style="font-size:10px;font-weight:900;letter-spacing:1.5px;color:#00D4AA;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.06);">AI PROCESS</div>';
-        // Crowdsource
+        // Crowdsource — 9 AI model cards with picks + thesis (v3 sync)
         var csGrades = g.crowdsource_grades || [];
         var csConsensus = g.crowdsource_consensus || '';
         if (csGrades.length > 0) {
-            html += '<div style="margin-bottom:8px;"><div style="font-size:9px;color:rgba(255,255,255,0.35);font-weight:700;letter-spacing:0.5px;margin-bottom:4px;">MODEL GRADES</div>';
-            html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(80px,1fr));gap:6px;">';
+            html += '<div style="margin-bottom:8px;"><div style="font-size:9px;color:rgba(255,255,255,0.35);font-weight:700;letter-spacing:0.5px;margin-bottom:4px;">MODEL GRADES (' + csGrades.length + ' models)</div>';
+            html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;">';
             csGrades.forEach(function(cs) {
                 var csc = (cs.grade||'').startsWith('A') ? '#10B981' : (cs.grade||'').startsWith('B') ? '#38BDF8' : '#d4a024';
-                html += '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:8px;text-align:center;">';
-                html += '<div style="font-size:8px;font-weight:800;color:#00D4AA;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (cs.model||'?') + '</div>';
-                html += '<div style="font-size:22px;font-weight:900;color:' + csc + ';line-height:1.2;">' + (cs.grade||'?') + '</div>';
-                html += '<div style="font-size:10px;color:rgba(255,255,255,0.4);">' + (cs.score||0).toFixed(1) + '</div>';
-                if (cs.pick && cs.pick.team) html += '<div style="font-size:8px;color:#00D4AA;margin-top:2px;">' + cs.pick.team + '</div>';
+                html += '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:6px;text-align:center;">';
+                html += '<div style="font-size:7px;font-weight:800;color:#00D4AA;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (cs.model||'?') + '</div>';
+                html += '<div style="font-size:18px;font-weight:900;color:' + csc + ';line-height:1.2;">' + (cs.grade||'?') + '</div>';
+                html += '<div style="font-size:9px;color:rgba(255,255,255,0.4);">' + (cs.score||0).toFixed(1) + '</div>';
+                if (cs.pick && cs.pick.team) html += '<div style="font-size:7px;font-weight:700;color:#38BDF8;margin-top:1px;">' + cs.pick.team + '</div>';
+                html += '</div>';
+            });
+            html += '</div>';
+            // Per-model thesis section (v3 feature)
+            html += '<div style="margin-top:6px;border-top:1px solid rgba(255,255,255,0.06);padding-top:6px;">';
+            csGrades.forEach(function(cs) {
+                var csc = (cs.grade||'').startsWith('A') ? '#10B981' : (cs.grade||'').startsWith('B') ? '#38BDF8' : '#d4a024';
+                html += '<div style="margin-bottom:4px;">';
+                html += '<div style="display:flex;align-items:center;gap:4px;">';
+                html += '<span style="font-size:8px;font-weight:800;color:rgba(0,212,170,0.8);">' + (cs.model||'?') + '</span>';
+                html += '<span style="font-size:8px;font-family:monospace;color:' + csc + ';">' + (cs.grade||'?') + '</span>';
+                if (cs.pick && cs.pick.team) html += '<span style="font-size:8px;font-weight:700;color:#38BDF8;">' + cs.pick.team + '</span>';
+                html += '</div>';
+                var thesis = (cs.pick && cs.pick.reasoning) || cs.thesis || '';
+                if (thesis) html += '<div style="font-size:9px;color:rgba(255,255,255,0.35);line-height:1.4;max-height:28px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">' + thesis + '</div>';
                 html += '</div>';
             });
             html += '</div>';
@@ -11706,7 +11722,7 @@ function renderProEdgeGames(games, container) {
             html += '<div style="display:flex;gap:10px;flex-wrap:wrap;">';
             Object.keys(gr.profiles).forEach(function(pname) {
                 var p = gr.profiles[pname];
-                var pc = pname === 'sintonia' ? '#F72585' : (pname === 'renzo' ? '#9B59B6' : (pname === 'peter' ? '#D4A017' : (pname === 'ai' ? '#00D4AA' : (pname === 'alyssa' ? '#41EAD4' : '#38BDF8'))));
+                var pc = pname === 'sintonia' ? '#F72585' : (pname === 'renzo' ? '#9B59B6' : (pname === 'crew' ? '#D4A017' : (pname === 'peter' ? '#D4A017' : (pname === 'ai' ? '#00D4AA' : (pname === 'alyssa' ? '#41EAD4' : '#38BDF8')))));
                 html += '<div style="flex:1;min-width:200px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:10px;">';
                 html += '<div style="font-size:10px;color:' + pc + ';font-weight:700;text-transform:uppercase;margin-bottom:4px;">' + pname + ' — ALL VARIABLES</div>';
                 if (p.variables) {

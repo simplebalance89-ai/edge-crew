@@ -7861,6 +7861,8 @@ Return ONLY valid JSON. No markdown fences. No explanation."""
             {"name": "DeepSeek-R1-0528", "endpoint": "ai_services", "display": "DeepSeek R1"},
             {"name": "Kimi-K2.5", "endpoint": "ai_services", "display": "Kimi K2.5"},
             {"name": "claude-sonnet-4-6", "endpoint": "anthropic", "display": "Claude 4.6"},
+            {"name": "Phi-4-reasoning", "endpoint": "gce", "display": "Phi-4 Reasoning"},
+            {"name": "qwen3-32b", "endpoint": "ai_services", "display": "Qwen 3-32B"},
         ]
 
     def _grade_distance(grade_a, grade_b):
@@ -16887,6 +16889,7 @@ async def _run_profedge_regrade(game_id: str, sport: str):
         grade_sintonia, grade_renzo, grade_claude, grade_edge, grade_peter_rules, score_to_grade, calculate_ev = _load_profedge_grade_engine()
         target_game = _prepare_profedge_game_for_grading(target_game)
 
+        import random as _rng
         results = {}
         for side in ["home", "away"]:
             sintonia = grade_sintonia(target_game, side)
@@ -16894,6 +16897,19 @@ async def _run_profedge_regrade(game_id: str, sport: str):
             claude = grade_claude(target_game, side)
             edge = grade_edge(target_game, side)
             peter = grade_peter_rules(target_game, side)
+
+            # Crew — random-weighted blend of all 4 profiles (v3 sync)
+            _all_profs = {"sintonia": sintonia, "renzo": renzo, "claude": claude, "edge": edge}
+            _bw = {k: _rng.uniform(0.2, 0.5) for k in _all_profs}
+            _bw_total = sum(_bw.values())
+            _bw = {k: v / _bw_total for k, v in _bw.items()}
+            crew_final = sum(_all_profs[k]["final"] * _bw[k] for k in _all_profs)
+            crew_final = round(max(1.0, min(10.0, crew_final)), 2)
+            crew = {
+                "grade": score_to_grade(crew_final), "final": crew_final, "composite": crew_final,
+                "sizing": "", "chains_fired": [], "pick_side": side,
+                "blend": {k: round(v, 2) for k, v in _bw.items()},
+            }
 
             avg_final = (sintonia["final"] + renzo["final"] + claude["final"] + edge["final"]) / 4
             adjusted = round(avg_final + peter["adjustment"], 2)
@@ -16904,7 +16920,7 @@ async def _run_profedge_regrade(game_id: str, sport: str):
             ev = calculate_ev(target_game, side, adjusted)
 
             results[side] = {
-                "profiles": {"sintonia": sintonia, "renzo": renzo, "claude": claude, "edge": edge},
+                "profiles": {"sintonia": sintonia, "renzo": renzo, "claude": claude, "edge": edge, "crew": crew},
                 "peter_rules": peter,
                 "consensus_avg": adjusted,
                 "consensus_grade": score_to_grade(adjusted),
@@ -16937,6 +16953,13 @@ async def _run_profedge_regrade(game_id: str, sport: str):
                 "away_score": a_score,
                 "margin": round(abs(h_score - a_score), 2),
             }
+        # Add crew to profile picks
+        h_crew = results["home"]["profiles"].get("crew", {}).get("final", 0)
+        a_crew = results["away"]["profiles"].get("crew", {}).get("final", 0)
+        profile_picks["crew"] = {
+            "pick": "home" if h_crew > a_crew else ("away" if a_crew > h_crew else "tie"),
+            "home_score": h_crew, "away_score": a_crew, "margin": round(abs(h_crew - a_crew), 2),
+        }
         best["profile_picks"] = profile_picks
 
         best["game_id"] = game_id
@@ -17170,6 +17193,7 @@ async def _run_profedge_batch_grade(sport: str):
         })
 
         # Grade both sides
+        import random as _rng2
         results = {}
         for side in ["home", "away"]:
             sintonia = grade_sintonia(game, side)
@@ -17177,6 +17201,20 @@ async def _run_profedge_batch_grade(sport: str):
             claude = grade_claude(game, side)
             edge = grade_edge(game, side)
             peter = grade_peter_rules(game, side)
+
+            # Crew — random-weighted blend (v3 sync)
+            _ap = {"sintonia": sintonia, "renzo": renzo, "claude": claude, "edge": edge}
+            _bw = {k: _rng2.uniform(0.2, 0.5) for k in _ap}
+            _bwt = sum(_bw.values())
+            _bw = {k: v / _bwt for k, v in _bw.items()}
+            _cf = sum(_ap[k]["final"] * _bw[k] for k in _ap)
+            _cf = round(max(1.0, min(10.0, _cf)), 2)
+            crew = {
+                "grade": score_to_grade(_cf), "final": _cf, "composite": _cf,
+                "sizing": "", "chains_fired": [], "pick_side": side,
+                "blend": {k: round(v, 2) for k, v in _bw.items()},
+            }
+
             avg_final = (sintonia["final"] + renzo["final"] + claude["final"] + edge["final"]) / 4
             adjusted = round(avg_final + peter["adjustment"], 2)
             adjusted = max(0, min(10, adjusted))
@@ -17184,7 +17222,7 @@ async def _run_profedge_batch_grade(sport: str):
                 adjusted = min(adjusted, 2.9)
             ev = calculate_ev(game, side, adjusted)
             results[side] = {
-                "profiles": {"sintonia": sintonia, "renzo": renzo, "claude": claude, "edge": edge},
+                "profiles": {"sintonia": sintonia, "renzo": renzo, "claude": claude, "edge": edge, "crew": crew},
                 "peter_rules": peter,
                 "consensus_avg": adjusted,
                 "consensus_grade": score_to_grade(adjusted),
@@ -17208,7 +17246,7 @@ async def _run_profedge_batch_grade(sport: str):
 
         # Per-profile picks: which team does each grader individually favor?
         profile_picks = {}
-        for pname in ["sintonia", "renzo", "claude", "edge"]:
+        for pname in ["sintonia", "renzo", "claude", "edge", "crew"]:
             h_score = results["home"]["profiles"].get(pname, {}).get("final", 0)
             a_score = results["away"]["profiles"].get(pname, {}).get("final", 0)
             profile_picks[pname] = {
